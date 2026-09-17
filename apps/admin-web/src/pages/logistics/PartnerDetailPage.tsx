@@ -53,16 +53,23 @@ import {
   capabilityKey,
   capabilityKindKey,
   contractKey,
+  createPartnerDriver,
+  createPartnerVehicle,
   decideCapability,
   fetchPartner,
+  fetchPartnerDrivers,
+  fetchPartnerVehicles,
   invitePartnerUser,
+  partnerDriversKey,
   partnerStatusTone,
+  partnerVehiclesKey,
   roleKey,
   saveSlaPolicy,
   scopeKey,
   setPartnerRegions,
   setPartnerStatus,
   statusKey,
+  updatePartnerDriver,
   type CapabilityKind,
   type CapabilityState,
   type LogisticsRole,
@@ -265,6 +272,7 @@ export function LogisticsPartnerDetailPage(): React.JSX.Element {
       <RegionsCard partner={partner} />
       <SlaPoliciesCard partner={partner} />
       <MembersCard partner={partner} />
+      <FleetCard partner={partner} />
     </div>
   );
 }
@@ -1295,6 +1303,632 @@ function SlaPoliciesCard({ partner }: { partner: PartnerDetail }): React.JSX.Ele
 // ---------------------------------------------------------------------------
 // People
 // ---------------------------------------------------------------------------
+
+/** What the fleet driver form is working on. */
+interface FleetDriverDraft {
+  /** Typed, not picked: most of a fleet has no account to pick from. */
+  fullName: string;
+  phone: string;
+  employeeReference: string;
+  licenceNumber: string;
+  /** `YYYY-MM-DD`, as a date input gives it. */
+  licenceExpiresAt: string;
+  canCarryColdChain: boolean;
+  canCarrySterile: boolean;
+  canCarryDangerousGoods: boolean;
+}
+
+const EMPTY_FLEET_DRIVER: FleetDriverDraft = {
+  fullName: '',
+  phone: '',
+  employeeReference: '',
+  licenceNumber: '',
+  licenceExpiresAt: '',
+  canCarryColdChain: false,
+  canCarrySterile: false,
+  canCarryDangerousGoods: false,
+};
+
+/** What the vehicle form is working on. */
+interface FleetVehicleDraft {
+  registration: string;
+  kind: string;
+  hasRefrigeration: boolean;
+  hasTailLift: boolean;
+  /** Degrees Celsius, as typed. Empty is "not recorded". */
+  temperatureMinC: string;
+  temperatureMaxC: string;
+  /** Kilograms, as typed. Sent as grams: a weight is integer minor units. */
+  maxWeightKg: string;
+}
+
+const EMPTY_FLEET_VEHICLE: FleetVehicleDraft = {
+  registration: '',
+  kind: 'VAN',
+  hasRefrigeration: false,
+  hasTailLift: false,
+  temperatureMinC: '',
+  temperatureMaxC: '',
+  maxWeightKg: '',
+};
+
+const FLEET_VEHICLE_KINDS = [
+  'VAN',
+  'TRUCK',
+  'BIKE',
+  'CAR',
+  'REFRIGERATED_VAN',
+  'REFRIGERATED_TRUCK',
+] as const;
+/**
+ * A carrier's drivers and vans, from the operations desk.
+ *
+ * WHY THE MARKETPLACE HOLDS A FORM FOR SOMEBODY ELSE'S STAFF
+ *
+ * Because the desk is asked to. A small haulier who works from a phone, a
+ * carrier onboarded this morning who has not opened the portal yet, an agency
+ * driver put on a round at eight in the evening - in each of those the desk
+ * takes the name over the phone, and the alternative to this card is a driver
+ * who exists in the depot and nowhere in the system.
+ *
+ * It is the SAME fleet the carrier sees. Not a marketplace-side shadow copy:
+ * one register, two doors into it, so a driver added here appears in the
+ * carrier's own portal and one added there appears here. Two registers that
+ * had to be reconciled would be the bug this avoids.
+ *
+ * A NAME IS ALL THAT IS REQUIRED
+ *
+ * No account, no invitation, no email round trip. Linking a colleague's
+ * account is offered on the carrier's own screen, where the team list lives;
+ * it is deliberately absent here, because choosing which of another company's
+ * staff gets a phone app is their decision rather than the desk's.
+ *
+ * Everything written here lands in the carrier's own audit trail named as the
+ * marketplace, so they can see what was done in their name.
+ */
+function FleetCard({ partner }: { partner: PartnerDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const { can } = useSession();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const [driverDraft, setDriverDraft] = useState<FleetDriverDraft | null>(null);
+  const [vehicleDraft, setVehicleDraft] = useState<FleetVehicleDraft | null>(null);
+
+  const mayRead = can(Permission.LOGISTICS_READ);
+  const mayWrite = can(Permission.LOGISTICS_WRITE);
+
+  const drivers = useQuery({
+    queryKey: partnerDriversKey(partner.id),
+    queryFn: () => fetchPartnerDrivers(partner.id),
+    enabled: mayRead,
+    retry: false,
+  });
+
+  const vehicles = useQuery({
+    queryKey: partnerVehiclesKey(partner.id),
+    queryFn: () => fetchPartnerVehicles(partner.id),
+    enabled: mayRead,
+    retry: false,
+  });
+
+  const saveDriver = useMutation({
+    mutationFn: (input: FleetDriverDraft) => {
+      const licence = input.licenceNumber.trim();
+      const phone = input.phone.trim();
+      const reference = input.employeeReference.trim();
+
+      return createPartnerDriver(partner.id, {
+        fullName: input.fullName.trim(),
+        // Empty means "not recorded", so it is omitted rather than sent as an
+        // empty string: a licence number of "" is not a licence number.
+        ...(phone === '' ? {} : { phone }),
+        ...(reference === '' ? {} : { employeeReference: reference }),
+        ...(licence === '' ? {} : { licenceNumber: licence }),
+        ...(input.licenceExpiresAt === '' ? {} : { licenceExpiresAt: input.licenceExpiresAt }),
+        canCarryColdChain: input.canCarryColdChain,
+        canCarrySterile: input.canCarrySterile,
+        canCarryDangerousGoods: input.canCarryDangerousGoods,
+      });
+    },
+    onSuccess: async () => {
+      toast.success(t('logistics.fleet.driverAdded'));
+      setDriverDraft(null);
+      await queryClient.invalidateQueries({ queryKey: partnerDriversKey(partner.id) });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  /** Stand somebody down, or bring them back. A patch of one field. */
+  const setDriverState = useMutation({
+    mutationFn: (input: { id: string; state: 'ACTIVE' | 'INACTIVE' }) =>
+      updatePartnerDriver(partner.id, input.id, { state: input.state }),
+    onSuccess: async () => {
+      toast.success(t('common.saved'));
+      await queryClient.invalidateQueries({ queryKey: partnerDriversKey(partner.id) });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const saveVehicle = useMutation({
+    mutationFn: (input: FleetVehicleDraft) => {
+      const min = Number.parseFloat(input.temperatureMinC);
+      const max = Number.parseFloat(input.temperatureMaxC);
+      const kg = Number.parseFloat(input.maxWeightKg);
+
+      return createPartnerVehicle(partner.id, {
+        registration: input.registration.trim(),
+        kind: input.kind,
+        hasRefrigeration: input.hasRefrigeration,
+        hasTailLift: input.hasTailLift,
+        ...(Number.isFinite(min) ? { temperatureMinC: min } : {}),
+        ...(Number.isFinite(max) ? { temperatureMaxC: max } : {}),
+        // Typed in kilograms because that is what is written on the van;
+        // stored in grams because a weight is an integer in minor units.
+        ...(Number.isFinite(kg) ? { maxWeightGrams: Math.round(kg * 1000) } : {}),
+      });
+    },
+    onSuccess: async () => {
+      toast.success(t('logistics.fleet.vehicleAdded'));
+      setVehicleDraft(null);
+      await queryClient.invalidateQueries({ queryKey: partnerVehiclesKey(partner.id) });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  if (!mayRead) return null;
+
+  const driverRows = drivers.data?.drivers ?? [];
+  const vehicleRows = vehicles.data?.vehicles ?? [];
+
+  return (
+    <>
+      <Card
+        title={t('logistics.fleet.heading')}
+        description={t('logistics.fleet.intro')}
+        actions={
+          mayWrite ? (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setVehicleDraft(EMPTY_FLEET_VEHICLE);
+                  saveVehicle.reset();
+                }}
+              >
+                {t('logistics.fleet.addVehicle')}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setDriverDraft(EMPTY_FLEET_DRIVER);
+                  saveDriver.reset();
+                }}
+              >
+                {t('logistics.fleet.addDriver')}
+              </Button>
+            </div>
+          ) : undefined
+        }
+      >
+        {drivers.isPending ? (
+          <div className="px-5 py-4">
+            <LoadingState label={t('common.loading')} />
+          </div>
+        ) : driverRows.length === 0 ? (
+          <EmptyState
+            title={t('logistics.fleet.noDriversTitle')}
+            description={t('logistics.fleet.noDriversBody')}
+          />
+        ) : (
+          <ul className="divide-y divide-border-subtle">
+            {driverRows.map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-wrap items-start justify-between gap-3 px-5 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
+                    {row.fullName}
+                    <Badge tone={row.state === 'ACTIVE' ? 'success' : 'neutral'} dot>
+                      {humanise(row.state)}
+                    </Badge>
+                    {/* Said on the row rather than in a tooltip: it is the
+                        answer to "why can this driver not see their tasks?",
+                        and that is asked while looking at the list. */}
+                    {!row.hasPortalAccess && (
+                      <Badge tone="neutral">{t('logistics.fleet.recordOnly')}</Badge>
+                    )}
+                  </p>
+
+                  <p className="mt-1 text-xxs text-ink-subtle">
+                    {[
+                      row.phone,
+                      row.employeeReference,
+                      row.licenceExpiresAt === null
+                        ? null
+                        : t('logistics.fleet.licenceUntil', {
+                            date: formatDate(row.licenceExpiresAt),
+                          }),
+                      t('logistics.fleet.carrying', { count: row.openTasks }),
+                    ]
+                      .filter((part): part is string => part !== null && part !== '')
+                      .join(' · ')}
+                  </p>
+
+                  {/* What they may carry, which is checked before a driver can
+                      be put on a consignment. An unticked box is a refusal at
+                      assignment time, not a formality. */}
+                  {(row.canCarryColdChain ||
+                    row.canCarrySterile ||
+                    row.canCarryDangerousGoods) && (
+                    <p className="mt-1 flex flex-wrap gap-1">
+                      {row.canCarryColdChain && (
+                        <Badge tone="neutral">{t('logistics.fleet.coldChain')}</Badge>
+                      )}
+                      {row.canCarrySterile && (
+                        <Badge tone="neutral">{t('logistics.fleet.sterile')}</Badge>
+                      )}
+                      {row.canCarryDangerousGoods && (
+                        <Badge tone="warning">{t('logistics.fleet.dangerousGoods')}</Badge>
+                      )}
+                    </p>
+                  )}
+                </div>
+
+                {mayWrite && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={setDriverState.isPending}
+                    onClick={() => {
+                      setDriverState.mutate({
+                        id: row.id,
+                        state: row.state === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE',
+                      });
+                    }}
+                  >
+                    {row.state === 'ACTIVE'
+                      ? t('logistics.fleet.standDown')
+                      : t('logistics.fleet.bringBack')}
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="border-t border-border-subtle px-5 py-4">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-ink-subtle">
+            {t('logistics.fleet.vehicles')}
+          </h3>
+
+          {vehicleRows.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-muted">{t('logistics.fleet.noVehicles')}</p>
+          ) : (
+            <ul className="mt-2 space-y-1">
+              {vehicleRows.map((row) => (
+                <li key={row.id} className="flex flex-wrap items-center gap-2 text-sm text-ink">
+                  <span className="font-mono text-xs">{row.registration}</span>
+                  <span className="text-ink-muted">{humanise(row.kind)}</span>
+                  {row.hasRefrigeration && (
+                    <Badge tone="neutral">
+                      {row.temperatureMinC === null || row.temperatureMaxC === null
+                        ? t('logistics.fleet.coldChain')
+                        : `${row.temperatureMinC}–${row.temperatureMaxC} °C`}
+                    </Badge>
+                  )}
+                  {row.hasTailLift && <Badge tone="neutral">{t('logistics.fleet.tailLift')}</Badge>}
+                  {!row.isActive && <Badge tone="neutral">{t('logistics.fleet.offRoad')}</Badge>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Card>
+
+      {/* Mounted only while open, so the form starts clean each time rather
+          than carrying the last driver's licence number into the next one. */}
+      {driverDraft !== null && (
+        <Modal
+          isOpen
+          onClose={() => {
+            setDriverDraft(null);
+          }}
+          title={t('logistics.fleet.addDriver')}
+          description={t('logistics.fleet.addDriverHint')}
+          footer={
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setDriverDraft(null);
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                disabled={driverDraft.fullName.trim().length < 2 || saveDriver.isPending}
+                onClick={() => {
+                  saveDriver.mutate(driverDraft);
+                }}
+              >
+                {t('common.save')}
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <Field
+              label={t('logistics.fleet.driverName')}
+              required
+              hint={t('logistics.fleet.driverNameHint')}
+            >
+              {({ inputId }) => (
+                <Input
+                  id={inputId}
+                  value={driverDraft.fullName}
+                  maxLength={160}
+                  autoComplete="off"
+                  onChange={(event) => {
+                    setDriverDraft({ ...driverDraft, fullName: event.target.value });
+                  }}
+                />
+              )}
+            </Field>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t('logistics.fleet.phone')}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    type="tel"
+                    value={driverDraft.phone}
+                    maxLength={32}
+                    autoComplete="off"
+                    onChange={(event) => {
+                      setDriverDraft({ ...driverDraft, phone: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+
+              <Field label={t('logistics.fleet.employeeReference')}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    value={driverDraft.employeeReference}
+                    maxLength={64}
+                    onChange={(event) => {
+                      setDriverDraft({
+                        ...driverDraft,
+                        employeeReference: event.target.value,
+                      });
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t('logistics.fleet.licenceNumber')}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    value={driverDraft.licenceNumber}
+                    maxLength={64}
+                    onChange={(event) => {
+                      setDriverDraft({ ...driverDraft, licenceNumber: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+
+              <Field label={t('logistics.fleet.licenceExpires')}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    type="date"
+                    value={driverDraft.licenceExpiresAt}
+                    onChange={(event) => {
+                      setDriverDraft({ ...driverDraft, licenceExpiresAt: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold text-ink-muted">
+                {t('logistics.fleet.clearedFor')}
+              </legend>
+              <CheckboxField
+                label={t('logistics.fleet.coldChain')}
+                checked={driverDraft.canCarryColdChain}
+                onChange={(event) => {
+                  setDriverDraft({ ...driverDraft, canCarryColdChain: event.target.checked });
+                }}
+              />
+              <CheckboxField
+                label={t('logistics.fleet.sterile')}
+                checked={driverDraft.canCarrySterile}
+                onChange={(event) => {
+                  setDriverDraft({ ...driverDraft, canCarrySterile: event.target.checked });
+                }}
+              />
+              <CheckboxField
+                label={t('logistics.fleet.dangerousGoods')}
+                checked={driverDraft.canCarryDangerousGoods}
+                onChange={(event) => {
+                  setDriverDraft({
+                    ...driverDraft,
+                    canCarryDangerousGoods: event.target.checked,
+                  });
+                }}
+              />
+            </fieldset>
+
+            {saveDriver.isError && (
+              <p role="alert" className="text-xs leading-relaxed text-danger">
+                {saveDriver.error.message}
+              </p>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {vehicleDraft !== null && (
+        <Modal
+          isOpen
+          onClose={() => {
+            setVehicleDraft(null);
+          }}
+          title={t('logistics.fleet.addVehicle')}
+          description={t('logistics.fleet.addVehicleHint')}
+          footer={
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setVehicleDraft(null);
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                disabled={vehicleDraft.registration.trim() === '' || saveVehicle.isPending}
+                onClick={() => {
+                  saveVehicle.mutate(vehicleDraft);
+                }}
+              >
+                {t('common.save')}
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t('logistics.fleet.registration')} required>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    value={vehicleDraft.registration}
+                    maxLength={32}
+                    autoComplete="off"
+                    onChange={(event) => {
+                      setVehicleDraft({ ...vehicleDraft, registration: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+
+              <Field label={t('logistics.fleet.vehicleType')} required>
+                {({ inputId }) => (
+                  <Select
+                    id={inputId}
+                    value={vehicleDraft.kind}
+                    onChange={(event) => {
+                      setVehicleDraft({ ...vehicleDraft, kind: event.target.value });
+                    }}
+                  >
+                    {FLEET_VEHICLE_KINDS.map((kind) => (
+                      <option key={kind} value={kind}>
+                        {humanise(kind)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+            </div>
+
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold text-ink-muted">
+                {t('logistics.fleet.fitted')}
+              </legend>
+              <CheckboxField
+                label={t('logistics.fleet.coldChain')}
+                checked={vehicleDraft.hasRefrigeration}
+                onChange={(event) => {
+                  setVehicleDraft({ ...vehicleDraft, hasRefrigeration: event.target.checked });
+                }}
+              />
+              <CheckboxField
+                label={t('logistics.fleet.tailLift')}
+                checked={vehicleDraft.hasTailLift}
+                onChange={(event) => {
+                  setVehicleDraft({ ...vehicleDraft, hasTailLift: event.target.checked });
+                }}
+              />
+            </fieldset>
+
+            {/* Only where the van is refrigerated. A temperature range on a
+                van with no fridge is a number somebody will believe while
+                matching a cold-chain consignment against it. */}
+            {vehicleDraft.hasRefrigeration && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t('logistics.fleet.temperatureMin')}>
+                  {({ inputId }) => (
+                    <Input
+                      id={inputId}
+                      type="number"
+                      step="0.1"
+                      value={vehicleDraft.temperatureMinC}
+                      onChange={(event) => {
+                        setVehicleDraft({ ...vehicleDraft, temperatureMinC: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
+
+                <Field label={t('logistics.fleet.temperatureMax')}>
+                  {({ inputId }) => (
+                    <Input
+                      id={inputId}
+                      type="number"
+                      step="0.1"
+                      value={vehicleDraft.temperatureMaxC}
+                      onChange={(event) => {
+                        setVehicleDraft({ ...vehicleDraft, temperatureMaxC: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
+              </div>
+            )}
+
+            <Field label={t('logistics.fleet.maxWeight')}>
+              {({ inputId }) => (
+                <Input
+                  id={inputId}
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={vehicleDraft.maxWeightKg}
+                  onChange={(event) => {
+                    setVehicleDraft({ ...vehicleDraft, maxWeightKg: event.target.value });
+                  }}
+                />
+              )}
+            </Field>
+
+            {saveVehicle.isError && (
+              <p role="alert" className="text-xs leading-relaxed text-danger">
+                {saveVehicle.error.message}
+              </p>
+            )}
+          </div>
+        </Modal>
+      )}
+    </>
+  );
+}
 
 function MembersCard({ partner }: { partner: PartnerDetail }): React.JSX.Element {
   const { t } = useI18n();

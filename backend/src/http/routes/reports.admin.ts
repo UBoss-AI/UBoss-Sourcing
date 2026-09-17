@@ -38,7 +38,19 @@ import {
   topCustomers,
   topProducts,
 } from '../../modules/reports/report.service.js';
+import { buildInsight } from '../../modules/assistant/insights.service.js';
+import {
+  operationsInsightMetrics,
+  readOperationsOverview,
+} from '../../modules/notifications/operations-overview.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+import {
+  INSIGHT_RATE_LIMIT,
+  assertUsableWindow,
+  describeFilters,
+  insightBody,
+  streamInsightResponse,
+} from './dashboard-insights.js';
 
 const windowQuery = z.object({
   from: z.string().datetime().optional(),
@@ -62,6 +74,97 @@ function actorFrom(request: FastifyRequest): {
 
 export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
   // --- Dashboard -----------------------------------------------------------
+
+  /**
+   * What is waiting across the platform, grouped, for THIS member of staff.
+   *
+   * `requireAdmin()` with no permission listed is the deliberate "any member
+   * of staff" form — the same one the portal's own summary routes use. The
+   * authorization that matters here is not on the endpoint: it is on each
+   * queue, inside `readOperationsOverview`, which counts only the queues the
+   * caller holds the acting grant for and OMITS the rest.
+   *
+   * That is why this is not behind `REPORT_READ` like the figures below it.
+   * Reporting is a job; knowing that four listings are waiting for you is not,
+   * and gating it behind the reports grant would hide an operator's own work
+   * from them.
+   */
+  app.get('/operations', { preHandler: requireAdmin() }, async (request, reply) => {
+    const auth = currentUser(request);
+    const overview = await readOperationsOverview({ permissions: auth.permissions });
+
+    return reply.header('cache-control', 'no-store').status(200).send(overview);
+  });
+
+  /**
+   * The operational picture, explained.
+   *
+   * Same permission model as the overview itself, and for the same reason: the
+   * metric bundle is built from `readOperationsOverview` for THIS caller, so a
+   * queue they may not see is not in the bundle and therefore cannot be
+   * mentioned. The model is never told what it is not allowed to say — it is
+   * never given it.
+   */
+  /** The operational picture, delivered as it is written. See the buyer route. */
+  app.post(
+    '/dashboard/insights/stream',
+    { preHandler: requireAdmin(), config: { rateLimit: INSIGHT_RATE_LIMIT } },
+    async (request, reply) => {
+      await streamInsightResponse(request, reply, async () => {
+        const body = insightBody.parse(request.body ?? {});
+
+        const window = resolveWindow(body.from, body.to);
+        assertUsableWindow(window);
+
+        const auth = currentUser(request);
+        const overview = await readOperationsOverview({ permissions: auth.permissions });
+        const metrics = operationsInsightMetrics(overview);
+
+        return {
+          audience: 'ADMIN' as const,
+          window: { from: window.from.toISOString(), to: window.to.toISOString() },
+          filters: describeFilters(window, {
+            segment: metrics.some((metric) => metric.key === body.segment)
+              ? (body.segment ?? null)
+              : null,
+          }),
+          metrics,
+          ...(body.question === undefined ? {} : { question: body.question }),
+          ...(body.language === undefined ? {} : { language: body.language }),
+        };
+      });
+    },
+  );
+
+  app.post(
+    '/dashboard/insights',
+    { preHandler: requireAdmin(), config: { rateLimit: INSIGHT_RATE_LIMIT } },
+    async (request, reply) => {
+      const body = insightBody.parse(request.body ?? {});
+
+      const window = resolveWindow(body.from, body.to);
+      assertUsableWindow(window);
+
+      const auth = currentUser(request);
+      const overview = await readOperationsOverview({ permissions: auth.permissions });
+      const metrics = operationsInsightMetrics(overview);
+
+      const insight = await buildInsight({
+        audience: 'ADMIN',
+        window: { from: window.from.toISOString(), to: window.to.toISOString() },
+        filters: describeFilters(window, {
+          segment: metrics.some((metric) => metric.key === body.segment)
+            ? (body.segment ?? null)
+            : null,
+        }),
+        metrics,
+        ...(body.question === undefined ? {} : { question: body.question }),
+        ...(body.language === undefined ? {} : { language: body.language }),
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(insight);
+    },
+  );
 
   app.get(
     '/dashboard',

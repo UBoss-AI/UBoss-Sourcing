@@ -549,11 +549,6 @@ export type LogisticsPartnerUserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type LogisticsPartnerUserScalarRelationFilter = {
-  is?: Prisma.LogisticsPartnerUserWhereInput
-  isNot?: Prisma.LogisticsPartnerUserWhereInput
-}
-
 export type LogisticsPartnerUserCreateNestedOneWithoutUserInput = {
   create?: Prisma.XOR<Prisma.LogisticsPartnerUserCreateWithoutUserInput, Prisma.LogisticsPartnerUserUncheckedCreateWithoutUserInput>
   connectOrCreate?: Prisma.LogisticsPartnerUserCreateOrConnectWithoutUserInput
@@ -658,10 +653,12 @@ export type LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput = {
   connect?: Prisma.LogisticsPartnerUserWhereUniqueInput
 }
 
-export type LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput = {
+export type LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput = {
   create?: Prisma.XOR<Prisma.LogisticsPartnerUserCreateWithoutDriverProfileInput, Prisma.LogisticsPartnerUserUncheckedCreateWithoutDriverProfileInput>
   connectOrCreate?: Prisma.LogisticsPartnerUserCreateOrConnectWithoutDriverProfileInput
   upsert?: Prisma.LogisticsPartnerUserUpsertWithoutDriverProfileInput
+  disconnect?: Prisma.LogisticsPartnerUserWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerUserWhereInput | boolean
   connect?: Prisma.LogisticsPartnerUserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUserUpdateToOneWithWhereWithoutDriverProfileInput, Prisma.LogisticsPartnerUserUpdateWithoutDriverProfileInput>, Prisma.LogisticsPartnerUserUncheckedUpdateWithoutDriverProfileInput>
 }

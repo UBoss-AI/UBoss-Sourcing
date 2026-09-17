@@ -645,6 +645,111 @@ export async function correctShipmentStatus(
 }
 
 // ---------------------------------------------------------------------------
+// Moving a consignment along, from the operations desk
+// ---------------------------------------------------------------------------
+
+/**
+ * The operator moves the consignment along: dispatched, on the way, delivered.
+ *
+ * A real transition, unlike `correctShipmentStatus`. The matrix decides whether
+ * it is legal, a reason is demanded only where the matrix demands one, and the
+ * event is NOT flagged as a correction, because nothing is being corrected.
+ *
+ * WHY THE MARKETPLACE CAN DO THIS AT ALL
+ *
+ * Because somebody has to when the carrier cannot. A carrier whose portal is
+ * down, a small haulier who works from a phone and rings the operations desk,
+ * a consignment the marketplace is moving itself - in every one of those the
+ * alternative to this route is a status that stops while the parcel does not,
+ * and a customer watching a tracking page that has quietly gone stale.
+ * `UBOSS_ADMIN` already sits beside `PARTNER` throughout the transition matrix;
+ * this is the route that finally reaches it.
+ *
+ * It is recorded as the operator, never as the carrier. `actorLabel` is
+ * `OPERATOR_LABEL` and the source is `UBOSS_ADMIN`, so a carrier reading its
+ * own timeline months later can see that the marketplace moved this one, and
+ * does not have to account for a scan its staff never made.
+ */
+export async function advanceShipmentStatus(
+  actor: AdminActor,
+  shipmentId: string,
+  to: ShipmentStatusName,
+  options: {
+    reason?: string | null;
+    publicDescription?: string | null;
+    internalNote?: string | null;
+    occurredAt?: Date | null;
+    locationLabel?: string | null;
+    locationCountry?: string | null;
+    hasProofOfDelivery?: boolean;
+    idempotencyKey?: string | null;
+  } = {},
+): Promise<{ status: ShipmentStatusName; duplicate: boolean }> {
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: { id: true, status: true, shipmentReference: true, assignedPartnerId: true },
+  });
+
+  if (shipment === null) throw notFound('Shipment');
+
+  const event = await recordShipmentEvent({
+    shipmentId: shipment.id,
+    status: to,
+    actor: 'UBOSS_ADMIN',
+    source: 'UBOSS_ADMIN',
+    actorUserId: actor.userId,
+    actorLabel: OPERATOR_LABEL,
+    reason: options.reason ?? null,
+    publicDescription: options.publicDescription ?? null,
+    // The operator's email goes in the internal note and nowhere else. The
+    // note never leaves the portal; the sentence a customer reads is
+    // `publicDescription`.
+    internalNote:
+      options.internalNote ??
+      `Moved by ${actor.email} from the operations desk.`,
+    occurredAt: options.occurredAt ?? new Date(),
+    locationLabel: options.locationLabel ?? null,
+    locationCountry: options.locationCountry ?? null,
+    hasProofOfDelivery: options.hasProofOfDelivery ?? false,
+    idempotencyKey: options.idempotencyKey ?? null,
+    correlationId: actor.correlationId ?? null,
+  });
+
+  // Both trails, because the two sides read different ones: the marketplace's
+  // own `audit_log` names the individual, the carrier's names the marketplace,
+  // and neither can read the other.
+  await recordAudit({
+    action: AuditAction.SETTINGS_UPDATED,
+    resourceType: 'logistics_shipment',
+    resourceId: shipment.id,
+    actorType: 'ADMIN',
+    actorUserId: actor.userId,
+    actorEmail: actor.email,
+    before: { status: shipment.status },
+    after: { status: to, reason: options.reason ?? null },
+    ipAddress: actor.ipAddress ?? null,
+    correlationId: actor.correlationId ?? null,
+  });
+
+  if (shipment.assignedPartnerId !== null && !event.duplicate) {
+    await recordLogisticsAudit({
+      logisticsPartnerId: shipment.assignedPartnerId,
+      actorUserId: actor.userId,
+      actorLabel: OPERATOR_LABEL,
+      action: 'logistics.shipment.status_moved',
+      resourceType: 'logistics_shipment',
+      resourceId: shipment.id,
+      before: { status: shipment.status },
+      after: { status: to },
+      summary: `${shipment.shipmentReference} moved to ${to} by the marketplace.`,
+      correlationId: actor.correlationId ?? null,
+    });
+  }
+
+  return { status: event.status, duplicate: event.duplicate };
+}
+
+// ---------------------------------------------------------------------------
 // Carrier integrations
 // ---------------------------------------------------------------------------
 

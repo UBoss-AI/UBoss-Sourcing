@@ -1292,6 +1292,74 @@ export type EnumOutboxStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumOutboxStatusFilter<$PrismaModel>
 }
 
+export type EnumAdminNotificationClassFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationClass | Prisma.EnumAdminNotificationClassFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationClass[]
+  notIn?: $Enums.AdminNotificationClass[]
+  not?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel> | $Enums.AdminNotificationClass
+}
+
+export type EnumAdminNotificationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationStatus | Prisma.EnumAdminNotificationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationStatus[]
+  notIn?: $Enums.AdminNotificationStatus[]
+  not?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel> | $Enums.AdminNotificationStatus
+}
+
+export type EnumAdminNotificationResolutionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionPolicy | Prisma.EnumAdminNotificationResolutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationResolutionPolicy[]
+  notIn?: $Enums.AdminNotificationResolutionPolicy[]
+  not?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel> | $Enums.AdminNotificationResolutionPolicy
+}
+
+export type EnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionSource | Prisma.EnumAdminNotificationResolutionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdminNotificationResolutionSource[] | null
+  notIn?: $Enums.AdminNotificationResolutionSource[] | null
+  not?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel> | $Enums.AdminNotificationResolutionSource | null
+}
+
+export type EnumAdminNotificationClassWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationClass | Prisma.EnumAdminNotificationClassFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationClass[]
+  notIn?: $Enums.AdminNotificationClass[]
+  not?: Prisma.NestedEnumAdminNotificationClassWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationClass
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel>
+}
+
+export type EnumAdminNotificationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationStatus | Prisma.EnumAdminNotificationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationStatus[]
+  notIn?: $Enums.AdminNotificationStatus[]
+  not?: Prisma.NestedEnumAdminNotificationStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel>
+}
+
+export type EnumAdminNotificationResolutionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionPolicy | Prisma.EnumAdminNotificationResolutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationResolutionPolicy[]
+  notIn?: $Enums.AdminNotificationResolutionPolicy[]
+  not?: Prisma.NestedEnumAdminNotificationResolutionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationResolutionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel>
+}
+
+export type EnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionSource | Prisma.EnumAdminNotificationResolutionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdminNotificationResolutionSource[] | null
+  notIn?: $Enums.AdminNotificationResolutionSource[] | null
+  not?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationResolutionSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
+}
+
 export type EnumCouponScopeFilter<$PrismaModel = never> = {
   equals?: $Enums.CouponScope | Prisma.EnumCouponScopeFieldRefInput<$PrismaModel>
   in?: $Enums.CouponScope[]
@@ -4112,6 +4180,74 @@ export type NestedEnumOutboxStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOutboxStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOutboxStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminNotificationClassFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationClass | Prisma.EnumAdminNotificationClassFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationClass[]
+  notIn?: $Enums.AdminNotificationClass[]
+  not?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel> | $Enums.AdminNotificationClass
+}
+
+export type NestedEnumAdminNotificationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationStatus | Prisma.EnumAdminNotificationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationStatus[]
+  notIn?: $Enums.AdminNotificationStatus[]
+  not?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel> | $Enums.AdminNotificationStatus
+}
+
+export type NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionPolicy | Prisma.EnumAdminNotificationResolutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationResolutionPolicy[]
+  notIn?: $Enums.AdminNotificationResolutionPolicy[]
+  not?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel> | $Enums.AdminNotificationResolutionPolicy
+}
+
+export type NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionSource | Prisma.EnumAdminNotificationResolutionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdminNotificationResolutionSource[] | null
+  notIn?: $Enums.AdminNotificationResolutionSource[] | null
+  not?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel> | $Enums.AdminNotificationResolutionSource | null
+}
+
+export type NestedEnumAdminNotificationClassWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationClass | Prisma.EnumAdminNotificationClassFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationClass[]
+  notIn?: $Enums.AdminNotificationClass[]
+  not?: Prisma.NestedEnumAdminNotificationClassWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationClass
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationClassFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminNotificationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationStatus | Prisma.EnumAdminNotificationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationStatus[]
+  notIn?: $Enums.AdminNotificationStatus[]
+  not?: Prisma.NestedEnumAdminNotificationStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminNotificationResolutionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionPolicy | Prisma.EnumAdminNotificationResolutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.AdminNotificationResolutionPolicy[]
+  notIn?: $Enums.AdminNotificationResolutionPolicy[]
+  not?: Prisma.NestedEnumAdminNotificationResolutionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationResolutionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationResolutionPolicyFilter<$PrismaModel>
+}
+
+export type NestedEnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AdminNotificationResolutionSource | Prisma.EnumAdminNotificationResolutionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AdminNotificationResolutionSource[] | null
+  notIn?: $Enums.AdminNotificationResolutionSource[] | null
+  not?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.AdminNotificationResolutionSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumCouponScopeFilter<$PrismaModel = never> = {

@@ -46,7 +46,20 @@ import {
   resolveCurrencyFor,
   setCustomerLocale,
 } from '../../modules/settings/currency.service.js';
+import { buildInsight } from '../../modules/assistant/insights.service.js';
+import {
+  buyerDashboard,
+  buyerInsightMetrics,
+} from '../../modules/reports/buyer-dashboard.service.js';
+import { resolveWindow } from '../../modules/reports/report.service.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
+import {
+  INSIGHT_RATE_LIMIT,
+  assertUsableWindow,
+  describeFilters,
+  insightBody,
+  streamInsightResponse,
+} from './dashboard-insights.js';
 
 const addressSchema = z.object({
   kind: z.enum(['BILLING', 'SHIPPING', 'BOTH']).optional(),
@@ -200,6 +213,115 @@ const wishlistAddSchema = z.object({
 });
 
 export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<void> {
+  // --- Dashboard -----------------------------------------------------------
+
+  /**
+   * Everything the buyer dashboard opens with, in one round trip.
+   *
+   * The profile comes off the session. There is no id in the path, no id in
+   * the query and no id in the body — the same rule the rest of this file
+   * follows, and the reason there is no `/account/:id` anywhere in it.
+   *
+   * `no-store`, deliberately. Every figure here is the reason somebody opened
+   * the page, and a proxy holding "two orders awaiting payment" for sixty
+   * seconds is sixty seconds of somebody not paying them.
+   */
+  app.get('/dashboard', { preHandler: requireCustomer }, async (request, reply) => {
+    const query = z
+      .object({ from: z.string().datetime().optional(), to: z.string().datetime().optional() })
+      .parse(request.query);
+
+    const auth = currentUser(request);
+    const window = resolveWindow(query.from, query.to);
+    assertUsableWindow(window);
+
+    // `requireCustomer` has already refused a session with no profile, so this
+    // fallback is unreachable. It is here because the type says the field is
+    // nullable and an empty string matches no row — which fails closed.
+    const dashboard = await buyerDashboard(auth.customerProfileId ?? '', window);
+
+    return reply.header('cache-control', 'no-store').status(200).send(dashboard);
+  });
+
+  /**
+   * The same figures, explained.
+   *
+   * The metrics are rebuilt here from the buyer's OWN aggregate rather than
+   * taken from the request body, and that is the whole security design of the
+   * feature: a caller cannot hand this endpoint a number and have the model
+   * talk about it, because no number ever comes from the caller.
+   */
+  /**
+   * The same insight, delivered as it is written.
+   *
+   * Server-Sent Events. The summary arrives word by word; the findings and the
+   * evidence arrive once, at the end, after every metric key they cite has been
+   * checked against the bundle. Streaming buys responsiveness, not a window in
+   * which an unvalidated claim is on screen.
+   */
+  app.post(
+    '/dashboard/insights/stream',
+    { preHandler: requireCustomer, config: { rateLimit: INSIGHT_RATE_LIMIT } },
+    async (request, reply) => {
+      await streamInsightResponse(request, reply, async () => {
+        const body = insightBody.parse(request.body ?? {});
+
+        const auth = currentUser(request);
+        const window = resolveWindow(body.from, body.to);
+        assertUsableWindow(window);
+
+        const dashboard = await buyerDashboard(auth.customerProfileId ?? '', window);
+        const metrics = buyerInsightMetrics(dashboard);
+
+        return {
+          audience: 'BUYER' as const,
+          window: { from: window.from.toISOString(), to: window.to.toISOString() },
+          filters: describeFilters(window, {
+            segment: metrics.some((metric) => metric.key === body.segment)
+              ? (body.segment ?? null)
+              : null,
+          }),
+          metrics,
+          ...(body.question === undefined ? {} : { question: body.question }),
+          ...(body.language === undefined ? {} : { language: body.language }),
+        };
+      });
+    },
+  );
+
+  app.post(
+    '/dashboard/insights',
+    { preHandler: requireCustomer, config: { rateLimit: INSIGHT_RATE_LIMIT } },
+    async (request, reply) => {
+      const body = insightBody.parse(request.body ?? {});
+
+      const auth = currentUser(request);
+      const window = resolveWindow(body.from, body.to);
+      assertUsableWindow(window);
+
+      const dashboard = await buyerDashboard(auth.customerProfileId ?? '', window);
+      const metrics = buyerInsightMetrics(dashboard);
+
+      const insight = await buildInsight({
+        audience: 'BUYER',
+        window: { from: window.from.toISOString(), to: window.to.toISOString() },
+        filters: describeFilters(window, {
+          // The selected segment is echoed as CONTEXT, and only when it names
+          // a metric that exists. An unrecognised value is dropped rather than
+          // passed through, so nothing a client invents reaches the prompt.
+          segment: metrics.some((metric) => metric.key === body.segment)
+            ? (body.segment ?? null)
+            : null,
+        }),
+        metrics,
+        ...(body.question === undefined ? {} : { question: body.question }),
+        ...(body.language === undefined ? {} : { language: body.language }),
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(insight);
+    },
+  );
+
   app.get('/profile', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
 

@@ -474,6 +474,41 @@ export const OutboxStatus = {
 export type OutboxStatus = (typeof OutboxStatus)[keyof typeof OutboxStatus]
 
 
+export const AdminNotificationClass = {
+  INFORMATION: 'INFORMATION',
+  ALERT: 'ALERT'
+} as const
+
+export type AdminNotificationClass = (typeof AdminNotificationClass)[keyof typeof AdminNotificationClass]
+
+
+export const AdminNotificationStatus = {
+  ACTIVE: 'ACTIVE',
+  RESOLVED: 'RESOLVED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type AdminNotificationStatus = (typeof AdminNotificationStatus)[keyof typeof AdminNotificationStatus]
+
+
+export const AdminNotificationResolutionSource = {
+  DOMAIN_EVENT: 'DOMAIN_EVENT',
+  MANUAL: 'MANUAL',
+  SYSTEM_SWEEP: 'SYSTEM_SWEEP',
+  SUPERSEDED: 'SUPERSEDED'
+} as const
+
+export type AdminNotificationResolutionSource = (typeof AdminNotificationResolutionSource)[keyof typeof AdminNotificationResolutionSource]
+
+
+export const AdminNotificationResolutionPolicy = {
+  DOMAIN_ONLY: 'DOMAIN_ONLY',
+  MANUAL_ALLOWED: 'MANUAL_ALLOWED'
+} as const
+
+export type AdminNotificationResolutionPolicy = (typeof AdminNotificationResolutionPolicy)[keyof typeof AdminNotificationResolutionPolicy]
+
+
 export const CouponScope = {
   ALL_PRODUCTS: 'ALL_PRODUCTS',
   CATEGORIES: 'CATEGORIES'
@@ -1518,6 +1553,8 @@ export type CarrierWebhookState = (typeof CarrierWebhookState)[keyof typeof Carr
 
 export const LogisticsNotificationKind = {
   SHIPMENT_ASSIGNED: 'SHIPMENT_ASSIGNED',
+  DRIVER_ASSIGNED: 'DRIVER_ASSIGNED',
+  DRIVER_REASSIGNED: 'DRIVER_REASSIGNED',
   ASSIGNMENT_ACCEPTED: 'ASSIGNMENT_ACCEPTED',
   ASSIGNMENT_REJECTED: 'ASSIGNMENT_REJECTED',
   PICKUP_SCHEDULED: 'PICKUP_SCHEDULED',

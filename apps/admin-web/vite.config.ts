@@ -19,6 +19,15 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const throughTunnel = mode === 'tunnel' || process.env.TUNNEL === '1';
 
+  // `npm run build:netlify`. A static host serves this bundle to the public
+  // internet, so the source maps stay behind: `sourcemap: true` publishes every
+  // .ts and .tsx file in this app next to the bundle, readable by anyone who
+  // opens devtools. That is fine on a dev server and not fine on a URL handed
+  // to a customer - and this is the admin console, where the source names every
+  // permission and every internal route. Nothing else about the build changes:
+  // the API base comes from `.env.netlify`, which this mode loads.
+  const forNetlify = mode === 'netlify';
+
   // Which Host headers this server answers to besides loopback - in EVERY mode.
   //
   // Vite's host check is a DNS-rebinding defence: by default only `localhost`
@@ -105,7 +114,23 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
+      sourcemap: !forNetlify,
+    },
+
+    /*
+     * Unit tests, in jsdom.
+     *
+     * The same shape the storefront and the carrier portal use. This console
+     * had no test runner at all until the dashboard was rebuilt, which meant
+     * its one piece of genuinely tricky pure logic - how twelve operational
+     * queues fold into five chart segments - could only be checked by looking
+     * at it. It is the same vitest every other app here runs; nothing new was
+     * introduced but the wiring.
+     */
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      css: false,
     },
   };
 });

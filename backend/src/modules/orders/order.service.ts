@@ -31,6 +31,7 @@ import {
 } from '../../domain/order-state-machine.js';
 import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
+import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import {
@@ -639,6 +640,55 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   };
 }
 
+/**
+ * Put a confirmed order in front of the carriers.
+ *
+ * A consignment per despatching building - the operator's warehouse, each
+ * seller's own place - raised the moment the order is paid for, so the
+ * delivery is in the assignment queue rather than waiting for somebody to
+ * remember it. Until this existed a buyer's parcel had no carrier record at
+ * all unless an operator pressed a button, and a marketplace order could not
+ * have one raised for it at any point.
+ *
+ * Three properties, and each one is why this is a hook rather than a step:
+ *
+ *   - **It never fails the order.** The money has been taken and the order is
+ *     confirmed. A logistics table that is unhappy about a missing address
+ *     must not undo that, so this swallows its own failure and leaves the
+ *     operator's own "raise consignments" button as the way back.
+ *   - **It is idempotent.** `createShipmentsForOrder` dedupes per despatching
+ *     part, so a redelivered payment webhook raises nothing new.
+ *   - **It raises what it can.** A seller who has not yet said which of their
+ *     buildings a parcel leaves from is skipped and raised at their
+ *     acceptance; nobody else's consignment waits for them.
+ *
+ * A no-op where the deployment does not run the logistics portal: there is
+ * nobody for a consignment to be offered to, and rows nothing reads are rows
+ * that only ever mislead.
+ */
+async function raiseConsignments(orderId: string, correlationId: string): Promise<void> {
+  if (!env.FEATURE_LOGISTICS_PORTAL) return;
+
+  try {
+    const { createShipmentsForOrder } = await import(
+      '../logistics/shipment-create.service.js'
+    );
+
+    // SYSTEM, not a person: the authority here is the confirmed order.
+    const raised = await createShipmentsForOrder(orderId, null);
+
+    logger.info(
+      { orderId, correlationId, shipments: raised.length },
+      'consignments raised for a confirmed order',
+    );
+  } catch (error: unknown) {
+    logger.warn(
+      { err: error, orderId, correlationId },
+      'could not raise the consignments for a confirmed order; they can be raised from the admin panel',
+    );
+  }
+}
+
 export interface TransitionInput {
   orderId: string;
   to: OrderStatusName;
@@ -826,6 +876,7 @@ export async function transitionOrder(input: TransitionInput): Promise<{ status:
 
   switch (input.to) {
     case 'CONFIRMED':
+      await raiseConsignments(input.orderId, correlationId);
       await dispatch.dispatchOrderConfirmed(input.orderId, correlationId);
       break;
     case 'SHIPPED':

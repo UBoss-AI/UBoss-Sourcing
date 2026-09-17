@@ -31,6 +31,9 @@ export type AggregateLogisticsDriverProfile = {
 export type LogisticsDriverProfileMinAggregateOutputType = {
   id: string | null
   logisticsPartnerId: string | null
+  fullName: string | null
+  phone: string | null
+  email: string | null
   partnerUserId: string | null
   state: $Enums.LogisticsDriverState | null
   employeeReference: string | null
@@ -48,6 +51,9 @@ export type LogisticsDriverProfileMinAggregateOutputType = {
 export type LogisticsDriverProfileMaxAggregateOutputType = {
   id: string | null
   logisticsPartnerId: string | null
+  fullName: string | null
+  phone: string | null
+  email: string | null
   partnerUserId: string | null
   state: $Enums.LogisticsDriverState | null
   employeeReference: string | null
@@ -65,6 +71,9 @@ export type LogisticsDriverProfileMaxAggregateOutputType = {
 export type LogisticsDriverProfileCountAggregateOutputType = {
   id: number
   logisticsPartnerId: number
+  fullName: number
+  phone: number
+  email: number
   partnerUserId: number
   state: number
   employeeReference: number
@@ -85,6 +94,9 @@ export type LogisticsDriverProfileCountAggregateOutputType = {
 export type LogisticsDriverProfileMinAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  fullName?: true
+  phone?: true
+  email?: true
   partnerUserId?: true
   state?: true
   employeeReference?: true
@@ -102,6 +114,9 @@ export type LogisticsDriverProfileMinAggregateInputType = {
 export type LogisticsDriverProfileMaxAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  fullName?: true
+  phone?: true
+  email?: true
   partnerUserId?: true
   state?: true
   employeeReference?: true
@@ -119,6 +134,9 @@ export type LogisticsDriverProfileMaxAggregateInputType = {
 export type LogisticsDriverProfileCountAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  fullName?: true
+  phone?: true
+  email?: true
   partnerUserId?: true
   state?: true
   employeeReference?: true
@@ -210,7 +228,10 @@ export type LogisticsDriverProfileGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type LogisticsDriverProfileGroupByOutputType = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone: string | null
+  email: string | null
+  partnerUserId: string | null
   state: $Enums.LogisticsDriverState
   employeeReference: string | null
   licenceNumber: string | null
@@ -249,7 +270,10 @@ export type LogisticsDriverProfileWhereInput = {
   NOT?: Prisma.LogisticsDriverProfileWhereInput | Prisma.LogisticsDriverProfileWhereInput[]
   id?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
   logisticsPartnerId?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
-  partnerUserId?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  fullName?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  phone?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
+  email?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
+  partnerUserId?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   state?: Prisma.EnumLogisticsDriverStateFilter<"LogisticsDriverProfile"> | $Enums.LogisticsDriverState
   employeeReference?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   licenceNumber?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
@@ -263,7 +287,7 @@ export type LogisticsDriverProfileWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"LogisticsDriverProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsDriverProfile"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
-  partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput>
+  partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   assignments?: Prisma.LogisticsDriverAssignmentListRelationFilter
   pickups?: Prisma.LogisticsPickupRequestListRelationFilter
   manifests?: Prisma.LogisticsDispatchManifestListRelationFilter
@@ -274,7 +298,10 @@ export type LogisticsDriverProfileWhereInput = {
 export type LogisticsDriverProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
-  partnerUserId?: Prisma.SortOrder
+  fullName?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   employeeReference?: Prisma.SortOrderInput | Prisma.SortOrder
   licenceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -304,6 +331,9 @@ export type LogisticsDriverProfileWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.LogisticsDriverProfileWhereInput[]
   NOT?: Prisma.LogisticsDriverProfileWhereInput | Prisma.LogisticsDriverProfileWhereInput[]
   logisticsPartnerId?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  fullName?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  phone?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
+  email?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   state?: Prisma.EnumLogisticsDriverStateFilter<"LogisticsDriverProfile"> | $Enums.LogisticsDriverState
   employeeReference?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   licenceNumber?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
@@ -317,7 +347,7 @@ export type LogisticsDriverProfileWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"LogisticsDriverProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsDriverProfile"> | Date | string
   partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
-  partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput>
+  partnerUser?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   assignments?: Prisma.LogisticsDriverAssignmentListRelationFilter
   pickups?: Prisma.LogisticsPickupRequestListRelationFilter
   manifests?: Prisma.LogisticsDispatchManifestListRelationFilter
@@ -328,7 +358,10 @@ export type LogisticsDriverProfileWhereUniqueInput = Prisma.AtLeast<{
 export type LogisticsDriverProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
-  partnerUserId?: Prisma.SortOrder
+  fullName?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   employeeReference?: Prisma.SortOrderInput | Prisma.SortOrder
   licenceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -352,7 +385,10 @@ export type LogisticsDriverProfileScalarWhereWithAggregatesInput = {
   NOT?: Prisma.LogisticsDriverProfileScalarWhereWithAggregatesInput | Prisma.LogisticsDriverProfileScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"LogisticsDriverProfile"> | string
   logisticsPartnerId?: Prisma.StringWithAggregatesFilter<"LogisticsDriverProfile"> | string
-  partnerUserId?: Prisma.StringWithAggregatesFilter<"LogisticsDriverProfile"> | string
+  fullName?: Prisma.StringWithAggregatesFilter<"LogisticsDriverProfile"> | string
+  phone?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverProfile"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverProfile"> | string | null
+  partnerUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverProfile"> | string | null
   state?: Prisma.EnumLogisticsDriverStateWithAggregatesFilter<"LogisticsDriverProfile"> | $Enums.LogisticsDriverState
   employeeReference?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverProfile"> | string | null
   licenceNumber?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverProfile"> | string | null
@@ -369,6 +405,9 @@ export type LogisticsDriverProfileScalarWhereWithAggregatesInput = {
 
 export type LogisticsDriverProfileCreateInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -382,7 +421,7 @@ export type LogisticsDriverProfileCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
@@ -393,7 +432,10 @@ export type LogisticsDriverProfileCreateInput = {
 export type LogisticsDriverProfileUncheckedCreateInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -415,6 +457,9 @@ export type LogisticsDriverProfileUncheckedCreateInput = {
 
 export type LogisticsDriverProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -428,7 +473,7 @@ export type LogisticsDriverProfileUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
@@ -439,7 +484,10 @@ export type LogisticsDriverProfileUpdateInput = {
 export type LogisticsDriverProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -462,7 +510,10 @@ export type LogisticsDriverProfileUncheckedUpdateInput = {
 export type LogisticsDriverProfileCreateManyInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -479,6 +530,9 @@ export type LogisticsDriverProfileCreateManyInput = {
 
 export type LogisticsDriverProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -496,7 +550,10 @@ export type LogisticsDriverProfileUpdateManyMutationInput = {
 export type LogisticsDriverProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -535,6 +592,9 @@ export type LogisticsDriverProfileOrderByRelevanceInput = {
 export type LogisticsDriverProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  fullName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   partnerUserId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   employeeReference?: Prisma.SortOrder
@@ -553,6 +613,9 @@ export type LogisticsDriverProfileCountOrderByAggregateInput = {
 export type LogisticsDriverProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  fullName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   partnerUserId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   employeeReference?: Prisma.SortOrder
@@ -570,6 +633,9 @@ export type LogisticsDriverProfileMaxOrderByAggregateInput = {
 export type LogisticsDriverProfileMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  fullName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   partnerUserId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   employeeReference?: Prisma.SortOrder
@@ -743,6 +809,9 @@ export type LogisticsDriverProfileUpdateOneRequiredWithoutPingsNestedInput = {
 
 export type LogisticsDriverProfileCreateWithoutPartnerInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -755,7 +824,7 @@ export type LogisticsDriverProfileCreateWithoutPartnerInput = {
   locationConsentWithdrawnAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
@@ -765,7 +834,10 @@ export type LogisticsDriverProfileCreateWithoutPartnerInput = {
 
 export type LogisticsDriverProfileUncheckedCreateWithoutPartnerInput = {
   id: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -817,7 +889,10 @@ export type LogisticsDriverProfileScalarWhereInput = {
   NOT?: Prisma.LogisticsDriverProfileScalarWhereInput | Prisma.LogisticsDriverProfileScalarWhereInput[]
   id?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
   logisticsPartnerId?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
-  partnerUserId?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  fullName?: Prisma.StringFilter<"LogisticsDriverProfile"> | string
+  phone?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
+  email?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
+  partnerUserId?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   state?: Prisma.EnumLogisticsDriverStateFilter<"LogisticsDriverProfile"> | $Enums.LogisticsDriverState
   employeeReference?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
   licenceNumber?: Prisma.StringNullableFilter<"LogisticsDriverProfile"> | string | null
@@ -834,6 +909,9 @@ export type LogisticsDriverProfileScalarWhereInput = {
 
 export type LogisticsDriverProfileCreateWithoutPartnerUserInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -857,6 +935,9 @@ export type LogisticsDriverProfileCreateWithoutPartnerUserInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutPartnerUserInput = {
   id: string
   logisticsPartnerId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -894,6 +975,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutPartnerUserInput = 
 
 export type LogisticsDriverProfileUpdateWithoutPartnerUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -917,6 +1001,9 @@ export type LogisticsDriverProfileUpdateWithoutPartnerUserInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutPartnerUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -938,6 +1025,9 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutPartnerUserInput = {
 
 export type LogisticsDriverProfileCreateWithoutPickupsInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -951,7 +1041,7 @@ export type LogisticsDriverProfileCreateWithoutPickupsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutDriverInput
@@ -961,7 +1051,10 @@ export type LogisticsDriverProfileCreateWithoutPickupsInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutPickupsInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -998,6 +1091,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutPickupsInput = {
 
 export type LogisticsDriverProfileUpdateWithoutPickupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1011,7 +1107,7 @@ export type LogisticsDriverProfileUpdateWithoutPickupsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutDriverNestedInput
@@ -1021,7 +1117,10 @@ export type LogisticsDriverProfileUpdateWithoutPickupsInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutPickupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1042,6 +1141,9 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutPickupsInput = {
 
 export type LogisticsDriverProfileCreateWithoutManifestsInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1055,7 +1157,7 @@ export type LogisticsDriverProfileCreateWithoutManifestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutDriverInput
@@ -1065,7 +1167,10 @@ export type LogisticsDriverProfileCreateWithoutManifestsInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutManifestsInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1102,6 +1207,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutManifestsInput = {
 
 export type LogisticsDriverProfileUpdateWithoutManifestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1115,7 +1223,7 @@ export type LogisticsDriverProfileUpdateWithoutManifestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutDriverNestedInput
@@ -1125,7 +1233,10 @@ export type LogisticsDriverProfileUpdateWithoutManifestsInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutManifestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1146,6 +1257,9 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutManifestsInput = {
 
 export type LogisticsDriverProfileCreateWithoutAssignmentsInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1159,7 +1273,7 @@ export type LogisticsDriverProfileCreateWithoutAssignmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutDriverInput
@@ -1169,7 +1283,10 @@ export type LogisticsDriverProfileCreateWithoutAssignmentsInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutAssignmentsInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1206,6 +1323,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutAssignmentsInput = 
 
 export type LogisticsDriverProfileUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1219,7 +1339,7 @@ export type LogisticsDriverProfileUpdateWithoutAssignmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutDriverNestedInput
@@ -1229,7 +1349,10 @@ export type LogisticsDriverProfileUpdateWithoutAssignmentsInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1250,6 +1373,9 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutAssignmentsInput = {
 
 export type LogisticsDriverProfileCreateWithoutTripsInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1263,7 +1389,7 @@ export type LogisticsDriverProfileCreateWithoutTripsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
@@ -1273,7 +1399,10 @@ export type LogisticsDriverProfileCreateWithoutTripsInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutTripsInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1310,6 +1439,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutTripsInput = {
 
 export type LogisticsDriverProfileUpdateWithoutTripsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1323,7 +1455,7 @@ export type LogisticsDriverProfileUpdateWithoutTripsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
@@ -1333,7 +1465,10 @@ export type LogisticsDriverProfileUpdateWithoutTripsInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutTripsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1354,6 +1489,9 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutTripsInput = {
 
 export type LogisticsDriverProfileCreateWithoutPingsInput = {
   id: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1367,7 +1505,7 @@ export type LogisticsDriverProfileCreateWithoutPingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   partner: Prisma.LogisticsPartnerCreateNestedOneWithoutDriversInput
-  partnerUser: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
+  partnerUser?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutDriverProfileInput
   assignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutDriverInput
   pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutDriverInput
   manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutDriverInput
@@ -1377,7 +1515,10 @@ export type LogisticsDriverProfileCreateWithoutPingsInput = {
 export type LogisticsDriverProfileUncheckedCreateWithoutPingsInput = {
   id: string
   logisticsPartnerId: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1414,6 +1555,9 @@ export type LogisticsDriverProfileUpdateToOneWithWhereWithoutPingsInput = {
 
 export type LogisticsDriverProfileUpdateWithoutPingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1427,7 +1571,7 @@ export type LogisticsDriverProfileUpdateWithoutPingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutDriversNestedInput
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
@@ -1437,7 +1581,10 @@ export type LogisticsDriverProfileUpdateWithoutPingsInput = {
 export type LogisticsDriverProfileUncheckedUpdateWithoutPingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1458,7 +1605,10 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutPingsInput = {
 
 export type LogisticsDriverProfileCreateManyPartnerInput = {
   id: string
-  partnerUserId: string
+  fullName: string
+  phone?: string | null
+  email?: string | null
+  partnerUserId?: string | null
   state?: $Enums.LogisticsDriverState
   employeeReference?: string | null
   licenceNumber?: string | null
@@ -1475,6 +1625,9 @@ export type LogisticsDriverProfileCreateManyPartnerInput = {
 
 export type LogisticsDriverProfileUpdateWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1487,7 +1640,7 @@ export type LogisticsDriverProfileUpdateWithoutPartnerInput = {
   locationConsentWithdrawnAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneRequiredWithoutDriverProfileNestedInput
+  partnerUser?: Prisma.LogisticsPartnerUserUpdateOneWithoutDriverProfileNestedInput
   assignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutDriverNestedInput
   pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutDriverNestedInput
   manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutDriverNestedInput
@@ -1497,7 +1650,10 @@ export type LogisticsDriverProfileUpdateWithoutPartnerInput = {
 
 export type LogisticsDriverProfileUncheckedUpdateWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1519,7 +1675,10 @@ export type LogisticsDriverProfileUncheckedUpdateWithoutPartnerInput = {
 
 export type LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  partnerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsDriverStateFieldUpdateOperationsInput | $Enums.LogisticsDriverState
   employeeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1604,6 +1763,9 @@ export type LogisticsDriverProfileCountOutputTypeCountPingsArgs<ExtArgs extends 
 export type LogisticsDriverProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   logisticsPartnerId?: boolean
+  fullName?: boolean
+  phone?: boolean
+  email?: boolean
   partnerUserId?: boolean
   state?: boolean
   employeeReference?: boolean
@@ -1618,7 +1780,7 @@ export type LogisticsDriverProfileSelect<ExtArgs extends runtime.Types.Extension
   createdAt?: boolean
   updatedAt?: boolean
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
-  partnerUser?: boolean | Prisma.LogisticsPartnerUserDefaultArgs<ExtArgs>
+  partnerUser?: boolean | Prisma.LogisticsDriverProfile$partnerUserArgs<ExtArgs>
   assignments?: boolean | Prisma.LogisticsDriverProfile$assignmentsArgs<ExtArgs>
   pickups?: boolean | Prisma.LogisticsDriverProfile$pickupsArgs<ExtArgs>
   manifests?: boolean | Prisma.LogisticsDriverProfile$manifestsArgs<ExtArgs>
@@ -1632,6 +1794,9 @@ export type LogisticsDriverProfileSelect<ExtArgs extends runtime.Types.Extension
 export type LogisticsDriverProfileSelectScalar = {
   id?: boolean
   logisticsPartnerId?: boolean
+  fullName?: boolean
+  phone?: boolean
+  email?: boolean
   partnerUserId?: boolean
   state?: boolean
   employeeReference?: boolean
@@ -1647,10 +1812,10 @@ export type LogisticsDriverProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LogisticsDriverProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "partnerUserId" | "state" | "employeeReference" | "licenceNumber" | "licenceExpiresAt" | "canCarryDangerousGoods" | "canCarryColdChain" | "canCarrySterile" | "regionScopeJson" | "locationConsentAt" | "locationConsentWithdrawnAt" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsDriverProfile"]>
+export type LogisticsDriverProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "fullName" | "phone" | "email" | "partnerUserId" | "state" | "employeeReference" | "licenceNumber" | "licenceExpiresAt" | "canCarryDangerousGoods" | "canCarryColdChain" | "canCarrySterile" | "regionScopeJson" | "locationConsentAt" | "locationConsentWithdrawnAt" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsDriverProfile"]>
 export type LogisticsDriverProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
-  partnerUser?: boolean | Prisma.LogisticsPartnerUserDefaultArgs<ExtArgs>
+  partnerUser?: boolean | Prisma.LogisticsDriverProfile$partnerUserArgs<ExtArgs>
   assignments?: boolean | Prisma.LogisticsDriverProfile$assignmentsArgs<ExtArgs>
   pickups?: boolean | Prisma.LogisticsDriverProfile$pickupsArgs<ExtArgs>
   manifests?: boolean | Prisma.LogisticsDriverProfile$manifestsArgs<ExtArgs>
@@ -1663,7 +1828,17 @@ export type $LogisticsDriverProfilePayload<ExtArgs extends runtime.Types.Extensi
   name: "LogisticsDriverProfile"
   objects: {
     partner: Prisma.$LogisticsPartnerPayload<ExtArgs>
-    partnerUser: Prisma.$LogisticsPartnerUserPayload<ExtArgs>
+    /**
+     * SetNull rather than Cascade, and that is a change worth naming.
+     * 
+     * It used to delete the driver record when the member was deleted, which
+     * took the record of who carried what with it. Now that the name lives on
+     * this row, removing somebody's account leaves the driver - and every
+     * assignment naming them - intact, and only the login link goes. A fleet
+     * register that forgets who drove last month is a register that cannot
+     * answer the one question asked after a bad delivery.
+     */
+    partnerUser: Prisma.$LogisticsPartnerUserPayload<ExtArgs> | null
     assignments: Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>[]
     pickups: Prisma.$LogisticsPickupRequestPayload<ExtArgs>[]
     manifests: Prisma.$LogisticsDispatchManifestPayload<ExtArgs>[]
@@ -1673,7 +1848,43 @@ export type $LogisticsDriverProfilePayload<ExtArgs extends runtime.Types.Extensi
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     logisticsPartnerId: string
-    partnerUserId: string
+    /**
+     * The driver's name, typed by whoever runs the fleet.
+     * 
+     * **On the driver record, not read through a login.** A carrier employs
+     * people who will never open this software - a subcontracted van driver, an
+     * agency stand-in for a week - and a fleet register that could only hold
+     * people with an account is a register that does not describe the fleet.
+     * Somebody has to be able to type a name and get on with the day.
+     * 
+     * It is therefore the source of truth for every screen that names a driver:
+     * the consignment, the timeline, the manifest, the carrier's list and the
+     * marketplace's. `partnerUser` below is a link, not the answer.
+     */
+    fullName: string
+    /**
+     * How to reach them. The number a dispatcher rings when a van is late, and
+     * the one masked out of everything the marketplace or a buyer can see.
+     */
+    phone: string | null
+    email: string | null
+    /**
+     * Their account, where they have one.
+     * 
+     * **Nullable, and null is the ordinary case.** A driver record and an
+     * authenticated user are separate concepts: this is filled only for a
+     * driver who signs in to `/driver/tasks` on a phone, and that is what gates
+     * every device feature - the task list, the scanner, proof of delivery, the
+     * trip that permits a location ping. A record-only driver can be put on a
+     * consignment and appear on every screen, and can do none of those things,
+     * because there is nobody to do them as.
+     * 
+     * UNIQUE, so one account maps to one driver record - and NULL is distinct
+     * in a MariaDB unique index, so any number of record-only drivers sit
+     * happily beside each other. The same property `activeShipmentId` uses on
+     * the assignment table.
+     */
+    partnerUserId: string | null
     state: $Enums.LogisticsDriverState
     /**
      * The carrier's own reference for this person. Free text; every fleet
@@ -2049,7 +2260,7 @@ readonly fields: LogisticsDriverProfileFieldRefs;
 export interface Prisma__LogisticsDriverProfileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   partner<T extends Prisma.LogisticsPartnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartnerDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  partnerUser<T extends Prisma.LogisticsPartnerUserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartnerUserDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerUserClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  partnerUser<T extends Prisma.LogisticsDriverProfile$partnerUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverProfile$partnerUserArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerUserClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assignments<T extends Prisma.LogisticsDriverProfile$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverProfile$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pickups<T extends Prisma.LogisticsDriverProfile$pickupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverProfile$pickupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsPickupRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   manifests<T extends Prisma.LogisticsDriverProfile$manifestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverProfile$manifestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsDispatchManifestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2086,6 +2297,9 @@ export interface Prisma__LogisticsDriverProfileClient<T, Null = never, ExtArgs e
 export interface LogisticsDriverProfileFieldRefs {
   readonly id: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
   readonly logisticsPartnerId: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
+  readonly fullName: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
+  readonly phone: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
+  readonly email: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
   readonly partnerUserId: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
   readonly state: Prisma.FieldRef<"LogisticsDriverProfile", 'LogisticsDriverState'>
   readonly employeeReference: Prisma.FieldRef<"LogisticsDriverProfile", 'String'>
@@ -2444,6 +2658,25 @@ export type LogisticsDriverProfileDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many LogisticsDriverProfiles to delete.
    */
   limit?: number
+}
+
+/**
+ * LogisticsDriverProfile.partnerUser
+ */
+export type LogisticsDriverProfile$partnerUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsPartnerUser
+   */
+  select?: Prisma.LogisticsPartnerUserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsPartnerUser
+   */
+  omit?: Prisma.LogisticsPartnerUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsPartnerUserInclude<ExtArgs> | null
+  where?: Prisma.LogisticsPartnerUserWhereInput
 }
 
 /**

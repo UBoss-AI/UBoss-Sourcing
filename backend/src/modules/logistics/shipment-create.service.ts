@@ -320,15 +320,131 @@ export async function createShipment(
 }
 
 /**
+ * Where a seller's part of an order is collected from.
+ *
+ * A seller's goods leave the SELLER's building, not the operator's warehouse.
+ * Reading the operator's own despatch point here is what made a marketplace
+ * order impossible to raise a consignment for at all: an order made entirely
+ * of sellers' lines has no warehouse of the operator's, so the origin was null
+ * and the whole order was refused.
+ *
+ * The place is only taken where there is no room for doubt about it:
+ *
+ *   - the one the seller NAMED when they accepted the order, or
+ *   - their only operational pickup place, where they have exactly one.
+ *
+ * A seller with several places who has not yet accepted is skipped rather than
+ * guessed at. A consignment tells a driver which door to knock on, and a
+ * guessed door sends them to a building where nobody is expecting them - so
+ * that group waits for the acceptance, which raises it a moment later.
+ */
+interface SellerPickup {
+  address: ShipmentAddressSnapshot;
+  contactName: string;
+}
+
+async function pickupsForSellerGroups(
+  groups: { id: string; locationId: string | null; sellerAccountId: string }[],
+): Promise<Map<string, SellerPickup>> {
+  const pickups = new Map<string, SellerPickup>();
+  if (groups.length === 0) return pickups;
+
+  const named = groups
+    .map((group) => group.locationId)
+    .filter((locationId): locationId is string => locationId !== null);
+
+  // One query for both questions - the places the sellers named, and the
+  // candidates for the ones who have not - so a ten-seller order is one round
+  // trip rather than twenty.
+  const locations = await prisma.sellerLocation.findMany({
+    where: {
+      archivedAt: null,
+      OR: [
+        ...(named.length === 0 ? [] : [{ id: { in: named } }]),
+        {
+          sellerAccountId: { in: [...new Set(groups.map((group) => group.sellerAccountId))] },
+          isPickupLocation: true,
+          isOperational: true,
+        },
+      ],
+    },
+    select: {
+      id: true,
+      sellerAccountId: true,
+      name: true,
+      addressLine1: true,
+      addressLine2: true,
+      city: true,
+      region: true,
+      postcode: true,
+      countryCode: true,
+      latitude: true,
+      longitude: true,
+      isPickupLocation: true,
+      isOperational: true,
+    },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  type SellerLocationRow = (typeof locations)[number];
+
+  const byId = new Map<string, SellerLocationRow>(
+    locations.map((location) => [location.id, location]),
+  );
+  const candidates = new Map<string, SellerLocationRow[]>();
+
+  for (const location of locations) {
+    if (!location.isPickupLocation || !location.isOperational) continue;
+    const forSeller = candidates.get(location.sellerAccountId) ?? [];
+    forSeller.push(location);
+    candidates.set(location.sellerAccountId, forSeller);
+  }
+
+  for (const group of groups) {
+    const forSeller = candidates.get(group.sellerAccountId) ?? [];
+    const chosen =
+      (group.locationId === null ? undefined : byId.get(group.locationId)) ??
+      (forSeller.length === 1 ? forSeller[0] : undefined);
+
+    if (chosen === undefined) continue;
+
+    pickups.set(group.id, {
+      contactName: chosen.name,
+      address: {
+        line1: chosen.addressLine1,
+        line2: chosen.addressLine2,
+        city: chosen.city,
+        region: chosen.region,
+        postalCode: chosen.postcode,
+        countryCode: chosen.countryCode.toUpperCase(),
+        // Decimal on the way out of Prisma, and null where nobody has
+        // geocoded the place - which is not the same as 0,0.
+        latitude: chosen.latitude === null ? null : Number(chosen.latitude),
+        longitude: chosen.longitude === null ? null : Number(chosen.longitude),
+      },
+    });
+  }
+
+  return pickups;
+}
+
+/**
  * Raise consignments for an order that is ready to be fulfilled.
  *
  * ONE PER SELLER GROUP, and one for the operator's own lines where there are
  * any. That split is not cosmetic: two sellers' goods leave two buildings, on
  * two days, with two carriers, and a single consignment covering both would be
- * a consignment nobody can collect.
+ * a consignment nobody can collect. An order carrying both the operator's own
+ * stock and a seller's raises one of each, for the same reason.
  *
- * Idempotent per group, so a re-delivered confirmation webhook produces
- * nothing new.
+ * Each part is raised INDEPENDENTLY. A seller who has not yet said which of
+ * their buildings a parcel leaves from does not hold up the other seller's
+ * consignment, or the operator's - theirs is simply not raised yet, and their
+ * acceptance raises it. Only when nothing at all can be raised is this
+ * refused, and then it says what it is waiting for.
+ *
+ * Idempotent per part, so a re-delivered confirmation webhook produces nothing
+ * new.
  */
 export async function createShipmentsForOrder(
   orderId: string,
@@ -342,6 +458,10 @@ export async function createShipmentsForOrder(
       shippingAddressJson: true,
       fulfilmentLocationId: true,
       currency: true,
+      // Whose goods are on this order. A line with no offer behind it is the
+      // operator's own stock, and it is the only thing that makes the
+      // operator's warehouse part of the answer - see `hasOperatorLines`.
+      items: { select: { sellerOfferId: true } },
       customerProfile: {
         select: {
           id: true,
@@ -361,6 +481,8 @@ export async function createShipmentsForOrder(
       sellerOrderGroups: {
         select: {
           id: true,
+          // Where the seller said it ships from, once they have accepted it.
+          locationId: true,
           sellerAccount: { select: { id: true, displayName: true } },
         },
       },
@@ -392,14 +514,6 @@ export async function createShipmentsForOrder(
           countryCode: order.fulfilmentLocation.countryCode ?? delivery.countryCode,
         });
 
-  if (pickup === null) {
-    throw badRequest(
-      ErrorCode.VALIDATION_FAILED,
-      'This order has no despatch warehouse, so no consignment can be raised for it.',
-      [{ field: 'fulfilmentLocationId', code: 'ORIGIN_UNKNOWN' }],
-    );
-  }
-
   /*
    * Who the consignment is addressed to.
    *
@@ -418,12 +532,9 @@ export async function createShipmentsForOrder(
 
   const common = {
     orderId: order.id,
-    originLocationId: order.fulfilmentLocationId,
     receivingCustomerProfileId: order.customerProfile.id,
     receivingCompanyName,
-    pickupAddress: pickup,
     deliveryAddress: delivery,
-    pickupContactName: order.fulfilmentLocation?.name ?? null,
     deliveryContactName: order.customerProfile.fullName,
     deliveryContactPhone: order.customerProfile.phone,
     deliveryContactEmail: order.customerProfile.user.email,
@@ -432,23 +543,60 @@ export async function createShipmentsForOrder(
   } satisfies Partial<CreateShipmentInput> & { orderId: string };
 
   const created: CreatedShipment[] = [];
+  /** What each unraised part is waiting for, for the refusal at the end. */
+  const waiting: string[] = [];
 
-  if (order.sellerOrderGroups.length === 0) {
-    // The operator's own goods.
-    created.push(
-      await createShipment(
-        {
-          ...common,
-          sellerCompanyName: order.fulfilmentLocation?.name ?? 'Warehouse',
-        },
-        { orderId: order.id, sellerOrderGroupId: null, originLocationId: order.fulfilmentLocationId },
-      ),
-    );
+  /*
+   * The operator's own goods, where there are any.
+   *
+   * Read off the lines rather than from the absence of seller groups: an order
+   * can carry both, and taking "no groups" to mean "the operator's" raised a
+   * consignment from the operator's warehouse for goods that are sitting in
+   * somebody else's building.
+   */
+  const hasOperatorLines = order.items.some((item) => item.sellerOfferId === null);
 
-    return created;
+  if (hasOperatorLines) {
+    if (pickup === null) {
+      waiting.push('the shop’s own lines have no despatch warehouse');
+    } else {
+      created.push(
+        await createShipment(
+          {
+            ...common,
+            originLocationId: order.fulfilmentLocationId,
+            pickupAddress: pickup,
+            pickupContactName: order.fulfilmentLocation?.name ?? null,
+            sellerCompanyName: order.fulfilmentLocation?.name ?? 'Warehouse',
+          },
+          {
+            orderId: order.id,
+            sellerOrderGroupId: null,
+            originLocationId: order.fulfilmentLocationId,
+          },
+        ),
+      );
+    }
   }
 
+  const sellerPickups = await pickupsForSellerGroups(
+    order.sellerOrderGroups.map((group) => ({
+      id: group.id,
+      locationId: group.locationId,
+      sellerAccountId: group.sellerAccount.id,
+    })),
+  );
+
   for (const group of order.sellerOrderGroups) {
+    const sellerPickup = sellerPickups.get(group.id);
+
+    if (sellerPickup === undefined) {
+      waiting.push(
+        `${group.sellerAccount.displayName} has not said which of its places this ships from`,
+      );
+      continue;
+    }
+
     created.push(
       await createShipment(
         {
@@ -456,13 +604,29 @@ export async function createShipmentsForOrder(
           sellerOrderGroupId: group.id,
           sellerAccountId: group.sellerAccount.id,
           sellerCompanyName: group.sellerAccount.displayName,
+          // A seller's building is not one of the operator's warehouses, so
+          // there is no `InventoryLocation` to point at. The snapshot carries
+          // the address, which is the whole of what a carrier needs.
+          originLocationId: null,
+          pickupAddress: sellerPickup.address,
+          pickupContactName: sellerPickup.contactName,
         },
         {
           orderId: order.id,
           sellerOrderGroupId: group.id,
-          originLocationId: order.fulfilmentLocationId,
+          originLocationId: null,
         },
       ),
+    );
+  }
+
+  if (created.length === 0) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      waiting.length === 0
+        ? 'This order has nothing to despatch, so no consignment can be raised for it.'
+        : `No consignment can be raised for this order yet: ${waiting.join('; ')}.`,
+      [{ field: 'fulfilmentLocationId', code: 'ORIGIN_UNKNOWN' }],
     );
   }
 

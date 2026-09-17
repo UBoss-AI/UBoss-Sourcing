@@ -23,6 +23,7 @@ import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import { onTimePercentage } from '../../domain/logistics-sla.js';
 import type { ShipmentStatusName } from '../../domain/logistics-shipment-state.js';
 import { prisma } from '../../infra/prisma.js';
+import type { InsightMetric } from '../assistant/insights.service.js';
 import { OPEN_EXCEPTION_STATES } from './exception.service.js';
 import {
   assertLogisticsPermission,
@@ -36,6 +37,19 @@ export interface DashboardFilters {
   sellerCompany?: string | null;
   destinationCountry?: string | null;
   serviceType?: string | null;
+  /**
+   * One driver, of this carrier's own.
+   *
+   * A dispatcher asking "how is Marek doing today" wants every figure on the
+   * screen narrowed, not just the list - "3 exceptions" beside a list showing
+   * one driver's work is a figure about somebody else.
+   *
+   * The id is NOT checked against this partner here, and does not need to be:
+   * the clause is ANDed with `assignedPartnerId`, so another carrier's driver
+   * id simply matches nothing. Same reasoning as the shipment list, which has
+   * always taken this filter the same way.
+   */
+  driverProfileId?: string | null;
 }
 
 export interface DashboardCounts {
@@ -172,6 +186,22 @@ export async function readDashboard(
       : {}),
     ...((filters.sellerCompany !== undefined && filters.sellerCompany !== null)
       ? { sellerCompanyName: { contains: filters.sellerCompany } }
+      : {}),
+    /*
+     * Currently assigned to this driver.
+     *
+     * `unassignedAt: null` is what makes it CURRENT rather than ever: a
+     * consignment handed from one driver to another appears under the one
+     * carrying it now, which is what a dispatcher means. The clause is
+     * character-for-character the one `listShipments` uses, so the ring and
+     * the list it drills into cannot disagree about whose work this is.
+     */
+    ...((filters.driverProfileId !== undefined && filters.driverProfileId !== null)
+      ? {
+          driverAssignments: {
+            some: { driverProfileId: filters.driverProfileId, unassignedAt: null },
+          },
+        }
       : {}),
   };
 
@@ -612,4 +642,178 @@ export async function listCompanies(
   }
 
   return rows;
+}
+
+// ---------------------------------------------------------------------------
+// The AI's view of it
+// ---------------------------------------------------------------------------
+
+/**
+ * The carrier dashboard, as metrics the insights panel may reason about.
+ *
+ * Derived from the dashboard object rather than queried again, and that is the
+ * tenant boundary: `readDashboard` has already narrowed everything to the
+ * partner on the session, so a figure that reaches this function is a figure
+ * about this carrier's own work. There is no second query for a partner id to
+ * be missing from.
+ *
+ * NOTHING IDENTIFYING GOES IN. No consignment reference, no receiving company,
+ * no destination, no driver, no telephone number. The masking rules that
+ * govern what a dispatcher may see of a recipient's details are elaborate and
+ * they are enforced on the read paths; the way to be certain they are not
+ * circumvented here is for no row to be in this list at all. Counts and
+ * percentages only.
+ */
+export function logisticsInsightMetrics(dashboard: LogisticsDashboard): InsightMetric[] {
+  const counts = dashboard.counts;
+
+  const metrics: InsightMetric[] = [
+    {
+      key: 'shipments.acceptancePending',
+      label: 'Consignments offered to you and not yet accepted',
+      value: counts.acceptancePending,
+      unit: 'consignments',
+      severity: counts.acceptancePending > 0 ? 'attention' : 'info',
+      href: '/shipments?status=ACCEPTANCE_PENDING',
+    },
+    {
+      key: 'shipments.pickupPending',
+      label: 'Accepted and waiting to be collected',
+      value: counts.pickupPending,
+      unit: 'consignments',
+      severity: 'info',
+      href: '/pickups',
+    },
+    {
+      key: 'shipments.inTransit',
+      label: 'In transit',
+      value: counts.inTransit,
+      unit: 'consignments',
+      severity: 'info',
+      href: '/shipments?status=IN_TRANSIT',
+    },
+    {
+      key: 'shipments.outForDelivery',
+      label: 'Out for delivery',
+      value: counts.outForDelivery,
+      unit: 'consignments',
+      severity: 'info',
+      href: '/shipments?status=OUT_FOR_DELIVERY',
+    },
+    {
+      key: 'shipments.deliveredToday',
+      label: 'Delivered today',
+      value: counts.deliveredToday,
+      unit: 'consignments',
+      severity: 'info',
+      href: '/shipments?status=DELIVERED',
+    },
+    {
+      key: 'shipments.delayed',
+      label: 'Running late',
+      value: counts.delayed,
+      unit: 'consignments',
+      severity: counts.delayed > 0 ? 'attention' : 'info',
+      href: '/shipments?status=DELAYED',
+    },
+    {
+      key: 'shipments.exceptions',
+      label: 'Open exceptions nobody has taken on',
+      value: counts.exceptions,
+      unit: 'exceptions',
+      severity: counts.exceptions > 0 ? 'urgent' : 'info',
+      href: '/exceptions',
+    },
+    {
+      key: 'shipments.failedDeliveries',
+      label: 'Deliveries that failed',
+      value: counts.failedDeliveries,
+      unit: 'consignments',
+      severity: counts.failedDeliveries > 0 ? 'urgent' : 'info',
+      href: '/shipments?status=DELIVERY_FAILED',
+    },
+    {
+      key: 'shipments.returns',
+      label: 'Going back to the sender',
+      value: counts.returns,
+      unit: 'consignments',
+      severity: 'info',
+      href: '/shipments?status=RETURN_IN_TRANSIT',
+    },
+    {
+      key: 'sla.atRisk',
+      label: 'Consignments at risk of breaching their service level',
+      value: counts.slaAtRisk,
+      unit: 'consignments',
+      severity: counts.slaAtRisk > 0 ? 'attention' : 'info',
+      href: '/shipments?slaState=AT_RISK',
+    },
+    {
+      key: 'sla.breached',
+      label: 'Consignments that have breached their service level',
+      value: counts.slaBreached,
+      unit: 'consignments',
+      severity: counts.slaBreached > 0 ? 'urgent' : 'info',
+      href: '/shipments?slaState=BREACHED',
+    },
+    {
+      key: 'pod.pending',
+      label: 'Delivered without proof of delivery captured',
+      value: dashboard.metrics.proofOfDeliveryPending,
+      unit: 'consignments',
+      severity: dashboard.metrics.proofOfDeliveryPending > 0 ? 'attention' : 'info',
+      href: '/shipments?podState=PENDING',
+    },
+    {
+      key: 'carrier.deadLetteredEvents',
+      label: 'Tracking events from your own systems that this software could not map',
+      value: dashboard.integration.deadLetteredEvents,
+      unit: 'events',
+      severity: dashboard.integration.deadLetteredEvents > 0 ? 'attention' : 'info',
+      href: '/exceptions',
+    },
+  ];
+
+  /*
+   * The three performance figures, and why they are conditional.
+   *
+   * Each is null with no history, and null is not zero: "0% delivered on time"
+   * is a damning sentence about a carrier who has simply not delivered
+   * anything yet. Omitting the metric means the model cannot cite it, which is
+   * the only way to be sure it never says that.
+   */
+  if (dashboard.metrics.onTimeDeliveryPercentage !== null) {
+    metrics.push({
+      key: 'performance.onTimePercentage',
+      label: 'Delivered on time, as a percentage, over this period',
+      value: dashboard.metrics.onTimeDeliveryPercentage,
+      unit: 'per cent',
+      severity: 'info',
+      href: '/shipments',
+    });
+  }
+
+  if (dashboard.metrics.firstAttemptSuccessPercentage !== null) {
+    metrics.push({
+      key: 'performance.firstAttemptPercentage',
+      label: 'Delivered on the first attempt, as a percentage, over this period',
+      value: dashboard.metrics.firstAttemptSuccessPercentage,
+      unit: 'per cent',
+      severity: 'info',
+      href: '/shipments',
+    });
+  }
+
+  if (dashboard.metrics.averageTransitHours !== null) {
+    metrics.push({
+      key: 'performance.averageTransitHours',
+      label: 'Average hours from collection to delivery over this period',
+      value: Math.round(dashboard.metrics.averageTransitHours),
+      unit: 'hours',
+      severity: 'info',
+      href: '/shipments',
+    });
+  }
+
+  return metrics;
 }

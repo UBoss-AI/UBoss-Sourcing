@@ -46,7 +46,9 @@ import { sniffDocumentType, storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import {
   AdminNotificationKind,
+  ResolutionKey,
   createAdminNotification,
+  resolveAdminNotifications,
 } from '../notifications/admin-notification.service.js';
 import { Permission } from '../../domain/permissions.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
@@ -324,7 +326,7 @@ export async function uploadSellerDocument(
      * certificates must not have the second retire the first, and a seller
      * re-uploading a clearer scan of the same thing must.
      */
-    await tx.sellerDocument.updateMany({
+    const replaced = await tx.sellerDocument.findMany({
       where: {
         sellerAccountId: membership.sellerAccountId,
         supersededAt: null,
@@ -332,8 +334,33 @@ export async function uploadSellerDocument(
           ? { kind: input.kind, requirementFieldKey: null }
           : { requirementFieldKey }),
       },
+      select: { id: true },
+    });
+
+    await tx.sellerDocument.updateMany({
+      where: { id: { in: replaced.map((row) => row.id) } },
       data: { supersededAt: new Date() },
     });
+
+    /*
+     * A superseded document is not waiting for anybody.
+     *
+     * The seller has withdrawn it in favour of this one, so an alert asking an
+     * operator to decide it is asking them to decide a file that is no longer
+     * on offer. The new upload rings its own bell a few lines below, so the
+     * work does not disappear - it moves to the row that describes what is
+     * actually there.
+     */
+    for (const row of replaced) {
+      await resolveAdminNotifications(
+        {
+          resolutionKey: ResolutionKey.sellerDocument(row.id),
+          reason: 'The seller replaced this with a newer upload.',
+          source: 'SUPERSEDED',
+        },
+        tx,
+      );
+    }
 
     await tx.sellerDocument.create({
       data: {
@@ -394,6 +421,9 @@ export async function uploadSellerDocument(
     relatedType: 'seller_document',
     relatedId: id,
     dedupeKey: `seller-document:${id}`,
+    // Keyed on the document, so accepting one certificate does not clear the
+    // alert about the licence uploaded beside it.
+    resolutionKey: ResolutionKey.sellerDocument(id),
   });
 
   const row = await prisma.sellerDocument.findUniqueOrThrow({
@@ -473,9 +503,22 @@ export async function withdrawSellerDocument(
     );
   }
 
-  await prisma.sellerDocument.update({
-    where: { id: row.id },
-    data: { supersededAt: new Date() },
+  await prisma.$transaction(async (tx) => {
+    await tx.sellerDocument.update({
+      where: { id: row.id },
+      data: { supersededAt: new Date() },
+    });
+
+    // Withdrawn by the seller, so there is nothing left for an operator to
+    // decide. The alert goes with it.
+    await resolveAdminNotifications(
+      {
+        resolutionKey: ResolutionKey.sellerDocument(row.id),
+        reason: 'The seller withdrew this document.',
+        source: 'SUPERSEDED',
+      },
+      tx,
+    );
   });
 
   // Best-effort: a row correctly withdrawn must not be rolled back because the
@@ -760,15 +803,36 @@ export async function decideSellerDocument(input: DocumentDecisionInput): Promis
 
   const isApproval = input.decision === 'APPROVED';
 
-  await prisma.sellerDocument.update({
-    where: { id: document.id },
-    data: {
-      approvedAt: isApproval ? new Date() : null,
-      approvedByUserId: isApproval ? input.adminUserId : null,
-      // Cleared on an approval, so a document sent back and then accepted does
-      // not keep showing the seller the reason it was once refused.
-      rejectedReason: isApproval ? null : reason,
-    },
+  /*
+   * The decision and the alert it closes, in one transaction.
+   *
+   * A document accepted while its console alert stayed ACTIVE is an operator
+   * being asked, tomorrow, to decide something that was decided today. The
+   * transaction is what stops the two drifting: either both happen or neither
+   * does. Accepting and refusing both close it - the alert says "somebody has
+   * to look at this", and somebody has.
+   */
+  await prisma.$transaction(async (tx) => {
+    await tx.sellerDocument.update({
+      where: { id: document.id },
+      data: {
+        approvedAt: isApproval ? new Date() : null,
+        approvedByUserId: isApproval ? input.adminUserId : null,
+        // Cleared on an approval, so a document sent back and then accepted does
+        // not keep showing the seller the reason it was once refused.
+        rejectedReason: isApproval ? null : reason,
+      },
+    });
+
+    await resolveAdminNotifications(
+      {
+        resolutionKey: ResolutionKey.sellerDocument(document.id),
+        reason: isApproval ? 'Accepted.' : `Not accepted: ${reason}`,
+        source: 'DOMAIN_EVENT',
+        resolvedByUserId: input.adminUserId,
+      },
+      tx,
+    );
   });
 
   await recordAudit({

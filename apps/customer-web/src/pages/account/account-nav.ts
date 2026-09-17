@@ -28,6 +28,7 @@ import {
   BoxIcon,
   CalendarIcon,
   CardIcon,
+  ChartIcon,
   GlobeIcon,
   HeartIcon,
   LinkIcon,
@@ -40,6 +41,7 @@ import {
 import type { TranslationKey } from '@/i18n/i18n-context';
 
 export type AccountNavId =
+  | 'dashboard'
   | 'orders'
   | 'schedules'
   | 'profile'
@@ -73,6 +75,18 @@ export interface AccountNavItem {
 
 /** Every destination, by id. The two orderings below index into this. */
 export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
+  /*
+   * First in the table and first in both orderings, because it is where
+   * `/account` now lands and because it is the one screen here that answers a
+   * question somebody has not thought to ask yet.
+   */
+  dashboard: {
+    id: 'dashboard',
+    to: '/account/dashboard',
+    labelKey: 'account.nav.dashboard',
+    menuLabelKey: 'account.nav.dashboard',
+    icon: ChartIcon,
+  },
   orders: {
     id: 'orders',
     to: '/account/orders',
@@ -208,7 +222,10 @@ function include(ids: readonly AccountNavId[], flags: AccountNavFlags): AccountN
  */
 export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
-    { titleKey: 'account.group.orders', items: include(['orders', 'schedules'], flags) },
+    {
+      titleKey: 'account.group.orders',
+      items: include(['dashboard', 'orders', 'schedules'], flags),
+    },
     {
       titleKey: 'account.group.accountSettings',
       items: include(['profile', 'company', 'addresses', 'region'], flags),
@@ -240,7 +257,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
  */
 export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
-    { titleKey: 'account.group.yourAccount', items: include(['profile'], flags) },
+    { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile'], flags) },
     { titleKey: 'account.group.orders', items: include(['orders', 'schedules'], flags) },
     {
       titleKey: 'account.group.payments',

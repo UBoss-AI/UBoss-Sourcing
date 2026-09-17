@@ -29,6 +29,7 @@
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
     "db:seed": "tsx src/seed/index.ts",
+    "db:rotate-seed-passwords": "tsx src/seed/rotate-seed-passwords.cli.ts",
     "db:reference": "tsx src/seed/reference-data.cli.ts",
     "openapi:export": "tsx src/http/openapi-export.ts",
     "test": "vitest run",

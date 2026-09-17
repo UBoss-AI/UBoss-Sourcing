@@ -23,6 +23,14 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const throughTunnel = mode === 'tunnel' || process.env.TUNNEL === '1';
 
+  // `npm run build:netlify`. A static host serves this bundle to the public
+  // internet, so the source maps stay behind: `sourcemap: true` publishes every
+  // .ts and .tsx file in this app next to the bundle, readable by anyone who
+  // opens devtools. That is fine on a dev server and not fine on a URL handed
+  // to a customer. Nothing else about the build changes - the API base comes
+  // from `.env.netlify`, which this mode loads.
+  const forNetlify = mode === 'netlify';
+
   // Which Host headers this server answers to besides loopback - in EVERY mode.
   //
   // Vite's host check is a DNS-rebinding defence: by default only `localhost`
@@ -87,14 +95,24 @@ export default defineConfig(({ mode }) => {
           changeOrigin: false,
         },
         // A free tunnel gives out one hostname, so the admin panel lives behind
-        // /admin on it rather than needing a second tunnel of its own; it is
-        // built with base=/admin/ then, so its own asset URLs match. Only under
-        // a tunnel: locally the panel runs at base=/ on its own port, and
-        // proxying it here would serve markup whose asset URLs 404.
+        // /admin on it and the logistics portal behind /logistics, rather than
+        // each needing a tunnel of its own; both are built with a matching
+        // `base` then, so their own asset URLs line up. Only under a tunnel:
+        // locally each runs at base=/ on its own port, and proxying them here
+        // would serve markup whose asset URLs 404.
+        //
+        // The logistics portal is the one of the three that has a hostname of
+        // its own in production - a carrier never reaches it under the
+        // storefront. This is a development arrangement so that all three can
+        // be shown from one free tunnel, and nothing outside dev depends on it.
         ...(throughTunnel
           ? {
               '/admin': {
                 target: 'http://localhost:5173',
+                changeOrigin: false,
+              },
+              '/logistics': {
+                target: 'http://localhost:5175',
                 changeOrigin: false,
               },
             }
@@ -118,7 +136,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
+      sourcemap: !forNetlify,
     },
     test: {
       environment: 'jsdom',

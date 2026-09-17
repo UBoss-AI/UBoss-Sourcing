@@ -8,11 +8,17 @@
 #
 # THE ONE DIFFERENCE FROM A DEVELOPER'S MACHINE, AND IT MATTERS
 #
-# Development runs MariaDB 10.4 out of XAMPP, which is not strict. Production
-# runs 10.11 on Ubuntu, which is: a value too long for its column is truncated
-# with a warning on one and rejected with an error on the other. This workflow
-# uses 10.11 so that difference surfaces here rather than on launch night. See
-# docs/DEPLOYMENT.md section 13.
+# Development runs MariaDB 10.4.32 out of XAMPP, which went out of support in
+# June 2024 and is not strict. Production runs 11.4 LTS, which is both
+# supported and strict: a value too long for its column is truncated with a
+# warning on one and rejected with an error on the other. This workflow uses
+# the exact production patch so that the difference surfaces here rather than
+# on launch night.
+#
+# The version is PINNED, not floating. `mariadb:11.4` moves every time a patch
+# ships, and a CI run whose database changed under it has not tested what the
+# last one tested. When production is upgraded, this changes in the same commit
+# - see docs/DATABASE-PRODUCTION.md section 3.
 # =============================================================================
 name: CI
 
@@ -40,8 +46,10 @@ jobs:
 
     services:
       mariadb:
-        # 10.11 is what Ubuntu 24.04 packages and what production runs.
-        image: mariadb:10.11
+        # The exact patch production runs. Kept in step with
+        # deploy/compat/docker-compose.yml, which pins the same image by digest
+        # for the local rehearsal.
+        image: mariadb:11.4.13
         env:
           MARIADB_ROOT_PASSWORD: ci-root-not-a-secret
         options: >-
@@ -151,6 +159,114 @@ jobs:
         run: npx prisma migrate status
         env:
           DATABASE_URL: mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss
+
+      # `migrate status` proves the migrations have all been applied. It does
+      # NOT prove they produce what schema.prisma describes, and those are
+      # different things: an index created by a migration and never declared
+      # here, or declared here and never migrated, passes `status` and shows up
+      # as a surprise migration the next time anybody runs `migrate dev`.
+      #
+      # Exit 2 means "there is a difference", which is the failure. Exit 1 means
+      # the command could not run, which is also a failure but a different one -
+      # so the two are separated rather than both read as drift.
+      - name: The migrations and schema.prisma agree
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss
+        run: |
+          set +e
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code >/dev/null 2>&1
+          code=$?
+          set -e
+          case "$code" in
+            0) echo "No difference." ;;
+            2) echo "::error::The committed migrations and schema.prisma disagree. The differences:"
+               npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma
+               echo "::error::Reconcile this WITHOUT rewriting migration history - docs/DATABASE-MIGRATION.md section 5. Do not run 'prisma migrate dev' to fix it."
+               exit 1 ;;
+            *) echo "::error::prisma migrate diff could not run (exit $code)."; exit 1 ;;
+          esac
+
+      # A migration that DROPs is not forbidden - the expand-and-contract
+      # pattern ends with one - but it must never reach production because
+      # nobody looked. This lists them so that a reviewer sees them on the pull
+      # request, and fails only when one appears in a migration that is new on
+      # this branch.
+      - name: Destructive migrations are declared, not discovered
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          new_migrations=$(git diff --name-only --diff-filter=A "origin/${{ github.base_ref }}"...HEAD -- 'backend/prisma/migrations/**/migration.sql' || true)
+          if [ -z "$new_migrations" ]; then echo "No new migrations on this branch."; exit 0; fi
+          echo "New migrations on this branch:"; echo "$new_migrations"
+          destructive=$(grep -lniE '^\s*(DROP (TABLE|COLUMN|DATABASE)|ALTER TABLE .* DROP |TRUNCATE)' $new_migrations || true)
+          if [ -n "$destructive" ]; then
+            echo "::warning::These migrations remove schema or data:"
+            echo "$destructive"
+            grep -niE '^\s*(DROP (TABLE|COLUMN|DATABASE)|ALTER TABLE .* DROP |TRUNCATE)' $destructive
+            echo "::warning::That is allowed - the contract half of expand-and-contract is exactly this - but it must be deliberate."
+            echo "::warning::Confirm in the pull request that the column is unread by BOTH the running release and this one, and that a backup exists. docs/DATABASE-MIGRATION.md section 11."
+          else
+            echo "No destructive statements in the new migrations."
+          fi
+
+      # The least-privilege model, exercised on every pull request.
+      #
+      # `audit_logs` is append-only by database grant, and the grant has to be
+      # generated per table because MariaDB will not revoke a table-level
+      # privilege that was granted at database level. That generator reads the
+      # table list from the database, so a migration that adds a table changes
+      # its output - which means it is exactly the kind of thing that breaks
+      # silently and is only noticed in production.
+      - name: The application account cannot rewrite its own audit log
+        working-directory: backend
+        run: |
+          mariadb -h 127.0.0.1 -uroot -pci-root-not-a-secret -e "
+            CREATE USER 'uboss_app'@'%' IDENTIFIED BY 'ci-app-not-a-secret';
+            GRANT SELECT, INSERT ON uboss.* TO 'uboss_app'@'%';"
+
+          printf "SET @app_user='uboss_app'; SET @app_host='%%';\n" \
+            | cat - ../deploy/mariadb/post-migrate-grants.sql \
+            | mariadb -h 127.0.0.1 -uroot -pci-root-not-a-secret -N -B uboss \
+            | mariadb -h 127.0.0.1 -uroot -pci-root-not-a-secret -B uboss
+
+          # Reading is fine. Rewriting history is not, and neither is DDL.
+          mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "SELECT COUNT(*) FROM audit_logs;" uboss >/dev/null \
+            || { echo "::error::uboss_app cannot read audit_logs - the grants are too tight."; exit 1; }
+
+          if mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "UPDATE audit_logs SET action='x' WHERE 1=0;" uboss 2>/dev/null; then
+            echo "::error::uboss_app can UPDATE audit_logs. The audit trail is not append-only."
+            exit 1
+          fi
+          if mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "DELETE FROM audit_logs WHERE 1=0;" uboss 2>/dev/null; then
+            echo "::error::uboss_app can DELETE from audit_logs. The audit trail is not append-only."
+            exit 1
+          fi
+          if mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "CREATE TABLE ci_should_not_exist (id INT);" uboss 2>/dev/null; then
+            echo "::error::uboss_app can create tables. The runtime account has DDL rights it must not have."
+            exit 1
+          fi
+          # ...and it must still be able to do its actual job.
+          mariadb -h 127.0.0.1 -uuboss_app -pci-app-not-a-secret -e "UPDATE orders SET internalNote=internalNote WHERE 1=0;" uboss \
+            || { echo "::error::uboss_app cannot UPDATE orders - apply-grants missed a table."; exit 1; }
+          echo "audit_logs is append-only; DDL is denied; ordinary writes still work."
+
+      # The validation query set, against the freshly migrated (empty) database.
+      # On an empty schema every check must be zero, so this is a cheap proof
+      # that none of the queries has drifted away from a renamed column - which
+      # is how a data-validation script quietly stops validating anything.
+      - name: The data-validation queries still run
+        working-directory: backend
+        run: |
+          mariadb -h 127.0.0.1 -uroot -pci-root-not-a-secret -N -B uboss \
+            < ../scripts/db/validate-data.sql > /tmp/validation.tsv
+          failures=$(awk -F'\t' '$3 == "0" && $2 != "0" { print $1" = "$2 }' /tmp/validation.tsv)
+          if [ -n "$failures" ]; then
+            echo "::error::Validation checks failed against an empty migrated database:"
+            echo "$failures"
+            exit 1
+          fi
+          echo "$(wc -l < /tmp/validation.tsv) checks ran, all clean."
 
       # Split into three, deliberately.
       #

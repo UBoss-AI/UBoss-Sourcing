@@ -32,7 +32,9 @@ import {
   assertSellerOrderTransition,
   type SellerOrderGroupStatusName,
 } from '../../domain/seller-state.js';
+import { env } from '../../config/env.js';
 import { newId } from '../../infra/ids.js';
+import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
@@ -436,6 +438,33 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
   // The buyer's order follows the sellers on an order nobody's staff touches.
   // Outside the transaction on purpose - see `syncOrderWithSellerGroups`.
   await syncOrderWithSellerGroups(orderId);
+
+  /*
+   * And the carriers hear about it.
+   *
+   * Accepting is the first moment a seller with several buildings has said
+   * which one the parcel leaves from, and a consignment cannot name a pickup
+   * door before that. The confirmation already raised one for every seller
+   * whose place was not in doubt, and raising is idempotent per part, so this
+   * adds the ones that were waiting and repeats nothing.
+   *
+   * Never allowed to fail the acceptance: the seller has taken the work on,
+   * and a logistics table that is unhappy must not undo that.
+   */
+  if (input.to === 'ACCEPTED' && env.FEATURE_LOGISTICS_PORTAL) {
+    try {
+      const { createShipmentsForOrder } = await import(
+        '../logistics/shipment-create.service.js'
+      );
+
+      await createShipmentsForOrder(orderId, null);
+    } catch (error: unknown) {
+      logger.warn(
+        { err: error, orderId, groupId: input.groupId },
+        'could not raise the consignment for an accepted seller order; it can be raised from the admin panel',
+      );
+    }
+  }
 }
 
 export interface ShipmentInput {

@@ -22,6 +22,7 @@ import {
   markNotificationFailed,
   markNotificationSent,
 } from '../modules/notifications/notification.service.js';
+import { archiveOrphanedShipmentAlerts } from '../modules/notifications/admin-notification.service.js';
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
@@ -659,6 +660,21 @@ const logisticsMaintenance: JobHandler = async () => {
     outcomes['webhooksDeadLettered'] = webhooks.deadLettered;
   } catch (error) {
     logger.error({ err: error }, 'carrier webhook retry pass failed');
+  }
+
+  /*
+   * Alerts about consignments that no longer exist.
+   *
+   * Removing a carrier takes its consignments with it through the cascade, and
+   * an operator alert about one of those is now asking somebody to act on a
+   * screen that will 404 - a badge nobody can ever clear, which is exactly the
+   * failure the resolution lifecycle exists to remove. Archived rather than
+   * resolved, because nobody fixed anything: the question stopped existing.
+   */
+  try {
+    outcomes['orphanedAlertsArchived'] = await archiveOrphanedShipmentAlerts();
+  } catch (error) {
+    logger.error({ err: error }, 'orphaned console alert sweep failed');
   }
 
   const touched = Object.values(outcomes).reduce((total, value) => total + value, 0);

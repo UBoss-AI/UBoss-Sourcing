@@ -797,6 +797,34 @@ Escape closes it and returns focus to the trigger; so does a click outside.
 Below `sm` it is a bottom sheet with its own close button, because a sheet
 covering half a phone needs a visible way out that is not a gesture.
 
+### The globe on the front page
+
+The hero carries a **hex-dot globe**: a dark sphere whose continents are drawn
+as a field of small hexagons, a lit atmosphere, and trade arcs travelling
+between real sourcing hubs — Antwerp to Mumbai, Frankfurt to Singapore. It
+turns on its own, once every 22 seconds, and a visitor can take hold of it and
+spin it; letting go coasts to a stop rather than snapping back.
+
+Built on **`three-globe`**, which is what the "GitHub globe" treatment is
+rendered with. It is a plain `THREE.Object3D` dropped into the renderer, camera
+and frame loop `HeroStage.tsx` already owns — React Three Fiber and Drei were
+deliberately NOT added to render one object inside a renderer that already
+exists, which saved about 300 KB and a second reconciler.
+
+**The land comes from `world-land.ts`** — coordinates this repository owns —
+converted to GeoJSON polygons, because `three-globe` speaks GeoJSON. No image
+and no map data is ever fetched. The front page of a medical marketplace should
+not call a tile server, and a customer running this behind their own firewall
+should not have to allow one.
+
+Two numbers worth knowing before changing it. `hexPolygonResolution` is an
+**H3 grid resolution, 0–15, and must be a whole number** — a fraction throws
+`Resolution argument was outside of acceptable range` before a hexagon is
+drawn. Each step up is roughly seven times the cells: 3 is about 12,000
+worldwide, 4 is about 80,000 and drops frames without a discrete GPU. And the
+hexagons take `palette.land`, which is tuned to hold 4.5:1 against the white
+"Sourcing" label sitting on top of them — brightening it to taste breaks that.
+
 ## The front page: the search module
 
 To the left of the sourcing graphic, under the headline, sits the thing this
@@ -1795,6 +1823,60 @@ Hiding the navigation entirely strands somebody who arrived on a deep link with
 no way to the rest of their account, so on a phone the current page's name is a
 button that opens the list. (Longest path match wins, so
 `/account/orders/ORD-1` is labelled "My orders" rather than "Account".)
+
+### The dashboard
+
+`/account` lands here now, and it is the one screen in this section that
+answers a question somebody has not thought to ask yet: **is anything waiting
+on me?** Everything else under `/account` answers a question they already had.
+
+The page is one request — `GET /account/dashboard` — and every figure on it is
+a database aggregate scoped to the signed-in customer's profile. Nothing on the
+screen counts a list it was sent. A dashboard that computes its own totals is a
+dashboard that eventually disagrees with the screen it links to, and the
+disagreement is always found by the person whose money it is.
+
+**What "the buyer's data" means here, exactly.** Orders, schedules, spend and
+deliveries belong to a CUSTOMER PROFILE — `orders.customerProfileId` is the
+owner and `assertOwnership` is written against it. The ERP block is the one
+exception and it is not an inconsistency: a connection to a buyer's own SAP
+belongs to their `BuyerOrganization`, because several colleagues configure and
+watch one integration. Those two scopes are kept apart deliberately; reading
+them as one would be the bug.
+
+**The hero is a ring — "My orders".** The ten database statuses fold into five
+groups a buyer actually thinks in: waiting on you, being prepared, on the way,
+delivered, and cancelled-or-returned. `DRAFT` is in none of them and in none of
+the totals — the window filters on `placedAt`, which a draft does not have,
+because a draft is a basket somebody abandoned rather than an order.
+
+Clicking a slice, or its legend entry, filters the order list underneath it.
+Both the ring and the list are built from one table in `lib/buyer-dashboard.ts`,
+so a segment showing four orders cannot open a list showing three. A test holds
+that mapping to covering every status exactly once — a status belonging to no
+group would be counted in no segment, and the ring would add up to less than
+the total with nothing on screen saying so.
+
+**The chart is not the only way to read it.** The ring itself is one image with
+a label carrying every figure; its arcs are decoration in the accessibility
+tree. The LEGEND is the control — each entry a real button with `aria-pressed`,
+carrying the label, the count and the share as text, and a shape as well as a
+colour on its swatch. Under it, "View as a table" opens the same figures as a
+real table. Nothing on the card is reachable only by pointing at it, and nothing
+rests on telling red from green.
+
+**The window and the selection live in the URL.** `?range=30d&segment=action`,
+so a buyer can send a colleague "the orders waiting on us this month", and so
+Back from an order returns to the ring it was clicked from. Today, 7 days, 30
+days and a custom pair; "today" is the calendar day rather than the last 24
+hours, because a delivery that happened yesterday afternoon is not due today.
+
+Beside the ring sits **UBOSS AI Insights** — see section 8. The cards under it
+are the supporting figures: what was paid this period against the period
+before, what is promised in the next seven days, how many schedules cannot run
+without the cardholder, the orders needing payment or an approval (however
+old — an unpaid order from six weeks ago is more urgent than one from this
+morning), and whether the buyer's own ERP feed is working.
 
 ### Profile information
 
@@ -3074,7 +3156,9 @@ It runs after the seller's own transaction commits rather than inside it:
 sends the buyer's email and hands the order to their ERP. It is written to be
 re-run, so a crash in between is repaired by the next dispatch rather than
 doubled. `CONFIRMED → PROCESSING` and `PROCESSING → SHIPPED` gained `SYSTEM` as
-an actor for exactly this, and nothing else.
+an actor for this; the carrier's own milestones use the same two moves, for the
+same reason and by the same rung-at-a-time walk — see "What this does not
+touch" under the logistics portal.
 
 **A dispatch can be recorded straight from ACCEPTED.** "Picking" and "ready to
 go" are a seller telling their own staff where a box has got to; plenty of
@@ -3087,6 +3171,14 @@ recorded dispatch, never by a button that simply says SHIPPED.
 shipments into `shipments` with a `sentBy` naming the seller (null for the
 shop's own box), because an order arriving as two parcels on two days from two
 businesses is a tracking list the buyer cannot otherwise match to anything.
+
+**And who is carrying it.** The same list carries the consignment raised for
+each part of the order, named by the carrier holding it and quoting the
+tracking number this marketplace issued. It appears only where that part has no
+despatch note of its own yet: the seller's note and the carrier's consignment
+describe one box, and listing both would tell a buyer expecting one delivery to
+expect two. Nothing else off the consignment crosses to the buyer — not the
+pickup address, not the handling flags, not the declared value.
 
 #### How a line gets a seller: one storefront per seller
 
@@ -3332,6 +3424,185 @@ meantime.
 | `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
 | `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
 
+## The dashboard: the morning's work, above the month's figures
+
+The admin dashboard is a ring called **Platform operations**, the queues behind
+it, and the insights panel. Nothing else.
+
+The sales half — five headline figures with sparklines and deltas, the
+order-status bar and its table, the payments summary, the low-stock queue and
+the recurring panels — was **removed**. None of the DATA went: `GET
+/admin/dashboard` still returns every one of those aggregates, and each has a
+screen that owns it (Reports, Orders, Payments, Inventory, Recurring), all
+unchanged and all still in the navigation. What went was a second, thinner copy
+of them on a screen whose job turned out to be a different question: not "how
+did the month go" but "what should the team do first this morning". A queue
+nobody has looked at is a seller waiting four days for a decision.
+
+There is no request in `DashboardPage.tsx` any more, because there is nothing
+left for it to fetch. The hero owns the one query the page makes, and the
+refresh control invalidates it rather than holding a second copy.
+
+`GET /admin/operations` counts what is waiting, grouped five ways — approvals,
+payments, inventory, logistics, platform. It is built on the same
+`readAttention` that draws the badges on the navigation rail, so the number on
+the rail and the number in the ring can never disagree; what it adds are the
+operational faults that are not a queue somebody decides and therefore have no
+badge: a payment nobody can reconcile, an ERP that has stopped answering, a bin
+below its reorder point, a job that died.
+
+**Three rules the counts follow, and the third is the one that matters most.**
+
+- A count is gated by the permission that makes it ACTIONABLE, not by the one
+  that makes a page visible.
+- A queue the caller may not see is ABSENT, not zero. The difference between
+  "0 pending data-subject requests" and "you may not see that" is itself
+  information — and it means the ring reconciles by construction, because the
+  total is the sum of what this caller can see.
+- **Resolved work is not waiting work.** An exception somebody has
+  acknowledged, a brand request sitting with the seller, a connection
+  deliberately paused: none of them is counted. A number nobody can clear is a
+  number everybody learns to ignore.
+
+So a warehouse manager sees a two-segment ring and a finance approver sees a
+different two, and neither learns anything about the other's queues. There is
+no permission check in the frontend at all, deliberately: a second opinion
+about who may see what is a second opinion that eventually disagrees with the
+first.
+
+Clicking a group lists the queues inside it, each linking to the screen the
+work is decided on — and the link comes from the SERVER, on the queue itself,
+rather than from a table in the panel. That is what makes "clicking a segment
+opens the right queue" true by construction. Domains are never merged: choosing
+"payments" shows payment queues; it does not roll a failed schedule charge in
+with a rejected webhook and call the total "money problems", because they are
+fixed on different screens by different people.
+
+The window picker is now four tabs — today, 7 days, 30 days, custom — shared
+with the other two dashboards. The 90-day and 12-month presets went; that is
+what the custom range is for. What was gained is "today", which an operations
+screen needs far more than a year.
+
+## The bell: news, problems, and the difference between them
+
+The bell in the top bar carries two kinds of row, and they leave it in
+opposite ways.
+
+**News** is something that happened. A customer placed an order; a colleague
+signed in from Pune; somebody created an account. It is true forever, nobody
+can fix it, and the only person who can be done with it is the one reading it.
+So it is cleared **by being read, per reader** — several people share one
+console, and clearing your badge leaves everyone else's alone.
+
+**An alert** is something that is wrong. A consignment went warm; a delivery
+failed; a data-subject request is inside its statutory clock; a seller uploaded
+a certificate nobody has decided. It stays worth acting on until the underlying
+problem reaches a terminal state, whether or not anybody has glanced at the
+bell. So it is cleared **by the problem being fixed, for everybody**.
+
+Conflating the two is the failure this design exists to prevent, and it fails
+in both directions: a temperature excursion used to clear itself the moment
+somebody looked at the bell, and an exception genuinely closed at nine o'clock
+sat in the feed until the ninety-day prune took it.
+
+### The active-alert rule
+
+The number on the bell is not "unread" any more. A row counts when the reader
+may see it, has not dismissed it, and either
+
+- it is news they have not read, or
+- it is an alert that is still open.
+
+That is computed on the server, in one place, and the feed and the badge both
+read it — so they cannot disagree about what is waiting.
+
+### Five states, and where each one lives
+
+Where a piece of state is stored is decided by whose fact it is.
+
+| State | Stored on | Whose fact |
+|---|---|---|
+| Unread | the absence of a read row | one reader |
+| Read | `admin_notification_reads` | one reader |
+| Dismissed | `admin_notification_reads.dismissedAt` | one reader |
+| Resolved | `admin_notifications.status` | the world |
+| Archived | `admin_notifications.status` | the world |
+
+There is no separate *acknowledged* state. The bell has no "I am on it" action
+to write one, and a column nothing ever writes is a column that lies to
+whoever reads it next. Reading is the acknowledgement this product has.
+
+**Dismissing is not resolving.** It is the escape hatch for an alert that is
+somebody else's job: it takes the row out of one person's bell and changes
+nothing about the problem. That separation is the point — an operator tidying
+their own view must not be able to make a cold-chain failure look handled.
+
+### What resolves what
+
+An alert is closed by the domain event that fixes the thing, **inside the same
+transaction that moved it**. An exception that commits as resolved while its
+alert stays open is exactly the drift this replaces.
+
+| Alert | Open while | Closed by | Who |
+|---|---|---|---|
+| Consignment exception | the exception is not RESOLVED or CLOSED | closing the exception, with a note | the carrier, or an operator correcting it |
+| Delivery failed | the consignment is in a failed state | the parcel moving again, being delivered, or being returned | a tracking event from any authorised actor |
+| Awaiting a carrier | nobody has accepted it | a carrier accepting it — **or an operator closing it by hand with a reason** | `logistics.assign` |
+| Seller document | neither accepted, refused nor replaced | the decision, or the seller replacing it | `customer.status.write` |
+| Data-subject request | it is still PENDING | approving or refusing it | `data_request.action` |
+
+Everything in that table except *awaiting a carrier* is **domain-only**: the
+bell offers no Resolve button, and the endpoint refuses one, naming the screen
+where the real decision is made. The refusal is the control — if a button here
+could close a cold-chain failure, the quickest way to make a compliance problem
+disappear would be to click past it.
+
+*Awaiting a carrier* is the exception because it is the one case where a person
+genuinely is the only source of truth: an operator who has telephoned a haulier
+and arranged collection by hand has dealt with it, and no row anywhere will
+ever say so. Closing one needs a reason of at least four characters, and writes
+an audit entry naming who did it. Reading and dismissing write no audit entry,
+because they change nothing except what one person is looking at.
+
+### Recurrence
+
+A resolved alert is history, and history is not edited. A problem that comes
+back gets a **new row** with the next occurrence number and its own dedupe key
+— so "closed at nine, back at eleven" stays readable, where a reopened row
+would have quietly overwritten the first answer. The panel says *Occurrence 2*
+on the new one.
+
+Two keys do two jobs here, and they are usually the same string:
+`dedupeKey` is the identity of one **telling** — what stops a retried operation
+ringing the bell twice. `resolutionKey` is the identity of the **problem** —
+what lets one domain event close every occurrence still open about it. A
+consignment can carry a customs hold and a temperature excursion at once, and
+they are keyed on the exception rather than the shipment, so closing one leaves
+the other exactly where it was.
+
+### Retention
+
+The bell is a "what happened lately" feed, not a record — the audit trail and
+the orders are the record. Rows older than ninety days are swept, with one
+exception: **a live alert is never pruned, however old it is.** An unresolved
+excursion from four months ago is still unresolved, and clearing a badge by
+forgetting the problem is the one thing this whole design exists to prevent.
+
+The one way a live alert leaves without anybody fixing anything is the **orphan
+sweep** in the worker's logistics maintenance pass: an alert about a
+consignment that no longer exists — a carrier removed, and the cascade took its
+consignments with it — is asking somebody to act on a screen that will 404, and
+that is a badge nobody can ever clear. Those are marked **ARCHIVED** rather
+than RESOLVED, because nobody fixed anything; the question stopped existing,
+and the record says which of the two happened.
+
+The carrier's own bell in the Logistics Partner Portal follows the same rule,
+with the same two classes and the same resolution — so a dispatcher and an
+operator looking at the same consignment are counting the same way. It has no
+per-reader dismissal, and that is structural rather than an omission: a carrier
+notification is addressed either to one member or to the whole organisation, so
+there is no shared row for one person to hide from themselves.
+
 ## The navigation rail says what is waiting
 
 Every row in the sidebar that has a queue behind it carries a count when
@@ -3341,10 +3612,10 @@ open consignment exceptions, and — on one row, because they are decided on one
 screen — seller applications and the certificates attached to them.
 
 This is not the bell next door, and the difference is worth stating. The bell
-answers *what happened lately* and is cleared by reading it. These are things
-that are still sitting there, and the only thing that clears one is somebody
-deciding it. An operator opening the console at nine should be able to see that
-four listings and one brand are waiting without opening a single screen.
+answers *what happened lately and what is still wrong*, row by row, with a link
+to each. These are the same queues counted from the other end — how many are
+sitting there — so an operator opening the console at nine can see that four
+listings and one brand are waiting without opening a single screen.
 
 Three decisions in it:
 
@@ -3617,6 +3888,87 @@ and it runs on the server, which is the only place that join is available.
 Alongside it are an operational-status filter and a country filter. All three
 live in the URL, the way the Dashboard's reporting window does, so a colleague
 can be sent the address bar.
+
+## The second set of warehouses: where sellers dispatch from
+
+On a marketplace, a growing share of what a buyer orders never passes through
+a building this deployment owns. It ships from a seller's own depot, and until
+this view existed there was no screen that could answer "where does Northwind
+dispatch from?" or "which of our sellers can reach Greece?".
+
+So the Warehouses screen has three views, chosen by a control under the title:
+
+| View | Shows |
+|---|---|
+| **Our warehouses** | `inventory_locations` — the screen as it has always been, and the default |
+| **One seller company** | the dispatch locations of one approved seller |
+| **Every seller** | every approved seller's locations at once, each row naming its owner |
+
+**Nothing about the first view changed.** It is the same query, the same map,
+the same table and the same five rules above. The other two are a second view
+beside it rather than a merge, and they are `seller_locations` rows — a
+seller's own master data, maintained by them in the Seller Hub. This screen
+reads; it never writes one.
+
+### Who can be chosen
+
+**A seller is offered when its onboarding is approved and its account is
+live** — `status = APPROVED` and not archived. Not whether its brands were
+approved and not whether it has a published listing: those are decisions about
+products, and a business can be perfectly approved with nothing live yet. A
+draft, an application under review, a refusal and a suspension are all absent.
+
+That rule is enforced on the **warehouse endpoint** and not only on the
+picker. Typing a suspended seller's id into the address bar returns an empty
+list and a null company — the same answer as an id that does not exist —
+because a picker that hides an ineligible business while the API behind it
+answers for one is not a control.
+
+### Two grants, both required
+
+The seller views need `inventory.read` **and** `customer.read`. The first
+makes the warehouse screen visible; the second is the grant the Sellers queue
+itself sits behind, and these endpoints name businesses. An Inventory Manager
+holds the first and not the second, so for them the view control is **absent**
+rather than present and refused — a tab that answers 403 teaches people the
+screen is broken.
+
+### The map and the table show the same rows
+
+Literally the same array, not the same query paged twice. A map plotting page
+one of four misrepresents where a seller ships from, which is the one question
+this view exists to answer. So the server answers completely up to a cap of
+500 locations and says when it cut the list; the screen then tells the
+operator to narrow it rather than showing the first 500 as though they were
+all of them. The same shape the company directory uses, for the same reason.
+
+A location with **no coordinates stays in the table** and is counted under the
+map. Two different states are kept apart, because the fix differs: an address
+nobody has geocoded is a job somebody has not done, and a stored position that
+cannot be plotted is a value somebody has to correct. Either way one bad row
+never takes the map down with it.
+
+**Marker and row are two ends of one gesture.** Clicking a marker selects its
+row; each row carries a *Show on map* button that focuses its marker. The
+button is the real control — the row click beside it is a convenience for a
+pointer, and the button is what a keyboard reaches.
+
+**No delivery rings are drawn.** The operator's own warehouses carry a radius
+they promise to deliver within, and the map draws it. A seller location has no
+such field, so none is drawn: inventing a circle would put a promise on the
+screen that the seller never made and the marketplace cannot keep.
+
+### What a row carries
+
+Owner company and seller code, address and country, whether it can dispatch
+today and the seller's own reason if not, its handling capabilities (cold
+chain, controlled storage, sterile), a stock roll-up for that location, and
+when its balances last agreed with the seller's own ERP. **No ERP credential,
+endpoint or connection detail appears anywhere** — those belong to the seller.
+
+The owner column is dropped in the single-company view: a column repeating one
+name down a page carries no information, and the company is already named
+above the table.
 
 
 ## Clicking a warehouse: what is actually in it
@@ -4363,6 +4715,50 @@ up a second factor if their role needs one, and signs in at the portal
 themselves. The marketplace never holds that password, and there is no
 impersonation door anywhere in this product.
 
+### The dashboard ring: where the work is
+
+The carrier dashboard opens with **Assigned shipments** — a ring folding the
+twenty-seven consignment statuses into eight stages a dispatcher does something
+about: awaiting your answer, accepted, collected, in transit, out for delivery,
+delivered, exception, returning-or-cancelled.
+
+Eight and not the four the shipments FILTER offers, and the two vocabularies
+are kept apart on purpose. Four groups are right for a filter, where the
+question is "show me anything that has gone wrong" and the answer should be one
+click. A ring answers a different question — "where is my work, right now" —
+and "moving" contains both a consignment sitting in an origin hub and one on a
+van two streets from the recipient, which are different mornings. What the two
+are NOT allowed to do is disagree about which statuses exist, and a test holds
+both to the same set. (`CREATED` is in neither: it exists only between the
+marketplace raising a consignment and offering it, so no carrier is assigned
+and one can never appear in a carrier's own figures.)
+
+Failed deliveries never share a treatment with delivered ones, and returns are
+amber rather than red — a return is a job with a different destination, not a
+fault to chase. Split consignments keep their own tracking throughout: the ring
+counts `LogisticsShipment` rows, which is what a split produces, so nothing
+here collapses two parcels of one order into a single misleading timeline.
+
+**The driver filter narrows everything, not just the list.** Choosing a driver
+puts `?driver=` in the URL and sends `driverProfileId` to
+`GET /logistics/dashboard`, where the clause is ANDed into the scope every one
+of the fourteen counts shares. "3 exceptions" beside a list showing one
+driver's work would be a figure about somebody else. The clause is
+character-for-character the one `listShipments` already used, and the id is not
+checked against the partner separately — it does not need to be, because it is
+ANDed with `assignedPartnerId`, so another carrier's driver id simply matches
+nothing rather than being refused with a message that confirms it exists.
+
+**Everything else on this screen was removed.** The fourteen counters, the four
+service metrics, urgent exceptions, deliveries due today, upcoming pickups,
+recent activity and carrier-integration health have all gone, along with the
+four-segment proportion bar the ring replaced. The dashboard is the ring, the
+stage list under it and the insights panel.
+
+None of the data went with them: `GET /logistics/dashboard` still returns every
+one of those figures, and each is still reachable on the screen that owns it —
+Shipments, Collections, Dispatch and Problems, all unchanged in the navigation.
+
 ## The carrier's own screens
 
 `apps/logistics-web`, port 5175.
@@ -4370,13 +4766,13 @@ impersonation door anywhere in this product.
 | Route | What it is |
 |---|---|
 | `/dashboard` | Fourteen counters, aggregated on the server, one bar showing where all the work sits, plus today's pickups, deliveries, exceptions and recent activity. |
-| `/shipments` | The list. Server-side paging, sorting, filtering, debounced search, saved filters, bulk actions and CSV export bound to the active filter and the reader's role. |
-| `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, and the status form. |
+| `/shipments` | The list. Server-side paging, sorting, filtering, debounced search, saved filters, bulk actions and CSV export bound to the active filter and the reader's role. Filters by status, by service level, by **driver** and by whether there is an open problem — the driver filter absent for a driver, who holds no `driver.read` and whose own round is the whole of what they see. |
+| `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, the status form, and the driver — who has it, the chain of who has had it, and the controls to assign, move or take somebody off. |
 | `/pickups` | Collections to book and to confirm, in each warehouse's own timezone. |
 | `/dispatch` | Manifests, and handing one over. |
 | `/exceptions` | What has gone wrong, and recording what was done about it. |
 | `/companies` | The sellers and receiving businesses this carrier works with. |
-| `/drivers` | People and vehicles. |
+| `/drivers` | The fleet: drivers, added by typing a name, and the vans they drive. |
 | `/company` | The carrier's own profile, members and invitations. |
 | `/driver/tasks` | A driver's round, on a phone. |
 
@@ -4396,18 +4792,280 @@ The status form offers only the transitions the state machine allows from
 where the consignment is now, and the server checks again, because a form is a
 convenience and never a control.
 
+## Drivers, and who is carrying what
+
+A driver is **a name on a carrier’s fleet**, with a record describing what they
+are cleared to carry. That is the whole of it: no account, no invitation, no
+email round trip.
+
+This was the other way round once — a driver had to be a member of the carrier
+holding the DRIVER role — and it was wrong about how a haulier works. A carrier
+employs people who will never open this software: an agency driver covering a
+round, a subcontractor’s van, somebody who started this morning. A register
+that could only hold people with a login is a register that does not describe
+the fleet, and it meant a dispatcher could not put a real person on a real
+parcel until an invitation had been sent, opened and accepted.
+
+### How one is added
+
+Someone types their name.
+
+On the carrier’s own side that is `/drivers` → *Add driver*: a name, and
+optionally a telephone number, an email address, a staff number, a licence and
+its expiry, and the three things they are cleared to carry. **The owner fills
+it in** — this is their fleet, described in their words.
+
+The marketplace can do the same thing on their behalf, from *Logistics →
+Carriers → the carrier → Drivers and vehicles*. Not a marketplace-side copy:
+it is **one register with two doors into it**, so a driver added by the
+operations desk appears in the carrier’s own portal and one added there appears
+on the console. Two registers that had to be reconciled would be the bug this
+avoids. The desk does this when it is asked to — a carrier whose portal is
+down, a small haulier who works from a phone and rings in, a carrier onboarded
+this morning who has not signed in yet.
+
+Everything the desk writes lands in the **carrier’s own audit trail**, labelled
+as the marketplace rather than as an individual, so a carrier reading their
+trail can see what was done in their name. Who exactly did it is in the
+marketplace’s own `audit_log`, which the carrier cannot read — the same split
+`SellerAuditLog` draws.
+
+### An account is optional, and additive
+
+Linking a colleague’s account to a driver record is offered on the carrier’s
+own screen, where the team list lives, and says plainly what it buys: **the
+phone app**, which is what gates the task list, the scanner, proof of delivery
+and the trip a location ping belongs to. A driver with no account is a name a
+dispatcher can put on a van, and that is most of a fleet.
+
+One account, one driver record — `LogisticsDriverProfile.partnerUserId` is
+UNIQUE and nullable, and MariaDB treats every NULL in a unique index as
+distinct, so a carrier may have any number of record-only drivers and at most
+one record per account. It is deliberately **not** offered on the marketplace’s
+copy of the form: choosing which of another company’s staff gets a phone app is
+their decision, not the desk’s.
+
+The certifications are not paperwork: they are checked against the
+consignment's handling requirements every time somebody is put on one, and an
+unticked box is a refusal at assignment time.
+
+**Nobody is deleted.** A driver with delivery history is stood down, never
+removed — every assignment they ever held points at the row, and the chain of
+who carried what is what an operator reads after a bad delivery. Standing
+somebody down while they are still holding consignments asks first, and says
+how many.
+
+### Vehicles
+
+A van is added the same way and in the same two places — the carrier’s
+`/drivers` screen and the marketplace’s *Drivers and vehicles* card. A
+registration and a type are all that is required; a refrigerated van also
+records the temperature range it holds, which is what a cold-chain consignment
+is matched against. Maximum load is typed in kilograms, because that is what is
+written on the van, and stored in grams, because a weight is an integer in
+minor units.
+
+Naming a vehicle when a driver is put on a consignment is **optional**: a bike
+courier has no registration to record, and a carrier that does not track
+vehicles should not be made to invent one. Where one is named it is checked
+against the same fleet as the driver — a vehicle belonging to another carrier
+is refused for the same reason a driver is.
+
+### Assignment is at the SHIPMENT, never at the order
+
+An order splits. `createShipmentsForOrder` raises one consignment per
+**(order, seller group, warehouse)**, so a basket holding two sellers' goods
+from three buildings is three consignments that can go to three different
+carriers on three different days. Assigning one driver to "the order" would
+mean assigning them to work two other carriers are doing.
+
+So the driver hangs off `LogisticsDriverAssignment.shipmentId`. A screen may
+say "assign this order" when an order has exactly one consignment; the record
+underneath is always per shipment.
+
+### One live driver per consignment, enforced by the database
+
+Closing the previous assignment and creating a new one inside a transaction is
+correct and is **not sufficient**: two dispatchers pressing Assign in the same
+second both read "nothing live here", both close nothing, and both insert —
+and the parcel is on two vans until one of them telephones the other.
+
+`LogisticsDriverAssignment.activeShipmentId` holds the shipment id while an
+assignment is live and NULL once it is not, and a UNIQUE index over that one
+column does the rest. MariaDB treats **every NULL in a unique index as
+distinct** — the property `variantKey` exists elsewhere in this schema to work
+*around*, used here deliberately — so any number of finished assignments per
+consignment are permitted and exactly one live one. The loser of the race is
+told to look again.
+
+The two columns are written **together, always**: set `unassignedAt` and clear
+`activeShipmentId`, or the index starts refusing assignments for parcels nobody
+is carrying. Every write of either is in `assignDriver` or
+`driver-assignment.service.ts`.
+
+### The four refusals
+
+| Refused | Because |
+|---|---|
+| Another carrier's driver | `assertDriverOnFleet` filters on the partner **and** on ACTIVE, so a foreign id and a stood-down driver answer identically — distinguishing them would confirm the other carrier's driver exists |
+| A driver who is not ACTIVE | as above |
+| A finished consignment | delivered, returned, lost or cancelled. A stop on somebody's round for a parcel already in a hospital is a driver sent to a door for nothing |
+| A driver not cleared for the load | cold chain, sterile handling, dangerous goods, or an expired licence. This is medical freight |
+
+### Reassignment is a link, not an overwrite
+
+Moving a consignment between drivers requires a **reason of at least four
+characters**, closes the outgoing assignment with it, and points the incoming
+one back at the one it replaced. A to B to C, each link carrying why it moved,
+is what somebody reads after a bad delivery — and exactly what an overwrite
+throws away. Assigning the same driver twice is a no-op rather than a second
+row.
+
+There is also **take off without replacing**, for the case a reassignment
+cannot cover: a driver has called in sick and the depot does not yet know who
+is covering. Leaving them on it would leave a stop on a task list nobody will
+work. It is idempotent — a consignment with no driver is the desired end
+state, so saying so twice is not an error.
+
+### Both sides can do it, through one implementation
+
+The carrier does this in its own portal, against its own rota. The marketplace
+can do the same from *Logistics → Consignments → the consignment*, because
+somebody has to when the carrier cannot, and an operations desk that could only
+watch means a parcel that moves while its tracking page does not.
+
+It is not a second implementation. `FleetActor` in `driver.service.ts` is a
+two-member union — the carrier with its membership, or the marketplace with a
+carrier id and the operator’s user id — and every fleet function takes it. So a
+rule about who may drive what is written once and holds on both sides. What
+differs is only:
+
+| | Carrier | Marketplace |
+|---|---|---|
+| How authority is proved | its own logistics permissions, per action | an admin grant the route named |
+| Which fleet | its own, always | **derived from the consignment**, never taken from the request |
+| What the carrier’s audit trail says | the member’s name | “UBOSS operations” |
+| `assignedByPartnerUserId` | the member | null — an operator has no row in the carrier’s team, which is why `assignedByLabel` exists |
+
+The derived fleet is the important row. A request that could name the carrier
+would let the desk put DHL’s driver on a DPD consignment, which is not an
+authority question but a nonsense; deriving it from `assignedPartnerId` makes
+it impossible rather than merely discouraged. A consignment not yet with
+anybody is refused with a sentence saying so.
+
+On the marketplace side the permissions split along a line the product already
+drew: **`logistics.write`** is the fleet register — who drives, what they drive
+— and **`logistics.assign`** is putting somebody on a parcel and moving it. An
+Order Manager holds the second and not the first, so a clerk can dispatch a
+consignment and cannot add a driver to somebody’s fleet. Contracting with a
+haulier is not an order clerk’s decision.
+
+### Sending it on the way
+
+Once a driver is on a consignment, the next forward move is one button on the
+driver card — *Send on the way* — on both the carrier’s screen and the
+marketplace’s. It is a shortcut to a transition, never a second way to change a
+status: it writes the same event the status form writes, through the same
+endpoint and the same state machine, and it offers only the first of
+PICKUP_SCHEDULED, PICKED_UP, IN_TRANSIT, OUT_FOR_DELIVERY that the matrix
+currently allows. A button that offered a move the state machine was about to
+refuse would teach people to stop trusting the screen.
+
+The marketplace reaches it through `POST
+/admin/logistics/shipments/:id/status-events`, which is **not**
+`correct-status` and the difference matters to anybody reading the timeline
+afterwards:
+
+| | `status-events` | `correct-status` |
+|---|---|---|
+| What it means | the parcel moved | the status was wrong |
+| Reason | only where the matrix demands one | mandatory, at least eight characters |
+| `isCorrection` | false | true, and rendered as corrected for ever |
+| Can go backwards | no | yes — it is the only way out of DELIVERED, RETURNED, LOST or CANCELLED |
+
+Both honour `Idempotency-Key`, so a desk on a bad line that presses the button
+twice sends the van out once.
+
+### A finished consignment finishes its driver's stop
+
+When a shipment reaches a tracking-complete status — delivered, returned, lost
+or cancelled — `recordShipmentEvent` completes the live driver assignment **in
+the same transaction**, clearing `activeShipmentId` as well as setting
+`completedAt`. Without it a delivered parcel stays on its driver's open-task
+count for ever and the number on the fleet screen only goes up, which is how a
+dispatcher stops reading it. Clearing the marker is also what lets a
+consignment corrected out of a terminal status be given to a driver again.
+
 ## The marketplace's own screens
 
 Inside the admin panel, under **Logistics**.
 
 | Route | What it is |
 |---|---|
-| `/logistics/shipments` | Every consignment, whoever is carrying it, with the column the carrier's own screen cannot have: who has it, and whether anybody does. |
-| `/logistics/shipments/:id` | One consignment. Offer it to a carrier, take it back, correct a status, read the full timeline. |
+| `/logistics/shipments` | Every consignment, whoever is carrying it, with the columns no carrier's own screen can have: which carrier holds it, which **person** inside that carrier is driving it, and whether anybody is. |
+| `/logistics/shipments/:id` | One consignment. Offer it to a carrier, take it back, correct a status, read the full timeline — and work the fleet: put one of the carrier’s drivers on it, name the van, move it to somebody else, take them off, and send it on the way. |
 | `/logistics/exceptions` | The queue, worst first and then oldest first. |
 | `/logistics/partners` | The carriers. Create one and invite its first owner. |
-| `/logistics/partners/:id` | Registration, contract, areas served, approved capabilities, delivery promises, people. |
+| `/logistics/partners/:id` | Registration, contract, areas served, approved capabilities, delivery promises, people — and the fleet: add a driver by typing their name, add a van, stand somebody down or bring them back. |
 | `/logistics/integrations` | Carrier API connections, their health, and their status-code mapping. |
+
+### The tracking desk narrows on the axes a question arrives on
+
+Six tiles over the list — waiting for a carrier, in transit, out for delivery,
+delivered, gone wrong, open problems — **counted over the same filter as the
+list underneath**, because a desk that has narrowed to one carrier and still
+sees the whole marketplace's totals is a desk reading the wrong number.
+
+Under them, filters that cross tenants, which is the one thing no carrier's own
+portal can do: **buyer company**, **seller company**, **warehouse**, **driver**,
+carrier, status, a date range, problems-only, unassigned-only, and a search
+over the references, both company names and the order number. Every one narrows
+on the server against an index; the driver goes through the live assignment
+rather than a column on the shipment, because a consignment's driver is a fact
+with a history and denormalising it would be a second place for that history to
+disagree with itself.
+
+The filter options come from `/logistics/tracking-filters`, derived from the
+**consignments that exist** rather than from the tables behind them. A seller
+list holding every approved business on the marketplace would be mostly
+companies that have never shipped anything, and scrolling it teaches an
+operator nothing. Drivers are listed with their carrier, because two carriers
+can employ an Ilse Maes and a list of bare names is a list nobody can choose
+from.
+
+### Where a consignment comes from
+
+**A paid order raises its own.** `transitionOrder` calls
+`createShipmentsForOrder` the moment an order reaches CONFIRMED, so a delivery
+is in the assignment queue without anybody remembering to put it there. The
+hook cannot fail the order — the money has been taken, and a logistics table
+that is unhappy about a missing address must not undo that — so it logs and
+leaves the button below as the way back. It is a no-op where
+`FEATURE_LOGISTICS_PORTAL` is off: there is nobody for a consignment to be
+offered to, and rows nothing reads only ever mislead.
+
+**One per despatching building, not one per order.** The operator's own lines
+leave the warehouse the order was priced against; each seller's lines leave
+that seller's own place. Two sellers' goods leave two buildings on two days
+with two carriers, and a single consignment covering both is one nobody can
+collect. An order carrying both the operator's stock and a seller's raises one
+of each.
+
+**A seller's origin is their own address, and it is only taken where there is
+no doubt about it** — the place they named when they accepted the order, or
+their only operational pickup place. A seller with several who has not accepted
+yet is skipped, and their acceptance raises theirs; nobody else's consignment
+waits for them. A consignment tells a driver which door to knock on, and a
+guessed door sends them to a building where nobody is expecting them.
+
+Raising is idempotent per part, so a redelivered payment webhook produces
+nothing new, and `POST /admin/logistics/orders/:id/shipments` is safe to press
+twice. It refuses only when nothing at all can be raised yet, and then it says
+what it is waiting for.
+
+**Nothing is assigned at creation.** A consignment starts CREATED with no
+carrier, because a consignment that arrived pre-assigned would have no record
+of who chose the carrier. Choosing one is the operator's act, below.
 
 Offering a consignment is scored on the server: does the carrier cover both
 ends of the journey, are they approved for what it needs carrying, do they have
@@ -4503,6 +5161,23 @@ but because there is nothing there to duplicate.
 
 Shipments are created for an order idempotently: one per seller group and
 warehouse, and running it again returns what already exists.
+
+**A carrier's milestone climbs the ladder, it does not jump to the top.**
+`PICKED_UP` and `DISPATCHED` mean the order is SHIPPED, and `DELIVERED` once
+every consignment on it is; but the order state machine has no shortcut edges,
+so `propagateToOrder` walks CONFIRMED → PROCESSING → SHIPPED one rung at a time
+exactly as the seller path and the operator's own dispatch do. Asking for the
+far rung directly was refused by `assertTransition`, and because a refusal here
+is deliberately swallowed — a courier must not be told their scan failed
+because of a state on the commerce side they cannot see — the buyer was left
+looking at "Confirmed" after their parcel had been collected, with only an info
+log to say why. An order already off that ladder, CANCELLED or RETURNED, is
+left alone: a carrier's scan must not reopen an order staff have closed.
+
+Each rung the carrier moves carries a line the buyer reads under the status on
+their order — "A carrier has collected this order", "With the carrier, on the
+way to you" — written from their side of the glass, because they never asked
+for a consignment and have never heard of one.
 
 ## Live GPS is prepared, not pretended
 
@@ -4639,7 +5314,22 @@ captured before anything touches it.
 
 # 7. The database
 
-MariaDB 10.4, reached through Prisma. **170 tables, 136 enums, 45 migrations.**
+MariaDB, reached through Prisma. **170 tables, 136 enums, 49 migrations.**
+
+Two versions, and the gap matters more than it sounds. Development runs XAMPP's
+**10.4**; production runs **11.4 LTS**. 10.4 went out of support in June 2024
+and is not strict — a value too long for its column is truncated and a warning
+nobody reads is raised. 11.4 rejects it. That is not a theoretical difference:
+running the test suite against a strict server found ten tables whose
+`correlationId` column was narrower than the header the API accepts, inside
+transactions that would have rolled an order back with the audit row.
+
+So `deploy/compat/` runs the exact production version in Docker, on
+`127.0.0.1:3307` — never 3306, so it cannot be mistaken for XAMPP — and
+`scripts/db/compat-test.ps1` rebuilds the whole schema on it from committed
+migrations and runs the suite against it. `docs/DATABASE-PRODUCTION.md` explains
+why 11.4 rather than something newer, and the answer is not obvious: MariaDB
+shortened its support window after 11.4, so 11.8 runs out *earlier*.
 
 ## How schema changes work
 
@@ -4840,8 +5530,10 @@ move.
 
 ### 3. MariaDB 10.4 shaped the design
 
-The client requires XAMPP's MariaDB 10.4, which lacks features newer databases
-have. Two consequences you will meet in the code:
+Development runs XAMPP's MariaDB 10.4, which lacks features newer databases
+have. Production runs 11.4, which has them — but the schema keeps both patterns
+below, because each is correct on every version and neither is worth a migration
+to undo. Two consequences you will meet in the code:
 
 - **No `SELECT ... FOR UPDATE SKIP LOCKED`.** That is the normal way for
   several workers to grab different jobs from a queue. Instead the queue uses a
@@ -4928,6 +5620,8 @@ identity, not on the reads.
 | `GET /account/profile` | Also carries `pendingEmail` / `pendingPhone`, so the screen renders the pending value beside the live one from one read |
 | `PATCH /account/profile` | Name parts, job title, company, department, delivery number, VAT number, GSTIN. **Not** the email address, the account number, `customerCode` or any purchasing limit — those are absent from the schema, which is a stronger guarantee than remembering to strip them |
 | `GET`/`PUT /account/locale` | Country, currency and the browser's own reading, kept apart |
+| `GET /account/dashboard` | Everything the buyer dashboard opens with, in one round trip. Orders by status, spend against the preceding period, schedules, deliveries promised inside seven days, payment actions and ERP health. `no-store` |
+| `POST /account/dashboard/insights` | The same figures, explained. The metric bundle is rebuilt from this buyer's own aggregate, never from the body — see "UBOSS AI Insights". `10/5min` |
 | `GET`/`POST`/`PATCH`/`DELETE /account/addresses` | Scoped by the session's profile id |
 | `POST /account/email-change` | `202`. Parks the address, mints a link, mails **both** addresses. `5/hour` |
 | `POST /account/email-change/confirm` | Promotes it, verifies it, revokes every session. Re-checks uniqueness |
@@ -4972,6 +5666,77 @@ grouping cannot be done a page at a time across three tables; when more match
 than the index will hold, the answer says so with `isTruncated` and the screen
 asks the operator to narrow the search rather than quietly showing the first
 few hundred as though they were all of them.
+## UBOSS AI Insights
+
+Every role dashboard carries a panel that explains its own figures, answers a
+typed question about them, and suggests what to look at first. It is a reading
+aid, not an operator: **nothing in it changes anything.**
+
+`POST /account/dashboard/insights`, `POST /admin/dashboard/insights` and
+`POST /logistics/dashboard/insights`. Three routes, three guards, one service —
+`modules/assistant/insights.service.ts` — sitting on the same provider seam as
+the storefront assistant, so a deployment points at Gemini or Anthropic with
+one environment variable and this follows.
+
+**The model never counts anything.** Every figure reaches it as a named metric
+that a role-scoped database aggregate produced. The model is asked to explain,
+rank and prioritise; it is never asked what a total is.
+
+**The tenant boundary is upstream and absolute.** Each route rebuilds the
+metric bundle from the caller's own aggregate — a buyer's own orders, a
+carrier's own consignments, the platform queues that member of staff holds the
+grant for — so a caller cannot hand the endpoint a number and have the model
+talk about it, because no number ever comes from the caller. A queue somebody
+may not see is not in the bundle, so it cannot be mentioned: the model is never
+told what it may not say, it is never given it.
+
+**Nothing identifying is sent.** Counts, money totals and metric keys. No order
+numbers, no company names, no addresses, no card details, no ERP credentials.
+The masking rules that decide what a dispatcher may see of a recipient's
+details are elaborate and enforced on the read paths; the way to be certain a
+third party never circumvents them is for no row to be in the bundle at all.
+
+**Everything the model says is checked before it leaves the server.** The reply
+is parsed as JSON and then sanitised: a citation of a metric key that was not
+in the bundle is dropped, a finding left with no evidence at all is dropped,
+and a link is never taken from the reply — `href` is copied from the metric the
+action cites. A model-generated URL in an operations console is a URL somebody
+clicks.
+
+**A deployment with no key gets an honest answer.** Which is the default. The
+panel falls back to a deterministic summary built from the same metric bundle,
+marked `source: "deterministic"`, and says so on screen in as many words. It is
+not dressed up as a model reply: a dashboard that invents an AI voice when
+there is no AI behind it is lying about the one thing a reader might act on. It
+is also genuinely useful — ranking the queues that want somebody today is
+arithmetic, not intelligence. The same fallback covers a timeout, a quota and
+an unparseable reply, each with its own `fallbackReason`, so the panel can
+never take a dashboard down.
+
+**The answer arrives as it is written.** The CTA opens a Server-Sent Events
+stream — `POST …/dashboard/insights/stream` — and the summary appears word by
+word. The findings, the suggested actions and the evidence arrive in one event
+at the END, once every metric key they cite has been checked against the
+bundle. That ordering is the point: streaming buys responsiveness, not a window
+in which an unvalidated claim is on screen.
+
+The model is asked for its reply in two parts — prose, then a `---DETAIL---`
+marker, then JSON. Everything before the marker is forwarded; everything after
+it is buffered and parsed. A marker split across two chunks is held back rather
+than leaked, which is the case a naive implementation gets wrong.
+
+The non-streaming `POST …/dashboard/insights` still exists and still returns
+the same validated object in one reply. It is what the tests drive.
+
+Ten requests per five minutes per route. Guests never reach it: all three
+routes are behind a session guard, and the carrier one is behind the MFA gate
+as well.
+
+**It cannot act.** Suggested actions are links to the screen where the work is
+done. Approving a seller, charging a card, assigning a driver, changing a
+tracking state and resolving an exception all remain a deliberate press behind
+their own authorization check and their own audit entry.
+
 ## The AI assistant
 
 Six endpoints. **The first two answer anybody; the other four need an account.**
@@ -8468,13 +9233,30 @@ is the worse of the two answers. A product minimum that lands mid-carton takes
 the whole carton above it. `PATCH /cart/items/:id` does the same with a piece
 count.
 
-**A seller's line is refused rather than reinterpreted.** A request naming
-`OUTER_CARTON` against a seller's piece offer gets
-`SELLER_OFFER_UNIT_MISMATCH` and nothing in the basket. The generous reading of
-it hands the shopper five hundred pieces at the price of one, and the factor
-between the two units is why the operator's line can afford to be lenient and
-this one cannot. The asymmetry is deliberate and is documented where it is
-implemented, in `requestedUnits` in `backend/src/domain/ordering-unit.ts`.
+**The route takes both units; the basket decides which one this line is.**
+`orderingUnit` accepts `PIECE` and `OUTER_CARTON` — the two the shop sells in —
+and `INNER_PACK` is refused by the schema, because nothing new is written with
+it. Which of the two a line may name is **not** a question a route schema can
+answer: whose offer is selling it is resolved inside `addLines`, from the
+product and the shop front, and the unit follows from that. A schema naming
+only the carton refused every attempt to buy a seller's product with "the
+request contains invalid data" — the storefront correctly names `PIECE` on a
+seller's line, and there was no way for a shopper to make that valid.
+
+**A named unit that is not the line's is refused rather than reinterpreted,
+both ways round.** `addLines` checks the named unit against the offer's own
+spec the moment that spec is known:
+
+- `OUTER_CARTON` against a seller's piece offer gets
+  `SELLER_OFFER_UNIT_MISMATCH` and nothing in the basket. The generous reading
+  hands the shopper five hundred pieces at the price of one.
+- `PIECE` against the operator's carton gets `VALIDATION_FAILED` and the same
+  empty basket: it is a request to buy something this shop does not sell, and
+  it is told so rather than handed a carton it did not ask for.
+
+Naming **nothing** is untouched, and is still the documented route for a caller
+that counts in pieces — the conversion in `requestedUnits`
+(`backend/src/domain/ordering-unit.ts`) rounds it up to whole sell units.
 
 **A carton is not a minimum.** A carton of 500 does not mean 500 is the least
 somebody may buy in one order; the minimum order quantity is a separate rule
@@ -8790,6 +9572,38 @@ memory-hungry, so guessing at scale is expensive. The parameters are stored
 inside the digest itself, so raising them later rehashes each user
 transparently on their next successful login.
 
+### The seeded passwords are published, and that is a decision with an expiry
+
+`npm run db:seed` creates nine accounts whose passwords are printed in
+`SETUP.md` and `README.md`. That is deliberate: a development environment
+nobody can sign into is worse than one with obvious credentials, and the
+alternative — every developer inventing their own — is how a shared fixture
+stops being shared.
+
+It holds exactly as long as the API answers only to this machine. A tunnel, or
+a static host pointed at it, ends the arrangement without announcing that it
+has, and `owner@uboss.local` is the business owner.
+
+```powershell
+cd backend ; npm run db:rotate-seed-passwords
+```
+
+Replaces all nine with 24 random characters, **revokes every session** — a
+rotated password with a live refresh token behind it has locked nobody out,
+because that token keeps renewing itself for thirty days without ever seeing a
+password again — and prints the new ones once. Nothing stores them; what goes
+into the database is an Argon2id digest.
+
+It survives a re-seed, and that is not luck: `db:seed` writes `passwordHash`
+only in the `create` branch of its upserts, so running it again over existing
+rows leaves the rotated passwords alone. Re-seeding a database these accounts
+were *deleted* from is a create, and does restore the published ones.
+
+The account list lives in `backend/src/seed/accounts.ts` rather than in the
+rotation script, so the two cannot drift — the earlier version of this tool
+kept its own list and had silently never included the three carrier-portal
+accounts.
+
 ## Tokens
 
 Invitation links, password resets, contact-change confirmations and payment
@@ -9081,7 +9895,7 @@ Everything lives in `backend/.env`, validated at boot by `src/config/env.ts`.
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL |
 | `apps/*/.env.local` → `TUNNEL_HOST` | The hostname of the development tunnel, if one is in use |
 
-The CORS allowlist is exact, and both frontends use `strictPort`, so a port
+The CORS allowlist is exact, and all three frontends use `strictPort`, so a port
 clash fails loudly rather than silently moving to a port CORS will reject.
 
 `TUNNEL_HOST` is development-only and belongs to the machine, not the project,
@@ -9091,6 +9905,39 @@ answers only to `localhost` — a DNS-rebinding defence — and refuses any othe
 hostname with *"Blocked request. This host is not allowed."* Naming the tunnel's
 hostname adds it to that check, in every mode, and nothing else with it. See
 `SETUP.md` Part 3.
+
+### One tunnel, three applications
+
+A free tunnel gives out **one** hostname, and there are three frontends. Under
+`--mode tunnel` the storefront owns the hostname root and proxies the other two
+under a path, each built with a matching `base` so its own asset URLs line up:
+
+| Path | Application | `base` |
+|---|---|---|
+| `/` | Storefront | `/` |
+| `/admin/` | Admin console | `/admin/` |
+| `/logistics/` | Logistics portal | `/logistics/` |
+
+Each router reads that value back as its `basename` from
+`import.meta.env.BASE_URL`, so a deep link inside a proxied app resolves.
+
+Two things follow that are worth knowing before trusting what you see:
+
+- **A `200` from `/admin/` or `/logistics/` proves nothing on its own.** With a
+  frontend started in plain `dev` mode the storefront's own page answers that
+  path, and looks like a success. The entry script names the app —
+  `/logistics/src/main.tsx` is the portal, `/src/main.tsx` is the storefront
+  standing in for it.
+- **The logistics portal is the odd one out, and only in development.** A
+  carrier reaches it on its own hostname in any real installation — that is why
+  it is a third application rather than a section of one of the other two. The
+  path arrangement exists so all three can be shown from one free tunnel, and
+  `LOGISTICS_WEB_PUBLIC_URL` has to be pointed at the tunnel address while that
+  is being done, the same as the other two `*_PUBLIC_URL` settings.
+
+Sessions do not collide on the shared hostname: cookies are named per audience
+(`uboss_shop_*`, `uboss_admin_*`, `uboss_logi_*`), so a dispatcher signing into
+the carrier portal does not sign a member of staff out of the console.
 
 ## Feature flags
 
@@ -9107,7 +9954,7 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_ERP_INTEGRATION` | `false` | **Settings → ERP.** An ERP configured from a screen rather than from environment variables. Off means the screen says so, the routes refuse, no polling job runs and the webhook endpoint 404s |
 | `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |
 | `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
-| `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
+| `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means the third application has nothing to sign in to, every `/api/v1/logistics/*` route refuses, no carrier can be created, and the Logistics group is absent from the admin sidebar |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 — and the value is **published in `/config`**, so the page offers the way in where the composer would be rather than letting somebody type a paragraph and then refusing it. On, and a visitor may ask before signing up; understand what that costs first, because an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
@@ -9416,12 +10263,22 @@ uptime check from outside the network is still required.
 ## The gate before a release
 
 `.github/workflows/ci.yml` runs the same `npm run verify` a developer runs, on
-every pull request, against **MariaDB 10.11** — the version production runs,
-which is strict where the 10.4 in XAMPP is not, so a value too long for its
-column fails there rather than on launch night. It also audits dependencies,
-records a bill of materials, scans the whole history for secrets, and warns when
-a new migration contains a `DROP`, a `RENAME` or a `NOT NULL` — none of which is
-safe in a single release, for the reason in *Releasing* above.
+every pull request, against **MariaDB 11.4.13** — the exact patch production
+runs, pinned rather than floating, and strict where the 10.4 in XAMPP is not, so
+a value too long for its column fails there rather than on launch night.
+
+It proves four more things about the database itself, every time. That the
+committed migrations and `schema.prisma` still agree — `migrate status` only
+says every migration ran, not that they produce what the schema file describes,
+and the difference is a surprise migration waiting for the next person. That the
+application's database account still cannot rewrite its own audit log or create
+a table. That the data-validation queries still run, so one that quietly stopped
+matching a renamed column is caught. And that a new migration containing a
+`DROP` or a `TRUNCATE` is named in the review rather than discovered later — for
+the reason in *Releasing* above.
+
+On top of that it audits dependencies, records a bill of materials, and scans
+the whole history for secrets.
 
 There is a deploy workflow too, and it is deliberately manual and inert until
 somebody configures it. Deploying to production automatically is a decision
@@ -9445,6 +10302,50 @@ unchanged. `docs/DEPLOYMENT.md` gives the order: tune, then a CDN, then move the
 database off the box, then add API machines, then split the worker. Read
 replicas are last and are the first step that needs application work.
 
+## The three front ends on a static host
+
+The box above serves the SPAs off disk with nginx, which is the simplest thing
+that works when you already have the box. A static host — Netlify, and anything
+shaped like it — is the other option, and it is the quick one: three URLs
+somebody can open, in about a minute each, with no server to rent.
+
+`docs/NETLIFY.md` is the procedure. The shape, so the rest of this makes sense:
+
+**It hosts three of the five processes and cannot host the other two.** The
+front ends are folders of files. The API holds a database connection pool and
+the worker polls the job queue forever, and neither of those is a folder of
+files. So the API stays on a machine of its own, and the static sites point at
+it. A deployment that forgets this renders three sign-in screens that cannot
+sign anybody in.
+
+**The browser sees one origin, and that is what makes the session work.** The
+bundle is built with `VITE_API_BASE_URL=/api/v1` — relative — and the host
+proxies `/api/*` through to the API. So the request the browser makes is to the
+same origin it loaded the page from, which is what lets the session and CSRF
+cookies stay `SameSite=Lax`. Calling the API's own hostname directly would make
+every request cross-site, the browser would leave the cookies behind, and a
+customer who had just signed in correctly would be told they were not signed in.
+Making *that* work needs `SameSite=None`, a CORS allowlist and a shared cookie
+domain — three more things to get right, each silent when wrong.
+
+**No hostname is in the JavaScript.** Only the host's configuration knows where
+the API is, so pointing the same bundles at a different API is a re-pack and
+never a rebuild:
+
+```powershell
+.\scripts\pack-netlify.ps1 -ApiOrigin https://api.your-company.com
+```
+
+That builds all three and writes one zip per site to `output/netlify`. It also
+builds with source maps off, which `npm run build` does not: `sourcemap: true`
+publishes every `.ts` and `.tsx` file next to the bundle, which is fine on a
+server you control and is not fine on a public URL.
+
+**Three sites, not one.** They are three applications with three sign-ins, and
+the console is where prices, refunds and staff accounts are changed. Serving all
+three under one hostname is a development arrangement for showing them through a
+single tunnel; it is not how they are deployed.
+
 ---
 
 # 15. Where to find things
@@ -9458,6 +10359,7 @@ UBoss-Software/
 │
 ├── scripts/
 │   ├── dev-stack.ps1               ← Start, stop and check the whole dev stack
+│   ├── pack-netlify.ps1            ← Build all three front ends, one zip per site
 │   ├── build-feature-guide-doc.mjs ← The plain-language feature guide, as code
 │   └── auto-translate.mjs          New i18n keys into the other seven languages
 │

@@ -153,4 +153,9 @@ export const router = createBrowserRouter([
       { path: '*', element: <HomeRedirect /> },
     ],
   },
-]);
+], {
+  // Vite sets BASE_URL from `base` in vite.config.ts: "/" normally, and
+  // "/logistics/" when the portal is served under a path - which is how all
+  // three apps share one hostname through a single tunnel in development.
+  basename: import.meta.env.BASE_URL,
+});

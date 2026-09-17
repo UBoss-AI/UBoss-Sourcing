@@ -171,6 +171,38 @@
     --bloom: 186 230 253;
 
     /* ===================================================================
+     * The console layer — the role dashboards, and only those
+     *
+     * A dashboard is read differently from the screens around it. It is
+     * glanced at rather than worked in, its job is to make one number and one
+     * exception findable in two seconds, and it is the screen most often left
+     * open on a wall. So it gets its own ground and its own card, one step
+     * away from the surfaces every other page uses.
+     *
+     * NOT a third theme. These are two more tokens in the same palette,
+     * declared in both themes and audited in both — see the pairs in
+     * scripts/contrast-audit.cjs. In dark they are the deep navy the design
+     * asks for; in light they are a cool near-white, because the toggle in the
+     * header has to keep working and a screen that ignores it is a screen that
+     * looks broken to whoever set their machine to light.
+     *
+     * `--console` is the page ground, `--console-raised` the card that floats
+     * on it. The card is drawn at high opacity over the ground with a backdrop
+     * blur, so its effective colour is always between these two values — which
+     * is why auditing text against BOTH of them is enough to cover the blend.
+     * =================================================================== */
+    --console: 242 247 253;
+    --console-raised: 255 255 255;
+    /* The card hairline. Decorative: a dashboard card is identified by the
+       figure inside it, never by its edge. */
+    --console-border: 214 226 242;
+    /* The two blooms behind the hero chart. Drawn at 10–18% behind nothing
+       legible, which is the whole reason they are allowed to be this
+       saturated — see the DECORATIVE list in the contrast audit. */
+    --console-glow: 129 140 248;
+    --console-glow-alt: 45 212 191;
+
+    /* ===================================================================
      * Borders
      * =================================================================== */
     /* The standard hairline: panel edges, table rules, dividers. Tinted to
@@ -352,6 +384,14 @@
       --surface-media: 255 255 255;
       --bloom: 40 70 132;
 
+      /* The console layer, dark. Kept byte-identical between the two dark
+       * blocks: the contrast audit compares them and fails on any drift. */
+      --console: 10 16 31;
+      --console-raised: 24 34 55;
+      --console-border: 48 64 92;
+      --console-glow: 129 140 248;
+      --console-glow-alt: 45 212 191;
+
       --border: 40 55 79;
       --border-subtle: 30 43 64;
       --border-strong: 116 136 164;
@@ -419,6 +459,14 @@
     --surface-hover: 30 43 65;
     --surface-media: 255 255 255;
     --bloom: 40 70 132;
+
+    /* The console layer, dark. Kept byte-identical between the two dark
+     * blocks: the contrast audit compares them and fails on any drift. */
+    --console: 10 16 31;
+    --console-raised: 24 34 55;
+    --console-border: 48 64 92;
+    --console-glow: 129 140 248;
+    --console-glow-alt: 45 212 191;
 
     --border: 40 55 79;
     --border-subtle: 30 43 64;
@@ -560,6 +608,265 @@
 }
 
 @layer components {
+
+  /* ===========================================================================
+   * The console layer
+   *
+   * The three role dashboards, and nothing else in any of the three apps. Kept
+   * byte-identical across apps/customer-web, apps/admin-web and
+   * apps/logistics-web: a buyer, an operator and a carrier are looking at the
+   * same product, and a card that is frosted on one screen and flat on the next
+   * reads as two systems.
+   *
+   * Everything here is drawn from the `--console*` tokens, which are declared in
+   * BOTH themes at the top of this file and audited in both by
+   * scripts/contrast-audit.cjs. Nothing below hard-codes a colour, so the theme
+   * toggle in the header keeps working on a dashboard exactly as it does
+   * everywhere else.
+   *
+   * Three rules this block is built on:
+   *
+   *   - **Decoration never carries information.** The backdrop, the blooms and
+   *     the spotlight are all behind or under the content and all exempt from
+   *     the contrast audit for that reason. Take every one of them away and the
+   *     screen still says everything it said.
+   *   - **Nothing moves on its own.** There is no ambient animation here — no
+   *     drifting gradient, no pulsing ring, no shimmer. Motion happens in
+   *     response to a pointer, a focus or data arriving, and then it stops. A
+   *     dashboard is a screen people leave open on a wall all day.
+   *   - **The reduced-motion block above governs all of it.** Every transition
+   *     and animation here is a plain CSS transition or a registered keyframe,
+   *     so the global `prefers-reduced-motion` rule switches them off without
+   *     this block needing to repeat itself. What it must NOT do is hide
+   *     information in the motion, which is why the spotlight and the hover lift
+   *     are the only things that stop.
+   * =========================================================================== */
+
+  /*
+   * The page ground.
+   *
+   * A dashboard sets its own ground rather than inheriting the app's, because
+   * the frosted cards need something to be frosted OVER. On a flat white page a
+   * backdrop blur has nothing to blur and the card just looks slightly grey.
+   */
+  .console-ground {
+    background-color: rgb(var(--console));
+  }
+
+  /*
+   * The technical backdrop: a dot field, a faint grid, and two blooms.
+   *
+   * Drawn in one pseudo-element with four stacked gradients rather than four
+   * elements, so the whole backdrop is one composited layer that never
+   * participates in layout. `pointer-events: none` and `aria-hidden` on the host
+   * keep it out of both hit-testing and the accessibility tree.
+   *
+   * The blooms are `--console-glow` (indigo) and `--console-glow-alt` (cyan) at
+   * 10-18%. That ceiling is not a taste decision: it is the number the contrast
+   * audit's DECORATIVE exemption is written against, and above it these stop
+   * being a wash behind nothing and start being a tint under text.
+   */
+  .console-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    /* Behind the content, above the ground. */
+    z-index: 0;
+  }
+
+  .console-backdrop::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background-image:
+      radial-gradient(
+        42rem 30rem at 18% 0%,
+        rgb(var(--console-glow) / 0.16),
+        transparent 70%
+      ),
+      radial-gradient(
+        36rem 26rem at 88% 8%,
+        rgb(var(--console-glow-alt) / 0.1),
+        transparent 70%
+      );
+  }
+
+  /*
+   * The dot field and the grid.
+   *
+   * Two background layers on one element: 1px dots on a 28px lattice, and a
+   * hairline grid on a 112px lattice — four dots to a grid cell, so the two
+   * read as one structure rather than as two overlapping patterns. Masked to
+   * fade out down the page, because a lattice that runs to the bottom edge
+   * competes with the tables down there.
+   */
+  .console-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgb(var(--console-glow) / 0.22) 1px, transparent 0),
+      linear-gradient(to right, rgb(var(--console-glow) / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--console-glow) / 0.07) 1px, transparent 1px);
+    background-size:
+      28px 28px,
+      112px 112px,
+      112px 112px;
+    -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0) 0%, transparent 78%);
+    mask-image: linear-gradient(to bottom, rgb(0 0 0) 0%, transparent 78%);
+  }
+
+  /*
+   * A dashboard card.
+   *
+   * `--console-raised` at 88% over the ground with a backdrop blur. The opacity
+   * is the number the contrast audit is written against: the card's effective
+   * colour is always a mix of `--console-raised` and `--console`, both of which
+   * are audited as backgrounds, so any mix between them is covered. Drop it much
+   * below this and the mix leaves the audited range.
+   *
+   * `backdrop-filter` is progressive enhancement. Where it is unsupported the
+   * card is simply a solid panel at 88%, which is what the contrast figures
+   * already assume — nothing is lost but the frost.
+   */
+  .console-card {
+    position: relative;
+    background-color: rgb(var(--console-raised) / 0.88);
+    border: 1px solid rgb(var(--console-border) / 0.9);
+    border-radius: 1.25rem; /* 20px — the `2xl` step in tailwind.config.js */
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.04) inset,
+      0 18px 40px -24px rgb(2 6 23 / 0.55);
+    transition:
+      border-color var(--dur-base) var(--ease-ui),
+      box-shadow var(--dur-base) var(--ease-ui),
+      transform var(--dur-base) var(--ease-ui);
+  }
+
+  /*
+   * The hover lift, on cards that lead somewhere.
+   *
+   * 2px and a slightly brighter edge. A card that merely displays a figure does
+   * NOT get this class: a lift that happens on something you cannot click is a
+   * promise the screen does not keep.
+   */
+  .console-card-interactive:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--console-glow) / 0.45);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+      0 24px 48px -24px rgb(2 6 23 / 0.65);
+  }
+
+  /*
+   * The spotlight.
+   *
+   * A soft radial highlight that follows the pointer across a card. `--spot-x`
+   * and `--spot-y` are written by the pointer handler in React; with no pointer
+   * they are unset, the gradient centres harmlessly and the whole thing is
+   * invisible at `opacity: 0` anyway.
+   *
+   * Deliberately NOT shown on keyboard focus. A focus ring already says where
+   * the keyboard is, and adding a second, softer, differently-shaped indicator
+   * beside it makes the real one harder to find rather than easier.
+   */
+  .console-spotlight {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-ui);
+    background: radial-gradient(
+      18rem 18rem at var(--spot-x, 50%) var(--spot-y, 50%),
+      rgb(var(--console-glow) / 0.16),
+      transparent 60%
+    );
+  }
+
+  .console-card:hover > .console-spotlight {
+    opacity: 1;
+  }
+
+  /*
+   * The bloom behind the hero chart.
+   *
+   * Sits under the donut and nothing else, which is what lets it be brighter
+   * than the page backdrop: there is no text within reach of it. It is also the
+   * one piece of this that is worth keeping when the rest is stripped, because
+   * it is what makes the ring read as lit rather than printed.
+   */
+  .console-hero-bloom {
+    position: absolute;
+    inset: 12%;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(
+      circle,
+      rgb(var(--console-glow) / 0.18) 0%,
+      rgb(var(--console-glow) / 0.06) 45%,
+      transparent 70%
+    );
+    filter: blur(18px);
+  }
+
+  /*
+   * A donut segment.
+   *
+   * The hover and focus emphasis is a stroke width and an opacity, both
+   * transitioned. Colour is never the only channel: the legend beside the ring
+   * carries every label, count and share as text, and the selected segment also
+   * gets a check mark and an `aria-pressed` state.
+   *
+   * `transform-box: fill-box` plus a centre origin so the emphasised arc grows
+   * about the ring's centre rather than about the SVG's top-left corner.
+   */
+  .console-arc {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      stroke-width var(--dur-base) var(--ease-ui),
+      opacity var(--dur-base) var(--ease-ui);
+  }
+
+  /*
+   * The ring dims its other segments while one is active.
+   *
+   * 55% rather than hiding them: the whole is still legible, which is the only
+   * reason a part-to-whole chart is worth drawing.
+   */
+  .console-arc-muted {
+    opacity: 0.55;
+  }
+
+  /*
+   * The focus ring, on the console surfaces.
+   *
+   * The global rule in @layer base sets the ring OFFSET to `--surface`, which
+   * is correct on every other screen and wrong on these two: the gap between
+   * the ring and the control would be painted in the app's card colour over a
+   * dashboard card, which reads as a white halo on the dark theme.
+   *
+   * Fixed here, in the cascade, rather than by adding
+   * `focus-visible:ring-offset-console-raised` to forty controls. A rule that
+   * has to be remembered at every call site is a rule that is eventually
+   * forgotten at one of them, and the one it is forgotten at is the one
+   * somebody is tabbing through.
+   *
+   * These win on two counts: a descendant selector is more specific than the
+   * bare `:focus-visible`, and @layer components is ordered after @layer base.
+   */
+  .console-ground :focus-visible {
+    --tw-ring-offset-color: rgb(var(--console));
+  }
+
+  .console-card :focus-visible {
+    --tw-ring-offset-color: rgb(var(--console-raised));
+  }
+
   /*
    * Skip link: hidden until focused, then pinned to the top-left. Without it a
    * keyboard user tabs through the whole sidebar on every page.

@@ -38,6 +38,13 @@ export type LogisticsNotificationMinAggregateOutputType = {
   title: string | null
   body: string | null
   dedupeKey: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date | null
@@ -52,6 +59,13 @@ export type LogisticsNotificationMaxAggregateOutputType = {
   title: string | null
   body: string | null
   dedupeKey: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date | null
@@ -67,6 +81,13 @@ export type LogisticsNotificationCountAggregateOutputType = {
   body: number
   variablesJson: number
   dedupeKey: number
+  class: number
+  status: number
+  resolutionKey: number
+  resolvedAt: number
+  resolvedByUserId: number
+  resolutionReason: number
+  resolutionSource: number
   readAt: number
   emailedAt: number
   createdAt: number
@@ -83,6 +104,13 @@ export type LogisticsNotificationMinAggregateInputType = {
   title?: true
   body?: true
   dedupeKey?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
   readAt?: true
   emailedAt?: true
   createdAt?: true
@@ -97,6 +125,13 @@ export type LogisticsNotificationMaxAggregateInputType = {
   title?: true
   body?: true
   dedupeKey?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
   readAt?: true
   emailedAt?: true
   createdAt?: true
@@ -112,6 +147,13 @@ export type LogisticsNotificationCountAggregateInputType = {
   body?: true
   variablesJson?: true
   dedupeKey?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
   readAt?: true
   emailedAt?: true
   createdAt?: true
@@ -200,6 +242,13 @@ export type LogisticsNotificationGroupByOutputType = {
   body: string | null
   variablesJson: runtime.JsonValue | null
   dedupeKey: string
+  class: $Enums.AdminNotificationClass
+  status: $Enums.AdminNotificationStatus
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
   readAt: Date | null
   emailedAt: Date | null
   createdAt: Date
@@ -236,6 +285,13 @@ export type LogisticsNotificationWhereInput = {
   body?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
   variablesJson?: Prisma.JsonNullableFilter<"LogisticsNotification">
   dedupeKey?: Prisma.StringFilter<"LogisticsNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"LogisticsNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"LogisticsNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"LogisticsNotification"> | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
@@ -254,6 +310,13 @@ export type LogisticsNotificationOrderByWithRelationInput = {
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   variablesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -277,6 +340,13 @@ export type LogisticsNotificationWhereUniqueInput = Prisma.AtLeast<{
   body?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
   variablesJson?: Prisma.JsonNullableFilter<"LogisticsNotification">
   dedupeKey?: Prisma.StringFilter<"LogisticsNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"LogisticsNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"LogisticsNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"LogisticsNotification"> | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
@@ -295,6 +365,13 @@ export type LogisticsNotificationOrderByWithAggregationInput = {
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   variablesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -316,6 +393,13 @@ export type LogisticsNotificationScalarWhereWithAggregatesInput = {
   body?: Prisma.StringNullableWithAggregatesFilter<"LogisticsNotification"> | string | null
   variablesJson?: Prisma.JsonNullableWithAggregatesFilter<"LogisticsNotification">
   dedupeKey?: Prisma.StringWithAggregatesFilter<"LogisticsNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassWithAggregatesFilter<"LogisticsNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusWithAggregatesFilter<"LogisticsNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableWithAggregatesFilter<"LogisticsNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableWithAggregatesFilter<"LogisticsNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<"LogisticsNotification"> | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsNotification"> | Date | string
@@ -328,6 +412,13 @@ export type LogisticsNotificationCreateInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -346,6 +437,13 @@ export type LogisticsNotificationUncheckedCreateInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -358,6 +456,13 @@ export type LogisticsNotificationUpdateInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +481,13 @@ export type LogisticsNotificationUncheckedUpdateInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,6 +503,13 @@ export type LogisticsNotificationCreateManyInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -403,6 +522,13 @@ export type LogisticsNotificationUpdateManyMutationInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +544,13 @@ export type LogisticsNotificationUncheckedUpdateManyInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,6 +588,13 @@ export type LogisticsNotificationCountOrderByAggregateInput = {
   body?: Prisma.SortOrder
   variablesJson?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -469,6 +609,13 @@ export type LogisticsNotificationMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   body?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -483,6 +630,13 @@ export type LogisticsNotificationMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   body?: Prisma.SortOrder
   dedupeKey?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   emailedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -625,6 +779,13 @@ export type LogisticsNotificationCreateWithoutPartnerInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -641,6 +802,13 @@ export type LogisticsNotificationUncheckedCreateWithoutPartnerInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -685,6 +853,13 @@ export type LogisticsNotificationScalarWhereInput = {
   body?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
   variablesJson?: Prisma.JsonNullableFilter<"LogisticsNotification">
   dedupeKey?: Prisma.StringFilter<"LogisticsNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"LogisticsNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"LogisticsNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"LogisticsNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"LogisticsNotification"> | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   emailedAt?: Prisma.DateTimeNullableFilter<"LogisticsNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsNotification"> | Date | string
@@ -697,6 +872,13 @@ export type LogisticsNotificationCreateWithoutPartnerUserInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -713,6 +895,13 @@ export type LogisticsNotificationUncheckedCreateWithoutPartnerUserInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -751,6 +940,13 @@ export type LogisticsNotificationCreateWithoutShipmentInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -767,6 +963,13 @@ export type LogisticsNotificationUncheckedCreateWithoutShipmentInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -807,6 +1010,13 @@ export type LogisticsNotificationCreateManyPartnerInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -819,6 +1029,13 @@ export type LogisticsNotificationUpdateWithoutPartnerInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -835,6 +1052,13 @@ export type LogisticsNotificationUncheckedUpdateWithoutPartnerInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -849,6 +1073,13 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -863,6 +1094,13 @@ export type LogisticsNotificationCreateManyPartnerUserInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -875,6 +1113,13 @@ export type LogisticsNotificationUpdateWithoutPartnerUserInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -891,6 +1136,13 @@ export type LogisticsNotificationUncheckedUpdateWithoutPartnerUserInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -905,6 +1157,13 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutPartnerUserInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -919,6 +1178,13 @@ export type LogisticsNotificationCreateManyShipmentInput = {
   body?: string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
   readAt?: Date | string | null
   emailedAt?: Date | string | null
   createdAt?: Date | string
@@ -931,6 +1197,13 @@ export type LogisticsNotificationUpdateWithoutShipmentInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -947,6 +1220,13 @@ export type LogisticsNotificationUncheckedUpdateWithoutShipmentInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -961,6 +1241,13 @@ export type LogisticsNotificationUncheckedUpdateManyWithoutShipmentInput = {
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -978,6 +1265,13 @@ export type LogisticsNotificationSelect<ExtArgs extends runtime.Types.Extensions
   body?: boolean
   variablesJson?: boolean
   dedupeKey?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolvedAt?: boolean
+  resolvedByUserId?: boolean
+  resolutionReason?: boolean
+  resolutionSource?: boolean
   readAt?: boolean
   emailedAt?: boolean
   createdAt?: boolean
@@ -998,12 +1292,19 @@ export type LogisticsNotificationSelectScalar = {
   body?: boolean
   variablesJson?: boolean
   dedupeKey?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolvedAt?: boolean
+  resolvedByUserId?: boolean
+  resolutionReason?: boolean
+  resolutionSource?: boolean
   readAt?: boolean
   emailedAt?: boolean
   createdAt?: boolean
 }
 
-export type LogisticsNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "partnerUserId" | "shipmentId" | "kind" | "title" | "body" | "variablesJson" | "dedupeKey" | "readAt" | "emailedAt" | "createdAt", ExtArgs["result"]["logisticsNotification"]>
+export type LogisticsNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "partnerUserId" | "shipmentId" | "kind" | "title" | "body" | "variablesJson" | "dedupeKey" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "readAt" | "emailedAt" | "createdAt", ExtArgs["result"]["logisticsNotification"]>
 export type LogisticsNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
   partnerUser?: boolean | Prisma.LogisticsNotification$partnerUserArgs<ExtArgs>
@@ -1039,6 +1340,28 @@ export type $LogisticsNotificationPayload<ExtArgs extends runtime.Types.Extensio
      * identity of the thing being announced.
      */
     dedupeKey: string
+    /**
+     * News or problem, and where a problem stands. Exactly the split the
+     * operator's own bell carries - see `AdminNotificationClass`. A carrier
+     * watching a delivery failure needs it to leave their list when the
+     * delivery is re-attempted, not when somebody scrolled past it.
+     */
+    class: $Enums.AdminNotificationClass
+    status: $Enums.AdminNotificationStatus
+    /**
+     * What this alert is about, so one domain resolution can close every
+     * occurrence of it. Null on an INFORMATION row. See the note on
+     * `AdminNotification.resolutionKey` for why this is not `dedupeKey`.
+     */
+    resolutionKey: string | null
+    resolvedAt: Date | null
+    /**
+     * The platform user who closed it, where a person did. Carriers and the
+     * marketplace both write here, so it is `users.id` and not a partner user.
+     */
+    resolvedByUserId: string | null
+    resolutionReason: string | null
+    resolutionSource: $Enums.AdminNotificationResolutionSource | null
     readAt: Date | null
     emailedAt: Date | null
     createdAt: Date
@@ -1423,6 +1746,13 @@ export interface LogisticsNotificationFieldRefs {
   readonly body: Prisma.FieldRef<"LogisticsNotification", 'String'>
   readonly variablesJson: Prisma.FieldRef<"LogisticsNotification", 'Json'>
   readonly dedupeKey: Prisma.FieldRef<"LogisticsNotification", 'String'>
+  readonly class: Prisma.FieldRef<"LogisticsNotification", 'AdminNotificationClass'>
+  readonly status: Prisma.FieldRef<"LogisticsNotification", 'AdminNotificationStatus'>
+  readonly resolutionKey: Prisma.FieldRef<"LogisticsNotification", 'String'>
+  readonly resolvedAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
+  readonly resolvedByUserId: Prisma.FieldRef<"LogisticsNotification", 'String'>
+  readonly resolutionReason: Prisma.FieldRef<"LogisticsNotification", 'String'>
+  readonly resolutionSource: Prisma.FieldRef<"LogisticsNotification", 'AdminNotificationResolutionSource'>
   readonly readAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
   readonly emailedAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"LogisticsNotification", 'DateTime'>

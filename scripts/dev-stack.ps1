@@ -202,6 +202,26 @@ function Test-LogisticsPortalEnabled {
     return $false
 }
 
+<#
+    The hostname the tunnel answers on, or $null.
+
+    Read from the storefront's .env.local because that is where the frontends
+    already read it from - one place to change it, and a machine that never
+    tunnels simply has no such line and gets nothing printed.
+#>
+function Get-TunnelHost {
+    $envFile = Join-Path $RepoRoot 'apps\customer-web\.env.local'
+    if (-not (Test-Path $envFile)) { return $null }
+
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*TUNNEL_HOST\s*=\s*"?(?<value>[^"#\s]+)') {
+            return $Matches['value']
+        }
+    }
+
+    return $null
+}
+
 function Get-Components {
     $viteScript = 'dev'
     if ($Tunnel) { $viteScript = 'dev:tunnel' }
@@ -255,12 +275,17 @@ function Get-Components {
     # Listed when FEATURE_LOGISTICS_PORTAL is on in backend/.env, and not
     # otherwise: with the flag off there is nothing for it to sign in to, so
     # starting it would hold a port and report DOWN forever on every machine
-    # that does not carry goods. It runs plain 'dev' even under -Tunnel -
-    # nothing proxies it, because a carrier reaches it on its own hostname.
+    # that does not carry goods.
+    #
+    # In production a carrier reaches this portal on its own hostname. Under
+    # -Tunnel it runs 'dev:tunnel' like the other two anyway, because a free
+    # tunnel gives out one hostname and the storefront proxies /logistics here
+    # - that is the only way to show all three to somebody who is not at this
+    # computer without paying for three tunnels.
     if (Test-LogisticsPortalEnabled) {
         $list += [pscustomobject]@{
             Key = 'logistics'; Name = 'Logistics portal'; Port = 5175
-            Kind = 'npm'; Exe = $null; Args = @('run', 'dev')
+            Kind = 'npm'; Exe = $null; Args = @('run', $viteScript)
             Cwd = (Join-Path $RepoRoot 'apps\logistics-web'); Match = 'apps\logistics-web'
             Url = 'http://localhost:5175'; Ready = $null
         }
@@ -577,7 +602,21 @@ function Show-Endpoints {
     }
     Write-Host '  API           http://localhost:4000   (/health/ready)'
     if ($Tunnel) {
-        Write-Host '  ngrok         http://localhost:4040   (inspector; public URL is printed there)'
+        Write-Host '  ngrok         http://localhost:4040   (inspector)'
+
+        # The public addresses, spelled out. One free tunnel serves all three
+        # apps: the storefront owns the root and proxies the other two under a
+        # path, so the difference between them is the path and nothing else.
+        # Printing only the inspector left people guessing at the two paths.
+        $tunnelHost = Get-TunnelHost
+        if ($tunnelHost) {
+            Write-Host ''
+            Write-Host "  Public        https://$tunnelHost/            storefront"
+            Write-Host "                https://$tunnelHost/admin/      admin panel"
+            if (Test-LogisticsPortalEnabled) {
+                Write-Host "                https://$tunnelHost/logistics/  logistics portal"
+            }
+        }
     }
     Write-Host ''
     Write-Host "  Logs          $LogDir" -ForegroundColor DarkGray

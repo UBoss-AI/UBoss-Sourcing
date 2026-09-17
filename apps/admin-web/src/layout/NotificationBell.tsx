@@ -81,6 +81,22 @@ const LOGISTICS_EXCEPTION_RAISED = 'logistics.exception.raised';
  */
 const SELLER_DOCUMENT_UPLOADED = 'seller.document.uploaded';
 
+/**
+ * Somebody exercised a data-subject right.
+ *
+ * An ALERT rather than news, because a statutory clock is running on it.
+ * Carries `data_request.read` on the backend: that a named individual has
+ * asked to be erased is its own piece of information, and not everyone who
+ * may look a customer up should be told it unprompted.
+ */
+const DATA_REQUEST_RAISED = 'data_request.raised';
+
+/** A consignment could not be delivered. Clears when the parcel moves again. */
+const LOGISTICS_DELIVERY_FAILED = 'logistics.delivery_failed';
+
+/** Nobody has picked a consignment up. The one alert a person may close. */
+const LOGISTICS_SHIPMENT_UNASSIGNED = 'logistics.shipment.unassigned';
+
 /** One page of the feed. Deliberately short: this is a bell, not the audit log. */
 const FEED_LIMIT = 20;
 
@@ -228,63 +244,167 @@ function describe(
     };
   }
 
+  if (notification.kind === DATA_REQUEST_RAISED) {
+    return {
+      title: t('notifications.dataRequest.title', {
+        type: humanise(textVariable(variables, 'type', '—')),
+      }),
+      // The address rather than a name: this row is what an operator uses to
+      // find the request, and the request is keyed on the address.
+      detail: t('notifications.dataRequest.detail', {
+        email: textVariable(variables, 'email', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === LOGISTICS_DELIVERY_FAILED) {
+    return {
+      title: t('notifications.deliveryFailed.title', {
+        shipmentReference: textVariable(variables, 'shipmentReference', '—'),
+      }),
+      detail: t('notifications.deliveryFailed.detail', {
+        receivingCompany: textVariable(variables, 'receivingCompany', '—'),
+        attemptCount: numberVariable(variables, 'attemptCount'),
+      }),
+    };
+  }
+
+  if (notification.kind === LOGISTICS_SHIPMENT_UNASSIGNED) {
+    return {
+      title: t('notifications.shipmentUnassigned.title', {
+        shipmentReference: textVariable(variables, 'shipmentReference', '—'),
+      }),
+      detail: t('notifications.shipmentUnassigned.detail', {
+        receivingCompany: textVariable(variables, 'receivingCompany', '—'),
+        waitingHours: numberVariable(variables, 'waitingHours'),
+      }),
+    };
+  }
+
   return { title: t('notifications.unrecognised', { kind: notification.kind }), detail: null };
 }
 
-/** One row. A link when it leads somewhere, plain text when it does not. */
+/**
+ * One row.
+ *
+ * Three shapes rather than one, because the row has to say which of three
+ * things it is without the reader having to work it out: a piece of news, a
+ * problem that is still a problem, or a problem that is over. The mark down
+ * the left is what carries that - a hollow dot for unread news, a filled
+ * warning dot for a live alert, a tick for a resolved one - and every one of
+ * them is also stated in words for whoever cannot see it.
+ *
+ * The actions hang off the row rather than opening a menu, because there are
+ * at most two of them and a bell is not a place to go hunting.
+ */
 function NotificationRow({
   notification,
   onOpen,
+  onDismiss,
+  onResolve,
+  isBusy,
 }: {
   notification: ConsoleNotification;
   onOpen: (notification: ConsoleNotification) => void;
+  onDismiss: (notification: ConsoleNotification) => void;
+  onResolve: (notification: ConsoleNotification) => void;
+  isBusy: boolean;
 }): React.JSX.Element {
   const { t } = useI18n();
   const phrase = describe(notification, t);
 
+  const isAlert = notification.class === 'ALERT';
+  const isResolved = notification.status !== 'ACTIVE';
+  const isLiveAlert = isAlert && !isResolved;
+
   const body = (
     <>
-      {/* The unread mark. A dot rather than a bold row: bold is already doing
-          the work of the sentence, and two weights of emphasis in a 20-row
-          list reads as noise. */}
+      {/* The mark. A dot rather than a bold row: bold is already doing the
+          work of the sentence, and two weights of emphasis in a 20-row list
+          reads as noise. A live alert gets a warning colour because it is the
+          one thing on this list that is still wrong. */}
       <span
         aria-hidden="true"
         className={cx(
           'mt-1.5 h-2 w-2 shrink-0 rounded-full',
-          notification.isRead ? 'bg-transparent' : 'bg-accent',
+          isResolved
+            ? 'bg-transparent ring-1 ring-success'
+            : isLiveAlert
+              ? 'bg-danger-fill'
+              : notification.isRead
+                ? 'bg-transparent'
+                : 'bg-accent',
         )}
       />
 
       <span className="min-w-0 flex-1">
         <span className="block text-sm leading-snug text-ink">
           {phrase.title}
-          {!notification.isRead && <span className="sr-only"> ({t('notifications.new')})</span>}
+          {/* Everything the dot says, said again for a reader who cannot see
+              it. "New" alone was enough while every row was news; it is not
+              enough now that a row can be an unfixed problem. */}
+          {isLiveAlert && <span className="sr-only"> ({t('notifications.stillOpen')})</span>}
+          {isResolved && <span className="sr-only"> ({t('notifications.resolved')})</span>}
+          {!isAlert && !notification.isRead && (
+            <span className="sr-only"> ({t('notifications.new')})</span>
+          )}
         </span>
+
         {phrase.detail !== null && (
           <span className="mt-0.5 block text-xs text-ink-muted">{phrase.detail}</span>
         )}
+
+        {/* A problem that has come back says so. Without this, the second
+            occurrence is indistinguishable from the first and nobody learns
+            that it was fixed once already. */}
+        {notification.occurrence > 1 && (
+          <span className="mt-0.5 block text-xxs font-medium text-warning">
+            {t('notifications.occurrence', { count: notification.occurrence })}
+          </span>
+        )}
+
         <span className="mt-0.5 block text-xxs text-ink-subtle">
           {formatRelative(notification.createdAt)}
         </span>
+
+        {/* The history line. Who closed it, when and why - which is the whole
+            reason a resolved alert is kept rather than deleted. */}
+        {isResolved && notification.resolvedAt !== null && (
+          <span className="mt-1 block rounded border border-border-subtle bg-surface-sunken px-2 py-1 text-xxs leading-relaxed text-ink-muted">
+            <span className="block font-medium text-ink">
+              {notification.resolvedBy === null
+                ? t('notifications.resolvedBySystem', {
+                    when: formatRelative(notification.resolvedAt),
+                  })
+                : t('notifications.resolvedByPerson', {
+                    who: notification.resolvedBy,
+                    when: formatRelative(notification.resolvedAt),
+                  })}
+            </span>
+            {notification.resolutionReason !== null && (
+              <span className="block">{notification.resolutionReason}</span>
+            )}
+          </span>
+        )}
       </span>
     </>
   );
 
   const className = cx(
     'flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors',
-    notification.isRead ? 'bg-surface' : 'bg-accent-soft/30',
+    isResolved
+      ? 'bg-surface'
+      : isLiveAlert
+        ? 'bg-danger-soft/25'
+        : notification.isRead
+          ? 'bg-surface'
+          : 'bg-accent-soft/30',
   );
 
-  if (notification.linkPath === null) {
-    return (
-      <li>
-        <div className={className}>{body}</div>
-      </li>
-    );
-  }
-
-  return (
-    <li>
+  const content =
+    notification.linkPath === null ? (
+      <div className={className}>{body}</div>
+    ) : (
       <Link
         to={notification.linkPath}
         onClick={() => {
@@ -294,26 +414,92 @@ function NotificationRow({
       >
         {body}
       </Link>
+    );
+
+  // Only a LIVE alert has anything to act on. News clears itself by being
+  // read, and a resolved alert is a record.
+  if (!isLiveAlert) return <li>{content}</li>;
+
+  return (
+    <li>
+      {content}
+      {/* Reached only for a live alert - everything else returned above - so
+          the strip carries the same tint as the row it belongs to. */}
+      <div className="flex items-center justify-end gap-3 bg-danger-soft/25 px-3 pb-2 text-xxs">
+        <button
+          type="button"
+          onClick={() => {
+            onDismiss(notification);
+          }}
+          disabled={isBusy}
+          className="rounded font-medium text-ink-muted underline-offset-2 transition-colors hover:text-ink hover:underline disabled:opacity-60"
+        >
+          {t('notifications.hideForMe')}
+        </button>
+
+        {/* Offered only where the server said a person may genuinely close it.
+            Every other alert clears when the thing it describes is dealt
+            with, and a button here would be a way to hide it instead. */}
+        {notification.canResolveManually && (
+          <button
+            type="button"
+            onClick={() => {
+              onResolve(notification);
+            }}
+            disabled={isBusy}
+            className="rounded font-semibold text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline disabled:opacity-60"
+          >
+            {t('notifications.resolveAction')}
+          </button>
+        )}
+      </div>
     </li>
   );
 }
+
+/** Which half of the feed the panel is showing. */
+type FeedView = 'active' | 'resolved';
 
 export function NotificationBell(): React.JSX.Element {
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<FeedView>('active');
+  /**
+   * The alert a Resolve was pressed on, waiting for its reason.
+   *
+   * Held rather than resolved immediately, because a manual closure without an
+   * explanation is what makes an alert log worthless six months later:
+   * somebody closed it, nobody knows what they did, and the next person has to
+   * work out from scratch whether the problem is still there.
+   */
+  const [resolving, setResolving] = useState<ConsoleNotification | null>(null);
+  const [reason, setReason] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const reasonRef = useRef<HTMLTextAreaElement>(null);
 
   const query = useQuery({
-    queryKey: QUERY_KEY,
+    // The view is in the key, so switching to the history fetches it rather
+    // than filtering rows the server already narrowed - the history is a
+    // different query with a different ordering, not a subset of this one.
+    queryKey: [...QUERY_KEY, view],
     queryFn: () =>
-      api.get<ConsoleNotificationFeed>('/admin/notifications', { query: { limit: FEED_LIMIT } }),
+      api.get<ConsoleNotificationFeed>('/admin/notifications', {
+        query: { limit: FEED_LIMIT, view },
+      }),
     refetchInterval: POLL_INTERVAL_MS,
     // A background tab polling every minute is a background tab burning a
     // connection for a badge nobody is looking at.
     refetchIntervalInBackground: false,
   });
 
+  /**
+   * Refresh both halves, not only the one on screen.
+   *
+   * Resolving an alert moves it from one to the other, so invalidating the
+   * open list alone would leave the history showing the state before the
+   * thing that was just closed. The prefix key covers both.
+   */
   const invalidate = useCallback(async (): Promise<void> => {
     await queryClient.invalidateQueries({ queryKey: QUERY_KEY });
   }, [queryClient]);
@@ -330,6 +516,40 @@ export function NotificationBell(): React.JSX.Element {
   const markAllRead = useMutation({
     mutationFn: () => api.post<{ marked: number }>('/admin/notifications/read-all'),
     onSuccess: invalidate,
+  });
+
+  /**
+   * Hide a row from this person's own bell.
+   *
+   * Silent like marking read, and for the same reason - it changes nothing
+   * except what one person is looking at. Emphatically not a resolution: the
+   * problem is exactly as unsolved as it was, everybody else still sees it,
+   * and the API says so by being a different endpoint rather than a flag.
+   */
+  const dismiss = useMutation({
+    mutationFn: (notificationIds: string[]) =>
+      api.post<{ dismissed: number }>('/admin/notifications/dismiss', { notificationIds }),
+    onSuccess: invalidate,
+  });
+
+  /**
+   * Close an alert, with a reason.
+   *
+   * The error IS shown, unlike the two above. A refused resolution is the
+   * server saying "this one clears itself when the thing is dealt with" and
+   * naming where to go; swallowing that would leave somebody pressing a button
+   * that silently does nothing.
+   */
+  const resolve = useMutation({
+    mutationFn: (input: { id: string; reason: string }) =>
+      api.post<ConsoleNotification>(`/admin/notifications/${input.id}/resolve`, {
+        reason: input.reason,
+      }),
+    onSuccess: async () => {
+      setResolving(null);
+      setReason('');
+      await invalidate();
+    },
   });
 
   // Close on an outside click or Escape - the same contract as the account
@@ -356,11 +576,45 @@ export function NotificationBell(): React.JSX.Element {
 
   const items = query.data?.items ?? [];
   const unreadCount = query.data?.unreadCount ?? 0;
+  const openAlertCount = query.data?.openAlertCount ?? 0;
+
+  /**
+   * The badge count, and it is deliberately not `unreadCount` any more.
+   *
+   * The server computes it against the documented active-alert rule: unread
+   * news plus live problems. An alert somebody read this morning is still a
+   * problem, and a badge that dropped when they glanced at it would be a badge
+   * that hid one. See the header of
+   * `backend/src/modules/notifications/admin-notification.service.ts`.
+   *
+   * The server returns it on every call whichever view was asked for, so the
+   * badge keeps describing what is waiting while somebody reads through the
+   * history rather than going blank the moment they switch tab.
+   */
+  const badgeCount = query.data?.activeCount ?? 0;
 
   const handleOpenRow = (notification: ConsoleNotification): void => {
     setIsOpen(false);
     if (!notification.isRead) markRead.mutate([notification.id]);
   };
+
+  const handleDismiss = (notification: ConsoleNotification): void => {
+    dismiss.mutate([notification.id]);
+  };
+
+  const handleResolve = (notification: ConsoleNotification): void => {
+    setResolving(notification);
+    setReason('');
+  };
+
+  // The caret follows the button that opened the box. Without this a keyboard
+  // user presses Resolve and has to tab back through the whole list to reach
+  // the field that appeared because of them.
+  useEffect(() => {
+    if (resolving !== null) reasonRef.current?.focus();
+  }, [resolving]);
+
+  const isBusy = dismiss.isPending || resolve.isPending;
 
   return (
     <div ref={containerRef} className="relative shrink-0">
@@ -375,8 +629,8 @@ export function NotificationBell(): React.JSX.Element {
         // "Notifications" alone tells a screen-reader user nothing about
         // whether it is worth opening.
         aria-label={
-          unreadCount > 0
-            ? `${t('notifications.openLabel')} — ${t('notifications.unreadBadge', { count: unreadCount })}`
+          badgeCount > 0
+            ? `${t('notifications.openLabel')} — ${t('notifications.waitingBadge', { count: badgeCount })}`
             : t('notifications.openLabel')
         }
         className={cx(
@@ -387,7 +641,7 @@ export function NotificationBell(): React.JSX.Element {
       >
         <BellIcon className="h-[1.15rem] w-[1.15rem]" />
 
-        {unreadCount > 0 && (
+        {badgeCount > 0 && (
           <span
             aria-hidden="true"
             className={cx(
@@ -396,7 +650,7 @@ export function NotificationBell(): React.JSX.Element {
               'text-white ring-2 ring-surface',
             )}
           >
-            {unreadCount > 99 ? '99+' : unreadCount}
+            {badgeCount > 99 ? '99+' : badgeCount}
           </span>
         )}
       </button>
@@ -407,21 +661,58 @@ export function NotificationBell(): React.JSX.Element {
           aria-label={t('notifications.title')}
           className="absolute right-0 z-40 mt-1.5 w-[22rem] max-w-[calc(100vw-1.5rem)] animate-fade-in rounded-lg border border-border bg-surface shadow-popover"
         >
-          <header className="flex items-center justify-between gap-3 border-b border-border px-3 py-2.5">
-            <h2 className="text-sm font-semibold text-ink">{t('notifications.title')}</h2>
+          <header className="border-b border-border px-3 py-2.5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-ink">{t('notifications.title')}</h2>
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  markAllRead.mutate();
-                }}
-                disabled={markAllRead.isPending}
-                className="rounded text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline disabled:opacity-60"
-              >
-                {t('notifications.markAllRead')}
-              </button>
-            )}
+              {view === 'active' && unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    markAllRead.mutate();
+                  }}
+                  disabled={markAllRead.isPending}
+                  className="rounded text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline disabled:opacity-60"
+                >
+                  {t('notifications.markAllRead')}
+                </button>
+              )}
+            </div>
+
+            {/*
+              Two halves, not a filter.
+
+              The bell shows what is waiting; the history shows what was closed,
+              who closed it and why. Keeping them apart is what lets the first
+              one be short enough to read - and a resolved alert that stayed in
+              the list would put the panel back where it started, with problems
+              nobody can clear.
+            */}
+            <div role="tablist" aria-label={t('notifications.title')} className="mt-2 flex gap-1">
+              {(['active', 'resolved'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={view === tab}
+                  onClick={() => {
+                    setView(tab);
+                  }}
+                  className={cx(
+                    'rounded-md px-2 py-1 text-xs font-medium transition-colors',
+                    view === tab
+                      ? 'bg-accent-soft text-accent'
+                      : 'text-ink-muted hover:bg-surface-hover hover:text-ink',
+                  )}
+                >
+                  {tab === 'active'
+                    ? openAlertCount > 0
+                      ? t('notifications.tabOpenWithCount', { count: openAlertCount })
+                      : t('notifications.tabOpen')
+                    : t('notifications.tabResolved')}
+                </button>
+              ))}
+            </div>
           </header>
 
           <div className="max-h-[24rem] overflow-y-auto">
@@ -430,16 +721,31 @@ export function NotificationBell(): React.JSX.Element {
             )}
 
             {query.isError && (
-              <p className="px-3 py-6 text-center text-xs text-danger">
-                {t('notifications.loadFailed')}
-              </p>
+              <div className="px-3 py-6 text-center">
+                <p className="text-xs text-danger">{t('notifications.loadFailed')}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void query.refetch();
+                  }}
+                  className="mt-2 rounded text-xs font-medium text-accent underline-offset-2 hover:underline"
+                >
+                  {t('common.retry')}
+                </button>
+              </div>
             )}
 
             {query.data !== undefined && items.length === 0 && (
               <div className="px-3 py-6 text-center">
-                <p className="text-sm font-medium text-ink">{t('notifications.empty')}</p>
+                <p className="text-sm font-medium text-ink">
+                  {view === 'resolved'
+                    ? t('notifications.historyEmpty')
+                    : t('notifications.empty')}
+                </p>
                 <p className="mt-1 text-xs leading-relaxed text-ink-muted">
-                  {t('notifications.emptyDescription')}
+                  {view === 'resolved'
+                    ? t('notifications.historyEmptyDescription')
+                    : t('notifications.emptyDescription')}
                 </p>
               </div>
             )}
@@ -451,11 +757,91 @@ export function NotificationBell(): React.JSX.Element {
                     key={notification.id}
                     notification={notification}
                     onOpen={handleOpenRow}
+                    onDismiss={handleDismiss}
+                    onResolve={handleResolve}
+                    isBusy={isBusy}
                   />
                 ))}
               </ul>
             )}
           </div>
+
+          {/*
+            The reason, asked for before the alert closes.
+
+            Inline rather than a modal on top of a popover, which would be two
+            layers of overlay for one sentence of input. It replaces the list
+            while it is open so there is exactly one thing to answer.
+          */}
+          {resolving !== null && (
+            <div className="border-t border-border bg-surface-sunken px-3 py-3">
+              <label
+                htmlFor="notification-resolve-reason"
+                className="block text-xs font-semibold text-ink"
+              >
+                {t('notifications.resolveReasonLabel')}
+              </label>
+              <p className="mt-0.5 text-xxs leading-relaxed text-ink-muted">
+                {t('notifications.resolveReasonHint')}
+              </p>
+
+              {/*
+                Focused on mount through a ref rather than `autoFocus`.
+
+                The box appears because somebody pressed Resolve, so moving the
+                caret into it is following their intent rather than stealing
+                focus - but `autoFocus` also fires on hydration and on any
+                remount, which is what the accessibility rule against it is
+                really about. A ref fires exactly when this panel opens.
+              */}
+              <textarea
+                id="notification-resolve-reason"
+                ref={reasonRef}
+                value={reason}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                }}
+                rows={2}
+                maxLength={512}
+                className="mt-1.5 w-full rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-ink focus:border-accent focus:outline-none"
+              />
+
+              {resolve.isError && (
+                <p role="alert" className="mt-1.5 text-xxs leading-relaxed text-danger">
+                  {resolve.error instanceof Error
+                    ? resolve.error.message
+                    : t('common.somethingWentWrong')}
+                </p>
+              )}
+
+              <div className="mt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResolving(null);
+                    setReason('');
+                    resolve.reset();
+                  }}
+                  className="rounded text-xs font-medium text-ink-muted hover:text-ink"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    resolve.mutate({ id: resolving.id, reason: reason.trim() });
+                  }}
+                  // Four characters, the same floor the endpoint enforces. A
+                  // reason of "ok" explains nothing to whoever reads this in
+                  // six months.
+                  disabled={reason.trim().length < 4 || resolve.isPending}
+                  className="rounded-md bg-accent px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-60"
+                >
+                  {t('notifications.resolveAction')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

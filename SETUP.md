@@ -120,7 +120,7 @@ database too.
 | `Port 4000`, `5173`, `5174` or `5175` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
 | `DATABASE_URL is not set` | `backend\.env` is missing | Copy `.env.example` to `.env` inside `backend` |
 | A Prisma table or column error | New migrations have not been applied | `cd backend`, then `npm run db:migrate:deploy` |
-| Sign-in says the credentials are wrong | Sample data is missing, or it is the wrong site | Run `npm run db:seed`. Admin logins only work on 5173, customer logins only on 5174 |
+| Sign-in says the credentials are wrong | Sample data is missing, it is the wrong site, or the passwords were rotated | Run `npm run db:seed`. Admin logins only work on 5173, customer logins only on 5174. If `db:rotate-seed-passwords` was run on this database, the ones in this file no longer apply and re-seeding will not bring them back — rotate again for a fresh set |
 | The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed` |
 | No emails appear anywhere | The worker is not running | `.\scripts\dev-stack.ps1 -Restart` |
 | The site is reaching a public ngrok address | The project is in tunnel mode | `.\scripts\dev-stack.ps1 -Restart -Local` |
@@ -145,6 +145,20 @@ If the API will not stay up, `api.out.log` says why on its last few lines.
 # Development sign-ins
 
 These accounts are created by `npm run db:seed`.
+
+**The moment this machine's API is reachable from outside** — a tunnel, or a
+Netlify site pointed at it — these passwords are in a public repository and are
+no longer passwords. Replace all nine with random ones, in one command:
+
+```powershell
+cd backend ; npm run db:rotate-seed-passwords
+```
+
+It prints the new passwords once, revokes every session, and does not need to
+be undone: `npm run db:seed` sets a password only when it *creates* an account,
+so re-seeding leaves the rotated ones alone. The tables below then describe a
+fresh clone rather than your database, which is correct — leave them as they
+are.
 
 | Where | Email | Password |
 |---|---|---|
@@ -308,6 +322,45 @@ npm install
 
 First-time setup is done. From now on, use **Start the project** at the top.
 
+### 6. Optional: the database rehearsal environment
+
+Only if you are going to change the schema, write a migration, or prepare a
+release. Everyday work does not need it.
+
+**XAMPP runs MariaDB 10.4. The server will run 11.4, and they behave
+differently.** 10.4 is not strict: a value too long for its column is quietly
+truncated. 11.4 rejects it. So a migration, or a feature that writes a longer
+string than a column allows, can pass every test here and fail on the server.
+
+`deploy\compat\` runs the exact version the server will, in Docker, so that
+difference appears on this machine instead. It needs Docker Desktop.
+
+```powershell
+cd C:\Users\HP\Desktop\UBoss-Software\deploy\compat
+Copy-Item .env.database.example .env
+```
+
+Open `.env` and fill in the four passwords. Generate each one separately:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
+```
+
+Then, from the project root:
+
+```powershell
+.\scripts\db\compat-test.ps1 -Reset
+```
+
+That builds the whole database from the committed migrations on MariaDB 11.4,
+applies the same permissions the server uses, checks that the migrations and
+`schema.prisma` still agree, and runs the backend tests against it. About seven
+minutes. `-SkipTests` stops after the check, which is the quick loop while
+writing a migration.
+
+**It never touches XAMPP.** It listens on `127.0.0.1:3307`, not 3306, and the
+script refuses to run if that is ever changed to 3306.
+
 ---
 
 # After pulling new code
@@ -385,6 +438,10 @@ Keep the worker running. Password-reset, invitation and confirmation emails are
 handled there, and in local development they print in that terminal instead of
 being delivered.
 
+Starting by hand for a **tunnel**, all three frontends run `npm run dev:tunnel`
+instead of `npm run dev`, and the ngrok agent goes last — it connects to
+nothing if it starts before the servers it points at.
+
 Whichever way you started, check it the same way:
 
 ```powershell
@@ -401,8 +458,38 @@ To let someone who is not at this computer see it, start in tunnel mode:
 .\scripts\dev-stack.ps1 -Restart -Tunnel
 ```
 
-The public address is printed in the ngrok inspector at http://localhost:4040.
-This needs ngrok configured first.
+The script prints the three public addresses, and they are also in the ngrok
+inspector at http://localhost:4040. This needs ngrok configured first.
+
+One free tunnel gives out **one hostname**, so all three apps share it and are
+told apart by the path:
+
+| | |
+|---|---|
+| Storefront | `https://<your-host>.ngrok-free.dev/` |
+| Admin panel | `https://<your-host>.ngrok-free.dev/admin/` |
+| Logistics portal | `https://<your-host>.ngrok-free.dev/logistics/` — only where it is switched on |
+
+The storefront owns the root and passes `/admin` and `/logistics` through to
+the other two. That is a **development** arrangement only: in a real
+installation a carrier signs into the logistics portal on its own hostname, and
+`LOGISTICS_WEB_PUBLIC_URL` in `backend\.env` is what an invited carrier's
+activation link points at — set it to the tunnel address while tunnelling, and
+back to `http://localhost:5175` afterwards, exactly like the other two
+`*_PUBLIC_URL` settings.
+
+A `200` from `/admin/` or `/logistics/` is **not** proof either one is up: with
+the frontends started in plain `dev` mode the storefront answers those paths
+with its own page. Check what the page actually loads instead — each app names
+its own entry script:
+
+```powershell
+curl.exe -s -H 'ngrok-skip-browser-warning: true' https://<your-host>.ngrok-free.dev/logistics/ |
+  Select-String -Pattern 'src="[^"]*main\.tsx'
+```
+
+`/logistics/src/main.tsx` is the portal. `/src/main.tsx` is the storefront
+answering in its place, which means the frontends are not in tunnel mode.
 
 Tunnel mode **stays on across a restart**, on purpose — quietly dropping the
 tunnel would break the link the other person is using. To come back to plain
@@ -411,6 +498,42 @@ local mode, ask for it:
 ```powershell
 .\scripts\dev-stack.ps1 -Restart -Local
 ```
+
+### A link that does not depend on this computer being on
+
+A tunnel is the fastest way to show somebody the app, and it lasts exactly as
+long as your machine does. For a link a manager or a reviewer can keep — three
+proper URLs, one per application — put the three front ends on Netlify:
+
+```powershell
+.\scripts\pack-netlify.ps1 -ApiOrigin https://api.your-company.com
+```
+
+That builds all three and writes one zip per site to `output\netlify`, ready to
+drop into Netlify's **Deploy manually** box.
+
+**It does not move the API.** Netlify serves files; the API holds a database
+connection pool and the worker polls the job queue forever, so both stay on a
+machine that keeps running — a server of your own, or this one behind a tunnel,
+which is what `-ApiOrigin` points at. Without a reachable API the three sites
+render their sign-in screens and cannot sign anybody in.
+
+To tunnel the API from this machine, use **cloudflared, not ngrok**:
+
+```powershell
+& "$env:ProgramFiles(x86)\cloudflared\cloudflared.exe" tunnel --protocol http2 --url http://localhost:4000
+```
+
+ngrok's free plan answers anything with a browser `User-Agent` — including the
+app's own `fetch()` calls — with its warning page, so behind Netlify every API
+call comes back as HTML and nothing in the site works. `--protocol http2` is
+required wherever outbound UDP 7844 is blocked, or the tunnel registers and
+then returns Cloudflare error 1033 to everything. `docs/NETLIFY.md` has both in
+full.
+
+`docs/NETLIFY.md` is the full procedure, including the settings the API has to
+be given in return — `COOKIE_SECURE=true` above all, because on an HTTPS site
+without it the sign-in returns 200 and silently does nothing.
 
 ---
 
@@ -424,6 +547,7 @@ npm run db:studio           # Browse the database in a web page
 npm run db:migrate:deploy   # Apply existing migrations safely
 npm run db:migrate          # Create a new migration (asks questions)
 npm run db:seed             # Restore or update the sample data
+npm run db:rotate-seed-passwords   # Fresh random passwords for the nine seeded accounts
 ```
 
 `npm run db:reset` erases and rebuilds the development database. Do not run it
@@ -435,6 +559,10 @@ unless you mean to lose your local data.
 
 - Backend architecture, schema and migration notes — `backend/README.md`
 - **Putting it on a server** — `docs/DEPLOYMENT.md`
+- **Putting the three front ends on Netlify** — `docs/NETLIFY.md`
+- Which MariaDB the server runs, and why — `docs/DATABASE-PRODUCTION.md`
+- Writing a migration, and getting data out of XAMPP safely — `docs/DATABASE-MIGRATION.md`
+- Backups and proving one restores — `docs/DATABASE-RECOVERY.md`
 - Backups and production recovery — `backend/docs/RUNBOOK.md`
 - Features and business configuration — `README.md`
 - How the whole product works — `PROJECT-GUIDE.md`

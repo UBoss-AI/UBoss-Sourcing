@@ -12,7 +12,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white">
 <img alt="Fastify 5" src="https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify&logoColor=white">
 <img alt="Prisma 7" src="https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma&logoColor=white">
-<img alt="MariaDB 10.4" src="https://img.shields.io/badge/MariaDB-10.4-003545?style=flat-square&logo=mariadb&logoColor=white">
+<img alt="MariaDB 11.4 LTS" src="https://img.shields.io/badge/MariaDB-11.4%20LTS-003545?style=flat-square&logo=mariadb&logoColor=white">
 <img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black">
 <img alt="Vite 6" src="https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite&logoColor=white">
 <img alt="8 languages" src="https://img.shields.io/badge/i18n-8%20languages-4B32C3?style=flat-square">
@@ -31,6 +31,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Quick start](#quick-start) | One command on Windows; first-time setup lives in `SETUP.md` |
 | [Development sign-ins](#development-sign-ins) | Seeded accounts for each surface |
 | [What each surface does](#what-each-surface-does) | Storefront, Seller Hub, console, carrier portal |
+| [Role dashboards](#role-dashboards) | The ring, the figures and the AI panel each role opens on |
 | [Configuration](#configuration) | Environment, origins, sign-in location, self-registration |
 | [Markets, currencies and prices](#markets-currencies-and-prices) | Opening a market, and keeping converted prices current |
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
@@ -145,6 +146,13 @@ Once it is up:
 | Readiness, with dependency checks | <http://localhost:4000/health/ready> |
 | Metrics (Prometheus) | <http://localhost:4000/metrics> |
 
+Started with `-Tunnel`, all three frontends are published through **one**
+hostname — a free tunnel only gives out one — and told apart by the path: the
+storefront at `/`, the console at `/admin/`, the carrier portal at
+`/logistics/`. The script prints the addresses. That path arrangement is for
+development only; in a real installation each of the three has a hostname of
+its own.
+
 **Run exactly one worker locally.** Several can run safely in production — they
 claim jobs under a lease — but two started from *different* builds disagree
 about which job types exist, and a job the older one cannot handle goes back to
@@ -174,6 +182,22 @@ npx prisma migrate deploy
 Remove-Item Env:\DATABASE_URL
 ```
 
+**Before anything that touches the database reaches a server**, rehearse it
+against the version production actually runs. XAMPP is 10.4 and is not strict;
+production is 11.4 and is, and the difference is whether an over-long value is
+truncated or rejected:
+
+```powershell
+.\scripts\db\audit-xampp.ps1        # what is installed here, as a JSON report
+.\scripts\db\compat-test.ps1        # MariaDB 11.4.13 in Docker: migrations from
+                                    # empty, grants, drift check, the test suite
+.\scripts\db\validate-data.ps1      # ~100 integrity checks, before and after
+```
+
+Needs Docker Desktop, and it binds only to `127.0.0.1:3307` — never 3306, so it
+cannot be mistaken for XAMPP. `docs/DATABASE-MIGRATION.md` explains what each
+step proves.
+
 Never run `prisma migrate dev` against this schema — it offers to drop the
 database and rewrites constraint names the migrations depend on. `migrate
 status` and `migrate deploy` are the two you want.
@@ -186,7 +210,26 @@ status` and `migrate deploy` are the two you want.
 
 Created by `npm run db:seed` in `backend`. **These are development seeds** —
 delete them before the system goes live; `backend/docs/RUNBOOK.md` has the
-procedure, and `backend/scripts/rotate-demo-passwords.ts` does it for you.
+procedure.
+
+**The passwords below are in this repository, so they stop being passwords the
+moment this installation is reachable by anybody else** — a tunnel shown to a
+colleague, a static host pointed at this API, a staging box with a public
+hostname. One command replaces all nine with fresh random ones, revokes every
+existing session and prints the new passwords once:
+
+```powershell
+cd backend ; npm run db:rotate-seed-passwords
+```
+
+It is safe to run repeatedly, and re-seeding afterwards will not put the
+published passwords back — `db:seed` writes a password only when it *creates* a
+row. It is a stopgap, not a substitute for
+[going live](#going-live) step 11, which is to delete these accounts and create
+real ones from **Staff**.
+
+After rotating, the tables below are wrong for that database and still right
+for a fresh clone. That is the intended state; do not edit them to match.
 
 **Staff**, at <http://localhost:5173>:
 
@@ -238,6 +281,13 @@ Two ordering patterns beyond the one-off basket:
 - **Buy Later / Subscribe & Reorder** — a basket priced by `quoteSchedule` and
   nothing else, so the figure the customer confirmed on the review screen and
   the figure charged weeks later come from one place.
+
+A **dashboard** at `/account` opens the section: a ring of the buyer's own
+orders, what is promised in the next seven days, what has been paid against the
+period before, schedules that cannot run without the cardholder, and the health
+of their own ERP feed. Choosing a slice filters the order list under it, and the
+period and the selection are both in the URL, so a view is a link somebody can
+send.
 
 Optionally the customer's own ERP can collect orders and post back receipts.
 
@@ -321,6 +371,19 @@ to. It is read-only: every decision still happens on the screen that owns it.
 Sellers and buyers need `customer.read`, carriers `logistics.read`, and
 somebody holding one of the two sees only that half.
 
+**Warehouses has three views.** *Our warehouses* is the screen as it has always
+been — the buildings this deployment runs, on a map with a search, filters and
+a stock roll-up. *One seller company* and *Every seller* show where approved
+sellers dispatch from, each row naming the company that owns it, on the same
+map and in the same table. A seller can be chosen only when its onboarding is
+approved and its account is live — not whether its brands or listings were
+approved — and that rule is enforced on the warehouse endpoint itself, so a
+suspended seller's id typed into the address bar answers the same way as an id
+that does not exist. Both seller views need `inventory.read` **and**
+`customer.read`; without the second the control is absent rather than refused.
+A location with no usable coordinates stays in the table and is counted under
+the map, so one bad row never takes the map down with it.
+
 The dashboard opens on a reporting window and carries, for each headline
 figure, the change against the window of equal length before it and the shape
 of the days behind it — so a month's total that arrived in one afternoon does
@@ -339,6 +402,22 @@ zero. Beside the notification bell there is a **refresh control** — the Seller
 Hub has the same one — which re-reads the screen without losing the scroll
 position or an open dialog, for the everyday case of two people working the
 same queue from two sides.
+
+**The bell tells news apart from problems.** An order placed or a colleague
+signing in is news: it clears when the person reading it has read it, and only
+for them. A cold-chain excursion, a failed delivery, a data request inside its
+statutory clock or a certificate nobody has decided is an *alert*: it stays on
+the badge until the underlying problem reaches a terminal state, for everybody,
+however many people have glanced at it. An alert closes because the thing it
+describes was dealt with — in the same database transaction that dealt with it
+— and the bell offers no button that could close one any other way. The single
+exception is a consignment nobody has picked up, which an operator holding
+`logistics.assign` may close by hand with a reason, because a collection
+arranged over the telephone leaves no row anywhere that would say so. Closed
+alerts are kept, never deleted: a **Resolved** tab shows each one with who
+closed it, when and why. A problem that comes back opens a new occurrence
+rather than reopening the old record. The Logistics Partner Portal's own bell
+follows the same rule. See PROJECT-GUIDE.md, *The bell*.
 
 Two things it deliberately cannot do: mark an order as paid (only a
 signature-verified provider event confirms one), and publish a product by
@@ -365,6 +444,46 @@ who opens it chooses their own password. The carrier starts
 marks it active — accepting an invitation proves somebody read an email, not
 that the checks are finished.
 
+**Drivers and who is carrying what.** A driver is **a name on the fleet**, with
+a record of what they are cleared to carry. No account, no invitation, no email
+round trip: the owner types the name. A carrier employs people who will never
+open this software — an agency driver covering a round, a subcontractor’s van —
+and a register that could only hold people with a login is a register that does
+not describe the fleet. Linking a colleague’s account is optional and additive,
+and buys exactly one thing: the phone app, with its task list, scanner and
+proof-of-delivery capture. Vans are added the same way, with the temperature
+range a refrigerated one holds, and naming a vehicle on an assignment is
+optional. Nobody with delivery history is deleted — they are stood down, and
+standing somebody down while they still hold consignments asks first and says
+how many.
+
+**The marketplace can work a carrier’s fleet too.** Adding a driver or a van,
+putting one on a consignment, moving it to somebody else, taking them off and
+sending it on the way are all available to the operations desk as well as to
+the carrier — because somebody has to when the carrier cannot, and a desk that
+could only watch means a parcel that moves while its tracking page does not. It
+is **one register, not a copy**: a driver added by the desk appears in the
+carrier’s own portal. The fleet used on a consignment is derived from the
+carrier the consignment is already with and can never be named in the request,
+so one carrier’s driver cannot end up on another’s parcel, and everything the
+desk writes lands in the carrier’s own audit trail named as the marketplace.
+The permissions split along the line the roles already drew: `logistics.write`
+is the fleet register, `logistics.assign` is putting somebody on a parcel and
+moving it, and an Order Manager holds the second without the first.
+
+A driver is put on a **consignment**, never on an order: an order splits into
+one consignment per seller and warehouse, which can go to different carriers on
+different days. Exactly one driver is live per consignment, and that is a
+unique index rather than a rule in code — two dispatchers pressing Assign in
+the same second produce one assignment and one honest refusal. Moving a
+consignment between drivers needs a written reason, keeps the previous
+assignment and links the two, so the chain of who carried what survives; a
+consignment that is delivered, returned, lost or cancelled comes off its
+driver's task list in the same transaction. Assignment is refused for another
+carrier's driver, a driver who is not active, a consignment that is already
+finished, and a driver not cleared for the load — cold chain, sterile handling,
+dangerous goods or an expired licence.
+
 **Creating a carrier does not sign anybody in as it**, and there is no
 impersonation door. The company the portal shows is derived on the server from
 the authenticated membership and nothing else: no query parameter, no stored
@@ -388,12 +507,46 @@ exports, exchange-rate refreshes, webhook delivery and retries.
 
 It claims jobs under a lease rather than `FOR UPDATE SKIP LOCKED`, which
 MariaDB 10.4 does not have: a conditional `UPDATE` plus an `affectedRows`
-check. A worker that does not recognise a job type returns it to the queue for
-another to take, rather than marking it dead and silently losing the work.
+check. Production runs 11.4, which does have `SKIP LOCKED` — the lease stays
+because it works on both, and because it is the pattern that survives the
+database moving to a machine where a held row lock is a network round trip. A
+worker that does not recognise a job type returns it to the queue for another to
+take, rather than marking it dead and silently losing the work.
 
 </details>
 
 ---
+
+## Role dashboards
+
+Each of the three signed-in roles opens on a dashboard built from the same
+parts: one dominant ring, supporting figures in a bento grid, a filtered list
+underneath, and an AI panel beside it.
+
+| Role | Where | The ring |
+|---|---|---|
+| Buyer | `/account` on the storefront | **My orders** — the ten order statuses folded into five groups a buyer thinks in |
+| Administrator | `/dashboard` in the admin panel | **Platform operations** — what is waiting, in five groups, across the queues that member of staff can act on |
+| Logistics partner | `/dashboard` in the carrier portal | **Assigned shipments** — the twenty-seven consignment statuses folded into eight stages |
+
+**Every figure is a database aggregate, scoped on the server.** A buyer sees
+their own orders, a carrier its own consignments, and a member of staff only
+the queues they hold the acting grant for — a queue they cannot act on is
+absent from the reply rather than returned as zero. No dashboard counts a list
+it was sent.
+
+**The chart is never the only way to read the data.** The ring is one labelled
+image; the legend beside it is the control, with each entry a real button
+carrying the label, the count and the share as text, plus a shape as well as a
+colour. "View as a table" opens the same figures as a table. Nothing rests on
+telling red from green, and nothing is reachable only by pointing at it.
+
+**The period and the selected slice live in the URL** — `?range=30d&segment=…`
+— so a view is shareable and Back behaves. Today, last 7 days, last 30 days, or
+a custom pair.
+
+The dashboards follow the theme toggle like every other screen: deep navy in
+dark, a cool near-white in light, both audited by `npm run audit:contrast`.
 
 ## Configuration
 
@@ -440,7 +593,7 @@ given at all.
 
 | Variable | What it does |
 |---|---|
-| `FEATURE_ADMIN_LOGIN_LOCATION` | The requirement itself. Default `true` |
+| `FEATURE_ADMIN_LOGIN_LOCATION` | The requirement itself. Default `false`; enable only after a documented privacy and employment-law assessment |
 | `GEOCODE_REVERSE_URL` | Turns coordinates into a place name. `{lat}` and `{lon}` are substituted. Empty switches the lookup off and the bell shows coordinates |
 | `GEOCODE_TIMEOUT_MS` | How long to wait for it. Default `5000` |
 
@@ -906,13 +1059,26 @@ one are a Vite cache, not a code bug.
 2. **Generate fresh secrets** — `SESSION_COOKIE_SECRET`, `ACCESS_TOKEN_SECRET`,
    `REFRESH_TOKEN_SECRET`, `SECRETS_ENCRYPTION_KEY`. Never reuse development
    values.
-3. **Migrate, then install the reference data.**
+3. **Migrate, tighten the grants, then install the reference data.**
    ```powershell
    cd backend
    npm run db:migrate:deploy
+   ```
+   ```bash
+   sudo bash /srv/uboss/current/deploy/scripts/apply-grants.sh   # on the server
+   ```
+   ```powershell
    npm run db:reference        # safe and idempotent in production
    ```
    Without currencies and countries the catalogue cannot be priced at all.
+
+   **The middle step is not optional and cannot be done earlier.**
+   `apply-grants.sh` is what makes `audit_logs` append-only, and it has to run
+   *after* the tables exist — MariaDB refuses a table-level `REVOKE` against a
+   table that does not exist, and refuses to revoke at table level at all what
+   was granted at database level. `release.sh` runs it after every migration
+   from then on, because a migration that adds a table leaves the application
+   unable to write to it. `docs/DATABASE-PRODUCTION.md` §6 has the reasoning.
 4. **Price the catalogue in every currency you intend to sell in.** A product
    with no price row for a currency is not sold in that market — it is left out
    of that grid entirely, deliberately, rather than converted at a rate.
@@ -950,6 +1116,22 @@ one are a Vite cache, not a code bug.
 9. **Serve each `dist/` with a history fallback** — they are single-page apps,
    so every unknown path must return `index.html`, or a refresh on
    `/account/orders/123` gives a 404.
+
+   **On a static host — Netlify, or anything like it —**
+   [`docs/NETLIFY.md`](docs/NETLIFY.md) is the whole procedure, and
+   `apps/*/netlify.toml` already carries the fallback, the security headers and
+   a proxy that keeps the API on the same origin as the page. One command
+   builds all three and packs a zip per site:
+
+   ```powershell
+   .\scripts\pack-netlify.ps1 -ApiOrigin https://api.your-company.com
+   ```
+
+   Two things that host cannot do, and they are the reason this is a *part* of
+   going live rather than an alternative to it: it does not run the API, and it
+   does not run the worker. Both are long-lived processes — one holds the
+   database pool, the other polls the job queue forever — so they stay on a
+   machine of your own, and the static sites point at them.
 10. **Give each frontend its own hostname** if you can. They no longer share
     session cookies either way, but separate origins keep the CORS allowlist and
     the cookie scopes obvious. The carrier portal is designed for this — it is a
@@ -1015,11 +1197,17 @@ contract test fails the build if it does.
 > `argon2` and `@prisma/engines` are the two the backend cannot run without.
 
 **The same checks run on every pull request**, in `.github/workflows/ci.yml`,
-against MariaDB **10.11** rather than the 10.4 a development machine runs — so a
-value too long for its column fails there rather than on launch night. That
-workflow also audits dependencies, produces a bill of materials, scans the whole
-history for secrets, and warns when a new migration contains a `DROP`, a
-`RENAME` or a `NOT NULL`, none of which is safe in a single release.
+against **MariaDB 11.4.13** — the exact patch production runs, pinned rather
+than floating — instead of the 10.4 a development machine has. So a value too
+long for its column fails there rather than on launch night.
+
+That workflow also proves four things about the database on every pull request:
+that the committed migrations and `schema.prisma` still agree, that the
+application's account still cannot rewrite its own audit log or create a table,
+that the data-validation queries still run, and that any new migration
+containing a `DROP` or a `TRUNCATE` is named in the review rather than
+discovered later. Plus dependency audits, a bill of materials, and a secret scan
+over the whole history.
 
 `.github/workflows/deploy.yml` builds and activates a release. It is **manual
 only** and does nothing until an owner configures the environments, the deploy
@@ -1096,8 +1284,20 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   only ever produce the operator's answer — and the operator's answer on a
   seller's line multiplies their price by the carton. Never decided from a
   category, a route or a string comparison: it comes from product ownership and
-  the offer's own stored unit, on the server. A request naming the wrong unit on
-  a seller's offer is refused rather than reinterpreted.
+  the offer's own stored unit, on the server. A request naming a unit the line
+  is not sold in is refused rather than reinterpreted, either way round — a
+  seller's pieces asked for by the carton, or the operator's carton asked for by
+  the piece. Naming no unit at all is still the route for a caller that counts
+  in pieces, and is rounded up to whole sell units.
+- **A paid order raises its own consignments, one per despatching building.**
+  The operator's lines leave the warehouse the order was priced against; each
+  seller's leave that seller's own pickup place, and a seller who has not said
+  which of theirs it is holds nobody else's up. Raising is idempotent, so a
+  redelivered payment webhook produces nothing new, and it can never fail an
+  order that has already been paid for. Nothing is assigned at creation: which
+  carrier takes it is the operator's choice, made on
+  **Logistics → Shipments**, and the buyer's order then names the carrier
+  carrying it.
 - **A listing decision applies to the revision that was reviewed.** A moderator
   carries `submittedVersion` back with their decision, and it is refused if the
   seller has resubmitted or a colleague has already decided. Approval makes a
@@ -1134,7 +1334,11 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | **This file** | Features, configuration, markets, payments, languages, going live |
 | `backend/README.md` | Backend architecture, schema and migration notes |
 | `backend/docs/HANDOFF.md` | Environment details, the MariaDB constraints that shaped the schema, the full endpoint map, and what is deliberately not built |
+| **[`docs/DATABASE-PRODUCTION.md`](docs/DATABASE-PRODUCTION.md)** | Which MariaDB and why, how it is configured, its four accounts and why they are four, the connection budget, collation and time, and when one VPS stops being enough |
+| **[`docs/DATABASE-MIGRATION.md`](docs/DATABASE-MIGRATION.md)** | Migrations and schema drift, getting data out of XAMPP safely, which data may reach production, the validation queries, and how to release a migration |
+| **[`docs/DATABASE-RECOVERY.md`](docs/DATABASE-RECOVERY.md)** | Backups, proving a backup restores, point-in-time recovery, and the runbook for a database that is unwell |
 | **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** | Putting it on a server: the VPS build, releases, rollback, backups, monitoring, the EU/Poland compliance matrix and what must be decided before going live |
+| **[`docs/NETLIFY.md`](docs/NETLIFY.md)** | Putting the three front ends on a static host: the two routes, why the API is proxied rather than called directly, what the API side has to be told, and what Netlify cannot host |
 | **[`docs/PRODUCT-READINESS.md`](docs/PRODUCT-READINESS.md)** | What is actually built, capability by capability, against the product description — what is built, what is switched off, what refuses rather than pretending, and what is missing |
 | `backend/docs/RUNBOOK.md` | Backups, restore drills, incident procedure, going-live tasks |
 | `backend/docs/STATUS.md` | What is built, what is not, and the reasoning behind the money and tax rules |

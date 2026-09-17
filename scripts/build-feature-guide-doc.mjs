@@ -254,8 +254,10 @@ table(['Step', 'What the application does'], [
   ['Approval route', 'Can send an order for approval when the business has enabled approval rules or the customer uses credit terms.'],
   ['Payment', 'Creates a payment step for the selected payment instrument. Card details stay with the payment provider, not the application.'],
   ['Payment confirmation', 'A verified payment-provider event/webhook confirms payment. A browser redirect alone is not treated as proof of payment.'],
+  ['Handing it to a carrier', 'Once the payment is confirmed, the delivery is raised for whoever has to send it — the business for its own goods, and each outside seller for theirs — and goes into the queue waiting for a haulage company to be put on it. Only where the business uses haulage companies at all.'],
   ['Order history', 'Customer can view the order timeline, payment context, invoice context and fulfilment status.'],
 ], [3000, 7300]);
+p('An order made up of goods from two places arrives as two deliveries, and the order page says so: each one names who sent it, who is carrying it and its tracking number. Until a haulage company has been put on a delivery the order simply does not name one yet; nothing invents a carrier.');
 h2('5.2 Order life cycle');
 p('The normal order path is Draft → Pending Approval or Pending Payment → Confirmed → Processing → Shipped → Delivered. Cancellation, return and refund are controlled transitions with history and reason rules.');
 h2('5.3 Buy Later and Subscribe & Reorder');
@@ -275,6 +277,17 @@ page();
 
 // 6
 h1('6. Customer Features — Self-Service Account Area');
+h2('6.0 The dashboard');
+p('Opening the account area lands on a dashboard. It answers the question a buyer has not yet thought to ask: is anything waiting on me?');
+bullets([
+  'A ring shows every order placed in the chosen period, split into five groups: waiting on you, being prepared, on the way, delivered, and cancelled or returned.',
+  'Choosing a group filters the order list underneath it. Choosing it again clears the filter, and there is a button to clear it as well.',
+  'The exact counts and percentages are listed beside the ring, and “View as a table” shows the same figures as a table, so nothing can only be read by looking at the picture.',
+  'Cards beside it show what has been paid in this period against the period before, what is promised to arrive in the next seven days, how many repeat orders cannot run without the cardholder, which orders are waiting for payment or an approval, and whether the buyer’s own business system is still exchanging messages.',
+  'The period can be today, the last seven days, the last thirty days, or any two dates the buyer picks.',
+  'The period and the chosen group are both part of the web address, so a buyer can send a colleague exactly the view they are looking at, and going back returns to it.',
+]);
+p('Orders waiting for payment or an approval are listed however old they are, not only the ones inside the chosen period. An unpaid order from six weeks ago needs more attention than one from this morning, and a period filter would have quietly hidden it.');
 h2('6.1 Profile and company');
 table(['Account page', 'What the customer can do'], [
   ['Profile', 'Edit personal details in separate panels, change password, view purchasing limits, request contact changes, view own data and deactivate/close account.'],
@@ -514,6 +527,15 @@ table(['Staff role', 'Main abilities'], [
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
+p('The console opens on the work waiting for the team this morning, with the month’s trading figures underneath it. The two are kept apart on purpose: the figures below are read once a week, and a queue nobody has looked at is a seller waiting four days for a decision.');
+bullets([
+  'A ring shows everything waiting, in five groups: approvals, payments, stock, deliveries and the platform itself.',
+  'Choosing a group lists the queues inside it, and every one links straight to the screen where that work is decided.',
+  'A member of staff only ever sees the queues they are allowed to act on. A queue somebody cannot act on is absent from their chart rather than shown as an empty one, so the chart never reveals that a queue exists to somebody who may not see it.',
+  'Work somebody has already taken on, or already finished, is not counted as waiting. A number nobody can clear is a number everybody learns to ignore.',
+  'The reporting period can be today, the last seven days, the last thirty days, or any two dates.',
+]);
+h2('7.3a The trading figures');
 bullets([
   'See orders, gross sales, collected payments, net revenue, average order value, low-stock information and upcoming recurring orders.',
   'See how each of those figures compares with the period before it, and the shape of the days behind it, so a total that arrived in one afternoon does not look like a steady month.',
@@ -523,9 +545,18 @@ bullets([
   'Open linked items from dashboard cards, order-status summaries and payment summaries.',
   'Use the notification bell for events such as staff sign-ins, customer activity, order/payment changes, certificates a seller has sent in, and operational alerts.',
 ]);
+p('The bell keeps two kinds of message apart, because they finish in opposite ways. Something that simply happened — a customer placed an order, a colleague signed in — is finished when the person looking at it has read it, and reading it changes nothing for anybody else. Something that has gone wrong — a delivery that failed, goods that got too warm, a data protection request with a legal deadline running, a certificate nobody has decided — stays on the bell until the problem itself is dealt with, for everybody, however many people have looked at it.');
+bullets([
+  'Reading a warning does not make it go away. It goes away when the thing behind it is put right, and the system does that itself at the moment the work is completed.',
+  'A member of staff can hide a warning from their own bell without touching anybody else’s, which is for the case where it is a colleague’s job. That never makes the problem look solved.',
+  'There is no button that lets someone close a warning about money, goods, compliance or stock by hand. Those close when the work is finished. The one thing a member of staff may close by hand is a delivery that no carrier has picked up, because arranging collection over the telephone leaves no other record — and that needs a written reason, which is kept.',
+  'Nothing is deleted. A “Resolved” view keeps every warning that has been dealt with, together with who closed it, when, and the reason they gave.',
+  'If the same problem comes back, the bell raises it again as a fresh warning and marks which time round it is, so the earlier record of what was done is not overwritten.',
+  'A warning nobody has resolved is never cleared away by age, however old it gets.',
+]);
 p('The list of screens down the side of the console also says what is waiting. Any entry with a queue behind it carries a number when there is something in it: listings sent for quality review, brands asked for, orders held for approval, sign-ups waiting to be let in, data protection requests, deliveries that have gone wrong, and seller applications together with the certificates attached to them.');
 bullets([
-  'The bell says what has happened lately and clears when it is read. These numbers say what is still sitting there, and only a decision clears one.',
+  'The bell says what has happened lately and what is still wrong, one message at a time, each linking to the screen that deals with it. These numbers count the same queues from the other end.',
   'A number rather than a dot, because whether it is one listing or forty decides what gets opened first.',
   'Each number is only shown to staff whose role lets them act on it. A member of staff who cannot act on something is not shown a count of it at all — not even a zero, because "none waiting" is itself a piece of information.',
 ]);
@@ -716,6 +747,23 @@ bullets([
   'Active and operational are separate: a warehouse can remain a valid record but be temporarily unable to ship.',
 ]);
 note('Customer and warehouse link', 'Customers can see eligible shipping warehouses in the basket. Admin staff configure the warehouse delivery range, operating state, lead time and fee information that makes this possible.', C.orange);
+h2('9.4 Seeing where sellers dispatch from');
+p('On a marketplace, a growing share of what a buyer orders never passes through a building the business owns. It ships from a seller’s own depot. The Warehouses screen therefore offers three views, chosen by a control under the title: the business’s own warehouses, one seller company’s dispatch places, or every seller’s at once.');
+bullets([
+  'Search the approved seller companies by name or code, and pick one. Suggestions appear as the name is typed and can be moved through with the keyboard.',
+  'See that seller’s dispatch places on the same map and in the same table as the business’s own, with the owning company named on every row.',
+  'See, for each place, where it is, whether it can dispatch today and the seller’s own reason if it cannot, what it is equipped to handle, how much stock is held there, and when those figures last agreed with the seller’s own system.',
+  'Filter by country, include places the seller has closed, and clear the choice to go back.',
+  'Switch to every seller at once to compare where the whole marketplace can ship from.',
+]);
+bullets([
+  'Only businesses whose seller application has been approved and whose account is still live can be chosen. An application still being decided, one that was refused, and a seller who has been stopped are all absent — and the rule is applied to the information itself, not only to the search box, so there is no way round it.',
+  'The view is read-only. A seller’s places are theirs to maintain in their own workspace; anything that needs changing is asked of them.',
+  'Both the warehouse screen and the ability to look a company up are needed to use it. Staff who count stock but do not deal with companies simply do not see the control.',
+  'A place whose position has never been looked up still appears in the table, marked, so nothing is quietly missing from the list because it is missing from the map.',
+  'Nothing about the business’s own warehouse view changed. It is the same screen it always was, and it is what opens by default.',
+]);
+note('What is deliberately not shown', 'A seller’s connection details to their own system — addresses, keys, credentials — never appear here. What is shown is when the stock figures last agreed, which is what a member of staff needs in order to trust the number beside it.', C.blue);
 page();
 
 // 10
@@ -822,6 +870,17 @@ h1('12a. Logistics Features — Carriers, Consignments and Delivery Tracking');
 p('This chapter is about the companies that actually carry the goods. It is an optional part of the product: a business that arranges its own delivery never switches it on, and then nothing in this chapter exists for them. A business that uses haulage companies switches it on, and each of those companies gets its own place to work.');
 note('Off unless it is turned on', 'Until the business enables the logistics portal there is no carrier sign-in, no carrier can be created, and the Logistics section is absent from the admin console.', C.orange);
 
+h2('12a.0 Where a delivery comes from');
+p('Nobody types a delivery in. As soon as an order is paid for, the system raises one for each place the goods have to leave from, and it is waiting in the list before anybody looks at it. Goods the business sells itself leave the warehouse the order was priced against. Goods an outside seller sells leave that seller’s own place. An order with both raises one of each, because two lots of goods in two buildings cannot be collected as one.');
+table(['Situation', 'What the system does'], [
+  ['The business’s own goods', 'Raises one delivery, collected from the warehouse the order was priced against.'],
+  ['An outside seller with one place to collect from', 'Raises one delivery, collected from that place, as soon as the order is paid for.'],
+  ['An outside seller with several places', 'Waits. The seller says which of their places it leaves from when they accept the order, and the delivery is raised at that moment. Nobody else’s delivery waits with it.'],
+  ['The same payment confirmed twice', 'Nothing new. A delivery already raised is not raised again.'],
+], [3400, 6600]);
+note('A delivery is never given to a haulage company automatically', 'It is raised with nobody carrying it, and somebody at the business chooses who takes it. A delivery that arrived already allocated would carry no record of who chose the company, and that is the first question asked when something goes wrong.', C.orange);
+note('If it cannot be raised yet', 'Nothing is lost and the order is never affected — it is paid for and confirmed either way. The Consignments screen has a button to raise it by hand, and the system says what it is waiting for, such as a seller who has not yet said which of their places the goods leave from.', C.blue);
+
 h2('12a.1 How a carrier gets an account');
 p('No haulage company can sign itself up. Every one of them exists because somebody at the business created it and invited the person who will run it.');
 table(['Step', 'What the person does', 'What the system does'], [
@@ -860,32 +919,68 @@ note('Telephone numbers are hidden by default', 'A contact number is shown with 
 
 h2('12a.4 The carrier’s own screens');
 table(['Screen', 'What it is for'], [
-  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised. One bar across the top of it shows how the whole workload is split between those four, so a dispatcher can see at a glance whether the day is mostly still to collect or mostly already out.'],
-  ['Consignments', 'The full list, with filters, search, saved filters and a spreadsheet export of whatever is on screen.'],
-  ['One consignment', 'The route, everything that has happened to it, the boxes, the contacts and the documents — and where the status is changed.'],
+  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised. A ring across the top shows the whole workload split into the eight stages a dispatcher does something about — see below.'],
+  ['Consignments', 'The full list, with filters, search, saved filters and a spreadsheet export of whatever is on screen. It can be narrowed to one driver, or to only the deliveries with a problem open on them.'],
+  ['One consignment', 'The route, everything that has happened to it, the boxes, the contacts and the documents — where the status is changed, and who is driving it, including everyone who has driven it before and why it moved.'],
   ['Collections', 'What has to be picked up, and confirming that it was.'],
   ['Dispatch', 'Building a load and handing it over.'],
   ['Problems', 'What has gone wrong, and recording what was done about it.'],
   ['Companies', 'The businesses this carrier collects from and delivers to.'],
-  ['Drivers and vehicles', 'Who and what is available.'],
+  ['Drivers and vehicles', 'The fleet. Add somebody by typing their name, add the vans and trucks, and see who is free.'],
   ['My company', 'Their own details, their people and their invitations.'],
   ['My round', 'A driver’s stops for the day, made for a phone.'],
 ], [2600, 7400]);
 note('No pretend tracking', 'Where nothing has reported a position, the map says so plainly or shows the last place the parcel was actually seen and when. Nothing animates a van along a route it might be taking. Beside every map is the same journey written out as a list of places and times, so it can be read without seeing the map at all.', C.orange);
+note('What the buyer sees when the haulage company moves it', 'The moment a carrier records that they have collected a parcel, the buyer’s own order page moves on with it — to “being prepared” and then “on its way”, each with a line saying a carrier now has it. The buyer is never shown the word consignment, and never has to go looking somewhere else to find out where their order has got to. When the carrier confirms the delivery, and every parcel on the order has arrived, the order says delivered. An order that has already been cancelled is left alone.', C.teal);
 
-h2('12a.5 What the business sees');
+h2('12a.4a The dashboard ring');
+p('The first thing a dispatcher sees is a ring of everything assigned to their company, split into the eight stages somebody actually does something about: waiting for your answer, accepted, collected, in transit, out for delivery, delivered, a problem, and going back or cancelled.');
+bullets([
+  'Choosing a stage filters the list underneath it, and opens the same set on the Consignments screen.',
+  'The exact counts and percentages are listed beside the ring, and the same figures can be shown as a table, so nothing has to be read off the picture.',
+  'A failed delivery is never shown the same way as a completed one. A parcel going back is shown as work with a different destination rather than as something that has gone wrong.',
+  'The period can be today, the last seven days, the last thirty days, or any two dates.',
+]);
+p('Choosing one driver narrows every figure on the screen, not just the list. A count of problems shown beside one driver’s work would otherwise be a figure about somebody else. The choice is part of the web address, so a dispatcher can send a colleague exactly the view they are looking at.');
+p('Where an order was split into several parcels, each keeps its own place in the ring and its own tracking. Two parcels of one order are never rolled together into a single history, because they can be in two different places on two different days.');
+
+h2('12a.5 Drivers, and who is carrying what');
+p('Each haulage company keeps its own list of the people who drive for it and the vehicles they drive. A driver is simply a name on that list. Nobody needs an account, an invitation or an email to be added — somebody types their name, and they can be sent out that afternoon. That matters because a haulage company employs people who will never use this software at all: an agency driver covering a round, a subcontractor, somebody who started this morning.');
+table(['What a dispatcher can do', 'What the system does'], [
+  ['Add a driver', 'The owner types their name. A telephone number, an email address, a staff number, a licence and its expiry date, and what they are trained and licensed to carry can all be added, and all of them are optional. Nothing here creates an account or sends anybody an email.'],
+  ['Give a driver the phone app as well', 'Where the driver is also somebody who signs in to the haulage company’s own screens, their account can be linked to their driver record. That is what gives them their round on a phone, the barcode scanner, and the ability to capture proof of delivery. It is optional, and most of a fleet does not have it.'],
+  ['Add a vehicle', 'A registration and a type. A refrigerated vehicle also records the coldest and warmest it holds, which is how the system knows whether it can take a temperature-controlled delivery. The maximum load is entered in kilograms.'],
+  ['Search and filter the list', 'Find somebody by name or staff number, or show only those currently on the rota.'],
+  ['See who is busy', 'Every driver shows how many deliveries they are holding right now, so the next one goes to somebody who can take it.'],
+  ['Put a driver on a delivery', 'The delivery becomes theirs and appears on their round. A vehicle can be named at the same time, and does not have to be. Only one driver holds a delivery at a time.'],
+  ['Send it on the way', 'One button on the driver’s card moves the delivery to its next step — collection booked, collected, on its way, out for delivery — offering only the step that actually comes next. It is the same action as the status form beside it, in one press.'],
+  ['Move a delivery to somebody else', 'A written reason is required. The previous driver stays in the record, with the reason, so who carried what is never lost.'],
+  ['Take a driver off without replacing them', 'For the case where somebody has called in sick and nobody has been found yet.'],
+  ['Stand a driver down', 'They stop being offered work. Nobody with delivery history is ever deleted, because their past deliveries would stop making sense. If they are still holding deliveries, the system says how many and asks before doing it.'],
+], [3200, 6800]);
+note('The business running the marketplace can do all of this too', 'Adding a driver or a vehicle, putting somebody on a delivery, moving it to someone else, taking them off and sending it on the way are all available to the marketplace’s own operations desk as well as to the haulage company. This is for the times the haulage company cannot do it themselves — their screens are down, or they are a small firm who work from a phone and ring in. It is the same list, not a separate copy: a driver added by the operations desk appears on the haulage company’s own screen straight away. The desk can only ever use the fleet of the company that already has that delivery, and everything it does is written into that company’s own record of who did what, marked as having been done by the marketplace.', C.blue);
+bullets([
+  'A driver is put on a DELIVERY, not on an order. One order can be split between sellers and buildings, and those parts can travel with different haulage companies on different days — so each part gets its own driver.',
+  'Two people in the same office pressing “assign” at the same moment cannot put one delivery on two vans. One of them succeeds and the other is told to look again.',
+  'A delivery is refused to a driver who is not on the rota, who belongs to another company, who is not cleared for what is being carried, or whose licence has run out — and to any delivery that has already finished.',
+  'Nobody can put one haulage company’s driver on another company’s delivery. The system works out whose fleet to use from the delivery itself; it is never something anybody chooses.',
+  'When a delivery is completed, returned, lost or cancelled, it comes off that driver’s list automatically.',
+  'Everyone who has carried a delivery is kept, in order, with who put them on it and why it moved. This is what gets read when a delivery has gone wrong.',
+]);
+
+h2('12a.6 What the business sees');
 table(['Screen', 'What it is for'], [
-  ['Consignments', 'Every delivery, whoever is carrying it — including the ones nobody is carrying yet.'],
-  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history.'],
+  ['Consignments', 'Every delivery, whoever is carrying it — including the ones nobody is carrying yet, and which person at the haulage company is driving each one.'],
+  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
   ['Delivery problems', 'The queue across every carrier, worst first and then oldest first.'],
   ['Carriers', 'Add a haulage company, invite its first person, and see how much each one has on.'],
-  ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, and its people.'],
+  ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, its people — and its fleet, where a driver or a vehicle can be added on their behalf.'],
   ['Carrier connections', 'Whether each haulage company’s computer system is actually connected, and what its status codes mean here.'],
 ], [2600, 7400]);
 p('When a delivery is offered to a carrier, the system scores every candidate: does it cover both ends of the journey, is it approved for what has to be carried, does it have room, and how often does it deliver on time. The reasons are written out beside each company. A company the score rules out can still be chosen — the person arranging it sometimes knows something the score does not — but the reason is on the screen while they choose.');
 note('Suspending a carrier', 'Stops any new work reaching them. Work they have already accepted stays theirs to finish; work they have not answered yet can be taken back in the same action so somebody else can be found, and the system says how much that is before it does it.', C.orange);
 
-h2('12a.6 Approving what a carrier may carry');
+h2('12a.7 Approving what a carrier may carry');
 p('Refrigerated goods, sterile goods and dangerous goods are only ever offered to a haulage company the business has approved for them. Approval is a decision somebody makes on the carrier’s record, with the certificate or licence number they checked and the date it runs out recorded beside it. A decision can be left as asked for, or later suspended or refused, and the haulage company reads the result in their own portal without being able to change it.');
 table(['What gets approved', 'Why it matters'], [
   ['Cold chain and temperature ranges', 'A delivery that must stay between two temperatures is never offered to a company that cannot hold them.'],
@@ -894,12 +989,12 @@ table(['What gets approved', 'Why it matters'], [
   ['Same day, next day, international, customs clearance', 'Decides what kind of work a company is offered at all.'],
 ], [3600, 6400]);
 
-h2('12a.7 The delivery promise, and what counts as proof');
+h2('12a.8 The delivery promise, and what counts as proof');
 p('For each carrier the business sets how many hours they have to collect and how many to deliver, how early to start warning that a delivery is going to be late, and how many delivery attempts are allowed. Every delivery is then measured against the promise that applies to it and shows as on track, at risk or missed.');
 p('The same settings decide what a driver has to capture before a delivery can be marked as done: the recipient’s name, a signature, a photograph, a one-time code read out by the recipient, or the recipient’s job title. Until everything required has been captured, the driver cannot mark it delivered.');
 note('Signatures are not public', 'A signature or a delivery photograph is only reachable through a link that the system issues for the person asking and that stops working after a few minutes. There is no address anybody can guess.', C.blue);
 
-h2('12a.8 Working with a carrier’s own computer system');
+h2('12a.9 Working with a carrier’s own computer system');
 p('A haulage company can be used in one of two ways, and both are complete.');
 table(['Way', 'What it means'], [
   ['Their staff record it', 'The company’s own people type every status into their portal. Nothing has to be connected, and this is how the system works out of the box.'],
@@ -909,11 +1004,11 @@ note('It never claims to be connected when it is not', 'A connection with no cre
 p('Every haulage company has its own words for what has happened to a parcel. The business maps each of their codes onto the status it means here, once, and the system remembers. A code nobody has mapped yet is never thrown away and never guessed at: it is kept exactly as it arrived, flagged for somebody to look at, and the original is always shown beside whatever it was mapped to.');
 note('The same update twice changes nothing twice', 'If a haulage company sends the same update five times, or somebody presses the same button twice, one thing is recorded. This is not a precaution bolted on afterwards; it is how the record is built.', C.blue);
 
-h2('12a.9 Putting a status right');
+h2('12a.10 Putting a status right');
 p('A carrier can move a delivery forward through the stages it actually goes through, and cannot skip to the end. A carrier can never reverse a delivery that has been recorded as delivered, returned, lost or cancelled.');
 p('The business can, through one route: a correction, which demands a written explanation and records it. Anybody reading that delivery months later sees that it was corrected, by whom, and why — rather than seeing a parcel that appears to have gone backwards for no reason.');
 
-h2('12a.10 Where drivers and vehicles are');
+h2('12a.11 Where drivers and vehicles are');
 note('Live vehicle tracking is not part of this release', 'The system does not follow vehicles in real time, and nothing in it suggests otherwise. Where a driver’s device has reported a position, the last one is shown with the time it was recorded. Positions are kept for a limited period and then deleted, only the people who need them can see them, and nothing is ever recorded outside a driver’s working hours.', C.orange);
 page();
 
@@ -951,6 +1046,7 @@ bullets([
   'Customer notifications can include registration/activation, password reset, order, payment, schedule and contact-confirmation events.',
   'Staff notifications can include sign-ins, low stock, payment/order actions, customer approval and operational alerts.',
   'Notification work is queued after the business record is committed, reducing the risk of an email being sent for an order that was not saved.',
+  'On-screen warnings about something going wrong close themselves at the moment the work that fixes them is completed, rather than waiting for anybody to tidy them up. They are kept afterwards, with who closed them and why.',
 ]);
 page();
 
@@ -1001,6 +1097,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Live monday.com connections', 'Requires the store to register an application with monday.com and hold its details in configuration. Without one, customers can still set up a monday.com test connection.'],
   ['Warehouse map provider', 'Works with configured Google Maps, vector-map or raster-tile settings; the screen still works without a map background.'],
   ['AI assistant / image search', 'Requires assistant configuration. Asking without an account is a separate setting and starts switched off.'],
+  ['Dashboard insights panel', 'Present on all three dashboards whether or not an AI provider is configured. With one, the summary is written by the provider. Without one — which is how the software arrives — the panel builds the same summary from the figures itself and says so on screen. See 15.1.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
@@ -1008,6 +1105,20 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Opening a document nobody has checked for viruses', 'No virus checker is installed with this software, so every uploaded file says plainly that nothing has checked it. Whether staff and sellers may still open one is a setting. It is on to begin with, because somebody who cannot open a certificate cannot decide an application; turn it off once a virus checker is connected.'],
   ['Logistics partner portal', 'Turned on by the logistics feature. Gives haulage companies their own place to work and the business its own view of every delivery. Off, and none of chapter 12a exists. On, it works straight away with carriers whose staff record each status themselves; connecting a haulage company’s computer system needs that company’s own credentials, and until they are in place the system says so rather than pretending.'],
 ], [3500, 6500]);
+h2('15.1 The insights panel on each dashboard');
+p('Beside the chart on every dashboard is a panel that explains the figures in plain words, answers a typed question about them, and says what to look at first. It is there to help somebody read the screen. It cannot do anything.');
+bullets([
+  'It only ever talks about figures the person is already allowed to see. A buyer’s panel is built from that buyer’s own orders, a haulage company’s from its own deliveries, and a member of staff’s from the queues they are allowed to act on.',
+  'Nothing that names anybody is sent to the provider. Counts and totals only — no order numbers, no company names, no addresses, no card details.',
+  'Every statement it makes points at a figure shown on the same screen, and the panel lists them underneath the answer so they can be checked. Anything it says that does not point at one of those figures is removed before the answer reaches the screen.',
+  'It never invents a number. The figures are worked out by the system before the question is asked, and the provider is only asked to explain and prioritise them.',
+  'It cannot approve a seller, take a payment, assign a driver, change a delivery status or close a problem. What it offers is a link to the screen where a person does that.',
+  'Where no provider is configured, the panel builds the same summary itself from the same figures, marks clearly that it did so, and carries on working. The software arrives this way.',
+  'The same honest fallback covers a provider that is too busy, out of quota, or slow to answer, so the panel can never stop a dashboard from loading.',
+  'Nobody can reach it without signing in, and there is a limit on how often it can be asked.',
+]);
+note('Not advice about products', 'The panel is about orders, deliveries and queues. It does not comment on whether a product is suitable for a patient or a procedure, and is instructed not to.', C.orange);
+
 note('Configuration rule', 'A feature being in the code does not mean it is always enabled in every customer installation. This guide describes the capability and clearly identifies when setup controls visibility.', C.orange);
 page();
 

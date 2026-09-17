@@ -1,9 +1,19 @@
 // ===========================================================================
 // UBOSS Sourcing - data model
 //
-// Target: MariaDB 10.4.32 (XAMPP). Prisma `mysql` provider.
+// Runs on: MariaDB 10.4.32 in development (XAMPP) and MariaDB 11.4 LTS in
+// production. Prisma `mysql` provider - there is no separate MariaDB provider.
 //
-// MariaDB 10.4 constraints that shaped this schema:
+// THE TWO VERSIONS DIFFER IN WAYS THAT CHANGE BEHAVIOUR, NOT JUST SPEED. 10.4
+// is not strict and truncates an over-long value; 11.4 rejects it. 11.4's
+// default collation is utf8mb4_uca1400_ai_ci where every table here is
+// utf8mb4_unicode_ci. `deploy/compat/` runs the production version locally so
+// that gap is found on a laptop; docs/DATABASE-MIGRATION.md section 4 has the
+// full list.
+//
+// MariaDB 10.4 constraints that shaped this schema. They are kept rather than
+// undone - each is correct on both versions, and a migration to reverse one
+// would buy nothing:
 //   * No `FOR UPDATE SKIP LOCKED` (10.6+). Job/schedule claiming therefore uses
 //     a lease pattern: conditional UPDATE + affectedRows check. See JobQueue
 //     and RecurringSchedule lease* columns.
@@ -161,6 +171,10 @@ model User {
   auditLogs         AuditLog[]
   /// Which console notifications this member of staff has already opened.
   notificationReads AdminNotificationRead[]
+  /// Console alerts they closed by hand. Kept pointing at the account after it
+  /// is archived, and set to NULL only if the account is deleted outright -
+  /// the record of what was resolved outlives whoever resolved it.
+  notificationsResolved AdminNotification[] @relation("AdminNotificationResolver")
 
   /// Their place in a logistics organisation, where they work for one. At most
   /// one: a person drives for one carrier at a time, and a second membership
@@ -175,6 +189,15 @@ model User {
 
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
+  /// Created by 20260909233000_account_profile_contact_change_and_wishlist and
+  /// never declared here, which is a worse state than either having it or not.
+  ///
+  /// The index existed in every database - the migration made it - but this
+  /// file is what Prisma diffs against, so `migrate dev` would have generated
+  /// `DROP INDEX ix_user_pending_email` as a tidy-up of something it thought
+  /// nobody wanted. The contact-change check that reads it runs on every
+  /// request to move an email address, against the users table.
+  @@index([pendingEmailNormalized], map: "ix_user_pending_email")
   @@map("users")
 }
 
@@ -706,7 +729,15 @@ model Category {
 
   @@index([parentId, sortOrder], map: "ix_category_parent_sort")
   @@index([isActive, archivedAt], map: "ix_category_active")
-  @@index([path], map: "ix_category_path")
+  /// The `length: 768` is not a choice; it is what the database actually has.
+  ///
+  /// `path` is VARCHAR(1024), which in utf8mb4 is 4096 bytes, and InnoDB's
+  /// limit for one index column is 3072. MariaDB does not refuse the index -
+  /// it silently shortens it to the 768 characters that fit and raises a
+  /// warning nobody reads. Declaring the full column here instead meant
+  /// `prisma migrate diff` reported this index as different on every run, and
+  /// a `migrate dev` would have generated a pointless DROP and re-CREATE of it.
+  @@index([path(length: 768)], map: "ix_category_path")
   @@map("categories")
 }
 
@@ -1110,8 +1141,8 @@ model ProductPackaging {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  product    Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant    ProductVariant?        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  product    Product                @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_product_packaging_product")
+  variant    ProductVariant?        @relation(fields: [variantId], references: [id], onDelete: Cascade, map: "fk_product_packaging_variant")
   dimensions ProductPackDimension[]
 
   /// One packing description per sellable SKU.
@@ -1141,7 +1172,7 @@ model ProductPackDimension {
 
   parseStatus DimensionParseStatus @default(UNPARSED)
 
-  packaging ProductPackaging @relation(fields: [packagingId], references: [id], onDelete: Cascade)
+  packaging ProductPackaging @relation(fields: [packagingId], references: [id], onDelete: Cascade, map: "fk_pack_dimension_packaging")
 
   @@unique([packagingId, kind], map: "uq_pack_dimension_kind")
   @@map("product_pack_dimensions")
@@ -1213,8 +1244,8 @@ model ProductImportRecord {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_import_record_product")
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade, map: "fk_import_record_variant")
 
   /// One provenance row per sellable SKU.
   @@unique([productId, variantKey], map: "uq_import_record_sku")
@@ -2020,7 +2051,7 @@ model CartItem {
   cart        Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
-  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict)
+  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict, map: "fk_cart_item_seller_offer")
 
   /// One line per purchasable unit PER SELLER. Re-adding the same SKU from the
   /// same seller bumps quantity; the same product from two sellers is two
@@ -2175,7 +2206,7 @@ model Order {
   /// instrument that no longer exists, which is what the payment page then
   /// asks them to replace.
   preferredPaymentMethodId String?                @db.Char(26)
-  preferredPaymentCard     CustomerPaymentMethod? @relation(fields: [preferredPaymentMethodId], references: [id], onDelete: SetNull)
+  preferredPaymentCard     CustomerPaymentMethod? @relation(fields: [preferredPaymentMethodId], references: [id], onDelete: SetNull, map: "fk_order_preferred_payment_method")
 
   /// Why this order was taxed the way it was, and under whose rates. Frozen
   /// here rather than recomputed, because rates change and VAT numbers get
@@ -2295,7 +2326,7 @@ model OrderItem {
   order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
-  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict)
+  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict, map: "fk_order_item_seller_offer")
 
   @@index([orderId], map: "ix_order_item_order")
   @@index([productId], map: "ix_order_item_product")
@@ -3856,12 +3887,110 @@ model NotificationDelivery {
 //     Polish or Greek console permanently half-translated.
 // ===========================================================================
 
+/// Whether a console row is a PROBLEM or a piece of NEWS.
+///
+/// The distinction the bell could not previously draw, and the one the whole
+/// resolution lifecycle hangs off. "A customer placed an order" is news: it is
+/// true forever, nobody can fix it, and the only sensible way to clear it is
+/// for somebody to read it. "A consignment went warm" is a problem: it stays
+/// worth acting on until the underlying exception is closed, whether or not
+/// anybody has glanced at the bell.
+///
+/// Counting both the same way is what made a bell that either nagged forever
+/// or went quiet the moment somebody looked at it.
+enum AdminNotificationClass {
+  /// Something happened. Cleared by the reader, per reader.
+  INFORMATION
+  /// Something is wrong. Cleared by the problem being fixed, for everyone.
+  ALERT
+}
+
+/// Where an alert stands. Shared across every recipient - see the model.
+enum AdminNotificationStatus {
+  /// Still worth somebody's attention.
+  ACTIVE
+  /// The underlying problem is no longer actionable. Kept, never deleted:
+  /// "this happened and here is what was done about it" is the record.
+  RESOLVED
+  /// Retained history with no live meaning - the entity it described is gone.
+  ARCHIVED
+}
+
+/// What closed an alert. Stored because "who says so" is the first question
+/// asked when an alert that should be open is not.
+enum AdminNotificationResolutionSource {
+  /// The domain entity reached a terminal state, in the same transaction that
+  /// moved it. The ordinary path, and the only trustworthy one.
+  DOMAIN_EVENT
+  /// A member of staff closed it by hand, with a reason and an audit row.
+  MANUAL
+  /// A sweep found the thing it described no longer exists.
+  SYSTEM_SWEEP
+  /// A newer occurrence of the same problem replaced it.
+  SUPERSEDED
+}
+
+/// Whether a human may close this alert from the bell.
+///
+/// The rule the brief is most insistent about: a manual "resolve" must never
+/// become a way to hide an unresolved financial, compliance or inventory
+/// inconsistency. So an alert backed by a domain entity that has its own
+/// terminal state is DOMAIN_ONLY, and the bell refuses to close it - naming
+/// the screen where the real decision is made.
+enum AdminNotificationResolutionPolicy {
+  /// Only the domain event may resolve it. The bell offers no button.
+  DOMAIN_ONLY
+  /// An authorised member of staff may close it with a reason.
+  MANUAL_ALLOWED
+}
+
 model AdminNotification {
   id String @id @db.Char(26)
 
   /// Dotted event kind, e.g. order.placed. The panel maps this to a phrase;
   /// the catalogue lives in AdminNotificationKind.
   kind String @db.VarChar(48)
+
+  /// News or problem. See the enum - this decides how the row leaves the
+  /// badge.
+  ///
+  /// Defaults to INFORMATION so that every row written before this column
+  /// existed keeps behaving exactly as it did: cleared by reading it.
+  class AdminNotificationClass @default(INFORMATION)
+
+  /// Where an ALERT stands. Meaningless on an INFORMATION row, which is why
+  /// it defaults to ACTIVE and is simply never read for one.
+  status AdminNotificationStatus @default(ACTIVE)
+
+  /// What this alert is ABOUT, as opposed to what raised it.
+  ///
+  /// Deliberately not `dedupeKey`. That one is the identity of one OCCURRENCE
+  /// - "the bell for exception 01J...". This is the identity of the PROBLEM -
+  /// "anything still open about exception 01J...". They are usually the same
+  /// string and sometimes are not: a payment alert is deduped on the failed
+  /// transaction and resolved by any success against the order, so one
+  /// resolution has to be able to close several occurrences at once.
+  ///
+  /// Null on an INFORMATION row, which has no problem to resolve.
+  resolutionKey String? @db.VarChar(191)
+
+  /// Whether a human may close it from the bell. See the enum.
+  resolutionPolicy AdminNotificationResolutionPolicy @default(DOMAIN_ONLY)
+
+  resolvedAt       DateTime?                          @db.DateTime(3)
+  /// Null for a resolution nobody signed - a domain event or a sweep.
+  resolvedByUserId String?                            @db.Char(26)
+  resolutionReason String?                            @db.VarChar(512)
+  resolutionSource AdminNotificationResolutionSource?
+
+  /// Which time round this is, for a problem that has come back.
+  ///
+  /// A resolved alert is never reopened - it is history, and editing history
+  /// is how "when was this actually fixed" stops being answerable. A problem
+  /// that recurs gets a NEW row with the next occurrence number and its own
+  /// dedupe key, so the resolution that was recorded stays recorded and the
+  /// new one is actionable on its own terms.
+  occurrence Int @default(1)
 
   /// The values that fill the phrase - customer name, order number, total.
   /// Primitives only, and already free of anything that should not be read by
@@ -3888,18 +4017,44 @@ model AdminNotification {
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
-  reads AdminNotificationRead[]
+  reads      AdminNotificationRead[]
+  resolvedBy User?                  @relation("AdminNotificationResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
 
   @@index([createdAt], map: "ix_admin_notification_time")
   @@index([kind, createdAt], map: "ix_admin_notification_kind_time")
   @@index([relatedType, relatedId], map: "ix_admin_notification_related")
+  /// The badge's own query: every live alert, newest first.
+  @@index([class, status, createdAt], map: "ix_admin_notification_live")
+  /// "What is still open about this problem?" - the lookup every resolution
+  /// makes, and the one the reopen policy consults before writing a new row.
+  @@index([resolutionKey, status], map: "ix_admin_notification_resolution")
+  @@index([resolvedByUserId], map: "ix_admin_notification_resolver")
   @@map("admin_notifications")
 }
 
+/// One person's own state on one console row.
+///
+/// The private half of the lifecycle. Reading and dismissing are facts about
+/// a reader; resolving is a fact about the world. Several people share one
+/// console, so these two must never be stored in the same place - which is
+/// why resolution lives on the notification above and this table holds only
+/// what belongs to the caller.
 model AdminNotificationRead {
   notificationId String   @db.Char(26)
   userId         String   @db.Char(26)
   readAt         DateTime @default(now()) @db.DateTime(3)
+
+  /// This reader has hidden the row without claiming the problem is fixed.
+  ///
+  /// The escape hatch for an alert that is somebody else's job. It removes the
+  /// row from ONE person's bell and changes nothing about the underlying
+  /// problem, which is the distinction the brief is built around: an operator
+  /// tidying their own view must not be able to make a temperature excursion
+  /// look dealt with.
+  ///
+  /// Dismissing implies reading - there is no way to dismiss something you
+  /// have not been shown - so a dismissal writes both.
+  dismissedAt DateTime? @db.DateTime(3)
 
   notification AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -5438,7 +5593,7 @@ model ErpConnection {
   /// this server at an outbound address and giving it a credential.
   createdById String?   @db.Char(26)
   createdAt   DateTime  @default(now()) @db.DateTime(3)
-  updatedAt   DateTime  @updatedAt @db.DateTime(3)
+  updatedAt   DateTime  @default(now()) @updatedAt @db.DateTime(3)
   /// Soft delete. A connection with integration events behind it is retired
   /// rather than removed, so the ledger still explains what became of an order
   /// that went through it.
@@ -5488,7 +5643,7 @@ model ErpInventorySyncRun {
   errorCode    String? @db.VarChar(64)
   errorMessage String? @db.VarChar(1024)
 
-  connection ErpConnection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection ErpConnection        @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_erp_sync_connection")
   records    ErpSyncRecordError[]
 
   @@index([connectionId, startedAt], map: "ix_erp_sync_connection_time")
@@ -5515,7 +5670,7 @@ model ErpSyncRecordError {
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
-  syncRun ErpInventorySyncRun @relation(fields: [syncRunId], references: [id], onDelete: Cascade)
+  syncRun ErpInventorySyncRun @relation(fields: [syncRunId], references: [id], onDelete: Cascade, map: "fk_erp_sync_record_run")
 
   @@index([syncRunId], map: "ix_erp_sync_record_run")
   @@map("erp_sync_record_errors")
@@ -5594,9 +5749,9 @@ model ErpInventorySnapshot {
   lastSyncRunId String?  @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
-  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
-  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_erp_snapshot_connection")
 
   /// One row per SKU per warehouse per connection. This is what makes a sync an
   /// upsert rather than an append, and what stops a redelivered webhook adding
@@ -5654,9 +5809,9 @@ model IntegrationEvent {
   responseJson Json?
 
   createdAt DateTime @default(now()) @db.DateTime(3)
-  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
-  connection ErpConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  connection ErpConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull, map: "fk_integration_event_connection")
 
   @@index([createdAt], map: "ix_integration_event_time")
   @@index([eventType, status], map: "ix_integration_event_kind")
@@ -5689,7 +5844,7 @@ model ErpWebhookReceipt {
   /// answer "already applied, in run X" rather than merely "seen before".
   syncRunId   String?   @db.Char(26)
 
-  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_erp_webhook_connection")
 
   @@unique([connectionId, externalEventId], map: "uq_erp_webhook_receipt")
   @@index([receivedAt], map: "ix_erp_webhook_time")
@@ -5751,10 +5906,10 @@ model CustomerAutoPaySetting {
   pausedAt  DateTime? @db.DateTime(3)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
-  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
 
-  customerProfile CustomerProfile        @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
-  paymentMethod   CustomerPaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  customerProfile CustomerProfile        @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, map: "fk_autopay_customer")
+  paymentMethod   CustomerPaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull, map: "fk_autopay_payment_method")
 
   @@index([status], map: "ix_autopay_status")
   @@index([paymentMethodId], map: "ix_autopay_payment_method")
@@ -5793,11 +5948,11 @@ model WishlistItem {
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
-  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, map: "fk_wishlist_customer")
   /// Cascade, not Restrict. A product being removed from the catalogue should
   /// not be blocked by somebody having saved it, and a saved line pointing at
   /// a product that no longer exists is not worth keeping.
-  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_wishlist_product")
 
   @@unique([customerProfileId, productId, variantKey], map: "uq_wishlist_item")
   @@index([customerProfileId, createdAt], map: "ix_wishlist_customer_time")
@@ -7148,7 +7303,7 @@ model CustomerErpProductCode {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_customer_erp_product_code_connection")
 
   /// One product per code, per connection. Their system cannot mean two of our
   /// products by one code; if it does, that is two codes.
@@ -9899,6 +10054,15 @@ enum CarrierWebhookState {
 
 enum LogisticsNotificationKind {
   SHIPMENT_ASSIGNED
+  /// A driver was put on a consignment. Distinct from SHIPMENT_ASSIGNED, which
+  /// is the marketplace offering the job to the CARRIER - this is the carrier
+  /// deciding which of their own people carries it, and the two are read by
+  /// different people for different reasons.
+  DRIVER_ASSIGNED
+  /// The consignment changed hands between two of the carrier's own drivers,
+  /// with a reason. Its own kind rather than a second DRIVER_ASSIGNED, because
+  /// "somebody was taken off this" is the line a dispatcher scans for.
+  DRIVER_REASSIGNED
   ASSIGNMENT_ACCEPTED
   ASSIGNMENT_REJECTED
   PICKUP_SCHEDULED
@@ -10995,9 +11159,42 @@ model LogisticsDispatchManifestEntry {
 /// construction a member of exactly one carrier and cannot be looked up
 /// across tenants.
 model LogisticsDriverProfile {
-  id                   String @id @db.Char(26)
-  logisticsPartnerId   String @db.Char(26)
-  partnerUserId        String @unique(map: "uq_logistics_driver_user") @db.Char(26)
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  /// The driver's name, typed by whoever runs the fleet.
+  ///
+  /// **On the driver record, not read through a login.** A carrier employs
+  /// people who will never open this software - a subcontracted van driver, an
+  /// agency stand-in for a week - and a fleet register that could only hold
+  /// people with an account is a register that does not describe the fleet.
+  /// Somebody has to be able to type a name and get on with the day.
+  ///
+  /// It is therefore the source of truth for every screen that names a driver:
+  /// the consignment, the timeline, the manifest, the carrier's list and the
+  /// marketplace's. `partnerUser` below is a link, not the answer.
+  fullName String @db.VarChar(160)
+
+  /// How to reach them. The number a dispatcher rings when a van is late, and
+  /// the one masked out of everything the marketplace or a buyer can see.
+  phone String? @db.VarChar(32)
+  email String? @db.VarChar(320)
+
+  /// Their account, where they have one.
+  ///
+  /// **Nullable, and null is the ordinary case.** A driver record and an
+  /// authenticated user are separate concepts: this is filled only for a
+  /// driver who signs in to `/driver/tasks` on a phone, and that is what gates
+  /// every device feature - the task list, the scanner, proof of delivery, the
+  /// trip that permits a location ping. A record-only driver can be put on a
+  /// consignment and appear on every screen, and can do none of those things,
+  /// because there is nobody to do them as.
+  ///
+  /// UNIQUE, so one account maps to one driver record - and NULL is distinct
+  /// in a MariaDB unique index, so any number of record-only drivers sit
+  /// happily beside each other. The same property `activeShipmentId` uses on
+  /// the assignment table.
+  partnerUserId String? @unique(map: "uq_logistics_driver_user") @db.Char(26)
 
   state LogisticsDriverState @default(ACTIVE)
 
@@ -11032,8 +11229,17 @@ model LogisticsDriverProfile {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  partner     LogisticsPartner     @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
-  partnerUser LogisticsPartnerUser @relation(fields: [partnerUserId], references: [id], onDelete: Cascade)
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  /// SetNull rather than Cascade, and that is a change worth naming.
+  ///
+  /// It used to delete the driver record when the member was deleted, which
+  /// took the record of who carried what with it. Now that the name lives on
+  /// this row, removing somebody's account leaves the driver - and every
+  /// assignment naming them - intact, and only the login link goes. A fleet
+  /// register that forgets who drove last month is a register that cannot
+  /// answer the one question asked after a bad delivery.
+  partnerUser LogisticsPartnerUser? @relation(fields: [partnerUserId], references: [id], onDelete: SetNull)
 
   assignments LogisticsDriverAssignment[]
   pickups     LogisticsPickupRequest[]
@@ -11042,6 +11248,9 @@ model LogisticsDriverProfile {
   pings       LogisticsLocationPing[]
 
   @@index([logisticsPartnerId, state], map: "ix_logistics_driver_state")
+  /// The fleet list, and the picker on a consignment: this carrier's drivers,
+  /// by name. Without it both are a filesort on every open.
+  @@index([logisticsPartnerId, fullName], map: "ix_logistics_driver_name")
   @@map("logistics_driver_profiles")
 }
 
@@ -11087,6 +11296,25 @@ model LogisticsDriverAssignment {
   driverProfileId String @db.Char(26)
   vehicleId       String? @db.Char(26)
 
+  /// The shipment id while this assignment is LIVE, and NULL once it is not.
+  ///
+  /// The whole mechanism behind "one driver per consignment at a time", and it
+  /// is a column rather than a rule in a service because a rule in a service
+  /// loses a race. Two dispatchers pressing Assign in the same second both read
+  /// "no live assignment", both write one, and the consignment ends up on two
+  /// vans - which is the failure nobody discovers until both drivers arrive.
+  ///
+  /// MariaDB has no partial indexes, but it treats **every NULL in a UNIQUE
+  /// index as distinct** - the same property `variantKey` exists to work
+  /// around elsewhere in this schema, used here the other way up. So
+  /// `uq_logistics_driver_active` permits any number of finished assignments
+  /// per shipment and exactly one live one, and the loser of a race gets a
+  /// P2002 rather than a second van.
+  ///
+  /// Written only alongside `unassignedAt`: set together, cleared together.
+  /// `assignment.service.ts` is the only place that does either.
+  activeShipmentId String? @db.Char(26)
+
   /// What this driver is doing with it. A consignment can have two driver
   /// assignments - one to collect and one to deliver - and the task list has
   /// to be able to show the right stop to the right person.
@@ -11102,6 +11330,37 @@ model LogisticsDriverAssignment {
 
   assignedByPartnerUserId String? @db.Char(26)
 
+  /// Who made this assignment, in words.
+  ///
+  /// The id above names somebody in the CARRIER's own team and is the only
+  /// answer it can give. The marketplace's operations desk can assign a driver
+  /// too - a carrier goes quiet and their parcels are still on vans - and an
+  /// operator has no row in that table, so the id stays null and this is what
+  /// keeps the chain readable.
+  ///
+  /// Null already meant "written before the column existed", so overloading it
+  /// with "the marketplace did this" would make the history ambiguous in
+  /// exactly the situation it gets read: after a bad delivery, with somebody
+  /// asking who moved it.
+  assignedByLabel String? @db.VarChar(160)
+
+  /// Why this driver was taken off, in the dispatcher's words.
+  ///
+  /// Required by the service on a reassignment and null on a completion,
+  /// which is the distinction it exists to record: a driver who finished the
+  /// job and a driver who was pulled off it halfway are the same row shape and
+  /// very different facts. Without it, "why did three drivers have this
+  /// parcel?" is a question the history cannot answer.
+  unassignedReason String? @db.VarChar(512)
+
+  /// The assignment this one replaced, where it replaced one.
+  ///
+  /// A self-relation rather than a recomputed ordering, because the chain is
+  /// what an operator reads after a bad delivery: A handed to B handed to C,
+  /// each with the reason it moved. Deriving it from timestamps would be
+  /// guesswork the moment two rows share a millisecond.
+  previousAssignmentId String? @db.Char(26)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -11109,9 +11368,18 @@ model LogisticsDriverAssignment {
   driver   LogisticsDriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
   vehicle  LogisticsVehicle?      @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
+  previousAssignment LogisticsDriverAssignment?  @relation("DriverAssignmentChain", fields: [previousAssignmentId], references: [id], onDelete: SetNull)
+  replacedBy         LogisticsDriverAssignment[] @relation("DriverAssignmentChain")
+
+  /// One live driver per consignment, enforced by the database. See
+  /// `activeShipmentId`.
+  @@unique([activeShipmentId], map: "uq_logistics_driver_active")
   /// The task-list query: this driver's live stops, in route order.
   @@index([driverProfileId, unassignedAt, routeSequence], map: "ix_logistics_driver_task")
   @@index([shipmentId, unassignedAt], map: "ix_logistics_driver_assignment_shipment")
+  /// The admin tracking filter: every consignment this driver is carrying.
+  @@index([driverProfileId, assignedAt], map: "ix_logistics_driver_assignment_driver_time")
+  @@index([previousAssignmentId], map: "ix_logistics_driver_assignment_previous")
   @@map("logistics_driver_assignments")
 }
 
@@ -11445,6 +11713,25 @@ model LogisticsNotification {
   /// identity of the thing being announced.
   dedupeKey String @db.VarChar(120)
 
+  /// News or problem, and where a problem stands. Exactly the split the
+  /// operator's own bell carries - see `AdminNotificationClass`. A carrier
+  /// watching a delivery failure needs it to leave their list when the
+  /// delivery is re-attempted, not when somebody scrolled past it.
+  class  AdminNotificationClass  @default(INFORMATION)
+  status AdminNotificationStatus @default(ACTIVE)
+
+  /// What this alert is about, so one domain resolution can close every
+  /// occurrence of it. Null on an INFORMATION row. See the note on
+  /// `AdminNotification.resolutionKey` for why this is not `dedupeKey`.
+  resolutionKey String? @db.VarChar(120)
+
+  resolvedAt       DateTime?                          @db.DateTime(3)
+  /// The platform user who closed it, where a person did. Carriers and the
+  /// marketplace both write here, so it is `users.id` and not a partner user.
+  resolvedByUserId String?                            @db.Char(26)
+  resolutionReason String?                            @db.VarChar(512)
+  resolutionSource AdminNotificationResolutionSource?
+
   readAt      DateTime? @db.DateTime(3)
   emailedAt   DateTime? @db.DateTime(3)
   createdAt   DateTime  @default(now()) @db.DateTime(3)
@@ -11456,6 +11743,9 @@ model LogisticsNotification {
   @@unique([logisticsPartnerId, kind, dedupeKey], map: "uq_logistics_notification_dedupe")
   @@index([logisticsPartnerId, readAt, createdAt], map: "ix_logistics_notification_feed")
   @@index([partnerUserId, readAt], map: "ix_logistics_notification_user")
+  /// The carrier's live-alert query, and the resolution lookup.
+  @@index([logisticsPartnerId, class, status, createdAt], map: "ix_logistics_notification_live")
+  @@index([resolutionKey, status], map: "ix_logistics_notification_resolution")
   @@map("logistics_notifications")
 }
 

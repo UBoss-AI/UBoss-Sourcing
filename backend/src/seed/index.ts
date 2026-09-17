@@ -20,40 +20,8 @@ import { newId } from '../infra/ids.js';
 import { seedReferenceData } from './reference-data.js';
 import { seedSellerHub } from './seller-hub.js';
 import { LOGISTICS_SEED_ACCOUNTS, seedLogistics } from './logistics.js';
+import { SEED_ACCOUNTS, SEED_CUSTOMERS } from './accounts.js';
 import { prisma } from '../infra/prisma.js';
-
-/**
- * Seed credentials. Deliberately long enough to satisfy the 12-character
- * policy, and deliberately obvious so nobody mistakes them for real ones.
- */
-const SEED_ACCOUNTS = [
-  { email: 'owner@uboss.local', name: 'Priya Nair', role: Role.BUSINESS_OWNER, password: 'OwnerDev!2026' },
-  { email: 'catalog@uboss.local', name: 'Arun Mehta', role: Role.CATALOG_MANAGER, password: 'CatalogDev!2026' },
-  { email: 'inventory@uboss.local', name: 'Sana Qureshi', role: Role.INVENTORY_MANAGER, password: 'StockDev!2026' },
-  { email: 'orders@uboss.local', name: 'Ravi Menon', role: Role.ORDER_MANAGER, password: 'OrdersDev!2026' },
-  { email: 'finance@uboss.local', name: 'Neha Kulkarni', role: Role.FINANCE_APPROVER, password: 'FinanceDev!2026' },
-] as const;
-
-const SEED_CUSTOMERS = [
-  {
-    email: 'buyer@acme.local',
-    name: 'Deepak Sharma',
-    organization: 'Acme Manufacturing Pvt Ltd',
-    department: 'Procurement',
-    password: 'BuyerDev!2026',
-    // Active, so it can be signed into immediately.
-    active: true,
-  },
-  {
-    email: 'invited@zenith.local',
-    name: 'Fatima Sheikh',
-    organization: 'Zenith Labs',
-    department: 'Operations',
-    password: null,
-    // Left PENDING_INVITATION on purpose: exercises the activation flow.
-    active: false,
-  },
-] as const;
 
 async function seedRolesAndPermissions(): Promise<void> {
   // Permissions first - roles reference them.
@@ -1230,7 +1198,20 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log('\nThese are development credentials. Never use them anywhere real.\n');
+  console.log('\nThese are development credentials. Never use them anywhere real.');
+
+  /*
+   * The list above is what a FRESH database gets, not necessarily what this one
+   * has. Every account here is upserted, and `passwordHash` is written only in
+   * the `create` branch - so on a database whose passwords were rotated, the
+   * lines printed above are wrong and this seed did not change that. Saying so
+   * is cheaper than the alternative, which is somebody reading a password off
+   * this output and concluding the account is broken.
+   */
+  console.log(
+    'If this database was rotated (npm run db:rotate-seed-passwords), the\n' +
+      'passwords above are NOT its passwords - re-seeding does not restore them.\n',
+  );
 }
 
 main()

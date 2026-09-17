@@ -332,6 +332,30 @@ export function invitePartnerUser(
 // Consignments
 // ---------------------------------------------------------------------------
 
+/**
+ * One link in the chain of people who have held a consignment.
+ *
+ * The operator's copy of the shape the Logistics Partner Portal reads. Both
+ * come from one reader on the server, so a handover cannot look different
+ * depending on which screen is open.
+ */
+export interface DriverAssignmentEntry {
+  id: string;
+  driverProfileId: string;
+  driverName: string;
+  vehicleRegistration: string | null;
+  isPickupLeg: boolean;
+  isDeliveryLeg: boolean;
+  assignedAt: string;
+  unassignedAt: string | null;
+  completedAt: string | null;
+  /** Why they came off, where a dispatcher gave a reason. */
+  unassignedReason: string | null;
+  previousAssignmentId: string | null;
+  assignedByName: string | null;
+  isActive: boolean;
+}
+
 export interface AdminShipmentRow {
   id: string;
   shipmentReference: string;
@@ -345,9 +369,46 @@ export interface AdminShipmentRow {
   packageCount: number;
   expectedPickupAt: string | null;
   estimatedDeliveryAt: string | null;
+  lastEventAt: string | null;
   createdAt: string;
   assignedPartner: { id: string; displayName: string } | null;
   order: { id: string; orderNumber: string } | null;
+  /** The building it is collected from, where the order named one. */
+  originLocation: { id: string; name: string; code: string } | null;
+  /**
+   * Whoever is carrying it right now.
+   *
+   * The column no carrier's own portal can have: which person, across every
+   * carrier, is holding this parcel. Null while nobody is.
+   */
+  driver: {
+    assignmentId: string;
+    driverProfileId: string;
+    fullName: string;
+    assignedAt: string;
+  } | null;
+  /** A problem somebody still has to work, where there is one. */
+  openException: { id: string; type: string; severity: ExceptionSeverity } | null;
+}
+
+/**
+ * The tiles above the table.
+ *
+ * Counted over the SAME filter as the list underneath, not over everything - a
+ * desk that has narrowed to one carrier and still sees the whole
+ * marketplace's totals is a desk reading the wrong number.
+ */
+export interface AdminShipmentSummary {
+  awaitingAssignment: number;
+  accepted: number;
+  inTransit: number;
+  outForDelivery: number;
+  delivered: number;
+  failed: number;
+  returned: number;
+  cancelled: number;
+  /** Consignments carrying an unworked exception, whatever their status. */
+  withOpenException: number;
 }
 
 export interface AdminShipmentPage {
@@ -355,6 +416,29 @@ export interface AdminShipmentPage {
   total: number;
   page: number;
   pageCount: number;
+  summary: AdminShipmentSummary;
+}
+
+/** What there is to narrow the tracking list by. */
+export interface TrackingFilterOptions {
+  sellers: { id: string; name: string; shipmentCount: number }[];
+  customers: { id: string; name: string; shipmentCount: number }[];
+  warehouses: { id: string; name: string; code: string }[];
+  partners: { id: string; displayName: string; partnerCode: string; status: string }[];
+  drivers: {
+    id: string;
+    fullName: string;
+    state: string;
+    partnerId: string;
+    /** Two carriers can employ an Ilse Maes; the list has to say whose. */
+    partnerName: string;
+  }[];
+}
+
+export const trackingFiltersKey = ['admin', 'logistics', 'tracking-filters'] as const;
+
+export function fetchTrackingFilters(): Promise<TrackingFilterOptions> {
+  return api.get<TrackingFilterOptions>('/admin/logistics/tracking-filters');
 }
 
 export function fetchAdminShipments(params: URLSearchParams): Promise<AdminShipmentPage> {
@@ -446,6 +530,16 @@ export interface AdminShipmentDetail {
   order: { id: string; orderNumber: string } | null;
   assignedPartner: { id: string; displayName: string; partnerCode: string } | null;
   carrierIntegration: { id: string; name: string; provider: CarrierProvider; state: string } | null;
+  /**
+   * Everyone who has carried it, oldest first.
+   *
+   * The same chain the carrier's own screen reads, from the same reader - so
+   * the two screens cannot describe one handover differently. It reads
+   * forwards because it is a chain rather than a feed.
+   */
+  driverAssignments: DriverAssignmentEntry[];
+  /** Whoever has it now, flattened out of the chain above. */
+  driver: DriverAssignmentEntry | null;
   assignments: {
     id: string;
     state: 'OFFERED' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN' | 'EXPIRED' | 'COMPLETED';
@@ -526,6 +620,183 @@ export function correctShipmentStatus(
   body: { status: ShipmentStatus; reason: string },
 ): Promise<{ eventId: string }> {
   return api.post(`/admin/logistics/shipments/${shipmentId}/correct-status`, body);
+}
+
+/**
+ * Move a consignment along: dispatched, on the way, delivered.
+ *
+ * NOT a correction, and the difference matters to anybody reading the
+ * timeline afterwards. `correctShipmentStatus` overrules a status the carrier
+ * got wrong and marks the event as corrected for ever; this is the ordinary
+ * forward move, for the carrier who cannot reach their own portal and rings
+ * the operations desk instead.
+ *
+ * The key makes it safe to press twice on a bad line.
+ */
+export function advanceShipmentStatus(
+  shipmentId: string,
+  body: {
+    status: ShipmentStatus;
+    reason?: string;
+    publicDescription?: string;
+    internalNote?: string;
+    hasProofOfDelivery?: boolean;
+  },
+  idempotencyKey?: string,
+): Promise<{ status: ShipmentStatus; duplicate: boolean }> {
+  return api.post(`/admin/logistics/shipments/${shipmentId}/status-events`, body, {
+    ...(idempotencyKey === undefined ? {} : { idempotencyKey }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// A carrier's fleet, from the operations desk
+// ---------------------------------------------------------------------------
+
+/**
+ * Somebody who drives for a carrier.
+ *
+ * The operator's copy of the shape the carrier's own portal reads, from the
+ * same reader on the server. `partnerUserId` is null for most of a fleet: a
+ * driver record is a name, not a login, and an account is optional.
+ */
+export interface DriverRow {
+  id: string;
+  partnerUserId: string | null;
+  fullName: string;
+  phone: string | null;
+  email: string | null;
+  /** Whether they can open the phone app. False for most of a fleet. */
+  hasPortalAccess: boolean;
+  state: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  employeeReference: string | null;
+  licenceNumber: string | null;
+  licenceExpiresAt: string | null;
+  canCarryDangerousGoods: boolean;
+  canCarryColdChain: boolean;
+  canCarrySterile: boolean;
+  hasLocationConsent: boolean;
+  /** Consignments they are carrying right now. */
+  openTasks: number;
+}
+
+export interface VehicleRow {
+  id: string;
+  registration: string;
+  kind: string;
+  hasRefrigeration: boolean;
+  hasTailLift: boolean;
+  temperatureMinC: string | null;
+  temperatureMaxC: string | null;
+  maxWeightGrams: number | null;
+  isActive: boolean;
+}
+
+/** The details of one driver, as the form collects them. */
+export interface DriverDetailsInput {
+  fullName?: string;
+  phone?: string | null;
+  email?: string | null;
+  employeeReference?: string | null;
+  licenceNumber?: string | null;
+  licenceExpiresAt?: string | null;
+  canCarryDangerousGoods?: boolean;
+  canCarryColdChain?: boolean;
+  canCarrySterile?: boolean;
+  state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  partnerUserId?: string | null;
+}
+
+export const partnerDriversKey = (partnerId: string): readonly unknown[] => [
+  'admin',
+  'logistics',
+  'partner',
+  partnerId,
+  'drivers',
+];
+
+export function fetchPartnerDrivers(partnerId: string): Promise<{ drivers: DriverRow[] }> {
+  return api.get(`/admin/logistics/partners/${partnerId}/drivers`);
+}
+
+/**
+ * Add somebody to a carrier's fleet, on their behalf.
+ *
+ * A name is all that is required. The operations desk takes these over the
+ * phone from hauliers who will never open the portal, and a register that
+ * could only hold people with a login is a register that does not describe
+ * the fleet.
+ */
+export function createPartnerDriver(
+  partnerId: string,
+  input: DriverDetailsInput,
+): Promise<DriverRow> {
+  return api.post(`/admin/logistics/partners/${partnerId}/drivers`, input);
+}
+
+/** A patch: only what is sent is written. */
+export function updatePartnerDriver(
+  partnerId: string,
+  driverProfileId: string,
+  input: DriverDetailsInput,
+): Promise<DriverRow> {
+  return api.patch(`/admin/logistics/partners/${partnerId}/drivers/${driverProfileId}`, input);
+}
+
+export const partnerVehiclesKey = (partnerId: string): readonly unknown[] => [
+  'admin',
+  'logistics',
+  'partner',
+  partnerId,
+  'vehicles',
+];
+
+export function fetchPartnerVehicles(partnerId: string): Promise<{ vehicles: VehicleRow[] }> {
+  return api.get(`/admin/logistics/partners/${partnerId}/vehicles`);
+}
+
+export function createPartnerVehicle(
+  partnerId: string,
+  input: {
+    registration: string;
+    kind: string;
+    hasRefrigeration?: boolean;
+    hasTailLift?: boolean;
+    temperatureMinC?: number;
+    temperatureMaxC?: number;
+    maxWeightGrams?: number;
+  },
+): Promise<VehicleRow> {
+  return api.post(`/admin/logistics/partners/${partnerId}/vehicles`, input);
+}
+
+/**
+ * Put a driver on a consignment, or move it to another driver.
+ *
+ * The fleet is the one the consignment is already with - the server derives
+ * it and will not accept another - so this cannot put one carrier’s driver
+ * on another’s parcel.
+ */
+export function assignShipmentDriver(
+  shipmentId: string,
+  input: {
+    driverProfileId: string;
+    vehicleId?: string;
+    isPickupLeg?: boolean;
+    isDeliveryLeg?: boolean;
+    /** Required when somebody is being taken off. */
+    reason?: string;
+  },
+): Promise<{ assignmentId: string; replacedAssignmentId: string | null }> {
+  return api.post(`/admin/logistics/shipments/${shipmentId}/assign-driver`, input);
+}
+
+/** Take the driver off without putting another one on. Idempotent. */
+export function unassignShipmentDriver(
+  shipmentId: string,
+  reason: string,
+): Promise<{ unassignedAssignmentId: string | null }> {
+  return api.post(`/admin/logistics/shipments/${shipmentId}/unassign-driver`, { reason });
 }
 
 // ---------------------------------------------------------------------------

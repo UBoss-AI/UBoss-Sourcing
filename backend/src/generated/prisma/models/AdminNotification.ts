@@ -20,13 +20,32 @@ export type AdminNotificationModel = runtime.Types.Result.DefaultSelection<Prism
 
 export type AggregateAdminNotification = {
   _count: AdminNotificationCountAggregateOutputType | null
+  _avg: AdminNotificationAvgAggregateOutputType | null
+  _sum: AdminNotificationSumAggregateOutputType | null
   _min: AdminNotificationMinAggregateOutputType | null
   _max: AdminNotificationMaxAggregateOutputType | null
+}
+
+export type AdminNotificationAvgAggregateOutputType = {
+  occurrence: number | null
+}
+
+export type AdminNotificationSumAggregateOutputType = {
+  occurrence: number | null
 }
 
 export type AdminNotificationMinAggregateOutputType = {
   id: string | null
   kind: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolutionPolicy: $Enums.AdminNotificationResolutionPolicy | null
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  occurrence: number | null
   linkPath: string | null
   requiredPermission: string | null
   relatedType: string | null
@@ -38,6 +57,15 @@ export type AdminNotificationMinAggregateOutputType = {
 export type AdminNotificationMaxAggregateOutputType = {
   id: string | null
   kind: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolutionPolicy: $Enums.AdminNotificationResolutionPolicy | null
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  occurrence: number | null
   linkPath: string | null
   requiredPermission: string | null
   relatedType: string | null
@@ -49,6 +77,15 @@ export type AdminNotificationMaxAggregateOutputType = {
 export type AdminNotificationCountAggregateOutputType = {
   id: number
   kind: number
+  class: number
+  status: number
+  resolutionKey: number
+  resolutionPolicy: number
+  resolvedAt: number
+  resolvedByUserId: number
+  resolutionReason: number
+  resolutionSource: number
+  occurrence: number
   variablesJson: number
   linkPath: number
   requiredPermission: number
@@ -60,9 +97,26 @@ export type AdminNotificationCountAggregateOutputType = {
 }
 
 
+export type AdminNotificationAvgAggregateInputType = {
+  occurrence?: true
+}
+
+export type AdminNotificationSumAggregateInputType = {
+  occurrence?: true
+}
+
 export type AdminNotificationMinAggregateInputType = {
   id?: true
   kind?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolutionPolicy?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
+  occurrence?: true
   linkPath?: true
   requiredPermission?: true
   relatedType?: true
@@ -74,6 +128,15 @@ export type AdminNotificationMinAggregateInputType = {
 export type AdminNotificationMaxAggregateInputType = {
   id?: true
   kind?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolutionPolicy?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
+  occurrence?: true
   linkPath?: true
   requiredPermission?: true
   relatedType?: true
@@ -85,6 +148,15 @@ export type AdminNotificationMaxAggregateInputType = {
 export type AdminNotificationCountAggregateInputType = {
   id?: true
   kind?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolutionPolicy?: true
+  resolvedAt?: true
+  resolvedByUserId?: true
+  resolutionReason?: true
+  resolutionSource?: true
+  occurrence?: true
   variablesJson?: true
   linkPath?: true
   requiredPermission?: true
@@ -133,6 +205,18 @@ export type AdminNotificationAggregateArgs<ExtArgs extends runtime.Types.Extensi
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AdminNotificationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AdminNotificationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AdminNotificationMinAggregateInputType
@@ -163,6 +247,8 @@ export type AdminNotificationGroupByArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   _count?: AdminNotificationCountAggregateInputType | true
+  _avg?: AdminNotificationAvgAggregateInputType
+  _sum?: AdminNotificationSumAggregateInputType
   _min?: AdminNotificationMinAggregateInputType
   _max?: AdminNotificationMaxAggregateInputType
 }
@@ -170,6 +256,15 @@ export type AdminNotificationGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type AdminNotificationGroupByOutputType = {
   id: string
   kind: string
+  class: $Enums.AdminNotificationClass
+  status: $Enums.AdminNotificationStatus
+  resolutionKey: string | null
+  resolutionPolicy: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  resolutionReason: string | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  occurrence: number
   variablesJson: runtime.JsonValue | null
   linkPath: string | null
   requiredPermission: string | null
@@ -178,6 +273,8 @@ export type AdminNotificationGroupByOutputType = {
   dedupeKey: string | null
   createdAt: Date
   _count: AdminNotificationCountAggregateOutputType | null
+  _avg: AdminNotificationAvgAggregateOutputType | null
+  _sum: AdminNotificationSumAggregateOutputType | null
   _min: AdminNotificationMinAggregateOutputType | null
   _max: AdminNotificationMaxAggregateOutputType | null
 }
@@ -203,6 +300,15 @@ export type AdminNotificationWhereInput = {
   NOT?: Prisma.AdminNotificationWhereInput | Prisma.AdminNotificationWhereInput[]
   id?: Prisma.StringFilter<"AdminNotification"> | string
   kind?: Prisma.StringFilter<"AdminNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"AdminNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"AdminNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.DateTimeNullableFilter<"AdminNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFilter<"AdminNotification"> | number
   variablesJson?: Prisma.JsonNullableFilter<"AdminNotification">
   linkPath?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   requiredPermission?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
@@ -211,11 +317,21 @@ export type AdminNotificationWhereInput = {
   dedupeKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
   reads?: Prisma.AdminNotificationReadListRelationFilter
+  resolvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type AdminNotificationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionPolicy?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  occurrence?: Prisma.SortOrder
   variablesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   linkPath?: Prisma.SortOrderInput | Prisma.SortOrder
   requiredPermission?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -224,6 +340,7 @@ export type AdminNotificationOrderByWithRelationInput = {
   dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   reads?: Prisma.AdminNotificationReadOrderByRelationAggregateInput
+  resolvedBy?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.AdminNotificationOrderByRelevanceInput
 }
 
@@ -234,6 +351,15 @@ export type AdminNotificationWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AdminNotificationWhereInput[]
   NOT?: Prisma.AdminNotificationWhereInput | Prisma.AdminNotificationWhereInput[]
   kind?: Prisma.StringFilter<"AdminNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"AdminNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"AdminNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.DateTimeNullableFilter<"AdminNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFilter<"AdminNotification"> | number
   variablesJson?: Prisma.JsonNullableFilter<"AdminNotification">
   linkPath?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   requiredPermission?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
@@ -241,11 +367,21 @@ export type AdminNotificationWhereUniqueInput = Prisma.AtLeast<{
   relatedId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
   reads?: Prisma.AdminNotificationReadListRelationFilter
+  resolvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "dedupeKey">
 
 export type AdminNotificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionPolicy?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  occurrence?: Prisma.SortOrder
   variablesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   linkPath?: Prisma.SortOrderInput | Prisma.SortOrder
   requiredPermission?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -254,8 +390,10 @@ export type AdminNotificationOrderByWithAggregationInput = {
   dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AdminNotificationCountOrderByAggregateInput
+  _avg?: Prisma.AdminNotificationAvgOrderByAggregateInput
   _max?: Prisma.AdminNotificationMaxOrderByAggregateInput
   _min?: Prisma.AdminNotificationMinOrderByAggregateInput
+  _sum?: Prisma.AdminNotificationSumOrderByAggregateInput
 }
 
 export type AdminNotificationScalarWhereWithAggregatesInput = {
@@ -264,6 +402,15 @@ export type AdminNotificationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AdminNotificationScalarWhereWithAggregatesInput | Prisma.AdminNotificationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AdminNotification"> | string
   kind?: Prisma.StringWithAggregatesFilter<"AdminNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassWithAggregatesFilter<"AdminNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusWithAggregatesFilter<"AdminNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyWithAggregatesFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntWithAggregatesFilter<"AdminNotification"> | number
   variablesJson?: Prisma.JsonNullableWithAggregatesFilter<"AdminNotification">
   linkPath?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
   requiredPermission?: Prisma.StringNullableWithAggregatesFilter<"AdminNotification"> | string | null
@@ -276,6 +423,14 @@ export type AdminNotificationScalarWhereWithAggregatesInput = {
 export type AdminNotificationCreateInput = {
   id: string
   kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: string | null
   requiredPermission?: string | null
@@ -284,11 +439,21 @@ export type AdminNotificationCreateInput = {
   dedupeKey?: string | null
   createdAt?: Date | string
   reads?: Prisma.AdminNotificationReadCreateNestedManyWithoutNotificationInput
+  resolvedBy?: Prisma.UserCreateNestedOneWithoutNotificationsResolvedInput
 }
 
 export type AdminNotificationUncheckedCreateInput = {
   id: string
   kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: string | null
   requiredPermission?: string | null
@@ -302,6 +467,14 @@ export type AdminNotificationUncheckedCreateInput = {
 export type AdminNotificationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -310,11 +483,21 @@ export type AdminNotificationUpdateInput = {
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reads?: Prisma.AdminNotificationReadUpdateManyWithoutNotificationNestedInput
+  resolvedBy?: Prisma.UserUpdateOneWithoutNotificationsResolvedNestedInput
 }
 
 export type AdminNotificationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -328,6 +511,15 @@ export type AdminNotificationUncheckedUpdateInput = {
 export type AdminNotificationCreateManyInput = {
   id: string
   kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: string | null
   requiredPermission?: string | null
@@ -340,6 +532,14 @@ export type AdminNotificationCreateManyInput = {
 export type AdminNotificationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -352,6 +552,15 @@ export type AdminNotificationUpdateManyMutationInput = {
 export type AdminNotificationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -359,6 +568,16 @@ export type AdminNotificationUncheckedUpdateManyInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AdminNotificationListRelationFilter = {
+  every?: Prisma.AdminNotificationWhereInput
+  some?: Prisma.AdminNotificationWhereInput
+  none?: Prisma.AdminNotificationWhereInput
+}
+
+export type AdminNotificationOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type AdminNotificationOrderByRelevanceInput = {
@@ -370,6 +589,15 @@ export type AdminNotificationOrderByRelevanceInput = {
 export type AdminNotificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolutionPolicy?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  occurrence?: Prisma.SortOrder
   variablesJson?: Prisma.SortOrder
   linkPath?: Prisma.SortOrder
   requiredPermission?: Prisma.SortOrder
@@ -379,9 +607,22 @@ export type AdminNotificationCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type AdminNotificationAvgOrderByAggregateInput = {
+  occurrence?: Prisma.SortOrder
+}
+
 export type AdminNotificationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolutionPolicy?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  occurrence?: Prisma.SortOrder
   linkPath?: Prisma.SortOrder
   requiredPermission?: Prisma.SortOrder
   relatedType?: Prisma.SortOrder
@@ -393,6 +634,15 @@ export type AdminNotificationMaxOrderByAggregateInput = {
 export type AdminNotificationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolutionPolicy?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolvedByUserId?: Prisma.SortOrder
+  resolutionReason?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  occurrence?: Prisma.SortOrder
   linkPath?: Prisma.SortOrder
   requiredPermission?: Prisma.SortOrder
   relatedType?: Prisma.SortOrder
@@ -401,9 +651,71 @@ export type AdminNotificationMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type AdminNotificationSumOrderByAggregateInput = {
+  occurrence?: Prisma.SortOrder
+}
+
 export type AdminNotificationScalarRelationFilter = {
   is?: Prisma.AdminNotificationWhereInput
   isNot?: Prisma.AdminNotificationWhereInput
+}
+
+export type AdminNotificationCreateNestedManyWithoutResolvedByInput = {
+  create?: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput> | Prisma.AdminNotificationCreateWithoutResolvedByInput[] | Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput[]
+  connectOrCreate?: Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput | Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput[]
+  createMany?: Prisma.AdminNotificationCreateManyResolvedByInputEnvelope
+  connect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+}
+
+export type AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput = {
+  create?: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput> | Prisma.AdminNotificationCreateWithoutResolvedByInput[] | Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput[]
+  connectOrCreate?: Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput | Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput[]
+  createMany?: Prisma.AdminNotificationCreateManyResolvedByInputEnvelope
+  connect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+}
+
+export type AdminNotificationUpdateManyWithoutResolvedByNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput> | Prisma.AdminNotificationCreateWithoutResolvedByInput[] | Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput[]
+  connectOrCreate?: Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput | Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput[]
+  upsert?: Prisma.AdminNotificationUpsertWithWhereUniqueWithoutResolvedByInput | Prisma.AdminNotificationUpsertWithWhereUniqueWithoutResolvedByInput[]
+  createMany?: Prisma.AdminNotificationCreateManyResolvedByInputEnvelope
+  set?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  disconnect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  delete?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  connect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  update?: Prisma.AdminNotificationUpdateWithWhereUniqueWithoutResolvedByInput | Prisma.AdminNotificationUpdateWithWhereUniqueWithoutResolvedByInput[]
+  updateMany?: Prisma.AdminNotificationUpdateManyWithWhereWithoutResolvedByInput | Prisma.AdminNotificationUpdateManyWithWhereWithoutResolvedByInput[]
+  deleteMany?: Prisma.AdminNotificationScalarWhereInput | Prisma.AdminNotificationScalarWhereInput[]
+}
+
+export type AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput> | Prisma.AdminNotificationCreateWithoutResolvedByInput[] | Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput[]
+  connectOrCreate?: Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput | Prisma.AdminNotificationCreateOrConnectWithoutResolvedByInput[]
+  upsert?: Prisma.AdminNotificationUpsertWithWhereUniqueWithoutResolvedByInput | Prisma.AdminNotificationUpsertWithWhereUniqueWithoutResolvedByInput[]
+  createMany?: Prisma.AdminNotificationCreateManyResolvedByInputEnvelope
+  set?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  disconnect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  delete?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  connect?: Prisma.AdminNotificationWhereUniqueInput | Prisma.AdminNotificationWhereUniqueInput[]
+  update?: Prisma.AdminNotificationUpdateWithWhereUniqueWithoutResolvedByInput | Prisma.AdminNotificationUpdateWithWhereUniqueWithoutResolvedByInput[]
+  updateMany?: Prisma.AdminNotificationUpdateManyWithWhereWithoutResolvedByInput | Prisma.AdminNotificationUpdateManyWithWhereWithoutResolvedByInput[]
+  deleteMany?: Prisma.AdminNotificationScalarWhereInput | Prisma.AdminNotificationScalarWhereInput[]
+}
+
+export type EnumAdminNotificationClassFieldUpdateOperationsInput = {
+  set?: $Enums.AdminNotificationClass
+}
+
+export type EnumAdminNotificationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.AdminNotificationStatus
+}
+
+export type EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput = {
+  set?: $Enums.AdminNotificationResolutionPolicy
+}
+
+export type NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput = {
+  set?: $Enums.AdminNotificationResolutionSource | null
 }
 
 export type AdminNotificationCreateNestedOneWithoutReadsInput = {
@@ -420,9 +732,17 @@ export type AdminNotificationUpdateOneRequiredWithoutReadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AdminNotificationUpdateToOneWithWhereWithoutReadsInput, Prisma.AdminNotificationUpdateWithoutReadsInput>, Prisma.AdminNotificationUncheckedUpdateWithoutReadsInput>
 }
 
-export type AdminNotificationCreateWithoutReadsInput = {
+export type AdminNotificationCreateWithoutResolvedByInput = {
   id: string
   kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: string | null
   requiredPermission?: string | null
@@ -430,11 +750,113 @@ export type AdminNotificationCreateWithoutReadsInput = {
   relatedId?: string | null
   dedupeKey?: string | null
   createdAt?: Date | string
+  reads?: Prisma.AdminNotificationReadCreateNestedManyWithoutNotificationInput
+}
+
+export type AdminNotificationUncheckedCreateWithoutResolvedByInput = {
+  id: string
+  kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: string | null
+  requiredPermission?: string | null
+  relatedType?: string | null
+  relatedId?: string | null
+  dedupeKey?: string | null
+  createdAt?: Date | string
+  reads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutNotificationInput
+}
+
+export type AdminNotificationCreateOrConnectWithoutResolvedByInput = {
+  where: Prisma.AdminNotificationWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput>
+}
+
+export type AdminNotificationCreateManyResolvedByInputEnvelope = {
+  data: Prisma.AdminNotificationCreateManyResolvedByInput | Prisma.AdminNotificationCreateManyResolvedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type AdminNotificationUpsertWithWhereUniqueWithoutResolvedByInput = {
+  where: Prisma.AdminNotificationWhereUniqueInput
+  update: Prisma.XOR<Prisma.AdminNotificationUpdateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedUpdateWithoutResolvedByInput>
+  create: Prisma.XOR<Prisma.AdminNotificationCreateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedCreateWithoutResolvedByInput>
+}
+
+export type AdminNotificationUpdateWithWhereUniqueWithoutResolvedByInput = {
+  where: Prisma.AdminNotificationWhereUniqueInput
+  data: Prisma.XOR<Prisma.AdminNotificationUpdateWithoutResolvedByInput, Prisma.AdminNotificationUncheckedUpdateWithoutResolvedByInput>
+}
+
+export type AdminNotificationUpdateManyWithWhereWithoutResolvedByInput = {
+  where: Prisma.AdminNotificationScalarWhereInput
+  data: Prisma.XOR<Prisma.AdminNotificationUpdateManyMutationInput, Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByInput>
+}
+
+export type AdminNotificationScalarWhereInput = {
+  AND?: Prisma.AdminNotificationScalarWhereInput | Prisma.AdminNotificationScalarWhereInput[]
+  OR?: Prisma.AdminNotificationScalarWhereInput[]
+  NOT?: Prisma.AdminNotificationScalarWhereInput | Prisma.AdminNotificationScalarWhereInput[]
+  id?: Prisma.StringFilter<"AdminNotification"> | string
+  kind?: Prisma.StringFilter<"AdminNotification"> | string
+  class?: Prisma.EnumAdminNotificationClassFilter<"AdminNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"AdminNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.DateTimeNullableFilter<"AdminNotification"> | Date | string | null
+  resolvedByUserId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionReason?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"AdminNotification"> | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFilter<"AdminNotification"> | number
+  variablesJson?: Prisma.JsonNullableFilter<"AdminNotification">
+  linkPath?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  requiredPermission?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  relatedType?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  relatedId?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  dedupeKey?: Prisma.StringNullableFilter<"AdminNotification"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"AdminNotification"> | Date | string
+}
+
+export type AdminNotificationCreateWithoutReadsInput = {
+  id: string
+  kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: string | null
+  requiredPermission?: string | null
+  relatedType?: string | null
+  relatedId?: string | null
+  dedupeKey?: string | null
+  createdAt?: Date | string
+  resolvedBy?: Prisma.UserCreateNestedOneWithoutNotificationsResolvedInput
 }
 
 export type AdminNotificationUncheckedCreateWithoutReadsInput = {
   id: string
   kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolvedByUserId?: string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: string | null
   requiredPermission?: string | null
@@ -463,6 +885,36 @@ export type AdminNotificationUpdateToOneWithWhereWithoutReadsInput = {
 export type AdminNotificationUpdateWithoutReadsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedBy?: Prisma.UserUpdateOneWithoutNotificationsResolvedNestedInput
+}
+
+export type AdminNotificationUncheckedUpdateWithoutReadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -472,9 +924,79 @@ export type AdminNotificationUpdateWithoutReadsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type AdminNotificationUncheckedUpdateWithoutReadsInput = {
+export type AdminNotificationCreateManyResolvedByInput = {
+  id: string
+  kind: string
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolutionPolicy?: $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Date | string | null
+  resolutionReason?: string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  occurrence?: number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: string | null
+  requiredPermission?: string | null
+  relatedType?: string | null
+  relatedId?: string | null
+  dedupeKey?: string | null
+  createdAt?: Date | string
+}
+
+export type AdminNotificationUpdateWithoutResolvedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reads?: Prisma.AdminNotificationReadUpdateManyWithoutNotificationNestedInput
+}
+
+export type AdminNotificationUncheckedUpdateWithoutResolvedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
+  variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutNotificationNestedInput
+}
+
+export type AdminNotificationUncheckedUpdateManyWithoutResolvedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionPolicy?: Prisma.EnumAdminNotificationResolutionPolicyFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionPolicy
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  occurrence?: Prisma.IntFieldUpdateOperationsInput | number
   variablesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   linkPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiredPermission?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -518,6 +1040,15 @@ export type AdminNotificationCountOutputTypeCountReadsArgs<ExtArgs extends runti
 export type AdminNotificationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   kind?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolutionPolicy?: boolean
+  resolvedAt?: boolean
+  resolvedByUserId?: boolean
+  resolutionReason?: boolean
+  resolutionSource?: boolean
+  occurrence?: boolean
   variablesJson?: boolean
   linkPath?: boolean
   requiredPermission?: boolean
@@ -526,6 +1057,7 @@ export type AdminNotificationSelect<ExtArgs extends runtime.Types.Extensions.Int
   dedupeKey?: boolean
   createdAt?: boolean
   reads?: boolean | Prisma.AdminNotification$readsArgs<ExtArgs>
+  resolvedBy?: boolean | Prisma.AdminNotification$resolvedByArgs<ExtArgs>
   _count?: boolean | Prisma.AdminNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["adminNotification"]>
 
@@ -534,6 +1066,15 @@ export type AdminNotificationSelect<ExtArgs extends runtime.Types.Extensions.Int
 export type AdminNotificationSelectScalar = {
   id?: boolean
   kind?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolutionPolicy?: boolean
+  resolvedAt?: boolean
+  resolvedByUserId?: boolean
+  resolutionReason?: boolean
+  resolutionSource?: boolean
+  occurrence?: boolean
   variablesJson?: boolean
   linkPath?: boolean
   requiredPermission?: boolean
@@ -543,9 +1084,10 @@ export type AdminNotificationSelectScalar = {
   createdAt?: boolean
 }
 
-export type AdminNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "variablesJson" | "linkPath" | "requiredPermission" | "relatedType" | "relatedId" | "dedupeKey" | "createdAt", ExtArgs["result"]["adminNotification"]>
+export type AdminNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "class" | "status" | "resolutionKey" | "resolutionPolicy" | "resolvedAt" | "resolvedByUserId" | "resolutionReason" | "resolutionSource" | "occurrence" | "variablesJson" | "linkPath" | "requiredPermission" | "relatedType" | "relatedId" | "dedupeKey" | "createdAt", ExtArgs["result"]["adminNotification"]>
 export type AdminNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reads?: boolean | Prisma.AdminNotification$readsArgs<ExtArgs>
+  resolvedBy?: boolean | Prisma.AdminNotification$resolvedByArgs<ExtArgs>
   _count?: boolean | Prisma.AdminNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -553,6 +1095,7 @@ export type $AdminNotificationPayload<ExtArgs extends runtime.Types.Extensions.I
   name: "AdminNotification"
   objects: {
     reads: Prisma.$AdminNotificationReadPayload<ExtArgs>[]
+    resolvedBy: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -561,6 +1104,53 @@ export type $AdminNotificationPayload<ExtArgs extends runtime.Types.Extensions.I
      * the catalogue lives in AdminNotificationKind.
      */
     kind: string
+    /**
+     * News or problem. See the enum - this decides how the row leaves the
+     * badge.
+     * 
+     * Defaults to INFORMATION so that every row written before this column
+     * existed keeps behaving exactly as it did: cleared by reading it.
+     */
+    class: $Enums.AdminNotificationClass
+    /**
+     * Where an ALERT stands. Meaningless on an INFORMATION row, which is why
+     * it defaults to ACTIVE and is simply never read for one.
+     */
+    status: $Enums.AdminNotificationStatus
+    /**
+     * What this alert is ABOUT, as opposed to what raised it.
+     * 
+     * Deliberately not `dedupeKey`. That one is the identity of one OCCURRENCE
+     * - "the bell for exception 01J...". This is the identity of the PROBLEM -
+     * "anything still open about exception 01J...". They are usually the same
+     * string and sometimes are not: a payment alert is deduped on the failed
+     * transaction and resolved by any success against the order, so one
+     * resolution has to be able to close several occurrences at once.
+     * 
+     * Null on an INFORMATION row, which has no problem to resolve.
+     */
+    resolutionKey: string | null
+    /**
+     * Whether a human may close it from the bell. See the enum.
+     */
+    resolutionPolicy: $Enums.AdminNotificationResolutionPolicy
+    resolvedAt: Date | null
+    /**
+     * Null for a resolution nobody signed - a domain event or a sweep.
+     */
+    resolvedByUserId: string | null
+    resolutionReason: string | null
+    resolutionSource: $Enums.AdminNotificationResolutionSource | null
+    /**
+     * Which time round this is, for a problem that has come back.
+     * 
+     * A resolved alert is never reopened - it is history, and editing history
+     * is how "when was this actually fixed" stops being answerable. A problem
+     * that recurs gets a NEW row with the next occurrence number and its own
+     * dedupe key, so the resolution that was recorded stays recorded and the
+     * new one is actionable on its own terms.
+     */
+    occurrence: number
     /**
      * The values that fill the phrase - customer name, order number, total.
      * Primitives only, and already free of anything that should not be read by
@@ -929,6 +1519,7 @@ readonly fields: AdminNotificationFieldRefs;
 export interface Prisma__AdminNotificationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   reads<T extends Prisma.AdminNotification$readsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminNotification$readsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminNotificationReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resolvedBy<T extends Prisma.AdminNotification$resolvedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminNotification$resolvedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -960,6 +1551,15 @@ export interface Prisma__AdminNotificationClient<T, Null = never, ExtArgs extend
 export interface AdminNotificationFieldRefs {
   readonly id: Prisma.FieldRef<"AdminNotification", 'String'>
   readonly kind: Prisma.FieldRef<"AdminNotification", 'String'>
+  readonly class: Prisma.FieldRef<"AdminNotification", 'AdminNotificationClass'>
+  readonly status: Prisma.FieldRef<"AdminNotification", 'AdminNotificationStatus'>
+  readonly resolutionKey: Prisma.FieldRef<"AdminNotification", 'String'>
+  readonly resolutionPolicy: Prisma.FieldRef<"AdminNotification", 'AdminNotificationResolutionPolicy'>
+  readonly resolvedAt: Prisma.FieldRef<"AdminNotification", 'DateTime'>
+  readonly resolvedByUserId: Prisma.FieldRef<"AdminNotification", 'String'>
+  readonly resolutionReason: Prisma.FieldRef<"AdminNotification", 'String'>
+  readonly resolutionSource: Prisma.FieldRef<"AdminNotification", 'AdminNotificationResolutionSource'>
+  readonly occurrence: Prisma.FieldRef<"AdminNotification", 'Int'>
   readonly variablesJson: Prisma.FieldRef<"AdminNotification", 'Json'>
   readonly linkPath: Prisma.FieldRef<"AdminNotification", 'String'>
   readonly requiredPermission: Prisma.FieldRef<"AdminNotification", 'String'>
@@ -1336,6 +1936,25 @@ export type AdminNotification$readsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.AdminNotificationReadScalarFieldEnum | Prisma.AdminNotificationReadScalarFieldEnum[]
+}
+
+/**
+ * AdminNotification.resolvedBy
+ */
+export type AdminNotification$resolvedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

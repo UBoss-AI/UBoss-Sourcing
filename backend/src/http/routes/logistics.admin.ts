@@ -17,13 +17,16 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { OPEN_EXCEPTION_STATES } from '../../modules/logistics/exception.service.js';
 import { Permission } from '../../domain/permissions.js';
+import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import {
   ShipmentStatusValues,
   allowedShipmentTransitions,
+  type ShipmentStatusName,
 } from '../../domain/logistics-shipment-state.js';
 import { knownCarrierCodes, isCarrierProvider } from '../../domain/carrier-status-map.js';
 import { prisma } from '../../infra/prisma.js';
 import {
+  advanceShipmentStatus,
   correctShipmentStatus,
   createLogisticsPartner,
   decideCapability,
@@ -44,6 +47,18 @@ import {
   withdrawAssignment,
 } from '../../modules/logistics/assignment.service.js';
 import { createShipmentsForOrder } from '../../modules/logistics/shipment-create.service.js';
+import { readDriverAssignmentHistory } from '../../modules/logistics/driver-assignment.service.js';
+import {
+  asOperator,
+  assignDriver,
+  createDriver,
+  createVehicle,
+  listDrivers,
+  listVehicles,
+  unassignDriver,
+  updateDriver,
+  type FleetActor,
+} from '../../modules/logistics/driver.service.js';
 import { describeProviders } from '../../modules/logistics/carrier/registry.js';
 import { buildTokenUrl } from '../../modules/identity/token.service.js';
 import { email } from '../../infra/email/index.js';
@@ -53,6 +68,16 @@ import type { FastifyRequest } from 'fastify';
 
 const idParam = z.object({ id: z.string().length(26) });
 const isoDate = z.coerce.date();
+
+/**
+ * How many options a filter select is ever offered.
+ *
+ * A cap rather than a page, because a select nobody can page is a select that
+ * has to be short enough to read. Anybody who cannot find a business in the
+ * first hundred is looking for a business rather than narrowing a list, and
+ * the Companies screen is where that is done.
+ */
+const FILTER_OPTION_LIMIT = 100;
 
 function actorFor(request: FastifyRequest): AdminActor {
   const auth = currentUser(request);
@@ -64,6 +89,47 @@ function actorFor(request: FastifyRequest): AdminActor {
     ipAddress: request.ip,
     correlationId: request.correlationId,
   };
+}
+
+/**
+ * The marketplace, acting on a named carrier's fleet.
+ *
+ * The operator's own `users.id` is carried through for the marketplace audit
+ * trail. What is written into the CARRIER’s trail is the label - the
+ * marketplace, not the individual - which is the same line `SellerAuditLog`
+ * draws: a tenant sees that the operator acted, never which member of
+ * somebody else's staff it was.
+ */
+function fleetActorFor(request: FastifyRequest, logisticsPartnerId: string): FleetActor {
+  return asOperator({ logisticsPartnerId, userId: currentUser(request).id });
+}
+
+/**
+ * The carrier this consignment is with, or a refusal.
+ *
+ * Every fleet action on a consignment - putting a driver on it, taking one
+ * off - needs a fleet to take the driver FROM, and the only correct one is the
+ * carrier the consignment is already assigned to. Asking the caller to name it
+ * would let the marketplace put one carrier’s driver on another’s parcel,
+ * which is not an authority question but a nonsense, so it is derived here and
+ * never accepted from the body.
+ */
+async function carrierHoldingShipment(shipmentId: string): Promise<string> {
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: { assignedPartnerId: true },
+  });
+
+  if (shipment === null) throw notFound('Shipment');
+
+  if (shipment.assignedPartnerId === null) {
+    throw conflict(
+      ErrorCode.SHIPMENT_NOT_ASSIGNED,
+      'This consignment is not with a carrier yet, so there is no fleet to take a driver from.',
+    );
+  }
+
+  return shipment.assignedPartnerId;
 }
 
 /**
@@ -507,6 +573,30 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
 
   // --- Shipments ----------------------------------------------------------
 
+  /**
+   * Every consignment, across every carrier, narrowed the way an operations
+   * desk actually thinks about them.
+   *
+   * WHY SO MANY FILTERS
+   *
+   * This screen answers questions that cross tenants, which is the one thing
+   * no carrier's own portal can do: "what is going wrong for St Luke's this
+   * week", "is Northwind's stock stuck at one depot", "which of DHL's drivers
+   * has our failures". Each of those is a different axis, and an operator who
+   * cannot ask on the axis they care about ends up paging through everything.
+   *
+   * Every filter narrows on the SERVER and every one of them has an index
+   * behind it - `ix_logistics_shipment_seller`, `_receiver`, `_origin`,
+   * `_status`, `_partner_status`, and `ix_logistics_driver_assignment_driver_time`
+   * for the driver. A list expected to run to tens of thousands of rows cannot
+   * afford a filter that scans.
+   *
+   * THE SUMMARY IS COUNTED OVER THE SAME FILTER
+   *
+   * Not over everything. A desk that has filtered to one carrier and still
+   * sees the whole marketplace's totals above the table is a desk that reads
+   * the wrong number - the tiles have to describe the list underneath them.
+   */
   app.get(
     '/logistics/shipments',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -516,6 +606,20 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
           status: z.enum(ShipmentStatusValues).optional(),
           partnerId: z.string().length(26).optional(),
           unassignedOnly: z.coerce.boolean().optional(),
+          /** Consignments with a problem open on them, whatever their status. */
+          exceptionsOnly: z.coerce.boolean().optional(),
+          /** The business receiving it. */
+          customerProfileId: z.string().length(26).optional(),
+          /** The business whose goods these are. */
+          sellerAccountId: z.string().length(26).optional(),
+          /** The building it is collected from. */
+          warehouseId: z.string().length(26).optional(),
+          /** The person carrying it, through their live assignment. */
+          driverProfileId: z.string().length(26).optional(),
+          /** Raised on or after this instant. */
+          from: z.coerce.date().optional(),
+          /** Raised before this instant. */
+          to: z.coerce.date().optional(),
           search: z.string().trim().max(120).optional(),
           page: z.coerce.number().int().min(1).max(10_000).optional(),
           pageSize: z.coerce.number().int().min(1).max(200).optional(),
@@ -525,22 +629,62 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
       const page = query.page ?? 1;
       const pageSize = query.pageSize ?? 25;
 
-      const where = {
+      const where: Prisma.LogisticsShipmentWhereInput = {
         ...(query.status !== undefined ? { status: query.status } : {}),
         ...(query.partnerId !== undefined ? { assignedPartnerId: query.partnerId } : {}),
         ...(query.unassignedOnly === true ? { assignedPartnerId: null } : {}),
+        ...(query.customerProfileId !== undefined
+          ? { receivingCustomerProfileId: query.customerProfileId }
+          : {}),
+        ...(query.sellerAccountId !== undefined
+          ? { sellerAccountId: query.sellerAccountId }
+          : {}),
+        ...(query.warehouseId !== undefined ? { originLocationId: query.warehouseId } : {}),
+        /*
+         * The driver filter goes through the ASSIGNMENT rather than through a
+         * column on the shipment, because there is no such column and there
+         * should not be: a consignment's driver is a fact with a history, and
+         * denormalising it would be a second place for that history to
+         * disagree with itself. `unassignedAt: null` narrows it to whoever has
+         * it now.
+         */
+        ...(query.driverProfileId !== undefined
+          ? {
+              driverAssignments: {
+                some: { driverProfileId: query.driverProfileId, unassignedAt: null },
+              },
+            }
+          : {}),
+        /*
+         * OPEN and ESCALATED only, the same set the navigation rail counts.
+         * ACKNOWLEDGED and IN_PROGRESS are problems somebody is already
+         * holding, and a filter that returned those would never empty.
+         */
+        ...(query.exceptionsOnly === true
+          ? { exceptions: { some: { state: { in: ['OPEN', 'ESCALATED'] } } } }
+          : {}),
+        ...(query.from !== undefined || query.to !== undefined
+          ? {
+              createdAt: {
+                ...(query.from === undefined ? {} : { gte: query.from }),
+                ...(query.to === undefined ? {} : { lt: query.to }),
+              },
+            }
+          : {}),
         ...(query.search !== undefined
           ? {
               OR: [
                 { shipmentReference: { contains: query.search } },
                 { trackingNumber: { contains: query.search } },
                 { receivingCompanyName: { contains: query.search } },
+                { sellerCompanyName: { contains: query.search } },
+                { order: { orderNumber: { contains: query.search } } },
               ],
             }
           : {}),
       };
 
-      const [total, shipments] = await Promise.all([
+      const [total, shipments, byStatus, exceptionCount] = await Promise.all([
         prisma.logisticsShipment.count({ where }),
         prisma.logisticsShipment.findMany({
           where,
@@ -560,18 +704,203 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
             packageCount: true,
             expectedPickupAt: true,
             estimatedDeliveryAt: true,
+            lastEventAt: true,
             createdAt: true,
             assignedPartner: { select: { id: true, displayName: true } },
             order: { select: { id: true, orderNumber: true } },
+            originLocation: { select: { id: true, name: true, code: true } },
+            /*
+             * The live driver, one row per shipment.
+             *
+             * `take: 1` over the filtered relation rather than a join on every
+             * assignment ever made: a consignment that has changed hands three
+             * times has three rows and the list wants the one that counts.
+             */
+            driverAssignments: {
+              where: { unassignedAt: null },
+              take: 1,
+              select: {
+                id: true,
+                assignedAt: true,
+                driver: {
+                  select: { id: true, fullName: true },
+                },
+              },
+            },
+            exceptions: {
+              where: { state: { in: ['OPEN', 'ESCALATED'] } },
+              take: 1,
+              select: { id: true, type: true, severity: true },
+            },
+          },
+        }),
+        // One grouped query for the tiles rather than six counts. The desk
+        // reads these before it reads the table, and they have to describe the
+        // filtered list rather than the whole marketplace.
+        prisma.logisticsShipment.groupBy({
+          by: ['status'],
+          where,
+          _count: { _all: true },
+        }),
+        prisma.logisticsShipment.count({
+          where: {
+            AND: [where, { exceptions: { some: { state: { in: ['OPEN', 'ESCALATED'] } } } }],
           },
         }),
       ]);
 
-      return reply.status(200).send({
-        shipments,
+      const counts = new Map(byStatus.map((row) => [row.status, row._count._all]));
+      const sum = (statuses: readonly ShipmentStatusName[]): number =>
+        statuses.reduce((running, status) => running + (counts.get(status) ?? 0), 0);
+
+      return reply.header('cache-control', 'no-store').status(200).send({
+        shipments: shipments.map((row) => {
+          const { driverAssignments, exceptions, ...rest } = row;
+          const live = driverAssignments[0];
+
+          return {
+            ...rest,
+            // Flattened, because "who has it" is one column on the table and a
+            // nested array of one would make every consumer unwrap it.
+            driver:
+              live === undefined
+                ? null
+                : {
+                    assignmentId: live.id,
+                    driverProfileId: live.driver.id,
+                    fullName: live.driver.fullName,
+                    assignedAt: live.assignedAt,
+                  },
+            openException: exceptions[0] ?? null,
+          };
+        }),
         total,
         page,
         pageCount: Math.max(1, Math.ceil(total / pageSize)),
+        summary: {
+          /** Raised, and nobody has taken it yet. */
+          awaitingAssignment: sum(['CREATED', 'AWAITING_ASSIGNMENT', 'ACCEPTANCE_PENDING']),
+          /** On a carrier's books, not yet collected. */
+          accepted: sum(['ASSIGNED', 'ACCEPTED', 'PICKUP_SCHEDULED', 'READY_FOR_PICKUP']),
+          inTransit: sum([
+            'PICKED_UP',
+            'DISPATCHED',
+            'AT_ORIGIN_HUB',
+            'IN_TRANSIT',
+            'AT_DESTINATION_HUB',
+          ]),
+          outForDelivery: sum(['OUT_FOR_DELIVERY', 'DELIVERY_ATTEMPTED']),
+          delivered: sum(['DELIVERED']),
+          /** Anything gone wrong, by status. */
+          failed: sum([
+            'DELAYED',
+            'ON_HOLD',
+            'ADDRESS_ISSUE',
+            'CUSTOMS_HOLD',
+            'DAMAGED',
+            'TEMPERATURE_EXCEPTION',
+            'DELIVERY_FAILED',
+            'LOST',
+          ]),
+          returned: sum(['RETURN_REQUESTED', 'RETURN_IN_TRANSIT', 'RETURNED']),
+          cancelled: sum(['CANCELLED']),
+          /**
+           * Consignments with an open EXCEPTION, which is a different question
+           * from the statuses above: a parcel can be in transit and still have
+           * an address problem nobody has worked.
+           */
+          withOpenException: exceptionCount,
+        },
+      });
+    },
+  );
+
+  /**
+   * What there is to filter the tracking list BY.
+   *
+   * Derived from the consignments that exist rather than from the tables
+   * behind them, and that is the whole design: a seller picker listing every
+   * approved seller on the marketplace is a picker mostly full of businesses
+   * that have never shipped anything, and an operator scrolling it learns
+   * nothing. Grouping the shipment table gives the companies, buildings and
+   * drivers that actually appear in the list underneath.
+   *
+   * Every list is capped. This is chrome for a filter bar, not a directory -
+   * the Companies screen is the directory, and anybody who needs to find a
+   * business rather than narrow a list should be there.
+   */
+  app.get(
+    '/logistics/tracking-filters',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (_request, reply) => {
+      const [sellers, customers, warehouses, partners, drivers] = await Promise.all([
+        prisma.logisticsShipment.groupBy({
+          by: ['sellerAccountId', 'sellerCompanyName'],
+          where: { sellerAccountId: { not: null } },
+          _count: { _all: true },
+          orderBy: { _count: { id: 'desc' } },
+          take: FILTER_OPTION_LIMIT,
+        }),
+        prisma.logisticsShipment.groupBy({
+          by: ['receivingCustomerProfileId', 'receivingCompanyName'],
+          where: { receivingCustomerProfileId: { not: null } },
+          _count: { _all: true },
+          orderBy: { _count: { id: 'desc' } },
+          take: FILTER_OPTION_LIMIT,
+        }),
+        prisma.inventoryLocation.findMany({
+          // Only buildings consignments are actually collected from. A
+          // warehouse that has never dispatched one would filter to nothing.
+          where: { logisticsShipments: { some: {} } },
+          orderBy: [{ name: 'asc' }],
+          take: FILTER_OPTION_LIMIT,
+          select: { id: true, name: true, code: true },
+        }),
+        prisma.logisticsPartner.findMany({
+          orderBy: [{ displayName: 'asc' }],
+          take: FILTER_OPTION_LIMIT,
+          select: { id: true, displayName: true, partnerCode: true, status: true },
+        }),
+        prisma.logisticsDriverProfile.findMany({
+          // Drivers who have carried something. A fleet register belongs to
+          // the carrier's own portal; this is the subset the operator can
+          // usefully filter on.
+          where: { assignments: { some: {} } },
+          orderBy: [{ createdAt: 'asc' }],
+          take: FILTER_OPTION_LIMIT,
+          select: {
+            id: true,
+            state: true,
+            fullName: true,
+            partner: { select: { id: true, displayName: true } },
+          },
+        }),
+      ]);
+
+      return reply.header('cache-control', 'no-store').status(200).send({
+        sellers: sellers
+          .filter((row) => row.sellerAccountId !== null)
+          .map((row) => ({
+            id: row.sellerAccountId,
+            name: row.sellerCompanyName,
+            shipmentCount: row._count._all,
+          })),
+        customers: customers
+          .filter((row) => row.receivingCustomerProfileId !== null)
+          .map((row) => ({
+            id: row.receivingCustomerProfileId,
+            name: row.receivingCompanyName,
+            shipmentCount: row._count._all,
+          })),
+        warehouses,
+        partners,
+        drivers: drivers.map((row) => ({
+          id: row.id,
+          fullName: row.fullName,
+          state: row.state,
+          partnerId: row.partner.id,
+          partnerName: row.partner.displayName,
+        })),
       });
     },
   );
@@ -717,8 +1046,23 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
 
       const { declaredValueMinor, temperatureMinC, temperatureMaxC, ...rest } = shipment;
 
+      /*
+       * Everyone who has carried it, read after the row rather than joined
+       * into it.
+       *
+       * Its own query because it is the same reader the carrier's own screen
+       * uses - one chain, one shape, so the two screens cannot describe the
+       * same handover differently. The tenant check has already happened: this
+       * route is behind `logistics.read`, which is the marketplace's own
+       * authority over every consignment.
+       */
+      const driverAssignments = await readDriverAssignmentHistory(shipment.id);
+
       return reply.status(200).send({
         ...rest,
+        driverAssignments,
+        /** Whoever has it right now, flattened out of the chain above. */
+        driver: driverAssignments.find((entry) => entry.isActive) ?? null,
         /*
          * Money as a string, and coordinates-style decimals likewise. A
          * `BigInt` has no JSON form and a `Decimal` serialises to an object;
@@ -843,6 +1187,252 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
       );
 
       return reply.status(200).send(result);
+    },
+  );
+
+  // --- A carrier’s fleet, from the operations desk ---------------------
+  //
+  // Every route below is the marketplace doing what the carrier’s own portal
+  // does, through the SAME service functions. Not a parallel implementation:
+  // `FleetActor` is the one seam, so a rule about who may drive what is
+  // written once and holds on both sides. The difference is only how
+  // authority is proved - a carrier by its own permissions, the marketplace
+  // by an admin grant - and which name lands in the carrier’s audit trail.
+
+  app.get(
+    '/logistics/partners/:id/drivers',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const drivers = await listDrivers(fleetActorFor(request, params.id));
+      return reply.status(200).send({ drivers });
+    },
+  );
+
+  /**
+   * Add somebody to a carrier’s fleet, on their behalf.
+   *
+   * A name is all that is required, exactly as in the portal. The operations
+   * desk takes these over the phone from hauliers who will never open the
+   * software, and a register that could only hold people with a login is a
+   * register that does not describe the fleet.
+   */
+  app.post(
+    '/logistics/partners/:id/drivers',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          fullName: z.string().trim().min(2).max(160),
+          phone: z.string().trim().max(32).optional(),
+          email: z.string().trim().email().max(320).optional(),
+          employeeReference: z.string().trim().max(64).optional(),
+          licenceNumber: z.string().trim().max(64).optional(),
+          licenceExpiresAt: isoDate.optional(),
+          canCarryDangerousGoods: z.boolean().optional(),
+          canCarryColdChain: z.boolean().optional(),
+          canCarrySterile: z.boolean().optional(),
+          state: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+          partnerUserId: z.string().length(26).optional(),
+        })
+        .parse(request.body);
+
+      const driver = await createDriver(
+        fleetActorFor(request, params.id),
+        body,
+        request.correlationId,
+      );
+
+      return reply.status(201).send(driver);
+    },
+  );
+
+  app.patch(
+    '/logistics/partners/:id/drivers/:driverId',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), driverId: z.string().length(26) })
+        .parse(request.params);
+      const body = z
+        .object({
+          fullName: z.string().trim().min(2).max(160).optional(),
+          phone: z.string().trim().max(32).nullable().optional(),
+          email: z.string().trim().max(320).nullable().optional(),
+          employeeReference: z.string().trim().max(64).nullable().optional(),
+          licenceNumber: z.string().trim().max(64).nullable().optional(),
+          licenceExpiresAt: isoDate.nullable().optional(),
+          canCarryDangerousGoods: z.boolean().optional(),
+          canCarryColdChain: z.boolean().optional(),
+          canCarrySterile: z.boolean().optional(),
+          state: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+          partnerUserId: z.string().length(26).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const driver = await updateDriver(
+        fleetActorFor(request, params.id),
+        params.driverId,
+        body,
+        request.correlationId,
+      );
+
+      return reply.status(200).send(driver);
+    },
+  );
+
+  app.get(
+    '/logistics/partners/:id/vehicles',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const vehicles = await listVehicles(fleetActorFor(request, params.id));
+      return reply.status(200).send({ vehicles });
+    },
+  );
+
+  app.post(
+    '/logistics/partners/:id/vehicles',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          registration: z.string().trim().min(1).max(32),
+          kind: z.enum([
+            'VAN',
+            'TRUCK',
+            'BIKE',
+            'CAR',
+            'REFRIGERATED_VAN',
+            'REFRIGERATED_TRUCK',
+          ]),
+          hasRefrigeration: z.boolean().optional(),
+          hasTailLift: z.boolean().optional(),
+          temperatureMinC: z.number().min(-100).max(100).optional(),
+          temperatureMaxC: z.number().min(-100).max(100).optional(),
+          maxWeightGrams: z.number().int().min(0).max(100_000_000).optional(),
+        })
+        .parse(request.body);
+
+      const vehicle = await createVehicle(
+        fleetActorFor(request, params.id),
+        body,
+        request.correlationId,
+      );
+
+      return reply.status(201).send(vehicle);
+    },
+  );
+
+  /**
+   * Put a driver on a consignment, or move it to another driver.
+   *
+   * The fleet is the one the consignment is already with, derived rather than
+   * accepted, so this cannot put one carrier’s driver on another’s parcel.
+   */
+  app.post(
+    '/logistics/shipments/:id/assign-driver',
+    { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          driverProfileId: z.string().length(26),
+          vehicleId: z.string().length(26).optional(),
+          isPickupLeg: z.boolean().optional(),
+          isDeliveryLeg: z.boolean().optional(),
+          routeSequence: z.number().int().min(0).max(999).optional(),
+          reason: z.string().trim().max(512).optional(),
+        })
+        .parse(request.body);
+
+      const partnerId = await carrierHoldingShipment(params.id);
+
+      const result = await assignDriver(
+        fleetActorFor(request, partnerId),
+        {
+          shipmentId: params.id,
+          driverProfileId: body.driverProfileId,
+          vehicleId: body.vehicleId ?? null,
+          isPickupLeg: body.isPickupLeg ?? false,
+          isDeliveryLeg: body.isDeliveryLeg ?? true,
+          routeSequence: body.routeSequence ?? null,
+          reason: body.reason ?? null,
+        },
+        request.correlationId,
+      );
+
+      return reply.status(201).send(result);
+    },
+  );
+
+  app.post(
+    '/logistics/shipments/:id/unassign-driver',
+    { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(4).max(512) }).parse(request.body);
+
+      const partnerId = await carrierHoldingShipment(params.id);
+
+      const result = await unassignDriver(
+        fleetActorFor(request, partnerId),
+        params.id,
+        body.reason,
+        request.correlationId,
+      );
+
+      return reply.status(200).send(result);
+    },
+  );
+
+
+  /**
+   * Move the consignment along: dispatched, on the way, delivered.
+   *
+   * The ordinary forward move, and distinct from `correct-status` in the way
+   * that matters to anybody reading the timeline afterwards: this one is not
+   * flagged as a correction, because nothing is being corrected. A carrier who
+   * cannot reach their own portal rings the desk, and the parcel keeps moving
+   * on the customer’s tracking page.
+   *
+   * `Idempotency-Key` is honoured, so a dispatcher on a bad line who presses
+   * the button twice writes one event.
+   */
+  app.post(
+    '/logistics/shipments/:id/status-events',
+    { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          status: z.enum(ShipmentStatusValues),
+          reason: z.string().trim().max(512).optional(),
+          publicDescription: z.string().trim().max(512).optional(),
+          internalNote: z.string().trim().max(2000).optional(),
+          occurredAt: isoDate.optional(),
+          locationLabel: z.string().trim().max(255).optional(),
+          locationCountry: z.string().length(2).optional(),
+          hasProofOfDelivery: z.boolean().optional(),
+        })
+        .parse(request.body);
+
+      const suppliedKey = request.headers['idempotency-key'];
+
+      const result = await advanceShipmentStatus(actorFor(request), params.id, body.status, {
+        reason: body.reason ?? null,
+        publicDescription: body.publicDescription ?? null,
+        internalNote: body.internalNote ?? null,
+        occurredAt: body.occurredAt ?? null,
+        locationLabel: body.locationLabel ?? null,
+        locationCountry: body.locationCountry ?? null,
+        hasProofOfDelivery: body.hasProofOfDelivery ?? false,
+        idempotencyKey: typeof suppliedKey === 'string' ? suppliedKey : null,
+      });
+
+      return reply.status(result.duplicate ? 200 : 201).send(result);
     },
   );
 

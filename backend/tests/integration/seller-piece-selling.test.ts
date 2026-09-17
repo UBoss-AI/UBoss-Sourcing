@@ -350,6 +350,35 @@ describe('a seller sells by the piece', () => {
     expect(line?.lineSubtotal.minor).toBe((SELLER_PIECE_PRICE * 12n).toString());
   });
 
+  it('takes the unit the storefront names on a seller’s line', async () => {
+    await emptyCart();
+
+    /*
+     * What the product page actually posts.
+     *
+     * It names the unit the server itself published for the product, and on a
+     * seller's line that is `PIECE`. A schema that accepted only the carton
+     * refused this outright - every attempt to buy a seller's product came
+     * back as "the request contains invalid data", with no way for the shopper
+     * to make it valid, because the only unit the seller sells in was not one
+     * the route would take.
+     */
+    const response = await addToCart({
+      productId: sellerProductId,
+      variantId: null,
+      quantity: 7,
+      orderingUnit: 'PIECE',
+      unitQuantity: 7,
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+
+    const line = lineFor(response.body, sellerProductId);
+    expect(line?.quantity).toBe(7);
+    expect(line?.ordering).toMatchObject({ unit: 'PIECE', unitQuantity: 7, piecesPerUnit: 1 });
+    expect(line?.lineSubtotal.minor).toBe((SELLER_PIECE_PRICE * 7n).toString());
+  });
+
   it('never multiplies a seller line by the operator’s carton', async () => {
     await emptyCart();
     await addToCart({ productId: sellerProductId, quantity: 1 });

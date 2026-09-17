@@ -215,6 +215,27 @@ export function GridIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * The dashboard.
+ *
+ * A ring with a slice out of it, because that is what the screen it leads to
+ * opens with — a donut of the reader's own orders. A bar chart would be the
+ * obvious glyph and would describe a page this product does not have.
+ *
+ * Drawn as two arcs rather than a circle with a wedge, so it keeps the one
+ * stroke weight every other icon here uses instead of introducing the set's
+ * only filled shape.
+ */
+export function ChartIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.6a8.4 8.4 0 1 1-8.4 8.4" />
+      <path d="M3.9 9.6A8.4 8.4 0 0 1 9.6 3.9" />
+      <circle cx="12" cy="12" r="3.4" />
+    </Icon>
+  );
+}
+
 export function CylinderIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

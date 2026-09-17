@@ -32,3 +32,18 @@
 *.conf    text eol=lf
 *.cnf     text eol=lf
 .nvmrc    text eol=lf
+
+# YAML, for the same reason and one more. GitHub Actions and Docker Compose
+# both tolerate CRLF in the file itself - but a CRLF inside a `run:` block
+# becomes a CRLF inside the shell script that step writes out, and then every
+# line of that script ends in the same `bad interpreter`-shaped failure. The
+# workflows and deploy/compat/docker-compose.yml are the files this protects.
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# The environment templates. `.env.example` is read by CI with `cp .env.example
+# .env` and then appended to with `>>`; a CRLF file plus LF appends is a mixed
+# file, and `dotenv` keeps the trailing \r as part of the value - so
+# COOKIE_SECURE becomes "true\r", which is not "true".
+.env.example          text eol=lf
+.env.database.example text eol=lf

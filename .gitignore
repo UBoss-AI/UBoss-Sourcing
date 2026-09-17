@@ -54,6 +54,12 @@ UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
 #
 #   .env.example    The template. Placeholders only, and the thing every
 #                   deployment starts from - it has to be committed.
+#   .env.database.example
+#                   The same idea for the local MariaDB compatibility-test
+#                   container (deploy/compat/). Placeholders only. Named
+#                   separately because `!.env.example` un-ignores that exact
+#                   filename and nothing else - the `*` in `.env.*` had
+#                   quietly swallowed this one.
 #   apps/*/.env     The three frontends. These hold ONE setting,
 #                   VITE_API_BASE_URL, pointing at localhost for development.
 #                   Not a secret, and committed on purpose so a fresh clone
@@ -62,10 +68,20 @@ UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
 #                   the real public URL, because Vite bakes this value into
 #                   the bundle and a released build that kept the localhost
 #                   default would load perfectly and talk to nobody.
+#   apps/*/.env.netlify
+#                   The one setting the Netlify build needs, and the reason it
+#                   is a file rather than a value passed in: `.env.netlify`
+#                   beats `.env` for `--mode netlify`, so the localhost default
+#                   cannot win by accident. It holds `VITE_API_BASE_URL=/api/v1`
+#                   - a RELATIVE path, so the bundle asks whichever host served
+#                   it and Netlify's own proxy forwards that to the API. No URL
+#                   is baked in, which is why one build works for every site.
 .env
 .env.*
 !.env.example
+!.env.database.example
 !apps/*/.env
+!apps/*/.env.netlify
 
 # The vitest JSON report, written by CI so a failure names its tests without
 # admin rights on the repository. Never committed.

@@ -26,6 +26,7 @@ import {
   type PricingResult,
 } from '../../domain/pricing.js';
 import {
+  SELLER_SELLING_UNIT,
   SELLING_UNIT,
   cartonsForPieces,
   operatorSellUnit,
@@ -1274,6 +1275,56 @@ async function addLines(
       offerTerms === null
         ? operatorSellUnit(env.PIECES_PER_CARTON)
         : sellerSellUnit(offerTerms);
+
+    /*
+     * A shopper may NAME the unit, and on a basket add it has to be the unit
+     * the line is actually sold in.
+     *
+     * Checked here rather than in the route, because the route cannot know:
+     * whose offer is selling this line is decided a few lines above, from the
+     * product and the shop front, and the unit follows from that. A schema
+     * that allowed only the carton refused every marketplace add outright -
+     * the storefront correctly names `PIECE` on a seller's line - and one
+     * that allowed both would let a carton request through onto a piece
+     * offer.
+     *
+     * Refused rather than reinterpreted, in both directions:
+     *
+     *   - A seller's piece offer asked for by the carton would hand the
+     *     shopper five hundred pieces at the price of one. `resolveSellUnitQuantity`
+     *     refuses that too, for every caller and not only this one; it is
+     *     named here so one place describes the whole rule.
+     *   - The operator's carton asked for by the piece is a request to buy
+     *     something this shop does not sell, and is told so rather than handed
+     *     a carton it did not ask for.
+     *
+     * Naming NOTHING is untouched, and is still the documented route for an
+     * ERP or API client that counts in pieces: say the number, say nothing
+     * about the unit, and the server takes it up to whole sell units.
+     */
+    const namedUnit = input.orderingUnit ?? null;
+
+    if (namedUnit !== null && namedUnit !== spec.unit) {
+      const detail = [
+        {
+          field: nameField(index, 'orderingUnit'),
+          code: 'UNIT_MISMATCH',
+          meta: { expected: spec.unit, received: namedUnit },
+        },
+      ];
+
+      throw spec.unit === SELLER_SELLING_UNIT
+        ? badRequest(
+            ErrorCode.SELLER_OFFER_UNIT_MISMATCH,
+            'This seller sells this by the piece. Choose a number of pieces.',
+            detail,
+          )
+        : badRequest(
+            ErrorCode.VALIDATION_FAILED,
+            'This shop sells this by the carton. Choose a number of cartons.',
+            detail,
+          );
+    }
 
     const resolved = resolveSellUnitQuantity({
       spec,

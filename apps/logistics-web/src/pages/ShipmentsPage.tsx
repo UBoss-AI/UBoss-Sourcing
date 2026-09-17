@@ -34,13 +34,20 @@ import {
   Toolbar,
   ToolbarActions,
   ToolbarField,
+  ToolbarToggle,
 } from '@/components/ui';
 import { DataTable, Pager, type Column } from '@/components/DataTable';
 import { useI18n, type Translate } from '@/i18n/i18n-context';
 import { useDebounced } from '@/lib/use-debounced';
 import { downloadFile } from '@/lib/api';
 import { formatDate, formatRelative } from '@/lib/format';
-import { fetchShipments, shipmentsKey, type ShipmentQuery } from '@/lib/logistics';
+import {
+  driversKey,
+  fetchDrivers,
+  fetchShipments,
+  shipmentsKey,
+  type ShipmentQuery,
+} from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { useSession } from '@/auth/session-context';
 import { STATUS_GROUPS, formatDuration, slaTone, statusTone } from '@/lib/shipment-display';
@@ -58,8 +65,26 @@ export function ShipmentsPage(): React.JSX.Element {
 
   const statusFilter = params.get('status');
   const slaFilter = params.get('slaState');
+  const driverFilter = params.get('driverProfileId');
+  const problemsOnly = params.get('hasException') === '1';
   const page = Number(params.get('page') ?? '1');
   const paramString = params.toString();
+
+  /*
+   * The fleet, for the driver filter.
+   *
+   * Only for somebody who may read it - a driver signing in on a phone holds
+   * no DRIVER_READ and has no business being handed the depot's roster. The
+   * whole list, because a carrier's fleet is counted in tens; the shipment
+   * list next to it is the one that has to page.
+   */
+  const drivers = useQuery({
+    queryKey: driversKey,
+    queryFn: fetchDrivers,
+    enabled: canAny(Permission.DRIVER_READ),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 
   const query = useMemo<ShipmentQuery>(() => {
     const trimmed = debouncedSearch.trim();
@@ -68,10 +93,12 @@ export function ShipmentsPage(): React.JSX.Element {
       ...(trimmed.length > 0 ? { search: trimmed } : {}),
       ...(statusFilter === null ? {} : { status: [statusFilter as ShipmentStatus] }),
       ...(slaFilter === null ? {} : { slaState: [slaFilter] }),
+      ...(driverFilter === null ? {} : { driverProfileId: driverFilter }),
+      ...(problemsOnly ? { hasException: true } : {}),
       page: Number.isFinite(page) && page > 0 ? page : 1,
       pageSize: PAGE_SIZE,
     };
-  }, [debouncedSearch, statusFilter, slaFilter, page]);
+  }, [debouncedSearch, statusFilter, slaFilter, driverFilter, problemsOnly, page]);
 
   const shipments = useQuery({
     queryKey: shipmentsKey(query),
@@ -93,7 +120,12 @@ export function ShipmentsPage(): React.JSX.Element {
     setParams(next, { replace: true });
   }
 
-  const hasFilters = statusFilter !== null || slaFilter !== null || search.trim().length > 0;
+  const hasFilters =
+    statusFilter !== null ||
+    slaFilter !== null ||
+    driverFilter !== null ||
+    problemsOnly ||
+    search.trim().length > 0;
   const columns = useColumns(t);
 
   return (
@@ -165,6 +197,35 @@ export function ShipmentsPage(): React.JSX.Element {
               ))}
             </Select>
           </ToolbarField>
+
+          {/* Absent for a driver, who holds no DRIVER_READ - their own round
+              is the whole of what they see, and a filter over the depot's
+              roster would be a list of colleagues they have no reason for. */}
+          {canAny(Permission.DRIVER_READ) ? (
+            <ToolbarField label={t('drivers.driverName')}>
+              <Select
+                value={driverFilter ?? ''}
+                onChange={(event) => {
+                  setFilter('driverProfileId', event.target.value);
+                }}
+              >
+                <option value="">{t('common.none')}</option>
+                {(drivers.data?.drivers ?? []).map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.fullName}
+                  </option>
+                ))}
+              </Select>
+            </ToolbarField>
+          ) : null}
+
+          <ToolbarToggle
+            label={t('shipments.problemsOnly')}
+            checked={problemsOnly}
+            onChange={(checked) => {
+              setFilter('hasException', checked ? '1' : '');
+            }}
+          />
 
           {hasFilters ? (
             <ToolbarActions>

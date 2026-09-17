@@ -14,7 +14,13 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model AdminNotificationRead
+ * One person's own state on one console row.
  * 
+ * The private half of the lifecycle. Reading and dismissing are facts about
+ * a reader; resolving is a fact about the world. Several people share one
+ * console, so these two must never be stored in the same place - which is
+ * why resolution lives on the notification above and this table holds only
+ * what belongs to the caller.
  */
 export type AdminNotificationReadModel = runtime.Types.Result.DefaultSelection<Prisma.$AdminNotificationReadPayload>
 
@@ -28,18 +34,21 @@ export type AdminNotificationReadMinAggregateOutputType = {
   notificationId: string | null
   userId: string | null
   readAt: Date | null
+  dismissedAt: Date | null
 }
 
 export type AdminNotificationReadMaxAggregateOutputType = {
   notificationId: string | null
   userId: string | null
   readAt: Date | null
+  dismissedAt: Date | null
 }
 
 export type AdminNotificationReadCountAggregateOutputType = {
   notificationId: number
   userId: number
   readAt: number
+  dismissedAt: number
   _all: number
 }
 
@@ -48,18 +57,21 @@ export type AdminNotificationReadMinAggregateInputType = {
   notificationId?: true
   userId?: true
   readAt?: true
+  dismissedAt?: true
 }
 
 export type AdminNotificationReadMaxAggregateInputType = {
   notificationId?: true
   userId?: true
   readAt?: true
+  dismissedAt?: true
 }
 
 export type AdminNotificationReadCountAggregateInputType = {
   notificationId?: true
   userId?: true
   readAt?: true
+  dismissedAt?: true
   _all?: true
 }
 
@@ -139,6 +151,7 @@ export type AdminNotificationReadGroupByOutputType = {
   notificationId: string
   userId: string
   readAt: Date
+  dismissedAt: Date | null
   _count: AdminNotificationReadCountAggregateOutputType | null
   _min: AdminNotificationReadMinAggregateOutputType | null
   _max: AdminNotificationReadMaxAggregateOutputType | null
@@ -166,6 +179,7 @@ export type AdminNotificationReadWhereInput = {
   notificationId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   userId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   readAt?: Prisma.DateTimeFilter<"AdminNotificationRead"> | Date | string
+  dismissedAt?: Prisma.DateTimeNullableFilter<"AdminNotificationRead"> | Date | string | null
   notification?: Prisma.XOR<Prisma.AdminNotificationScalarRelationFilter, Prisma.AdminNotificationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -174,6 +188,7 @@ export type AdminNotificationReadOrderByWithRelationInput = {
   notificationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notification?: Prisma.AdminNotificationOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.AdminNotificationReadOrderByRelevanceInput
@@ -187,6 +202,7 @@ export type AdminNotificationReadWhereUniqueInput = Prisma.AtLeast<{
   notificationId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   userId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   readAt?: Prisma.DateTimeFilter<"AdminNotificationRead"> | Date | string
+  dismissedAt?: Prisma.DateTimeNullableFilter<"AdminNotificationRead"> | Date | string | null
   notification?: Prisma.XOR<Prisma.AdminNotificationScalarRelationFilter, Prisma.AdminNotificationWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "notificationId_userId">
@@ -195,6 +211,7 @@ export type AdminNotificationReadOrderByWithAggregationInput = {
   notificationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AdminNotificationReadCountOrderByAggregateInput
   _max?: Prisma.AdminNotificationReadMaxOrderByAggregateInput
   _min?: Prisma.AdminNotificationReadMinOrderByAggregateInput
@@ -207,10 +224,12 @@ export type AdminNotificationReadScalarWhereWithAggregatesInput = {
   notificationId?: Prisma.StringWithAggregatesFilter<"AdminNotificationRead"> | string
   userId?: Prisma.StringWithAggregatesFilter<"AdminNotificationRead"> | string
   readAt?: Prisma.DateTimeWithAggregatesFilter<"AdminNotificationRead"> | Date | string
+  dismissedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AdminNotificationRead"> | Date | string | null
 }
 
 export type AdminNotificationReadCreateInput = {
   readAt?: Date | string
+  dismissedAt?: Date | string | null
   notification: Prisma.AdminNotificationCreateNestedOneWithoutReadsInput
   user: Prisma.UserCreateNestedOneWithoutNotificationReadsInput
 }
@@ -219,10 +238,12 @@ export type AdminNotificationReadUncheckedCreateInput = {
   notificationId: string
   userId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadUpdateInput = {
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notification?: Prisma.AdminNotificationUpdateOneRequiredWithoutReadsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutNotificationReadsNestedInput
 }
@@ -231,22 +252,26 @@ export type AdminNotificationReadUncheckedUpdateInput = {
   notificationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadCreateManyInput = {
   notificationId: string
   userId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadUpdateManyMutationInput = {
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadUncheckedUpdateManyInput = {
   notificationId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadListRelationFilter = {
@@ -274,18 +299,21 @@ export type AdminNotificationReadCountOrderByAggregateInput = {
   notificationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationReadMaxOrderByAggregateInput = {
   notificationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationReadMinOrderByAggregateInput = {
   notificationId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  dismissedAt?: Prisma.SortOrder
 }
 
 export type AdminNotificationReadCreateNestedManyWithoutUserInput = {
@@ -374,12 +402,14 @@ export type AdminNotificationReadUncheckedUpdateManyWithoutNotificationNestedInp
 
 export type AdminNotificationReadCreateWithoutUserInput = {
   readAt?: Date | string
+  dismissedAt?: Date | string | null
   notification: Prisma.AdminNotificationCreateNestedOneWithoutReadsInput
 }
 
 export type AdminNotificationReadUncheckedCreateWithoutUserInput = {
   notificationId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadCreateOrConnectWithoutUserInput = {
@@ -415,16 +445,19 @@ export type AdminNotificationReadScalarWhereInput = {
   notificationId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   userId?: Prisma.StringFilter<"AdminNotificationRead"> | string
   readAt?: Prisma.DateTimeFilter<"AdminNotificationRead"> | Date | string
+  dismissedAt?: Prisma.DateTimeNullableFilter<"AdminNotificationRead"> | Date | string | null
 }
 
 export type AdminNotificationReadCreateWithoutNotificationInput = {
   readAt?: Date | string
+  dismissedAt?: Date | string | null
   user: Prisma.UserCreateNestedOneWithoutNotificationReadsInput
 }
 
 export type AdminNotificationReadUncheckedCreateWithoutNotificationInput = {
   userId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadCreateOrConnectWithoutNotificationInput = {
@@ -456,41 +489,49 @@ export type AdminNotificationReadUpdateManyWithWhereWithoutNotificationInput = {
 export type AdminNotificationReadCreateManyUserInput = {
   notificationId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadUpdateWithoutUserInput = {
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notification?: Prisma.AdminNotificationUpdateOneRequiredWithoutReadsNestedInput
 }
 
 export type AdminNotificationReadUncheckedUpdateWithoutUserInput = {
   notificationId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadUncheckedUpdateManyWithoutUserInput = {
   notificationId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadCreateManyNotificationInput = {
   userId: string
   readAt?: Date | string
+  dismissedAt?: Date | string | null
 }
 
 export type AdminNotificationReadUpdateWithoutNotificationInput = {
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutNotificationReadsNestedInput
 }
 
 export type AdminNotificationReadUncheckedUpdateWithoutNotificationInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AdminNotificationReadUncheckedUpdateManyWithoutNotificationInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   readAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -499,6 +540,7 @@ export type AdminNotificationReadSelect<ExtArgs extends runtime.Types.Extensions
   notificationId?: boolean
   userId?: boolean
   readAt?: boolean
+  dismissedAt?: boolean
   notification?: boolean | Prisma.AdminNotificationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["adminNotificationRead"]>
@@ -509,9 +551,10 @@ export type AdminNotificationReadSelectScalar = {
   notificationId?: boolean
   userId?: boolean
   readAt?: boolean
+  dismissedAt?: boolean
 }
 
-export type AdminNotificationReadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"notificationId" | "userId" | "readAt", ExtArgs["result"]["adminNotificationRead"]>
+export type AdminNotificationReadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"notificationId" | "userId" | "readAt" | "dismissedAt", ExtArgs["result"]["adminNotificationRead"]>
 export type AdminNotificationReadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   notification?: boolean | Prisma.AdminNotificationDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -527,6 +570,19 @@ export type $AdminNotificationReadPayload<ExtArgs extends runtime.Types.Extensio
     notificationId: string
     userId: string
     readAt: Date
+    /**
+     * This reader has hidden the row without claiming the problem is fixed.
+     * 
+     * The escape hatch for an alert that is somebody else's job. It removes the
+     * row from ONE person's bell and changes nothing about the underlying
+     * problem, which is the distinction the brief is built around: an operator
+     * tidying their own view must not be able to make a temperature excursion
+     * look dealt with.
+     * 
+     * Dismissing implies reading - there is no way to dismiss something you
+     * have not been shown - so a dismissal writes both.
+     */
+    dismissedAt: Date | null
   }, ExtArgs["result"]["adminNotificationRead"]>
   composites: {}
 }
@@ -901,6 +957,7 @@ export interface AdminNotificationReadFieldRefs {
   readonly notificationId: Prisma.FieldRef<"AdminNotificationRead", 'String'>
   readonly userId: Prisma.FieldRef<"AdminNotificationRead", 'String'>
   readonly readAt: Prisma.FieldRef<"AdminNotificationRead", 'DateTime'>
+  readonly dismissedAt: Prisma.FieldRef<"AdminNotificationRead", 'DateTime'>
 }
     
 

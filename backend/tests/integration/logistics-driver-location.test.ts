@@ -172,6 +172,7 @@ beforeAll(async () => {
     data: {
       id: driverProfileId,
       logisticsPartnerId: partnerId,
+      fullName: 'Nina Aerts',
       partnerUserId: driver.partnerUserId,
       state: 'ACTIVE',
     },

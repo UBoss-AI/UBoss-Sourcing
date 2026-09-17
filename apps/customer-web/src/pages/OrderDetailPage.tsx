@@ -33,7 +33,12 @@ import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
-import { SELLING_UNIT, cartonPriceMinor, cartonsOfLine } from '@/lib/packaging';
+import {
+  SELLER_SELLING_UNIT,
+  SELLING_UNIT,
+  cartonPriceMinor,
+  cartonsOfLine,
+} from '@/lib/packaging';
 import { orderStatusExplanation, orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderAddress, OrderDetail, OrderItem } from '@/lib/types';
@@ -164,14 +169,30 @@ export function OrderDetailPage(): React.JSX.Element {
       // refused here — which is the right outcome, and why the failure message
       // says some items may no longer be available.
       for (const item of order.items) {
+        /*
+         * The unit the line was BOUGHT in, not the shop's own.
+         *
+         * A seller's line was bought by the piece, and asking for it by the
+         * carton is refused - rightly, because reading it generously would
+         * reorder five hundred of something they bought one of. Naming the
+         * line's own unit is what makes Reorder work on a marketplace order
+         * as well as on the shop's own.
+         *
+         * A line from before the shop settled on these two units names
+         * neither, and says only how many pieces. The server takes that up to
+         * whole sell units, which is the documented route for exactly this.
+         */
+        const ordering = item.ordering ?? null;
+        const asBought =
+          ordering !== null &&
+          (ordering.unit === SELLING_UNIT || ordering.unit === SELLER_SELLING_UNIT)
+            ? { orderingUnit: ordering.unit, unitQuantity: ordering.unitQuantity }
+            : {};
+
         await api.post('/cart/items', {
           productId: item.productId,
           variantId: item.variantId,
-          // The cartons that were ordered, not the pieces they came to. A
-          // piece count would be taken back up to whole cartons by the
-          // server anyway; sending the cartons says plainly what is meant.
-          orderingUnit: SELLING_UNIT,
-          unitQuantity: cartonsOfLine(item.ordering)?.cartons ?? 1,
+          ...asBought,
           quantity: item.quantity,
         });
       }

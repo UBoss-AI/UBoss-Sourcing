@@ -493,8 +493,13 @@ export interface CompanyRow {
 
 export interface DriverRow {
   id: string;
-  partnerUserId: string;
+  /** Their account, where they have one. Null for a record-only driver. */
+  partnerUserId: string | null;
   fullName: string;
+  phone: string | null;
+  email: string | null;
+  /** Whether they can open the phone app. False for most of a fleet. */
+  hasPortalAccess: boolean;
   state: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   employeeReference: string | null;
   licenceNumber: string | null;
@@ -503,7 +508,33 @@ export interface DriverRow {
   canCarryColdChain: boolean;
   canCarrySterile: boolean;
   hasLocationConsent: boolean;
+  /** Consignments they are carrying right now. */
   openTasks: number;
+}
+
+/**
+ * One link in the chain of people who have held a consignment.
+ *
+ * Read oldest first, unlike every other list in the portal: this is a chain
+ * rather than a feed, and "A, then B because A was sick" reads forwards.
+ */
+export interface DriverAssignmentEntry {
+  id: string;
+  driverProfileId: string;
+  driverName: string;
+  vehicleRegistration: string | null;
+  isPickupLeg: boolean;
+  isDeliveryLeg: boolean;
+  assignedAt: string;
+  unassignedAt: string | null;
+  completedAt: string | null;
+  /** Why they came off, where a dispatcher gave a reason. */
+  unassignedReason: string | null;
+  previousAssignmentId: string | null;
+  /** Who put them on it. */
+  assignedByName: string | null;
+  /** Whether this is the one that counts right now. */
+  isActive: boolean;
 }
 
 export interface VehicleRow {
@@ -623,6 +654,29 @@ export interface NotificationRow {
   shipmentReference: string | null;
   readAt: string | null;
   createdAt: string;
+
+  /**
+   * News or problem.
+   *
+   * `INFORMATION` - "collected", "out for delivery" - is over once it has been
+   * read. `ALERT` - a failed delivery, a cold-chain excursion - is over when
+   * the parcel moves again or the exception is closed, whoever has read it.
+   * The two leave the list in different ways, which is why the row carries
+   * which it is.
+   */
+  class: 'INFORMATION' | 'ALERT';
+  status: 'ACTIVE' | 'RESOLVED' | 'ARCHIVED';
+  resolvedAt: string | null;
+  resolutionReason: string | null;
+}
+
+export interface NotificationFeed {
+  notifications: NotificationRow[];
+  unreadCount: number;
+  /** The badge: unread news plus live problems, counted by the server. */
+  activeCount: number;
+  /** Live problems alone. */
+  openAlertCount: number;
 }
 
 export interface ProofOfDelivery {

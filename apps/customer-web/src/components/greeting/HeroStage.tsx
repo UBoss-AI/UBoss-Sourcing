@@ -253,10 +253,16 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
        * one another, and serialising them would cost two extra round trips on
        * exactly the connection least able to afford them.
        */
-      const [THREE, globeModule, orbitsModule] = await Promise.all([
+      const [THREE, globeModule, orbitsModule, threeGlobeModule] = await Promise.all([
         import('three'),
-        import('./scene/globe'),
+        import('./scene/hex-globe'),
         import('./scene/orbits'),
+        /*
+         * `three-globe` is the heaviest thing on this page after three.js
+         * itself, so it rides the same lazy boundary: nothing here is in the
+         * bundle a visitor downloads before the hero is on screen.
+         */
+        import('three-globe'),
       ]);
 
       // The component may have unmounted while the chunk was in flight.
@@ -332,8 +338,56 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
       const hub = new THREE.Group();
       scene.add(hub);
 
-      const globe = globeModule.createGlobe(THREE, palette, globeModule.GLOBE_QUALITY[tier]);
+      const globe = globeModule.createHexGlobe(
+        THREE,
+        threeGlobeModule.default,
+        palette,
+        globeModule.HEX_GLOBE_QUALITY[tier],
+      );
       hub.add(globe.group);
+
+      /*
+       * Taking hold of the globe.
+       *
+       * On the CANVAS rather than on the globe's own geometry: raycasting a
+       * hex-instanced sphere every pointer move to find out whether the cursor
+       * is over land is real work for a question nobody is asking. Anywhere on
+       * the hero spins it, which is also what a visitor expects.
+       *
+       * `setPointerCapture` so a drag that leaves the canvas keeps working,
+       * and `touch-action: pan-y` in the JSX so a vertical swipe still scrolls
+       * the page — a globe that eats the scroll gesture on a phone is a globe
+       * somebody is trapped by.
+       */
+      let dragging = false;
+      let lastX = 0;
+      let lastY = 0;
+
+      const onGlobePointerDown = (event: PointerEvent): void => {
+        dragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        canvas.setPointerCapture(event.pointerId);
+      };
+
+      const onGlobePointerMove = (event: PointerEvent): void => {
+        if (!dragging) return;
+        globe.drag(event.clientX - lastX, event.clientY - lastY);
+        lastX = event.clientX;
+        lastY = event.clientY;
+      };
+
+      const onGlobePointerUp = (event: PointerEvent): void => {
+        if (!dragging) return;
+        dragging = false;
+        globe.release();
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      };
+
+      canvas.addEventListener('pointerdown', onGlobePointerDown);
+      canvas.addEventListener('pointermove', onGlobePointerMove);
+      canvas.addEventListener('pointerup', onGlobePointerUp);
+      canvas.addEventListener('pointercancel', onGlobePointerUp);
 
       const orbits = orbitsModule.createOrbits(THREE, palette, orbitsModule.ORBIT_COUNT[tier]);
       hub.add(orbits.group);
@@ -735,6 +789,12 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
         document.removeEventListener('visibilitychange', onVisibility);
         window.removeEventListener('pointermove', onPointerMove);
         host.removeEventListener('pointerleave', onPointerLeave);
+
+        // The four the globe's drag added.
+        canvas.removeEventListener('pointerdown', onGlobePointerDown);
+        canvas.removeEventListener('pointermove', onGlobePointerMove);
+        canvas.removeEventListener('pointerup', onGlobePointerUp);
+        canvas.removeEventListener('pointercancel', onGlobePointerUp);
 
         globe.dispose();
         orbits.dispose();

@@ -3,6 +3,20 @@
 Backup, restore, migration and incident procedures for the UBOSS Sourcing
 backend.
 
+> **The database layer now has three documents of its own**, and where they and
+> this one touch, they are the detail and this is the procedure:
+>
+> | For | Read |
+> |---|---|
+> | Which MariaDB and why, its configuration, its four accounts, the connection budget | `docs/DATABASE-PRODUCTION.md` |
+> | Migrations, schema drift, the XAMPP export, what data may travel, validation | `docs/DATABASE-MIGRATION.md` |
+> | Backups, proving a backup restores, point-in-time recovery, the database runbook | `docs/DATABASE-RECOVERY.md` |
+>
+> Production runs **MariaDB 11.4 LTS**. Two things below changed with it: the
+> dump binary is `mariadb-dump` (the mysql-named ones are gone), and the
+> append-only audit log is set up by `deploy/scripts/apply-grants.sh` after the
+> migration rather than by a `REVOKE` that MariaDB will not accept — §7.
+
 > **Numbers this document deliberately does not state.** RPO, RTO, availability
 > target and incident-acknowledgement time are business commitments, not
 > engineering defaults. Dev Plan §12 and SOP §15 require them to be approved by
@@ -38,13 +52,19 @@ Everything that matters is in one database. That is the thing to back up.
 
 ```bash
 # Consistent, non-blocking dump of the whole schema.
-mysqldump \
+#
+# `mariadb-dump`, not `mysqldump`: MariaDB 11.4 no longer ships the mysql-named
+# binaries at all, and a command naming the old one fails with
+# "command not found". `deploy/scripts/backup.sh` detects whichever is present.
+mariadb-dump \
   --single-transaction \
   --routines \
   --triggers \
+  --events \
   --hex-blob \
+  --no-tablespaces \
   --default-character-set=utf8mb4 \
-  -u backup_user -p uboss \
+  -u uboss_backup -p uboss \
   | gzip > "uboss-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
 ```
 
@@ -287,16 +307,33 @@ Things this codebase enforces, and things only the deployment can:
 
 **Deployment must do:**
 - [ ] Set a MariaDB root password. XAMPP ships with none.
-- [ ] Create a dedicated application user — **not** root:
+- [ ] Create **four** accounts — application, migration, backup, binary log —
+      and use none of them as root. The full grants are in
+      `docs/DATABASE-PRODUCTION.md` §6; `deploy/scripts/bootstrap.sh` prints
+      the block to paste.
+- [ ] **Make the audit trail append-only, and do it in the right order.**
+
+      The obvious form of this does not work, and it is worth knowing why
+      before somebody deletes the line to get past the error:
+
       ```sql
-      CREATE USER 'uboss_app'@'%' IDENTIFIED BY '<strong>';
-      GRANT SELECT, INSERT, UPDATE, DELETE ON uboss.* TO 'uboss_app'@'%';
-      -- The audit trail is append-only. Deny UPDATE and DELETE on it, so a
-      -- compromised application cannot rewrite its own history.
-      REVOKE UPDATE, DELETE ON uboss.audit_logs FROM 'uboss_app'@'%';
+      GRANT SELECT, INSERT, UPDATE, DELETE ON uboss.* TO 'uboss_app'@'localhost';
+      REVOKE UPDATE, DELETE ON uboss.audit_logs FROM 'uboss_app'@'localhost';
+      -- ERROR 1147: There is no such grant defined for user 'uboss_app'
+      --             on host 'localhost' on table 'audit_logs'
       ```
-- [ ] Separate backup user with `SELECT, LOCK TABLES, SHOW VIEW` only.
-- [ ] Bind MariaDB to a private interface. Never expose 3306 publicly.
+
+      **A privilege granted at database level cannot be revoked at table
+      level.** So the application gets `SELECT, INSERT` on the database, and
+      `UPDATE, DELETE` per table — on everything except `audit_logs` and
+      `_prisma_migrations`. That is what `deploy/scripts/apply-grants.sh` does,
+      generating the table list from the database so a new table is not missed,
+      and refusing to exit cleanly if either protected table is still writable.
+
+      It runs **after** `prisma migrate deploy`, never before — there is no
+      table to protect until the migration has made one. `release.sh` runs it
+      after every migration from then on.
+- [ ] Bind MariaDB to `127.0.0.1`. Never expose 3306 publicly.
 - [ ] TLS terminated in front of the API. `trustProxy` is on in production and
       narrowed to `loopback`, so it trusts the nginx hop and nothing beyond it.
       **This only works alongside `proxy_set_header X-Forwarded-For $remote_addr`**

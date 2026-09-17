@@ -253,6 +253,10 @@ async function upsertDriverProfile(partnerId: string, partnerUserId: string): Pr
     data: {
       id: newId(),
       logisticsPartnerId: partnerId,
+      // The name lives on the driver record now, not on the account. This one
+      // has both: they are the seeded driver who signs in on a phone, which is
+      // what makes `/driver/tasks` demonstrable on a fresh checkout.
+      fullName: 'Ingrid Sørensen',
       partnerUserId,
       state: 'ACTIVE',
       employeeReference: 'MER-0142',

@@ -19,6 +19,7 @@ import type {
   Dashboard,
   CompanyRow,
   DocumentRow,
+  DriverAssignmentEntry,
   DriverRow,
   DriverTask,
   ExceptionRow,
@@ -28,7 +29,7 @@ import type {
   ManifestRow,
   MemberRow,
   MfaEnrolment,
-  NotificationRow,
+  NotificationFeed,
   PartnerProfile,
   PickupRow,
   PortalSession,
@@ -437,17 +438,46 @@ export function fetchDrivers(): Promise<{ drivers: DriverRow[] }> {
   return api.get('/logistics/drivers');
 }
 
-export function upsertDriver(input: {
-  partnerUserId: string;
-  employeeReference?: string;
-  licenceNumber?: string;
-  licenceExpiresAt?: string;
+/**
+ * The details of one driver, as the form collects them.
+ *
+ * `fullName` is typed, not picked. A carrier employs people who will never
+ * open this software, and a fleet register that could only hold people with a
+ * login is a register that does not describe the fleet.
+ */
+export interface DriverDetailsInput {
+  fullName?: string;
+  phone?: string | null;
+  email?: string | null;
+  employeeReference?: string | null;
+  licenceNumber?: string | null;
+  licenceExpiresAt?: string | null;
   canCarryDangerousGoods?: boolean;
   canCarryColdChain?: boolean;
   canCarrySterile?: boolean;
   state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-}): Promise<DriverRow> {
+  /** Links a colleague’s account, which is what turns the phone app on. */
+  partnerUserId?: string | null;
+}
+
+/** Add somebody to the fleet. A name is all that is required. */
+export function createDriver(input: DriverDetailsInput): Promise<DriverRow> {
   return api.post('/logistics/drivers', input);
+}
+
+/**
+ * Change a driver’s details, or take them off the rota.
+ *
+ * A patch, keyed on the driver RECORD rather than on an account, because most
+ * drivers have no account to key on. Only what is sent is written, so
+ * correcting a licence number cannot silently clear the certifications beside
+ * it.
+ */
+export function updateDriver(
+  driverProfileId: string,
+  input: DriverDetailsInput,
+): Promise<DriverRow> {
+  return api.patch(`/logistics/drivers/${driverProfileId}`, input);
 }
 
 export const vehiclesKey = ['logistics', 'vehicles'] as const;
@@ -461,11 +491,21 @@ export function createVehicle(input: {
   kind: string;
   hasRefrigeration?: boolean;
   hasTailLift?: boolean;
+  temperatureMinC?: number;
+  temperatureMaxC?: number;
   maxWeightGrams?: number;
 }): Promise<VehicleRow> {
   return api.post('/logistics/vehicles', input);
 }
 
+/**
+ * Put a driver on a consignment, or move it from one to another.
+ *
+ * One call for both, because from a dispatcher's point of view it is one
+ * action - "this parcel is Anja's now". The server decides which it was: a
+ * first assignment needs no reason, a move requires one, and pressing it twice
+ * on the same driver changes nothing.
+ */
 export function assignDriver(
   shipmentId: string,
   input: {
@@ -473,9 +513,33 @@ export function assignDriver(
     vehicleId?: string;
     isPickupLeg?: boolean;
     isDeliveryLeg?: boolean;
+    /** Required when somebody is being taken off. */
+    reason?: string;
   },
-): Promise<{ assignmentId: string }> {
+): Promise<{ assignmentId: string; replacedAssignmentId: string | null }> {
   return api.post(`/logistics/shipments/${shipmentId}/assign-driver`, input);
+}
+
+/** Take the driver off without putting another one on. */
+export function unassignDriver(
+  shipmentId: string,
+  reason: string,
+): Promise<{ unassignedAssignmentId: string | null }> {
+  return api.post(`/logistics/shipments/${shipmentId}/unassign-driver`, { reason });
+}
+
+export const driverHistoryKey = (shipmentId: string): readonly unknown[] => [
+  'logistics',
+  'shipment',
+  shipmentId,
+  'driver-history',
+];
+
+/** Everyone who has held this consignment, oldest first. */
+export function fetchDriverHistory(
+  shipmentId: string,
+): Promise<{ assignments: DriverAssignmentEntry[] }> {
+  return api.get(`/logistics/shipments/${shipmentId}/driver-history`);
 }
 
 // ---------------------------------------------------------------------------
@@ -552,11 +616,15 @@ export function updateMember(
 
 export const notificationsKey = ['logistics', 'notifications'] as const;
 
-export function fetchNotifications(): Promise<{
-  notifications: NotificationRow[];
-  unreadCount: number;
-}> {
-  return api.get('/logistics/notifications');
+/**
+ * A carrier's feed.
+ *
+ * `active` is the bell - live problems and everything that happened lately.
+ * `resolved` is the record of what was dealt with, kept rather than deleted so
+ * a dispatcher can answer "what happened to that one?" weeks later.
+ */
+export function fetchNotifications(view: 'active' | 'resolved' = 'active'): Promise<NotificationFeed> {
+  return api.get('/logistics/notifications', { query: { view } });
 }
 
 export function markNotificationsRead(ids?: string[]): Promise<{ marked: number }> {

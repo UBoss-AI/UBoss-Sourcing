@@ -45,12 +45,66 @@ apt-get update -qq
 apt-get install -y -qq \
   curl ca-certificates gnupg git \
   nginx \
-  mariadb-server \
   certbot python3-certbot-nginx \
   ufw fail2ban \
   unattended-upgrades apt-listchanges \
   gzip tar gpg coreutils \
   rclone
+
+# -----------------------------------------------------------------------------
+# MariaDB 11.4 LTS, from MariaDB's own repository
+#
+# NOT `apt-get install mariadb-server`. Ubuntu 24.04 packages 10.11, which is
+# supported to February 2028; 11.4 is supported to May 2029. Fifteen months of
+# security fixes for one extra apt source is a trade worth making once, at
+# install time, rather than a major version upgrade under load in 2027.
+#
+# Note the counter-intuitive part before "upgrading" this: MariaDB shortened
+# its LTS window from five years to three AFTER 11.4, so 11.8 - released a year
+# later - runs out in June 2028, EARLIER than 11.4. Newer is not longer.
+# docs/DATABASE-PRODUCTION.md section 3 has the full comparison.
+#
+# The series is pinned, the patch is not: `mariadb-11.4` tracks patch releases
+# within the series, which is what unattended-upgrades should be applying. A
+# MAJOR upgrade is a project - rehearse it in deploy/compat first.
+# -----------------------------------------------------------------------------
+MARIADB_SERIES=11.4
+
+if ! command -v mariadbd >/dev/null 2>&1; then
+  log "installing MariaDB $MARIADB_SERIES from mariadb.org"
+
+  install -d -m 0755 /etc/apt/keyrings
+  curl -fsSL https://mariadb.org/mariadb_release_signing_key.pgp \
+    -o /etc/apt/keyrings/mariadb-keyring.pgp
+
+  # `signed-by` ties the key to this one repository. Without it the key would
+  # be trusted for every apt source on the machine.
+  cat >/etc/apt/sources.list.d/mariadb.sources <<REPO
+X-Repolib-Name: MariaDB
+Types: deb
+URIs: https://mirror.mariadb.org/repo/$MARIADB_SERIES/ubuntu
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: main main/debug
+Signed-By: /etc/apt/keyrings/mariadb-keyring.pgp
+REPO
+
+  apt-get update -qq
+  apt-get install -y -qq mariadb-server mariadb-client mariadb-backup
+else
+  log "MariaDB already installed: $(mariadbd --version)"
+fi
+
+# The timezone tables, loaded by hand because the Debian packaging does not do
+# it. Without them `CONVERT_TZ(..., 'Europe/Warsaw')` returns NULL - silently.
+#
+# The application does not depend on this: recurrence arithmetic is done in
+# Node with Intl, and every stored instant is UTC. But anybody debugging a
+# schedule at a SQL prompt gets nulls and concludes the data is wrong, and the
+# hour it costs to work that out is worth the thirty seconds this takes.
+if [[ "$(mariadb -N -B -e 'SELECT COUNT(*) FROM mysql.time_zone_name;' 2>/dev/null || echo 0)" -eq 0 ]]; then
+  log "loading the timezone tables"
+  mariadb-tzinfo-to-sql /usr/share/zoneinfo 2>/dev/null | mariadb mysql
+fi
 
 if ! command -v node >/dev/null || [[ "$(node -v | cut -c2- | cut -d. -f1)" -lt "$NODE_MAJOR" ]]; then
   log "installing Node $NODE_MAJOR"
@@ -368,37 +422,68 @@ $(printf '\033[1;32m✓\033[0m') bootstrap complete.
 
 Five things left, and none of them can be guessed:
 
-  1. Create the database and TWO users. Two, not one - RUNBOOK.md section 7
-     explains why, and the short version is that the application must not be
-     able to rewrite its own audit trail or alter its own schema:
+  1. Create the database and FOUR users. Four, not one - the application must
+     not be able to rewrite its own audit trail or alter its own schema, and
+     the backup and the binary-log shipper have no business reading either.
+     docs/DATABASE-PRODUCTION.md section 6 has the full reasoning.
 
-       sudo mysql_secure_installation
+       sudo mariadb-secure-installation
        sudo mariadb <<'SQL'
          CREATE DATABASE uboss CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-         -- What the API and worker run as. No DDL.
+         -- What the API and worker run as. No DDL, ever.
+         --
+         -- SELECT and INSERT only, at this point. UPDATE and DELETE are added
+         -- per table by apply-grants.sh in step 1b, AFTER the tables exist,
+         -- and deliberately not on audit_logs.
          CREATE USER 'uboss_app'@'localhost' IDENTIFIED BY '<long random>';
-         GRANT SELECT, INSERT, UPDATE, DELETE ON uboss.* TO 'uboss_app'@'localhost';
-         -- Append-only. A compromised application cannot erase what it did.
-         REVOKE UPDATE, DELETE ON uboss.audit_logs FROM 'uboss_app'@'localhost';
+         GRANT SELECT, INSERT ON uboss.* TO 'uboss_app'@'localhost';
 
          -- What 'prisma migrate deploy' runs as, during a release only.
          CREATE USER 'uboss_migrate'@'localhost' IDENTIFIED BY '<different long random>';
          GRANT ALL PRIVILEGES ON uboss.* TO 'uboss_migrate'@'localhost';
 
+         -- What the nightly dump runs as. Reads rows; cannot change one.
+         CREATE USER 'uboss_backup'@'localhost' IDENTIFIED BY '<a third long random>';
+         GRANT SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER ON uboss.* TO 'uboss_backup'@'localhost';
+
          -- Reads the binary logs so they can be shipped off the machine. This
          -- is what makes point-in-time recovery possible; without it the most
          -- you can lose is a whole day of orders. No SELECT on any table - it
          -- reads the log of changes, never the data.
-         CREATE USER 'uboss_binlog'@'localhost' IDENTIFIED BY '<a third long random>';
-         GRANT REPLICATION SLAVE, REPLICATION CLIENT, RELOAD ON *.* TO 'uboss_binlog'@'localhost';
+         CREATE USER 'uboss_binlog'@'localhost' IDENTIFIED BY '<a fourth long random>';
+         GRANT REPLICATION SLAVE, BINLOG MONITOR, RELOAD ON *.* TO 'uboss_binlog'@'localhost';
 
          FLUSH PRIVILEGES;
        SQL
 
      Then in shared/.env:
-       DATABASE_URL=...uboss_app...          <- the application reads this
+       DATABASE_URL=...uboss_app...              <- the application reads this
        MIGRATE_DATABASE_URL=...uboss_migrate...  <- release.sh reads this
+       UBOSS_BACKUP_DATABASE_URL=...uboss_backup...  <- backup.sh reads this
+
+  1b. Migrate, THEN tighten. This order is not a preference:
+
+       cd $ROOT/current/backend
+       DATABASE_URL="\$MIGRATE_DATABASE_URL" npx prisma migrate deploy
+       sudo bash $ROOT/current/deploy/scripts/apply-grants.sh
+
+      apply-grants.sh is what makes audit_logs append-only. It cannot run
+      before the migration, because MariaDB refuses a table-level REVOKE
+      against a table that does not exist - and it could not be expressed as a
+      REVOKE at all, because a privilege granted at DATABASE level cannot be
+      taken back at TABLE level:
+
+        ERROR 1147 (42000): There is no such grant defined for user 'uboss_app'
+                            on host 'localhost' on table 'audit_logs'
+
+      That is why step 1 grants only SELECT and INSERT on the database, and
+      apply-grants.sh grants UPDATE and DELETE on each table individually. It
+      prints which tables it protected; two, audit_logs and _prisma_migrations,
+      is what success looks like.
+
+      release.sh runs it after every migration, so this is the only time it has
+      to be done by hand.
 
   2. Write $ROOT/shared/.env
        Start from backend/.env.example. docs/DEPLOYMENT.md lists every value

@@ -11,14 +11,19 @@ import { z } from 'zod';
 import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import { listExceptions, updateException } from '../../modules/logistics/exception.service.js';
 import {
+  asPartner,
   assignDriver,
+  createDriver,
   createVehicle,
   findScannedPackage,
   listDrivers,
   listVehicles,
   recordPackageScan,
-  upsertDriver,
+  unassignDriver,
+  updateDriver,
 } from '../../modules/logistics/driver.service.js';
+import { readDriverAssignmentHistory } from '../../modules/logistics/driver-assignment.service.js';
+import { assertShipmentAccess } from '../../modules/logistics/shipment.service.js';
 import {
   completePickup,
   confirmPickupReadiness,
@@ -340,18 +345,33 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     '/drivers',
     { preHandler: requireLogistics(LogisticsPermission.DRIVER_READ) },
     async (request, reply) => {
-      const drivers = await listDrivers(currentLogistics(request));
+      const drivers = await listDrivers(asPartner(currentLogistics(request)));
       return reply.status(200).send({ drivers });
     },
   );
 
+  /**
+   * Add somebody to the fleet.
+   *
+   * **A name is all that is required.** No account, no invitation, no email
+   * round trip - a carrier employs people who will never open this software,
+   * and a register that could only hold people with a login is a register that
+   * does not describe the fleet.
+   *
+   * `partnerUserId` is optional and additive: supplying it links an existing
+   * team member's account so this driver can also use the phone app, which is
+   * what gates the task list, the scanner, proof of delivery and the trip a
+   * location ping needs.
+   */
   app.post(
     '/drivers',
     { preHandler: requireLogistics(LogisticsPermission.DRIVER_WRITE) },
     async (request, reply) => {
       const body = z
         .object({
-          partnerUserId: z.string().length(26),
+          fullName: z.string().trim().min(2).max(160),
+          phone: z.string().trim().max(32).optional(),
+          email: z.string().trim().email().max(320).optional(),
           employeeReference: z.string().trim().max(64).optional(),
           licenceNumber: z.string().trim().max(64).optional(),
           licenceExpiresAt: isoDate.optional(),
@@ -359,10 +379,56 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
           canCarryColdChain: z.boolean().optional(),
           canCarrySterile: z.boolean().optional(),
           state: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+          /** Links an existing team member's account. Rarely supplied. */
+          partnerUserId: z.string().length(26).optional(),
         })
         .parse(request.body);
 
-      const driver = await upsertDriver(currentLogistics(request), body, request.correlationId);
+      const driver = await createDriver(
+        asPartner(currentLogistics(request)),
+        body,
+        request.correlationId,
+      );
+
+      return reply.status(201).send(driver);
+    },
+  );
+
+  /**
+   * Change a driver's details, or take them off the rota.
+   *
+   * Keyed on the DRIVER RECORD, because most drivers have no account to key
+   * on. Only the fields supplied are written, so correcting a licence number
+   * cannot silently clear the certifications beside it.
+   */
+  app.patch(
+    '/drivers/:id',
+    { preHandler: requireLogistics(LogisticsPermission.DRIVER_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          fullName: z.string().trim().min(2).max(160).optional(),
+          phone: z.string().trim().max(32).nullable().optional(),
+          email: z.string().trim().max(320).nullable().optional(),
+          employeeReference: z.string().trim().max(64).nullable().optional(),
+          licenceNumber: z.string().trim().max(64).nullable().optional(),
+          licenceExpiresAt: isoDate.nullable().optional(),
+          canCarryDangerousGoods: z.boolean().optional(),
+          canCarryColdChain: z.boolean().optional(),
+          canCarrySterile: z.boolean().optional(),
+          state: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+          partnerUserId: z.string().length(26).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const driver = await updateDriver(
+        asPartner(currentLogistics(request)),
+        params.id,
+        body,
+        request.correlationId,
+      );
+
       return reply.status(200).send(driver);
     },
   );
@@ -371,7 +437,7 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     '/vehicles',
     { preHandler: requireLogistics(LogisticsPermission.VEHICLE_READ) },
     async (request, reply) => {
-      const vehicles = await listVehicles(currentLogistics(request));
+      const vehicles = await listVehicles(asPartner(currentLogistics(request)));
       return reply.status(200).send({ vehicles });
     },
   );
@@ -392,11 +458,24 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
         })
         .parse(request.body);
 
-      const vehicle = await createVehicle(currentLogistics(request), body);
+      const vehicle = await createVehicle(
+        asPartner(currentLogistics(request)),
+        body,
+        request.correlationId,
+      );
       return reply.status(201).send(vehicle);
     },
   );
 
+  /**
+   * Put a driver on a consignment, or move it from one driver to another.
+   *
+   * One endpoint for both, because from a dispatcher's point of view they are
+   * one action - "this parcel is Anja's now" - and the difference is a fact
+   * about what was already there rather than about what they are asking for.
+   * The service decides: a first assignment needs no reason, a move requires
+   * one, and pressing it twice on the same driver changes nothing.
+   */
   app.post(
     '/shipments/:id/assign-driver',
     { preHandler: requireLogistics(LogisticsPermission.DRIVER_ASSIGN) },
@@ -409,11 +488,13 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
           isPickupLeg: z.boolean().optional(),
           isDeliveryLeg: z.boolean().optional(),
           routeSequence: z.number().int().min(0).max(999).optional(),
+          /** Required by the service when a driver is being replaced. */
+          reason: z.string().trim().max(512).optional(),
         })
         .parse(request.body);
 
       const result = await assignDriver(
-        currentLogistics(request),
+        asPartner(currentLogistics(request)),
         {
           shipmentId: params.id,
           driverProfileId: body.driverProfileId,
@@ -421,11 +502,61 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
           isPickupLeg: body.isPickupLeg ?? false,
           isDeliveryLeg: body.isDeliveryLeg ?? true,
           routeSequence: body.routeSequence ?? null,
+          reason: body.reason ?? null,
         },
         request.correlationId,
       );
 
       return reply.status(201).send(result);
+    },
+  );
+
+  /**
+   * Take the driver off, without putting another one on.
+   *
+   * The case a reassignment cannot cover: somebody has called in sick and the
+   * depot does not yet know who is taking their round. Leaving them on the
+   * consignment leaves a stop on a task list nobody will work.
+   *
+   * Idempotent - a consignment with no driver is the desired end state, so
+   * saying so twice is not an error.
+   */
+  app.post(
+    '/shipments/:id/unassign-driver',
+    { preHandler: requireLogistics(LogisticsPermission.DRIVER_ASSIGN) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(4).max(512) }).parse(request.body);
+
+      const result = await unassignDriver(
+        asPartner(currentLogistics(request)),
+        params.id,
+        body.reason,
+        request.correlationId,
+      );
+
+      return reply.status(200).send(result);
+    },
+  );
+
+  /**
+   * Everyone who has carried this consignment, oldest first.
+   *
+   * `assertShipmentAccess` inside the route rather than the service, because
+   * the marketplace's own screen reads the same history through
+   * `logistics.read` and must not be made to hold a carrier membership to do
+   * it. Each caller proves its own right to the consignment; the reader is
+   * shared.
+   */
+  app.get(
+    '/shipments/:id/driver-history',
+    { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const access = await assertShipmentAccess(currentLogistics(request), params.id, 'READ');
+
+      const assignments = await readDriverAssignmentHistory(access.shipmentId);
+      return reply.status(200).send({ assignments });
     },
   );
 

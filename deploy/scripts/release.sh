@@ -293,6 +293,58 @@ log "running migrations"
 cd "$RELEASE/backend"
 set -a; . "$SHARED/.env"; set +a
 
+# -----------------------------------------------------------------------------
+# NOTHING MIGRATES WITHOUT A RECENT BACKUP.
+#
+# A migration is the one step of a release that cannot be rolled back by
+# swapping a symlink. `rollback.sh` restores the previous code; it does not and
+# must not reverse a migration. So the only way back from a migration that
+# turns out to be wrong is a restore, and a restore needs a backup that is
+# newer than the mistake.
+#
+# Checked here rather than trusted, because the failure mode of a backup timer
+# that stopped three weeks ago is total silence. `uboss-backup.timer` running
+# and `a backup existing` are different facts.
+#
+# The check is skipped when there is nothing to migrate: a code-only release
+# does not need one.
+# -----------------------------------------------------------------------------
+BACKUP_MAX_AGE_HOURS="${UBOSS_BACKUP_MAX_AGE_HOURS:-30}"   # a nightly job, plus slack
+PENDING="$(DATABASE_URL="${MIGRATE_DATABASE_URL:-$DATABASE_URL}" \
+             npx prisma migrate status 2>&1 || true)"
+
+if printf '%s' "$PENDING" | grep -qi 'not yet been applied\|following migration'; then
+  log "this release has migrations to apply - checking the backup first"
+
+  NEWEST="$(find "$ROOT/backups" -maxdepth 1 -name 'db-*.sql.gz*' -type f -printf '%T@ %p\n' 2>/dev/null \
+              | sort -rn | head -1 | cut -d' ' -f2- || true)"
+
+  if [[ -z "$NEWEST" ]]; then
+    die "there are migrations to apply and NO database backup exists in $ROOT/backups.
+   A migration cannot be rolled back by rollback.sh - only restored from. Run:
+       sudo systemctl start uboss-backup.service
+   and check it succeeded before releasing. To release anyway, knowing that a
+   bad migration would be unrecoverable:  UBOSS_SKIP_BACKUP_CHECK=1"
+  fi
+
+  AGE_HOURS=$(( ( $(date +%s) - $(stat -c %Y "$NEWEST") ) / 3600 ))
+  if (( AGE_HOURS > BACKUP_MAX_AGE_HOURS )); then
+    if [[ "${UBOSS_SKIP_BACKUP_CHECK:-}" == "1" ]]; then
+      warn "the newest backup is ${AGE_HOURS}h old and UBOSS_SKIP_BACKUP_CHECK=1 was set - continuing"
+    else
+      die "the newest database backup is ${AGE_HOURS} hours old ($(basename "$NEWEST")),
+   and this release has migrations to apply. The backup timer has probably
+   stopped - check 'systemctl status uboss-backup.timer' and its last run.
+   Take one now:  sudo systemctl start uboss-backup.service
+   To release anyway:  UBOSS_SKIP_BACKUP_CHECK=1"
+    fi
+  else
+    log "newest backup is ${AGE_HOURS}h old ($(basename "$NEWEST")) - proceeding"
+  fi
+else
+  log "no migrations pending - skipping the backup check"
+fi
+
 # The runtime user is deliberately not allowed to change the schema.
 #
 # RUNBOOK.md §7 asks for an application user with SELECT/INSERT/UPDATE/DELETE
@@ -315,6 +367,34 @@ if [[ -n "${MIGRATE_DATABASE_URL:-}" ]]; then
 else
   warn "MIGRATE_DATABASE_URL is not set - migrating as the application user (see RUNBOOK.md §7)"
   npx prisma migrate deploy
+fi
+
+# A NEW TABLE ARRIVES WITH NO GRANT ON IT.
+#
+# The application's UPDATE and DELETE rights are held per table, because that
+# is the only way MariaDB will let `audit_logs` be excluded from them - a
+# privilege granted at database level cannot be revoked at table level. The
+# consequence is that a migration which creates a table leaves the application
+# unable to write to it, and the symptom is a feature that works in CI and in
+# the compatibility container and fails in production with
+#
+#   ERROR 1142 (42000): UPDATE command denied to user 'uboss_app'@'localhost'
+#
+# So this runs after every migration, not only the ones that added a table. It
+# is idempotent, it takes under a second, and it prints which tables it left
+# append-only.
+# Invoked through `bash` rather than executed directly: every script in
+# deploy/scripts/ is committed mode 644, because the repository is developed on
+# Windows where git does not track the executable bit. Running it as
+# `./apply-grants.sh` would work on a machine where somebody had chmod'd it and
+# fail on a fresh checkout, which is the worst of both.
+if [[ -f "$RELEASE/deploy/scripts/apply-grants.sh" ]]; then
+  log "re-applying per-table grants"
+  bash "$RELEASE/deploy/scripts/apply-grants.sh"
+else
+  warn "deploy/scripts/apply-grants.sh is missing from this release - a migration that
+   added a table has left the application unable to write to it, and audit_logs
+   may not be append-only. See docs/DATABASE-PRODUCTION.md section 6."
 fi
 
 # -----------------------------------------------------------------------------

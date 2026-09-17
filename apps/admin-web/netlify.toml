@@ -1,0 +1,131 @@
+# =============================================================================
+# Netlify - the admin console
+#
+# Read the header of apps/customer-web/netlify.toml first: why this is a proxy
+# and not an absolute API URL in the bundle is explained there once, and it
+# applies identically here.
+#
+# ONE THING TO CHANGE: API_ORIGIN, in the two [[redirects]] blocks below.
+#
+# Replace `https://uboss-api.example.com` with the public base URL of the API
+# for this installation. No trailing slash.
+#
+# THIS CONSOLE IS NOT A PUBLIC WEBSITE.
+#
+# It is the screen where prices, orders, refunds and staff accounts are
+# changed, and a Netlify site is a URL anybody can reach. The sign-in wall is
+# the only thing in front of it, which is enough for a demo and is not enough
+# for an installation holding real customer data. Put it behind Netlify's
+# password protection, an access policy, or a hostname that is not guessable
+# before there is anything real on the other side.
+#
+# WHAT THE API SIDE NEEDS
+#
+#   COOKIE_SECURE=true        Netlify is HTTPS. Without it the sign-in appears
+#                             to succeed and then does nothing.
+#   ADMIN_WEB_ORIGIN          This site's URL, added to the comma-separated
+#                             allowlist.
+#   ADMIN_WEB_PUBLIC_URL      The same URL. Staff invitation emails link to it;
+#                             left at localhost, every invitation points at the
+#                             recipient's own machine and nobody can accept one.
+#
+# The console's cookies are named separately from the storefront's on purpose,
+# so signing into one does not sign you out of the other. Two Netlify sites
+# means two hostnames, which keeps them in separate cookie jars regardless -
+# but that naming is what makes a single shared hostname safe too.
+# =============================================================================
+
+# >>> BUILD SETTINGS - GIT-CONNECTED SITES ONLY. pack-netlify.ps1 CUTS FROM HERE.
+#
+# Removed by `scripts/pack-netlify.ps1` when it writes this file into a zip.
+# A manual zip deploy reads this netlify.toml in full, build command included,
+# and the zip holds the built site rather than the source - so Netlify would
+# fail the deploy with `Command failed with exit code 254: npm run
+# build:netlify` and publish nothing. See the storefront's netlify.toml for the
+# long version. The markers are a pair.
+[build]
+  # Relative to this directory when the site's "Base directory" is set to
+  # `apps/admin-web` in Netlify. Set it there.
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  # The repository pins 24 in .nvmrc, and package.json refuses anything lower.
+  NODE_VERSION = "24"
+# <<< BUILD SETTINGS END. pack-netlify.ps1 CUTS TO HERE.
+
+# -----------------------------------------------------------------------------
+# Redirects. ORDER MATTERS: Netlify takes the FIRST rule that matches, so the
+# single-page-application catch-all stays last. A rule added below it is dead,
+# and it is dead silently.
+# -----------------------------------------------------------------------------
+
+# The API. `200` is a proxy, not a redirect: the browser never learns the API's
+# hostname, the request stays same-origin, and the session and CSRF cookies
+# ride along. A `301` would send the browser to the other host and lose them.
+[[redirects]]
+  from = "/api/*"
+  to = "https://uboss-api.example.com/api/:splat"
+  status = 200
+  force = true
+
+# Uploaded product images, when the API stores files itself
+# (STORAGE_DRIVER=local serves them from /media). An installation on S3 hands
+# out absolute URLs and never reaches this rule.
+[[redirects]]
+  from = "/media/*"
+  to = "https://uboss-api.example.com/media/:splat"
+  status = 200
+  force = true
+
+# The single-page application. Without this, a reload on /orders is a 404 from
+# Netlify - the page only ever worked because you navigated to it.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Headers. These mirror deploy/nginx/snippets/uboss-security-headers.conf, which
+# is what an installation on its own server gets. Change one, change the other.
+# -----------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
+
+    # REPORT-ONLY, deliberately, exactly as the nginx snippet ships it. A CSP
+    # one directive short blanks the page rather than degrading. Watch the
+    # reports for a day - including the warehouse map and a product image
+    # upload - before renaming this to `Content-Security-Policy`.
+    #
+    # THE WAREHOUSE MAP IS THE ONE THAT WILL BE REPORTED HERE.
+    #
+    # It is off until MAP_STYLE_URL, MAP_TILE_URL or MAP_GOOGLE_API_KEY is set,
+    # and what those point at is the operator's choice, so no list shipped here
+    # could be right for everybody. Add the hosts you configured to script-src,
+    # connect-src and img-src together - a vector style is fetched, a raster
+    # tile is an image, and the Google map is a script that does both. For
+    # example: https://tiles.openfreemap.org, https://tile.openstreetmap.org,
+    # or https://maps.googleapis.com https://maps.gstatic.com.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+
+# Vite fingerprints everything in /assets, so a file at a given URL never
+# changes. Cache it for a year and let the filename do the invalidating.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html is NOT fingerprinted - it names which fingerprinted bundle to
+# load. Cached, it keeps pointing at the previous deploy's files, which no
+# longer exist: a blank console after a release, until somebody hard-refreshes.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

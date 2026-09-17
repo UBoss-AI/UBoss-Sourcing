@@ -583,9 +583,10 @@ const envSchema = z
 
     // --- Admin sign-in location ---
     //
-    // On by default: the console asks the browser where the device is at
-    // sign-in and stays closed until it is told. Two things a deployment has to
-    // know before leaving it on.
+    // Off by default: precise employee location is not necessary for ordinary
+    // authentication and enabling it can trigger a DPIA, employment-law
+    // consultation and notice obligations. A deployment with a documented,
+    // proportionate need may opt in deliberately.
     //
     // The Geolocation API only exists in a secure context, so an admin panel
     // served over plain HTTP on anything but localhost can never satisfy this
@@ -600,7 +601,7 @@ const envSchema = z
     // coordinates. The default is OpenStreetMap's, whose usage policy asks for
     // an identifying User-Agent and no bulk querying; one lookup per admin
     // sign-in is well inside it.
-    FEATURE_ADMIN_LOGIN_LOCATION: booleanFromString.default(true),
+    FEATURE_ADMIN_LOGIN_LOCATION: booleanFromString.default(false),
     GEOCODE_REVERSE_URL: z
       .string()
       .default('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat={lat}&lon={lon}'),

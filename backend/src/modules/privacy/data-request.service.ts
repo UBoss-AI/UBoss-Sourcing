@@ -36,7 +36,9 @@ import { storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import {
   AdminNotificationKind,
+  ResolutionKey,
   createAdminNotification,
+  resolveAdminNotifications,
 } from '../notifications/admin-notification.service.js';
 import { NotificationEvent, enqueueNotification } from '../notifications/notification.service.js';
 import { buildCustomerBundle } from './export-bundle.service.js';
@@ -181,6 +183,10 @@ export async function createDataRequest(
       relatedType: 'data_request',
       relatedId: id,
       dedupeKey: `data_request:${id}`,
+      // Keyed on the request. A statutory clock is running on this one, so it
+      // stays on the badge whether or not somebody has read it, and leaves
+      // only when the request itself is out of PENDING.
+      resolutionKey: ResolutionKey.dataRequest(id),
     });
   }
 
@@ -334,13 +340,35 @@ export async function approveRequest(input: DecisionInput): Promise<void> {
     }
   }
 
-  await prisma.dataRequest.update({
-    where: { id: row.id },
-    data: {
-      handledById: input.actorUserId,
-      handledAt: new Date(),
-      decisionNote: input.note?.slice(0, 1024) ?? null,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.dataRequest.update({
+      where: { id: row.id },
+      data: {
+        handledById: input.actorUserId,
+        handledAt: new Date(),
+        decisionNote: input.note?.slice(0, 1024) ?? null,
+      },
+    });
+
+    /*
+     * The console alert goes when the DECISION is made, not when the bundle
+     * finishes building.
+     *
+     * The alert says "a named individual has exercised a right and somebody
+     * has to decide it", and somebody has. What happens afterwards is a job
+     * with its own retries and its own failure handling; leaving the badge lit
+     * until it finished would have the statutory deadline still flashing at an
+     * operator who has nothing left to do about it.
+     */
+    await resolveAdminNotifications(
+      {
+        resolutionKey: ResolutionKey.dataRequest(row.id),
+        reason: 'Approved and queued for fulfilment.',
+        source: 'DOMAIN_EVENT',
+        resolvedByUserId: input.actorUserId,
+      },
+      tx,
+    );
   });
 
   await queue.enqueue(
@@ -376,15 +404,29 @@ export async function rejectRequest(input: DecisionInput): Promise<void> {
 
   const row = await claimPending(input.requestId);
 
-  await prisma.dataRequest.update({
-    where: { id: row.id },
-    data: {
-      status: 'REJECTED',
-      handledById: input.actorUserId,
-      handledAt: new Date(),
-      completedAt: new Date(),
-      decisionNote: reason.slice(0, 1024),
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.dataRequest.update({
+      where: { id: row.id },
+      data: {
+        status: 'REJECTED',
+        handledById: input.actorUserId,
+        handledAt: new Date(),
+        completedAt: new Date(),
+        decisionNote: reason.slice(0, 1024),
+      },
+    });
+
+    // A refusal is a terminal decision. The right was exercised, it was
+    // answered, and there is nothing left waiting.
+    await resolveAdminNotifications(
+      {
+        resolutionKey: ResolutionKey.dataRequest(row.id),
+        reason: `Refused: ${reason}`.slice(0, 512),
+        source: 'DOMAIN_EVENT',
+        resolvedByUserId: input.actorUserId,
+      },
+      tx,
+    );
   });
 
   await recordAudit({

@@ -275,6 +275,21 @@ export interface ImportJob {
  * this build does not recognise is rendered as plain fact rather than dropped -
  * a panel that is one deploy behind the API must not silently swallow news.
  */
+/**
+ * News or problem.
+ *
+ * The distinction that decides how a row leaves the bell, and the panel has to
+ * know it because the two offer different actions. `INFORMATION` is cleared by
+ * being read, per reader. `ALERT` is cleared by the underlying problem being
+ * fixed, for everybody. See the header of
+ * `backend/src/modules/notifications/admin-notification.service.ts`.
+ */
+export type ConsoleNotificationClass = 'INFORMATION' | 'ALERT';
+
+export type ConsoleNotificationStatus = 'ACTIVE' | 'RESOLVED' | 'ARCHIVED';
+
+export type ConsoleResolutionSource = 'DOMAIN_EVENT' | 'MANUAL' | 'SYSTEM_SWEEP' | 'SUPERSEDED';
+
 export interface ConsoleNotification {
   id: string;
   kind: string;
@@ -283,11 +298,44 @@ export interface ConsoleNotification {
   linkPath: string | null;
   /** For the signed-in member of staff, not for everyone. */
   isRead: boolean;
+  /** Hidden from THIS person's bell. Never a statement about the problem. */
+  isDismissed: boolean;
   createdAt: string;
+
+  class: ConsoleNotificationClass;
+  status: ConsoleNotificationStatus;
+  /**
+   * Whether to draw a Resolve button, decided by the server for this caller.
+   *
+   * Not computed here: whether an alert may be closed by hand depends on its
+   * kind AND on the reader's grants, and both of those are the server's to
+   * know. The endpoint checks it again - a hidden button is not a permission
+   * model.
+   */
+  canResolveManually: boolean;
+  /** Which time round this is, for a problem that has come back. */
+  occurrence: number;
+
+  resolvedAt: string | null;
+  /** Whoever closed it, by address. Null for a domain event or a sweep. */
+  resolvedBy: string | null;
+  resolutionReason: string | null;
+  resolutionSource: ConsoleResolutionSource | null;
 }
 
 export interface ConsoleNotificationFeed {
   items: ConsoleNotification[];
-  /** Across the whole visible feed, not only the page returned. */
+  /** Rows not yet opened, across the whole visible feed. */
   unreadCount: number;
+  /**
+   * The badge.
+   *
+   * Unread news plus live problems, counted on the server against the
+   * documented active-alert rule. Deliberately not `unreadCount`: an alert
+   * somebody has read is still a problem, and a badge that dropped when they
+   * glanced at it would be a badge that hid one.
+   */
+  activeCount: number;
+  /** Live problems alone, for a heading that says "2 still open". */
+  openAlertCount: number;
 }

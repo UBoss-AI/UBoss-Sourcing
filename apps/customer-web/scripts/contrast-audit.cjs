@@ -236,6 +236,27 @@ const TEXT_PAIRS = [
   ['danger', 'surface', 'Inline error text'],
   ['warning', 'surface', 'Inline warning text'],
   ['success', 'surface', 'Inline success text'],
+
+  /*
+   * The console layer — the role dashboards.
+   *
+   * Both ends of the blend, deliberately. A dashboard card is drawn at high
+   * opacity over the dashboard ground with a backdrop blur, so what a reader
+   * actually sees is a mix of `--console-raised` and `--console`. Auditing
+   * text against both endpoints is what makes every mix between them safe;
+   * auditing only the card would pass a card that turned out to be
+   * translucent enough to sit closer to the ground.
+   */
+  ['ink', 'console', 'Body text on the dashboard ground'],
+  ['ink', 'console-raised', 'Body text on a dashboard card'],
+  ['ink-muted', 'console', 'Secondary text on the dashboard ground'],
+  ['ink-muted', 'console-raised', 'Secondary text on a dashboard card'],
+  ['ink-subtle', 'console', 'Tertiary text on the dashboard ground'],
+  ['ink-subtle', 'console-raised', 'Tertiary text on a dashboard card'],
+  ['brand', 'console-raised', 'A link on a dashboard card'],
+  ['danger', 'console-raised', 'An exception count on a dashboard card'],
+  ['warning', 'console-raised', 'A warning count on a dashboard card'],
+  ['success', 'console-raised', 'A completed count on a dashboard card'],
 ];
 
 /** 1.4.11: what a user needs in order to identify a control or its state. */
@@ -247,6 +268,19 @@ const UI_PAIRS = [
   ['ring', 'surface', 'Focus ring'],
   ['ring', 'surface-sunken', 'Focus ring on a sunken panel'],
   ['danger', 'surface', 'Invalid input border'],
+
+  /*
+   * The dashboard's own controls. A donut legend entry is a real button and a
+   * date-range tab is a real tab, both drawn on the console surfaces, so the
+   * ring that says which one has focus is held to 3:1 there as well.
+   *
+   * `border-strong` against the bare ground is audited because the range tabs
+   * and the search field sit directly on it, outside any card.
+   */
+  ['border-strong', 'console', 'Control border on the dashboard ground'],
+  ['border-strong', 'console-raised', 'Control border on a dashboard card'],
+  ['ring', 'console', 'Focus ring on the dashboard ground'],
+  ['ring', 'console-raised', 'Focus ring on a dashboard card'],
 ];
 
 /**
@@ -260,6 +294,21 @@ const DECORATIVE = [
   ['border', 'surface', 'Card hairline — the card is identified by its contents, not its edge'],
   ['border-subtle', 'surface', 'Divider between rows in a list'],
   ['bloom', 'surface', 'The greeting backdrop wash, drawn at 30–40% behind nothing legible'],
+  [
+    'console-border',
+    'console-raised',
+    'Dashboard card hairline — the card is identified by the figure inside it, not its edge',
+  ],
+  [
+    'console-glow',
+    'console',
+    'The indigo bloom behind the hero chart, drawn at 10–18% behind nothing legible',
+  ],
+  [
+    'console-glow-alt',
+    'console',
+    'The second bloom, same treatment and the same reason it is exempt',
+  ],
 ];
 
 // ---------------------------------------------------------------------------

@@ -39,19 +39,32 @@
 import type { Prisma } from '../../generated/prisma/client.js';
 import type { LogisticsEventSource } from '../../generated/prisma/enums.js';
 import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
+import type { OrderStatusName } from '../../domain/order-state-machine.js';
 import type { LogisticsPermissionKey } from '../../domain/logistics-permissions.js';
 import {
   assertShipmentCorrection,
   assertShipmentTransition,
   isShipmentException,
+  isTrackingComplete,
   type ShipmentActor,
   type ShipmentStatusName,
 } from '../../domain/logistics-shipment-state.js';
+import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
+import {
+  AdminNotificationKind,
+  ResolutionKey,
+  createAdminNotification,
+  resolveAdminNotifications,
+} from '../notifications/admin-notification.service.js';
 import { transitionOrder } from '../orders/order.service.js';
 import { recordLogisticsAudit } from './audit.service.js';
+// The leaf module rather than `driver.service.ts`, deliberately: that one
+// reaches this file through `operations.service.ts`, and importing it here
+// would close the loop. See the header of `driver-assignment.service.ts`.
+import { completeDriverAssignmentsFor } from './driver-assignment.service.js';
 import { notifyShipmentEvent } from './notification.service.js';
 
 /**
@@ -439,6 +452,20 @@ async function attemptShipmentEvent(
         );
       }
 
+      /*
+       * A finished consignment is finished for its driver too.
+       *
+       * Inside the transaction, because "delivered" and "off the driver's task
+       * list" are one fact: a delivered parcel that stayed on somebody's round
+       * because a second write failed is a stop a driver would go and look
+       * for. It also clears `activeShipmentId`, so a consignment later
+       * corrected out of a terminal status can be given to a driver again
+       * without the unique index refusing it.
+       */
+      if (isTrackingComplete(input.status)) {
+        await completeDriverAssignmentsFor(shipment.id, tx);
+      }
+
       if (shipment.assignedPartnerId !== null) {
         await recordLogisticsAudit(
           {
@@ -489,6 +516,7 @@ async function attemptShipmentEvent(
       status: result.status,
       eventId: result.eventId,
     });
+    await syncOperationsAlert(result.shipmentId, result.status);
 
     return {
       eventId: result.eventId,
@@ -561,27 +589,167 @@ async function propagateToOrder(
   // Every consignment on this order has to be there before the order is.
   if (to === 'DELIVERED' && !(await allDeliveredFor(orderId))) return;
 
-  try {
-    await transitionOrder({
-      orderId,
-      to,
-      actor: {
-        userId: input.actorUserId ?? null,
-        email: null,
-        // SYSTEM, always. A carrier is not an actor on the commerce side, and
-        // giving it ADMIN there would let a transition rule written for staff
-        // be satisfied by a courier's scan.
-        type: 'SYSTEM',
-        ...((input.correlationId !== undefined && input.correlationId !== null) ? { correlationId: input.correlationId } : {}),
-      },
-    });
-  } catch (error) {
-    logger.info(
-      { orderId, to, shipmentId: input.shipmentId, err: error },
-      'shipment milestone did not move the order',
-    );
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { status: true },
+  });
+
+  if (order === null) return;
+
+  /*
+   * One rung at a time, because the order state machine has no jumps in it.
+   *
+   * `assertTransition` offers CONFIRMED -> PROCESSING -> SHIPPED -> DELIVERED
+   * and no shortcuts, deliberately, so the buyer's timeline reads as a
+   * sequence rather than a leap. Asking for the far rung is therefore refused
+   * - and since a refusal here is swallowed on purpose (see above), asking for
+   * it directly meant a collected parcel left the buyer looking at "Confirmed"
+   * for ever, with only an info log to say why.
+   *
+   * The seller path already walks this ladder in `syncOrderWithSellerGroups`,
+   * and the operator's own dispatch walks it in the fulfilment service. This
+   * is the third caller doing the same thing, for the same reason.
+   */
+  // Widened for the lookup: `order.status` is any OrderStatusName, and the
+  // whole point of the next line is to find out whether it is a rung at all.
+  const from = (LADDER as readonly OrderStatusName[]).indexOf(order.status);
+
+  // Somewhere off the ladder entirely - CANCELLED, RETURNED, REFUNDED. A
+  // carrier's scan must not resurrect an order staff have closed, and without
+  // this an index of -1 would slice from the first rung and try to.
+  if (from === -1) return;
+
+  const steps = LADDER.slice(from + 1, LADDER.indexOf(to) + 1);
+
+  for (const step of steps) {
+    try {
+      await transitionOrder({
+        orderId,
+        to: step,
+        // The buyer reads this on their order. Every other entry in that
+        // timeline carries a line saying what happened, and a blank one in the
+        // middle of the sequence reads like something went wrong.
+        reason: LADDER_REASONS[step],
+        actor: {
+          userId: input.actorUserId ?? null,
+          email: null,
+          // SYSTEM, always. A carrier is not an actor on the commerce side, and
+          // giving it ADMIN there would let a transition rule written for staff
+          // be satisfied by a courier's scan.
+          type: 'SYSTEM',
+          ...((input.correlationId !== undefined && input.correlationId !== null) ? { correlationId: input.correlationId } : {}),
+        },
+      });
+    } catch (error) {
+      logger.info(
+        { orderId, to: step, shipmentId: input.shipmentId, err: error },
+        'shipment milestone did not move the order',
+      );
+      // A rung that will not move makes the ones above it unreachable too.
+      return;
+    }
   }
 }
+
+/**
+ * The marketplace's own bell, for a delivery that did not happen.
+ *
+ * WHY THIS ONE AND NOT THE OTHERS
+ *
+ * A carrier works holds, customs and address corrections in their own portal
+ * and the operator has nothing to do about them - a bell that rings for every
+ * one is a bell nobody reads, and the one that gets ignored is the batch of
+ * reagents that went warm. A FAILED delivery is different: it is the buyer's
+ * problem as much as the carrier's, it is the call the marketplace answers,
+ * and there is a decision on the marketplace's side about what to do next.
+ *
+ * Keyed on the consignment rather than on the attempt, so a second failed
+ * attempt does not add a second row to chase - the alert says "this parcel is
+ * not being delivered", which stays one fact however many times a van calls.
+ *
+ * **Cleared by the parcel moving**, and by nothing else: re-attempted,
+ * delivered, sent back or cancelled. Reading about a failed delivery has never
+ * fixed one.
+ *
+ * Outside the transaction, like every other consequence here. An alert that
+ * could not be written must not roll back the record of what the van reported.
+ */
+async function syncOperationsAlert(shipmentId: string, status: ShipmentStatusName): Promise<void> {
+  const resolutionKey = ResolutionKey.shipmentDelivery(shipmentId);
+
+  if (status !== 'DELIVERY_FAILED') {
+    // Every other status means it is moving again, or it is over. Either way
+    // there is nothing left on the operator's desk about this one.
+    await resolveAdminNotifications({
+      resolutionKey,
+      reason: `The consignment moved on to ${status.toLowerCase().replace(/_/g, ' ')}.`,
+      source: 'DOMAIN_EVENT',
+    });
+    return;
+  }
+
+  const shipment = await prisma.logisticsShipment.findUnique({
+    where: { id: shipmentId },
+    select: {
+      shipmentReference: true,
+      receivingCompanyName: true,
+      deliveryAttemptCount: true,
+    },
+  });
+
+  if (shipment === null) return;
+
+  await createAdminNotification({
+    kind: AdminNotificationKind.LOGISTICS_DELIVERY_FAILED,
+    variables: {
+      shipmentReference: shipment.shipmentReference,
+      receivingCompany: shipment.receivingCompanyName,
+      attemptCount: shipment.deliveryAttemptCount,
+      reason: '',
+    },
+    linkPath: `/logistics/shipments/${shipmentId}`,
+    // Names a customer's company and what went wrong with their delivery, so
+    // it carries the same grant the consignment screen itself is behind.
+    requiredPermission: Permission.LOGISTICS_READ,
+    relatedType: 'logistics_shipment',
+    relatedId: shipmentId,
+    dedupeKey: `shipment-delivery-failed:${shipmentId}`,
+    resolutionKey,
+  });
+}
+
+/** The rungs of that route, and nothing else an order can be. */
+type FulfilmentRung = 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED';
+
+/** The only route an order takes through fulfilment, in order. */
+const LADDER: readonly FulfilmentRung[] = Object.freeze([
+  'CONFIRMED',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+]);
+
+/**
+ * What the buyer is told about each rung, when a carrier is what moved it.
+ *
+ * Written from the buyer's side of the glass. They did not ask for a
+ * consignment and have never heard of one, so these say what happened to their
+ * order rather than what happened to a row in the logistics module.
+ *
+ * Each sits under the status label on the buyer's timeline - "Being prepared",
+ * "On its way", "Delivered" - so none of them repeats it. A line that only
+ * says the heading again is worse than no line.
+ *
+ * CONFIRMED is here to satisfy the record and is never reached: the walk
+ * always starts at the rung above wherever the order already is, and CONFIRMED
+ * is the lowest rung there is.
+ */
+const LADDER_REASONS: Readonly<Record<FulfilmentRung, string>> = Object.freeze({
+  CONFIRMED: 'Payment received',
+  PROCESSING: 'A carrier has collected this order',
+  SHIPPED: 'With the carrier, on the way to you',
+  DELIVERED: 'The carrier confirmed the delivery',
+});
 
 /** Are all of this order's consignments delivered? */
 async function allDeliveredFor(orderId: string): Promise<boolean> {

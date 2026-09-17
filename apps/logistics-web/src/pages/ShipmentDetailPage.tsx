@@ -44,21 +44,45 @@ import { useI18n } from '@/i18n/i18n-context';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import {
   acceptShipment,
+  assignDriver,
   documentsKey,
+  driverHistoryKey,
+  driversKey,
   fetchDocuments,
+  fetchDriverHistory,
+  fetchDrivers,
   fetchLiveLocation,
   fetchShipment,
   fetchTimeline,
+  fetchVehicles,
   liveLocationKey,
   rejectShipment,
   shipmentKey,
   timelineKey,
+  unassignDriver,
   updateStatus,
+  vehiclesKey,
 } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { useSession } from '@/auth/session-context';
 import { formatDuration, formatWeight, slaTone, statusTone } from '@/lib/shipment-display';
 import type { ShipmentDetail, ShipmentStatus } from '@/lib/types';
+
+/**
+ * The forward moves that count as "sending it on the way", in road order.
+ *
+ * The first of these the state machine currently allows is what the button on
+ * the driver card offers. Listed rather than derived so the order is a
+ * decision somebody made and can read - a consignment that has been collected
+ * but not yet loaded is PICKED_UP, and offering OUT_FOR_DELIVERY there would
+ * be telling a customer the van is at their door when it is in a depot.
+ */
+const DISPATCH_ORDER: readonly ShipmentStatus[] = [
+  'PICKUP_SCHEDULED',
+  'PICKED_UP',
+  'IN_TRANSIT',
+  'OUT_FOR_DELIVERY',
+];
 
 export function ShipmentDetailPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -126,6 +150,7 @@ export function ShipmentDetailPage(): React.JSX.Element {
 
         <div className="space-y-4">
           <StatusCard shipment={data} />
+          <DriverCard shipment={data} />
           <FactsCard shipment={data} />
           <ContactsCard shipment={data} />
           <DocumentsCard shipmentId={id} />
@@ -449,6 +474,334 @@ function TimelineCard({ shipmentId }: { shipmentId: string }): React.JSX.Element
                   */}
                 {entry.externalStatusCode === null ? '' : ` · ${entry.externalStatusCode}`}
               </p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Card>
+  );
+}
+
+/**
+ * Who is carrying this, who has carried it, and the way to change that.
+ *
+ * ONE CONTROL FOR ASSIGN AND REASSIGN
+ *
+ * From a dispatcher's point of view it is one action - "this parcel is Anja's
+ * now" - and the difference between the two is a fact about what was already
+ * there. So the picker is the same either way, and the reason box appears only
+ * when somebody is being taken off, because that is the only case where there
+ * is anything to explain.
+ *
+ * THE CHAIN IS THE POINT
+ *
+ * Every handover, oldest first, with who made it and why. It reads forwards
+ * because it is a chain rather than a feed: "Anja, then Bram because Anja was
+ * sick" is a sentence, and reversed it is a puzzle. This is what somebody
+ * opens after a delivery has gone wrong.
+ */
+function DriverCard({
+  shipment,
+}: {
+  shipment: ShipmentDetail;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const { canAny } = useSession();
+
+  const shipmentId = shipment.id;
+  const isReadOnly = shipment.isReadOnly;
+
+  const [chosen, setChosen] = useState('');
+  const [chosenVehicle, setChosenVehicle] = useState('');
+  const [reason, setReason] = useState('');
+
+  /*
+   * One key per dispatch, reused on a retry.
+   *
+   * A dispatcher on a bad line who presses "on the way" twice sends the van
+   * out once. The key is replaced after a success, so a consignment that
+   * genuinely moves twice - picked up, then in transit - writes two events.
+   */
+  const [dispatchKey, setDispatchKey] = useState(() => crypto.randomUUID());
+
+  const canRead = canAny(Permission.DRIVER_READ);
+  const canAssign = canAny(Permission.DRIVER_ASSIGN) && !isReadOnly;
+
+  const history = useQuery({
+    queryKey: driverHistoryKey(shipmentId),
+    queryFn: () => fetchDriverHistory(shipmentId),
+    enabled: canAny(Permission.SHIPMENT_READ),
+    retry: false,
+  });
+
+  const drivers = useQuery({
+    queryKey: driversKey,
+    queryFn: fetchDrivers,
+    // Only fetched by somebody who could act on it. A read-only viewer has no
+    // use for the fleet register and no business being handed one.
+    enabled: canAssign && canRead,
+    retry: false,
+  });
+
+  /*
+   * The vans, for the same form.
+   *
+   * Which vehicle went out matters after the fact and during: a cold-chain
+   * consignment in a van with no fridge is the failure this list exists to
+   * prevent somebody from arranging by accident.
+   */
+  const vehicles = useQuery({
+    queryKey: vehiclesKey,
+    queryFn: fetchVehicles,
+    enabled: canAssign && canAny(Permission.VEHICLE_READ),
+    retry: false,
+  });
+
+  const entries = history.data?.assignments ?? [];
+  const live = entries.find((entry) => entry.isActive) ?? null;
+  const isReassignment = live !== null;
+
+  const refresh = async (): Promise<void> => {
+    await queryClient.invalidateQueries({ queryKey: driverHistoryKey(shipmentId) });
+    // The fleet's open-task counts moved too.
+    await queryClient.invalidateQueries({ queryKey: driversKey });
+  };
+
+  const assign = useMutation({
+    mutationFn: () =>
+      assignDriver(shipmentId, {
+        driverProfileId: chosen,
+        ...(chosenVehicle === '' ? {} : { vehicleId: chosenVehicle }),
+        ...(reason.trim() === '' ? {} : { reason: reason.trim() }),
+      }),
+    onSuccess: async () => {
+      toast.success(t('drivers.assigned'));
+      setChosen('');
+      setChosenVehicle('');
+      setReason('');
+      await refresh();
+    },
+    // The server's own message, not a generic apology: it names the
+    // certification the driver is missing, or says the consignment is
+    // finished, and either is what the dispatcher has to act on.
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const unassign = useMutation({
+    mutationFn: () => unassignDriver(shipmentId, reason.trim()),
+    onSuccess: async () => {
+      toast.success(t('drivers.takenOff'));
+      setReason('');
+      await refresh();
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  /**
+   * Send them on the way.
+   *
+   * The one move a dispatcher makes over and over, on the card where they
+   * have just put somebody on the van - rather than four fields down a
+   * status form on the other side of the screen. It writes the SAME event
+   * that form writes, through the same endpoint and the same state machine:
+   * a shortcut to a transition, never a second way to change a status.
+   */
+  const dispatch = useMutation({
+    mutationFn: (to: ShipmentStatus) =>
+      updateStatus(shipmentId, { status: to }, dispatchKey),
+    onSuccess: async () => {
+      toast.success(t('drivers.onTheWay'));
+      setDispatchKey(crypto.randomUUID());
+      await queryClient.invalidateQueries({ queryKey: shipmentKey(shipmentId) });
+      await queryClient.invalidateQueries({ queryKey: timelineKey(shipmentId) });
+      await refresh();
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  if (!canAny(Permission.SHIPMENT_READ)) return null;
+
+  const active = (drivers.data?.drivers ?? []).filter((row) => row.state === 'ACTIVE');
+  const usable = (vehicles.data?.vehicles ?? []).filter((row) => row.isActive);
+  const isBusy = assign.isPending || unassign.isPending || dispatch.isPending;
+
+  /*
+   * The next step on the road, if there is one.
+   *
+   * Read from `allowedTransitions`, which the SERVER filled from the
+   * transition matrix for this reader. Never assembled here: a button that
+   * offers a move the state machine is about to refuse teaches people to
+   * stop trusting the screen.
+   */
+  const onTheWay = DISPATCH_ORDER.find((step) =>
+    shipment.allowedTransitions.some(
+      (entry) => entry.to === step && !entry.requiresReason && !entry.requiresProofOfDelivery,
+    ),
+  );
+
+  return (
+    <Card title={t('drivers.assignmentHistory')} bodyClassName="px-5 py-4">
+      {live === null ? (
+        <p className="text-sm text-ink-muted">{t('drivers.noDriverYet')}</p>
+      ) : (
+        <div className="rounded-md border border-border bg-surface-sunken px-3 py-2">
+          <p className="text-sm font-semibold text-ink">{live.driverName}</p>
+          <p className="text-xxs text-ink-subtle">
+            {t('drivers.stillOn')}
+            {live.vehicleRegistration === null ? '' : ` · ${live.vehicleRegistration}`}
+          </p>
+
+          {/* Only where the state machine allows it, and only for somebody
+              who may write a status. A driver on a consignment that has
+              already gone out has nothing left to dispatch. */}
+          {canAssign &&
+            canAny(Permission.SHIPMENT_STATUS_WRITE) &&
+            onTheWay !== undefined && (
+              <Button
+                size="sm"
+                className="mt-2"
+                disabled={isBusy}
+                onClick={() => {
+                  dispatch.mutate(onTheWay);
+                }}
+              >
+                {t('drivers.sendOnTheWay', { status: t(`status.${onTheWay}` as never) })}
+              </Button>
+            )}
+        </div>
+      )}
+
+      {canAssign && (
+        <div className="mt-3 space-y-2">
+          <Field label={isReassignment ? t('drivers.moveTo') : t('drivers.assignTo')}>
+            {({ inputId }) => (
+              <Select
+                id={inputId}
+                value={chosen}
+                disabled={isBusy}
+                onChange={(event) => {
+                  setChosen(event.target.value);
+                }}
+              >
+                <option value="">{t('drivers.chooseDriver')}</option>
+                {active.map((row) => (
+                  <option key={row.id} value={row.id}>
+                    {/* The open-task count is beside the name, because
+                        "which of my drivers is free" is the question being
+                        asked and the register is the only place it is
+                        answered. */}
+                    {row.fullName} · {t('drivers.openTasks')}: {row.openTasks}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          {/* Which van. Optional, because a bike courier has no
+              registration to record and a carrier that does not track
+              vehicles should not be made to invent one. */}
+          {usable.length > 0 && (
+            <Field label={t('drivers.vehicle')} hint={t('drivers.vehicleHint')}>
+              {({ inputId }) => (
+                <Select
+                  id={inputId}
+                  value={chosenVehicle}
+                  disabled={isBusy}
+                  onChange={(event) => {
+                    setChosenVehicle(event.target.value);
+                  }}
+                >
+                  <option value="">{t('drivers.noVehicle')}</option>
+                  {usable.map((row) => (
+                    <option key={row.id} value={row.id}>
+                      {row.registration} · {row.kind}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          )}
+
+          {/* Only when somebody is coming off. A reason box on a first
+              assignment is a question with no answer. */}
+          {isReassignment && (
+            <Field label={t('drivers.whyComingOff')}>
+              {({ inputId }) => (
+                <Textarea
+                  id={inputId}
+                  rows={2}
+                  maxLength={512}
+                  value={reason}
+                  disabled={isBusy}
+                  onChange={(event) => {
+                    setReason(event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              disabled={
+                chosen === '' || isBusy || (isReassignment && reason.trim().length < 4)
+              }
+              onClick={() => {
+                assign.mutate();
+              }}
+            >
+              {isReassignment ? t('drivers.moveDriver') : t('drivers.assignDriver')}
+            </Button>
+
+            {isReassignment && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={isBusy || reason.trim().length < 4}
+                onClick={() => {
+                  unassign.mutate();
+                }}
+              >
+                {t('drivers.takeOff')}
+              </Button>
+            )}
+          </div>
+
+          {active.length === 0 && drivers.isSuccess && (
+            <p className="text-xxs leading-relaxed text-ink-muted">
+              {t('drivers.noActiveDrivers')}
+            </p>
+          )}
+        </div>
+      )}
+
+      {entries.length > 1 && (
+        <ol className="mt-4 space-y-2 border-t border-border pt-3">
+          {entries.map((entry) => (
+            <li key={entry.id} className="text-xs leading-relaxed">
+              <p className={entry.isActive ? 'font-semibold text-ink' : 'text-ink-muted'}>
+                {entry.driverName}
+              </p>
+              <p className="text-xxs text-ink-subtle">
+                {formatDateTime(entry.assignedAt)}
+                {entry.assignedByName === null
+                  ? ''
+                  : ` · ${t('drivers.assignedBy', { name: entry.assignedByName })}`}
+              </p>
+              {entry.unassignedReason !== null && (
+                <p className="text-xxs text-ink-muted">
+                  {t('drivers.cameOff', { reason: entry.unassignedReason })}
+                </p>
+              )}
             </li>
           ))}
         </ol>

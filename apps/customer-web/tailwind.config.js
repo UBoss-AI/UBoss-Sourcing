@@ -104,6 +104,28 @@ export default {
 
         // --- Focus ------------------------------------------------------
         ring: 'rgb(var(--ring) / <alpha-value>)',
+// --- The console layer ------------------------------------------
+        // The role dashboards, and only those. Declared in both themes and
+        // audited in both — see the console pairs in scripts/contrast-audit.cjs
+        // and the token block in index.css for why a dashboard gets its own
+        // ground rather than reusing the page surfaces.
+        console: 'rgb(var(--console) / <alpha-value>)',
+        'console-raised': 'rgb(var(--console-raised) / <alpha-value>)',
+        'console-border': 'rgb(var(--console-border) / <alpha-value>)',
+        // Decorative only. Never behind text — see the contrast audit's
+        // DECORATIVE list, which is where the exemption is written down.
+        'console-glow': 'rgb(var(--console-glow) / <alpha-value>)',
+        'console-glow-alt': 'rgb(var(--console-glow-alt) / <alpha-value>)',
+
+// The ordinal chart ramp. Six steps of one hue; see the token block
+        // in index.css for why these are not the badge tones.
+        'chart-seq-1': 'rgb(var(--chart-seq-1) / <alpha-value>)',
+        'chart-seq-2': 'rgb(var(--chart-seq-2) / <alpha-value>)',
+        'chart-seq-3': 'rgb(var(--chart-seq-3) / <alpha-value>)',
+        'chart-seq-4': 'rgb(var(--chart-seq-4) / <alpha-value>)',
+        'chart-seq-5': 'rgb(var(--chart-seq-5) / <alpha-value>)',
+        'chart-seq-6': 'rgb(var(--chart-seq-6) / <alpha-value>)',
+
       },
 
       // The radius scale, named by what it wraps rather than by size, so the
@@ -176,6 +198,23 @@ export default {
       },
 
       keyframes: {
+
+        // The donut arriving. One sweep of the stroke dash, once, when the
+        // data first lands — see ModernDonutCard, which keys this on the
+        // arrival of a value rather than on mount, so a background refetch
+        // does not replay it. Switched off wholesale by the reduced-motion
+        // block in index.css.
+        'donut-draw': {
+          from: { strokeDashoffset: 'var(--donut-circumference)' },
+          to: { strokeDashoffset: 'var(--donut-offset)' },
+        },
+        // A dashboard card's figure counting itself in. Opacity and a 4px
+        // rise, both composited, so a grid of twelve of these costs one
+        // layout rather than twelve.
+        'tile-in': {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
         'fade-in': {
           from: { opacity: '0' },
           to: { opacity: '1' },
@@ -189,6 +228,13 @@ export default {
         },
       },
       animation: {
+
+        // 700ms rather than the usual 200: this one is a chart being drawn,
+        // and at 200ms it reads as a flicker rather than as the figure
+        // arriving. It happens once. `backwards` so the ring is invisible
+        // rather than complete for the frame before it starts.
+        'donut-draw': 'donut-draw 700ms var(--ease-ui) backwards',
+        'tile-in': 'tile-in var(--dur-base) var(--ease-ui) backwards',
         'fade-in': 'fade-in var(--dur-base) var(--ease-ui)',
         'dialog-in': 'dialog-in var(--dur-base) var(--ease-ui)',
       },

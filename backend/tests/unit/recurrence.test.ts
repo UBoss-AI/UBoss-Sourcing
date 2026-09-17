@@ -20,6 +20,14 @@ import {
 
 const KOLKATA = 'Asia/Kolkata';
 const LONDON = 'Europe/London';
+/**
+ * The launch market. London proves the arithmetic; Warsaw is the zone a real
+ * customer's standing order will actually be scheduled in, and it changes on a
+ * different date from London - both move on the last Sunday in March, but
+ * Warsaw is CET/CEST (UTC+1/+2) where London is GMT/BST (UTC+0/+1), so a bug
+ * that happens to cancel out at zero offset shows up here and not there.
+ */
+const WARSAW = 'Europe/Warsaw';
 
 function rule(overrides: Partial<RecurrenceRule> = {}): RecurrenceRule {
   return {
@@ -52,6 +60,61 @@ describe('timezone conversion', () => {
     // BST: 06:00 local is 05:00 UTC.
     expect(zonedTimeToUtc(2026, 7, 15, 360, LONDON).toISOString()).toBe(
       '2026-07-15T05:00:00.000Z',
+    );
+  });
+
+  /**
+   * The same property, in the zone this system is being launched into.
+   *
+   * Poland is CET in winter and CEST in summer - UTC+1 and UTC+2 - so unlike
+   * London neither side of the transition is zero offset, and an arithmetic
+   * error that cancels out against GMT does not cancel out here.
+   */
+  it('tracks the Warsaw DST change so a Polish buyer keeps their delivery slot', () => {
+    // CET: 06:00 local is 05:00 UTC.
+    expect(zonedTimeToUtc(2026, 1, 15, 360, WARSAW).toISOString()).toBe(
+      '2026-01-15T05:00:00.000Z',
+    );
+
+    // CEST: 06:00 local is 04:00 UTC.
+    expect(zonedTimeToUtc(2026, 7, 15, 360, WARSAW).toISOString()).toBe(
+      '2026-07-15T04:00:00.000Z',
+    );
+  });
+
+  /**
+   * The hour that does not exist.
+   *
+   * Poland moves 02:00 to 03:00 on the last Sunday in March - 29 March 2026 -
+   * so 02:30 local is not a time on that date. A conversion that silently
+   * returned the previous day, or threw, would take a standing order that has
+   * run every week for a year and either skip it or crash the worker.
+   *
+   * What it does instead is land on 03:30 local: the same instant the clock
+   * reaches when it jumps. Pinned here because "whatever the two-pass offset
+   * correction happens to do" is not a specification, and the next person to
+   * touch that function needs to know this case was considered.
+   */
+  it('resolves a local time inside the spring-forward gap to the instant the clock jumps to', () => {
+    const skipped = zonedTimeToUtc(2026, 3, 29, 150, WARSAW); // 02:30, which never happens
+    expect(skipped.toISOString()).toBe('2026-03-29T01:30:00.000Z');
+
+    // ...which is the same instant as 03:30 local, the first moment after the jump.
+    expect(zonedTimeToUtc(2026, 3, 29, 210, WARSAW).toISOString()).toBe(skipped.toISOString());
+  });
+
+  /**
+   * The hour that happens twice.
+   *
+   * On 25 October 2026 the clock goes back from 03:00 to 02:00, so 02:30 local
+   * occurs once in CEST and again an hour later in CET. This resolves to the
+   * FIRST of the two - the summer-time one. Either answer is defensible; an
+   * answer that changes between releases is not, because a schedule charged at
+   * 02:30 twice is a customer billed twice.
+   */
+  it('resolves an ambiguous autumn local time to the first of the two', () => {
+    expect(zonedTimeToUtc(2026, 10, 25, 150, WARSAW).toISOString()).toBe(
+      '2026-10-25T01:30:00.000Z', // 02:30 CEST, not 02:30 CET
     );
   });
 
@@ -106,6 +169,42 @@ describe('every N days', () => {
     });
 
     expect(next?.toISOString()).toBe('2026-03-01T00:30:00.000Z');
+  });
+
+  /**
+   * A weekly Polish delivery, across the night the clocks go back.
+   *
+   * 25 October 2026 is the last Sunday in October: Warsaw moves from CEST
+   * (UTC+2) back to CET (UTC+1). The buyer agreed to 06:00 and must still get
+   * 06:00, which means the UTC instant this system stores has to MOVE - from
+   * 04:00Z the week before to 05:00Z on the day itself.
+   *
+   * The failure this guards against is the one that looks like nothing: a
+   * schedule that keeps its UTC instant fixed arrives an hour early, every
+   * autumn, for six months, at a warehouse that is not open yet.
+   */
+  it('keeps a Warsaw delivery at 06:00 local across the autumn clock change', () => {
+    const warsawWeekly = rule({ intervalDays: 7, timezone: WARSAW, runAtMinute: 360 });
+    const anchoredTo = new Date('2026-10-18T00:00:00.000Z');
+
+    // The week before: 06:00 CEST is 04:00 UTC.
+    expect(
+      nextRunAt({
+        rule: warsawWeekly,
+        startDate: anchoredTo,
+        after: new Date('2026-10-17T00:00:00.000Z'),
+      })?.toISOString(),
+    ).toBe('2026-10-18T04:00:00.000Z');
+
+    // The day itself: still 06:00 local, now 05:00 UTC. A different instant,
+    // deliberately - that hour is the whole point.
+    expect(
+      nextRunAt({
+        rule: warsawWeekly,
+        startDate: anchoredTo,
+        after: new Date('2026-10-18T06:00:00.000Z'),
+      })?.toISOString(),
+    ).toBe('2026-10-25T05:00:00.000Z');
   });
 
   /** The SOP's worked example: every 7 days. */

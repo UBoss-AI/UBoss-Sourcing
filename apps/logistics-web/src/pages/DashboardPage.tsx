@@ -17,31 +17,65 @@
  * the rule above is about never deriving a total from a *page* of rows, where
  * the page is a window onto data the screen cannot see all of.
  */
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Card, ErrorState, LoadingState, Metric, PageHeader } from '@/components/ui';
-import { ProportionBar } from '@/components/charts';
-import type { ProportionSegment } from '@/components/charts';
+import { ErrorState, Select } from '@/components/ui';
+import { BentoCell, BentoGrid, ConsoleGround, ConsoleHeader } from '@/components/dashboard/console';
+import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
+import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
+import { AiInsightsCard } from '@/components/dashboard/AiInsightsCard';
+import { useDashboardParams } from '@/lib/use-dashboard-params';
+import { segmentStatuses, shipmentSegments } from '@/lib/shipment-donut';
+import type { ShipmentSegmentKey } from '@/lib/shipment-donut';
+import { useInsightStream } from '@/lib/use-insight-stream';
 import { useI18n } from '@/i18n/i18n-context';
-import { formatDateTime, formatRelative } from '@/lib/format';
-import { dashboardKey, fetchDashboard } from '@/lib/logistics';
+import type { TranslationKey } from '@/i18n/i18n-context';
+import { formatRelative } from '@/lib/format';
+import { dashboardKey, driversKey, fetchDashboard, fetchDrivers } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { useSession } from '@/auth/session-context';
-import {
-  formatDuration,
-  groupStatusCounts,
-  severityTone,
-  statusTone,
-} from '@/lib/shipment-display';
-import type { Dashboard } from '@/lib/types';
+
+/** The eight ring groups, and the key each one's label lives under. */
+const SEGMENT_LABELS: Record<ShipmentSegmentKey, TranslationKey> = {
+  awaitingPickup: 'carrierDashboard.segment.awaitingPickup',
+  assigned: 'carrierDashboard.segment.assigned',
+  pickedUp: 'carrierDashboard.segment.pickedUp',
+  inTransit: 'carrierDashboard.segment.inTransit',
+  outForDelivery: 'carrierDashboard.segment.outForDelivery',
+  delivered: 'carrierDashboard.segment.delivered',
+  exception: 'carrierDashboard.segment.exception',
+  returning: 'carrierDashboard.segment.returning',
+};
 
 export function DashboardPage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { canAny } = useSession();
+  const params = useDashboardParams();
+
+  /*
+   * One driver, of this carrier's own.
+   *
+   * Its own search parameter rather than component state, like the window and
+   * the selected slice, so "how is Marek doing today" is a link a dispatcher
+   * can send. It narrows EVERY figure on the screen and not just the list -
+   * see the filter on `readDashboard`, where the same clause the shipment
+   * list uses is ANDed into the scope every count shares.
+   */
+  const driverId = params.driverId;
+
+  const filters = useMemo(
+    () => ({
+      from: params.window.from,
+      to: params.window.to,
+      ...(driverId === null ? {} : { driverProfileId: driverId }),
+    }),
+    [params.window.from, params.window.to, driverId],
+  );
 
   const query = useQuery({
-    queryKey: dashboardKey({}),
-    queryFn: () => fetchDashboard({}),
+    queryKey: dashboardKey(filters),
+    queryFn: () => fetchDashboard(filters),
     // A dispatcher leaves this open. Two minutes is often enough to notice a
     // new assignment and rare enough not to be a load problem on a self-hosted
     // box; the bell is what makes anything urgent arrive sooner.
@@ -49,9 +83,61 @@ export function DashboardPage(): React.JSX.Element {
     refetchIntervalInBackground: false,
   });
 
-  if (query.isLoading) return <LoadingState />;
+  /*
+   * The driver list, for the filter.
+   *
+   * Its own query and its own permission: a dispatcher who may read
+   * consignments but not the fleet register gets the dashboard with no driver
+   * picker rather than an error. `enabled` keeps the request from being made
+   * at all in that case.
+   */
+  const drivers = useQuery({
+    queryKey: driversKey,
+    queryFn: fetchDrivers,
+    enabled: canAny(Permission.DRIVER_READ),
+    retry: 1,
+  });
 
-  if (query.isError || query.data === undefined) {
+  /*
+   * The insight arrives as Server-Sent Events, so the summary is on screen
+   * while it is still being written. The findings underneath it appear only
+   * once the stream closes — that is the server's doing, and it is the reason
+   * a citation can be trusted: it has been checked against the metric bundle
+   * before it is sent.
+   */
+  const insights = useInsightStream('/logistics/dashboard/insights/stream', () => ({
+    from: params.window.from,
+    to: params.window.to,
+    language,
+    ...(params.segment === null ? {} : { segment: params.segment }),
+  }));
+
+  const data = query.data;
+
+  const segments = useMemo(
+    () =>
+      data === undefined
+        ? []
+        : shipmentSegments(data.statusDistribution, (key) => t(SEGMENT_LABELS[key])),
+    [data, t],
+  );
+
+  /*
+   * The ring's denominator.
+   *
+   * Summed from the server's own per-status counts rather than taken from a
+   * separate total, because there is no separate total on the wire: the
+   * distribution IS every consignment assigned to this carrier. That is
+   * arithmetic on aggregates it was handed, which is the one exception this
+   * screen has always made - see the header.
+   */
+  const totalShipments = useMemo(
+    () => (data?.statusDistribution ?? []).reduce((sum, row) => sum + row.count, 0),
+    [data],
+  );
+
+  // A hard failure of the one request behind the page.
+  if (query.isError && data === undefined) {
     return (
       <ErrorState
         error={query.error}
@@ -62,454 +148,193 @@ export function DashboardPage(): React.JSX.Element {
     );
   }
 
-  const data = query.data;
-
   return (
-    <>
-      <PageHeader title={t('dashboard.heading')} />
-
-      <TodayCounts counts={data.counts} />
-
-      <StatusDistribution data={data} />
-
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric
-          label={t('dashboard.onTime')}
-          value={
-            data.metrics.onTimeDeliveryPercentage === null
-              ? '—'
-              : `${String(data.metrics.onTimeDeliveryPercentage)}%`
-          }
-          sub={
-            data.metrics.onTimeDeliveryPercentage === null ? t('dashboard.noHistoryYet') : undefined
-          }
+    <ConsoleGround>
+      <ConsoleHeader title={t('dashboard.heading')} subtitle={t('carrierDashboard.subtitle')}>
+        <RangeTabs
+          options={[
+            { key: 'today', label: t('carrierDashboard.range.today') },
+            { key: '7d', label: t('carrierDashboard.range.last7') },
+            { key: '30d', label: t('carrierDashboard.range.last30') },
+            { key: 'custom', label: t('carrierDashboard.range.custom') },
+          ]}
+          value={params.range}
+          onChange={params.setRange}
+          customFrom={params.customFrom}
+          customTo={params.customTo}
+          onCustomChange={params.setCustomRange}
+          labels={{
+            legend: t('carrierDashboard.range.legend'),
+            from: t('carrierDashboard.range.from'),
+            to: t('carrierDashboard.range.to'),
+            // The tabs apply on selection; nothing renders this.
+            apply: '',
+          }}
         />
-        <Metric
-          label={t('dashboard.averageTransit')}
-          value={
-            data.metrics.averageTransitHours === null
-              ? '—'
-              : formatDuration(data.metrics.averageTransitHours * 60)
-          }
-          sub={data.metrics.averageTransitHours === null ? t('dashboard.noHistoryYet') : undefined}
-        />
-        <Metric
-          label={t('dashboard.firstAttempt')}
-          value={
-            data.metrics.firstAttemptSuccessPercentage === null
-              ? '—'
-              : `${String(data.metrics.firstAttemptSuccessPercentage)}%`
-          }
-          sub={
-            data.metrics.firstAttemptSuccessPercentage === null
-              ? t('dashboard.noHistoryYet')
-              : undefined
-          }
-        />
-        <Metric
-          label={t('dashboard.podPending')}
-          value={String(data.metrics.proofOfDeliveryPending)}
-        />
-      </section>
 
-      {/*
-        `items-start`, so each card is the height of what it holds. Stretched,
-        the short one beside the activity feed became a tall empty box with a
-        single line of text adrift in the middle of it.
-      */}
-      <div className="mt-6 grid items-start gap-4 lg:grid-cols-2">
-        <UrgentExceptions data={data} />
-        <DueToday data={data} />
-        <UpcomingPickups data={data} />
-        <RecentActivity data={data} />
-      </div>
-
-      {canAny(Permission.INTEGRATION_READ, Permission.ORGANISATION_READ) ? (
-        <div className="mt-4">
-          <IntegrationHealth data={data} />
-        </div>
-      ) : null}
-    </>
-  );
-}
-
-/*
- * Which step of the ordinal ramp each group takes.
- *
- * Three of the four are a sequence - waiting, then moving, then finished - so
- * they take three ascending steps and the bar reads left to right as progress.
- * "Problem" is not a stage in that sequence: it sits outside the ramp in the
- * danger colour, where it is meant to be conspicuous.
- */
-const GROUP_STEP: Record<string, ProportionSegment['step']> = {
-  'shipments.group.waiting': 2,
-  'shipments.group.moving': 4,
-  'shipments.group.finished': 6,
-  'shipments.group.problem': 'danger',
-};
-
-/**
- * Where everything is, as one bar.
- *
- * `statusDistribution` has been on the wire since this portal was built and
- * was never drawn - twenty-seven statuses with a count each, thrown away on
- * arrival. Twenty-seven segments is not a chart, so it is folded onto the same
- * four groups the shipments filter already offers, which a test holds to
- * covering every status exactly once. A carrier asking "where is my work"
- * means those four.
- */
-function StatusDistribution({ data }: { data: Dashboard }): React.JSX.Element | null {
-  const { t } = useI18n();
-
-  const segments: ProportionSegment[] = groupStatusCounts(data.statusDistribution).map((group) => ({
-    id: group.labelKey,
-    label: t(group.labelKey),
-    value: group.count,
-    step: GROUP_STEP[group.labelKey] ?? 'neutral',
-  }));
-
-  const total = segments.reduce((sum, segment) => sum + segment.value, 0);
-
-  // Nothing assigned to this carrier yet. An empty track with a legend of
-  // four zeroes says less than the tiles above already do.
-  if (total === 0) return null;
-
-  return (
-    <Card title={t('dashboard.statusDistribution')} className="mt-6" bodyClassName="px-5 py-4">
-      <ProportionBar
-        segments={segments}
-        total={total}
-        formatShare={(value, whole) => `${String(Math.round((value / whole) * 100))}%`}
-      />
-    </Card>
-  );
-}
-
-/*
- * How many columns a band of tiles gets on a wide screen.
- *
- * One column per tile, so every band ends on the same right edge as the band
- * above it. A shared six-column lattice looks tidier in the abstract and is
- * worse on the screen: the bands hold three, five and six tiles, so two of
- * them stopped mid-row and the page had three different ragged edges down its
- * right-hand side, which reads as something having failed to load.
- *
- * Every class is written out because Tailwind reads these files as text - a
- * computed `lg:grid-cols-${n}` compiles to no CSS at all.
- */
-const BAND_COLUMNS: Record<number, string> = {
-  1: 'lg:grid-cols-1',
-  2: 'lg:grid-cols-2',
-  3: 'lg:grid-cols-3',
-  4: 'lg:grid-cols-4',
-  5: 'lg:grid-cols-5',
-  6: 'lg:grid-cols-6',
-};
-
-/**
- * The fourteen counters.
- *
- * Grouped, and the grouping is the information: what needs an answer, what is
- * moving, what has gone wrong. A flat grid of fourteen equal tiles is a wall
- * of numbers that reads as one texture - nobody finds "SLA breached: 2" in it.
- */
-function TodayCounts({ counts }: { counts: Dashboard['counts'] }): React.JSX.Element {
-  const { t } = useI18n();
-
-  const groups: {
-    label: string;
-    tiles: { label: string; value: number; to?: string; tone?: 'warning' | 'danger' | undefined }[];
-  }[] = [
-    {
-      label: t('shipments.group.waiting'),
-      tiles: [
-        { label: t('dashboard.assignedToday'), value: counts.assignedToday, to: '/shipments' },
-        {
-          label: t('dashboard.acceptancePending'),
-          value: counts.acceptancePending,
-          to: '/shipments?status=ACCEPTANCE_PENDING',
-          tone: counts.acceptancePending > 0 ? 'warning' : undefined,
-        },
-        { label: t('dashboard.pickupPending'), value: counts.pickupPending, to: '/pickups' },
-      ],
-    },
-    {
-      label: t('shipments.group.moving'),
-      tiles: [
-        { label: t('dashboard.pickedUp'), value: counts.pickedUp },
-        { label: t('dashboard.dispatched'), value: counts.dispatched },
-        { label: t('dashboard.inTransit'), value: counts.inTransit },
-        { label: t('dashboard.outForDelivery'), value: counts.outForDelivery },
-        { label: t('dashboard.deliveredToday'), value: counts.deliveredToday },
-      ],
-    },
-    {
-      label: t('shipments.group.problem'),
-      tiles: [
-        {
-          label: t('dashboard.delayed'),
-          value: counts.delayed,
-          to: '/shipments?status=DELAYED',
-          tone: counts.delayed > 0 ? 'warning' : undefined,
-        },
-        {
-          label: t('dashboard.exceptions'),
-          value: counts.exceptions,
-          to: '/exceptions',
-          tone: counts.exceptions > 0 ? 'warning' : undefined,
-        },
-        {
-          label: t('dashboard.failedDeliveries'),
-          value: counts.failedDeliveries,
-          tone: counts.failedDeliveries > 0 ? 'danger' : undefined,
-        },
-        { label: t('dashboard.returns'), value: counts.returns },
-        {
-          label: t('dashboard.slaAtRisk'),
-          value: counts.slaAtRisk,
-          to: '/shipments?slaState=AT_RISK',
-          tone: counts.slaAtRisk > 0 ? 'warning' : undefined,
-        },
-        {
-          label: t('dashboard.slaBreached'),
-          value: counts.slaBreached,
-          to: '/shipments?slaState=BREACHED',
-          tone: counts.slaBreached > 0 ? 'danger' : undefined,
-        },
-      ],
-    },
-  ];
-
-  return (
-    <div className="space-y-5">
-      {groups.map((group) => (
-        <section key={group.label}>
-          <h2 className="mb-2 text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-            {group.label}
-          </h2>
-
-          <div
-            className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${BAND_COLUMNS[group.tiles.length]}`}
-          >
-            {group.tiles.map((tile) => {
-              const body = (
-                <>
-                  <p
-                    className={
-                      tile.tone === 'danger'
-                        ? 'tabular text-title text-danger'
-                        : tile.tone === 'warning'
-                          ? 'tabular text-title text-warning'
-                          : 'tabular text-title text-ink'
-                    }
-                  >
-                    {tile.value}
-                  </p>
-                  <p className="mt-1 text-xs leading-snug text-ink-muted">{tile.label}</p>
-                </>
-              );
-
-              const className =
-                'block rounded-lg border border-border bg-surface p-4 shadow-card transition-shadow';
-
-              return tile.to === undefined ? (
-                <div key={tile.label} className={className}>
-                  {body}
-                </div>
-              ) : (
-                <Link
-                  key={tile.label}
-                  to={tile.to}
-                  className={`${className} hover:border-border-hover hover:shadow-md`}
-                >
-                  {body}
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ))}
-    </div>
-  );
-}
-
-function UrgentExceptions({ data }: { data: Dashboard }): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <Card title={t('dashboard.urgentExceptions')}>
-      {data.urgentExceptions.length === 0 ? (
-        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
-          {t('exceptions.emptyTitle')}
-        </p>
-      ) : (
-        <ul className="divide-y divide-border">
-          {data.urgentExceptions.map((entry) => (
-            <li key={entry.id} className="px-5 py-3">
-              <Link to={`/shipments/${entry.shipmentId}`} className="group block">
-                <div className="flex items-center gap-2">
-                  <Badge tone={severityTone(entry.severity)} dot>
-                    {t(`severity.${entry.severity}` as never)}
-                  </Badge>
-                  <span className="truncate text-sm font-medium text-ink group-hover:text-brand">
-                    {entry.shipmentReference}
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-2 text-xs text-ink-muted">{entry.reason}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
-
-function DueToday({ data }: { data: Dashboard }): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <Card title={t('dashboard.deliveriesDueToday')}>
-      {data.deliveriesDueToday.length === 0 ? (
-        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
-          {t('common.nothingHereYet')}
-        </p>
-      ) : (
-        <ul className="divide-y divide-border">
-          {data.deliveriesDueToday.map((entry) => (
-            <li key={entry.shipmentId} className="px-5 py-3">
-              <Link
-                to={`/shipments/${entry.shipmentId}`}
-                className="flex items-baseline justify-between gap-3 text-sm hover:text-brand"
-              >
-                <span className="min-w-0 truncate">
-                  <span className="font-medium text-ink">{entry.receivingCompanyName}</span>
-                  {entry.destinationCity === null ? null : (
-                    <span className="text-ink-subtle">, {entry.destinationCity}</span>
-                  )}
-                </span>
-                <span className="shrink-0 tabular text-xs text-ink-muted">
-                  {formatDateTime(entry.estimatedDeliveryAt)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
-
-function UpcomingPickups({ data }: { data: Dashboard }): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <Card title={t('dashboard.upcomingPickups')}>
-      {data.upcomingPickups.length === 0 ? (
-        <p className="px-5 py-6 text-center text-sm text-ink-subtle">{t('pickups.emptyTitle')}</p>
-      ) : (
-        <ul className="divide-y divide-border">
-          {data.upcomingPickups.map((entry) => (
-            <li
-              key={entry.id}
-              className="flex items-baseline justify-between gap-3 px-5 py-3 text-sm"
+        {/*
+          Only where the account may read the fleet. A picker listing nobody
+          is worse than no picker: it reads as a failure to load.
+        */}
+        {canAny(Permission.DRIVER_READ) && (drivers.data?.drivers.length ?? 0) > 0 ? (
+          <label className="flex items-center gap-2">
+            <span className="sr-only">{t('carrierDashboard.driverFilter')}</span>
+            <Select
+              value={driverId ?? ''}
+              onChange={(event) => {
+                params.setDriver(event.target.value === '' ? null : event.target.value);
+              }}
+              className="w-48"
             >
-              <span className="min-w-0 truncate">
-                <span className="font-medium text-ink">{entry.warehouseName ?? '—'}</span>
-                {entry.shipmentReference === null ? null : (
-                  <span className="text-ink-subtle"> · {entry.shipmentReference}</span>
-                )}
-              </span>
-              <span className="shrink-0 tabular text-xs text-ink-muted">
-                {formatDateTime(entry.windowStartAt)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
+              <option value="">{t('carrierDashboard.allDrivers')}</option>
+              {(drivers.data?.drivers ?? []).map((driver) => (
+                <option key={driver.id} value={driver.id}>
+                  {driver.fullName}
+                </option>
+              ))}
+            </Select>
+          </label>
+        ) : null}
+
+        <RefreshButton
+          busy={query.isFetching}
+          onClick={() => {
+            void query.refetch();
+          }}
+          labels={{
+            refresh: t('carrierDashboard.refresh'),
+            refreshing: t('carrierDashboard.refreshing'),
+          }}
+        />
+      </ConsoleHeader>
+
+      <BentoGrid className="mb-6">
+        <BentoCell span={4} spanMd={3}>
+          <ModernDonutCard
+            title={t('carrierDashboard.assignedShipments')}
+            description={t('carrierDashboard.assignedShipmentsDescription')}
+            total={totalShipments}
+            centerLabel={t('carrierDashboard.centerLabel')}
+            unitLabel={t('carrierDashboard.unitLabel')}
+            segments={segments}
+            selectedSegment={params.segment}
+            onSegmentSelect={params.setSegment}
+            loading={query.isLoading}
+            lastUpdatedAt={null}
+            labels={{
+              status: t('carrierDashboard.table.stage'),
+              value: t('carrierDashboard.table.consignments'),
+              share: t('carrierDashboard.table.share'),
+              viewAsTable: t('carrierDashboard.viewAsTable'),
+              clearFilter: t('carrierDashboard.clearFilter'),
+              filteredBy: t('carrierDashboard.filteredBy'),
+              empty: t('carrierDashboard.nothingAssigned'),
+              error: t('common.theRequestFailed'),
+              retry: t('common.retry'),
+              loading: t('common.loading'),
+              remainder: t('carrierDashboard.remainder'),
+              clampNote: t('carrierDashboard.clampNote'),
+            }}
+            footer={
+              params.segment === null ? undefined : (
+                <Link
+                  to={`/shipments?status=${segmentStatuses(params.segment).join(',')}${
+                    driverId === null ? '' : `&driverProfileId=${driverId}`
+                  }`}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                >
+                  {t('carrierDashboard.openInShipments')}
+                </Link>
+              )
+            }
+          />
+        </BentoCell>
+
+        <BentoCell span={2} spanMd={3}>
+          <AiInsightsCard
+            className="h-full"
+            insight={insights.insight}
+            streamedSummary={insights.streamedSummary}
+            busy={insights.busy}
+            failed={insights.failed}
+            onExplain={() => {
+              insights.ask();
+            }}
+            onAsk={(question) => {
+              insights.ask(question);
+            }}
+            suggestions={[
+              t('carrierDashboard.ai.q1'),
+              t('carrierDashboard.ai.q2'),
+              t('carrierDashboard.ai.q3'),
+              t('carrierDashboard.ai.q4'),
+            ]}
+            placeholders={[
+              t('carrierDashboard.ai.q1'),
+              t('carrierDashboard.ai.q2'),
+              t('carrierDashboard.ai.q3'),
+            ]}
+            renderLink={(href, children) => <Link to={href}>{children}</Link>}
+            generatedLabel={
+              insights.insight === null ? undefined : formatRelative(insights.insight.generatedAt)
+            }
+            labels={{
+              title: t('aiInsights.title'),
+              askLabel: t('aiInsights.askLabel'),
+              ask: t('aiInsights.ask'),
+              asking: t('aiInsights.asking'),
+              asked: t('aiInsights.asked'),
+              askFailed: t('aiInsights.askFailed'),
+              explainChart: t('aiInsights.explainChart'),
+              explaining: t('aiInsights.explaining'),
+              explained: t('aiInsights.explained'),
+              explainFailed: t('aiInsights.explainFailed'),
+              suggestions: t('aiInsights.suggestions'),
+              findings: t('aiInsights.findings'),
+              nextSteps: t('aiInsights.nextSteps'),
+              evidence: t('aiInsights.evidence'),
+              generated: t('aiInsights.generated'),
+              disclosure: t('aiInsights.disclosure'),
+              deterministic: t('aiInsights.deterministic'),
+              unavailable: t('aiInsights.unavailable'),
+              idle: t('aiInsights.idle'),
+              severity: {
+                info: t('aiInsights.severity.info'),
+                attention: t('aiInsights.severity.attention'),
+                urgent: t('aiInsights.severity.urgent'),
+              },
+            }}
+          />
+        </BentoCell>
+      </BentoGrid>
+
+    </ConsoleGround>
   );
 }
 
-function RecentActivity({ data }: { data: Dashboard }): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <Card title={t('dashboard.recentActivity')}>
-      {data.recentActivity.length === 0 ? (
-        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
-          {t('common.nothingHereYet')}
-        </p>
-      ) : (
-        /*
-          A feed, so it scrolls in its own box rather than setting the height
-          of the dashboard. Every entry for one busy shipment made this card
-          three times the height of the other three put together.
-        */
-        <ul className="max-h-80 divide-y divide-border overflow-y-auto">
-          {data.recentActivity.map((entry, index) => (
-            <li key={`${entry.shipmentId}-${String(index)}`} className="px-5 py-3">
-              <Link to={`/shipments/${entry.shipmentId}`} className="group block">
-                <div className="flex items-center justify-between gap-3">
-                  <Badge tone={statusTone(entry.status)} dot>
-                    {t(`status.${entry.status}` as never)}
-                  </Badge>
-                  <span className="shrink-0 text-xxs text-ink-subtle">
-                    {formatRelative(entry.occurredAt)}
-                  </span>
-                </div>
-                <p className="mt-1 truncate text-sm text-ink group-hover:text-brand">
-                  {entry.shipmentReference} · {entry.receivingCompanyName}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
-
-/**
- * Is the carrier feed working?
+/*
+ * The four-segment `ProportionBar` that used to sit here is gone, and what
+ * replaced it is the ring at the top of the page.
  *
- * Every field is null for a carrier that works entirely inside the portal,
- * which is the ordinary case and NOT an error state. It says so in words
- * rather than showing a grey light that reads as broken.
+ * It folded the twenty-seven statuses into the same four groups the shipments
+ * FILTER offers — waiting, moving, problem, finished — which is right for a
+ * filter and too coarse for the question a dispatcher opens this screen with.
+ * "Moving" held both a consignment sitting in an origin hub and one on a van
+ * two streets away, and those are different mornings.
+ *
+ * The eight-group mapping is in `lib/shipment-donut.ts`, beside the four-group
+ * one it deliberately does not replace, with a test holding both to covering
+ * every status the backend can send.
  */
-function IntegrationHealth({ data }: { data: Dashboard }): React.JSX.Element {
-  const { t } = useI18n();
-  const integration = data.integration;
 
-  if (integration.provider === null || integration.provider === 'MANUAL') {
-    return (
-      <Card title={t('dashboard.integrationHealth')} bodyClassName="px-5 py-4">
-        <p className="text-sm text-ink-muted">{t('dashboard.noCarrierApi')}</p>
-      </Card>
-    );
-  }
-
-  const unhealthy = integration.consecutiveFailures > 0 || integration.deadLetteredEvents > 0;
-
-  return (
-    <Card title={t('dashboard.integrationHealth')} bodyClassName="px-5 py-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Badge tone={unhealthy ? 'warning' : 'success'} dot>
-          {integration.provider} · {integration.state ?? '—'}
-        </Badge>
-
-        <p className="text-sm text-ink-muted">
-          {integration.lastTrackingSyncAt === null
-            ? t('dashboard.neverSynced')
-            : `${t('dashboard.lastSync')}: ${formatRelative(integration.lastTrackingSyncAt)}`}
-        </p>
-      </div>
-
-      {integration.deadLetteredEvents > 0 ? (
-        <p className="mt-3 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning">
-          {String(integration.deadLetteredEvents)} · {t('exceptionType.UNMAPPED_EXTERNAL_EVENT')}
-        </p>
-      ) : null}
-    </Card>
-  );
-}
+/*
+ * The fourteen counters, the four service metrics, the exception feed, the
+ * pickups, the deliveries due today, the activity list and the integration
+ * health panel all used to live below the ring.
+ *
+ * They were removed deliberately: this screen is the ring and the insights
+ * panel now, and nothing else. Every figure they showed is still on the API
+ * — `readDashboard` returns all of it — and every one of them is still
+ * reachable on the screen that owns it: Shipments, Collections, Dispatch and
+ * Problems. Their markup is in this file's history if it is ever wanted back.
+ */

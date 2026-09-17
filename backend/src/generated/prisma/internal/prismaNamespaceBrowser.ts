@@ -1541,6 +1541,15 @@ export type NotificationDeliveryScalarFieldEnum = (typeof NotificationDeliverySc
 export const AdminNotificationScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
+  class: 'class',
+  status: 'status',
+  resolutionKey: 'resolutionKey',
+  resolutionPolicy: 'resolutionPolicy',
+  resolvedAt: 'resolvedAt',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionReason: 'resolutionReason',
+  resolutionSource: 'resolutionSource',
+  occurrence: 'occurrence',
   variablesJson: 'variablesJson',
   linkPath: 'linkPath',
   requiredPermission: 'requiredPermission',
@@ -1556,7 +1565,8 @@ export type AdminNotificationScalarFieldEnum = (typeof AdminNotificationScalarFi
 export const AdminNotificationReadScalarFieldEnum = {
   notificationId: 'notificationId',
   userId: 'userId',
-  readAt: 'readAt'
+  readAt: 'readAt',
+  dismissedAt: 'dismissedAt'
 } as const
 
 export type AdminNotificationReadScalarFieldEnum = (typeof AdminNotificationReadScalarFieldEnum)[keyof typeof AdminNotificationReadScalarFieldEnum]
@@ -3704,6 +3714,9 @@ export type LogisticsDispatchManifestEntryScalarFieldEnum = (typeof LogisticsDis
 export const LogisticsDriverProfileScalarFieldEnum = {
   id: 'id',
   logisticsPartnerId: 'logisticsPartnerId',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
   partnerUserId: 'partnerUserId',
   state: 'state',
   employeeReference: 'employeeReference',
@@ -3745,6 +3758,7 @@ export const LogisticsDriverAssignmentScalarFieldEnum = {
   shipmentId: 'shipmentId',
   driverProfileId: 'driverProfileId',
   vehicleId: 'vehicleId',
+  activeShipmentId: 'activeShipmentId',
   isPickupLeg: 'isPickupLeg',
   isDeliveryLeg: 'isDeliveryLeg',
   routeSequence: 'routeSequence',
@@ -3752,6 +3766,9 @@ export const LogisticsDriverAssignmentScalarFieldEnum = {
   unassignedAt: 'unassignedAt',
   completedAt: 'completedAt',
   assignedByPartnerUserId: 'assignedByPartnerUserId',
+  assignedByLabel: 'assignedByLabel',
+  unassignedReason: 'unassignedReason',
+  previousAssignmentId: 'previousAssignmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3879,6 +3896,13 @@ export const LogisticsNotificationScalarFieldEnum = {
   body: 'body',
   variablesJson: 'variablesJson',
   dedupeKey: 'dedupeKey',
+  class: 'class',
+  status: 'status',
+  resolutionKey: 'resolutionKey',
+  resolvedAt: 'resolvedAt',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionReason: 'resolutionReason',
+  resolutionSource: 'resolutionSource',
   readAt: 'readAt',
   emailedAt: 'emailedAt',
   createdAt: 'createdAt'
@@ -4802,6 +4826,9 @@ export type NotificationDeliveryOrderByRelevanceFieldEnum = (typeof Notification
 export const AdminNotificationOrderByRelevanceFieldEnum = {
   id: 'id',
   kind: 'kind',
+  resolutionKey: 'resolutionKey',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionReason: 'resolutionReason',
   linkPath: 'linkPath',
   requiredPermission: 'requiredPermission',
   relatedType: 'relatedType',
@@ -6210,6 +6237,9 @@ export type LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum = (typeof Lo
 export const LogisticsDriverProfileOrderByRelevanceFieldEnum = {
   id: 'id',
   logisticsPartnerId: 'logisticsPartnerId',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
   partnerUserId: 'partnerUserId',
   employeeReference: 'employeeReference',
   licenceNumber: 'licenceNumber'
@@ -6232,7 +6262,11 @@ export const LogisticsDriverAssignmentOrderByRelevanceFieldEnum = {
   shipmentId: 'shipmentId',
   driverProfileId: 'driverProfileId',
   vehicleId: 'vehicleId',
-  assignedByPartnerUserId: 'assignedByPartnerUserId'
+  activeShipmentId: 'activeShipmentId',
+  assignedByPartnerUserId: 'assignedByPartnerUserId',
+  assignedByLabel: 'assignedByLabel',
+  unassignedReason: 'unassignedReason',
+  previousAssignmentId: 'previousAssignmentId'
 } as const
 
 export type LogisticsDriverAssignmentOrderByRelevanceFieldEnum = (typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum]
@@ -6308,7 +6342,10 @@ export const LogisticsNotificationOrderByRelevanceFieldEnum = {
   shipmentId: 'shipmentId',
   title: 'title',
   body: 'body',
-  dedupeKey: 'dedupeKey'
+  dedupeKey: 'dedupeKey',
+  resolutionKey: 'resolutionKey',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionReason: 'resolutionReason'
 } as const
 
 export type LogisticsNotificationOrderByRelevanceFieldEnum = (typeof LogisticsNotificationOrderByRelevanceFieldEnum)[keyof typeof LogisticsNotificationOrderByRelevanceFieldEnum]

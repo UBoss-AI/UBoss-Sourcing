@@ -35,6 +35,9 @@ import { AiMessage } from '@/pages/ai/AiMessage';
 import { CartModeTabs } from '@/components/CartModeTabs';
 import { CadenceFields } from '@/pages/schedule/CadenceFields';
 import { DatePicker } from '@/components/DatePicker';
+import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
+import { AiInsightsCard } from '@/components/dashboard/AiInsightsCard';
+import { RangeTabs } from '@/components/dashboard/controls';
 import { emptyCadenceDraft } from '@/lib/schedule-cadence';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import type {
@@ -577,5 +580,310 @@ describe('the date picker', () => {
     const headers = screen.getAllByRole('columnheader');
     expect(headers).toHaveLength(7);
     expect(headers.map((header) => header.textContent)).toContain('MMonday');
+  });
+});
+
+/**
+ * The dashboard.
+ *
+ * Three surfaces, here for three different reasons:
+ *
+ *   - the ring, because a chart is the easiest thing on a page to build so
+ *     that only sighted pointer users can read it;
+ *   - the range tabs, because a tab list with a hand-rolled roving tabindex is
+ *     the easiest thing on a page to get subtly wrong;
+ *   - the insights panel, because it is a live region and a form in one card.
+ */
+describe('the dashboard', () => {
+  const DONUT_LABELS = {
+    status: 'Status',
+    value: 'Orders',
+    share: 'Share',
+    viewAsTable: 'View as a table',
+    clearFilter: 'Clear filter',
+    filteredBy: 'Showing {{label}} only',
+    empty: 'Nothing to show.',
+    error: 'Something went wrong.',
+    retry: 'Try again',
+    loading: 'Loading',
+    remainder: '{{count}} not shown',
+    clampNote: 'Small slices are drawn at a readable minimum.',
+  };
+
+  const SEGMENTS = [
+    { id: 'action', label: 'Waiting on you', value: 3, step: 'warning' as const },
+    { id: 'processing', label: 'Being prepared', value: 5, step: 3 as const },
+    { id: 'delivered', label: 'Delivered', value: 11, step: 'success' as const },
+    { id: 'closed', label: 'Cancelled or returned', value: 1, step: 'danger' as const },
+  ];
+
+  it('has no violations with data in it', async () => {
+    const { container } = renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={20}
+        centerLabel="MY ORDERS"
+        unitLabel="orders in this period"
+        segments={SEGMENTS}
+        selectedSegment={null}
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+
+    await expectNoA11yViolations(container);
+  });
+
+  it('has no violations with a segment selected', async () => {
+    const { container } = renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={20}
+        centerLabel="MY ORDERS"
+        unitLabel="orders in this period"
+        segments={SEGMENTS}
+        selectedSegment="action"
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+
+    await expectNoA11yViolations(container);
+  });
+
+  it('has no violations while loading, or when empty', async () => {
+    const loading = renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={0}
+        centerLabel="MY ORDERS"
+        unitLabel="orders"
+        segments={[]}
+        selectedSegment={null}
+        onSegmentSelect={() => undefined}
+        loading
+        labels={DONUT_LABELS}
+      />,
+    );
+    await expectNoA11yViolations(loading.container);
+
+    const empty = renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={0}
+        centerLabel="MY ORDERS"
+        unitLabel="orders"
+        segments={SEGMENTS.map((segment) => ({ ...segment, value: 0 }))}
+        selectedSegment={null}
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+    await expectNoA11yViolations(empty.container);
+  });
+
+  it('gives the ring a name that says what it shows', () => {
+    renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={20}
+        centerLabel="MY ORDERS"
+        unitLabel="orders in this period"
+        segments={SEGMENTS}
+        selectedSegment={null}
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+
+    /*
+     * The arcs are decoration; the ring as a whole is an image whose label
+     * carries every figure. So somebody who cannot see it learns what the
+     * chart says without tabbing through eight segments to find out.
+     */
+    const chart = screen.getByRole('img');
+    const label = chart.getAttribute('aria-label') ?? '';
+
+    expect(label).toContain('My orders');
+    expect(label).toContain('Waiting on you: 3');
+    expect(label).toContain('Delivered: 11');
+  });
+
+  it('makes every segment a real button with a pressed state', () => {
+    renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={20}
+        centerLabel="MY ORDERS"
+        unitLabel="orders"
+        segments={SEGMENTS}
+        selectedSegment="delivered"
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+
+    for (const segment of SEGMENTS) {
+      const entry = screen.getByRole('button', { name: new RegExp(segment.label, 'i') });
+      expect(entry).toHaveAttribute('aria-pressed', segment.id === 'delivered' ? 'true' : 'false');
+    }
+  });
+
+  it('gives every legend entry a target big enough to tap', () => {
+    // 44px is the practical floor for a control somebody presses on a phone.
+    // A legend row is otherwise about 28px, which is why the minimum is set
+    // rather than inherited.
+    renderWithProviders(
+      <ModernDonutCard
+        title="My orders"
+        total={20}
+        centerLabel="MY ORDERS"
+        unitLabel="orders"
+        segments={SEGMENTS}
+        selectedSegment={null}
+        onSegmentSelect={() => undefined}
+        labels={DONUT_LABELS}
+      />,
+    );
+
+    for (const segment of SEGMENTS) {
+      const entry = screen.getByRole('button', { name: new RegExp(segment.label, 'i') });
+      expect(entry.className).toContain('min-h-[2.75rem]');
+    }
+  });
+
+  it('has no violations on the range tabs', async () => {
+    const { container } = renderWithProviders(
+      <RangeTabs
+        options={[
+          { key: 'today', label: 'Today' },
+          { key: '7d', label: 'Last 7 days' },
+          { key: '30d', label: 'Last 30 days' },
+          { key: 'custom', label: 'Custom' },
+        ]}
+        value="30d"
+        onChange={() => undefined}
+        labels={{ legend: 'Reporting period', from: 'From', to: 'To', apply: 'Apply' }}
+      />,
+    );
+
+    await expectNoA11yViolations(container);
+  });
+
+  it('leaves exactly one range tab in the tab order', () => {
+    // The roving tabindex. Four stops for four tabs would mean tabbing past
+    // the whole control to reach the chart; one stop plus arrow keys is what
+    // a tab list is supposed to be.
+    renderWithProviders(
+      <RangeTabs
+        options={[
+          { key: 'today', label: 'Today' },
+          { key: '7d', label: 'Last 7 days' },
+          { key: '30d', label: 'Last 30 days' },
+          { key: 'custom', label: 'Custom' },
+        ]}
+        value="30d"
+        onChange={() => undefined}
+        labels={{ legend: 'Reporting period', from: 'From', to: 'To', apply: 'Apply' }}
+      />,
+    );
+
+    const tabs = screen.getAllByRole('tab');
+    const reachable = tabs.filter((tab) => tab.getAttribute('tabindex') !== '-1');
+
+    expect(tabs).toHaveLength(4);
+    expect(reachable).toHaveLength(1);
+    expect(reachable[0]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('has no violations on the insights panel, idle or answered', async () => {
+    const labels = {
+      title: 'UBOSS AI Insights',
+      askLabel: 'Ask a question about this dashboard',
+      ask: 'Ask',
+      asking: 'Thinking',
+      asked: 'Answer ready',
+      askFailed: 'That did not work.',
+      explainChart: 'Explain this chart',
+      explaining: 'Reading',
+      explained: 'Explained',
+      explainFailed: 'Could not explain',
+      suggestions: 'Try asking',
+      findings: 'What stands out',
+      nextSteps: 'Suggested next steps',
+      evidence: 'The figures behind this',
+      generated: 'Generated {{when}}',
+      disclosure: 'Answers are generated.',
+      deterministic: 'No AI provider is configured.',
+      unavailable: 'The AI provider could not be reached.',
+      idle: 'Ask a question about the figures on this page.',
+      severity: { info: 'Note', attention: 'Attention', urgent: 'Urgent' },
+    };
+
+    const idle = renderWithProviders(
+      <AiInsightsCard
+        labels={labels}
+        streamedSummary=""
+        insight={null}
+        busy={false}
+        failed={false}
+        onExplain={() => undefined}
+        onAsk={() => undefined}
+        suggestions={['Which orders need my attention?']}
+        placeholders={['Which orders need my attention?']}
+        renderLink={(href, children) => <a href={href}>{children}</a>}
+      />,
+    );
+    await expectNoA11yViolations(idle.container);
+
+    const answered = renderWithProviders(
+      <AiInsightsCard
+        labels={labels}
+        streamedSummary=""
+        insight={{
+          summary: 'Three orders are waiting for payment.',
+          findings: [
+            {
+              title: 'Awaiting payment: 3',
+              detail: 'Three orders cannot progress until they are paid.',
+              severity: 'urgent',
+              evidence: ['orders.actionRequired'],
+            },
+          ],
+          suggestedActions: [
+            {
+              label: 'Review unpaid orders',
+              detail: 'Three are waiting.',
+              metricKey: 'orders.actionRequired',
+              href: '/account/orders',
+            },
+          ],
+          evidence: [
+            {
+              metricKey: 'orders.actionRequired',
+              label: 'Orders awaiting payment',
+              value: 3,
+              unit: 'orders',
+              href: '/account/orders',
+            },
+          ],
+          generatedAt: '2026-09-17T09:00:00.000Z',
+          window: { from: '2026-08-18T00:00:00.000Z', to: '2026-09-17T00:00:00.000Z' },
+          metricKeys: ['orders.actionRequired'],
+          source: 'deterministic',
+          model: null,
+          fallbackReason: 'not-configured',
+        }}
+        busy={false}
+        failed={false}
+        onExplain={() => undefined}
+        onAsk={() => undefined}
+        suggestions={['Which orders need my attention?']}
+        placeholders={['Which orders need my attention?']}
+        renderLink={(href, children) => <a href={href}>{children}</a>}
+        generatedLabel="2 minutes ago"
+      />,
+    );
+    await expectNoA11yViolations(answered.container);
   });
 });

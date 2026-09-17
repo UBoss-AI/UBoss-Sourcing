@@ -296,6 +296,17 @@ export const AuditAction = {
   /// A retention sweep that deleted something. Not written when a sweep finds
   /// nothing - an empty pass is not an event.
   RETENTION_PURGED: 'retention.purged',
+
+  // Console notifications
+  //
+  /// A member of staff closed a console alert by hand.
+  ///
+  /// Audited where reading and dismissing are not, and the difference is who
+  /// is affected: reading a row is a fact about one person's bell, closing one
+  /// is a claim that a problem is over and it changes what every colleague
+  /// sees. Anything that can make a problem stop being visible has to leave a
+  /// record of who made it stop and what they said about it.
+  NOTIFICATION_RESOLVED: 'notification.resolved',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

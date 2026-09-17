@@ -446,7 +446,13 @@ export type NotificationDelivery = Prisma.NotificationDeliveryModel
 export type AdminNotification = Prisma.AdminNotificationModel
 /**
  * Model AdminNotificationRead
+ * One person's own state on one console row.
  * 
+ * The private half of the lifecycle. Reading and dismissing are facts about
+ * a reader; resolving is a fact about the world. Several people share one
+ * console, so these two must never be stored in the same place - which is
+ * why resolution lives on the notification above and this table holds only
+ * what belongs to the caller.
  */
 export type AdminNotificationRead = Prisma.AdminNotificationReadModel
 /**

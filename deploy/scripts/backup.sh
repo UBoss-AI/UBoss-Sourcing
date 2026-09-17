@@ -118,7 +118,26 @@ encrypt_file() {
 # in the wrong place anyway. `URL` plus `decodeURIComponent` is exactly what
 # `src/infra/prisma.ts` uses, so this reads the value the same way the
 # application does rather than a way that usually agrees with it.
-DB_URL="${DATABASE_URL:?DATABASE_URL is not set}"
+# A SEPARATE ACCOUNT FOR BACKUPS, IF ONE HAS BEEN MADE.
+#
+# `UBOSS_BACKUP_DATABASE_URL` names `uboss_backup`, which has SELECT, LOCK
+# TABLES, SHOW VIEW, EVENT and TRIGGER on this database and nothing else -
+# enough to take a complete dump and not enough to change a row. The
+# application's own account cannot be used for the whole job any more: since
+# the audit log was made append-only (deploy/scripts/apply-grants.sh),
+# `uboss_app` holds a per-table privilege map, and while it can still read
+# everything, using the live application's credential for the nightly backup
+# means one leaked value is both "read every customer" and "write every order".
+#
+# Falls back to DATABASE_URL so that an existing deployment keeps working
+# unchanged. docs/DATABASE-PRODUCTION.md section 6 has the CREATE USER.
+DB_URL="${UBOSS_BACKUP_DATABASE_URL:-${DATABASE_URL:?DATABASE_URL is not set}}"
+if [[ -z "${UBOSS_BACKUP_DATABASE_URL:-}" ]]; then
+  warn_once="the application's own account is being used for the backup.
+   Create uboss_backup and set UBOSS_BACKUP_DATABASE_URL in the systemd unit -
+   docs/DATABASE-PRODUCTION.md section 6."
+  printf '\033[1;33m !\033[0m %s\n' "$warn_once"
+fi
 
 eval "$(DB_URL="$DB_URL" node -e '
   const u = new URL(process.env.DB_URL);
@@ -145,17 +164,40 @@ eval "$(DB_URL="$DB_URL" node -e '
 # generated pieces that a bare dump silently omits - and a restore missing
 # `chk_schedule_frequency_field_present` accepts inserts the real database
 # refuses, which is a far worse outcome than a failed restore.
+#
+# `--no-tablespaces` because the alternative is granting PROCESS. From MySQL 8
+# and MariaDB 10.5 on, dumping tablespace definitions needs a server-level
+# privilege that also lets the holder see every other connection's running
+# query - which on this schema means other people's data in a SHOW PROCESSLIST.
+# This schema has no user tablespaces, so the flag costs nothing and keeps the
+# backup account down to reading rows.
 # -----------------------------------------------------------------------------
 log "dumping $DB_NAME"
 DUMP="$DEST/db-$STAMP.sql.gz"
 
-MYSQL_PWD="$DB_PASS" mysqldump \
+# THE BINARY IS DETECTED, NOT NAMED, and that is not tidiness.
+#
+# MariaDB 11.4 does not ship `mysqldump`. The mysql-named symlinks were dropped
+# and only the mariadb-named tools remain - `mariadb-dump` here, `mariadb`,
+# `mariadb-binlog`, `mariadb-check`. This script hard-coded `mysqldump` while
+# the target was 10.4, where it exists; on the upgrade it would have failed
+# every night with "command not found", and the way a nightly backup fails is
+# quietly, in a timer log nobody reads, until the morning somebody needs it.
+#
+# Both names, in that order: the new one first so a machine that has both uses
+# the supported tool.
+DUMP_BIN="$(command -v mariadb-dump || command -v mysqldump || true)"
+[[ -n "$DUMP_BIN" ]] || die "neither mariadb-dump nor mysqldump is installed.
+   On Ubuntu:  sudo apt-get install -y mariadb-client"
+
+MYSQL_PWD="$DB_PASS" "$DUMP_BIN" \
   --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
   --single-transaction \
   --quick \
   --routines --triggers --events \
   --hex-blob \
   --default-character-set=utf8mb4 \
+  --no-tablespaces \
   --databases "$DB_NAME" \
   | gzip -6 > "$DUMP"
 

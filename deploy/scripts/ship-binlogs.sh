@@ -90,8 +90,10 @@ flock -n 9 || { log "a previous run is still shipping - skipping this tick"; exi
 
 command -v rclone >/dev/null || die "rclone is not installed"
 
-# The client binaries are `mariadb-binlog` on Ubuntu's MariaDB 10.11 and
-# `mysqlbinlog` on older packages and on XAMPP. Whichever is here.
+# The client binaries are `mariadb-binlog` on MariaDB 11.4 - which ships ONLY
+# the mariadb-named tools - and `mysqlbinlog` on older packages and on XAMPP.
+# Whichever is here. This detection is why this script survived the version
+# change and `backup.sh`, which hard-coded `mysqldump`, did not.
 BINLOG_BIN="$(command -v mariadb-binlog || command -v mysqlbinlog || true)"
 [[ -n "$BINLOG_BIN" ]] || die "neither mariadb-binlog nor mysqlbinlog is installed"
 CLIENT_BIN="$(command -v mariadb || command -v mysql || true)"

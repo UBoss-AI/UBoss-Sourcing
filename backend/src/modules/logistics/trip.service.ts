@@ -333,7 +333,16 @@ export async function recordLocationPing(input: LocationPingInput): Promise<Ping
           id: newId(),
           tripId: trip.id,
           driverProfileId: trip.driverProfileId,
-          driverUserId: trip.driver.partnerUser.userId,
+          /*
+           * Non-null by construction, and the `??` is not defensiveness.
+           *
+           * A ping arrives on a device token minted when THIS driver started a
+           * trip in the app, and only a driver with an account can do either -
+           * so a record-only driver never reaches this line. The fallback
+           * exists because the relation is nullable in the schema now, and a
+           * cast would have hidden that rather than stated it.
+           */
+          driverUserId: trip.driver.partnerUser?.userId ?? '',
           latitude: input.latitude,
           longitude: input.longitude,
           accuracyM: input.accuracyM ?? null,
@@ -421,7 +430,7 @@ export async function readLiveLocation(
       lastLongitude: true,
       lastAccuracyM: true,
       lastPingAt: true,
-      driver: { select: { partnerUser: { select: { fullName: true } } } },
+      driver: { select: { fullName: true } },
     },
   });
 
@@ -436,7 +445,7 @@ export async function readLiveLocation(
 
   return {
     tripId: trip.id,
-    driverName: trip.driver.partnerUser.fullName,
+    driverName: trip.driver.fullName,
     latitude: trip.lastLatitude.toString(),
     longitude: trip.lastLongitude.toString(),
     accuracyM: trip.lastAccuracyM,

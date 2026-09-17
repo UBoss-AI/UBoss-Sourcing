@@ -18,9 +18,9 @@ this document points at it rather than repeating it.
 | **Application** | UBOSS Sourcing (B2B sourcing and marketplace platform) |
 | **Repository** | `https://github.com/UBoss-AI/UBoss-Sourcing.git` (branch `main`) — *Verified from repository:* `git remote -v` |
 | **Environment** | Production, initial single-node — Hostinger KVM 4 |
-| **Version** | 2.1 |
+| **Version** | 2.3 |
 | **Date of analysis** | 2026-09-16 |
-| **Last reviewed** | 2026-09-16 |
+| **Last reviewed** | 2026-09-17 |
 | **Next mandatory review** | 2026-12-16, or immediately on any change to storage driver, payment provider, hosting region, or legal entity |
 | **Approvers** | `<DECIDE>` Technical owner · `<DECIDE>` Business owner · `<DECIDE>` Data protection adviser · `<DECIDE>` Polish tax adviser |
 | **Classification** | Internal. Contains no secrets and must never contain any. |
@@ -32,6 +32,7 @@ this document points at it rather than repeating it.
 | 1.0 | 2026-09-14 | Repository | First deployment guide: single-VPS shape, release and rollback procedure |
 | 2.0 | 2026-09-16 | Deployment review | Full production-readiness review. Adds verified component inventory, capacity model, EU/Poland compliance matrix, CI/CD design, migration plan from XAMPP, risk register. **Records six blocking defects that prevent production boot.** |
 | 2.1 | 2026-09-16 | Deployment review | **B1-B6 fixed and verified.** S3 storage driver implemented; `release.sh` copies `prisma.config.ts`, injects `VITE_API_BASE_URL` and builds the logistics portal; `carriers` vhost added; backups encrypted and copied off-site with verification; `.gitignore` covers environment files. Verdict moves from **NO-GO** to **CONDITIONAL GO**. |
+| 2.3 | 2026-09-17 | Database review | **The database layer is prepared and tested against the version production will run.** Production target moves from the packaged 10.11 to **MariaDB 11.4 LTS** (supported fifteen months longer, and longer than 11.8 — §13.1); `bootstrap.sh` installs it from MariaDB's repository and loads the timezone tables. Two latent defects found and fixed: the documented `REVOKE` that makes `audit_logs` append-only **cannot work** and would have failed go-live, and `backup.sh` hard-coded `mysqldump`, which 11.4 does not ship. A pinned 11.4.13 compatibility container, five operator scripts, and CI steps for drift, least privilege and data validation. Section 13 is now a summary; the detail lives in three `docs/DATABASE-*.md` documents. |
 | 2.2 | 2026-09-16 | Deployment review | **The remaining technical blockers are closed.** Release lock and sudoers rule; `X-Forwarded-For` no longer attacker-chosen, in nginx *and* in `trustProxy`; CSP extended so enforcing it will not blank checkout; Node pinned to 24 everywhere; automatic security updates, a fail2ban policy and journal caps in `bootstrap.sh`; binary-log shipping for a ~15-minute recovery point; on-box self-checks; CI, CodeQL and Dependabot. What is left in §26 is owner decisions, a penetration test and a load test. |
 
 ### Related documents
@@ -39,6 +40,10 @@ this document points at it rather than repeating it.
 | For | Read |
 |---|---|
 | **What is actually built, capability by capability, against the product description** — and what is missing | `docs/PRODUCT-READINESS.md` |
+| **Which MariaDB and why, its configuration, its four accounts, the connection budget, collation and time** | `docs/DATABASE-PRODUCTION.md` |
+| **Migrations, schema drift, getting data out of XAMPP, what data may travel, validation** | `docs/DATABASE-MIGRATION.md` |
+| **Backups, restore rehearsals, point-in-time recovery, the database runbook** | `docs/DATABASE-RECOVERY.md` |
+| **Serving the three front ends from a static host instead of nginx on this box** — and the two processes that cannot go there | `docs/NETLIFY.md` |
 | Backup policy, restore procedure, migrations, payment reconciliation, incident response, hardening checklist | `backend/docs/RUNBOOK.md` |
 | Personal data held, retention, Art. 15 export, Art. 30 register skeleton | `backend/docs/DATA-PROTECTION.md` |
 | VAT handling for European markets | `backend/docs/EU-VAT.md` |
@@ -86,7 +91,7 @@ of this review was substantially correct, with the corrections noted.
 | Seller portal | **Not a fourth application.** The Seller Hub is a route tree inside `customer-web` | `apps/customer-web/src/pages/seller/` **[VR]** |
 | API | Fastify 5.12 + TypeScript, ESM, Zod 4 schemas, pino 10 logging | `backend/package.json`, `backend/src/http/app.ts` **[VR]** |
 | ORM | **Prisma 7.10.0 with the `@prisma/adapter-mariadb` driver adapter** — not the bundled query engine | `backend/src/infra/prisma.ts` **[VR]** |
-| Database | MariaDB. Local dev **10.4.32** (XAMPP); production target **10.11.x** on Ubuntu 24.04 | `mysql.exe --version`; Launchpad `noble` source `mariadb 1:10.11.14` **[VR][VE]** |
+| Database | MariaDB. Local dev **10.4.32** (XAMPP); production target **11.4 LTS**, tested on **11.4.13** | `mysql.exe --version` **[VR]**; migrations, test suite and configuration run against 11.4.13 **[VR]**. The decision and the alternatives are in `docs/DATABASE-PRODUCTION.md` §3 |
 | Worker | Separate Node process, `dist/worker/index.js`, database-backed queue with a lease | `backend/src/worker/index.js`, `backend/src/infra/queue/database-queue.ts` **[VR]** |
 | Scheduler | **No separate scheduler process.** Periodic work is enqueued by the worker itself on a 60 s timer, deduplicated by a time-slot key against a `UNIQUE` index | `backend/src/worker/index.ts` `maintenance()`; `JobQueue.dedupeKey @unique` **[VR]** |
 | Reverse proxy | nginx, static SPA serving + `/api/v1` proxy to three loopback API instances | `deploy/nginx/uboss.conf` **[VR]** |
@@ -143,7 +148,7 @@ The nine technical blockers recorded after that review are now closed too.
 | **B10** | **Node unpinned** — three majors in play across the server, CI and development machines. | **FIXED** | `.nvmrc` = 24 (Active LTS **[VE]**); `engines: >=24.0.0` in all five `package.json` files; `NODE_MAJOR=24` in `bootstrap.sh`; CI reads `.nvmrc` rather than repeating the number anywhere |
 | **B11** | **The CSP would blank checkout if enforced (S3)** — `script-src 'self'`, `connect-src 'self'` and no `frame-src`, against a storefront that loads Stripe.js and draws Elements in cross-origin iframes. | **EXTENDED — the swap to enforcing is a go-live step** | The shipped policy now carries Stripe's published origins (`js.stripe.com`, `*.js.stripe.com`, `hooks.stripe.com` for 3-D Secure, `api.stripe.com`, `*.stripe.com`) and Razorpay's loader, plus a `$uboss_csp_extra` hook for whichever map host this installation configures. **Still Report-Only**, deliberately — §11.4 |
 | **B12** | **No automatic security updates and no fail2ban policy**, although the package was installed. | **FIXED** | `bootstrap.sh` writes `/etc/apt/apt.conf.d/51-uboss-unattended` (security origins only, and **no automatic reboot** — one box, no unscheduled outage), a `jail.local` with `sshd`, `nginx-http-auth` and `nginx-limit-req`, and journald caps at 2 G / 30 days |
-| **B14** | **No CI.** Nothing at all stood between a commit and a release. | **FIXED** | `.github/workflows/ci.yml` — the backend against **MariaDB 10.11** with two databases (the suite refuses to run when `TEST_DATABASE_URL` equals `DATABASE_URL`), `migrate deploy` on both, `migrate status`, each frontend's own `verify`, `npm audit`, CycloneDX SBOMs, gitleaks over the full history, and a warning on any new migration containing `DROP`, `RENAME` or `NOT NULL`. Plus `codeql.yml` and `dependabot.yml`. `deploy.yml` exists but is **manual-only and inert** until an owner configures it |
+| **B14** | **No CI.** Nothing at all stood between a commit and a release. | **FIXED** | `.github/workflows/ci.yml` — the backend against **MariaDB 11.4.13** - the exact production patch, pinned - with two databases (the suite refuses to run when `TEST_DATABASE_URL` equals `DATABASE_URL`), `migrate deploy` on both, `migrate status`, each frontend's own `verify`, `npm audit`, CycloneDX SBOMs, gitleaks over the full history, and a warning on any new migration containing `DROP`, `RENAME` or `NOT NULL`. Plus `codeql.yml` and `dependabot.yml`. `deploy.yml` exists but is **manual-only and inert** until an owner configures it |
 | **B15** | **A worker failure was silent.** Nothing watched the queue, the backups, the disk or the certificates. | **PARTLY FIXED — the external half is still yours** | `deploy/scripts/monitor.sh` + `uboss-monitor.timer`, every 5 minutes: each instance's `/health/ready`, the worker unit, queue depth, **the age of the oldest due job** — the signal that catches a worker which is running and not claiming — DEAD jobs, backup age, binlog-shipping age, disk **and inodes**, certificate expiry. It exits non-zero and calls `UBOSS_ALERT_COMMAND`. **It runs on the machine it watches, so it can never report that machine being gone: an external uptime check is still required** |
 
 **B13 — a penetration test and a load test — is not a code change and remains
@@ -272,7 +277,7 @@ graph TD
     N --> A0[uboss-api@4000]
     N --> A1[uboss-api@4001]
     N --> A2[uboss-api@4002]
-    A0 --> M[(MariaDB 10.11<br/>bind 127.0.0.1<br/>6 GB buffer pool)]
+    A0 --> M[(MariaDB 11.4 LTS<br/>bind 127.0.0.1<br/>6 GB buffer pool)]
     A1 --> M
     A2 --> M
     WK[uboss-worker] --> M
@@ -322,7 +327,7 @@ graph LR
   G --> L1[lint]
   G --> L2[typecheck]
   G --> L3[unit 44]
-  G --> L4[integration 75<br/>MariaDB 10.11 service]
+  G --> L4[integration 75<br/>MariaDB 11.4.13 service]
   G --> L5[secret scan · npm audit · SAST · SBOM]
   L1 & L2 & L3 & L4 & L5 --> M[merge to main<br/>protected]
   M --> BLD[Build artifact once<br/>API dist + 3 SPA dists<br/>VITE_API_BASE_URL injected]
@@ -689,7 +694,7 @@ Retention values marked *(env)* are enforced by `RETENTION_SWEEP` in the worker
 | **Admin / staff** | Run the system | Art. 6(1)(b) employment | Controller | Staff creation | MariaDB | VPS region | as above; MFA secret encrypted | Admin | Employment + `<DECIDE>` | Deactivate then erase | Dump | — | Retention after leaving |
 | **Logistics users and drivers** | Assign and track shipments | Art. 6(1)(b)/(f) | Controller (or joint with carrier) | Carrier invitation | MariaDB | VPS region | device token hashed; OTP redacted from logs **[VR]** | Carrier-scoped | Life of engagement | Sweep | Dump | Carrier | **Joint controllership with the carrier company** |
 | **GPS / location pings** | Live shipment tracking | Art. 6(1)(f) — **needs an LIA** | Controller | Driver device | MariaDB | VPS region | lat/long **redacted from logs** **[VR]** | Ops roles | `RETENTION_LOGISTICS_LOCATION_PING_DAYS` *(env)* | Sweep deletes | **Present in dumps until they expire** | — | **DPIA almost certainly required** |
-| **Admin sign-in location** | Anti-fraud on staff sign-in | Art. 6(1)(f) | Controller | Browser geolocation | MariaDB | VPS region | redacted from logs | Admin | `RETENTION_SESSION_LOCATION_DAYS` *(env)* | Sweep | Dump | Nominatim (OSMF) | **`FEATURE_ADMIN_LOGIN_LOCATION` defaults to `true` — `DATA-PROTECTION.md` §2.1 says set it `false` in the EU. §12** |
+| **Admin sign-in location** | Anti-fraud on staff sign-in | Art. 6(1)(f) | Controller | Browser geolocation | MariaDB | VPS region | redacted from logs | Admin | `RETENTION_SESSION_LOCATION_DAYS` *(env)* | Sweep | Dump | Nominatim (OSMF) | **`FEATURE_ADMIN_LOGIN_LOCATION` defaults to `false`. Keep it off unless a DPIA, proportionality assessment, staff notice and any required worker consultation support enabling it. §12** |
 | **Addresses** | Delivery and invoicing | Art. 6(1)(b) | Controller | Customer | MariaDB | VPS region | — | Order roles | With the order | With the order | Dump | Carriers | — |
 | **Orders** | Contract performance | Art. 6(1)(b)+(c) | Controller | Checkout | MariaDB | VPS region | — | Order roles | **Tax retention — `<DECIDE>` years** | Retained through erasure where invoiced | Dump | — | Polish retention period |
 | **Invoices** | Legal obligation | Art. 6(1)(c) | Controller | System | Object storage | Bucket region | Bucket-side | Finance | Polish VAT retention | Not deletable within the period | Media archive | Storage vendor | **Immutability requirement** |
@@ -812,7 +817,11 @@ operating-system and application security are yours, not Hostinger's.**
 
 - `deploy/scripts/bootstrap.sh` is written and commented against it **[VR]**.
 - It packages **MariaDB 10.11.x** (`1:10.11.14-0ubuntu0.24.04.1` in `noble`
-  updates), an **LTS release supported to 2028-02-16** **[VE]**.
+  updates), an LTS release supported to 2028-02-16 **[VE]**. **This deployment
+  does not use the packaged version.** It installs **MariaDB 11.4 LTS** from
+  MariaDB's own apt repository, which is supported to 2029-05-29 — fifteen
+  months longer for one extra apt source. `docs/DATABASE-PRODUCTION.md` §3 has
+  the comparison and the test evidence.
 - Ubuntu 26.04 LTS exists (released April 2026) but is not yet offered as an
   upgrade path in `meta-release-lts` **[VE]**, and a first production deployment
   is the wrong place to be early.
@@ -1429,7 +1438,7 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `DB_POOL_SIZE` | API, worker | Pool ceiling **per process** | yes | no | `12` | `10` | n/a | 1–100 | 4 processes x pool must stay under `max_connections = 200` |
 | `DEFAULT_CURRENCY` | API | Fallback currency | yes | no | **`PLN`** | `INR` | n/a | 3 chars | **The default is `INR`** — wrong for Poland |
 | `DEFAULT_TIMEZONE` | API | Application wall-clock | yes | no | **`Europe/Warsaw`** | `Asia/Kolkata` | n/a | — | **The default is `Asia/Kolkata`** — schedules fire at the wrong hour |
-| `FEATURE_ADMIN_LOGIN_LOCATION` | API | Staff sign-in geolocation | no | no | **`false` in the EU** | `true` | n/a | — | **Defaults to `true`.** `DATA-PROTECTION.md` §2.1 says turn it off for the EU |
+| `FEATURE_ADMIN_LOGIN_LOCATION` | API | Staff sign-in geolocation | no | no | **`false` in the EU** | `false` | n/a | — | **Privacy-preserving default.** Enable only after the assessment in `DATA-PROTECTION.md` §2.1 |
 
 ### 12.2 Payments
 
@@ -1494,355 +1503,151 @@ $b = New-Object byte[] 36
 
 ## 13. XAMPP MariaDB to production migration
 
-This is the highest-risk mechanical step in the plan. Do not improvise it.
+> **This section moved.** The database layer now has its own three documents,
+> because it had outgrown a section of this one and because two copies of a
+> migration procedure means one of them is wrong:
+>
+> | For | Read |
+> |---|---|
+> | Which MariaDB and why, configuration, accounts, connection budget, collation, monitoring | **`docs/DATABASE-PRODUCTION.md`** |
+> | Migrations, schema drift, the export, what data may travel, validation, releasing a migration | **`docs/DATABASE-MIGRATION.md`** |
+> | Backups, restore rehearsals, point-in-time recovery, the database runbook | **`docs/DATABASE-RECOVERY.md`** |
+>
+> What remains here is the summary a deployment reviewer needs, and the two
+> findings that changed the plan.
 
-### 13.1 Verified facts about both sides
+### 13.1 The version decision
+
+**MariaDB 11.4 LTS, pinned to the newest maintained patch at deployment time.
+Tested on 11.4.13** **[VR]**.
+
+Not the 10.11 that Ubuntu 24.04 packages, and not the newest release either.
+11.4 is supported until **2029-05-29**; 10.11 until 2028-02-16; and — the part
+that catches people — **11.8, released a year after 11.4, is supported only
+until 2028-06-04**, because MariaDB shortened the LTS window from five years to
+three after 11.4. Newer is not longer. `docs/DATABASE-PRODUCTION.md` §3 has the
+full matrix, the sources and the test evidence.
+
+`bootstrap.sh` installs it from MariaDB's own apt repository. Verified on a
+clean `ubuntu:24.04`: that repository configuration yields
+`1:11.4.13+maria~ubu2404` **[VR]**.
+
+### 13.2 Both sides, verified
 
 | Fact | Local (XAMPP) | Production (Ubuntu 24.04) | Source |
 |---|---|---|---|
-| Server version | **10.4.32-MariaDB** | **10.11.x** (`1:10.11.14-0ubuntu0.24.04.1` in `noble` updates) | `mysql.exe --version` **[VR]**; Launchpad **[VE]** |
-| **Support status** | **End of life since 2024-06-18 — no security fixes** | LTS until **2028-02-16** | endoflife.date **[VE]** |
-| Client dump binary | **`mysqldump.exe`** — `mariadb-dump` is **not** present in `C:\xampp\mysql\bin` | `mariadb-dump`, with `mysqldump` as a compatibility symlink | directory listing **[VR]** |
-| **`sql_mode`** | **`NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION`** — **no `STRICT_TRANS_TABLES`** | MariaDB's default since 10.2.4 **includes `STRICT_TRANS_TABLES`** | `SELECT @@sql_mode` **[VR]**; MariaDB docs **[VE]** |
-| Server charset / collation | `utf8mb4` / **`utf8mb4_general_ci`** | `deploy/mariadb/uboss.cnf` sets `utf8mb4_unicode_ci` | **[VR]** |
-| **Table collations** | **All 171 tables are `utf8mb4_unicode_ci`** — the migrations set it explicitly, so the server default never applies | same | `information_schema` **[VR]** |
+| Server version | **10.4.32-MariaDB** | **11.4.13** | `mysqld.exe --version` **[VR]**; `apt-cache policy` on a clean noble container **[VR]** |
+| **Support status** | **Ended 2024-06-18 — no security fixes** | To **2029-05-29** | endoflife.date **[VE]** |
+| Client dump binary | **`mysqldump.exe`** — there is no `mariadb-dump` in `C:\xampp\mysql\bin` | **`mariadb-dump`** — the mysql-named symlinks are **gone** in 11.4 | directory listings, both **[VR]** |
+| **`sql_mode`** | `NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION` — **no `STRICT_TRANS_TABLES`** | strict, pinned in `uboss.cnf` | `SELECT @@sql_mode` on both **[VR]** |
+| Server collation | `utf8mb4_general_ci` | `utf8mb4_unicode_ci`, pinned. **11.4's own default is `utf8mb4_uca1400_ai_ci`** | **[VR]** |
+| **Table collations** | **All 171 tables `utf8mb4_unicode_ci`** — the migrations set it explicitly, so the server default never applies | same | `information_schema` **[VR]** |
 | `time_zone` | `SYSTEM` → `Asia/Calcutta` | `+00:00` | **[VR]** |
-| `lower_case_table_names` | **`1`** (Windows) | **`0`** (Linux) | **[VR]** / platform default |
-| Storage engine | InnoDB only | InnoDB | **[VR]** |
-| `max_connections` | 151 | 200 (from the shipped cnf) | **[VR]** |
+| `mysql.time_zone_name` | **empty** — named zones do not resolve at a SQL prompt | loaded by `bootstrap.sh` | **[VR]** |
+| `lower_case_table_names` | `1` (Windows) | `0` (Linux) | **No impact** — all 170 models carry `@@map`, every table name lower-case **[VR]** |
+| Storage engine | InnoDB only, `DYNAMIC` | same | **[VR]** |
+| `max_connections` | 151 | 200 | **[VR]** |
 | Views / triggers / routines / events / generated columns | **0 / 0 / 0 / 0 / 0** | same | **[VR]** |
 | `TIMESTAMP` columns | **0** — everything is `DATETIME(3)` | same | **[VR]** |
-| Foreign keys / CHECK constraints | **241 / 216** | same | **[VR]** |
-| Database size today | **77.6 MB** | — | **[VR]** |
-| Prisma provider / adapter | `mysql` provider with `@prisma/adapter-mariadb` 7.10.0 | same | **[VR]** |
-| Schema drift | **None.** `prisma migrate status` reports *"48 migrations found ... Database schema is up to date!"* | — | **[VR]**, run 2026-09-16 |
-| Money / decimal types | Money is `BigInt` minor units; tax rates `Decimal(9,6)`; rounding half-up per line | same | **[VR]** |
-| Auto-increment behaviour | **None on business tables** — primary keys are ULIDs in `CHAR(26)`, so there is no sequence to reset after an import | same | **[VR]** |
+| Foreign keys / CHECK / UNIQUE | **241 / 216 / 136** | same | **[VR]** |
+| `FLOAT` / `DOUBLE` / `REAL` columns | **0** — money is `BIGINT` minor units | same | **[VR]** |
+| Database size | **80.7 MB** with a seeded catalogue | — | **[VR]** |
+| Prisma / adapter | `mysql` provider, `@prisma/adapter-mariadb` **7.10.0** | same | **[VR]** |
+| Auto-increment on business tables | **none** — ULID `CHAR(26)` keys, so nothing to reset after an import | same | **[VR]** |
 
-### 13.2 The five real risks, and what each one actually does
+### 13.3 What the rehearsal on 11.4.13 proved
 
-**Do not assume XAMPP 10.4 can be copied into 10.11.** This list is short only
-because the schema turned out to be unusually clean — no views, no triggers, no
-routines, no generated columns, no `TIMESTAMP`.
+Run on 2026-09-16 against `deploy/compat`, which is the pinned production image
+on a developer's machine **[VR]**:
 
-| # | Risk | What actually happens | Mitigation |
-|---|---|---|---|
-| **M1** | **`sql_mode` becomes strict** | An `INSERT` or `UPDATE` that silently truncated or coerced a value locally **throws** in production. It surfaces weeks later as a 500 on a screen nobody tested — not as an import error | **Done once, and it found a real defect** — see below. Repeat it on staging before cutover. §13.3 step 0 |
+| | Result |
+|---|---|
+| All 49 committed migrations, applied to an **empty** database | pass |
+| `prisma migrate diff` against `schema.prisma` | **No difference detected** |
+| Backend test suite, as the least-privileged runtime account | **120 files, 2 323 tests, all passed** |
+| `deploy/mariadb/uboss.cnf` boots 11.4.13 | pass — no unknown variable, no deprecation, every setting effective |
+| A XAMPP 10.4 logical dump restored onto 11.4.13 | pass — 171 tables, `CHECK TABLE` clean, collation and Polish text intact, **8.1 s** |
+| `uboss_app` denied `UPDATE`/`DELETE` on `audit_logs`, denied DDL, allowed ordinary writes | pass |
 
-**What the first strict run found, recorded because it is the shape of the next
-one.** Setting `sql_mode` to the 10.11 default on the development server and
-running the suite produced **26 failures across 2 files**. One cause:
+### 13.4 The two findings that changed the plan
+
+Both were latent defects in what this document previously described. Both would
+have appeared on launch night.
+
+**F1 — the append-only audit log did not work, and would have stopped go-live.**
+The procedure here said:
+
+```sql
+GRANT SELECT, INSERT, UPDATE, DELETE ON uboss.* TO 'uboss_app'@'localhost';
+REVOKE UPDATE, DELETE ON uboss.audit_logs FROM 'uboss_app'@'localhost';
+```
+
+MariaDB refuses the second statement:
+
+```
+ERROR 1147 (42000): There is no such grant defined for user 'uboss_app'
+                    on host 'localhost' on table 'audit_logs'
+```
+
+**A privilege granted at database level cannot be revoked at table level** —
+there is no per-table row to subtract from. The account-creation block would
+have failed in the middle, with two of four accounts made; and had anybody
+worked around it by deleting the `REVOKE`, the application could have rewritten
+its own audit trail for the life of the system. Fixed by
+`deploy/scripts/apply-grants.sh`, which grants `UPDATE`/`DELETE` per table from
+the live table list, skipping `audit_logs` and `_prisma_migrations`, and
+verifies the result. `release.sh` runs it after every migration, because a new
+table arrives with no grant on it. CI asserts it on every pull request.
+
+**F2 — the nightly backup would have failed silently on the upgrade.**
+`backup.sh` hard-coded `mysqldump`. MariaDB 11.4 does not ship it: only the
+mariadb-named tools remain. The backup would have failed with *command not
+found*, in a timer log nobody reads, until the morning somebody needed it.
+Fixed — the binary is detected, `mariadb-dump` first.
+
+### 13.5 The strict-mode finding, kept because it is the shape of the next one
+
+Setting `sql_mode` to the production default on the development server and
+running the suite produced **26 failures across 2 files**. The cause:
 `correlationId` was `CHAR(26)` — the width of a ULID — in **ten** tables, while
-`app.ts` accepts a client-supplied `x-correlation-id` of **up to 64
-characters** and echoes it back. On 10.4 the extra characters were dropped in
-silence. On 10.11 the insert fails with `ERROR 1406`, and several of those
-writes sit **inside a transaction**, so the failure would not merely have lost
-an audit row — it would have rolled the order back with it.
+`app.ts` accepts a client-supplied `x-correlation-id` of up to **64**
+characters and echoes it back. On 10.4 the extra characters were dropped in
+silence. On a strict server the insert fails with `ERROR 1406`, and several of
+those writes sit **inside a transaction**, so it would not merely have lost an
+audit row — it would have rolled the order back with it.
 
 Nothing in development would ever have shown this. It needed a customer or an
 API gateway that stamps its own trace header, and a strict server. Fixed in
 `20260916210000_correlation_id_matches_what_the_api_accepts`, which widens all
 ten to `VARCHAR(64)` — a widening, so it is safe in a single release.
-| **M2** | **`lower_case_table_names` 1 → 0** | Identifiers become case-sensitive. A dump written on Windows referring to a differently-cased identifier will not match on Linux | Prisma `@@map` names are consistently lower-case **[VR]**, so no impact is expected — but **verify** with the query in §13.4 |
-| **M3** | **Server collation differs** (`general_ci` vs `unicode_ci`) | Sorting and `UNIQUE` comparison change for Polish, Greek and German text | **No impact expected: every table already carries `utf8mb4_unicode_ci` explicitly [VR].** Create the production database with `COLLATE utf8mb4_unicode_ci` so any future table inherits the right one |
-| **M4** | **Client version skew** | A 10.4 `mysqldump` writes version-conditional comments a 10.11 server may read differently | **Build the schema from `prisma migrate deploy`, never from a dumped schema.** §13.3 separates schema from data for exactly this reason |
-| **M5** | **`mysqldump` vs `mariadb-dump`** | Flags and defaults differ, and `mysqldump` is being retired in MariaDB 11.x | **Check which binary exists before choosing flags.** §13.4 |
 
-### 13.3 The migration plan
+The compatibility container exists so the next one of these is found on a
+laptop. CI runs against the production patch on every pull request for the same
+reason.
 
-> **The rule that governs the whole procedure: the schema is built by
-> `prisma migrate deploy` and never by importing a dumped schema. Only *data*
-> moves, and only data that has been explicitly approved.**
+### 13.6 The procedure, in one place
 
-**Step 0 — make local match production before migrating anything.**
-
-```ini
-; [W] C:\xampp\mysql\bin\my.ini, under [mysqld]
-sql_mode = STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-```
+Do not improvise it, and do not run the steps that used to be in this section —
+they have been replaced by scripts that refuse to run against the wrong target
+and that verify their own output.
 
 ```powershell
-# [W] restart MariaDB from the XAMPP control panel, then:
-& C:\xampp\mysql\bin\mysql.exe -u root -e "SELECT @@sql_mode;"
-cd C:\Users\HP\Desktop\UBoss-Software\backend
-npm run verify
+.\scripts\db\audit-xampp.ps1                 # what is actually installed; JSON report
+.\scripts\db\compat-test.ps1 -Reset          # 11.4.13, migrations from empty, grants, drift, tests
+.\scripts\db\export-xampp.ps1 -Mode Full     # consistent dump + SHA-256
+.\scripts\db\verify-restore.ps1 -DumpFile …  # restore it and prove eleven things about it
+.\scripts\db\validate-data.ps1               # ~100 checks, before and after, compared
 ```
 
-**If `npm run verify` fails after this change, you have found M1 before your
-customers did.** Fix it before going further. Run the backend tests on their
-own — two `verify` runs share one test database and collide.
+The cutover itself, the data allowlist, and the order of operations on the VPS
+are in **`docs/DATABASE-MIGRATION.md`** §12. The one rule worth repeating here:
 
-**Step 1 — full local backup.**
+> **The schema is built by `prisma migrate deploy` and never by importing a
+> dumped schema. Only data moves, and only data on the allowlist.**
 
-```powershell
-# [W] mysqldump, because that is the binary XAMPP ships [VR]
-$stamp = Get-Date -UFormat "%Y%m%d-%H%M%S"
-$out   = "$env:USERPROFILE\uboss-backups"
-New-Item -ItemType Directory -Force $out | Out-Null
-& C:\xampp\mysql\bin\mysqldump.exe -u root --single-transaction --quick `
-    --routines --events --triggers --hex-blob `
-    --default-character-set=utf8mb4 uboss `
-  | Out-File -Encoding utf8 "$out\uboss-full-$stamp.sql"
-Get-Item "$out\uboss-full-$stamp.sql" | Select-Object Name, Length
-```
-
-`--routines --events --triggers` are included even though the database has none
-**[VR]**. If a later change introduces one, this dump catches it instead of
-silently losing it.
-
-**Step 2 — prove the backup restores.** A backup that has never been restored is
-a hypothesis, not a backup.
-
-```powershell
-# [W]
-& C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE uboss_restore_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-Get-Content "$out\uboss-full-$stamp.sql" | & C:\xampp\mysql\bin\mysql.exe -u root uboss_restore_test
-& C:\xampp\mysql\bin\mysql.exe -u root -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='uboss_restore_test';"
-# Expect 171. Then drop it:
-& C:\xampp\mysql\bin\mysql.exe -u root -e "DROP DATABASE uboss_restore_test;"
-```
-
-**Step 3 — clean staging database, and three database users.**
-
-```bash
-# [S] on the staging host
-sudo mariadb <<'SQL'
-CREATE DATABASE uboss CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE USER 'uboss_app'@'localhost'     IDENTIFIED BY '<long random>';
-CREATE USER 'uboss_migrate'@'localhost' IDENTIFIED BY '<different long random>';
-CREATE USER 'uboss_backup'@'localhost'  IDENTIFIED BY '<third long random>';
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON uboss.* TO 'uboss_app'@'localhost';
-REVOKE UPDATE, DELETE ON uboss.audit_logs FROM 'uboss_app'@'localhost';
-
-GRANT ALL PRIVILEGES ON uboss.* TO 'uboss_migrate'@'localhost';
-
-GRANT SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER ON uboss.* TO 'uboss_backup'@'localhost';
-GRANT RELOAD, REPLICATION CLIENT ON *.* TO 'uboss_backup'@'localhost';
-
-FLUSH PRIVILEGES;
-SQL
-```
-
-**Three users, each with the least it needs.** This is `RUNBOOK.md` §7's
-requirement made concrete.
-
-| User | Used by | Rights | Why |
-|---|---|---|---|
-| `uboss_app` | API and worker, always | DML only; **no `UPDATE`/`DELETE` on `audit_logs`** | An audit trail the application can rewrite is not an audit trail |
-| `uboss_migrate` | `release.sh`, one command per release | DDL on `uboss` only | A compromised application cannot alter its own schema |
-| `uboss_backup` | `backup.sh` | `SELECT, LOCK TABLES, SHOW VIEW` plus `RELOAD, REPLICATION CLIENT` for the binlog position | A nightly unattended job must not be able to drop a database |
-| `uboss_binlog` | `ship-binlogs.sh`, every 15 min | `REPLICATION SLAVE, REPLICATION CLIENT, RELOAD` on `*.*` — and **no `SELECT` on any table** | It reads the log of changes, never the data. Fetching the logs this way is what keeps the shipper off the filesystem and out of root |
-
-```bash
-# [S] verify the audit-log revoke actually took effect
-sudo mariadb -e "SHOW GRANTS FOR 'uboss_app'@'localhost';"
-# Expect a GRANT on uboss.* AND a separate narrower line for uboss.audit_logs
-```
-
-**Step 4 — build the schema from migrations.**
-
-```bash
-# [S]
-cd /srv/uboss/current/backend      # this directory MUST contain prisma.config.ts (B2)
-set -a; . /srv/uboss/shared/.env; set +a
-DATABASE_URL="$MIGRATE_DATABASE_URL" npx prisma migrate deploy
-DATABASE_URL="$MIGRATE_DATABASE_URL" npx prisma migrate status
-```
-
-Expect `48 migrations found` and `Database schema is up to date!`.
-
-- **Never `prisma db push` in production.** It diffs and applies without writing
-  a migration record, which desynchronises every future release.
-- **Never `prisma migrate dev`.** It is interactive, will offer to reset the
-  database, and generates migration files.
-
-**Step 5 — compare the migrated schema with the local one.** §13.4.
-
-**Step 6 — decide what data may move.** Schema migration and business-data
-migration are separate approvals.
-
-| Category | Migrate? | Rationale |
-|---|---|---|
-| **Reference data** — currencies, countries, tax classes | **No — regenerate.** `npm run db:reference` is idempotent and safe in production **[VR]** | Generated data is not business data |
-| Categories, manufacturers, brands | **Yes**, if curated | Real work |
-| Products, variants, prices, images | **Yes**, if curated | Real work. **Re-price for PLN/EUR — a product with no price row in a currency is deliberately excluded from that market** |
-| Warehouses, locations, stock levels | **Owner decision** | Opening balances, not history |
-| GPSR / compliance fields | **Yes** | Legally required listing content |
-| **Development users and staff accounts** | **No** | Seeded credentials. `README.md` step 11 says delete them **[VR]** |
-| **Test customers and organisations** | **No** | |
-| **Test orders, payments, refunds** | **Absolutely not** | Test-gateway references against a live account create reconciliation noise nobody can clear |
-| **Sessions, refresh tokens, CSRF tokens, invitations, reset tokens** | **No** | Credentials with a shelf life |
-| **ERP / OAuth credentials (`credentialsEnc`)** | **No** | Encrypted under the *development* `SECRETS_ENCRYPTION_KEY` and undecryptable in production. Re-enter them |
-| **Payment methods and auto-pay mandates** | **No** | Bound to test-mode provider customers |
-| **Audit logs, job queue, idempotency records, notifications** | **No** | Operational history of a different system |
-| **Assistant conversations, enquiries, location pings** | **No** | Personal data with no production purpose. Migrating it is a data-minimisation failure |
-
-**Step 7 — export only the approved tables, data only.**
-
-```powershell
-# [W] no schema, no DROP statements
-$tables = "categories","manufacturers","products","product_variants","product_prices","product_images"
-& C:\xampp\mysql\bin\mysqldump.exe -u root `
-    --no-create-info --single-transaction --quick --hex-blob `
-    --complete-insert --skip-add-locks --skip-extended-insert `
-    --default-character-set=utf8mb4 `
-    uboss $tables `
-  | Out-File -Encoding utf8 "$out\uboss-catalog-$stamp.sql"
-```
-
-`--complete-insert` names every column, so a column added by a later migration
-cannot shift the values. `--skip-extended-insert` makes the file diffable and
-lets one bad row be found and fixed instead of failing a 10,000-row statement.
-
-**Step 8 — checksum and encrypt before it leaves the machine.**
-
-```powershell
-# [W]
-Get-FileHash "$out\uboss-catalog-$stamp.sql" -Algorithm SHA256 |
-  Select-Object -ExpandProperty Hash |
-  Out-File -Encoding ascii "$out\uboss-catalog-$stamp.sql.sha256"
-Get-Content "$out\uboss-catalog-$stamp.sql.sha256"
-
-# gpg ships with Git for Windows
-gpg --batch --yes --symmetric --cipher-algo AES256 `
-    -o "$out\uboss-catalog-$stamp.sql.gpg" "$out\uboss-catalog-$stamp.sql"
-```
-
-**Step 9 — transfer over SSH only.**
-
-```powershell
-# [W]
-scp -i $env:USERPROFILE\.ssh\uboss_prod `
-    "$out\uboss-catalog-$stamp.sql.gpg" `
-    "$out\uboss-catalog-$stamp.sql.sha256" `
-    <DEPLOY_USER>@<VPS_IP>:/tmp/
-```
-
-Never email it, never put it in unencrypted object storage, never paste it into
-a chat.
-
-**Step 10 — import into staging.**
-
-```bash
-# [S]
-cd /tmp
-gpg --batch --yes --decrypt -o uboss-catalog.sql uboss-catalog-<stamp>.sql.gpg
-echo "$(cat uboss-catalog-<stamp>.sql.sha256 | tr -d '\r')  uboss-catalog.sql" | sha256sum -c -
-
-# Import as the MIGRATE user; the app user has no rights it does not need.
-mariadb -u uboss_migrate -p uboss < uboss-catalog.sql
-
-shred -u uboss-catalog.sql uboss-catalog-<stamp>.sql.gpg
-```
-
-**Step 11 — verify.** §13.4.
-
-**Step 12 — test against a production-like staging environment.** §20, then the
-smoke tests in §21.
-
-**Step 13 — production cutover.**
-
-1. **Back up production immediately before the change**, even if it is empty.
-   Use §17's command by hand and keep the file out of the rotation.
-2. **If live data already exists**, choose one of these and write the choice down
-   in advance:
-   - **Write freeze — recommended at this size.** Maintenance page on (§11.11),
-     drain the worker, take a final dump, migrate, verify, maintenance off.
-     77.6 MB restores in minutes.
-   - **Incremental synchronisation.** Only viable for tables with a reliable
-     `updatedAt` and no deletes. Complex, and **not justified at this data
-     volume**.
-3. Run the migration.
-4. Smoke tests (§21).
-5. Reconcile: row counts, one known order end to end, and a payment
-   reconciliation pass per `RUNBOOK.md` §5.
-6. **Rollback**: §22. The database half is a restore of the pre-cutover dump,
-   and it is only safe while no new production writes have happened — which is
-   exactly what the write freeze buys you.
-
-### 13.4 Verification queries — run on both sides and diff
-
-```bash
-# [S] / [W] which dump binary exists here? Decide flags from the answer.
-command -v mariadb-dump || command -v mysqldump
-mariadb-dump --version 2>/dev/null || mysqldump --version
-```
-
-```sql
--- Row counts per table
-SELECT TABLE_NAME, TABLE_ROWS
-FROM information_schema.TABLES
-WHERE TABLE_SCHEMA='uboss' AND TABLE_TYPE='BASE TABLE'
-ORDER BY TABLE_NAME;
-
--- Object inventory: must match the verified local figures
-SELECT
-  (SELECT COUNT(*) FROM information_schema.TABLES
-     WHERE TABLE_SCHEMA='uboss' AND TABLE_TYPE='BASE TABLE')  AS tables_,
-  (SELECT COUNT(DISTINCT ENGINE) FROM information_schema.TABLES
-     WHERE TABLE_SCHEMA='uboss' AND TABLE_TYPE='BASE TABLE')  AS engines,
-  (SELECT COUNT(DISTINCT TABLE_COLLATION) FROM information_schema.TABLES
-     WHERE TABLE_SCHEMA='uboss' AND TABLE_TYPE='BASE TABLE')  AS collations,
-  (SELECT COUNT(*) FROM information_schema.VIEWS
-     WHERE TABLE_SCHEMA='uboss')                              AS views_,
-  (SELECT COUNT(*) FROM information_schema.TRIGGERS
-     WHERE TRIGGER_SCHEMA='uboss')                            AS triggers_,
-  (SELECT COUNT(*) FROM information_schema.ROUTINES
-     WHERE ROUTINE_SCHEMA='uboss')                            AS routines_,
-  (SELECT COUNT(*) FROM information_schema.REFERENTIAL_CONSTRAINTS
-     WHERE CONSTRAINT_SCHEMA='uboss')                         AS fks,
-  (SELECT COUNT(*) FROM information_schema.CHECK_CONSTRAINTS
-     WHERE CONSTRAINT_SCHEMA='uboss')                         AS checks_;
--- Expect: 171, 1, 1, 0, 0, 0, 241, 216
-
--- M1: strict mode is on
-SELECT @@sql_mode;
-
--- M2: any identifier that is not already lower-case
-SELECT TABLE_NAME FROM information_schema.TABLES
-WHERE TABLE_SCHEMA='uboss' AND BINARY TABLE_NAME <> BINARY LOWER(TABLE_NAME);
--- Expect: empty
-
--- M3: any table or column not on utf8mb4_unicode_ci
-SELECT TABLE_NAME, TABLE_COLLATION FROM information_schema.TABLES
-WHERE TABLE_SCHEMA='uboss' AND TABLE_COLLATION <> 'utf8mb4_unicode_ci';
-SELECT TABLE_NAME, COLUMN_NAME, COLLATION_NAME FROM information_schema.COLUMNS
-WHERE TABLE_SCHEMA='uboss' AND COLLATION_NAME IS NOT NULL
-  AND COLLATION_NAME <> 'utf8mb4_unicode_ci';
--- Expect: empty, empty
-
--- Timezone handling
-SELECT @@global.time_zone, @@session.time_zone, NOW(), UTC_TIMESTAMP();
-
--- Money sanity
-SELECT COUNT(*) FROM order_items   WHERE unit_price_minor < 0;
-SELECT COUNT(*) FROM product_prices WHERE amount_minor    < 0;
--- Expect: 0, 0
-
--- Multi-currency coverage. A product with no price row in a currency is
--- deliberately excluded from that market; confirm the coverage is intended.
-SELECT currency_code, COUNT(*) FROM product_prices GROUP BY currency_code;
-```
-
-```bash
-# [S] content checksum per table, independent of row order
-for t in categories manufacturers products product_variants product_prices; do
-  printf '%-22s ' "$t"
-  mariadb -u uboss_backup -p --batch --skip-column-names uboss \
-    -e "CHECKSUM TABLE $t EXTENDED" | awk '{print $2}'
-done
-```
-
-Run the same loop on the source. **Differences are expected where an `updatedAt`
-column was touched by the import. Identical row counts with differing checksums
-must be explained, not waved through.**
-
-**Also verify by hand on staging:** prices per market, tax and VAT on a
-representative order, inventory levels, order-number continuity, a scheduled
-order's next occurrence date under `Europe/Warsaw`, and seller-scoped
-visibility (§19).
+A blind full restore of a development database brings demo orders, sandbox
+payments, laptop sessions and publicly-known password hashes into production,
+and there is no clean way to take them out afterwards.
 
 ---
 
@@ -2095,7 +1900,7 @@ a file nobody opens mid-change.
 | Lint | `npm run lint` (`--max-warnings=0`) | ✅ | ESLint forbids the void-arrow shorthand; `lint:fix` will not add the braces |
 | Typecheck | `npm run typecheck` / `tsc -b` | ✅ | Backend verified passing **[VR]** |
 | Unit tests | `npm test` | ✅ | |
-| Integration tests | `npm test` | ✅ | **Needs a MariaDB service container and its own migrated database — two databases, because the suite refuses to run when `TEST_DATABASE_URL` equals `DATABASE_URL`.** 120 files, 2319 tests, and they run against **10.11 with strict `sql_mode`**, which is where the `correlationId` defect above surfaced |
+| Integration tests | `npm test` | ✅ | **Needs a MariaDB service container and its own migrated database — two databases, because the suite refuses to run when `TEST_DATABASE_URL` equals `DATABASE_URL`.** 120 files, 2319 tests, and they run against **11.4.13 with strict `sql_mode`**, which is where the `correlationId` defect above surfaced |
 | Contrast audit | `npm run audit:contrast` in each app | ✅ | Accessibility evidence (§7, §19) |
 | Build | `npm run build` in all four | ✅ | |
 | **Migration validation** | `prisma migrate status` against a scratch database, then `prisma migrate deploy` | ✅ | Catches a migration that does not apply cleanly |
@@ -2202,7 +2007,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       mariadb:
-        image: mariadb:10.11
+        image: mariadb:11.4.13
         env:
           MARIADB_ROOT_PASSWORD: ${{ secrets.CI_DB_ROOT_PASSWORD }}
           MARIADB_DATABASE: uboss_test
@@ -2735,7 +2540,7 @@ class of finding a penetration test would otherwise raise.
 | **S7** | **No MFA on staff accounts by default** — MFA exists (`mfaSecretEnc`, logistics enrolment screens) but is not shown to be mandatory for admins | **Medium** | **[OD]** Require MFA for every admin. Verify in the console |
 | ~~S8~~ | ~~**No automatic security updates** — `bootstrap.sh` installs neither `unattended-upgrades` nor a fail2ban jail~~ | **Fixed** | Both, plus journald caps, in `bootstrap.sh`. No automatic reboot: one box. §10.6 |
 | ~~S9~~ | ~~**No dependency or secret scanning in CI**, because there is no CI~~ | **Fixed, and it found things** | `npm audit --audit-level=high` per project — which failed on first run and is now green: a **critical XSS in `maplibre-gl`** (the admin warehouse map) fixed by taking v6, and three high advisories in transitive packages Prisma pins away from, fixed with `overrides` (`mariadb@^3.5.4`, `mysql2@^3.24.4`, `deepmerge-ts@^8`) and proved by the full 2319-test suite. Plus CycloneDX SBOMs kept 90 days, gitleaks v8.30.0 pinned and run over the full history, Dependabot weekly. **Outstanding:** GitHub push protection, and `ENABLE_CODEQL=true` once Advanced Security is confirmed on the repository |
-| **S10** | **MariaDB 10.4 in development is EOL** since 2024-06-18 **[VE]** | **Medium** | Production is 10.11; align development (§13) |
+| **S10** | **MariaDB 10.4 in development is EOL** since 2024-06-18 **[VE]** | **Medium** | Production is **11.4 LTS**, supported to 2029-05-29. CI and `deploy/compat` both run 11.4.13, so the gap is under a gate; XAMPP stays on 10.4 as a development tool only (§13, `docs/DATABASE-PRODUCTION.md`) |
 | **S11** | **No penetration test** | **High before launch** | **[OD]** Commission one against staging, scoped to all three surfaces |
 | **S12** | **AI prompt injection and data exfiltration** not independently tested | **Medium** | The system prompt forbids clinical advice and the assistant is given the catalogue rather than account data **[VR]** — but a red-team pass on the assistant and image search is warranted before launch |
 
@@ -2793,7 +2598,7 @@ not the advisory's headline score.
 |---|---|---|---|---|
 | Host | Windows + XAMPP | GitHub `ubuntu-24.04` runner | Second VPS (KVM 1 or 2) **[OD]** | Hostinger KVM 4 |
 | `NODE_ENV` | `development` | `test` | **`production`** | `production` |
-| Database | XAMPP MariaDB 10.4 | MariaDB 10.11 service container | **MariaDB 10.11, its own server** | MariaDB 10.11 |
+| Database | XAMPP MariaDB 10.4 (plus `deploy/compat` on 11.4.13) | MariaDB 11.4.13 service container | **MariaDB 11.4, its own server** | MariaDB 11.4 |
 | Payments | Stripe **test** keys | mocked | **Stripe test keys, a separate account** | **Stripe live keys** |
 | ERP | mock on `localhost:9000` (`ALLOW_PRIVATE_ERP_TARGETS=true`) | mocked (`tests/support/mock-erp.ts`) | **sandbox or mock. `ALLOW_PRIVATE_ERP_TARGETS` must be `false`** | real, `false` |
 | OAuth redirect URIs | `http://localhost:...` | n/a | **`https://staging.<DOMAIN>/...` — separately registered** | `https://shop.<DOMAIN>/...` |
@@ -3133,7 +2938,7 @@ Probability and impact: **H**igh / **M**edium / **L**ow.
 | **R6** | **A secret is committed** | `.gitignore` had no `.env` rule | **L** (was M) | **H** | `git check-ignore`; gitleaks once CI exists | Ignore-by-default with named exceptions, verified | Rotate every secret in the file | Rotate + purge history | Tech owner | Before go-live | **Largely closed.** Remaining: delete the three `backend/.env.before-*` files, and add push protection + gitleaks (§15) |
 | **R7** | **Single-VPS failure** | One machine, one disk, one host | **M** | **H** | External uptime monitor (alert 1) | Cannot be prevented on one box | Snapshots; documented rebuild; off-site backups | Rebuild and restore — measure the RTO in the drill | Tech owner | Ongoing | Accepted for launch |
 | **R8** | **Database and media on one disk** | Single-node design | **M** | **H** | Disk alerts 7, 8 | Media to object storage (R1) | Alert at 70 % | Resize the VPS | Tech owner | Before go-live | Open |
-| **R9** | **XAMPP → production incompatibility** | Local is non-strict 10.4; production is strict 10.11 | **M** | **M** | `SELECT @@sql_mode` on both | §13.3 step 0 — done once: it found ten `CHAR(26)` `correlationId` columns against a header the API accepts at 64, now widened. **CI runs every commit against 10.11**, so the next one of these is caught by a pull request rather than by production | Staging rehearsal | Fix forward | Tech owner | Before go-live | **Reduced — the class is now under a gate** |
+| **R9** | **XAMPP → production incompatibility** | Local is non-strict 10.4; production is strict 11.4 | **M** | **M** | `SELECT @@sql_mode` on both | §13.5 — done once: it found ten `CHAR(26)` `correlationId` columns against a header the API accepts at 64, now widened. **CI runs every commit against 11.4.13**, so the next one of these is caught by a pull request rather than by production | Staging rehearsal | Fix forward | Tech owner | Before go-live | **Reduced — the class is now under a gate** |
 | **R10** | **Connection-pool exhaustion** | `DB_POOL_SIZE` × 4 processes vs `max_connections` | **L** | **H** | Alerts 15, 16 | 12 × 4 = 48 of 200 — comfortable | Raise `max_connections` or lower the pool | Restart | Tech owner | Ongoing | Controlled |
 | **R11** | **Disk exhaustion** | 5 releases × `node_modules`, backups, binlogs, journald, media | **M** | **H** | Alerts 7, 8 | Retention everywhere; journald caps (§10.6) | Prune releases; move backups off | Resize | Tech owner | Ongoing | Open |
 | **R12** | **Security misconfiguration** | Hand-edited nginx; the `add_header` inheritance trap | **M** | **H** | Header check in smoke test 24 | Config in git; `nginx -t`; snippets | Re-verify after every nginx edit | Roll back the config | Tech owner | Ongoing | Open |
@@ -3233,8 +3038,10 @@ Every external claim in this document traces to a row here. Accessed
 | 9 | [Stripe integration security guide](https://docs.stripe.com/security/guide) | Stripe | live | **Exact CSP directives for Stripe.js/Elements** (`connect-src api.stripe.com`; `frame-src *.js.stripe.com, js.stripe.com, hooks.stripe.com`; `script-src *.js.stripe.com, js.stripe.com`; `img-src *.stripe.com`); TLS 1.2+; webhook signature verification and IP allowlisting; non-sensitive card metadata may be stored | **[NV]** Which SAQ applies — confirm with the acquirer |
 | 10 | [Node.js release schedule](https://github.com/nodejs/Release) (`schedule.json`) | Node.js project | live | **Node 24: LTS from 2025-10-28, maintenance 2026-10-20, EOL 2028-04-30. Node 22: maintenance since 2025-10-21, EOL 2027-04-30. Node 26 becomes LTS 2026-10-28** | — |
 | 11 | [Ubuntu `meta-release-lts`](https://changelogs.ubuntu.com/meta-release-lts) | Canonical | live | **24.04.5 LTS (noble) is a supported LTS; 26.04.1 LTS (resolute) exists but is not yet offered on the LTS upgrade path** | Hostinger's image availability |
-| 12 | [Launchpad: `mariadb` in `noble`](https://api.launchpad.net/1.0/ubuntu/noble/+source/mariadb) | Canonical | live | **Ubuntu 24.04 packages MariaDB `1:10.11.14-0ubuntu0.24.04.1`** | — |
-| 13 | [endoflife.date — MariaDB](https://endoflife.date/mariadb) | endoflife.date | live | **10.4 EOL 2024-06-18; 10.11 EOL 2028-02-16; 11.4 EOL 2029-05-29** | Aggregated, not MariaDB's own page — confirm at mariadb.org before a version decision |
+| 12 | [Launchpad: `mariadb` in `noble`](https://api.launchpad.net/1.0/ubuntu/noble/+source/mariadb) | Canonical | live | **Ubuntu 24.04 packages MariaDB `1:10.11.14-0ubuntu0.24.04.1`** — not what this deployment installs; see §13.1 | — |
+| 13 | [endoflife.date — MariaDB](https://endoflife.date/mariadb) | endoflife.date | 2026-09-16 | **10.4 EOL 2024-06-18; 10.6 EOL 2026-07-06; 10.11 EOL 2028-02-16; 11.4 EOL 2029-05-29; 11.8 EOL 2028-06-04; 12.3 EOL 2029-06-12.** The LTS window was shortened from five years to three after 11.4, which is why 11.8 expires before it | Aggregated, not MariaDB's own page — confirm at mariadb.org before a version decision |
+| 14 | [Prisma ORM 7 — supported databases](https://www.prisma.io/docs/orm/v7/reference/supported-databases) | Prisma | 2026-09-16 | **MariaDB `10.0+` and `11.0+` are supported**, which covers 11.4 | — |
+| 15 | MariaDB apt repository, `https://mirror.mariadb.org/repo/11.4/ubuntu` | MariaDB | 2026-09-16 | On a clean `ubuntu:24.04`, that repository offers `mariadb-server 1:11.4.13+maria~ubu2404` **[VR]** — reproduced here, not quoted | — |
 | 14 | [MariaDB `sql_mode` documentation](https://mariadb.com/docs/server/server-management/variables-and-modes/sql_mode.md) | MariaDB | live | **Default since 10.2.4 is `STRICT_TRANS_TABLES, ERROR_FOR_DIVISION_BY_ZERO, NO_AUTO_CREATE_USER, NO_ENGINE_SUBSTITUTION`** | What this particular Hostinger image ships — **verify with `SELECT @@sql_mode`** |
 | 15 | [GDPR (EU) 2016/679](https://eur-lex.europa.eu/eli/reg/2016/679/oj) | EUR-Lex | — | Cited as the instrument | **[NV]** Article text not retrieved in this session |
 | 16 | [EDPB](https://www.edpb.europa.eu/) · [UODO](https://uodo.gov.pl/en) | EDPB · UODO | — | Named as the competent guidance and supervisory bodies | **[NV]** No specific guidance retrieved |
@@ -3345,6 +3152,9 @@ operations manual, and where the two touch, the runbook wins.
 
 | For | Read |
 |---|---|
+| Which MariaDB and why, its configuration, its four accounts, the connection budget | `docs/DATABASE-PRODUCTION.md` |
+| Migrations, schema drift, the XAMPP export, what data may travel, validation | `docs/DATABASE-MIGRATION.md` |
+| Backups, restore rehearsals, point-in-time recovery, the database runbook | `docs/DATABASE-RECOVERY.md` |
 | Backup policy, restore procedure, migrations, payment reconciliation, incident response, the production hardening checklist | `backend/docs/RUNBOOK.md` |
 | Personal data, retention, the Art. 15 export, the Art. 30 register skeleton | `backend/docs/DATA-PROTECTION.md` |
 | VAT handling for European markets | `backend/docs/EU-VAT.md` |

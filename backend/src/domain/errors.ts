@@ -789,6 +789,27 @@ export const ErrorCode = {
   /// the sender is a machine, the response is a 4xx it will log, and telling
   /// it which of the three would help an attacker tune the next attempt.
   CARRIER_WEBHOOK_REJECTED: 'CARRIER_WEBHOOK_REJECTED',
+
+  // --- Console notifications ----------------------------------------------
+
+  /// Somebody pressed "resolve" on an alert that only the underlying domain
+  /// event may close.
+  ///
+  /// The refusal is the feature. An alert about a temperature excursion, a
+  /// failed payment or an ERP reconciliation is closed by fixing the thing,
+  /// not by tidying the bell - otherwise the quickest way to make a compliance
+  /// problem disappear is to click past it. The message names the screen where
+  /// the real decision is made, and `details[0].meta.entity` carries the
+  /// entity so the panel can link straight to it.
+  NOTIFICATION_NOT_MANUALLY_RESOLVABLE: 'NOTIFICATION_NOT_MANUALLY_RESOLVABLE',
+
+  /// A resolve or dismiss was aimed at a row that is not an alert.
+  ///
+  /// "A customer placed an order" has no problem to resolve; the only thing a
+  /// reader can do with it is read it. Separate from the code above because
+  /// the fix is different: that one says "use the other screen", this one says
+  /// "there is nothing here to close".
+  NOTIFICATION_NOT_AN_ALERT: 'NOTIFICATION_NOT_AN_ALERT',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

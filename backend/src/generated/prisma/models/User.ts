@@ -390,6 +390,7 @@ export type UserWhereInput = {
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileNullableScalarRelationFilter, Prisma.CustomerProfileWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   notificationReads?: Prisma.AdminNotificationReadListRelationFilter
+  notificationsResolved?: Prisma.AdminNotificationListRelationFilter
   logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
@@ -428,6 +429,7 @@ export type UserOrderByWithRelationInput = {
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   notificationReads?: Prisma.AdminNotificationReadOrderByRelationAggregateInput
+  notificationsResolved?: Prisma.AdminNotificationOrderByRelationAggregateInput
   logisticsMembership?: Prisma.LogisticsPartnerUserOrderByWithRelationInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogOrderByRelationAggregateInput
   logisticsPings?: Prisma.LogisticsLocationPingOrderByRelationAggregateInput
@@ -470,6 +472,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileNullableScalarRelationFilter, Prisma.CustomerProfileWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   notificationReads?: Prisma.AdminNotificationReadListRelationFilter
+  notificationsResolved?: Prisma.AdminNotificationListRelationFilter
   logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
@@ -574,6 +577,7 @@ export type UserCreateInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -612,6 +616,7 @@ export type UserUncheckedCreateInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -650,6 +655,7 @@ export type UserUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -688,6 +694,7 @@ export type UserUncheckedUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -991,6 +998,22 @@ export type UserUpdateOneRequiredWithoutCustomerProfileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCustomerProfileInput, Prisma.UserUpdateWithoutCustomerProfileInput>, Prisma.UserUncheckedUpdateWithoutCustomerProfileInput>
 }
 
+export type UserCreateNestedOneWithoutNotificationsResolvedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsResolvedInput, Prisma.UserUncheckedCreateWithoutNotificationsResolvedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsResolvedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutNotificationsResolvedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsResolvedInput, Prisma.UserUncheckedCreateWithoutNotificationsResolvedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsResolvedInput
+  upsert?: Prisma.UserUpsertWithoutNotificationsResolvedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsResolvedInput, Prisma.UserUpdateWithoutNotificationsResolvedInput>, Prisma.UserUncheckedUpdateWithoutNotificationsResolvedInput>
+}
+
 export type UserCreateNestedOneWithoutNotificationReadsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationReadsInput, Prisma.UserUncheckedCreateWithoutNotificationReadsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationReadsInput
@@ -1099,6 +1122,7 @@ export type UserCreateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1136,6 +1160,7 @@ export type UserUncheckedCreateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -1189,6 +1214,7 @@ export type UserUpdateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -1226,6 +1252,7 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -1263,6 +1290,7 @@ export type UserCreateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1300,6 +1328,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -1353,6 +1382,7 @@ export type UserUpdateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -1390,6 +1420,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -1427,6 +1458,7 @@ export type UserCreateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1464,6 +1496,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -1517,6 +1550,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -1554,6 +1588,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -1591,6 +1626,7 @@ export type UserCreateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1628,6 +1664,7 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -1681,6 +1718,7 @@ export type UserUpdateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -1716,6 +1754,175 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutNotificationsResolvedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutNotificationsResolvedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsResolvedInput, Prisma.UserUncheckedCreateWithoutNotificationsResolvedInput>
+}
+
+export type UserUpsertWithoutNotificationsResolvedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsResolvedInput, Prisma.UserUncheckedUpdateWithoutNotificationsResolvedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsResolvedInput, Prisma.UserUncheckedCreateWithoutNotificationsResolvedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationsResolvedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsResolvedInput, Prisma.UserUncheckedUpdateWithoutNotificationsResolvedInput>
+}
+
+export type UserUpdateWithoutNotificationsResolvedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
@@ -1755,6 +1962,7 @@ export type UserCreateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1792,6 +2000,7 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -1845,6 +2054,7 @@ export type UserUpdateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -1882,6 +2092,7 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -1919,6 +2130,7 @@ export type UserCreateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
@@ -1956,6 +2168,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
@@ -2009,6 +2222,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
@@ -2046,6 +2260,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
@@ -2084,6 +2299,7 @@ export type UserCreateWithoutLogisticsMembershipInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
@@ -2121,6 +2337,7 @@ export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2174,6 +2391,7 @@ export type UserUpdateWithoutLogisticsMembershipInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
@@ -2211,6 +2429,7 @@ export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2248,6 +2467,7 @@ export type UserCreateWithoutLogisticsPingsInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
 }
@@ -2285,6 +2505,7 @@ export type UserUncheckedCreateWithoutLogisticsPingsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
@@ -2338,6 +2559,7 @@ export type UserUpdateWithoutLogisticsPingsInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
 }
@@ -2375,6 +2597,7 @@ export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
@@ -2412,6 +2635,7 @@ export type UserCreateWithoutLogisticsAuditLogsInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
@@ -2449,6 +2673,7 @@ export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2502,6 +2727,7 @@ export type UserUpdateWithoutLogisticsAuditLogsInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
@@ -2539,6 +2765,7 @@ export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2554,6 +2781,7 @@ export type UserCountOutputType = {
   authTokens: number
   auditLogs: number
   notificationReads: number
+  notificationsResolved: number
   logisticsAuditLogs: number
   logisticsPings: number
 }
@@ -2564,6 +2792,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   authTokens?: boolean | UserCountOutputTypeCountAuthTokensArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   notificationReads?: boolean | UserCountOutputTypeCountNotificationReadsArgs
+  notificationsResolved?: boolean | UserCountOutputTypeCountNotificationsResolvedArgs
   logisticsAuditLogs?: boolean | UserCountOutputTypeCountLogisticsAuditLogsArgs
   logisticsPings?: boolean | UserCountOutputTypeCountLogisticsPingsArgs
 }
@@ -2616,6 +2845,13 @@ export type UserCountOutputTypeCountNotificationReadsArgs<ExtArgs extends runtim
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountNotificationsResolvedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdminNotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountLogisticsAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LogisticsAuditLogWhereInput
 }
@@ -2661,6 +2897,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   customerProfile?: boolean | Prisma.User$customerProfileArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notificationReads?: boolean | Prisma.User$notificationReadsArgs<ExtArgs>
+  notificationsResolved?: boolean | Prisma.User$notificationsResolvedArgs<ExtArgs>
   logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
   logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
   logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
@@ -2706,6 +2943,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   customerProfile?: boolean | Prisma.User$customerProfileArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notificationReads?: boolean | Prisma.User$notificationReadsArgs<ExtArgs>
+  notificationsResolved?: boolean | Prisma.User$notificationsResolvedArgs<ExtArgs>
   logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
   logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
   logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
@@ -2724,6 +2962,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * Which console notifications this member of staff has already opened.
      */
     notificationReads: Prisma.$AdminNotificationReadPayload<ExtArgs>[]
+    /**
+     * Console alerts they closed by hand. Kept pointing at the account after it
+     * is archived, and set to NULL only if the account is deleted outright -
+     * the record of what was resolved outlives whoever resolved it.
+     */
+    notificationsResolved: Prisma.$AdminNotificationPayload<ExtArgs>[]
     /**
      * Their place in a logistics organisation, where they work for one. At most
      * one: a person drives for one carrier at a time, and a second membership
@@ -3194,6 +3438,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   customerProfile<T extends Prisma.User$customerProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$customerProfileArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notificationReads<T extends Prisma.User$notificationReadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationReadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminNotificationReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notificationsResolved<T extends Prisma.User$notificationsResolvedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsResolvedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   logisticsMembership<T extends Prisma.User$logisticsMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsMembershipArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerUserClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   logisticsAuditLogs<T extends Prisma.User$logisticsAuditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsAuditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   logisticsPings<T extends Prisma.User$logisticsPingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsPingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsLocationPingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3736,6 +3981,30 @@ export type User$notificationReadsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.AdminNotificationReadScalarFieldEnum | Prisma.AdminNotificationReadScalarFieldEnum[]
+}
+
+/**
+ * User.notificationsResolved
+ */
+export type User$notificationsResolvedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdminNotification
+   */
+  select?: Prisma.AdminNotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdminNotification
+   */
+  omit?: Prisma.AdminNotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdminNotificationInclude<ExtArgs> | null
+  where?: Prisma.AdminNotificationWhereInput
+  orderBy?: Prisma.AdminNotificationOrderByWithRelationInput | Prisma.AdminNotificationOrderByWithRelationInput[]
+  cursor?: Prisma.AdminNotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdminNotificationScalarFieldEnum | Prisma.AdminNotificationScalarFieldEnum[]
 }
 
 /**

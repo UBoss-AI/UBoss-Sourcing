@@ -52,20 +52,31 @@ const addItemSchema = z.object({
    */
   quantity: z.number().int().min(1).max(1_000_000),
   /**
-   * Ordering by the carton, which is the only way anything is sold.
+   * The unit the buyer counted in, and how many of them.
    *
-   * Only the unit and how many of them: the carton size is the deployment's
-   * own setting, never taken from the request. A client that could post its
-   * own "pieces per carton" could post 1 and buy a carton at the price of a
-   * syringe. When these are present, `quantity` above is ignored in favour of
-   * the figure the server works out.
+   * Two units are sellable, and which one a line is in is decided by WHO IS
+   * SELLING IT, never by the request: the operator sells cartons, a
+   * third-party seller sells pieces. See `domain/ordering-unit.ts`.
    *
-   * `PIECE` and `INNER_PACK` are gone from the enum on purpose. They are still
-   * in the database for rows written before the change, and they are refused
-   * here rather than quietly reinterpreted - a client asking for 3 pieces
-   * should be told the shop does not sell them, not handed three cartons.
+   * Only the unit and how many of them travel here. The conversion never
+   * does: the carton size is the deployment's own setting and a seller's
+   * factor is always one. A client that could post its own "pieces per unit"
+   * could post 1 and buy a carton at the price of a syringe. When these are
+   * present, `quantity` above is ignored in favour of the figure the server
+   * works out.
+   *
+   * Naming the unit is checked rather than trusted, and the check is in the
+   * domain because that is where the offer is known: asking for a seller's
+   * piece offer by the carton is refused with `SELLER_OFFER_UNIT_MISMATCH`
+   * rather than read generously, which would hand the shopper five hundred
+   * pieces at the price of one.
+   *
+   * `INNER_PACK` stays out of the enum. It is still in the database for rows
+   * written before the shop settled on these two, and nothing new is written
+   * with it - a client asking for an inner pack is told the shop does not
+   * sell them, not handed a carton.
    */
-  orderingUnit: z.enum(['OUTER_CARTON']).optional(),
+  orderingUnit: z.enum(['PIECE', 'OUTER_CARTON']).optional(),
   unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
 });
 

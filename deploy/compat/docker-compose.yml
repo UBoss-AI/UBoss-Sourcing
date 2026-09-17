@@ -1,0 +1,93 @@
+# =============================================================================
+# COMPATIBILITY TEST ENVIRONMENT - NOT THE PRODUCTION DEPLOYMENT METHOD
+#
+# Production installs MariaDB natively on the VPS; `deploy/scripts/bootstrap.sh`
+# does that and `deploy/mariadb/uboss.cnf` configures it. This file exists for
+# one job only: to give a Windows developer a throwaway MariaDB of the EXACT
+# version production will run, so that "it works on XAMPP" is never the last
+# thing anybody checked.
+#
+# XAMPP is MariaDB 10.4.32 and is not strict. Production is 11.4 and is. The
+# difference is not cosmetic: a value too long for its column is truncated with
+# a warning on one and rejected with an error on the other, and the first place
+# anybody would otherwise find that out is launch night.
+#
+#   cd deploy/compat
+#   cp .env.database.example .env          # then fill in the three passwords
+#   docker compose up -d
+#   docker compose ps                      # wait for (healthy)
+#
+# THIS STACK NEVER HOLDS REAL DATA. It is destroyed and recreated by
+# `deploy/scripts/db-compat.ps1 -Reset`, and the volume is named so that a
+# `docker compose down` on its own does not silently take the database with it.
+# =============================================================================
+
+name: uboss-compat
+
+services:
+  mariadb:
+    # PINNED, and pinned by digest as well as by tag. `mariadb:11.4` moves every
+    # time a patch ships; a compatibility test whose database version changed
+    # under it has tested nothing. Re-pin deliberately, in a commit, after
+    # re-running the rehearsal - see docs/DATABASE-PRODUCTION.md section 3.
+    #
+    #   11.4.13  -  the maintained 11.4 LTS patch as of 2026-09-16
+    image: mariadb:11.4.13@sha256:65ad406b90f2d23a0d75d8cdadb075f9c421f70d8c93f020b9513e9ab9b29a78
+    container_name: uboss-compat-mariadb
+
+    # `unless-stopped`, not `always`: this is a development machine, and a
+    # container that comes back every time Docker Desktop starts is a container
+    # that is still holding port 3307 three weeks later.
+    restart: unless-stopped
+
+    # LOOPBACK ONLY, AND A DIFFERENT PORT.
+    #
+    # `127.0.0.1:` is not decoration. Without it Docker publishes on 0.0.0.0 and
+    # punches its own rule into the Windows firewall, so this database would be
+    # reachable from every other machine on the café wifi.
+    #
+    # 3307 because XAMPP already owns 3306 and this stack must never be able to
+    # be mistaken for it - or, worse, to take its port while it happens to be
+    # stopped and have the application quietly migrate the wrong database.
+    ports:
+      - '127.0.0.1:${COMPAT_DB_PORT:-3307}:3306'
+
+    environment:
+      # Supplied by .env (gitignored). The compose file fails to start rather
+      # than inventing a default, because a default password on a database that
+      # publishes a port is how "it was only local" stops being true.
+      MARIADB_ROOT_PASSWORD: ${COMPAT_DB_ROOT_PASSWORD:?set COMPAT_DB_ROOT_PASSWORD in deploy/compat/.env}
+      MARIADB_MIGRATE_PASSWORD: ${COMPAT_DB_MIGRATE_PASSWORD:?set COMPAT_DB_MIGRATE_PASSWORD in deploy/compat/.env}
+      MARIADB_APP_PASSWORD: ${COMPAT_DB_APP_PASSWORD:?set COMPAT_DB_APP_PASSWORD in deploy/compat/.env}
+      MARIADB_BACKUP_PASSWORD: ${COMPAT_DB_BACKUP_PASSWORD:?set COMPAT_DB_BACKUP_PASSWORD in deploy/compat/.env}
+      # The image reads these when it initialises an empty volume. The databases
+      # and the three non-root users are created by initdb/01-databases.sql so
+      # that the grants are the same ones bootstrap.sh issues in production.
+      MARIADB_AUTO_UPGRADE: '1'
+
+    volumes:
+      # A NAMED volume, not a bind mount. A bind mount of an InnoDB data
+      # directory onto a Windows filesystem is slow and, on some Docker Desktop
+      # versions, subtly wrong about fsync - which is the one thing a database
+      # has to be right about.
+      - uboss-compat-data:/var/lib/mysql
+      # Runs once, on an empty volume only.
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+      # The server configuration. Deliberately a separate file from
+      # deploy/mariadb/uboss.cnf: that one is sized for a 16 GB VPS, this one
+      # runs beside a browser and an IDE on a laptop.
+      - ./mariadb-compat.cnf:/etc/mysql/conf.d/99-uboss-compat.cnf:ro
+
+    # The image ships its own probe, and it is better than `SELECT 1`:
+    # `--innodb_initialized` waits for crash recovery to finish, so scripts that
+    # wait on this do not start migrating a database that is still coming up.
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+volumes:
+  uboss-compat-data:
+    name: uboss-compat-data

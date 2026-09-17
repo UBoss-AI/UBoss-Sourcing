@@ -38,6 +38,12 @@ process.env.DATABASE_URL = testUrl;
 // a supported deployment setting - the notification then carries coordinates.
 process.env.GEOCODE_REVERSE_URL = '';
 
+// Production and fresh deployments default this privacy-sensitive feature to
+// OFF. The integration suite opts in deliberately so the location gate keeps
+// receiving full end-to-end coverage without making employee tracking the
+// product default.
+process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
+
 // The same for the forward direction, which the warehouse form's "look up this
 // address" button calls. Empty means "no geocoder", a supported setting: the
 // endpoint answers `{ result: null }` and somebody types the coordinates.

@@ -866,6 +866,38 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     auth: 'admin',
     permission: 'report.read',
   },
+  // --- Seller warehouses on the operator's console ---
+  //
+  // The rest of `/admin/inventory` takes a derived summary, which reads well
+  // enough for `/warehouses` and `/movements`. These two are authored because
+  // the derivation cannot say the thing that matters about them: which sellers
+  // they will answer for, and why that is not a parameter.
+  'GET /api/v1/admin/inventory/seller-search': {
+    summary: 'Search approved seller companies',
+    description:
+      'The picker on the Warehouses screen. **Approved sellers only, enforced here rather than ' +
+      'offered as a filter** - there is no parameter that widens it to a suspended, rejected or ' +
+      'draft application. Matched against the public name, the registered name and the handle; ' +
+      'never against a contact or an address. Needs `inventory.read` AND `customer.read`.',
+    tags: ['Inventory'],
+    auth: 'admin',
+    permission: 'customer.read',
+  },
+  'GET /api/v1/admin/inventory/seller-warehouses': {
+    summary: "An approved seller's dispatch locations",
+    description:
+      'Omitting `sellerAccountId` returns every approved seller at once. The eligibility rule is ' +
+      'intersected into the query rather than applied to the parameter, so an id typed into the ' +
+      'URL for an ineligible seller answers with an empty list and a null seller - the same ' +
+      'answer as an id that does not exist. Capped rather than paged, because the map and the ' +
+      'table are handed the same rows and a map showing page one of four misrepresents where a ' +
+      'seller ships from; `isTruncated` says when the list was cut. Needs `inventory.read` AND ' +
+      '`customer.read`.',
+    tags: ['Inventory'],
+    auth: 'admin',
+    permission: 'customer.read',
+  },
+
   // --- Console notifications ---
   'GET /api/v1/admin/notifications': {
     summary: 'The console bell feed',
@@ -888,6 +920,33 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     summary: 'Mark the whole visible feed read',
     tags: ['Reports'],
     auth: 'admin',
+  },
+  'POST /api/v1/admin/notifications/dismiss': {
+    summary: "Hide alerts from the caller's own bell",
+    description:
+      'Per recipient, and emphatically NOT a resolution: the alert keeps its status, every other ' +
+      'recipient still sees it, and the underlying problem is untouched. A separate endpoint ' +
+      'rather than a flag on the resolve route, so the two can never be confused.',
+    tags: ['Reports'],
+    auth: 'admin',
+    requestBody: ref('MarkNotificationsReadRequest'),
+  },
+  'GET /api/v1/admin/notifications/:id': {
+    summary: 'One console notification, with its resolution',
+    description: 'What the resolved-history view opens. 404 for a row the caller may not see.',
+    tags: ['Reports'],
+    auth: 'admin',
+  },
+  'POST /api/v1/admin/notifications/:id/resolve': {
+    summary: 'Close an alert by hand',
+    description:
+      'Refused with NOTIFICATION_NOT_MANUALLY_RESOLVABLE for every kind whose truth lives in ' +
+      'another table - those clear when the domain event that fixes them commits. Requires a ' +
+      'written reason and writes an audit row. Idempotent: a second call reads back the first ' +
+      "resolution rather than overwriting its reason.",
+    tags: ['Reports'],
+    auth: 'admin',
+    requestBody: ref('ResolveNotificationRequest'),
   },
 
   'POST /api/v1/admin/exports': {
@@ -1785,11 +1844,58 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
             },
             linkPath: { type: 'string', nullable: true },
             isRead: { type: 'boolean', description: 'For the caller, not for everyone.' },
+            isDismissed: {
+              type: 'boolean',
+              description: 'Hidden from the caller. Never a statement about the problem.',
+            },
             createdAt: { type: 'string', format: 'date-time' },
+            class: {
+              type: 'string',
+              enum: ['INFORMATION', 'ALERT'],
+              description:
+                'News or problem. INFORMATION clears when the caller reads it, per caller; ' +
+                'ALERT clears when the underlying problem reaches a terminal state, for ' +
+                'everybody.',
+            },
+            status: { type: 'string', enum: ['ACTIVE', 'RESOLVED', 'ARCHIVED'] },
+            canResolveManually: {
+              type: 'boolean',
+              description:
+                "Whether to draw a Resolve control for THIS caller. Depends on the kind's " +
+                'policy and on the grants the caller holds; the endpoint checks it again.',
+            },
+            occurrence: {
+              type: 'integer',
+              description:
+                'Which time round this is. A problem that recurs after being closed gets a new ' +
+                'row with the next occurrence rather than reopening the closed one.',
+            },
+            resolvedAt: { type: 'string', format: 'date-time', nullable: true },
+            resolvedBy: {
+              type: 'string',
+              nullable: true,
+              description: 'The address of whoever closed it. Null for a domain event or a sweep.',
+            },
+            resolutionReason: { type: 'string', nullable: true },
+            resolutionSource: {
+              type: 'string',
+              nullable: true,
+              enum: ['DOMAIN_EVENT', 'MANUAL', 'SYSTEM_SWEEP', 'SUPERSEDED'],
+            },
           },
         },
       },
-      unreadCount: { type: 'integer' },
+      unreadCount: {
+        type: 'integer',
+        description: 'Rows the caller has not opened. NOT the badge - see `activeCount`.',
+      },
+      activeCount: {
+        type: 'integer',
+        description:
+          'The badge: unread news plus live problems, minus what the caller has dismissed. An ' +
+          'alert somebody has read is still a problem, so reading does not lower this.',
+      },
+      openAlertCount: { type: 'integer', description: 'Live problems alone.' },
     },
   },
 
@@ -1798,6 +1904,17 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
     required: ['notificationIds'],
     properties: {
       notificationIds: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50 },
+    },
+  },
+
+  ResolveNotificationRequest: {
+    type: 'object',
+    required: ['reason'],
+    description:
+      'The reason is required and stored. A manual closure with no explanation is what makes an ' +
+      'alert log worthless six months later.',
+    properties: {
+      reason: { type: 'string', minLength: 4, maxLength: 512 },
     },
   },
 

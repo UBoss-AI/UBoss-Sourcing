@@ -8,7 +8,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:tunnel": "vite --mode tunnel",
     "build": "tsc -b && vite build",
+    "build:netlify": "tsc -b && vite build --mode netlify",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
@@ -24,6 +26,7 @@
     "i18next": "^26.4.2",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-resources-to-backend": "^1.2.3",
+    "motion": "^13.4.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.87.0",

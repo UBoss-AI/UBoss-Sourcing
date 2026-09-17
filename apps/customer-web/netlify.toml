@@ -1,0 +1,164 @@
+# =============================================================================
+# Netlify - the customer storefront
+#
+# WHAT NETLIFY IS DOING HERE, AND WHAT IT IS NOT
+#
+# It serves this app's built files and nothing else. The API is a Fastify
+# server with a MariaDB database and a background worker; none of that runs on
+# a static host, so it lives somewhere of its own and Netlify forwards to it.
+# A deploy of this file alone gives a storefront that renders and cannot sign
+# anybody in - the API_ORIGIN below is the half that makes it work.
+#
+# ONE THING TO CHANGE: API_ORIGIN, in the two [[redirects]] blocks below.
+#
+# Replace `https://uboss-api.example.com` with the public base URL of the API
+# for this installation. No trailing slash. It is a placeholder rather than a
+# default because a wrong-but-plausible URL fails at runtime, in the browser,
+# on the one screen nobody opened - and a placeholder fails immediately.
+#
+# WHY A PROXY RATHER THAN AN ABSOLUTE API URL IN THE BUNDLE
+#
+# The browser must see ONE origin. Sessions here are httpOnly cookies with a
+# double-submit CSRF token, and they are SameSite=Lax: a bundle that called
+# `https://api.example.com` directly would be making cross-site requests, the
+# cookies would not be sent, and every call would come back UNAUTHORIZED. The
+# fix for that is SameSite=None plus an exact CORS allowlist plus a cookie
+# domain that spans both hosts - three more things to get right, all of them
+# silent when wrong. Proxying keeps it at one.
+#
+# So `.env.netlify` sets VITE_API_BASE_URL=/api/v1 - relative - and the rules
+# below forward that to the API. Nothing about the customer's host is baked
+# into the bundle, which is why the same build works on every site.
+#
+# WHAT THE API SIDE NEEDS, OR THIS STILL WILL NOT WORK
+#
+#   COOKIE_SECURE=true        Netlify is HTTPS. A cookie without Secure is
+#                             dropped by the browser and the sign-in appears
+#                             to succeed and then does nothing.
+#   COOKIE_SAME_SITE=lax      Correct as-is. The browser sees one origin.
+#   CUSTOMER_WEB_ORIGIN       This site's URL, e.g.
+#                             https://your-site.netlify.app. Add it to the
+#                             comma-separated allowlist.
+#   CUSTOMER_WEB_PUBLIC_URL   The same URL. It is what password-reset and
+#                             order emails link to; left at localhost, every
+#                             link in every email points at the recipient's
+#                             own machine.
+#   API_PUBLIC_URL            The API's own public URL - payment webhooks and
+#                             payment links call back to it.
+#
+# Deploy Previews get a different hostname each time and will not be on that
+# allowlist. That is the allowlist working; use the production URL.
+# =============================================================================
+
+# >>> BUILD SETTINGS - GIT-CONNECTED SITES ONLY. pack-netlify.ps1 CUTS FROM HERE.
+#
+# `scripts/pack-netlify.ps1` removes everything between these two markers when
+# it writes this file into a zip, and it has to.
+#
+# A manual zip deploy reads this netlify.toml exactly like a git-connected one
+# does - redirects, headers AND the build command. But the zip holds the built
+# site, not the source: there is no package.json in it and no `npm run
+# build:netlify` to run, so Netlify fails the deploy with
+#
+#   Command failed with exit code 254: npm run build:netlify
+#
+# ...and publishes nothing. The markers are a pair; moving one without the
+# other silently changes what is cut.
+[build]
+  # Relative to this directory when the site's "Base directory" is set to
+  # `apps/customer-web` in Netlify. Set it there - a site left at the
+  # repository root builds the wrong thing or nothing at all.
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  # The repository pins 24 in .nvmrc, and package.json refuses anything lower.
+  # Netlify's default image is older than that.
+  NODE_VERSION = "24"
+# <<< BUILD SETTINGS END. pack-netlify.ps1 CUTS TO HERE.
+
+# -----------------------------------------------------------------------------
+# Redirects. ORDER MATTERS: Netlify takes the FIRST rule that matches, so the
+# single-page-application catch-all has to stay last. Put a new rule above it,
+# never below - below it is dead, and it is dead silently.
+# -----------------------------------------------------------------------------
+
+# The API. `200` is a proxy rather than a redirect: the browser never learns
+# the API's hostname, so the request stays same-origin and the cookies ride
+# along. A `301` here would send the browser to the other host and lose them.
+[[redirects]]
+  from = "/api/*"
+  to = "https://uboss-api.example.com/api/:splat"
+  status = 200
+  force = true
+
+# Uploaded product images, when the API stores files itself
+# (STORAGE_DRIVER=local serves them from /media). An installation on S3 or
+# another object store hands out absolute URLs instead and never hits this
+# rule, so leaving it in place costs nothing.
+[[redirects]]
+  from = "/media/*"
+  to = "https://uboss-api.example.com/media/:splat"
+  status = 200
+  force = true
+
+# The single-page application. Every other path is a client-side route, so the
+# server answers with index.html and the router decides what it means. Without
+# this, a reload on /checkout is a 404 from Netlify - the page only ever worked
+# because you navigated to it.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Headers.
+#
+# These mirror deploy/nginx/snippets/uboss-security-headers.conf, which is what
+# an installation on its own server gets. The two are meant to say the same
+# thing; change one and change the other, or the security posture depends on
+# where a customer happens to host.
+# -----------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # camera and microphone are `self`, not denied: image search and voice
+    # search ask the browser for exactly those two.
+    Permissions-Policy = "geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
+
+    # REPORT-ONLY, deliberately, exactly as the nginx snippet ships it.
+    #
+    # A CSP one directive short does not degrade - it blanks the page, in
+    # production only, usually on a screen nobody opened during the deploy.
+    # Run the site for a day with a console open; when nothing is reported
+    # across browsing, checkout and image search, rename this header to
+    # `Content-Security-Policy` and put a 3-D Secure test card through it
+    # immediately afterwards.
+    #
+    # The Stripe and Razorpay origins are here even for an installation that
+    # uses neither: allowing an origin never breaks a page, omitting one does,
+    # and Stripe draws the card fields in a cross-origin iframe - a policy
+    # without them gives the customer an empty box where the card number goes.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://*.stripe.com; font-src 'self' data:; connect-src 'self' https://api.stripe.com https://*.js.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.razorpay.com https://api.razorpay.com; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+
+# Vite fingerprints everything in /assets, so a file at a given URL never
+# changes its contents. Cache it for a year and let the filename do the
+# invalidating.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html is NOT fingerprinted - it is the document that names which
+# fingerprinted bundle to load. Cached, it would keep pointing at the previous
+# deploy's files, which no longer exist: a blank page after a release that
+# clears itself only when somebody hard-refreshes.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

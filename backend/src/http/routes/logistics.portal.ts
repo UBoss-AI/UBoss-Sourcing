@@ -18,6 +18,14 @@
  */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { buildInsight } from '../../modules/assistant/insights.service.js';
+import { logisticsInsightMetrics } from '../../modules/logistics/dashboard.service.js';
+import {
+  INSIGHT_RATE_LIMIT,
+  assertUsableWindow,
+  insightBody,
+  streamInsightResponse,
+} from './dashboard-insights.js';
 import { env } from '../../config/env.js';
 import { ShipmentStatusValues } from '../../domain/logistics-shipment-state.js';
 import { LogisticsPermission } from '../../domain/logistics-permissions.js';
@@ -220,6 +228,15 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
           originLocationId: z.string().length(26).optional(),
           sellerCompany: z.string().trim().max(160).optional(),
           destinationCountry: z.string().length(2).optional(),
+          /*
+           * One of this carrier's own drivers.
+           *
+           * Validated as a ULID here and narrowed the rest of the way inside
+           * `readDashboard`, where the clause is ANDed with the partner on the
+           * session — so another carrier's driver id matches nothing rather
+           * than being refused with a message that confirms it exists.
+           */
+          driverProfileId: z.string().length(26).optional(),
         })
         .parse(request.query);
 
@@ -230,6 +247,7 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
         originLocationId: query.originLocationId ?? null,
         sellerCompany: query.sellerCompany ?? null,
         destinationCountry: query.destinationCountry ?? null,
+        driverProfileId: query.driverProfileId ?? null,
       });
 
       // Fire and forget: the "last active" column is worth having and is not
@@ -243,6 +261,110 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
        * chasing a cold-chain excursion.
        */
       return reply.header('cache-control', 'no-store').status(200).send(dashboard);
+    },
+  );
+
+  /**
+   * The carrier's own figures, explained.
+   *
+   * Behind the same permission and the same MFA gate as the dashboard it
+   * explains, and the metric bundle is built from `readDashboard` for the
+   * membership on the session — so the insight cannot describe a consignment
+   * this carrier could not open. There is no partner id in the body, the query
+   * or the path, which is the same absence that makes every other route in
+   * this file tenant-safe.
+   */
+  /** The carrier's own figures, delivered as they are written. See the buyer route. */
+  app.post(
+    '/dashboard/insights/stream',
+    {
+      preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ),
+      config: { rateLimit: INSIGHT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      await streamInsightResponse(request, reply, async () => {
+        const body = insightBody.parse(request.body ?? {});
+
+        const membership = currentLogistics(request);
+
+        const from = body.from === undefined ? null : new Date(body.from);
+        const to = body.to === undefined ? null : new Date(body.to);
+        if (from !== null && to !== null) assertUsableWindow({ from, to });
+
+        const dashboard = await readDashboard(membership, {
+          from,
+          to,
+          originLocationId: null,
+          sellerCompany: null,
+          destinationCountry: null,
+        });
+
+        const metrics = logisticsInsightMetrics(dashboard);
+
+        return {
+          audience: 'LOGISTICS' as const,
+          window: {
+            from: (from ?? new Date(Date.now() - 30 * 86_400_000)).toISOString(),
+            to: (to ?? new Date()).toISOString(),
+          },
+          filters: {
+            segment: metrics.some((metric) => metric.key === body.segment)
+              ? (body.segment ?? '')
+              : '',
+          },
+          metrics,
+          ...(body.question === undefined ? {} : { question: body.question }),
+          ...(body.language === undefined ? {} : { language: body.language }),
+        };
+      });
+    },
+  );
+
+  app.post(
+    '/dashboard/insights',
+    {
+      preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ),
+      config: { rateLimit: INSIGHT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const body = insightBody.parse(request.body ?? {});
+
+      const membership = currentLogistics(request);
+
+      const from = body.from === undefined ? null : new Date(body.from);
+      const to = body.to === undefined ? null : new Date(body.to);
+
+      // The dashboard's own filters default the window when either end is
+      // absent; this only has to refuse a pair that is present and nonsense.
+      if (from !== null && to !== null) assertUsableWindow({ from, to });
+
+      const dashboard = await readDashboard(membership, {
+        from,
+        to,
+        originLocationId: null,
+        sellerCompany: null,
+        destinationCountry: null,
+      });
+
+      const metrics = logisticsInsightMetrics(dashboard);
+
+      const insight = await buildInsight({
+        audience: 'LOGISTICS',
+        window: {
+          from: (from ?? new Date(Date.now() - 30 * 86_400_000)).toISOString(),
+          to: (to ?? new Date()).toISOString(),
+        },
+        filters: {
+          segment: metrics.some((metric) => metric.key === body.segment)
+            ? (body.segment ?? '')
+            : '',
+        },
+        metrics,
+        ...(body.question === undefined ? {} : { question: body.question }),
+        ...(body.language === undefined ? {} : { language: body.language }),
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(insight);
     },
   );
 
@@ -823,11 +945,24 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
   // --- Notifications and the trail ---------------------------------------
 
   app.get('/notifications', { preHandler: requireLogistics() }, async (request, reply) => {
+    const query = z
+      .object({
+        /**
+         * Which half. `active` is the bell - live problems and unread news.
+         * `resolved` is the record of what was dealt with, kept rather than
+         * deleted so a dispatcher can answer "what happened to that one?"
+         * weeks later.
+         */
+        view: z.enum(['active', 'resolved', 'all']).optional(),
+      })
+      .parse(request.query ?? {});
+
     const membership = currentLogistics(request);
 
     const feed = await listLogisticsNotifications(
       membership.logisticsPartnerId,
       membership.partnerUserId,
+      query.view ?? 'active',
     );
 
     return reply.header('cache-control', 'no-store').status(200).send(feed);

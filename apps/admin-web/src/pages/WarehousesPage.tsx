@@ -60,6 +60,7 @@ import {
   Button,
   Callout,
   Card,
+  EmptyState,
   ErrorState,
   Input,
   PageHeader,
@@ -99,7 +100,15 @@ import {
   fetchDeliveryCoverage,
 } from '@/lib/delivery-coverage';
 import { useLingering } from '@/lib/use-lingering';
+import {
+  fetchSellerWarehouses,
+  sellerWarehousesKey,
+  type SellerSuggestion,
+  type WarehouseViewMode,
+} from '@/lib/seller-warehouses';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
+import { SellerCompanyPicker } from './warehouse/SellerCompanyPicker';
+import { SellerWarehousePanel } from './warehouse/SellerWarehousePanel';
 import { WarehouseDetailPanel } from './warehouse/WarehouseDetailPanel';
 import { WarehouseFormDialog } from './warehouse/WarehouseFormDialog';
 import { WarehouseInventoryDialog } from './warehouse/WarehouseInventoryDialog';
@@ -121,6 +130,19 @@ function isOperationalStatus(value: string): value is OperationalStatus {
   return (OPERATIONAL_STATUSES as readonly string[]).includes(value);
 }
 
+/**
+ * Which set of buildings the screen is showing.
+ *
+ * Read from the URL like every other choice on this page, so "the Greek
+ * warehouses Northwind ships from" is something an operator can send a
+ * colleague by copying the address bar. An unrecognised value falls back to
+ * the operator's own warehouses, which is what this screen has always been -
+ * a stale bookmark must not land somebody on a blank panel.
+ */
+function isViewMode(value: string): value is WarehouseViewMode {
+  return value === 'uboss' || value === 'seller' || value === 'all';
+}
+
 export function WarehousesPage(): React.JSX.Element {
   const { t } = useI18n();
   const { can } = useSession();
@@ -133,6 +155,37 @@ export function WarehousesPage(): React.JSX.Element {
   const statusFilter = searchParams.get('status') ?? '';
   const countryFilter = searchParams.get('country') ?? '';
   const showRetired = searchParams.get('retired') !== 'false';
+
+  const viewParam = searchParams.get('view') ?? '';
+  const view: WarehouseViewMode = isViewMode(viewParam) ? viewParam : 'uboss';
+
+  /**
+   * Whether this member of staff may look a seller company up at all.
+   *
+   * `customer.read` is the grant the Sellers queue itself sits behind, and the
+   * two endpoints behind the seller view require it alongside `inventory.read`
+   * - so the control is absent rather than present and refused. An Inventory
+   * Manager, who counts stock and does not read companies, sees this screen
+   * exactly as it has always been.
+   */
+  const canSeeSellers = can(Permission.CUSTOMER_READ);
+
+  /**
+   * The chosen company, held here as well as in the URL.
+   *
+   * The URL carries the id, which is what makes the view shareable; this
+   * carries the name and the code, which is what the screen says out loud. A
+   * link pasted into a new tab therefore opens on the right warehouses with
+   * the company unnamed until the response lands and fills it in - which is
+   * why the panel reads the name from the response rather than from here.
+   */
+  const [seller, setSeller] = useState<SellerSuggestion | null>(null);
+  const sellerId = searchParams.get('seller');
+
+  /** The seller view's own filters. Deliberately not shared with the UBOSS one. */
+  const [sellerCountry, setSellerCountry] = useState('');
+  const [sellerShowClosed, setSellerShowClosed] = useState(false);
+  const [sellerSelectedId, setSellerSelectedId] = useState<string | null>(null);
 
   // What is in the box, which runs ahead of what is in the URL by up to the
   // debounce. Seeded from the URL, so a pasted link fills the box too.
@@ -213,6 +266,17 @@ export function WarehousesPage(): React.JSX.Element {
           ...(countryFilter === '' ? {} : { countryCode: countryFilter }),
         },
       }),
+    /*
+     * Not fetched while a seller view is on screen.
+     *
+     * The hook itself has to run unconditionally - React requires that - but
+     * the request does not: an operator looking at a seller's depots has no
+     * use for the marketplace's own warehouse list, and asking for it anyway
+     * is a round trip and a stock roll-up nobody is going to read. React Query
+     * keeps what it already had, so switching back is instant rather than a
+     * second wait.
+     */
+    enabled: view === 'uboss',
   });
 
   /**
@@ -227,6 +291,47 @@ export function WarehousesPage(): React.JSX.Element {
     queryFn: () => api.get<CountriesResponse>('/admin/inventory/warehouse-countries'),
     staleTime: 10 * 60 * 1000,
   });
+
+  /**
+   * The seller view's rows, map configuration and the company they belong to.
+   *
+   * `enabled` is what keeps the default view free: nothing is requested until
+   * somebody switches to a seller view, so an operator who only ever looks at
+   * their own warehouses makes exactly the requests this screen always made.
+   *
+   * The `seller` mode waits for a company. `all` does not, because "every
+   * approved seller" is a complete question on its own.
+   */
+  const sellerQuery = useQuery({
+    queryKey: sellerWarehousesKey({
+      sellerAccountId: view === 'all' ? null : sellerId,
+      search: '',
+      countryCode: sellerCountry,
+      includeClosed: sellerShowClosed,
+    }),
+    queryFn: () =>
+      fetchSellerWarehouses({
+        sellerAccountId: view === 'all' ? null : sellerId,
+        search: '',
+        countryCode: sellerCountry,
+        includeClosed: sellerShowClosed,
+      }),
+    enabled: canSeeSellers && (view === 'all' || (view === 'seller' && sellerId !== null)),
+  });
+
+  /*
+   * The company named by the answer, not by the click that asked for it.
+   *
+   * A link pasted into a new tab has an id and no name; the response carries
+   * both. Reading it back from there is also what makes a seller who was
+   * suspended between the click and the request show as "no longer available"
+   * rather than keeping a name on screen the server has stopped honouring.
+   */
+  useEffect(() => {
+    if (view !== 'seller') return;
+    if (sellerQuery.data === undefined) return;
+    setSeller(sellerQuery.data.seller);
+  }, [view, sellerQuery.data]);
 
   /**
    * The radius this deployment promises, from the server.
@@ -677,9 +782,192 @@ export function WarehousesPage(): React.JSX.Element {
     },
   ];
 
+  /** Move between views, clearing what belongs to the one being left. */
+  const setView = (next: WarehouseViewMode): void => {
+    setSellerSelectedId(null);
+
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current);
+
+        if (next === 'uboss') params.delete('view');
+        else params.set('view', next);
+
+        // A company belongs to the seller view. Carrying it into "all" would
+        // put a name on screen that nothing on that screen is filtered by.
+        if (next !== 'seller') params.delete('seller');
+
+        return params;
+      },
+      { replace: true },
+    );
+
+    if (next !== 'seller') setSeller(null);
+  };
+
+  const chooseSeller = (picked: SellerSuggestion): void => {
+    setSeller(picked);
+    setSellerSelectedId(null);
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current);
+        params.set('view', 'seller');
+        params.set('seller', picked.sellerAccountId);
+        return params;
+      },
+      { replace: true },
+    );
+  };
+
+  const clearSeller = (): void => {
+    setSeller(null);
+    setSellerSelectedId(null);
+    setSellerCountry('');
+    setSellerShowClosed(false);
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current);
+        params.delete('seller');
+        return params;
+      },
+      { replace: true },
+    );
+  };
+
+  /**
+   * The view control.
+   *
+   * Absent entirely for staff without `customer.read`, rather than present and
+   * refused: a tab that answers 403 teaches people the screen is broken.
+   */
+  const viewSwitch = !canSeeSellers ? null : (
+    <div
+      role="tablist"
+      aria-label={t('sellerWarehouses.viewLabel')}
+      className="mt-5 flex flex-wrap gap-1 rounded-md border border-border bg-surface-sunken p-1"
+    >
+      {(['uboss', 'seller', 'all'] as const).map((mode) => (
+        <button
+          key={mode}
+          type="button"
+          role="tab"
+          aria-selected={view === mode}
+          onClick={() => {
+            setView(mode);
+          }}
+          className={cx(
+            'rounded px-3 py-1.5 text-sm font-medium transition-colors',
+            view === mode
+              ? 'bg-surface text-ink shadow-card'
+              : 'text-ink-muted hover:text-ink',
+          )}
+        >
+          {mode === 'uboss'
+            ? t('sellerWarehouses.viewUboss')
+            : mode === 'seller'
+              ? t('sellerWarehouses.viewSeller')
+              : t('sellerWarehouses.viewAll')}
+        </button>
+      ))}
+    </div>
+  );
+
+  /*
+   * The seller views.
+   *
+   * Returned before the operator's own screen rather than woven into it, and
+   * that is the point: the existing view is untouched, so nothing about it can
+   * be broken by a second one being added beside it.
+   */
+  if (canSeeSellers && view !== 'uboss') {
+    return (
+      <>
+        <PageHeader title={t('warehouses.title')} description={t('warehouses.description')} />
+
+        {viewSwitch}
+
+        {view === 'seller' && (
+          <Card className="mt-4">
+            <div className="max-w-xl space-y-2">
+              <p className="text-xs leading-relaxed text-ink-muted">
+                {t('sellerWarehouses.pickerHint')}
+              </p>
+              <SellerCompanyPicker
+                selected={seller}
+                onSelect={chooseSeller}
+                onClear={clearSeller}
+              />
+            </div>
+          </Card>
+        )}
+
+        <div className="mt-4">
+          {view === 'seller' && sellerId === null ? (
+            <Card>
+              <EmptyState
+                title={t('sellerWarehouses.chooseTitle')}
+                description={t('sellerWarehouses.chooseDescription')}
+              />
+            </Card>
+          ) : view === 'seller' && sellerQuery.data !== undefined && sellerQuery.data.seller === null ? (
+            // The id in the URL names a company this operator may not pick -
+            // suspended since the link was made, or never approved. Said
+            // plainly, with the way back, rather than as an empty table.
+            <Card>
+              <EmptyState
+                title={t('sellerWarehouses.unavailableTitle')}
+                description={t('sellerWarehouses.unavailableDescription')}
+                action={
+                  <Button
+                    onClick={() => {
+                      clearSeller();
+                    }}
+                  >
+                    {t('sellerWarehouses.chooseAnother')}
+                  </Button>
+                }
+              />
+            </Card>
+          ) : (
+            <SellerWarehousePanel
+              warehouses={sellerQuery.data?.warehouses ?? []}
+              map={sellerQuery.data?.map ?? { provider: 'NONE' }}
+              isTruncated={sellerQuery.data?.isTruncated ?? false}
+              isLoading={sellerQuery.isPending}
+              isError={sellerQuery.isError}
+              onRetry={() => {
+                void sellerQuery.refetch();
+              }}
+              selectedId={sellerSelectedId}
+              onSelect={setSellerSelectedId}
+              countries={countries.data?.countries ?? []}
+              countryFilter={sellerCountry}
+              onCountryFilter={setSellerCountry}
+              includeClosed={sellerShowClosed}
+              onIncludeClosed={setSellerShowClosed}
+              isCombined={view === 'all'}
+              emptyTitle={
+                view === 'all'
+                  ? t('sellerWarehouses.noneAnywhereTitle')
+                  : t('sellerWarehouses.noneTitle')
+              }
+              emptyDescription={
+                view === 'all'
+                  ? t('sellerWarehouses.noneAnywhereDescription')
+                  : t('sellerWarehouses.noneDescription')
+              }
+            />
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader title={t('warehouses.title')} description={t('warehouses.description')} />
+
+      {viewSwitch}
 
       <SummaryTiles
         className="mt-5"

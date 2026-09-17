@@ -1,0 +1,98 @@
+# =============================================================================
+# MariaDB settings for the LOCAL COMPATIBILITY TEST container.
+#
+# NOT the production configuration. `deploy/mariadb/uboss.cnf` is that, and it
+# is sized for a 16 GB VPS. This one runs on a laptop that is also running an
+# IDE, a browser and XAMPP, so the memory numbers are deliberately small.
+#
+# What it DOES share with production, and the whole reason this file exists:
+# the four settings that change application behaviour rather than its speed.
+#
+#   sql_mode          strict, like production. XAMPP is not.
+#   collation-server  pinned, because 11.4 changed the default.
+#   default_time_zone UTC, like production. XAMPP runs in Asia/Calcutta.
+#   log_bin           on, so a point-in-time-recovery rehearsal is possible
+#                     here rather than first attempted on the real machine.
+#
+# If you change one of those four here, change it in uboss.cnf too or this
+# container stops being a rehearsal of anything.
+# =============================================================================
+
+[mysqld]
+
+# --- The four that decide whether a query behaves the same ------------------
+#
+# STRICT_TRANS_TABLES is 11.4's default and is the single largest behavioural
+# gap against XAMPP 10.4, whose default mode has no strict member at all. On
+# XAMPP an over-long string is truncated and a warning nobody reads is raised;
+# here, and in production, the INSERT fails. Written out in full rather than
+# left to the default so that it is visible, and so that a future MariaDB
+# changing its default cannot change this database's behaviour silently.
+sql_mode = STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE
+
+# MariaDB 11.4 changed the server default collation to utf8mb4_uca1400_ai_ci.
+# Every table in this schema is utf8mb4_unicode_ci, created that way by the
+# migrations. Leaving the server default alone would mean a CREATE DATABASE
+# without an explicit COLLATE - a restore, a scratch database, a shadow
+# database - silently getting a different one, and a join between a
+# uca1400_ai_ci column and a unicode_ci column raises
+# "Illegal mix of collations" at runtime rather than at deploy time.
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Every instant in this schema is a DATETIME(3) holding UTC. The driver pins
+# its session to UTC as well (src/infra/prisma.ts), so this mostly matters for
+# NOW() inside a migration and for anybody at a mariadb prompt.
+default_time_zone = '+00:00'
+
+# Point-in-time recovery, rehearsed here before it is needed there.
+log_bin = /var/lib/mysql/uboss-bin
+binlog_format = ROW
+# `binlog_expire_logs_seconds`, not `expire_logs_days`: the day-based name is
+# deprecated from 10.6 on and still accepted in 11.4, but it will go, and a
+# deprecated setting in a file nobody reads is a future startup failure.
+binlog_expire_logs_seconds = 259200   # 3 days is plenty on a laptop
+max_binlog_size = 64M
+
+# --- Laptop sizing ----------------------------------------------------------
+#
+# 512 MB, against production's 6 GB. This container holds a seeded catalogue,
+# not a year of orders, and the machine it runs on has other work to do.
+innodb_buffer_pool_size = 512M
+innodb_log_file_size = 128M
+innodb_log_buffer_size = 16M
+
+# Durability stays at the production setting. A rehearsal on a database that
+# loses a second of commits is not a rehearsal of this system.
+innodb_flush_log_at_trx_commit = 1
+sync_binlog = 1
+
+innodb_file_per_table = 1
+
+# The integration suite runs its files in parallel and each holds a pool.
+# 200 matches production so that a pool-exhaustion bug shows up here.
+max_connections = 200
+wait_timeout = 600
+interactive_timeout = 600
+
+# The catalogue importer and the GDPR export bundle both move rows well past
+# the 1 MB default - and XAMPP's 1 MB default is itself a thing worth having
+# hit here first.
+max_allowed_packet = 64M
+
+# --- Logging ---------------------------------------------------------------
+slow_query_log = 1
+slow_query_log_file = /var/lib/mysql/slow.log
+long_query_time = 1
+
+# --- Network ---------------------------------------------------------------
+#
+# Inside the container this binds to every interface, which is correct: the
+# only thing that reaches it is the one loopback port mapping in
+# docker-compose.yml. Do not "fix" this to 127.0.0.1 - that would make the
+# container unreachable from the host.
+bind-address = 0.0.0.0
+
+# Docker networks have no reverse DNS. Without this every connection waits for
+# a lookup that will fail, which reads as a mysteriously slow first query.
+skip-name-resolve = 1

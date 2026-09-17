@@ -33,6 +33,12 @@ import {
   recordErpSync,
   updateWarehouse,
 } from '../../modules/inventory/location.service.js';
+import {
+  MAX_SELLER_SUGGESTIONS,
+  MIN_SEARCH_LENGTH,
+  listSellerWarehouses,
+  searchApprovedSellers,
+} from '../../modules/inventory/seller-warehouse.service.js';
 import { deliveryCoverage } from '../../modules/inventory/delivery-coverage.service.js';
 import { warehouseInventory } from '../../modules/inventory/warehouse-inventory.service.js';
 import { isoCountries } from '../../domain/country-boundaries.js';
@@ -843,6 +849,93 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
       });
 
       return reply.status(200).send({ countries });
+    },
+  );
+
+  /**
+   * Approved seller companies, for the picker on the Warehouses screen.
+   *
+   * TWO PERMISSIONS, BOTH REQUIRED. `inventory.read` makes the warehouse
+   * screen visible; `customer.read` is the grant the Sellers queue itself sits
+   * behind, and this endpoint names businesses. Somebody who may count stock
+   * but may not look a company up should not be handed a searchable index of
+   * every seller on the marketplace through the back of a warehouse screen.
+   *
+   * **Approved sellers only, and that is enforced here rather than offered as
+   * a filter.** There is no query parameter that widens it to a suspended or
+   * rejected application, because the first thing a widening parameter becomes
+   * is a way to read the businesses an operator stopped trading with.
+   *
+   * Short answers, a minimum length and a hard cap: this fires on a keystroke,
+   * and an endpoint that will happily return every seller is an endpoint
+   * somebody will eventually filter in the browser.
+   */
+  app.get(
+    '/inventory/seller-search',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ, Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          q: z.string().trim().max(120).optional(),
+          limit: z.coerce.number().int().min(1).max(MAX_SELLER_SUGGESTIONS).optional(),
+        })
+        .parse(request.query);
+
+      const result = await searchApprovedSellers(query.q ?? '', query.limit);
+
+      /*
+       * `no-store`, like the attention counts.
+       *
+       * A picker is read while somebody types, and a cached answer is one that
+       * still offers a seller who was suspended a minute ago. The response is
+       * ten rows; there is nothing here worth caching.
+       */
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({ ...result, minimumLength: MIN_SEARCH_LENGTH });
+    },
+  );
+
+  /**
+   * An approved seller's dispatch locations, for the same map and table.
+   *
+   * The map and the table are handed the SAME rows out of the same response -
+   * see `MAX_WAREHOUSE_ROWS` in the service for why this is capped rather than
+   * paged. A map showing page one of four is a map that misrepresents where a
+   * seller ships from, and this screen exists to answer exactly that question.
+   *
+   * Omitting `sellerAccountId` returns every approved seller's places, which
+   * is the combined view. It is behind the same two grants and the same cap.
+   *
+   * Nothing here can reach a seller the operator may not pick: the eligibility
+   * rule is intersected into the query rather than applied to the parameter,
+   * so an id typed into the URL for a suspended business answers with an empty
+   * list and a null seller - the same answer as an id that does not exist.
+   */
+  app.get(
+    '/inventory/seller-warehouses',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ, Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          sellerAccountId: z.string().length(26).optional(),
+          /** Matched against the place's name, code and city. */
+          q: z.string().trim().max(120).optional(),
+          countryCode: z.string().trim().length(2).toUpperCase().optional(),
+          /** Include places the seller has closed. Archived ones never come back. */
+          includeClosed: z.enum(['true', 'false']).default('false'),
+        })
+        .parse(request.query);
+
+      const result = await listSellerWarehouses({
+        ...(query.sellerAccountId === undefined ? {} : { sellerAccountId: query.sellerAccountId }),
+        ...(query.q === undefined ? {} : { search: query.q }),
+        ...(query.countryCode === undefined ? {} : { countryCode: query.countryCode }),
+        includeClosed: query.includeClosed === 'true',
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(result);
     },
   );
 

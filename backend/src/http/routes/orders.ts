@@ -198,6 +198,7 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
          */
         sellerOrderGroups: {
           select: {
+            id: true,
             sellerAccount: { select: { displayName: true } },
             shipments: {
               orderBy: { createdAt: 'asc' },
@@ -212,6 +213,31 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
             },
           },
         },
+        /*
+         * The carrier actually holding the parcel.
+         *
+         * A consignment is raised for every part of a confirmed order and is
+         * then offered to a haulier, so this is where "who is bringing it"
+         * lives - the two tables above only ever hold a despatch note somebody
+         * typed. Without it a buyer watched their order sit at "confirmed"
+         * while a named carrier was driving it across the country.
+         *
+         * The carrier's NAME and our own tracking number, and nothing else.
+         * The consignment also carries pickup addresses, handling flags and a
+         * declared value, none of which is the buyer's business.
+         */
+        logisticsShipments: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            sellerOrderGroupId: true,
+            trackingNumber: true,
+            carrierTrackingUrl: true,
+            status: true,
+            dispatchedAt: true,
+            deliveredAt: true,
+            assignedPartner: { select: { displayName: true } },
+          },
+        },
         // Which building it is coming from. The customer chose it at
         // checkout, so telling them is the least this screen can do - and
         // "ships from Antwerp, arriving Thursday to Monday" is the answer
@@ -221,6 +247,15 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
     });
 
     if (order === null) throw notFound('Order');
+
+    // Which seller each consignment is for, and whether that seller has
+    // already sent a despatch note for it. Both read by the tracking list.
+    const sellerNameByGroup = new Map(
+      order.sellerOrderGroups.map((group) => [group.id, group.sellerAccount.displayName]),
+    );
+    const groupShipmentCounts = new Map(
+      order.sellerOrderGroups.map((group) => [group.id, group.shipments.length]),
+    );
 
     return reply.status(200).send({
       order: {
@@ -319,6 +354,32 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
               sentBy: group.sellerAccount.displayName,
             })),
           ),
+          /*
+           * The consignment, where the part it covers has no despatch note of
+           * its own yet.
+           *
+           * The two are one parcel, not two: the seller's own note and the
+           * carrier's consignment describe the same box, and listing both
+           * would tell a buyer expecting one delivery to expect two. The note
+           * wins once it exists, because it is the one with the seller's own
+           * carrier reference on it.
+           */
+          ...order.logisticsShipments
+            .filter((consignment) =>
+              consignment.sellerOrderGroupId === null
+                ? order.shipments.length === 0
+                : (groupShipmentCounts.get(consignment.sellerOrderGroupId) ?? 0) === 0,
+            )
+            .map((consignment) => ({
+              carrier: consignment.assignedPartner?.displayName ?? null,
+              trackingNumber: consignment.trackingNumber,
+              trackingUrl: consignment.carrierTrackingUrl,
+              status: consignment.status,
+              dispatchedAt: consignment.dispatchedAt?.toISOString() ?? null,
+              deliveredAt: consignment.deliveredAt?.toISOString() ?? null,
+              sentBy:
+                sellerNameByGroup.get(consignment.sellerOrderGroupId ?? '') ?? null,
+            })),
         ],
         approval: order.approvals[0] ?? null,
       },

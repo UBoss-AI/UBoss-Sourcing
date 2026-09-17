@@ -50,9 +50,10 @@ you must decide before a European deployment goes live.
 
 **This is the single most important line in this document.**
 
-The default is `true`, and while it is on the admin panel refuses every route
-until the browser hands over the device's precise position, which is then sent
-to a third-party geocoder and stored to six decimal places against the session.
+The default is `false`. If a deployment turns it on, the admin panel refuses
+every route until the browser hands over the device's precise position, which
+is then sent to a third-party geocoder and stored to six decimal places against
+the session.
 
 That is continuous location monitoring of employees, imposed as a condition of
 doing their job. In the EU:

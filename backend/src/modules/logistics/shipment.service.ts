@@ -520,7 +520,7 @@ const SHIPMENT_LIST_SELECT = {
     where: { unassignedAt: null },
     orderBy: { assignedAt: 'desc' },
     take: 1,
-    select: { driver: { select: { partnerUser: { select: { fullName: true } } } } },
+    select: { driver: { select: { fullName: true } } },
   },
   /*
    * The open exceptions, as rows rather than as a filtered `_count`.
@@ -550,7 +550,7 @@ function toListRow(row: ShipmentListRecord, fallbackRiskWindow: number, now: Dat
     destinationCity: row.destinationCity,
     destinationCountry: row.destinationCountry,
     packageCount: row.packageCount,
-    assignedDriverName: row.driverAssignments[0]?.driver.partnerUser.fullName ?? null,
+    assignedDriverName: row.driverAssignments[0]?.driver.fullName ?? null,
     status: row.status,
     serviceType: row.serviceType,
     expectedPickupAt: row.expectedPickupAt,
@@ -851,7 +851,7 @@ export async function readShipment(
         take: 1,
         select: {
           driverProfileId: true,
-          driver: { select: { partnerUser: { select: { fullName: true, phone: true } } } },
+          driver: { select: { fullName: true, phone: true } },
         },
       },
       assignments: {
@@ -988,9 +988,9 @@ export async function readShipment(
         ? null
         : {
             profileId: row.driverAssignments[0].driverProfileId,
-            name: row.driverAssignments[0].driver.partnerUser.fullName,
+            name: row.driverAssignments[0].driver.fullName,
             phone: contactPhoneFor(
-              row.driverAssignments[0].driver.partnerUser.phone,
+              row.driverAssignments[0].driver.phone,
               viewer,
               // A colleague's number inside one's own company is ordinary
               // business information, so the dispatcher context reveals it.

@@ -43,6 +43,7 @@ export type LogisticsDriverAssignmentMinAggregateOutputType = {
   shipmentId: string | null
   driverProfileId: string | null
   vehicleId: string | null
+  activeShipmentId: string | null
   isPickupLeg: boolean | null
   isDeliveryLeg: boolean | null
   routeSequence: number | null
@@ -50,6 +51,9 @@ export type LogisticsDriverAssignmentMinAggregateOutputType = {
   unassignedAt: Date | null
   completedAt: Date | null
   assignedByPartnerUserId: string | null
+  assignedByLabel: string | null
+  unassignedReason: string | null
+  previousAssignmentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +63,7 @@ export type LogisticsDriverAssignmentMaxAggregateOutputType = {
   shipmentId: string | null
   driverProfileId: string | null
   vehicleId: string | null
+  activeShipmentId: string | null
   isPickupLeg: boolean | null
   isDeliveryLeg: boolean | null
   routeSequence: number | null
@@ -66,6 +71,9 @@ export type LogisticsDriverAssignmentMaxAggregateOutputType = {
   unassignedAt: Date | null
   completedAt: Date | null
   assignedByPartnerUserId: string | null
+  assignedByLabel: string | null
+  unassignedReason: string | null
+  previousAssignmentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -75,6 +83,7 @@ export type LogisticsDriverAssignmentCountAggregateOutputType = {
   shipmentId: number
   driverProfileId: number
   vehicleId: number
+  activeShipmentId: number
   isPickupLeg: number
   isDeliveryLeg: number
   routeSequence: number
@@ -82,6 +91,9 @@ export type LogisticsDriverAssignmentCountAggregateOutputType = {
   unassignedAt: number
   completedAt: number
   assignedByPartnerUserId: number
+  assignedByLabel: number
+  unassignedReason: number
+  previousAssignmentId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -101,6 +113,7 @@ export type LogisticsDriverAssignmentMinAggregateInputType = {
   shipmentId?: true
   driverProfileId?: true
   vehicleId?: true
+  activeShipmentId?: true
   isPickupLeg?: true
   isDeliveryLeg?: true
   routeSequence?: true
@@ -108,6 +121,9 @@ export type LogisticsDriverAssignmentMinAggregateInputType = {
   unassignedAt?: true
   completedAt?: true
   assignedByPartnerUserId?: true
+  assignedByLabel?: true
+  unassignedReason?: true
+  previousAssignmentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -117,6 +133,7 @@ export type LogisticsDriverAssignmentMaxAggregateInputType = {
   shipmentId?: true
   driverProfileId?: true
   vehicleId?: true
+  activeShipmentId?: true
   isPickupLeg?: true
   isDeliveryLeg?: true
   routeSequence?: true
@@ -124,6 +141,9 @@ export type LogisticsDriverAssignmentMaxAggregateInputType = {
   unassignedAt?: true
   completedAt?: true
   assignedByPartnerUserId?: true
+  assignedByLabel?: true
+  unassignedReason?: true
+  previousAssignmentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -133,6 +153,7 @@ export type LogisticsDriverAssignmentCountAggregateInputType = {
   shipmentId?: true
   driverProfileId?: true
   vehicleId?: true
+  activeShipmentId?: true
   isPickupLeg?: true
   isDeliveryLeg?: true
   routeSequence?: true
@@ -140,6 +161,9 @@ export type LogisticsDriverAssignmentCountAggregateInputType = {
   unassignedAt?: true
   completedAt?: true
   assignedByPartnerUserId?: true
+  assignedByLabel?: true
+  unassignedReason?: true
+  previousAssignmentId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -236,6 +260,7 @@ export type LogisticsDriverAssignmentGroupByOutputType = {
   shipmentId: string
   driverProfileId: string
   vehicleId: string | null
+  activeShipmentId: string | null
   isPickupLeg: boolean
   isDeliveryLeg: boolean
   routeSequence: number | null
@@ -243,6 +268,9 @@ export type LogisticsDriverAssignmentGroupByOutputType = {
   unassignedAt: Date | null
   completedAt: Date | null
   assignedByPartnerUserId: string | null
+  assignedByLabel: string | null
+  unassignedReason: string | null
+  previousAssignmentId: string | null
   createdAt: Date
   updatedAt: Date
   _count: LogisticsDriverAssignmentCountAggregateOutputType | null
@@ -275,6 +303,7 @@ export type LogisticsDriverAssignmentWhereInput = {
   shipmentId?: Prisma.StringFilter<"LogisticsDriverAssignment"> | string
   driverProfileId?: Prisma.StringFilter<"LogisticsDriverAssignment"> | string
   vehicleId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  activeShipmentId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
   isPickupLeg?: Prisma.BoolFilter<"LogisticsDriverAssignment"> | boolean
   isDeliveryLeg?: Prisma.BoolFilter<"LogisticsDriverAssignment"> | boolean
   routeSequence?: Prisma.IntNullableFilter<"LogisticsDriverAssignment"> | number | null
@@ -282,11 +311,16 @@ export type LogisticsDriverAssignmentWhereInput = {
   unassignedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   assignedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  assignedByLabel?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  unassignedReason?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  previousAssignmentId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput>
   vehicle?: Prisma.XOR<Prisma.LogisticsVehicleNullableScalarRelationFilter, Prisma.LogisticsVehicleWhereInput> | null
+  previousAssignment?: Prisma.XOR<Prisma.LogisticsDriverAssignmentNullableScalarRelationFilter, Prisma.LogisticsDriverAssignmentWhereInput> | null
+  replacedBy?: Prisma.LogisticsDriverAssignmentListRelationFilter
 }
 
 export type LogisticsDriverAssignmentOrderByWithRelationInput = {
@@ -294,6 +328,7 @@ export type LogisticsDriverAssignmentOrderByWithRelationInput = {
   shipmentId?: Prisma.SortOrder
   driverProfileId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPickupLeg?: Prisma.SortOrder
   isDeliveryLeg?: Prisma.SortOrder
   routeSequence?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -301,16 +336,22 @@ export type LogisticsDriverAssignmentOrderByWithRelationInput = {
   unassignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedByLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  unassignedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousAssignmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   driver?: Prisma.LogisticsDriverProfileOrderByWithRelationInput
   vehicle?: Prisma.LogisticsVehicleOrderByWithRelationInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentOrderByWithRelationInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentOrderByRelationAggregateInput
   _relevance?: Prisma.LogisticsDriverAssignmentOrderByRelevanceInput
 }
 
 export type LogisticsDriverAssignmentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  activeShipmentId?: string
   AND?: Prisma.LogisticsDriverAssignmentWhereInput | Prisma.LogisticsDriverAssignmentWhereInput[]
   OR?: Prisma.LogisticsDriverAssignmentWhereInput[]
   NOT?: Prisma.LogisticsDriverAssignmentWhereInput | Prisma.LogisticsDriverAssignmentWhereInput[]
@@ -324,18 +365,24 @@ export type LogisticsDriverAssignmentWhereUniqueInput = Prisma.AtLeast<{
   unassignedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   assignedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  assignedByLabel?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  unassignedReason?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  previousAssignmentId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput>
   vehicle?: Prisma.XOR<Prisma.LogisticsVehicleNullableScalarRelationFilter, Prisma.LogisticsVehicleWhereInput> | null
-}, "id">
+  previousAssignment?: Prisma.XOR<Prisma.LogisticsDriverAssignmentNullableScalarRelationFilter, Prisma.LogisticsDriverAssignmentWhereInput> | null
+  replacedBy?: Prisma.LogisticsDriverAssignmentListRelationFilter
+}, "id" | "activeShipmentId">
 
 export type LogisticsDriverAssignmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   shipmentId?: Prisma.SortOrder
   driverProfileId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPickupLeg?: Prisma.SortOrder
   isDeliveryLeg?: Prisma.SortOrder
   routeSequence?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -343,6 +390,9 @@ export type LogisticsDriverAssignmentOrderByWithAggregationInput = {
   unassignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedByPartnerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedByLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  unassignedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  previousAssignmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsDriverAssignmentCountOrderByAggregateInput
@@ -360,6 +410,7 @@ export type LogisticsDriverAssignmentScalarWhereWithAggregatesInput = {
   shipmentId?: Prisma.StringWithAggregatesFilter<"LogisticsDriverAssignment"> | string
   driverProfileId?: Prisma.StringWithAggregatesFilter<"LogisticsDriverAssignment"> | string
   vehicleId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
+  activeShipmentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
   isPickupLeg?: Prisma.BoolWithAggregatesFilter<"LogisticsDriverAssignment"> | boolean
   isDeliveryLeg?: Prisma.BoolWithAggregatesFilter<"LogisticsDriverAssignment"> | boolean
   routeSequence?: Prisma.IntNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | number | null
@@ -367,12 +418,16 @@ export type LogisticsDriverAssignmentScalarWhereWithAggregatesInput = {
   unassignedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | Date | string | null
   assignedByPartnerUserId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
+  assignedByLabel?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
+  unassignedReason?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
+  previousAssignmentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsDriverAssignment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsDriverAssignment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsDriverAssignment"> | Date | string
 }
 
 export type LogisticsDriverAssignmentCreateInput = {
   id: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -380,11 +435,15 @@ export type LogisticsDriverAssignmentCreateInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDriverAssignmentsInput
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutAssignmentsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutAssignmentsInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentUncheckedCreateInput = {
@@ -392,6 +451,7 @@ export type LogisticsDriverAssignmentUncheckedCreateInput = {
   shipmentId: string
   driverProfileId: string
   vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -399,12 +459,17 @@ export type LogisticsDriverAssignmentUncheckedCreateInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -412,11 +477,15 @@ export type LogisticsDriverAssignmentUpdateInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDriverAssignmentsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutAssignmentsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutAssignmentsNestedInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateInput = {
@@ -424,6 +493,7 @@ export type LogisticsDriverAssignmentUncheckedUpdateInput = {
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -431,8 +501,12 @@ export type LogisticsDriverAssignmentUncheckedUpdateInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentCreateManyInput = {
@@ -440,6 +514,7 @@ export type LogisticsDriverAssignmentCreateManyInput = {
   shipmentId: string
   driverProfileId: string
   vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -447,12 +522,16 @@ export type LogisticsDriverAssignmentCreateManyInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type LogisticsDriverAssignmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -460,6 +539,8 @@ export type LogisticsDriverAssignmentUpdateManyMutationInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -469,6 +550,7 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyInput = {
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -476,6 +558,9 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -490,6 +575,11 @@ export type LogisticsDriverAssignmentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type LogisticsDriverAssignmentNullableScalarRelationFilter = {
+  is?: Prisma.LogisticsDriverAssignmentWhereInput | null
+  isNot?: Prisma.LogisticsDriverAssignmentWhereInput | null
+}
+
 export type LogisticsDriverAssignmentOrderByRelevanceInput = {
   fields: Prisma.LogisticsDriverAssignmentOrderByRelevanceFieldEnum | Prisma.LogisticsDriverAssignmentOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
@@ -501,6 +591,7 @@ export type LogisticsDriverAssignmentCountOrderByAggregateInput = {
   shipmentId?: Prisma.SortOrder
   driverProfileId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
+  activeShipmentId?: Prisma.SortOrder
   isPickupLeg?: Prisma.SortOrder
   isDeliveryLeg?: Prisma.SortOrder
   routeSequence?: Prisma.SortOrder
@@ -508,6 +599,9 @@ export type LogisticsDriverAssignmentCountOrderByAggregateInput = {
   unassignedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   assignedByPartnerUserId?: Prisma.SortOrder
+  assignedByLabel?: Prisma.SortOrder
+  unassignedReason?: Prisma.SortOrder
+  previousAssignmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -521,6 +615,7 @@ export type LogisticsDriverAssignmentMaxOrderByAggregateInput = {
   shipmentId?: Prisma.SortOrder
   driverProfileId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
+  activeShipmentId?: Prisma.SortOrder
   isPickupLeg?: Prisma.SortOrder
   isDeliveryLeg?: Prisma.SortOrder
   routeSequence?: Prisma.SortOrder
@@ -528,6 +623,9 @@ export type LogisticsDriverAssignmentMaxOrderByAggregateInput = {
   unassignedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   assignedByPartnerUserId?: Prisma.SortOrder
+  assignedByLabel?: Prisma.SortOrder
+  unassignedReason?: Prisma.SortOrder
+  previousAssignmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -537,6 +635,7 @@ export type LogisticsDriverAssignmentMinOrderByAggregateInput = {
   shipmentId?: Prisma.SortOrder
   driverProfileId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
+  activeShipmentId?: Prisma.SortOrder
   isPickupLeg?: Prisma.SortOrder
   isDeliveryLeg?: Prisma.SortOrder
   routeSequence?: Prisma.SortOrder
@@ -544,6 +643,9 @@ export type LogisticsDriverAssignmentMinOrderByAggregateInput = {
   unassignedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   assignedByPartnerUserId?: Prisma.SortOrder
+  assignedByLabel?: Prisma.SortOrder
+  unassignedReason?: Prisma.SortOrder
+  previousAssignmentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -678,8 +780,67 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutVehicleNestedInpu
   deleteMany?: Prisma.LogisticsDriverAssignmentScalarWhereInput | Prisma.LogisticsDriverAssignmentScalarWhereInput[]
 }
 
+export type LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutReplacedByInput>
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutReplacedByInput
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+}
+
+export type LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput> | Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput[] | Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput[]
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput[]
+  createMany?: Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInputEnvelope
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+}
+
+export type LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput> | Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput[] | Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput[]
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput[]
+  createMany?: Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInputEnvelope
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+}
+
+export type LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutReplacedByInput>
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutReplacedByInput
+  upsert?: Prisma.LogisticsDriverAssignmentUpsertWithoutReplacedByInput
+  disconnect?: Prisma.LogisticsDriverAssignmentWhereInput | boolean
+  delete?: Prisma.LogisticsDriverAssignmentWhereInput | boolean
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateToOneWithWhereWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUpdateWithoutReplacedByInput>, Prisma.LogisticsDriverAssignmentUncheckedUpdateWithoutReplacedByInput>
+}
+
+export type LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput> | Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput[] | Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput[]
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput[]
+  upsert?: Prisma.LogisticsDriverAssignmentUpsertWithWhereUniqueWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpsertWithWhereUniqueWithoutPreviousAssignmentInput[]
+  createMany?: Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInputEnvelope
+  set?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  delete?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  update?: Prisma.LogisticsDriverAssignmentUpdateWithWhereUniqueWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpdateWithWhereUniqueWithoutPreviousAssignmentInput[]
+  updateMany?: Prisma.LogisticsDriverAssignmentUpdateManyWithWhereWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpdateManyWithWhereWithoutPreviousAssignmentInput[]
+  deleteMany?: Prisma.LogisticsDriverAssignmentScalarWhereInput | Prisma.LogisticsDriverAssignmentScalarWhereInput[]
+}
+
+export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput> | Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput[] | Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput[]
+  connectOrCreate?: Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput[]
+  upsert?: Prisma.LogisticsDriverAssignmentUpsertWithWhereUniqueWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpsertWithWhereUniqueWithoutPreviousAssignmentInput[]
+  createMany?: Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInputEnvelope
+  set?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  delete?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  connect?: Prisma.LogisticsDriverAssignmentWhereUniqueInput | Prisma.LogisticsDriverAssignmentWhereUniqueInput[]
+  update?: Prisma.LogisticsDriverAssignmentUpdateWithWhereUniqueWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpdateWithWhereUniqueWithoutPreviousAssignmentInput[]
+  updateMany?: Prisma.LogisticsDriverAssignmentUpdateManyWithWhereWithoutPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentUpdateManyWithWhereWithoutPreviousAssignmentInput[]
+  deleteMany?: Prisma.LogisticsDriverAssignmentScalarWhereInput | Prisma.LogisticsDriverAssignmentScalarWhereInput[]
+}
+
 export type LogisticsDriverAssignmentCreateWithoutShipmentInput = {
   id: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -687,16 +848,21 @@ export type LogisticsDriverAssignmentCreateWithoutShipmentInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutAssignmentsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutAssignmentsInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentUncheckedCreateWithoutShipmentInput = {
   id: string
   driverProfileId: string
   vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -704,8 +870,12 @@ export type LogisticsDriverAssignmentUncheckedCreateWithoutShipmentInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentCreateOrConnectWithoutShipmentInput = {
@@ -742,6 +912,7 @@ export type LogisticsDriverAssignmentScalarWhereInput = {
   shipmentId?: Prisma.StringFilter<"LogisticsDriverAssignment"> | string
   driverProfileId?: Prisma.StringFilter<"LogisticsDriverAssignment"> | string
   vehicleId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  activeShipmentId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
   isPickupLeg?: Prisma.BoolFilter<"LogisticsDriverAssignment"> | boolean
   isDeliveryLeg?: Prisma.BoolFilter<"LogisticsDriverAssignment"> | boolean
   routeSequence?: Prisma.IntNullableFilter<"LogisticsDriverAssignment"> | number | null
@@ -749,12 +920,16 @@ export type LogisticsDriverAssignmentScalarWhereInput = {
   unassignedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsDriverAssignment"> | Date | string | null
   assignedByPartnerUserId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  assignedByLabel?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  unassignedReason?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
+  previousAssignmentId?: Prisma.StringNullableFilter<"LogisticsDriverAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsDriverAssignment"> | Date | string
 }
 
 export type LogisticsDriverAssignmentCreateWithoutDriverInput = {
   id: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -762,16 +937,21 @@ export type LogisticsDriverAssignmentCreateWithoutDriverInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDriverAssignmentsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutAssignmentsInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentUncheckedCreateWithoutDriverInput = {
   id: string
   shipmentId: string
   vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -779,8 +959,12 @@ export type LogisticsDriverAssignmentUncheckedCreateWithoutDriverInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentCreateOrConnectWithoutDriverInput = {
@@ -811,6 +995,7 @@ export type LogisticsDriverAssignmentUpdateManyWithWhereWithoutDriverInput = {
 
 export type LogisticsDriverAssignmentCreateWithoutVehicleInput = {
   id: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -818,16 +1003,21 @@ export type LogisticsDriverAssignmentCreateWithoutVehicleInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDriverAssignmentsInput
   driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutAssignmentsInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentUncheckedCreateWithoutVehicleInput = {
   id: string
   shipmentId: string
   driverProfileId: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -835,8 +1025,12 @@ export type LogisticsDriverAssignmentUncheckedCreateWithoutVehicleInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput
 }
 
 export type LogisticsDriverAssignmentCreateOrConnectWithoutVehicleInput = {
@@ -865,10 +1059,9 @@ export type LogisticsDriverAssignmentUpdateManyWithWhereWithoutVehicleInput = {
   data: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateManyMutationInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutVehicleInput>
 }
 
-export type LogisticsDriverAssignmentCreateManyShipmentInput = {
+export type LogisticsDriverAssignmentCreateWithoutReplacedByInput = {
   id: string
-  driverProfileId: string
-  vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -876,12 +1069,180 @@ export type LogisticsDriverAssignmentCreateManyShipmentInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDriverAssignmentsInput
+  driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutAssignmentsInput
+  vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutAssignmentsInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentCreateNestedOneWithoutReplacedByInput
+}
+
+export type LogisticsDriverAssignmentUncheckedCreateWithoutReplacedByInput = {
+  id: string
+  shipmentId: string
+  driverProfileId: string
+  vehicleId?: string | null
+  activeShipmentId?: string | null
+  isPickupLeg?: boolean
+  isDeliveryLeg?: boolean
+  routeSequence?: number | null
+  assignedAt?: Date | string
+  unassignedAt?: Date | string | null
+  completedAt?: Date | string | null
+  assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsDriverAssignmentCreateOrConnectWithoutReplacedByInput = {
+  where: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutReplacedByInput>
+}
+
+export type LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput = {
+  id: string
+  activeShipmentId?: string | null
+  isPickupLeg?: boolean
+  isDeliveryLeg?: boolean
+  routeSequence?: number | null
+  assignedAt?: Date | string
+  unassignedAt?: Date | string | null
+  completedAt?: Date | string | null
+  assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutDriverAssignmentsInput
+  driver: Prisma.LogisticsDriverProfileCreateNestedOneWithoutAssignmentsInput
+  vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutAssignmentsInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutPreviousAssignmentInput
+}
+
+export type LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput = {
+  id: string
+  shipmentId: string
+  driverProfileId: string
+  vehicleId?: string | null
+  activeShipmentId?: string | null
+  isPickupLeg?: boolean
+  isDeliveryLeg?: boolean
+  routeSequence?: number | null
+  assignedAt?: Date | string
+  unassignedAt?: Date | string | null
+  completedAt?: Date | string | null
+  assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutPreviousAssignmentInput
+}
+
+export type LogisticsDriverAssignmentCreateOrConnectWithoutPreviousAssignmentInput = {
+  where: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput>
+}
+
+export type LogisticsDriverAssignmentCreateManyPreviousAssignmentInputEnvelope = {
+  data: Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInput | Prisma.LogisticsDriverAssignmentCreateManyPreviousAssignmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type LogisticsDriverAssignmentUpsertWithoutReplacedByInput = {
+  update: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateWithoutReplacedByInput>
+  create: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutReplacedByInput>
+  where?: Prisma.LogisticsDriverAssignmentWhereInput
+}
+
+export type LogisticsDriverAssignmentUpdateToOneWithWhereWithoutReplacedByInput = {
+  where?: Prisma.LogisticsDriverAssignmentWhereInput
+  data: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateWithoutReplacedByInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateWithoutReplacedByInput>
+}
+
+export type LogisticsDriverAssignmentUpdateWithoutReplacedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDriverAssignmentsNestedInput
+  driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutAssignmentsNestedInput
+  vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutAssignmentsNestedInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput
+}
+
+export type LogisticsDriverAssignmentUncheckedUpdateWithoutReplacedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogisticsDriverAssignmentUpsertWithWhereUniqueWithoutPreviousAssignmentInput = {
+  where: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateWithoutPreviousAssignmentInput>
+  create: Prisma.XOR<Prisma.LogisticsDriverAssignmentCreateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedCreateWithoutPreviousAssignmentInput>
+}
+
+export type LogisticsDriverAssignmentUpdateWithWhereUniqueWithoutPreviousAssignmentInput = {
+  where: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateWithoutPreviousAssignmentInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateWithoutPreviousAssignmentInput>
+}
+
+export type LogisticsDriverAssignmentUpdateManyWithWhereWithoutPreviousAssignmentInput = {
+  where: Prisma.LogisticsDriverAssignmentScalarWhereInput
+  data: Prisma.XOR<Prisma.LogisticsDriverAssignmentUpdateManyMutationInput, Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentInput>
+}
+
+export type LogisticsDriverAssignmentCreateManyShipmentInput = {
+  id: string
+  driverProfileId: string
+  vehicleId?: string | null
+  activeShipmentId?: string | null
+  isPickupLeg?: boolean
+  isDeliveryLeg?: boolean
+  routeSequence?: number | null
+  assignedAt?: Date | string
+  unassignedAt?: Date | string | null
+  completedAt?: Date | string | null
+  assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type LogisticsDriverAssignmentUpdateWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -889,16 +1250,21 @@ export type LogisticsDriverAssignmentUpdateWithoutShipmentInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutAssignmentsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutAssignmentsNestedInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -906,14 +1272,19 @@ export type LogisticsDriverAssignmentUncheckedUpdateWithoutShipmentInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -921,6 +1292,9 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -929,6 +1303,7 @@ export type LogisticsDriverAssignmentCreateManyDriverInput = {
   id: string
   shipmentId: string
   vehicleId?: string | null
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -936,12 +1311,16 @@ export type LogisticsDriverAssignmentCreateManyDriverInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type LogisticsDriverAssignmentUpdateWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -949,16 +1328,21 @@ export type LogisticsDriverAssignmentUpdateWithoutDriverInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDriverAssignmentsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutAssignmentsNestedInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -966,14 +1350,19 @@ export type LogisticsDriverAssignmentUncheckedUpdateWithoutDriverInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -981,6 +1370,9 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutDriverInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -989,6 +1381,7 @@ export type LogisticsDriverAssignmentCreateManyVehicleInput = {
   id: string
   shipmentId: string
   driverProfileId: string
+  activeShipmentId?: string | null
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: number | null
@@ -996,12 +1389,16 @@ export type LogisticsDriverAssignmentCreateManyVehicleInput = {
   unassignedAt?: Date | string | null
   completedAt?: Date | string | null
   assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  previousAssignmentId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type LogisticsDriverAssignmentUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1009,16 +1406,21 @@ export type LogisticsDriverAssignmentUpdateWithoutVehicleInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDriverAssignmentsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutAssignmentsNestedInput
+  previousAssignment?: Prisma.LogisticsDriverAssignmentUpdateOneWithoutReplacedByNestedInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1026,14 +1428,19 @@ export type LogisticsDriverAssignmentUncheckedUpdateWithoutVehicleInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput
 }
 
 export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
   driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
   routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1041,10 +1448,120 @@ export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutVehicleInput = {
   unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previousAssignmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type LogisticsDriverAssignmentCreateManyPreviousAssignmentInput = {
+  id: string
+  shipmentId: string
+  driverProfileId: string
+  vehicleId?: string | null
+  activeShipmentId?: string | null
+  isPickupLeg?: boolean
+  isDeliveryLeg?: boolean
+  routeSequence?: number | null
+  assignedAt?: Date | string
+  unassignedAt?: Date | string | null
+  completedAt?: Date | string | null
+  assignedByPartnerUserId?: string | null
+  assignedByLabel?: string | null
+  unassignedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsDriverAssignmentUpdateWithoutPreviousAssignmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutDriverAssignmentsNestedInput
+  driver?: Prisma.LogisticsDriverProfileUpdateOneRequiredWithoutAssignmentsNestedInput
+  vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutAssignmentsNestedInput
+  replacedBy?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutPreviousAssignmentNestedInput
+}
+
+export type LogisticsDriverAssignmentUncheckedUpdateWithoutPreviousAssignmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replacedBy?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentNestedInput
+}
+
+export type LogisticsDriverAssignmentUncheckedUpdateManyWithoutPreviousAssignmentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  driverProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPickupLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeliveryLeg?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routeSequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unassignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedByPartnerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedByLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unassignedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type LogisticsDriverAssignmentCountOutputType
+ */
+
+export type LogisticsDriverAssignmentCountOutputType = {
+  replacedBy: number
+}
+
+export type LogisticsDriverAssignmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  replacedBy?: boolean | LogisticsDriverAssignmentCountOutputTypeCountReplacedByArgs
+}
+
+/**
+ * LogisticsDriverAssignmentCountOutputType without action
+ */
+export type LogisticsDriverAssignmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsDriverAssignmentCountOutputType
+   */
+  select?: Prisma.LogisticsDriverAssignmentCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LogisticsDriverAssignmentCountOutputType without action
+ */
+export type LogisticsDriverAssignmentCountOutputTypeCountReplacedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogisticsDriverAssignmentWhereInput
+}
 
 
 export type LogisticsDriverAssignmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1052,6 +1569,7 @@ export type LogisticsDriverAssignmentSelect<ExtArgs extends runtime.Types.Extens
   shipmentId?: boolean
   driverProfileId?: boolean
   vehicleId?: boolean
+  activeShipmentId?: boolean
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: boolean
@@ -1059,11 +1577,17 @@ export type LogisticsDriverAssignmentSelect<ExtArgs extends runtime.Types.Extens
   unassignedAt?: boolean
   completedAt?: boolean
   assignedByPartnerUserId?: boolean
+  assignedByLabel?: boolean
+  unassignedReason?: boolean
+  previousAssignmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs>
   vehicle?: boolean | Prisma.LogisticsDriverAssignment$vehicleArgs<ExtArgs>
+  previousAssignment?: boolean | Prisma.LogisticsDriverAssignment$previousAssignmentArgs<ExtArgs>
+  replacedBy?: boolean | Prisma.LogisticsDriverAssignment$replacedByArgs<ExtArgs>
+  _count?: boolean | Prisma.LogisticsDriverAssignmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsDriverAssignment"]>
 
 
@@ -1073,6 +1597,7 @@ export type LogisticsDriverAssignmentSelectScalar = {
   shipmentId?: boolean
   driverProfileId?: boolean
   vehicleId?: boolean
+  activeShipmentId?: boolean
   isPickupLeg?: boolean
   isDeliveryLeg?: boolean
   routeSequence?: boolean
@@ -1080,15 +1605,21 @@ export type LogisticsDriverAssignmentSelectScalar = {
   unassignedAt?: boolean
   completedAt?: boolean
   assignedByPartnerUserId?: boolean
+  assignedByLabel?: boolean
+  unassignedReason?: boolean
+  previousAssignmentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LogisticsDriverAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "driverProfileId" | "vehicleId" | "isPickupLeg" | "isDeliveryLeg" | "routeSequence" | "assignedAt" | "unassignedAt" | "completedAt" | "assignedByPartnerUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsDriverAssignment"]>
+export type LogisticsDriverAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "driverProfileId" | "vehicleId" | "activeShipmentId" | "isPickupLeg" | "isDeliveryLeg" | "routeSequence" | "assignedAt" | "unassignedAt" | "completedAt" | "assignedByPartnerUserId" | "assignedByLabel" | "unassignedReason" | "previousAssignmentId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsDriverAssignment"]>
 export type LogisticsDriverAssignmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs>
   vehicle?: boolean | Prisma.LogisticsDriverAssignment$vehicleArgs<ExtArgs>
+  previousAssignment?: boolean | Prisma.LogisticsDriverAssignment$previousAssignmentArgs<ExtArgs>
+  replacedBy?: boolean | Prisma.LogisticsDriverAssignment$replacedByArgs<ExtArgs>
+  _count?: boolean | Prisma.LogisticsDriverAssignmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $LogisticsDriverAssignmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1097,12 +1628,34 @@ export type $LogisticsDriverAssignmentPayload<ExtArgs extends runtime.Types.Exte
     shipment: Prisma.$LogisticsShipmentPayload<ExtArgs>
     driver: Prisma.$LogisticsDriverProfilePayload<ExtArgs>
     vehicle: Prisma.$LogisticsVehiclePayload<ExtArgs> | null
+    previousAssignment: Prisma.$LogisticsDriverAssignmentPayload<ExtArgs> | null
+    replacedBy: Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     shipmentId: string
     driverProfileId: string
     vehicleId: string | null
+    /**
+     * The shipment id while this assignment is LIVE, and NULL once it is not.
+     * 
+     * The whole mechanism behind "one driver per consignment at a time", and it
+     * is a column rather than a rule in a service because a rule in a service
+     * loses a race. Two dispatchers pressing Assign in the same second both read
+     * "no live assignment", both write one, and the consignment ends up on two
+     * vans - which is the failure nobody discovers until both drivers arrive.
+     * 
+     * MariaDB has no partial indexes, but it treats **every NULL in a UNIQUE
+     * index as distinct** - the same property `variantKey` exists to work
+     * around elsewhere in this schema, used here the other way up. So
+     * `uq_logistics_driver_active` permits any number of finished assignments
+     * per shipment and exactly one live one, and the loser of a race gets a
+     * P2002 rather than a second van.
+     * 
+     * Written only alongside `unassignedAt`: set together, cleared together.
+     * `assignment.service.ts` is the only place that does either.
+     */
+    activeShipmentId: string | null
     /**
      * What this driver is doing with it. A consignment can have two driver
      * assignments - one to collect and one to deliver - and the task list has
@@ -1118,6 +1671,40 @@ export type $LogisticsDriverAssignmentPayload<ExtArgs extends runtime.Types.Exte
     unassignedAt: Date | null
     completedAt: Date | null
     assignedByPartnerUserId: string | null
+    /**
+     * Who made this assignment, in words.
+     * 
+     * The id above names somebody in the CARRIER's own team and is the only
+     * answer it can give. The marketplace's operations desk can assign a driver
+     * too - a carrier goes quiet and their parcels are still on vans - and an
+     * operator has no row in that table, so the id stays null and this is what
+     * keeps the chain readable.
+     * 
+     * Null already meant "written before the column existed", so overloading it
+     * with "the marketplace did this" would make the history ambiguous in
+     * exactly the situation it gets read: after a bad delivery, with somebody
+     * asking who moved it.
+     */
+    assignedByLabel: string | null
+    /**
+     * Why this driver was taken off, in the dispatcher's words.
+     * 
+     * Required by the service on a reassignment and null on a completion,
+     * which is the distinction it exists to record: a driver who finished the
+     * job and a driver who was pulled off it halfway are the same row shape and
+     * very different facts. Without it, "why did three drivers have this
+     * parcel?" is a question the history cannot answer.
+     */
+    unassignedReason: string | null
+    /**
+     * The assignment this one replaced, where it replaced one.
+     * 
+     * A self-relation rather than a recomputed ordering, because the chain is
+     * what an operator reads after a bad delivery: A handed to B handed to C,
+     * each with the reason it moved. Deriving it from timestamps would be
+     * guesswork the moment two rows share a millisecond.
+     */
+    previousAssignmentId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["logisticsDriverAssignment"]>
@@ -1463,6 +2050,8 @@ export interface Prisma__LogisticsDriverAssignmentClient<T, Null = never, ExtArg
   shipment<T extends Prisma.LogisticsShipmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipmentDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsShipmentClient<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   driver<T extends Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsDriverProfileClient<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vehicle<T extends Prisma.LogisticsDriverAssignment$vehicleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverAssignment$vehicleArgs<ExtArgs>>): Prisma.Prisma__LogisticsVehicleClient<runtime.Types.Result.GetResult<Prisma.$LogisticsVehiclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  previousAssignment<T extends Prisma.LogisticsDriverAssignment$previousAssignmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverAssignment$previousAssignmentArgs<ExtArgs>>): Prisma.Prisma__LogisticsDriverAssignmentClient<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  replacedBy<T extends Prisma.LogisticsDriverAssignment$replacedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsDriverAssignment$replacedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1496,6 +2085,7 @@ export interface LogisticsDriverAssignmentFieldRefs {
   readonly shipmentId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
   readonly driverProfileId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
   readonly vehicleId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
+  readonly activeShipmentId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
   readonly isPickupLeg: Prisma.FieldRef<"LogisticsDriverAssignment", 'Boolean'>
   readonly isDeliveryLeg: Prisma.FieldRef<"LogisticsDriverAssignment", 'Boolean'>
   readonly routeSequence: Prisma.FieldRef<"LogisticsDriverAssignment", 'Int'>
@@ -1503,6 +2093,9 @@ export interface LogisticsDriverAssignmentFieldRefs {
   readonly unassignedAt: Prisma.FieldRef<"LogisticsDriverAssignment", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"LogisticsDriverAssignment", 'DateTime'>
   readonly assignedByPartnerUserId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
+  readonly assignedByLabel: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
+  readonly unassignedReason: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
+  readonly previousAssignmentId: Prisma.FieldRef<"LogisticsDriverAssignment", 'String'>
   readonly createdAt: Prisma.FieldRef<"LogisticsDriverAssignment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"LogisticsDriverAssignment", 'DateTime'>
 }
@@ -1869,6 +2462,49 @@ export type LogisticsDriverAssignment$vehicleArgs<ExtArgs extends runtime.Types.
    */
   include?: Prisma.LogisticsVehicleInclude<ExtArgs> | null
   where?: Prisma.LogisticsVehicleWhereInput
+}
+
+/**
+ * LogisticsDriverAssignment.previousAssignment
+ */
+export type LogisticsDriverAssignment$previousAssignmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsDriverAssignment
+   */
+  select?: Prisma.LogisticsDriverAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsDriverAssignment
+   */
+  omit?: Prisma.LogisticsDriverAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsDriverAssignmentInclude<ExtArgs> | null
+  where?: Prisma.LogisticsDriverAssignmentWhereInput
+}
+
+/**
+ * LogisticsDriverAssignment.replacedBy
+ */
+export type LogisticsDriverAssignment$replacedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsDriverAssignment
+   */
+  select?: Prisma.LogisticsDriverAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsDriverAssignment
+   */
+  omit?: Prisma.LogisticsDriverAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsDriverAssignmentInclude<ExtArgs> | null
+  where?: Prisma.LogisticsDriverAssignmentWhereInput
+  orderBy?: Prisma.LogisticsDriverAssignmentOrderByWithRelationInput | Prisma.LogisticsDriverAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.LogisticsDriverAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogisticsDriverAssignmentScalarFieldEnum | Prisma.LogisticsDriverAssignmentScalarFieldEnum[]
 }
 
 /**

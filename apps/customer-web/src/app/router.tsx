@@ -248,9 +248,23 @@ export const router = createBrowserRouter([
           };
         },
         children: [
-          // `/account` on its own goes to the profile rather than 404ing: it
-          // is a path people type and a path a stale bookmark holds.
-          { index: true, element: <Navigate to="/account/profile" replace /> },
+          /*
+           * `/account` on its own goes to the DASHBOARD now, not the profile.
+           *
+           * It is a path people type and a path a stale bookmark holds, and
+           * the first thing somebody wants on arriving at their own account is
+           * "is anything waiting on me" rather than their postal address.
+           * `/account/profile` is untouched and still first in the settings
+           * group of the sidebar, so no existing link breaks.
+           */
+          { index: true, element: <Navigate to="/account/dashboard" replace /> },
+
+          {
+            path: 'dashboard',
+            ...accountPage(() =>
+              import('@/pages/account/DashboardPage').then((m) => m.DashboardPage),
+            ),
+          },
 
           {
             path: 'orders',

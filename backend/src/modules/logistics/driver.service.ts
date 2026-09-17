@@ -17,13 +17,19 @@
  */
 import type { LogisticsDriverState, LogisticsVehicleKind } from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
-import { LogisticsPermission } from '../../domain/logistics-permissions.js';
+import {
+  LogisticsPermission,
+  type LogisticsPermissionKey,
+} from '../../domain/logistics-permissions.js';
 import { contactPhoneFor, maskPersonName } from '../../domain/logistics-masking.js';
-import type { ShipmentStatusName } from '../../domain/logistics-shipment-state.js';
+import {
+  isTrackingComplete,
+  type ShipmentStatusName,
+} from '../../domain/logistics-shipment-state.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
-import { recordLogisticsAudit } from './audit.service.js';
-import { assertDriverBelongsToPartner, assertVehicleBelongsToPartner } from './operations.service.js';
+import { OPERATOR_LABEL, recordLogisticsAudit } from './audit.service.js';
+import { createLogisticsNotification } from './notification.service.js';
 import { assertShipmentAccess } from './shipment.service.js';
 import {
   assertLogisticsPermission,
@@ -34,10 +40,102 @@ import {
 // The fleet
 // ---------------------------------------------------------------------------
 
+/**
+ * Who is working on a fleet, and on whose behalf.
+ *
+ * TWO SIDES, ONE IMPLEMENTATION
+ *
+ * A carrier runs its own fleet from the portal, and the marketplace's own
+ * operations desk runs the same fleet from the console - a carrier who has
+ * gone quiet still has parcels on vans, and somebody here has to be able to
+ * put a driver on one. Rather than a second set of functions that would drift
+ * from these, every function in this file takes an actor and resolves it once.
+ *
+ * The two differ in exactly two ways, and nothing else:
+ *
+ *   - **How authority is proved.** A carrier's own permissions are checked per
+ *     action; an operator has already been through `requireAdmin` with the
+ *     logistics grant the route named, so there is nothing further to check.
+ *   - **What gets written in `assignedByPartnerUserId`.** An operator is not a
+ *     member of the carrier and has no row in that table, so it stays null and
+ *     the LABEL is what makes the history readable.
+ */
+export type FleetActor =
+  | { kind: 'PARTNER'; membership: LogisticsMembership }
+  | {
+      kind: 'OPERATOR';
+      logisticsPartnerId: string;
+      /** The operator's `users.id`, for the audit trail. */
+      userId: string;
+      /** How they are named in the carrier's own audit log. */
+      label: string;
+    };
+
+/** The carrier working on its own fleet. */
+export function asPartner(membership: LogisticsMembership): FleetActor {
+  return { kind: 'PARTNER', membership };
+}
+
+/**
+ * The marketplace working on a carrier's fleet.
+ *
+ * `label` is what appears in the CARRIER's own audit log, so it names the
+ * marketplace rather than the individual: a carrier reading their trail should
+ * see that the operator did this, not the name of a member of somebody else's
+ * staff. The individual is recorded in the operator's own `AuditLog`, which
+ * the carrier cannot read - the same split `SellerAuditLog` draws.
+ */
+export function asOperator(input: {
+  logisticsPartnerId: string;
+  userId: string;
+  label?: string;
+}): FleetActor {
+  return {
+    kind: 'OPERATOR',
+    logisticsPartnerId: input.logisticsPartnerId,
+    userId: input.userId,
+    label: input.label ?? OPERATOR_LABEL,
+  };
+}
+
+interface ResolvedActor {
+  logisticsPartnerId: string;
+  userId: string | null;
+  label: string;
+  /** Null for an operator: they are not a member of this carrier. */
+  partnerUserId: string | null;
+  isOperator: boolean;
+}
+
+function resolveActor(actor: FleetActor, permission: LogisticsPermissionKey): ResolvedActor {
+  if (actor.kind === 'OPERATOR') {
+    return {
+      logisticsPartnerId: actor.logisticsPartnerId,
+      userId: actor.userId,
+      label: actor.label,
+      partnerUserId: null,
+      isOperator: true,
+    };
+  }
+
+  assertLogisticsPermission(actor.membership, permission);
+
+  return {
+    logisticsPartnerId: actor.membership.logisticsPartnerId,
+    userId: actor.membership.userId,
+    label: actor.membership.fullName,
+    partnerUserId: actor.membership.partnerUserId,
+    isOperator: false,
+  };
+}
+
 export interface DriverRow {
   id: string;
-  partnerUserId: string;
+  /** Their account, where they have one. Null for a record-only driver. */
+  partnerUserId: string | null;
   fullName: string;
+  phone: string | null;
+  email: string | null;
   state: LogisticsDriverState;
   employeeReference: string | null;
   licenceNumber: string | null;
@@ -45,37 +143,65 @@ export interface DriverRow {
   canCarryDangerousGoods: boolean;
   canCarryColdChain: boolean;
   canCarrySterile: boolean;
+  /**
+   * Whether this driver can sign in to the phone app.
+   *
+   * Carried out plainly rather than left for a reader to infer from a null id,
+   * because it decides what a dispatcher can expect: a record-only driver
+   * never scans a package, never captures a signature and never appears on a
+   * live map, and a screen that did not say so would look broken.
+   */
+  hasPortalAccess: boolean;
   hasLocationConsent: boolean;
   openTasks: number;
 }
 
-export async function listDrivers(membership: LogisticsMembership): Promise<DriverRow[]> {
-  assertLogisticsPermission(membership, LogisticsPermission.DRIVER_READ);
+/** Everything a driver row needs, selected once so the readers cannot drift. */
+const DRIVER_SELECT = {
+  id: true,
+  partnerUserId: true,
+  fullName: true,
+  phone: true,
+  email: true,
+  state: true,
+  employeeReference: true,
+  licenceNumber: true,
+  licenceExpiresAt: true,
+  canCarryDangerousGoods: true,
+  canCarryColdChain: true,
+  canCarrySterile: true,
+  locationConsentAt: true,
+  locationConsentWithdrawnAt: true,
+  assignments: { where: { unassignedAt: null, completedAt: null }, select: { id: true } },
+} as const;
 
-  const rows = await prisma.logisticsDriverProfile.findMany({
-    where: { logisticsPartnerId: membership.logisticsPartnerId },
-    orderBy: [{ state: 'asc' }, { createdAt: 'asc' }],
-    select: {
-      id: true,
-      partnerUserId: true,
-      state: true,
-      employeeReference: true,
-      licenceNumber: true,
-      licenceExpiresAt: true,
-      canCarryDangerousGoods: true,
-      canCarryColdChain: true,
-      canCarrySterile: true,
-      locationConsentAt: true,
-      locationConsentWithdrawnAt: true,
-      partnerUser: { select: { fullName: true } },
-      assignments: { where: { unassignedAt: null, completedAt: null }, select: { id: true } },
-    },
-  });
+type DriverShape = {
+  id: string;
+  partnerUserId: string | null;
+  fullName: string;
+  phone: string | null;
+  email: string | null;
+  state: LogisticsDriverState;
+  employeeReference: string | null;
+  licenceNumber: string | null;
+  licenceExpiresAt: Date | null;
+  canCarryDangerousGoods: boolean;
+  canCarryColdChain: boolean;
+  canCarrySterile: boolean;
+  locationConsentAt: Date | null;
+  locationConsentWithdrawnAt: Date | null;
+  assignments: { id: string }[];
+};
 
-  return rows.map((row) => ({
+function toDriverRow(row: DriverShape): DriverRow {
+  return {
     id: row.id,
     partnerUserId: row.partnerUserId,
-    fullName: row.partnerUser.fullName,
+    // From the driver record, never through a login. See the schema note on
+    // `fullName` - a carrier employs people who will never open this software.
+    fullName: row.fullName,
+    phone: row.phone,
+    email: row.email,
     state: row.state,
     employeeReference: row.employeeReference,
     licenceNumber: row.licenceNumber,
@@ -83,17 +209,34 @@ export async function listDrivers(membership: LogisticsMembership): Promise<Driv
     canCarryDangerousGoods: row.canCarryDangerousGoods,
     canCarryColdChain: row.canCarryColdChain,
     canCarrySterile: row.canCarrySterile,
+    hasPortalAccess: row.partnerUserId !== null,
     // Consent given AND not withdrawn. Two columns because withdrawing is not
     // the same as never having given it, and the difference matters to a
     // supervisory authority.
     hasLocationConsent:
       row.locationConsentAt !== null && row.locationConsentWithdrawnAt === null,
     openTasks: row.assignments.length,
-  }));
+  };
 }
 
-export interface UpsertDriverInput {
-  partnerUserId: string;
+export async function listDrivers(actor: FleetActor): Promise<DriverRow[]> {
+  const who = resolveActor(actor, LogisticsPermission.DRIVER_READ);
+
+  const rows = await prisma.logisticsDriverProfile.findMany({
+    where: { logisticsPartnerId: who.logisticsPartnerId },
+    // On the rota first, then by name. A fleet is read by looking somebody up,
+    // which is alphabetical, not by when they were added.
+    orderBy: [{ state: 'asc' }, { fullName: 'asc' }],
+    select: DRIVER_SELECT,
+  });
+
+  return rows.map(toDriverRow);
+}
+
+export interface DriverDetailsInput {
+  fullName?: string;
+  phone?: string | null;
+  email?: string | null;
   employeeReference?: string | null;
   licenceNumber?: string | null;
   licenceExpiresAt?: Date | null;
@@ -101,80 +244,212 @@ export interface UpsertDriverInput {
   canCarryColdChain?: boolean;
   canCarrySterile?: boolean;
   state?: LogisticsDriverState;
+  /**
+   * The member whose account this driver signs in with, where they have one.
+   *
+   * Optional, and the ordinary case is that it is absent. Supplying it is how
+   * a driver gets the phone app; leaving it out is how a subcontracted van
+   * driver gets onto the fleet in ten seconds.
+   */
+  partnerUserId?: string | null;
 }
 
 /**
- * Make somebody a driver, or change their details.
+ * Add somebody to the fleet.
  *
- * The profile hangs off `LogisticsPartnerUser`, so a driver is by construction
- * a member of exactly one carrier and cannot be looked up across tenants. The
- * member must already exist and already hold the DRIVER role - creating a
- * driver profile for a dispatcher would give a person a task list their
- * permissions cannot open.
+ * **A name is enough.** No account, no invitation, no email round trip - a
+ * carrier employs people who will never open this software, and a register
+ * that could only hold people with a login is a register that does not
+ * describe the fleet.
+ *
+ * Linking an account is optional and additive: pass `partnerUserId` and this
+ * driver can also use the phone app, which is what gates the task list, the
+ * scanner, proof of delivery and the trip a location ping needs. Leave it out
+ * and they are a name a dispatcher can put on a van.
  */
-export async function upsertDriver(
-  membership: LogisticsMembership,
-  input: UpsertDriverInput,
+export async function createDriver(
+  actor: FleetActor,
+  input: DriverDetailsInput,
   correlationId?: string | null,
 ): Promise<DriverRow> {
-  assertLogisticsPermission(membership, LogisticsPermission.DRIVER_WRITE);
+  const who = resolveActor(actor, LogisticsPermission.DRIVER_WRITE);
+
+  const fullName = (input.fullName ?? '').trim();
+
+  if (fullName.length < 2) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, "Give the driver's name.", [
+      { field: 'fullName', code: 'REQUIRED' },
+    ]);
+  }
+
+  const link = await resolveDriverAccount(who.logisticsPartnerId, input.partnerUserId ?? null);
+
+  const id = newId();
+
+  await prisma.logisticsDriverProfile.create({
+    data: {
+      id,
+      logisticsPartnerId: who.logisticsPartnerId,
+      fullName,
+      phone: emptyToNull(input.phone),
+      email: emptyToNull(input.email),
+      partnerUserId: link,
+      employeeReference: emptyToNull(input.employeeReference),
+      licenceNumber: emptyToNull(input.licenceNumber),
+      licenceExpiresAt: input.licenceExpiresAt ?? null,
+      canCarryDangerousGoods: input.canCarryDangerousGoods ?? false,
+      canCarryColdChain: input.canCarryColdChain ?? false,
+      canCarrySterile: input.canCarrySterile ?? false,
+      state: input.state ?? 'ACTIVE',
+    },
+  });
+
+  await recordLogisticsAudit({
+    logisticsPartnerId: who.logisticsPartnerId,
+    actorUserId: who.userId,
+    actorLabel: who.label,
+    action: 'logistics.driver.added',
+    resourceType: 'logistics_driver_profile',
+    resourceId: id,
+    after: { fullName, hasPortalAccess: link !== null },
+    summary: `${fullName} was added to the fleet${who.isOperator ? ' by the marketplace' : ''}.`,
+    correlationId: correlationId ?? null,
+  });
+
+  return readDriver(who.logisticsPartnerId, id);
+}
+
+/**
+ * Change a driver's details.
+ *
+ * Keyed on the DRIVER RECORD rather than on an account, which is the whole
+ * point of the change: most drivers have no account to key on. Only the fields
+ * supplied are written, so editing a licence number cannot silently clear the
+ * certifications beside it - the bug the old whole-record upsert made easy.
+ */
+export async function updateDriver(
+  actor: FleetActor,
+  driverProfileId: string,
+  input: DriverDetailsInput,
+  correlationId?: string | null,
+): Promise<DriverRow> {
+  const who = resolveActor(actor, LogisticsPermission.DRIVER_WRITE);
+
+  const existing = await prisma.logisticsDriverProfile.findFirst({
+    where: { id: driverProfileId, logisticsPartnerId: who.logisticsPartnerId },
+    select: { id: true, fullName: true, state: true },
+  });
+
+  // The tenant filter is on the query, so another carrier's driver is not
+  // found rather than found-and-refused.
+  if (existing === null) throw notFound('Driver');
+
+  const fullName = input.fullName === undefined ? undefined : input.fullName.trim();
+
+  if (fullName !== undefined && fullName.length < 2) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, "Give the driver's name.", [
+      { field: 'fullName', code: 'REQUIRED' },
+    ]);
+  }
+
+  const link =
+    input.partnerUserId === undefined
+      ? undefined
+      : await resolveDriverAccount(who.logisticsPartnerId, input.partnerUserId);
+
+  await prisma.logisticsDriverProfile.update({
+    where: { id: existing.id },
+    data: {
+      ...(fullName === undefined ? {} : { fullName }),
+      ...(input.phone === undefined ? {} : { phone: emptyToNull(input.phone) }),
+      ...(input.email === undefined ? {} : { email: emptyToNull(input.email) }),
+      ...(link === undefined ? {} : { partnerUserId: link }),
+      ...(input.employeeReference === undefined
+        ? {}
+        : { employeeReference: emptyToNull(input.employeeReference) }),
+      ...(input.licenceNumber === undefined
+        ? {}
+        : { licenceNumber: emptyToNull(input.licenceNumber) }),
+      ...(input.licenceExpiresAt === undefined
+        ? {}
+        : { licenceExpiresAt: input.licenceExpiresAt }),
+      ...(input.canCarryDangerousGoods === undefined
+        ? {}
+        : { canCarryDangerousGoods: input.canCarryDangerousGoods }),
+      ...(input.canCarryColdChain === undefined
+        ? {}
+        : { canCarryColdChain: input.canCarryColdChain }),
+      ...(input.canCarrySterile === undefined ? {} : { canCarrySterile: input.canCarrySterile }),
+      ...(input.state === undefined ? {} : { state: input.state }),
+    },
+  });
+
+  await recordLogisticsAudit({
+    logisticsPartnerId: who.logisticsPartnerId,
+    actorUserId: who.userId,
+    actorLabel: who.label,
+    action:
+      input.state !== undefined && input.state !== existing.state
+        ? 'logistics.driver.state_changed'
+        : 'logistics.driver.updated',
+    resourceType: 'logistics_driver_profile',
+    resourceId: existing.id,
+    before: { fullName: existing.fullName, state: existing.state },
+    after: { ...(fullName === undefined ? {} : { fullName }), ...(input.state === undefined ? {} : { state: input.state }) },
+    summary: `${fullName ?? existing.fullName}'s driver record was updated${who.isOperator ? ' by the marketplace' : ''}.`,
+    correlationId: correlationId ?? null,
+  });
+
+  return readDriver(who.logisticsPartnerId, existing.id);
+}
+
+/** Trim, and treat "" as "not recorded" rather than as an empty string. */
+function emptyToNull(value: string | null | undefined): string | null {
+  if (value === undefined || value === null) return null;
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+/**
+ * Check that an account being linked belongs to THIS carrier.
+ *
+ * Without it, a carrier could hand its driver record an account id belonging
+ * to somebody at another carrier and give that person a task list full of
+ * consignments they have nothing to do with.
+ */
+async function resolveDriverAccount(
+  logisticsPartnerId: string,
+  partnerUserId: string | null,
+): Promise<string | null> {
+  if (partnerUserId === null) return null;
 
   const member = await prisma.logisticsPartnerUser.findFirst({
-    where: { id: input.partnerUserId, logisticsPartnerId: membership.logisticsPartnerId },
-    select: { id: true, role: true, fullName: true, driverProfile: { select: { id: true } } },
+    where: { id: partnerUserId, logisticsPartnerId },
+    select: { id: true, fullName: true, driverProfile: { select: { id: true } } },
   });
 
   if (member === null) throw notFound('Member');
 
-  if (member.role !== 'DRIVER') {
+  // One account, one driver record. The unique index would refuse this anyway;
+  // saying so here makes the refusal a sentence rather than a constraint name.
+  if (member.driverProfile !== null) {
     throw conflict(
       ErrorCode.LOGISTICS_DRIVER_NOT_ELIGIBLE,
-      `${member.fullName} is not a driver. Change their role first.`,
+      `${member.fullName} already has a driver record.`,
     );
   }
 
-  const data = {
-    employeeReference: input.employeeReference ?? null,
-    licenceNumber: input.licenceNumber ?? null,
-    licenceExpiresAt: input.licenceExpiresAt ?? null,
-    canCarryDangerousGoods: input.canCarryDangerousGoods ?? false,
-    canCarryColdChain: input.canCarryColdChain ?? false,
-    canCarrySterile: input.canCarrySterile ?? false,
-    ...(input.state !== undefined ? { state: input.state } : {}),
-  };
+  return member.id;
+}
 
-  if (member.driverProfile === null) {
-    await prisma.logisticsDriverProfile.create({
-      data: {
-        id: newId(),
-        logisticsPartnerId: membership.logisticsPartnerId,
-        partnerUserId: member.id,
-        ...data,
-      },
-    });
-  } else {
-    await prisma.logisticsDriverProfile.update({
-      where: { id: member.driverProfile.id },
-      data,
-    });
-  }
-
-  await recordLogisticsAudit({
-    logisticsPartnerId: membership.logisticsPartnerId,
-    actorUserId: membership.userId,
-    actorLabel: membership.fullName,
-    action: 'logistics.driver.updated',
-    resourceType: 'logistics_driver_profile',
-    resourceId: member.driverProfile?.id ?? member.id,
-    after: data,
-    summary: `${member.fullName}'s driver record was updated.`,
-    correlationId: correlationId ?? null,
+async function readDriver(logisticsPartnerId: string, id: string): Promise<DriverRow> {
+  const row = await prisma.logisticsDriverProfile.findFirst({
+    where: { id, logisticsPartnerId },
+    select: DRIVER_SELECT,
   });
 
-  const drivers = await listDrivers(membership);
-  const updated = drivers.find((row) => row.partnerUserId === member.id);
-  if (updated === undefined) throw notFound('Driver');
-  return updated;
+  if (row === null) throw notFound('Driver');
+  return toDriverRow(row);
 }
 
 export interface VehicleRow {
@@ -189,11 +464,11 @@ export interface VehicleRow {
   isActive: boolean;
 }
 
-export async function listVehicles(membership: LogisticsMembership): Promise<VehicleRow[]> {
-  assertLogisticsPermission(membership, LogisticsPermission.VEHICLE_READ);
+export async function listVehicles(actor: FleetActor): Promise<VehicleRow[]> {
+  const who = resolveActor(actor, LogisticsPermission.VEHICLE_READ);
 
   const rows = await prisma.logisticsVehicle.findMany({
-    where: { logisticsPartnerId: membership.logisticsPartnerId },
+    where: { logisticsPartnerId: who.logisticsPartnerId },
     orderBy: [{ isActive: 'desc' }, { registration: 'asc' }],
     select: {
       id: true,
@@ -216,7 +491,7 @@ export async function listVehicles(membership: LogisticsMembership): Promise<Veh
 }
 
 export async function createVehicle(
-  membership: LogisticsMembership,
+  actor: FleetActor,
   input: {
     registration: string;
     kind: LogisticsVehicleKind;
@@ -226,13 +501,20 @@ export async function createVehicle(
     temperatureMaxC?: number | null;
     maxWeightGrams?: number | null;
   },
+  correlationId?: string | null,
 ): Promise<VehicleRow> {
-  assertLogisticsPermission(membership, LogisticsPermission.VEHICLE_WRITE);
+  const who = resolveActor(actor, LogisticsPermission.VEHICLE_WRITE);
 
   const registration = input.registration.trim().toUpperCase();
 
+  if (registration.length === 0) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the vehicle a registration.', [
+      { field: 'registration', code: 'REQUIRED' },
+    ]);
+  }
+
   const existing = await prisma.logisticsVehicle.findFirst({
-    where: { logisticsPartnerId: membership.logisticsPartnerId, registration },
+    where: { logisticsPartnerId: who.logisticsPartnerId, registration },
     select: { id: true },
   });
 
@@ -247,7 +529,7 @@ export async function createVehicle(
   await prisma.logisticsVehicle.create({
     data: {
       id,
-      logisticsPartnerId: membership.logisticsPartnerId,
+      logisticsPartnerId: who.logisticsPartnerId,
       registration,
       kind: input.kind,
       hasRefrigeration: input.hasRefrigeration ?? false,
@@ -258,7 +540,19 @@ export async function createVehicle(
     },
   });
 
-  const vehicles = await listVehicles(membership);
+  await recordLogisticsAudit({
+    logisticsPartnerId: who.logisticsPartnerId,
+    actorUserId: who.userId,
+    actorLabel: who.label,
+    action: 'logistics.vehicle.added',
+    resourceType: 'logistics_vehicle',
+    resourceId: id,
+    after: { registration, kind: input.kind },
+    summary: `${registration} was added to the fleet${who.isOperator ? ' by the marketplace' : ''}.`,
+    correlationId: correlationId ?? null,
+  });
+
+  const vehicles = await listVehicles(actor);
   const created = vehicles.find((row) => row.id === id);
   if (created === undefined) throw notFound('Vehicle');
   return created;
@@ -269,16 +563,126 @@ export async function createVehicle(
 // ---------------------------------------------------------------------------
 
 /**
- * Assign a driver to a stop.
+ * The consignment, and the right to write to it.
  *
- * Checks the driver's own certifications against the consignment's handling
- * requirements. A driver without a dangerous-goods certificate cannot be put
- * on a dangerous-goods consignment however short-staffed the depot is - that
- * refusal is the whole reason those columns exist rather than being a note in
- * somebody's spreadsheet.
+ * The two sides prove that differently and it cannot be collapsed:
+ *
+ *   - A **carrier** goes through `assertShipmentAccess`, which filters on a
+ *     live assignment to their own organisation. A consignment that is not
+ *     theirs is not found, and one whose assignment has settled is read-only.
+ *   - An **operator** has authority over every consignment on the marketplace
+ *     - that is what `logistics.assign` on the route means - so the only thing
+ *     left to check is that the consignment is on the carrier whose fleet is
+ *     being used. Putting DHL's driver on a DPD consignment is not an
+ *     authority question, it is a nonsense.
+ */
+async function assertFleetShipmentAccess(
+  actor: FleetActor,
+  who: ResolvedActor,
+  shipmentId: string,
+): Promise<{ shipmentId: string }> {
+  if (actor.kind === 'PARTNER') {
+    return assertShipmentAccess(actor.membership, shipmentId, 'WRITE');
+  }
+
+  const shipment = await prisma.logisticsShipment.findFirst({
+    where: { id: shipmentId, assignedPartnerId: who.logisticsPartnerId },
+    select: { id: true },
+  });
+
+  if (shipment === null) {
+    throw conflict(
+      ErrorCode.SHIPMENT_NOT_ASSIGNED,
+      'That consignment is not with this carrier, so its drivers cannot be put on it.',
+    );
+  }
+
+  return { shipmentId: shipment.id };
+}
+
+/**
+ * This driver, on this fleet, and on the rota.
+ *
+ * Partner id rather than a membership, so both sides reach the same check.
+ * State and tenancy in one query, deliberately: a foreign driver and a
+ * stood-down one answer identically, and distinguishing them would confirm
+ * that the other carrier's driver exists.
+ */
+async function assertDriverOnFleet(
+  logisticsPartnerId: string,
+  driverProfileId: string,
+): Promise<void> {
+  const driver = await prisma.logisticsDriverProfile.findFirst({
+    where: { id: driverProfileId, logisticsPartnerId, state: 'ACTIVE' },
+    select: { id: true },
+  });
+
+  if (driver === null) {
+    throw conflict(
+      ErrorCode.LOGISTICS_DRIVER_NOT_ELIGIBLE,
+      'That driver is not on this carrier’s active list.',
+    );
+  }
+}
+
+/** The same, for a van. An inactive vehicle is off the road. */
+async function assertVehicleOnFleet(
+  logisticsPartnerId: string,
+  vehicleId: string,
+): Promise<void> {
+  const vehicle = await prisma.logisticsVehicle.findFirst({
+    where: { id: vehicleId, logisticsPartnerId, isActive: true },
+    select: { id: true },
+  });
+
+  if (vehicle === null) {
+    throw conflict(
+      ErrorCode.LOGISTICS_DRIVER_NOT_ELIGIBLE,
+      'That vehicle is not on this carrier’s active fleet.',
+      [{ field: 'vehicleId', code: 'NOT_AVAILABLE' }],
+    );
+  }
+}
+
+/**
+ * Assign a driver to a stop, or move it from one driver to another.
+ *
+ * FOUR REFUSALS, ALL ON THE SERVER
+ *
+ *   1. **The driver is not this carrier's, or is not ACTIVE.** Handled by
+ *      `assertDriverBelongsToPartner`, which filters on both - so a driver id
+ *      from another depot and a driver who has been suspended answer the same
+ *      way, and neither confirms that the other carrier's driver exists.
+ *   2. **The consignment is finished.** Delivered, returned, lost or
+ *      cancelled: there is nothing left to carry, and an assignment made after
+ *      the fact would put a live stop on somebody's task list for a parcel
+ *      that is already in a hospital.
+ *   3. **The driver is not cleared for the load.** A driver without a
+ *      dangerous-goods certificate cannot be put on a dangerous-goods
+ *      consignment however short-staffed the depot is - that refusal is the
+ *      whole reason those columns exist rather than being a note in somebody's
+ *      spreadsheet.
+ *   4. **Somebody else got there first.** See below.
+ *
+ * THE RACE, AND WHY THE DATABASE SETTLES IT
+ *
+ * Closing the previous assignment and creating a new one inside a transaction
+ * is correct and is not sufficient: two dispatchers pressing Assign in the
+ * same second both read "nothing live here", both close nothing, and both
+ * insert. `uq_logistics_driver_active` over `activeShipmentId` - NULL once an
+ * assignment is over, and NULL is distinct in a MariaDB unique index - is what
+ * makes the second insert fail instead. The loser is told plainly to look
+ * again rather than silently putting one parcel on two vans.
+ *
+ * REASSIGNMENT IS A LINK, NOT AN OVERWRITE
+ *
+ * The outgoing assignment is closed with a reason and the incoming one points
+ * back at it. A to B to C, each link carrying why it moved, is what an
+ * operator reads after a bad delivery - and it is exactly what an overwrite
+ * would have thrown away.
  */
 export async function assignDriver(
-  membership: LogisticsMembership,
+  actor: FleetActor,
   input: {
     shipmentId: string;
     driverProfileId: string;
@@ -286,23 +690,33 @@ export async function assignDriver(
     isPickupLeg?: boolean;
     isDeliveryLeg?: boolean;
     routeSequence?: number | null;
+    /**
+     * Why the previous driver is coming off.
+     *
+     * Required when there is one to come off, and ignored on a first
+     * assignment - there is nothing to explain about putting the first driver
+     * on a parcel.
+     */
+    reason?: string | null;
   },
   correlationId?: string | null,
-): Promise<{ assignmentId: string }> {
-  assertLogisticsPermission(membership, LogisticsPermission.DRIVER_ASSIGN);
+): Promise<{ assignmentId: string; replacedAssignmentId: string | null }> {
+  const who = resolveActor(actor, LogisticsPermission.DRIVER_ASSIGN);
 
-  const access = await assertShipmentAccess(membership, input.shipmentId, 'WRITE');
-  await assertDriverBelongsToPartner(membership, input.driverProfileId);
+  const access = await assertFleetShipmentAccess(actor, who, input.shipmentId);
+  await assertDriverOnFleet(who.logisticsPartnerId, input.driverProfileId);
 
   if ((input.vehicleId !== undefined && input.vehicleId !== null)) {
-    await assertVehicleBelongsToPartner(membership, input.vehicleId);
+    await assertVehicleOnFleet(who.logisticsPartnerId, input.vehicleId);
   }
 
   const [shipment, driver] = await Promise.all([
     prisma.logisticsShipment.findUniqueOrThrow({
       where: { id: access.shipmentId },
       select: {
+        status: true,
         shipmentReference: true,
+        receivingCompanyName: true,
         requiresColdChain: true,
         requiresSterileHandling: true,
         isDangerousGoods: true,
@@ -315,10 +729,27 @@ export async function assignDriver(
         canCarrySterile: true,
         canCarryDangerousGoods: true,
         licenceExpiresAt: true,
-        partnerUser: { select: { fullName: true } },
+        fullName: true,
       },
     }),
   ]);
+
+  /*
+   * A finished consignment takes no driver.
+   *
+   * `isTrackingComplete` rather than `isTerminalShipmentStatus`: the latter is
+   * RETURNED and LOST only, and a DELIVERED or CANCELLED parcel is just as
+   * finished as far as somebody's task list is concerned. Reading the domain's
+   * own list rather than spelling four statuses out here is what stops this
+   * check drifting away from the state machine.
+   */
+  if (isTrackingComplete(shipment.status)) {
+    throw conflict(
+      ErrorCode.SHIPMENT_TRANSITION_NOT_ALLOWED,
+      `${shipment.shipmentReference} is ${shipment.status.toLowerCase().replace(/_/g, ' ')}. It cannot be given to a driver.`,
+      [{ code: 'SHIPMENT_FINISHED', meta: { status: shipment.status } }],
+    );
+  }
 
   const missing: string[] = [];
   if (shipment.requiresColdChain && !driver.canCarryColdChain) missing.push('cold chain');
@@ -332,52 +763,217 @@ export async function assignDriver(
   if (missing.length > 0) {
     throw conflict(
       ErrorCode.LOGISTICS_DRIVER_NOT_ELIGIBLE,
-      `${driver.partnerUser.fullName} is not cleared for ${missing.join(', ')} on this shipment.`,
+      `${driver.fullName} is not cleared for ${missing.join(', ')} on this shipment.`,
       [{ code: 'MISSING_CERTIFICATION', meta: { missing: missing.join(',') } }],
     );
   }
 
+  const existing = await prisma.logisticsDriverAssignment.findFirst({
+    where: { shipmentId: access.shipmentId, unassignedAt: null },
+    select: { id: true, driverProfileId: true, driver: { select: { fullName: true } } },
+  });
+
+  const reason = (input.reason ?? '').trim();
+
+  if (existing !== null && existing.driverProfileId === input.driverProfileId) {
+    // Already theirs. Not an error and not a second row - a dispatcher
+    // pressing Assign twice on the same name has changed nothing.
+    return { assignmentId: existing.id, replacedAssignmentId: null };
+  }
+
+  if (existing !== null && reason.length < 4) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      `Say why ${existing.driver.fullName} is coming off this consignment.`,
+      [{ field: 'reason', code: 'REASON_REQUIRED' }],
+    );
+  }
+
   const assignmentId = newId();
+  const now = new Date();
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (existing !== null) {
+        /*
+         * Closed CONDITIONALLY on still being live.
+         *
+         * If a concurrent dispatcher already closed it, this matches nothing,
+         * the unique index below refuses the insert, and the loser is told to
+         * look again - which is the correct outcome. An unconditional update
+         * would have quietly taken their driver off and then failed anyway.
+         */
+        await tx.logisticsDriverAssignment.updateMany({
+          where: { id: existing.id, unassignedAt: null },
+          data: {
+            unassignedAt: now,
+            unassignedReason: reason.slice(0, 512),
+            // The marker that frees the consignment for the next assignment.
+            // Set together with `unassignedAt`, always.
+            activeShipmentId: null,
+          },
+        });
+      }
+
+      await tx.logisticsDriverAssignment.create({
+        data: {
+          id: assignmentId,
+          shipmentId: access.shipmentId,
+          activeShipmentId: access.shipmentId,
+          driverProfileId: input.driverProfileId,
+          vehicleId: input.vehicleId ?? null,
+          isPickupLeg: input.isPickupLeg ?? false,
+          isDeliveryLeg: input.isDeliveryLeg ?? true,
+          routeSequence: input.routeSequence ?? null,
+          assignedByPartnerUserId: who.partnerUserId,
+          assignedByLabel: who.label,
+          previousAssignmentId: existing?.id ?? null,
+        },
+      });
+
+      await recordLogisticsAudit(
+        {
+          logisticsPartnerId: who.logisticsPartnerId,
+          actorUserId: who.userId,
+          actorLabel: who.label,
+          action: existing === null ? 'logistics.driver.assigned' : 'logistics.driver.reassigned',
+          resourceType: 'logistics_driver_assignment',
+          resourceId: assignmentId,
+          ...(existing === null
+            ? {}
+            : { before: { driverProfileId: existing.driverProfileId, reason } }),
+          after: { shipmentId: access.shipmentId, driverProfileId: input.driverProfileId },
+          summary:
+            existing === null
+              ? `${driver.fullName} was put on ${shipment.shipmentReference}.`
+              : `${shipment.shipmentReference} moved from ${existing.driver.fullName} to ${driver.fullName}: ${reason}`,
+          correlationId: correlationId ?? null,
+        },
+        tx,
+      );
+    });
+  } catch (error) {
+    if (lostTheAssignmentRace(error)) {
+      throw conflict(
+        ErrorCode.SHIPMENT_ASSIGNMENT_SETTLED,
+        'Somebody else assigned this consignment a moment ago. Reload it and look again.',
+      );
+    }
+    throw error;
+  }
+
+  /*
+   * Told, outside the transaction.
+   *
+   * A notification that cannot be written must not roll back an assignment
+   * that has already been made - the van is the fact, and the alert is how
+   * somebody finds out about it.
+   */
+  await createLogisticsNotification({
+    logisticsPartnerId: who.logisticsPartnerId,
+    shipmentId: access.shipmentId,
+    kind: existing === null ? 'DRIVER_ASSIGNED' : 'DRIVER_REASSIGNED',
+    title:
+      existing === null
+        ? `${shipment.shipmentReference}: ${driver.fullName} assigned`
+        : `${shipment.shipmentReference}: moved to ${driver.fullName}`,
+    body: existing === null ? shipment.receivingCompanyName : reason.slice(0, 1000),
+    variables: {
+      shipmentReference: shipment.shipmentReference,
+      driverName: driver.fullName,
+      receivingCompany: shipment.receivingCompanyName,
+      ...(existing === null ? {} : { previousDriverName: existing.driver.fullName }),
+    },
+    // Keyed on the assignment, so a reassignment announces itself rather than
+    // being swallowed as a duplicate of the one it replaced.
+    dedupeKey: `driver-assignment:${assignmentId}`,
+  });
+
+  return { assignmentId, replacedAssignmentId: existing?.id ?? null };
+}
+
+/**
+ * Did this fail because somebody else assigned the consignment first?
+ *
+ * P2002 on `uq_logistics_driver_active` is the only way that index can be
+ * violated, because nothing else writes `activeShipmentId`. Matched on the
+ * code rather than on the message, which is provider prose.
+ */
+function lostTheAssignmentRace(error: unknown): boolean {
+  return (
+    typeof error === 'object' && error !== null && (error as { code?: unknown }).code === 'P2002'
+  );
+}
+
+/**
+ * Take the driver off, without putting another one on.
+ *
+ * The case a reassignment cannot cover: a driver has called in sick and the
+ * depot does not yet know who is taking their round. Leaving them on the
+ * consignment would leave a stop on a task list nobody is going to work.
+ */
+export async function unassignDriver(
+  actor: FleetActor,
+  shipmentId: string,
+  reason: string,
+  correlationId?: string | null,
+): Promise<{ unassignedAssignmentId: string | null }> {
+  const who = resolveActor(actor, LogisticsPermission.DRIVER_ASSIGN);
+
+  const access = await assertFleetShipmentAccess(actor, who, shipmentId);
+
+  const trimmed = reason.trim();
+  if (trimmed.length < 4) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'Say why the driver is coming off this consignment.',
+      [{ field: 'reason', code: 'REASON_REQUIRED' }],
+    );
+  }
+
+  const existing = await prisma.logisticsDriverAssignment.findFirst({
+    where: { shipmentId: access.shipmentId, unassignedAt: null },
+    select: {
+      id: true,
+      driverProfileId: true,
+      driver: { select: { fullName: true } },
+      shipment: { select: { shipmentReference: true } },
+    },
+  });
+
+  // Nobody on it is the desired end state, so saying so twice is not an error.
+  if (existing === null) return { unassignedAssignmentId: null };
 
   await prisma.$transaction(async (tx) => {
-    // One live driver per consignment. The previous one is unassigned rather
-    // than deleted, so the record of who had it yesterday survives.
     await tx.logisticsDriverAssignment.updateMany({
-      where: { shipmentId: access.shipmentId, unassignedAt: null },
-      data: { unassignedAt: new Date() },
-    });
-
-    await tx.logisticsDriverAssignment.create({
+      where: { id: existing.id, unassignedAt: null },
       data: {
-        id: assignmentId,
-        shipmentId: access.shipmentId,
-        driverProfileId: input.driverProfileId,
-        vehicleId: input.vehicleId ?? null,
-        isPickupLeg: input.isPickupLeg ?? false,
-        isDeliveryLeg: input.isDeliveryLeg ?? true,
-        routeSequence: input.routeSequence ?? null,
-        assignedByPartnerUserId: membership.partnerUserId,
+        unassignedAt: new Date(),
+        unassignedReason: trimmed.slice(0, 512),
+        activeShipmentId: null,
       },
     });
 
     await recordLogisticsAudit(
       {
-        logisticsPartnerId: membership.logisticsPartnerId,
-        actorUserId: membership.userId,
-        actorLabel: membership.fullName,
-        action: 'logistics.driver.assigned',
+        logisticsPartnerId: who.logisticsPartnerId,
+        actorUserId: who.userId,
+        actorLabel: who.label,
+        action: 'logistics.driver.unassigned',
         resourceType: 'logistics_driver_assignment',
-        resourceId: assignmentId,
-        after: { shipmentId: access.shipmentId, driverProfileId: input.driverProfileId },
-        summary: `${driver.partnerUser.fullName} was put on ${shipment.shipmentReference}.`,
+        resourceId: existing.id,
+        before: { driverProfileId: existing.driverProfileId },
+        after: { reason: trimmed },
+        summary: `${existing.driver.fullName} came off ${existing.shipment.shipmentReference}: ${trimmed}`,
         correlationId: correlationId ?? null,
       },
       tx,
     );
   });
 
-  return { assignmentId };
+  return { unassignedAssignmentId: existing.id };
 }
+
 
 // ---------------------------------------------------------------------------
 // One driver's day

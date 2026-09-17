@@ -28,9 +28,17 @@ import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
-import { AdminNotificationKind, createAdminNotification } from '../notifications/admin-notification.service.js';
+import {
+  AdminNotificationKind,
+  ResolutionKey,
+  createAdminNotification,
+  resolveAdminNotifications,
+} from '../notifications/admin-notification.service.js';
 import { recordLogisticsAudit } from './audit.service.js';
-import { createLogisticsNotification } from './notification.service.js';
+import {
+  createLogisticsNotification,
+  resolveLogisticsNotifications,
+} from './notification.service.js';
 import { assertShipmentAccess } from './shipment.service.js';
 import {
   assertLogisticsPermission,
@@ -161,7 +169,13 @@ export async function raiseException(
         body: input.reason.slice(0, 1000),
         variables: { shipmentReference: shipment.shipmentReference, type: input.type, severity },
         dedupeKey: `exception:${id}`,
-      });
+        // A problem rather than a piece of news, so it leaves the carrier's
+        // list when the exception is closed and not when somebody scrolled
+        // past it. Keyed on the exception, which is the thing that gets
+        // closed.
+        class: 'ALERT',
+        resolutionKey: ResolutionKey.logisticsException(id),
+      }, client);
 
       await recordLogisticsAudit(
         {
@@ -222,6 +236,16 @@ async function notifyOperations(shipmentId: string, exception: RaisedException):
     relatedId: shipmentId,
     // One bell per exception, however many times the raise is retried.
     dedupeKey: `logistics-exception:${exception.id}`,
+    /*
+     * Keyed on the EXCEPTION rather than on the consignment.
+     *
+     * A parcel can carry two problems at once - a customs hold and a
+     * temperature excursion - and closing one of them must not take the other
+     * off the badge. Keying this on the shipment would do exactly that, which
+     * is the failure the brief calls out by name: resolving one alert must not
+     * resolve unrelated alerts for the same order.
+     */
+    resolutionKey: ResolutionKey.logisticsException(exception.id),
   });
 }
 
@@ -460,6 +484,47 @@ export async function updateException(
         where: { id: existing.shipmentId },
         data: { estimatedDeliveryAt: changes.revisedEtaAt },
       });
+    }
+
+    /*
+     * Closing the exception closes the alerts about it, in the same
+     * transaction that closed it.
+     *
+     * This is the whole point of the resolution lifecycle, and the transaction
+     * is what makes it trustworthy. An exception that commits as RESOLVED
+     * while its alert stays ACTIVE - because a second write failed a
+     * millisecond later - is precisely the drift that left operators chasing
+     * problems somebody had already fixed. Both consoles are closed here: the
+     * carrier's, because it is their work item, and the marketplace's, because
+     * a CRITICAL exception put a row in the operator's bell when it was
+     * raised.
+     *
+     * Nothing is closed on an UPDATE. An exception moved to ACKNOWLEDGED or
+     * IN_PROGRESS is an exception somebody is holding, not one that is over.
+     */
+    if (closing) {
+      const resolutionKey = ResolutionKey.logisticsException(existing.id);
+      const reason = (changes.resolutionNotes ?? '').trim();
+
+      await resolveLogisticsNotifications(
+        {
+          resolutionKey,
+          reason,
+          source: 'DOMAIN_EVENT',
+          resolvedByUserId: membership.userId,
+        },
+        tx,
+      );
+
+      await resolveAdminNotifications(
+        {
+          resolutionKey,
+          reason,
+          source: 'DOMAIN_EVENT',
+          resolvedByUserId: membership.userId,
+        },
+        tx,
+      );
     }
 
     await recordLogisticsAudit(
