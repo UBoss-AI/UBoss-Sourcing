@@ -48,6 +48,8 @@ import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { HeroStage } from '@/components/greeting/HeroStage';
+import { FlipWords } from '@/components/ui/flip-words';
+import { HEADLINE_WORDS, splitHeadline } from '@/lib/greeting-headline';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
@@ -137,6 +139,25 @@ function Greeting(): React.JSX.Element {
       : null,
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
+  /*
+   * The headline: a name that stays, and a word beside it that changes.
+   *
+   * Both halves are decided in `lib/greeting-headline.ts` rather than here,
+   * because there is one case that needs a rule instead of an eye. This
+   * deployment is called "UBOSS Sourcing" and the word it cycles first is
+   * "Sourcing", so the headline read "UBOSS Sourcing Sourcing". The name is
+   * the operator's, not ours to trim - so the name hands its last word to the
+   * cycle, which opens on it. That module records the rest of the reasoning,
+   * including what happens on a storefront being read in German.
+   *
+   * Rebuilt on each render, which costs nothing: `FlipWords` arms its timer
+   * off the length of the list, not off the identity of the array.
+   */
+  const headline = splitHeadline(
+    business.displayName,
+    HEADLINE_WORDS.map((word) => t(word.key)),
+  );
+
   const eyebrow =
     !isLoading && isCustomer
       ? shortName === null
@@ -210,15 +231,43 @@ function Greeting(): React.JSX.Element {
               seller's shop front the seller's own customers were welcomed to
               somebody else's marketplace. A name is not a string to translate;
               it is a fact about who is selling.
+
+              Beside it, one word that changes — sourcing, intelligence,
+              optimism, innovation. It is inside the headline rather than on a
+              line of its own because the name is its subject: "UBoss
+              Sourcing", then "UBoss Intelligence". The moving copy is hidden
+              from assistive technology and one steady word stands in for it,
+              so the accessible name of this `h1` does not rewrite itself
+              every three seconds; `components/ui/flip-words.tsx` has that and
+              what a reduced-motion visitor gets instead.
+
+              Which means the *first* of these words is the one that reads as
+              part of the name. A deployment whose configured name already
+              ends in one of them - "UBOSS Sourcing" - says it twice; that is
+              a setting to change, not a string to trim here.
             */}
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-              {business.displayName}
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+              {headline.name} <FlipWords words={headline.words} />
             </h1>
 
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
-              {isCustomer
-                ? t('greeting.leadCustomer')
-                : t('greeting.leadGuest', { store: business.displayName })}
+            {/*
+             * The tagline, in place of two paragraphs of prose.
+             *
+             * It used to be a sentence, and a different sentence for a guest
+             * than for a signed-in customer. Both are gone, deliberately: the
+             * guest's version explained what a catalogue is to somebody
+             * already looking at one, and the search bar directly below it
+             * asks the same question in one control instead of three lines.
+             *
+             * `sm:whitespace-nowrap` because it is a strapline and a
+             * strapline broken over two lines is two half-thoughts. It is held
+             * to one line from 640px up, which every translation of it fits
+             * at this type size; under that it wraps, because a phone is
+             * narrower than the shortest of them and clipping a tagline is
+             * worse than turning it.
+             */}
+            <p className="mt-4 text-base leading-relaxed text-ink-muted sm:whitespace-nowrap sm:text-lg">
+              {t('greeting.tagline')}
             </p>
 
             {/*

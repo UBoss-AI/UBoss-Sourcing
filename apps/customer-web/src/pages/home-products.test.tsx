@@ -21,6 +21,7 @@
  * page past the headline somebody came to read is its own bug.
  */
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HomePage } from './HomePage';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
@@ -158,13 +159,20 @@ describe('the greeting page product list', () => {
   });
 
   it('stays put when AI Mode is offered beside it, because that is a link away', async () => {
+    const user = userEvent.setup();
     renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
 
     await screen.findByRole('region', { name: 'Products' });
 
+    // The search module opens as a pill, so AI Mode is behind one press — see
+    // the header of `hero-search/HeroSearch.tsx`. Unfolding it is the thing
+    // this test needs to survive: it is a change of state in the hero, and the
+    // list below has to be indifferent to it.
+    await user.click(screen.getByRole('button', { name: 'Search the catalogue' }));
+
     // AI Mode used to be a tab that unmounted this section. It is a link to
     // another page, so the only thing that takes the list away is leaving.
-    expect(screen.getByRole('link', { name: /AI Mode/ })).toHaveAttribute('href', '/ai');
+    expect(await screen.findByRole('link', { name: /AI Mode/ })).toHaveAttribute('href', '/ai');
     expect(screen.getByRole('region', { name: 'Products' })).toBeInTheDocument();
     expect(productReads()).toHaveLength(1);
   });
@@ -176,9 +184,11 @@ describe('the greeting page product list', () => {
 
     // A landing page whose product strip could not load is still a landing
     // page — the hero above it works perfectly well — so this reports rather
-    // than replacing the page with an error wall.
+    // than replacing the page with an error wall. The search module being
+    // there and pressable is what says the hero survived; it is also the way
+    // to everything the failed strip was offering.
     expect(await screen.findByRole('button', { name: /Try again/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /AI Mode/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Search the catalogue' })).toBeEnabled();
   });
 
   it('says so plainly when the catalogue is empty', async () => {
@@ -195,10 +205,17 @@ describe('the greeting page product list', () => {
     // One item is not a row: with no AI provider the module is a search bar,
     // and a row above it would be a label pretending to be a choice. The
     // catalogue below is unaffected — it never depended on the row.
+    const user = userEvent.setup();
     renderWithProviders(<HomePage />, {
       config: makeConfig({ assistant: false }),
       session: GUEST,
     });
+
+    // Opened first, or this would pass on a deployment that *does* have an
+    // assistant: a folded module has no row in it either way, and the absence
+    // being asserted has to be the configured one.
+    await user.click(screen.getByRole('button', { name: 'Search the catalogue' }));
+    await screen.findByRole('textbox', { name: 'Search the catalogue' });
 
     expect(screen.queryByRole('link', { name: /AI Mode/ })).not.toBeInTheDocument();
     expect(await screen.findByRole('region', { name: 'Products' })).toBeInTheDocument();

@@ -72,7 +72,7 @@ three and it decides whose prices they are charged **[VR]**.
 | Product search, filters and facets | **Built** | Facets are the administrator's, from `/catalog/filters` |
 | Voice search | **Built** | Browser's own speech engine — nothing is sent anywhere |
 | Image search | **Built** | Needs an AI provider key; upload type decided by **magic bytes**, not the declared MIME |
-| Animated sourcing globe | **Built** | Drawn in the browser, not downloaded. Reduced-motion, low-power and no-WebGL fallbacks all present |
+| Animated sourcing globe | **Built** | A rendered earth whose maps ship with the build, so nothing is fetched. Reduced-motion, low-power and no-WebGL fallbacks all present |
 | Feature cards (assistant, autopay, schedule, ERP) | **Built** | Real buttons — each opens its screen or explains why it cannot |
 | Country / language / currency controls | **Built** | Eight languages; currency is separate from language, deliberately |
 

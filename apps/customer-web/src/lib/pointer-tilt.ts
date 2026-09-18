@@ -45,11 +45,18 @@ import { useCallback, useEffect, useRef } from 'react';
  */
 const MAX_DEGREES = 6;
 
-interface Tilt {
+/**
+ * Generic in the element it leans, so the ref goes onto whatever is actually
+ * leaning without a cast. `RefObject` is invariant in its element type, so a
+ * `RefObject<HTMLElement>` will not go on a `<div>` — and the thing that leans
+ * is no longer always the card's own `<article>`: the glare has to lean with
+ * it, so the ref now sits on the box that holds both.
+ */
+interface Tilt<T extends HTMLElement> {
   /** Put this on the element that should lean. */
-  ref: React.RefObject<HTMLElement | null>;
-  onPointerEnter: (event: React.PointerEvent<HTMLElement>) => void;
-  onPointerMove: (event: React.PointerEvent<HTMLElement>) => void;
+  ref: React.RefObject<T | null>;
+  onPointerEnter: (event: React.PointerEvent<T>) => void;
+  onPointerMove: (event: React.PointerEvent<T>) => void;
   onPointerLeave: () => void;
 }
 
@@ -61,8 +68,8 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function useTilt(): Tilt {
-  const ref = useRef<HTMLElement | null>(null);
+export function useTilt<T extends HTMLElement = HTMLElement>(): Tilt<T> {
+  const ref = useRef<T | null>(null);
 
   /** The card's box, measured when the pointer arrives. */
   const box = useRef<DOMRect | null>(null);
@@ -97,7 +104,7 @@ export function useTilt(): Tilt {
   }, []);
 
   const schedule = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
+    (event: React.PointerEvent<T>) => {
       pending.current = { x: event.clientX, y: event.clientY };
       if (frame.current !== null) return;
       frame.current = requestAnimationFrame(apply);
@@ -106,7 +113,7 @@ export function useTilt(): Tilt {
   );
 
   const onPointerEnter = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
+    (event: React.PointerEvent<T>) => {
       if (event.pointerType !== 'mouse' || prefersReducedMotion()) return;
 
       // The one layout read, taken once per hover rather than per move.
@@ -117,7 +124,7 @@ export function useTilt(): Tilt {
   );
 
   const onPointerMove = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
+    (event: React.PointerEvent<T>) => {
       if (event.pointerType !== 'mouse' || box.current === null) return;
       schedule(event);
     },

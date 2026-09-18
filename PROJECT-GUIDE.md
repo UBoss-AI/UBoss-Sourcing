@@ -632,9 +632,10 @@ then the appearance control, the market control, the account control and the
 basket on the right. That is all. Two things that used to be here are gone, and both removals are
 the point of the current shape.
 
-**The global search box is gone.** The front page opens on a large search
-module, and a second, smaller search field in the chrome directly above
-it was two front doors to the same room — behaving differently, at that: the
+**The global search box is gone.** The front page opens on a search module —
+a pill that unfolds into a large bar — and a second, smaller search field in
+the chrome directly above it was two front doors to the same room — behaving
+differently, at that: the
 header field always went to `/search`, while the hero bar goes to the catalogue
 with the filters and facets applied. Searching from anywhere is still one press
 away, and the catalogue page grew a search field of its own **at the top of its
@@ -799,36 +800,49 @@ covering half a phone needs a visible way out that is not a gesture.
 
 ### The globe on the front page
 
-The hero carries a **hex-dot globe**: a dark sphere whose continents are drawn
-as a field of small hexagons, a lit atmosphere, and trade arcs travelling
-between real sourcing hubs — Antwerp to Mumbai, Frankfurt to Singapore. It
-turns on its own, once every 22 seconds, and a visitor can take hold of it and
-spin it; letting go coasts to a stop rather than snapping back.
+The hero carries a **rendered earth**: a photographic sphere with an atmosphere
+around it, trade lanes travelling between real sourcing hubs — Antwerp to
+Mumbai, Frankfurt to Singapore — and three orbits circling it. It turns on its
+own, once every 22 seconds.
 
-Built on **`three-globe`**, which is what the "GitHub globe" treatment is
-rendered with. It is a plain `THREE.Object3D` dropped into the renderer, camera
-and frame loop `HeroStage.tsx` already owns — React Three Fiber and Drei were
-deliberately NOT added to render one object inside a renderer that already
-exists, which saved about 300 KB and a second reconciler.
+**It is lit flat, on purpose.** A key light gives a planet a day side and a
+night side, which is what a planet has and not what a *logo* has: half the mark
+would be in shadow at any moment, and which half would depend on where it had
+turned to. Nearly all the light is ambient, so every longitude is the same
+brightness as it comes round, and the small directional that is left only stops
+the sphere reading as a flat disc.
 
-**The land comes from `world-land.ts`** — coordinates this repository owns —
-converted to GeoJSON polygons, because `three-globe` speaks GeoJSON. No image
-and no map data is ever fetched. The front page of a medical marketplace should
+Built with **React Three Fiber and Drei**, on the component in
+`components/ui/3d-globe.tsx` — the Aceternity `3d-globe`, adapted. Four things
+about that component could not survive contact with this repository, and the
+header of the file names each: `"use client"` is a Next.js directive and this
+app is Vite, `cn` is `cx` here, nothing may be fetched, and a decorative canvas
+may contain no focusable control.
+
+**The maps are in the repository**, at `src/assets/globe/` — imported, hashed
+and served from this origin. A 2048×1024 earth at 247 kB and a greyscale
+1024×512 elevation map at 23 kB, downscaled from `three-globe`'s NASA Blue
+Marble example imagery, plus a 1024×512 copy at 61 kB for the header mark. No
+image and no map data is ever fetched. The front page of a marketplace should
 not call a tile server, and a customer running this behind their own firewall
 should not have to allow one.
 
-Two numbers worth knowing before changing it. `hexPolygonResolution` is an
-**H3 grid resolution, 0–15, and must be a whole number** — a fraction throws
-`Resolution argument was outside of acceptable range` before a hexagon is
-drawn. Each step up is roughly seven times the cells: 3 is about 12,000
-worldwide, 4 is about 80,000 and drops frames without a discrete GPU. And the
-hexagons take `palette.land`, which is tuned to hold 4.5:1 against the white
-"Sourcing" label sitting on top of them — brightening it to taste breaks that.
+**There are no pins on it.** The component supports markers — a plate on a stick
+standing off any latitude and longitude, inert by default and a real button when
+a handler is passed — and the storefront passes none: flags over each city read
+as a map with stickers on it rather than as the earth. The places are still
+there, in `greeting/scene/hubs.ts`, because every lane needs two ends.
+
+What this replaced was a **hex-dot globe** built on `three-globe`, whose
+continents were hexagons rasterised from coordinates in `world-land.ts`. That
+module, its sibling `globe.ts` and the dependency itself are all gone with it.
+`git log` has them if the decision is ever revisited.
 
 ## The front page: the search module
 
 To the left of the sourcing graphic, under the headline, sits the thing this
-page exists to offer: **one large search bar, with a two-item row above it.**
+page exists to offer: **a pill that unfolds into one large search bar, with a
+two-item row above it.**
 
 | Item | What pressing it does |
 |---|---|
@@ -840,6 +854,48 @@ old buttons said "Browse the catalogue" and "Sign in"; the first of those asked
 somebody to go and *look* for a thing they could already name. Nothing was lost
 with them — submitting an empty box goes to the same browse-all page the orange
 button did, and the sign-in path is in the header on every screen.
+
+### It opens as a pill, and that costs something
+
+The page loads showing one rounded button: a magnifier and the words "Search
+the catalogue". Pressing it unfolds the whole module — the row, the bar, the
+camera, the microphone and the AI notice — in a single gooey transition, and
+the caret lands in the field.
+
+**What the fold costs is worth stating plainly, because it is a real trade and
+not a free one.** The AI Mode link and the catalogue field are one press
+further away than they were, and neither is visible to somebody who never
+presses. What it buys is a greeting that opens on one clear invitation instead
+of on a control panel — a full bar, a two-item row, two icon buttons and a
+legal notice is six things to read before a visitor has decided they want any
+of them.
+
+**The transition is the gooey filter**, which lives in
+`components/ui/gooey-input.tsx` and is shared rather than reimplemented: the
+pill stretches into the bar while a round bubble pinches off its left end, the
+two joined by a neck that thins and breaks. The bubble is **not decoration**
+once it has landed — it is the Search button, and the filled "Search" button
+that used to sit inside the bar was removed when it arrived. Two controls with
+the same name doing the same thing is one of them somebody has to rule out
+first.
+
+Three things about the filter are deliberate and each one was a defect in the
+component this was adapted from; `ui/gooey-input.tsx` carries the full list.
+The filter is **mounted only while something is moving** — an SVG filter left
+over a live text field re-runs on every keystroke and costs the text its
+subpixel antialiasing. The `<svg>` holding it is **not `display: none`**,
+because WebKit drops filter references into a subtree it has been told not to
+render. And `prefers-reduced-motion` gets **no goo at all**: the module still
+opens and closes, with no spring, no travelling icon and no filter.
+
+**It folds back up** on `Escape`, and when focus leaves the module with the box
+empty. Each half of that rule is load-bearing. The box being empty is the
+condition, because folding a bar somebody has typed into throws their words
+away. It is the *module* that has to lose focus and not the field, because the
+field loses focus every time somebody reaches for the camera beside it. And an
+open image dialog holds it open, because opening that dialog moves focus
+outside the module — without the guard, closing the dialog would hand the
+customer back a pill.
 
 **Submitting searches the catalogue, and only that.** The term goes into the
 URL as `/products?q=…`, and the catalogue page owns what a result looks like —
@@ -1006,6 +1062,62 @@ deployment with no AI provider there is no AI Mode link and no camera button —
 and with only one item left, no row above the bar either, because one item is a
 label pretending to be a choice.
 
+## The headline, and the word that changes
+
+The greeting opens on three lines, and only one of them is prose:
+
+| Line | What it is |
+|---|---|
+| The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
+| The headline | The shop's configured name, and beside it one word that changes every three seconds — sourcing, intelligence, optimism, innovation |
+| The tagline | `greeting.tagline`, one line, held to one line |
+
+**The name is the operator's, and the changing word belongs to the name.** The
+headline reads "UBOSS Sourcing", then "UBOSS Intelligence", then "UBOSS
+Optimism" — a subject that does not move and a predicate that does. It replaced
+two paragraphs of prose: a customer's "your catalogue, your standing
+arrangements and your payment authority", and a guest's sentence explaining
+what a catalogue is to somebody already looking at one. The search module
+directly below asks that question in one control.
+
+**A name that already ends in one of those words hands it over.** The first
+deployment to run this is called *UBOSS Sourcing*, and the headline read "UBOSS
+Sourcing Sourcing". Trimming the word out of the markup would be this software
+editing its operator's name, which it does not get to do — so
+`lib/greeting-headline.ts` notices that the name's last word and the cycle's
+first word are the same word and says it once: the name gives up its tail, the
+cycle opens on it, and the headline's *first* frame is exactly the name that
+was configured. A shop called *Northgate Innovation* opens on "Northgate
+Innovation" and carries on from there; one called *Northgate Medical Supplies*
+keeps all three words and picks the cycle up at the top.
+
+The match is made against the English words as well as the translated ones,
+because a business name is not translated. Without that, the German storefront
+of *UBOSS Sourcing* would read "UBOSS Sourcing Beschaffung".
+
+**The motion is `components/ui/flip-words.tsx`** — the Aceternity
+`flip-words`, adapted. Six things about it could not survive contact with this
+repository and the file lists each one; three are worth knowing before touching
+it:
+
+- **A screen reader is told one steady word, once.** The moving copy is a span
+  per letter, rebuilt every three seconds, and is `aria-hidden`; one
+  `sr-only` word stands in for it. So the accessible name of the `h1` is the
+  shop's configured name, and it does not rewrite itself under the reader.
+- **`prefers-reduced-motion` gets a still word and no timer**, not a slower
+  flip.
+- **The exit is a tween, where the entrance is a spring.** `AnimatePresence`
+  only reports an exit complete once every exiting property has settled, and
+  the timer for the next word is armed off the back of that report. Under the
+  shared spring the exit sometimes never reported finishing: the word stopped
+  changing two flips in, with both copies left in the DOM. A duration cannot do
+  that.
+
+The tagline is `sm:whitespace-nowrap`. A strapline broken over two lines is
+two half-thoughts, and every translation of it fits one line at that type size
+from 640px up; below that it wraps, because a phone is narrower than the
+shortest of them and clipping it would be worse.
+
 ## The sourcing hub
 
 Beside the search module, `/` carries one large animated graphic: a central
@@ -1058,49 +1170,42 @@ so it can be read and tested without rendering an SVG.
 **The orb is a rendered globe, not a drawing.**
 `components/greeting/HeroStage.tsx` puts a real 3D scene behind the whole hero
 card, with an actual perspective camera, actual lights, a depth field of
-particles and a ground plane receding into fog. At the middle of it is a glass
-globe carrying the world's coastlines, and around it three orbits that genuinely
-pass in front of it and behind it. It is anchored to `.orch-stage` by
-**measurement**, so the globe sits exactly where the drawn sphere used to and
-the four cards still orbit that point at every window width.
+particles and a ground plane receding into fog. At the middle of it is the
+earth, and around it three orbits that genuinely pass in front of it and behind
+it. It is anchored to `.orch-stage` by **measurement**, so the globe sits
+exactly where the drawn sphere used to and the four cards still orbit that point
+at every window width.
 
-The scene is three files, because a single one had become a scene graph, a
-renderer and a colour scheme at once:
+The scene is five files, because one would be a scene graph, a renderer, a
+layout engine and a colour scheme at once:
 
 | File | What it owns |
 |---|---|
-| `scene/world-land.ts` | The coastlines, as coordinates, and the rasteriser that turns them into a texture |
-| `scene/globe.ts` | Everything inside the globe's silhouette, plus the lit platform under it |
-| `scene/orbits.ts` | The three orbital paths and the lights riding them |
-| `HeroStage.tsx` | Camera, lights, particles, ground, layout, and the loop with its brakes |
+| `components/ui/3d-globe.tsx` | The earth: geometry, textures, atmosphere, lights, the camera's drift, and the optional pins |
+| `greeting/EarthScene.tsx` | The hero's composition — trade lanes, orbits, particle field, floor, fog — and the palette they are painted from |
+| `greeting/scene/hubs.ts` | Thirteen sourcing cities and the ten lanes between them |
+| `greeting/scene/orbits.ts` | The three orbital paths and the lights riding them |
+| `greeting/HeroStage.tsx` | Whether to render at all, how much, where on screen it belongs, and when to stop |
 
-**Nothing in the scene fetches an image.** The continents are about 6 KB of
-longitude/latitude pairs in `world-land.ts`, rasterised into a canvas at
-runtime. That is a decision about what this product *is*: UBOSS is installed and
-run by other companies, so a landing page that reached for a NASA or Natural
-Earth bitmap would be a landing page depending on somebody else's uptime,
-somebody else's CORS policy and somebody else's privacy footprint — and would
-render a blue marble with no marble on it on an air-gapped network. Shipping a
-downloaded texture instead would be most of a megabyte, for an object 180 pixels
-across, carrying a licence somebody has to track for the life of the product.
+`scene/orbits.ts` came through the move to Fiber untouched, and that is worth
+knowing before writing anything new in here: it builds a plain `THREE.Group` and
+knows nothing about React, so `<primitive>` drops it into the tree and
+`useFrame` drives the same `update` the old imperative loop called.
 
-The outlines are deliberately coarse, and they are a **visual, not a map**:
-nothing in the product measures anything against them, and no shipping, tax or
-market decision reads that file. Three rules keep them renderable, and
-`scene/world-land.test.ts` asserts each one because all three fail *silently*:
-no ring may cross the antimeridian (the projection has no wrapping in it, so one
-such ring paints a stripe across the Pacific), every ring must be closed, and
-every coordinate must be on the planet.
+**Nothing in the scene fetches anything.** The two maps ship with the build —
+see "The globe on the front page" above. That is a decision about what this
+product *is*: UBOSS is installed and run by other companies, so a landing page
+that reached for a NASA or Natural Earth bitmap at runtime would be a landing
+page depending on somebody else's uptime, somebody else's CORS policy and
+somebody else's privacy footprint — and would render a blue marble with no
+marble on it on an air-gapped network.
 
-The globe itself is layers rather than one transmissive material — real
-transmission means re-rendering the scene into a back buffer every frame for a
-refraction nobody can inspect behind a headline. In order: an inner glow, a
-metallic ocean, a land shell whose sea is transparent, a geodesic wireframe,
-glowing connection points that sit **on land only**, a few great-circle arcs
-between them, two polished titanium bands, a Fresnel rim and a Fresnel
-atmosphere. The last two are a twelve-line shader rather than the usual
-billboarded gradient sprite, because a sprite has no depth: an orbit crossing it
-would be drawn either wholly over or wholly under the halo.
+The trade lanes are quadratic curves between hub coordinates, lifted by a share
+of how far apart their ends are, with a light travelling each one: a static arc
+reads as a drawing on the surface, and a moving light reads as traffic. A lane
+naming a hub that does not exist is dropped silently when the scene builds, so
+`scene/hubs.test.ts` holds that data still — both ends of every lane resolve,
+every id is unique, and every hub is somewhere on the planet.
 
 **It is an enhancement and never a dependency.** The CSS backdrop and the drawn
 sphere stay underneath it and are what a visitor sees until the scene fades in
@@ -1108,18 +1213,18 @@ over them. The stage picks one of three answers:
 
 | Answer | What renders |
 |---|---|
-| `full` | The globe with its wireframe, its arcs and three orbits, at a 1024px texture |
-| `reduced` | The same globe with a quarter of the texture, no wireframe, no arcs, two orbits, a thinner particle field and a lower pixel ratio |
+| `full` | The earth, ten trade lanes, three orbits, 620 particles, pixel ratio 1.5 |
+| `reduced` | The same earth with no lanes, two orbits, 280 particles and pixel ratio 1.25 |
 | nothing at all | No canvas; `orchestration.css` keeps drawing the sphere it has always drawn |
 
 `reduced` is what a mid-range machine gets, and what **every window under
 1024px** gets whatever its hardware — below `lg` the globe is roughly a third of
-the area it has on a desktop, at which point the wireframe is under a pixel per
-cell and the arcs are three pixels long. Nothing at all is the answer when the
-environment has no `WebGL2RenderingContext` (a blocklisted driver, a locked-down
-browser, jsdom in the test suite), when the device reports 4 GB of memory or
-fewer or four cores or fewer, or when the context cannot be created or the chunk
-never arrives. That last tier is a finished page too, and it is a good one.
+the area it has on a desktop, at which point a lane is three pixels long.
+Nothing at all is the answer when the environment has no
+`WebGL2RenderingContext` (a blocklisted driver, a locked-down browser, jsdom in
+the test suite), when the device reports 4 GB of memory or fewer or four cores
+or fewer, or when the chunk never arrives. That last tier is a finished page
+too, and it is a good one.
 
 Only when it has rendered a real frame does it call `onActive`, at which point
 `HomePage` sets `data-stage="on"` on the hero and `orchestration.css` fades out
@@ -1127,22 +1232,23 @@ the drawn sphere, its glow, its aura and its rings. **The attribute is set from
 a rendered frame, never optimistically** — hiding the CSS sphere on hope is how
 a blocked driver gets a hero with a hole in it.
 
-**three.js is lazily imported inside the effect**, so it builds as its own
-chunk (~705 kB raw, ~181 kB gzipped) that the rest of the storefront never
-downloads. `HomePage`'s own chunk is ~28 kB. The landing page's job is to get
-somebody to the products; a hero that put half a megabyte in front of that
-would be working against the page it decorates.
+**The scene is reached through `React.lazy`**, so three.js, Fiber, Drei and both
+textures build as their own chunk that the rest of the storefront never
+downloads. The landing page's job is to get somebody to the products; a hero
+that put half a megabyte in front of that would be working against the page it
+decorates. Nothing static-imports three.js, and that is the property to keep:
+one accidental top-level import puts the whole renderer into the catalogue's
+own bundle.
 
-**Four brakes stop it costing anything**, and two of them are measurable. With
-the hero scrolled out of view the render loop runs **zero** draw calls, and
-resumes at ~60 fps on return; under `prefers-reduced-motion` it draws one frame
-— 47 calls — and then **zero** for as long as you care to watch.
+**Four brakes stop it costing anything**, and all four now work the same way —
+they set Fiber's `frameloop`, and `never` is a stopped loop that still holds its
+last frame on screen.
 
 | Brake | Mechanism |
 |---|---|
-| Off-screen | `IntersectionObserver` stops the loop |
-| Hidden tab | `visibilitychange` |
-| Reduced motion | One frame is drawn, then nothing — a still image, which is what was asked for |
+| Off-screen | `IntersectionObserver` sets `frameloop="never"` |
+| Hidden tab | `visibilitychange`, the same |
+| Reduced motion | `frameloop="demand"` — one frame is drawn, then nothing, which is what was asked for |
 | Pixel density | `devicePixelRatio` capped at 1.5, or 1.25 on the reduced tier |
 
 The pixel cap came down from 2, because the cost of a pixel ratio is quadratic
@@ -1150,46 +1256,44 @@ and this scene is mostly transparent shells stacked on one another, so every
 fragment is shaded several times over. What 2 bought over 1.5 was a slightly
 crisper edge on a hairline orbit.
 
-Everything is disposed on unmount — geometries, materials, textures, the
-renderer and every listener — and the context is then explicitly killed with
-`forceContextLoss()`. `renderer.dispose()` alone releases three.js's own GPU
-objects and leaves the context alive; browsers cap live contexts per page at
-around sixteen and silently kill the oldest, so a storefront that leaked one per
-visit to `/` would watch earlier scenes go black. Twelve round trips from `/` to
-`/cart` and back leave exactly one canvas and zero `webglcontextlost` events.
+Fiber disposes the renderer on unmount and then explicitly kills the context
+with `forceContextLoss()`, which is the behaviour to preserve if this canvas is
+ever hand-rolled again: `renderer.dispose()` alone releases three.js's own GPU
+objects and leaves the context alive, browsers cap live contexts per page at
+around sixteen and silently kill the oldest, and a storefront that leaked one
+per visit to `/` would watch earlier scenes go black. Everything this repository
+builds by hand — the lane geometries, the particle buffer, the floor, every
+material — is disposed in its own effect's teardown.
 
 **Colours come from the storefront's own CSS custom properties** and are re-read
-when the theme changes, so a deployment that changes `--brand` gets a globe in
-its own blue. Four of them are *derived* rather than read, in
-`stage-palette.ts`, and the reason is a real bug: **no token in the palette is
-light on both themes, and none is dark on both.** `--bloom` is a pale sky on
-the light theme and a deep navy on the dark one — used as a bead riding a ring
-it rendered darker than the page and read as a hole punched through it.
+when the theme changes, so a deployment that changes `--brand` gets a scene in
+its own blue. Two of them are *derived* rather than read, in `stage-palette.ts`,
+and the reason is a real bug: **no token in the palette is light on both themes,
+and none is dark on both.** `--bloom` is a pale sky on the light theme and a
+deep navy on the dark one — used as a bead riding a ring it rendered darker than
+the page and read as a hole punched through it.
 
 | Derived | How | Why |
 |---|---|---|
-| `highlight` | `lighten(--brand)` | Reads as a highlight on either theme |
-| `deep` | `darken(--brand)` | The ocean, under the white label |
-| `land` | `mix(deep, --brand)` | The continents, lifted out of the ocean |
-| `steel` | `mix(highlight, cool grey)` | The titanium bands |
+| `highlight` | `lighten(--brand)` | Reads as a highlight on either theme: the atmosphere, the lanes and the cool orbits |
+| `steel` | `mix(highlight, cool grey)` | The travelling specular behind the camera's shoulder |
 
-The land is mixed towards the **brand** rather than towards white, and that is
-the whole point of it: `lighten` raises lightness and drops saturation together,
-so the first version's continents came out flat slate grey on a blue sea and
-read as a weather map. It is squeezed from both sides — too dark and the globe
-is a plain blue ball, too light and the word **Sourcing** painted over the
-middle of it stops clearing 4.5:1 on the dark theme. `HeroStage.test.tsx`
-asserts every end of that: the highlight reads as light on either theme, and
-both the ocean and the land clear 4.5:1 against white on either theme, and the
-land is at least twice the ocean's luminance so the continents are visible at
-all. Holding only the ocean to 4.5:1 would give a label that passed when the
-Pacific was facing us and failed when Africa was.
+The palette used to derive an ocean and a land tint as well, both held at 4.5:1
+against the white word **Sourcing** painted over the middle of the globe. Both
+went with the drawn globe, because what is behind that word now is a photograph
+of the earth, and a photograph has ice caps, cloud and desert in it — nothing
+derived from a token can promise a ratio against that. The promise moved to
+where it can be kept: a soft scrim under the label, at
+`[data-stage='on'] .orch-hub-label::before` in `orchestration.css`, scoped to
+the stage because over the drawn navy sphere it would be a smudge. **That rule
+is what makes the label legible; if "Sourcing" ever stops reading, it is the
+first place to look.**
 
 **The globe turns once every 22 seconds** and the orbits take 14, 16 and 18 — a
 rotation you notice only if you look. One orbit is the warm accent and the other
 two are sky blue; a second warm one would tip the whole composition orange.
-`GLOBE_ROTATION_SECONDS` in `scene/globe.ts` and `seconds` on each entry of
-`ORBITS` in `scene/orbits.ts` are the numbers to change, and
+`autoRotateSpeed` in `EarthScene.tsx` (16.4 degrees a second) and `seconds` on
+each entry of `ORBITS` in `scene/orbits.ts` are the numbers to change, and
 `CORE_DIAMETER_FRACTION` in `HeroStage.tsx` is the one that makes the globe
 bigger or smaller — everything else in the scene is expressed in globe radii and
 follows it.
@@ -1201,6 +1305,22 @@ which leaves the square empty and the ceiling with nothing to protect. The
 orbits *are* allowed past that ceiling and should be: the cards are opaque
 panels, so an orbit disappearing behind one and coming out the other side is
 depth rather than collision.
+
+### The same earth, 40 pixels across
+
+When a deployment has uploaded no logo, the header's brand mark is that same
+object at a twentieth of the size — `components/EarthMark.tsx`. A marketplace
+whose front page is a globe and whose header is a grey letter has two brands.
+
+The letter plate it replaced is still there, underneath, and the globe fades in
+over it only once a frame has genuinely rendered. That ordering is the design: a
+logo may not depend on WebGL, a logo may not depend on a download, and somebody
+who asked for reduced motion gets the letter on every page for the whole visit
+rather than a slower spin. The mark takes the small earth and no elevation map,
+carries no lanes and no orbits, turns at 9 degrees a second rather than the
+hero's 16.4, and stops its loop the moment the tab is hidden. A deployment that
+*has* uploaded a logo is untouched: its own artwork still sits on the white
+plate it always did.
 
 ### The animation
 
@@ -1498,6 +1618,58 @@ including the sign of `rotateX`: a pointer near the bottom edge has to tip the
 *far* edge away, and the version that tips the near edge away instead still
 looks like an effect, which is why it needs a test rather than an eye.
 
+### A hovered product card glows
+
+Around the lean, four colours. A blurred halo spills out from behind the card
+under the pointer, a sharp copy of the same gradient shows through the four
+pixels of padding around it as a rim, and while the pointer is there the
+gradient drifts, so the colours move slowly around the card. It is the
+Aceternity `background-gradient`; `components/ui/background-gradient.tsx`
+records what had to change to bring it in, and `.glare*` in `index.css` is
+what it looks like.
+
+| Part | What it is |
+|---|---|
+| The halo | The gradient at `blur(20px)`, spilling past the card's edges |
+| The rim | The same gradient, sharp, showing through 4px of padding |
+| The drift | `background-position` travelling 0% to 100% and back, over five seconds |
+
+**It is the one decoration here allowed to be off-brand.** The four colours — a
+teal, a violet, a yellow and a blue over near-black — are the original's own,
+kept literal rather than mapped onto the palette. Half of them are hues UBOSS
+does not have at all. They are written into `.glare-layer` as hex rather than
+as tokens precisely so that nothing else in the storefront can pick them up.
+
+**It only glows on hover, and that is the whole performance budget.** The
+original glows at 60% at rest, which is right for one card on a landing page.
+Twelve of them in a grid is four colours around every card — a catalogue nobody
+can scan, and twelve `background-position` animations running at once, which is
+the more expensive half. `background-position` is a paint property rather than
+a composited one, so this is the only effect on the card that repaints, and it
+is affordable for exactly one reason: a pointer can be on one card at a time.
+The animation hangs off `.glare:hover` rather than off `.glare`, and that is
+the line to keep.
+
+**The lean moved outwards to meet it.** The glare is drawn *outside* the card,
+so a lean left on the `<article>` would have tipped the card while the halo
+stayed flat behind it — two objects rather than one. The gradient's own box now
+carries `.tilt`, is what `group-hover` inside the card keys off, and is what
+the grid stretches; the card's shadow and border hover states became `group-`
+variants in the same move. `useTilt` is generic in its element type for the
+same reason: `RefObject` is invariant, so the ref could not otherwise go onto a
+`<div>`.
+
+**Reduced motion needs nothing of its own.** The global rule near the top of
+`index.css` already cuts every animation and transition to nothing, which stops
+the drift and makes the fade instant. What is left is a glow that appears under
+the pointer and holds still — which is the right answer rather than a lucky
+one, because unlike the lean, a colour appearing where the pointer already is
+is not movement.
+
+**The skeleton grew the same four pixels.** A placeholder that did not reserve
+the room the rim occupies would step every card in the grid sideways at the
+moment the data arrived, which is the thing the skeleton exists to prevent.
+
 ## Opening a category: the listing layout
 
 `/category/:slug` and `/products` are one page — `CatalogPage` — because a
@@ -1648,6 +1820,30 @@ of it read: somebody who has opened a chat has already decided to type, and an
 onboarding paragraph between them and the composer is a thing to scroll past.
 The five starters below say what can be asked by being askable, which is a
 better answer than a sentence claiming it.
+
+### The words blow away when they are sent
+
+Pressing Send paints the question onto a canvas laid over the textarea, breaks
+it into particles and sweeps them off right to left while the real text goes
+transparent underneath. The effect lives in
+`components/ui/placeholders-and-vanish-input.tsx`, and `useVanish` in
+`components/ui/vanish.ts` is the half of it the composer uses.
+
+**It does not clear the composer, and must not.** A send is not finished when
+the button is pressed: `AiModePage` holds the draft until the API has accepted
+it, and puts it back on a 401 or a 404 so that somebody who spent a minute
+describing what they need does not type it twice because of a token. So the
+particles are a *picture* of what was there and nothing more — if the send
+fails, the draft is still in the field once the picture has finished leaving.
+That is the whole reason `useVanish` takes a ref to a field somebody else owns
+rather than rendering its own input: an animation that cleared would have made
+a failed send look like a successful one and taken the words with it.
+
+Under `prefers-reduced-motion` there is no picture at all, and the message
+sends exactly as it always did. The same is true of any browser that will not
+hand back a 2D canvas context — the effect is skipped and nothing else
+notices, which is the path the test suite runs on, because jsdom is one of
+those browsers.
 
 ### Product cards in an answer
 
@@ -10465,6 +10661,14 @@ UBoss-Software/
 │   │   ├── ThemeToggle.tsx         The appearance control, in both apps
 │   │   └── CountryFlag.tsx         Every served market, drawn in SVG
 │   ├── lib/pointer-tilt.ts         The product card's lean, in four CSS vars
+│   ├── components/ui/
+│   │   ├── background-gradient.tsx The glare behind a hovered product card
+│   │   ├── flip-words.tsx        The greeting headline's changing word
+│   │   ├── gooey-input.tsx      The pill that unfolds, and the filter that blobs
+│   │   ├── gooey.ts             Its filter id and its spring, shared with the hero
+│   │   ├── placeholders-and-vanish-input.tsx  Text that blows away when sent
+│   │   └── vanish.ts            The particles, and the placeholder clock
+│   ├── lib/greeting-headline.ts  Which half of the shop's name the word replaces
 │   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
 │   ├── lib/camera.ts               The device camera, as one still photograph
 │   ├── components/ProductRow.tsx   A product as a listing row, with its specs
@@ -10509,7 +10713,9 @@ UBoss-Software/
 | Change an error message | `i18n/locales/*.json` in the frontend |
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
 | Change a page's look | `apps/*/src/pages/` |
-| Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the look |
+| Change the greeting headline's changing word | `lib/greeting-headline.ts` for the words and which half of the name they replace, `components/ui/flip-words.tsx` for how one becomes the next |
+| Change how a sent question leaves the AI composer | `components/ui/vanish.ts` for the particles, `pages/ai/AiComposer.tsx` for where the canvas sits |
+| Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the lean and the specular, `.glare*` there and `components/ui/background-gradient.tsx` for the glow around it |
 | Change the product image magnifier | `lib/pointer-zoom.ts` for the maths, `.zoom-layer` in `index.css` for the scale and the easing |
 | Change how a photograph is taken or what it is taken as | `lib/camera.ts` — the constraints, the JPEG quality, and every path that releases the device |
 | Change what image search accepts | `lib/image-search.ts` in the browser **and** `UPLOAD_MAX_BYTES` plus the magic-byte sniffer on the API; the browser's checks are for speed, the server's are the control |
@@ -10517,7 +10723,7 @@ UBoss-Software/
 | Change how many specs a listing row shows | `SPECS_SHOWN` in `components/ProductRow.tsx` |
 | Change what focus looks like | the `:focus-visible` rules in `index.css` in **both** apps — text fields are deliberately excluded from the ring |
 | Change the hero band's height or how its two columns align | `pages/HomePage.tsx` — the comment on the grid says what each value is holding |
-| Change the front page search bar, or the AI Mode link above it | `components/hero-search/HeroSearch.tsx` |
+| Change the front page search bar, the AI Mode link above it, or when the pill unfolds | `components/hero-search/HeroSearch.tsx` for the module, `components/ui/gooey-input.tsx` and `components/ui/gooey.ts` for the filter and the spring it shares |
 | Change the catalogue's filters or facets | `FilterFields` in `pages/CatalogPage.tsx`; the facet list itself is the administrator's, from `/catalog/filters` |
 | Change a colour | `src/index.css` in **both** apps — the light block and the dark one — then `npm run audit:contrast` |
 | Add a theme option, or change what the appearance control does | `app/ThemeProvider.tsx` and `components/ThemeToggle.tsx` in both apps, plus the inline script in each `index.html` |

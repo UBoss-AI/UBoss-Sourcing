@@ -1135,6 +1135,135 @@
 }
 
 /* ==========================================================================
+ * The glare
+ *
+ * A four-cornered gradient behind the product card: one copy blurred into a
+ * coloured halo that spills past the card's edges, and one sharp copy showing
+ * through the card's few pixels of padding as a rim. While the pointer is on
+ * the card the gradient drifts, so the colours move slowly around it.
+ *
+ * The shape of it is the Aceternity `background-gradient`;
+ * `components/ui/background-gradient.tsx` lists what had to change and why,
+ * and renders the two layers. This is what they look like.
+ *
+ * It is the other half of one hover, with `.tilt` above: the glare is drawn on
+ * the element that leans, so the halo tips with the card rather than sitting
+ * flat behind a card that is tipping away from it.
+ *
+ * WHY ONLY ON HOVER. The original glows at 60% at rest. That is right for one
+ * card on a landing page and wrong for a rail of twelve, where four colours
+ * around every card is a grid nobody can scan and a page that never sits
+ * still. At rest this is invisible and costs nothing; the card under the
+ * pointer is the one that lights up.
+ *
+ * WHAT IT COSTS. `background-position` is a paint property — this is the one
+ * effect on the card that is not a composited transform, and it repaints a
+ * blurred layer on every frame. It is affordable for exactly one reason: a
+ * pointer can only be on one card, so at most one of these is ever running.
+ * That is why the animation hangs off `:hover` rather than off the element,
+ * and it is the thing to preserve if this is ever changed.
+ * ========================================================================== */
+
+.glare {
+  position: relative;
+  /*
+   * The rim's width. The sharp layer fills this box and the content sits on
+   * top of it inset by this much, so this padding *is* the visible gradient
+   * edge — there is no border anywhere in this effect.
+   */
+  padding: 4px;
+}
+
+.glare-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* The card's own `rounded-lg` (12px) plus the padding, so the rim keeps an
+     even width around a corner instead of pinching at the arc. */
+  border-radius: calc(0.75rem + 4px);
+
+  /*
+   * The original's colours, kept literal rather than mapped onto the palette.
+   * Half of them — the violet, the yellow — are hues this palette does not
+   * contain, and tokenising them would let the rest of the storefront pick
+   * them up by accident. This is the one decoration allowed to be louder than
+   * the brand, and it is contained to this one element.
+   */
+  background-image:
+    radial-gradient(circle farthest-side at 0 100%, #00ccb1, transparent),
+    radial-gradient(circle farthest-side at 100% 0, #7b61ff, transparent),
+    radial-gradient(circle farthest-side at 100% 100%, #ffc414, transparent),
+    radial-gradient(circle farthest-side at 0 0, #1ca0fb, #141316);
+  /* Four times the box, so the drift below has somewhere to travel. */
+  background-size: 400% 400%;
+  background-position: 0 50%;
+
+  opacity: 0;
+  transition: opacity 500ms var(--ease-ui);
+  /*
+   * Load-bearing twice over: these must not eat the press meant for the
+   * stretched link on the card above them, and they must not become the
+   * `pointerleave` target and cancel the lean while the pointer is still on
+   * the card.
+   */
+  pointer-events: none;
+}
+
+/* The halo. Blurred hard enough to have no edge of its own, so what reaches
+   the page is light coming off the card rather than a second card behind it. */
+.glare-halo {
+  filter: blur(20px);
+}
+
+.glare:hover .glare-layer,
+.glare:focus-within .glare-layer {
+  opacity: 1;
+}
+
+/* Only while hovered, and only on the card being hovered — see the note above
+   about what this costs. `alternate` rather than a loop back to the start, so
+   the colours never jump: five seconds out, five seconds back. */
+.glare:hover .glare-layer {
+  animation: glare-drift 5s ease-in-out infinite alternate;
+}
+
+/* What `animate={false}` leaves: the glow, without the drift. */
+.glare:hover .glare-still {
+  animation: none;
+}
+
+@keyframes glare-drift {
+  from {
+    background-position: 0 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+/*
+ * The content, above both layers.
+ *
+ * It needs a stacking order of its own, because the card it holds is opaque:
+ * without this the rim would be painted over the card rather than around it.
+ */
+.glare-content {
+  position: relative;
+  z-index: 10;
+}
+
+/*
+ * Reduced motion needs nothing of its own here.
+ *
+ * The global rule near the top of this file already cuts every animation and
+ * transition to 0.01ms, so the drift stops and the fade becomes instant — what
+ * is left is a glow that appears under the pointer and holds still. That is
+ * the right outcome rather than a lucky one: unlike the lean, a colour that
+ * appears where the pointer is is not movement, so there is nothing here that
+ * has to be taken away.
+ */
+
+/* ==========================================================================
  * The product image zoom
  *
  * Hovering the product photograph magnifies the part of it under the pointer.

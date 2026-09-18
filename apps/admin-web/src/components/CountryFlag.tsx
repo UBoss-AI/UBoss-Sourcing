@@ -114,6 +114,26 @@ function nordicCross(colour: string, inner?: string): readonly Mark[] {
   ];
 }
 
+/**
+ * A five-pointed star, as path data.
+ *
+ * Computed rather than typed out: a star is ten points on two circles, and
+ * ten hand-written coordinates are ten chances to put one of them slightly
+ * wrong. `0.382` is the ratio between the two radii that makes the points
+ * meet at the angle a flag star is drawn at.
+ */
+function star(cx: number, cy: number, r: number): string {
+  const points: string[] = [];
+
+  for (let i = 0; i < 10; i += 1) {
+    const radius = i % 2 === 0 ? r : r * 0.382;
+    const angle = (Math.PI / 5) * i - Math.PI / 2;
+    points.push(`${(cx + radius * Math.cos(angle)).toFixed(2)} ${(cy + radius * Math.sin(angle)).toFixed(2)}`);
+  }
+
+  return `M${points.join('L')}Z`;
+}
+
 /** A centred cross, the Swiss and Greek arrangement. */
 function centredCross(colour: string, thickness = 3.4): readonly Mark[] {
   return [
@@ -240,6 +260,19 @@ const FLAGS: Readonly<Record<string, Flag>> = {
     ],
   },
   CH: plain(C.crimson, centredCross(C.white)),
+  // China, and the stars are the reason it was missing.
+  //
+  // Five of them, in the arrangement everybody recognises: one large in the
+  // canton with four small ones curving around it. The four are circles
+  // rather than stars because at the 20x14 this renders at, a 2px star and a
+  // 2px dot are the same three pixels - and a dot is honest about it.
+  CN: plain(C.crimson, [
+    { kind: 'path', d: star(6, 5, 3.1), fill: C.yellow },
+    { kind: 'circle', cx: 10.6, cy: 2.6, r: 0.7, fill: C.yellow },
+    { kind: 'circle', cx: 12.1, cy: 4.4, r: 0.7, fill: C.yellow },
+    { kind: 'circle', cx: 12.1, cy: 6.6, r: 0.7, fill: C.yellow },
+    { kind: 'circle', cx: 10.6, cy: 8.4, r: 0.7, fill: C.yellow },
+  ]),
   GB: plain(C.navy, [
     // The saltire, then the cross of St George over it. Two diagonals as
     // strokes rather than clipped quadrilaterals: at this size the counter-

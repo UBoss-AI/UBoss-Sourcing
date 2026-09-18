@@ -40,6 +40,7 @@
  */
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
+import { BackgroundGradient } from './ui/background-gradient';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
 import {
   isSoldByThePiece,
@@ -152,242 +153,268 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
   // The lean towards the pointer. Mouse only, and nothing under reduced
   // motion — see lib/pointer-tilt.ts, which explains why this is four CSS
   // variables written through a ref rather than anything React re-renders.
-  const tilt = useTilt();
+  //
+  // It goes on the glare's box rather than on the card, because the glare is
+  // drawn *outside* the card and has to lean with it. A halo that stayed flat
+  // behind a card tipping away from it reads as two objects, not one.
+  const tilt = useTilt<HTMLDivElement>();
 
   return (
-    // Rests on the page at `shadow-card` and rises to `shadow-card-hover` —
-    // two adjacent rungs of the shared elevation ladder, rather than the jump
-    // from flat to `shadow-lift`, which made a hovered card in a grid look
-    // like it had been picked up. The border darkens by one step at the same
-    // time, so the lift is felt rather than performed.
+    // The glare: a coloured halo behind the card and a gradient rim in the
+    // four pixels around it, both of them only while the card is hovered. See
+    // `ui/background-gradient.tsx`, and `.glare*` in index.css.
     //
-    // `focus-within` gets the same treatment as `hover`: tabbing through the
-    // grid should move the same highlight a pointer does, or a keyboard user
-    // is left tracking a focus ring with no context around it.
-    // `relative` is load-bearing: it is the containing block the stretched
-    // link's overlay resolves against, so the anchor below covers this card
-    // and nothing outside it.
-    <article
+    // This box is also what leans, what `group-hover` inside the card keys
+    // off, and what the grid stretches — so it carries `h-full`, and the card
+    // inside fills it.
+    <BackgroundGradient
       ref={tilt.ref}
       onPointerEnter={tilt.onPointerEnter}
       onPointerMove={tilt.onPointerMove}
       onPointerLeave={tilt.onPointerLeave}
-      // `tilt` adds the lean and the highlight; everything else here is what
-      // the card already did. The two are layered rather than merged on
-      // purpose: the shadow and the border still carry the hover on a touch
-      // screen, on a keyboard, and for anybody who has asked for less
-      // motion, none of which get a tilt at all.
-      className="tilt group relative flex h-full flex-col overflow-hidden rounded-lg border border-border
-                 bg-surface shadow-card transition-[box-shadow,border-color,transform] hover:border-border-hover
-                 hover:shadow-card-hover focus-within:border-brand/40 focus-within:shadow-card-hover"
+      containerClassName="tilt group h-full"
+      className="h-full"
     >
-      {/* The media frame sits on the sunken ground with generous inset. Most
-          of this catalogue is `object-contain` product photography on white,
-          which on a white card has no edge at all — the frame is what makes it
-          read as a photograph of a thing rather than as floating shapes. */}
-      <div className="relative aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
-        {product.primaryImage === null ? (
-          <ImageFallback />
-        ) : (
-          <img
-            src={product.primaryImage.url}
-            // The product name is already the link text right below. Repeating
-            // it here makes a screen reader say it twice.
-            alt={product.primaryImage.altText ?? ''}
-            width={400}
-            height={400}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-contain p-5 transition-transform duration-200 group-hover:scale-[1.03]"
-          />
-        )}
+      {/* Rests on the page at `shadow-card` and rises to `shadow-card-hover` —
+          two adjacent rungs of the shared elevation ladder, rather than the
+          jump from flat to `shadow-lift`, which made a hovered card in a grid
+          look like it had been picked up. The border darkens by one step at
+          the same time, so the lift is felt rather than performed.
 
-        {/* The specular, over the photograph and nowhere else.
+          `focus-within` gets the same treatment as `hover`: tabbing through
+          the grid should move the same highlight a pointer does, or a keyboard
+          user is left tracking a focus ring with no context around it. Both
+          arrive as `group-` variants now, because the element being hovered is
+          the glare's box outside this one rather than this one.
 
-            It was briefly over the whole card, which put an 18% blue veil
-            across the price and the product code — a contrast cost for a
-            decoration, and the one thing this card must never trade. On the
-            media frame it is doing what a specular actually does: sliding
-            across the surface of the thing being looked at. */}
-        <span aria-hidden="true" className="tilt-sheen" />
-      </div>
-
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <div className="min-w-0">
-          <h3 className="text-sm font-semibold leading-snug text-ink">
-            <Link
-              to={`/product/${product.slug}`}
-              // Two things are happening here.
-              //
-              // `line-clamp-2` keeps a long industrial name from pushing the
-              // price off the bottom of one card and leaving the row ragged.
-              //
-              // `after:absolute after:inset-0` is the stretched link: an empty
-              // pseudo-element that covers the whole `relative` card above, so
-              // a click anywhere on it follows this anchor. The anchor itself
-              // is unchanged — same href, same text, same one entry in the tab
-              // order — so middle-click, open-in-new-tab and the screen-reader
-              // announcement all behave exactly as they did.
-              //
-              // The hover styling keys off `group-hover` as well as `hover`,
-              // or the name would sit inert while the pointer is plainly over
-              // its own card.
-              className="line-clamp-2 rounded transition-colors after:absolute after:inset-0 after:content-['']
-                         hover:text-brand hover:underline hover:decoration-brand/40 hover:underline-offset-2
-                         group-hover:text-brand group-hover:underline group-hover:decoration-brand/40
-                         group-hover:underline-offset-2"
-            >
-              {product.name}
-            </Link>
-          </h3>
-
-          {/* The product code, which in B2B purchasing is how a line is
-              actually identified — a buyer checking a card against a purchase
-              order is looking for this and not for the name.
-
-              The inner span is raised above the stretched link so the code can
-              still be selected and copied. Only the glyphs are raised, not the
-              whole line, so the empty space beside a short SKU still navigates
-              with the rest of the card. */}
-          <p className="mt-1 truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
-            <span className="relative z-[1] select-text">{product.sku}</span>
-          </p>
-        </div>
-
-        {/* What a buyer scanning a shelf of near-identical medical consumables
-            actually tells them apart by. Three short facts on one line rather
-            than three rows: the description underneath carries the same words
-            in prose, and a card that repeats itself twice is a card nobody
-            finishes reading.
-
-            Each is dropped entirely when the catalogue does not have it — an
-            em dash where a brand should be is worse than a shorter card. */}
-        {(brand !== null || model !== null || sterility !== null) && (
-          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xxs text-ink-muted">
-            {brand !== null && <span className="font-medium text-ink">{brand}</span>}
-            {model !== null && (
-              <>
-                {brand !== null && <span aria-hidden="true">·</span>}
-                <span>{model}</span>
-              </>
-            )}
-            {sterility !== null && (
-              <>
-                {(brand !== null || model !== null) && <span aria-hidden="true">·</span>}
-                <span>{sterility}</span>
-              </>
-            )}
-          </p>
-        )}
-
-        {product.shortDescription !== null && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
-            {product.shortDescription}
-          </p>
-        )}
-
-        {/* What the price below is the price of. Every card in the grid says
-            it, because a grid now mixes the operator's cartons with sellers'
-            pieces - and a shopper comparing two figures on two bases without
-            being told which is which is being misled by arithmetic that is
-            individually correct. */}
-        <p className="truncate text-xxs tabular text-ink-subtle">
-          {soldByThePiece
-            ? t('packaging.soldByThePiece')
-            : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
-        </p>
-
-        <div className="mt-auto pt-1">
-          {/* A price, or the reason there is not one.
-
-              Never both, and never a figure of zero. A product whose price is
-              negotiated per account genuinely has no number to show, and
-              printing one would be quoting something nobody agreed to charge.
-              The line keeps the same weight and position either way, so a grid
-              of mixed products still scans down one column. */}
-          {isPriceOnRequest ? (
-            <p className="text-sm font-semibold text-brand">{t('productCard.requestAQuote')}</p>
+          `relative` is load-bearing: it is the containing block the stretched
+          link's overlay resolves against, so the anchor below covers this card
+          and nothing outside it. */}
+      <article
+        // The lean, the `group` and the glare all live on the box outside this
+        // one now. What is left here is what the card already did: the shadow
+        // and the border still carry the hover on a touch screen, on a keyboard,
+        // and for anybody who has asked for less motion, none of which get a
+        // lean or a glare at all.
+        className="relative flex h-full flex-col overflow-hidden rounded-lg border border-border
+                   bg-surface shadow-card transition-[box-shadow,border-color] group-hover:border-border-hover
+                   group-hover:shadow-card-hover group-focus-within:border-brand/40
+                   group-focus-within:shadow-card-hover"
+      >
+        {/* The media frame sits on the sunken ground with generous inset. Most
+            of this catalogue is `object-contain` product photography on white,
+            which on a white card has no edge at all — the frame is what makes it
+            read as a photograph of a thing rather than as floating shapes. */}
+        <div className="relative aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
+          {product.primaryImage === null ? (
+            <ImageFallback />
           ) : (
-            <>
-              <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-base font-semibold tabular text-ink">
-                  {formatMoneyMinor(displayMinor, product.price.currency)}
-                </span>
-                {hasDiscount && compareAtDisplayMinor !== null && (
-                  <span className="text-xs tabular text-ink-subtle">
-                    {/* The strikethrough is the only thing that says "was" to a
-                        sighted reader; a screen reader gets the word itself. */}
-                    <span className="sr-only">{t('productCard.was')}</span>
-                    <s>{formatMoneyMinor(compareAtDisplayMinor, product.price.currency)}</s>
-                  </span>
-                )}
-                <span className="text-xxs text-ink-subtle">
-                  {soldByThePiece ? t('productCard.perPieceLabel') : t('productCard.perCartonLabel')}
-                </span>
-              </p>
-
-              <p className="mt-1 text-xxs text-ink-subtle">
-                {product.tax.inclusive
-                  ? t('productCard.taxIncluded')
-                  : t('productCard.plusTaxRate', {
-                      rate: product.tax.ratePercent,
-                      code: product.tax.code,
-                    })}
-              </p>
-            </>
+            <img
+              src={product.primaryImage.url}
+              // The product name is already the link text right below. Repeating
+              // it here makes a screen reader say it twice.
+              alt={product.primaryImage.altText ?? ''}
+              width={400}
+              height={400}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-contain p-5 transition-transform duration-200 group-hover:scale-[1.03]"
+            />
           )}
 
-          {(hasRuleChips || isUnavailable) && (
-            <div className="mt-2.5 flex flex-wrap gap-1 border-t border-border-subtle pt-2.5">
-              {/* First in the row, because it overrides everything else on the
-                  card: a minimum order quantity is irrelevant on something
-                  that cannot be ordered at all. */}
-              {isUnavailable && <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>}
-              {hasDiscount && !isPriceOnRequest && (
-                <Badge tone="action">{t('productCard.reducedPrice')}</Badge>
-              )}
-              {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
-              {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
-            </div>
-          )}
+          {/* The specular, over the photograph and nowhere else.
 
-          {/* The affordance, not a second link.
-
-              The whole card already follows the anchor on the name — see the
-              header. A real button here would be a second tab stop and a
-              second accessible name for one destination, which is exactly the
-              blob that design avoids. This is inert text that inherits the
-              card's hover state, so the card looks like what it is: one
-              clickable thing. */}
-          <p
-            aria-hidden="true"
-            className="mt-2.5 flex items-center gap-1 text-xxs font-medium text-ink-subtle
-                       transition-colors group-hover:text-brand"
-          >
-            {t('productCard.viewDetails')}
-            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </p>
+              It was briefly over the whole card, which put an 18% blue veil
+              across the price and the product code — a contrast cost for a
+              decoration, and the one thing this card must never trade. On the
+              media frame it is doing what a specular actually does: sliding
+              across the surface of the thing being looked at. */}
+          <span aria-hidden="true" className="tilt-sheen" />
         </div>
-      </div>
-    </article>
+
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold leading-snug text-ink">
+              <Link
+                to={`/product/${product.slug}`}
+                // Two things are happening here.
+                //
+                // `line-clamp-2` keeps a long industrial name from pushing the
+                // price off the bottom of one card and leaving the row ragged.
+                //
+                // `after:absolute after:inset-0` is the stretched link: an empty
+                // pseudo-element that covers the whole `relative` card above, so
+                // a click anywhere on it follows this anchor. The anchor itself
+                // is unchanged — same href, same text, same one entry in the tab
+                // order — so middle-click, open-in-new-tab and the screen-reader
+                // announcement all behave exactly as they did.
+                //
+                // The hover styling keys off `group-hover` as well as `hover`,
+                // or the name would sit inert while the pointer is plainly over
+                // its own card.
+                className="line-clamp-2 rounded transition-colors after:absolute after:inset-0 after:content-['']
+                           hover:text-brand hover:underline hover:decoration-brand/40 hover:underline-offset-2
+                           group-hover:text-brand group-hover:underline group-hover:decoration-brand/40
+                           group-hover:underline-offset-2"
+              >
+                {product.name}
+              </Link>
+            </h3>
+
+            {/* The product code, which in B2B purchasing is how a line is
+                actually identified — a buyer checking a card against a purchase
+                order is looking for this and not for the name.
+
+                The inner span is raised above the stretched link so the code can
+                still be selected and copied. Only the glyphs are raised, not the
+                whole line, so the empty space beside a short SKU still navigates
+                with the rest of the card. */}
+            <p className="mt-1 truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
+              <span className="relative z-[1] select-text">{product.sku}</span>
+            </p>
+          </div>
+
+          {/* What a buyer scanning a shelf of near-identical medical consumables
+              actually tells them apart by. Three short facts on one line rather
+              than three rows: the description underneath carries the same words
+              in prose, and a card that repeats itself twice is a card nobody
+              finishes reading.
+
+              Each is dropped entirely when the catalogue does not have it — an
+              em dash where a brand should be is worse than a shorter card. */}
+          {(brand !== null || model !== null || sterility !== null) && (
+            <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xxs text-ink-muted">
+              {brand !== null && <span className="font-medium text-ink">{brand}</span>}
+              {model !== null && (
+                <>
+                  {brand !== null && <span aria-hidden="true">·</span>}
+                  <span>{model}</span>
+                </>
+              )}
+              {sterility !== null && (
+                <>
+                  {(brand !== null || model !== null) && <span aria-hidden="true">·</span>}
+                  <span>{sterility}</span>
+                </>
+              )}
+            </p>
+          )}
+
+          {product.shortDescription !== null && (
+            <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
+              {product.shortDescription}
+            </p>
+          )}
+
+          {/* What the price below is the price of. Every card in the grid says
+              it, because a grid now mixes the operator's cartons with sellers'
+              pieces - and a shopper comparing two figures on two bases without
+              being told which is which is being misled by arithmetic that is
+              individually correct. */}
+          <p className="truncate text-xxs tabular text-ink-subtle">
+            {soldByThePiece
+              ? t('packaging.soldByThePiece')
+              : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+          </p>
+
+          <div className="mt-auto pt-1">
+            {/* A price, or the reason there is not one.
+
+                Never both, and never a figure of zero. A product whose price is
+                negotiated per account genuinely has no number to show, and
+                printing one would be quoting something nobody agreed to charge.
+                The line keeps the same weight and position either way, so a grid
+                of mixed products still scans down one column. */}
+            {isPriceOnRequest ? (
+              <p className="text-sm font-semibold text-brand">{t('productCard.requestAQuote')}</p>
+            ) : (
+              <>
+                <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span className="text-base font-semibold tabular text-ink">
+                    {formatMoneyMinor(displayMinor, product.price.currency)}
+                  </span>
+                  {hasDiscount && compareAtDisplayMinor !== null && (
+                    <span className="text-xs tabular text-ink-subtle">
+                      {/* The strikethrough is the only thing that says "was" to a
+                          sighted reader; a screen reader gets the word itself. */}
+                      <span className="sr-only">{t('productCard.was')}</span>
+                      <s>{formatMoneyMinor(compareAtDisplayMinor, product.price.currency)}</s>
+                    </span>
+                  )}
+                  <span className="text-xxs text-ink-subtle">
+                    {soldByThePiece ? t('productCard.perPieceLabel') : t('productCard.perCartonLabel')}
+                  </span>
+                </p>
+
+                <p className="mt-1 text-xxs text-ink-subtle">
+                  {product.tax.inclusive
+                    ? t('productCard.taxIncluded')
+                    : t('productCard.plusTaxRate', {
+                        rate: product.tax.ratePercent,
+                        code: product.tax.code,
+                      })}
+                </p>
+              </>
+            )}
+
+            {(hasRuleChips || isUnavailable) && (
+              <div className="mt-2.5 flex flex-wrap gap-1 border-t border-border-subtle pt-2.5">
+                {/* First in the row, because it overrides everything else on the
+                    card: a minimum order quantity is irrelevant on something
+                    that cannot be ordered at all. */}
+                {isUnavailable && <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>}
+                {hasDiscount && !isPriceOnRequest && (
+                  <Badge tone="action">{t('productCard.reducedPrice')}</Badge>
+                )}
+                {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
+                {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
+              </div>
+            )}
+
+            {/* The affordance, not a second link.
+
+                The whole card already follows the anchor on the name — see the
+                header. A real button here would be a second tab stop and a
+                second accessible name for one destination, which is exactly the
+                blob that design avoids. This is inert text that inherits the
+                card's hover state, so the card looks like what it is: one
+                clickable thing. */}
+            <p
+              aria-hidden="true"
+              className="mt-2.5 flex items-center gap-1 text-xxs font-medium text-ink-subtle
+                         transition-colors group-hover:text-brand"
+            >
+              {t('productCard.viewDetails')}
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </p>
+          </div>
+        </div>
+      </article>
+    </BackgroundGradient>
   );
 }
 
-/** Matches the card's shape, so the grid does not reflow when data arrives. */
+/**
+ * Matches the card's shape, so the grid does not reflow when data arrives.
+ *
+ * Including the four pixels the glare's rim occupies around a real card. It
+ * draws nothing — there is no reason to glow at a customer who is waiting —
+ * but it has to take up the same room, or every card in the grid steps four
+ * pixels sideways the moment the data lands.
+ */
 export function ProductCardSkeleton(): React.JSX.Element {
   return (
-    <div
-      className="h-full overflow-hidden rounded-lg border border-border bg-surface"
-      aria-hidden="true"
-    >
-      <div className="skeleton aspect-square w-full rounded-none" />
-      <div className="space-y-2 border-t border-border-subtle p-4">
-        <div className="skeleton h-4 w-4/5" />
-        <div className="skeleton h-3 w-1/3" />
-        <div className="skeleton h-3 w-full" />
-        <div className="skeleton h-5 w-1/3" />
+    <div className="h-full p-[4px]" aria-hidden="true">
+      <div className="h-full overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="skeleton aspect-square w-full rounded-none" />
+        <div className="space-y-2 border-t border-border-subtle p-4">
+          <div className="skeleton h-4 w-4/5" />
+          <div className="skeleton h-3 w-1/3" />
+          <div className="skeleton h-3 w-full" />
+          <div className="skeleton h-5 w-1/3" />
+        </div>
       </div>
     </div>
   );

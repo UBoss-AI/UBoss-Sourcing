@@ -15,9 +15,29 @@
  * On a phone the whole thing sits above `env(safe-area-inset-bottom)`, so the
  * Send button clears the home indicator when the keyboard is up. That is the
  * one control that must never be under the customer's thumb rest.
+ *
+ * ---
+ *
+ * WHAT HAPPENS TO THE WORDS WHEN THEY ARE SENT
+ *
+ * They blow away. On send the question is painted onto a canvas laid over the
+ * textarea, broken into particles and swept off right to left while the real
+ * text goes transparent underneath — `ui/placeholders-and-vanish-input.tsx`
+ * owns the effect and the list of what had to change in it.
+ *
+ * **The animation does not clear the composer, and must not.** A send is not
+ * finished when the button is pressed; `AiModePage` holds the draft until the
+ * API has accepted it, and puts it back on a 401 or a 404 so that somebody who
+ * spent a minute describing what they need does not type it twice because of a
+ * token. So the particles are a picture of what was there, nothing more — if
+ * the send fails, the draft is still in the field when the picture has
+ * finished leaving, which is the honest outcome. Clearing from inside the
+ * animation would have made the failure look like a success and taken the
+ * words with it.
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { MicIcon, PaperclipIcon, SendIcon, StopIcon } from '@/components/icons';
+import { useVanish } from '@/components/ui/vanish';
 import { cx } from '@/lib/cx';
 import { useVoiceSearch } from '@/lib/voice-search';
 import { useI18n } from '@/i18n/i18n-context';
@@ -50,6 +70,7 @@ export function AiComposer({
 }): React.JSX.Element {
   const { t, language } = useI18n();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { canvasRef, isVanishing, vanish } = useVanish(textareaRef);
 
   const appendTranscript = useCallback(
     (text: string) => {
@@ -84,6 +105,13 @@ export function AiComposer({
   const isListening = voice.status === 'listening' || voice.status === 'starting';
   const canSend = value.trim().length > 0 && !isStreaming && !isDisabled;
 
+  /** Send, and blow the words away on the way out. See the header. */
+  const send = useCallback(() => {
+    if (!canSend) return;
+    vanish(value);
+    onSend();
+  }, [canSend, onSend, vanish, value]);
+
   return (
     <div
       className="shrink-0 border-t border-border bg-surface px-3 pb-3 pt-3 sm:px-6"
@@ -93,32 +121,54 @@ export function AiComposer({
         className="mx-auto max-w-3xl"
         onSubmit={(event) => {
           event.preventDefault();
-          if (canSend) onSend();
+          send();
         }}
       >
         <div className="rounded-2xl border border-border-strong bg-surface shadow-card transition-[border-color,box-shadow] focus-within:border-brand focus-within:shadow-card-hover">
           <label htmlFor="ai-composer" className="sr-only">
             {t('aiMode.composerLabel')}
           </label>
-          <textarea
-            id="ai-composer"
-            ref={textareaRef}
-            rows={1}
-            value={value}
-            maxLength={MAX_MESSAGE_CHARS}
-            disabled={isDisabled}
-            placeholder={t('aiMode.composerPlaceholder')}
-            onChange={(event) => {
-              onChange(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                if (canSend) onSend();
-              }
-            }}
-            className="block max-h-[200px] w-full resize-none bg-transparent px-4 pt-3 text-sm leading-relaxed text-ink outline-none placeholder:text-ink-subtle disabled:cursor-not-allowed"
-          />
+
+          {/* The particles, over the textarea and nothing else. `relative` on
+              the wrapper rather than on the box above it, so the canvas is
+              positioned against the field it is a picture of and not against
+              the whole composer — the control row underneath must never be
+              covered by it, disabled or not. */}
+          <div className="relative">
+            <canvas
+              ref={canvasRef}
+              aria-hidden="true"
+              className={cx(
+                'pointer-events-none absolute inset-0 h-full w-full',
+                isVanishing ? 'opacity-100' : 'opacity-0',
+              )}
+            />
+            <textarea
+              id="ai-composer"
+              ref={textareaRef}
+              rows={1}
+              value={value}
+              maxLength={MAX_MESSAGE_CHARS}
+              disabled={isDisabled}
+              placeholder={t('aiMode.composerPlaceholder')}
+              onChange={(event) => {
+                onChange(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  send();
+                }
+              }}
+              className={cx(
+                'relative block max-h-[200px] w-full resize-none bg-transparent px-4 pt-3 text-sm leading-relaxed text-ink outline-none placeholder:text-ink-subtle disabled:cursor-not-allowed',
+                // The real text steps aside for its own picture. Not `hidden`:
+                // the box has to keep its height while the particles are in it,
+                // or the composer collapses under them.
+                isVanishing && 'text-transparent',
+              )}
+            />
+          </div>
 
           <div className="flex items-center justify-between gap-2 px-2.5 pb-2.5 pt-1">
             <div className="flex items-center gap-0.5">

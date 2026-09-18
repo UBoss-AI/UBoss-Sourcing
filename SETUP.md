@@ -379,6 +379,14 @@ If the frontends gained dependencies, run `npm install` inside
 `apps\admin-web` and `apps\customer-web` as well — and inside
 `apps\logistics-web` if you use the logistics portal. Then start as usual.
 
+**React is pinned to `~19.2.8` in `apps\customer-web`, on purpose.** The
+storefront hero renders with React Three Fiber, whose version 9 declares a
+peer range of `>=19 <19.3` — with a caret there, `npm install` resolves React
+to 19.3 and stops with `ERESOLVE could not resolve`. The tilde still takes
+patch releases and keeps a plain `npm install` working. Widen it when Fiber
+widens its range; do not reach for `--legacy-peer-deps`, which hides the
+conflict rather than settling it.
+
 ---
 
 # Starting by hand

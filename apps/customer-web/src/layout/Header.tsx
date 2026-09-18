@@ -52,6 +52,7 @@ import { api } from '@/lib/api';
 import { AccountMenu } from '@/components/account/AccountMenu';
 import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
+import { EarthMark } from '@/components/EarthMark';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CartIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
@@ -81,12 +82,11 @@ function BrandMark(): React.JSX.Element {
       className="-mx-2 flex min-w-0 shrink items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover sm:gap-3"
     >
       {business.logo === null ? (
-        <span
-          aria-hidden="true"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-fill text-base font-bold text-white shadow-card"
-        >
-          {business.displayName.slice(0, 1).toUpperCase()}
-        </span>
+        // No logo uploaded, so the mark is the earth - the same object the
+        // landing page opens with, 40px across. It falls back to the letter
+        // plate this used to be, and starts there on every visit; see
+        // `components/EarthMark.tsx`.
+        <EarthMark initial={business.displayName.slice(0, 1).toUpperCase()} />
       ) : (
         // A white plate with a hairline, not a bare image: a logo drawn for a
         // white page and one drawn for a dark one both have to survive here,

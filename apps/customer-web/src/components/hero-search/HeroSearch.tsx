@@ -1,10 +1,21 @@
 /**
  * The greeting page's search module.
  *
- * One large search bar, with a two-item row above it. It replaced the pair of
- * call-to-action buttons that used to sit here, and the swap is the point:
- * "Browse the catalogue" asked somebody to go and look for what they wanted,
- * and a search box lets them say it.
+ * It opens as a pill — a magnifier and four words — and unfolds on a press
+ * into one large search bar with a two-item row above it. Unfolding is the
+ * gooey transition from `ui/gooey-input.tsx`: the pill stretches into the bar
+ * while a round bubble pinches off its left end, the two joined by a neck that
+ * thins and breaks. The bubble is not decoration once it has landed; it is the
+ * Search button.
+ *
+ * **Why the bar is not simply there.** A page that opens on a full search bar,
+ * a row of tabs, a camera, a microphone and a legal notice asks somebody to
+ * read six things before they have decided they want any of them. The pill
+ * asks one question, and everything else arrives when the answer is yes. What
+ * that costs is honest and worth writing down: the AI Mode link and the
+ * catalogue field are one press further away than they were, and neither is
+ * visible to somebody who never presses. It buys a greeting that opens on one
+ * clear invitation instead of a control panel.
  *
  * The row looks like two tabs and is not two tabs, because the two items are
  * different kinds of thing:
@@ -44,13 +55,37 @@
  * provider configured. The bar is then a search bar with nothing above it,
  * which is the honest shape for that deployment — the same rule the rest of
  * the storefront follows for a capability the operator has not switched on.
+ *
+ * ---
+ *
+ * WHEN IT FOLDS BACK UP
+ *
+ * On `Escape`, and when focus leaves the whole module with the box empty.
+ * Three things about that rule are deliberate:
+ *
+ *   - **The box being empty is the condition.** Folding a bar that somebody has
+ *     typed into throws their words away, and they would have to be typed
+ *     again to find out that is what happened.
+ *   - **It is the module that has to lose focus, not the field.** The field
+ *     loses focus every time somebody reaches for the camera or the microphone
+ *     beside it, and a module that folded on that would make both buttons
+ *     unclickable — the control would move out from under the pointer between
+ *     the press starting and landing.
+ *   - **An open image dialog holds it open.** Opening the dialog moves focus
+ *     into it, and the dialog is outside this module, so without the guard the
+ *     bar would fold behind its own dialog and the customer would be returned
+ *     to a pill when they closed it.
  */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { CameraIcon, CloseIcon, MicIcon, SearchIcon, SparkIcon } from '@/components/icons';
 import { Spinner } from '@/components/ui';
+import { GooeyFilter } from '@/components/ui/gooey-input';
+import { GOOEY_SPRING, useGooeyFilterId } from '@/components/ui/gooey';
 import { cx } from '@/lib/cx';
+import { usePrefersReducedMotion } from '@/lib/reduced-motion';
 import { AI_MODE_PATH, setPendingQuestion } from '@/lib/ai-mode';
 import { useVoiceSearch } from '@/lib/voice-search';
 import { useI18n } from '@/i18n/i18n-context';
@@ -122,19 +157,79 @@ function SearchModes({ onLeaveForAi }: { onLeaveForAi: () => void }): React.JSX.
 // The module
 // ---------------------------------------------------------------------------
 
+/**
+ * Room the bubble needs at the left of the bar once it has pinched off.
+ *
+ * A margin rather than padding, so the bar genuinely starts to the right of
+ * the bubble with a gap between them. Padding would have left the two
+ * overlapping, and two overlapping shapes under this filter are one shape —
+ * there would be nothing for the neck to break.
+ */
+const BUBBLE_LANE = 'ml-[4.5rem]';
+
 export function HeroSearch(): React.JSX.Element {
   const { t, language } = useI18n();
   const navigate = useNavigate();
   const { features } = useStorefront();
+  const reduced = usePrefersReducedMotion();
 
   const hasAi = features.assistant;
   const hasImageSearch = features.imageSearch === true;
 
+  const [isOpen, setIsOpen] = useState(false);
+  // True from the press until the spring has settled. The gooey filter is
+  // mounted for exactly that window — an SVG filter left over a live text
+  // field re-runs on every keystroke and costs the text its subpixel
+  // antialiasing. `ui/gooey-input.tsx` carries the long version.
+  const [isMorphing, setIsMorphing] = useState(false);
   const [term, setTerm] = useState('');
   const [isNavigating, setIsNavigating] = useState(false);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
+  const moduleRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pillRef = useRef<HTMLButtonElement>(null);
+
+  const filterId = useGooeyFilterId('hero-search-goo');
+  const panelId = `${filterId}-panel`;
+
+  /*
+   * The filter comes off on a timer as well as on the animation finishing.
+   *
+   * `onLayoutAnimationComplete` is the ordinary way out, and it does not fire
+   * when motion decides there was no layout change to animate — which is the
+   * case in any environment that reports every box as zero, jsdom among them.
+   * Without this the filter would be mounted for the rest of the visit, and a
+   * live text field under an SVG filter repaints on every keystroke.
+   */
+  useEffect(() => {
+    if (!isMorphing) return undefined;
+
+    const timer = window.setTimeout(() => {
+      setIsMorphing(false);
+    }, 600);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isMorphing]);
+
+  const open = useCallback(() => {
+    setIsOpen(true);
+    if (!reduced) setIsMorphing(true);
+    // The field is mounted by this same render, so focus waits for it.
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, [reduced]);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    if (!reduced) setIsMorphing(true);
+    requestAnimationFrame(() => {
+      pillRef.current?.focus();
+    });
+  }, [reduced]);
 
   /*
    * A transcript is appended, not assigned.
@@ -183,134 +278,265 @@ export function HeroSearch(): React.JSX.Element {
     setIsNavigating(true);
   };
 
+  /** See WHEN IT FOLDS BACK UP in the header for all three conditions. */
+  const handleModuleBlur = (event: React.FocusEvent<HTMLDivElement>): void => {
+    if (!isOpen || term.length > 0 || isImageDialogOpen) return;
+    const next = event.relatedTarget;
+    if (next instanceof Node && event.currentTarget.contains(next)) return;
+    setIsOpen(false);
+    if (!reduced) setIsMorphing(true);
+  };
+
+  /*
+   * Escape folds it back up, from wherever inside it focus happens to be.
+   *
+   * Subscribed on the element rather than written as an `onKeyDown` prop,
+   * because a `div` carrying a keyboard handler is a static element pretending
+   * to be an interactive one — `jsx-a11y/no-static-element-interactions` is an
+   * error here, and it is right: the handler is not this element's behaviour,
+   * it is a shortcut that happens to be scoped to its subtree. Every control
+   * that can hold focus in here is a real button, link or field already.
+   */
+  useEffect(() => {
+    const module = moduleRef.current;
+    if (module === null || !isOpen) return undefined;
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') close();
+    };
+
+    module.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      module.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen, close]);
+
   const isListening = voice.status === 'listening' || voice.status === 'starting';
 
   return (
-    <div className="mt-8 w-full max-w-2xl">
+    <div ref={moduleRef} className="mt-8 w-full max-w-2xl" onBlur={handleModuleBlur}>
+      {isMorphing && <GooeyFilter filterId={filterId} blur={6} />}
+
       {/* One item is not a row. With no AI provider configured the module is a
           search bar, and a row above it would be a label pretending to be a
           choice. */}
-      {hasAi && <SearchModes onLeaveForAi={leaveForAi} />}
+      <AnimatePresence initial={false}>
+        {isOpen && hasAi && (
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            // Aligned with the bar rather than with the module, so the row sits
+            // over the field and not over the bubble's lane.
+            className={BUBBLE_LANE}
+          >
+            <SearchModes onLeaveForAi={leaveForAi} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div>
-        <form
-          role="search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submit();
+      {/*
+       * The gooey layer. Everything inside it is subject to the filter while
+       * the module is morphing, which is why the dialog, the live region and
+       * the notice are all outside: a filter creates a containing block, and a
+       * `<dialog>` under one stops being positioned against the viewport.
+       */}
+      <div
+        className="relative"
+        style={isMorphing ? { filter: `url(#${filterId})` } : undefined}
+      >
+        <motion.div
+          // `layout` rather than an animated width: the pill is sized by its
+          // own text in eight languages and the bar is sized by its container,
+          // so there is no pair of numbers to interpolate between. Motion
+          // measures both and animates the difference.
+          layout={!reduced}
+          transition={reduced ? { duration: 0 } : GOOEY_SPRING}
+          onLayoutAnimationComplete={() => {
+            setIsMorphing(false);
           }}
-
-          /*
-           * The bar. A two-row box rather than a single line, which is what
-           * gives the controls under it room to be labelled instead of being a
-           * row of unexplained glyphs.
-           *
-           * `focus-within` rather than a focus ring on the input: the input has
-           * no border of its own, so the box is what has to respond, and it has
-           * to respond to any of the four controls inside it taking focus.
-           */
-          className="rounded-2xl border-2 border-brand/25 bg-surface p-1.5 shadow-lift transition-[border-color,box-shadow] focus-within:border-brand focus-within:shadow-card-hover hover:border-brand/40"
+          className={cx(
+            'bg-surface shadow-lift transition-[border-color,box-shadow]',
+            isOpen
+              ? cx(
+                  'rounded-2xl border-2 border-brand/25 focus-within:border-brand focus-within:shadow-card-hover hover:border-brand/40',
+                  BUBBLE_LANE,
+                )
+              : 'w-fit rounded-full border-2 border-brand/25 hover:border-brand/40',
+          )}
         >
-          <div className="flex items-center gap-1 px-3 pt-2.5">
-            <label htmlFor="hero-search-input" className="sr-only">
-              {t('heroSearch.placeholderProducts')}
-            </label>
-            <input
-              id="hero-search-input"
-              ref={inputRef}
-              // `text`, not `search`: `type=search` gives WebKit its own clear
-              // button, and two crosses in one field is one too many.
-              type="text"
-              value={term}
-              onChange={(event) => {
-                setTerm(event.target.value);
+          {isOpen ? (
+            <form
+              id={panelId}
+              role="search"
+              onSubmit={(event) => {
+                event.preventDefault();
+                submit();
               }}
-              placeholder={t('heroSearch.placeholderProducts')}
-              autoComplete="off"
-              enterKeyHint="search"
-              maxLength={300}
-              className="min-w-0 flex-1 bg-transparent py-1.5 text-base text-ink outline-none placeholder:text-ink-subtle"
-            />
-
-            {term.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  setTerm('');
-                  inputRef.current?.focus();
-                }}
-                aria-label={t('heroSearch.clear')}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-subtle transition-colors hover:bg-surface-hover hover:text-ink"
-              >
-                <CloseIcon className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          <div className="mt-1 flex items-center justify-between gap-2 px-2 pb-1.5">
-            {/* Left: the ways of searching that are not typing. */}
-            <div className="flex min-w-0 items-center gap-1">
-              {hasImageSearch && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsImageDialogOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-brand-soft hover:text-brand"
-                >
-                  <CameraIcon className="h-[1.15rem] w-[1.15rem] shrink-0" />
-                  {/* The label is hidden on the narrowest screens, where the
-                      bar has to hold four controls. The accessible name comes
-                      from the `sr-only` span, so it never disappears. */}
-                  <span className="hidden sm:inline">{t('heroSearch.imageSearch')}</span>
-                  <span className="sr-only sm:hidden">{t('heroSearch.imageSearch')}</span>
-                </button>
-              )}
-
-              {voice.isSupported && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isListening) voice.stop();
-                    else voice.start();
-                  }}
-                  aria-pressed={isListening}
-                  aria-label={isListening ? t('voice.stopListening') : t('voice.startListening')}
-                  className={cx(
-                    'relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
-                    isListening
-                      ? 'bg-danger-fill text-white'
-                      : 'text-ink-muted hover:bg-brand-soft hover:text-brand',
-                  )}
-                >
-                  <MicIcon className="h-[1.15rem] w-[1.15rem]" />
-                  {/* The pulse is a sibling ring, not an animation on the
-                      button: animating the button itself would move the icon,
-                      and it is switched off wholesale by reduced motion. */}
-                  {isListening && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 animate-ping rounded-full bg-danger/40"
-                    />
-                  )}
-                </button>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isNavigating}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-fill px-6 py-2.5 text-sm font-semibold text-white shadow-card transition-colors hover:bg-brand-fill-hover disabled:cursor-not-allowed disabled:bg-ink-subtle disabled:shadow-none"
+              /*
+               * The bar. A two-row box rather than a single line, which is what
+               * gives the controls under it room to be labelled instead of being
+               * a row of unexplained glyphs.
+               *
+               * `focus-within` rather than a focus ring on the input: the input
+               * has no border of its own, so the box is what has to respond, and
+               * it has to respond to any of the controls inside it taking focus.
+               * It is set on the box above, which is the element with the border.
+               */
+              className="p-1.5"
             >
-              {isNavigating ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
+              <div className="flex items-center gap-1 px-3 pt-2.5">
+                <label htmlFor="hero-search-input" className="sr-only">
+                  {t('heroSearch.placeholderProducts')}
+                </label>
+                <input
+                  id="hero-search-input"
+                  ref={inputRef}
+                  // `text`, not `search`: `type=search` gives WebKit its own
+                  // clear button, and two crosses in one field is one too many.
+                  type="text"
+                  value={term}
+                  onChange={(event) => {
+                    setTerm(event.target.value);
+                  }}
+                  placeholder={t('heroSearch.placeholderProducts')}
+                  autoComplete="off"
+                  enterKeyHint="search"
+                  maxLength={300}
+                  className="min-w-0 flex-1 bg-transparent py-1.5 text-base text-ink outline-none placeholder:text-ink-subtle"
+                />
+
+                {term.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTerm('');
+                      inputRef.current?.focus();
+                    }}
+                    aria-label={t('heroSearch.clear')}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-subtle transition-colors hover:bg-surface-hover hover:text-ink"
+                  >
+                    <CloseIcon className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-1 flex items-center justify-between gap-2 px-2 pb-1.5">
+                {/* Left: the ways of searching that are not typing. */}
+                <div className="flex min-w-0 items-center gap-1">
+                  {hasImageSearch && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsImageDialogOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-brand-soft hover:text-brand"
+                    >
+                      <CameraIcon className="h-[1.15rem] w-[1.15rem] shrink-0" />
+                      {/* The label is hidden on the narrowest screens, where the
+                          bar has to hold four controls. The accessible name comes
+                          from the `sr-only` span, so it never disappears. */}
+                      <span className="hidden sm:inline">{t('heroSearch.imageSearch')}</span>
+                      <span className="sr-only sm:hidden">{t('heroSearch.imageSearch')}</span>
+                    </button>
+                  )}
+
+                  {voice.isSupported && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isListening) voice.stop();
+                        else voice.start();
+                      }}
+                      aria-pressed={isListening}
+                      aria-label={isListening ? t('voice.stopListening') : t('voice.startListening')}
+                      className={cx(
+                        'relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
+                        isListening
+                          ? 'bg-danger-fill text-white'
+                          : 'text-ink-muted hover:bg-brand-soft hover:text-brand',
+                      )}
+                    >
+                      <MicIcon className="h-[1.15rem] w-[1.15rem]" />
+                      {/* The pulse is a sibling ring, not an animation on the
+                          button: animating the button itself would move the icon,
+                          and it is switched off wholesale by reduced motion. */}
+                      {isListening && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute inset-0 animate-ping rounded-full bg-danger/40"
+                        />
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {/*
+                 * There is no second Search button here, and there was a
+                 * filled one. The bubble that pinches off the bar's left end
+                 * IS the submit: two controls with the same name doing the
+                 * same thing is one of them that somebody has to rule out
+                 * first, and the round one is where this module's motion has
+                 * just put the eye. Enter still submits, as it always did.
+                 */}
+              </div>
+            </form>
+          ) : (
+            <button
+              ref={pillRef}
+              type="button"
+              aria-expanded={false}
+              aria-controls={panelId}
+              onClick={open}
+              className="inline-flex items-center gap-3 rounded-full py-3.5 pl-5 pr-7 text-left outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-fill text-white">
                 <SearchIcon className="h-4 w-4" />
-              )}
-              {t('heroSearch.search')}
+              </span>
+              <span className="text-base font-medium text-ink sm:text-lg">
+                {t('heroSearch.placeholderProducts')}
+              </span>
             </button>
-          </div>
-        </form>
+          )}
+        </motion.div>
+
+        {/*
+         * The bubble that pinches off the bar's left end, and then stays as the
+         * Search button.
+         *
+         * It is a real control rather than an ornament, which is the whole
+         * reason it is allowed to remain on screen: a round blob that detaches,
+         * travels and then does nothing is an animation with a leftover.
+         */}
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.button
+              type="button"
+              onClick={submit}
+              disabled={isNavigating}
+              aria-label={t('heroSearch.search')}
+              initial={reduced ? false : { scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={reduced ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+              transition={reduced ? { duration: 0 } : GOOEY_SPRING}
+              /*
+               * The half-height shift is motion's, not Tailwind's.
+               *
+               * A `-translate-y-1/2` class on an element motion is animating
+               * loses: motion writes the whole `transform` inline from the
+               * values it is tracking, and a class it does not know about is
+               * simply overwritten. The bubble then hangs half its own height
+               * below the bar — which is exactly how it looked.
+               */
+              style={{ y: '-50%' }}
+              className="absolute left-0 top-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-brand-fill text-white shadow-card outline-none transition-colors hover:bg-brand-fill-hover focus-visible:ring-2 focus-visible:ring-brand disabled:cursor-not-allowed disabled:bg-ink-subtle"
+            >
+              {isNavigating ? <Spinner className="h-5 w-5" /> : <SearchIcon className="h-5 w-5" />}
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
 
       {/*
@@ -340,8 +566,9 @@ export function HeroSearch(): React.JSX.Element {
 
       {/* The AI disclosure, where the AI is. AI Act Art. 50(1) is about telling
           somebody before they engage, and the moment they might engage is the
-          moment the AI tab is in front of them. */}
-      {hasAi && (
+          moment the AI Mode link is in front of them — which is the moment the
+          bar is open, and not before. */}
+      {isOpen && hasAi && (
         <p className="mt-1 px-1 text-xs leading-relaxed text-ink-muted">{t('heroSearch.aiNotice')}</p>
       )}
 

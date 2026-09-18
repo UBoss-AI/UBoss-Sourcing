@@ -73,12 +73,22 @@ function stubBox(): void {
   });
 }
 
+/**
+ * The element that leans.
+ *
+ * Not the card's `<article>` any more: the glare is drawn outside the card and
+ * has to lean with it, so the lean moved onto the box that holds both. Found
+ * by the class the stylesheet selects rather than by tag or position, because
+ * that class is the actual contract between this hook and `.tilt` in the CSS —
+ * if it stops being on the element that carries the custom properties, the
+ * effect is off and every assertion below would otherwise still pass.
+ */
 function card(): HTMLElement {
-  // The card is an `article` with no accessible name of its own, so it is
-  // reached through the product name inside it.
+  // Nothing here has an accessible name of its own, so it is reached through
+  // the product name inside it.
   const heading = screen.getByRole('heading', { name: /IV Administration Set/ });
-  const element = heading.closest('article');
-  if (element === null) throw new Error('the card is not an <article> any more');
+  const element = heading.closest<HTMLElement>('.tilt');
+  if (element === null) throw new Error('nothing around the product name carries the tilt class');
   return element;
 }
 
@@ -129,7 +139,11 @@ describe('the product card lean', () => {
 
     // Nothing inline: the resting transform is `.tilt`'s own fallbacks.
     expect(tiltOf(card())).toEqual({ x: '', y: '', gx: '', gy: '' });
-    expect(card()).toHaveClass('tilt');
+
+    // And the lean is on the box the glare is drawn on, so the two move
+    // together. A lean that went back onto the `<article>` would leave the
+    // halo flat behind a card tipping away from it.
+    expect(card()).toHaveClass('glare');
   });
 
   it('leans away from a mouse, in the direction the pointer is', async () => {

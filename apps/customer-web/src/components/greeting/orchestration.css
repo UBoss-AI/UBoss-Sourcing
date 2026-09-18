@@ -660,17 +660,59 @@
 /*
  * And the word underneath it.
  *
- * The globe's own colours are held at 4.5:1 against white by `stage-palette.ts`,
- * so this is not what makes "Sourcing" legible — it is what keeps it legible
- * when a travelling orbit node, which is a small bright additive sphere, passes
- * directly behind a letter. The dark halo is doing the same job a subtitle's
- * does over a film.
+ * The dark halo is doing the same job a subtitle's does over a film: it keeps
+ * "Sourcing" legible when a travelling orbit node, which is a small bright
+ * additive sphere, passes directly behind a letter.
+ *
+ * It is no longer the whole of the answer. While the drawn sphere is what is
+ * behind the word, the sphere is a navy the palette holds at 4.5:1 against
+ * white on both themes. While the WebGL stage is on, what is behind the word
+ * is a photograph of the earth — and a photograph has ice caps, cloud and
+ * desert in it. Nothing derived from a token can promise a ratio against
+ * that, so the scrim below does it instead.
  */
 .orch-hub-label span {
   text-shadow:
     0 1px 2px rgb(2 6 23 / 0.75),
     0 0 18px rgb(2 6 23 / 0.6);
 }
+
+/*
+ * The ground under the word, and only while there is a photograph behind it.
+ *
+ * A soft ellipse of near-black, blurred at its edge so it reads as the globe
+ * being shaded rather than as a plate sitting on it. It is scoped to
+ * `[data-stage='on']` because the drawn sphere does not need it: over that
+ * navy the halo above is already enough, and an unnecessary dark patch in the
+ * middle of a glass ball is a smudge.
+ *
+ * 0.55 at the centre puts white text over roughly 12:1 against the darkest
+ * part of it and comfortably past 4.5:1 against the lightest thing underneath
+ * it — an ice cap in full sun. `::before` rather than a background on the
+ * element itself, because the element is `inset: 0` over the whole hub and a
+ * gradient that size would darken the cards as well as the word.
+ */
+[data-stage='on'] .orch-hub-label::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 68%;
+  height: 36%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(2 6 23 / 0.55) 0%,
+    rgb(2 6 23 / 0.38) 48%,
+    rgb(2 6 23 / 0) 76%
+  );
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Somebody who asked for no motion still gets the scrim: it is contrast, not
+   decoration. Nothing here animates, so there is nothing to switch off. */
 
 /* ==========================================================================
  * The web: rings, radial lines and the lights that travel them

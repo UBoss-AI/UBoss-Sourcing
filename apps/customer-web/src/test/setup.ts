@@ -72,3 +72,23 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
     }
   };
 }
+
+/**
+ * A 2D canvas context, which jsdom also does not implement.
+ *
+ * `getContext` is present but refuses, and it refuses loudly: every call
+ * writes a `Not implemented: HTMLCanvasElement.prototype.getContext` page onto
+ * the test output. The AI composer paints its message onto a canvas to blow it
+ * away on send, so without this every AI Mode test that sends a message prints
+ * that page, and a real failure has to be found among them.
+ *
+ * Returning `null` is the honest answer rather than a silencer: it is exactly
+ * what a browser returns for a context type it cannot give, and it is the
+ * answer `ui/vanish.ts` is written to handle — no picture, no particles, and
+ * the send carries on. `vanish.test.tsx` holds that path down.
+ */
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = function getContext(): null {
+    return null;
+  };
+}

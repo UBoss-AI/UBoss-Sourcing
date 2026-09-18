@@ -395,13 +395,21 @@ describe('search and AI Mode', () => {
   /**
    * The hero search module.
    *
-   * A tablist, a text input with no visible label, and four controls packed
-   * into one box — which is a lot of ways to end up with an unlabelled button.
-   * The tab pattern is what axe checks hardest here: `aria-selected` on each
-   * tab, `aria-controls` pointing at something that exists, and a panel that
-   * names the tab it belongs to.
+   * A text input with no visible label, a row that looks like tabs and is not,
+   * and four controls packed into one box — which is a lot of ways to end up
+   * with an unlabelled button. It is checked in both of its states, because
+   * they are two different documents: the module opens as a single pill, and
+   * the bar, the row and the camera only exist once it has been pressed. A
+   * closed control whose only accessible name is a magnifier glyph is the
+   * failure this pair is here to catch.
    */
-  it('the hero search module has no violations', async () => {
+  async function openHeroBar(): Promise<void> {
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Search the catalogue' }));
+    await screen.findByRole('textbox', { name: 'Search the catalogue' });
+  }
+
+  it('the hero search module has no violations while it is closed', async () => {
     const { container } = renderWithProviders(<HeroSearch />, {
       config: {
         ...FALLBACK_CONFIG,
@@ -412,13 +420,27 @@ describe('search and AI Mode', () => {
     await expectNoA11yViolations(container);
   });
 
-  it('every control in the search bar has an accessible name', () => {
+  it('the hero search module has no violations once it is open', async () => {
+    const { container } = renderWithProviders(<HeroSearch />, {
+      config: {
+        ...FALLBACK_CONFIG,
+        features: { ...FALLBACK_CONFIG.features, assistant: true, imageSearch: true },
+      },
+    });
+
+    await openHeroBar();
+    await expectNoA11yViolations(container);
+  });
+
+  it('every control in the search bar has an accessible name', async () => {
     renderWithProviders(<HeroSearch />, {
       config: {
         ...FALLBACK_CONFIG,
         features: { ...FALLBACK_CONFIG.features, assistant: true, imageSearch: true },
       },
     });
+
+    await openHeroBar();
 
     // The voice and camera buttons are icons. Without a name they announce as
     // "button", which is the single most common icon-button failure.
