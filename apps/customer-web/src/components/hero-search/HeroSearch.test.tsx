@@ -113,7 +113,15 @@ describe('the pill it opens as', () => {
     // Focus is returned to the control that opened it. Escape that leaves
     // focus on a node it has just removed drops a keyboard user at the top of
     // the document.
-    expect(screen.getByRole('button', { name: 'Search the catalogue' })).toHaveFocus();
+    //
+    // Awaited, because the pill does not exist until the render that folds the
+    // bar away, so the component restores focus on the frame after it - see
+    // `close` in HeroSearch.tsx. Asserting this synchronously passed on a fast
+    // machine and failed in CI, which is the worst way for a real behaviour to
+    // be held down.
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Search the catalogue' })).toHaveFocus();
+    });
   });
 
   it('does not fold up over words somebody has typed', async () => {
