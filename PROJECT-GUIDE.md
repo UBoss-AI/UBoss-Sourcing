@@ -566,7 +566,7 @@ on the layout route rather than on each page:
 | `/account/region` | Language, country and currency | Account settings |
 | `/account/payment-methods` | Saved cards | Payments |
 | `/account/autopay` | Autopay: consent, limits, which card | Payments |
-| `/account/billing` | VAT number, GSTIN, billing address | Payments |
+| `/account/billing` | EU VAT number, national tax number (GSTIN or the local equivalent), billing address | Payments |
 | `/account/integrations/erp` | Connect your own ERP — twenty named systems or any documented API; health, logs, approvals, team | Integrations |
 | `/account/integrations/erp/new` | The six-step setup wizard | — |
 | `/account/integrations/erp/:id` | One connection: health, activity, approvals, deliveries | — |
@@ -2446,6 +2446,25 @@ by country and by seller kind, seeded with defaults and edited by the operator.
 That table is the whole reason this is a product rather than one company's
 marketplace. Hard-coding a GSTIN field would make a German deployment
 impossible.
+
+**The seeded identifiers now cover the world, and the fallback is dual-named.**
+There is a row with the local name and format for India, the United Kingdom,
+the United States, Canada, Australia, New Zealand, Singapore, Japan,
+Switzerland, the United Arab Emirates, Saudi Arabia, South Africa and thirteen
+EU states — GSTIN, VAT, ABN, EIN, TRN, UEN, each checked against its own
+pattern. What matters more is what a seller sees when their country has no row
+of its own, because that is most of the world: the global rows are named
+**"GSTIN / VAT registration number"** and **"PAN / unique taxpayer reference"**
+rather than after one country's scheme, and the help text under each lists the
+regional equivalents. A seller in Sydney should not have to work out that
+"GSTIN" is where the ABN goes.
+
+The second of those two is **optional** by default and required only where a
+country's own row says so, as India's does for PAN. Many tax authorities issue
+a single number, and a required field a Spanish seller cannot fill in is a
+seller who can never finish the application. An answer in the wrong format is
+reported as a step still outstanding, naming the field — it is never refused at
+save, so nobody loses what they typed while they go and find the right number.
 
 **Payout is deliberately not required to submit**, because a seller must never
 be blocked on the operator not having configured a payment provider.

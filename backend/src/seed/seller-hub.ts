@@ -52,8 +52,21 @@ const REQUIREMENTS: readonly RequirementSeed[] = Object.freeze([
     countryKey: '*',
     stepKey: 'business_identity',
     fieldKey: 'tax_registration_number',
-    label: 'Tax registration number',
-    helpText: 'VAT, GST or the equivalent where your business is registered.',
+    /*
+     * DUAL-NAMED ON PURPOSE, and this is the row most sellers actually see.
+     *
+     * A country row below replaces this one wherever the deployment knows the
+     * local name for it. Everywhere else this is what is asked, so it cannot
+     * be named after one country's scheme - a seller in Australia looking for
+     * somewhere to put an ABN should not have to guess that "GSTIN" means
+     * them. Naming the two most widely used schemes and listing the rest in
+     * the help text is what makes the field answerable anywhere.
+     */
+    label: 'GSTIN / VAT registration number',
+    helpText:
+      'Whatever your business is registered under for sales tax - GSTIN in India, a VAT ' +
+      'number in the EU and the UK, ABN in Australia, EIN or a state tax ID in the United ' +
+      'States, TRN in the Gulf, or the equivalent where you are registered.',
     sortOrder: 20,
   },
   {
@@ -70,6 +83,35 @@ const REQUIREMENTS: readonly RequirementSeed[] = Object.freeze([
     label: 'Business website',
     isRequired: false,
     sortOrder: 40,
+  },
+  {
+    countryKey: '*',
+    stepKey: 'kyb_kyc',
+    fieldKey: 'pan_number',
+    /*
+     * The second identifier, the one that is NOT the sales-tax number.
+     *
+     * Most tax authorities issue two: one for charging tax and one that is the
+     * business's permanent identity to them - PAN in India, a UTR in the
+     * United Kingdom, an EIN in the United States. India's row below replaces
+     * this with the local name and makes it required, because there it is.
+     *
+     * OPTIONAL by default, deliberately. Plenty of countries issue only one
+     * number, and a required field that a seller in Spain cannot fill in is a
+     * seller who cannot finish the application at all.
+     *
+     * The field key reads as India's term because that is where this row began
+     * and it is stored under that key in `extraIdentifiersJson`. It is never
+     * shown - the label is - and renaming it would orphan every answer already
+     * saved against it.
+     */
+    label: 'PAN / unique taxpayer reference',
+    helpText:
+      'The permanent tax identity of the business, where that is a separate number from ' +
+      'the one above - PAN in India, UTR in the United Kingdom, EIN in the United States. ' +
+      'Leave blank if your country does not issue one.',
+    isRequired: false,
+    sortOrder: 5,
   },
   {
     countryKey: '*',
@@ -189,6 +231,94 @@ const REQUIREMENTS: readonly RequirementSeed[] = Object.freeze([
     sortOrder: 20,
   },
   {
+    countryKey: 'ES',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (NIF-IVA)',
+    validationPattern: '^ES[0-9A-Z][0-9]{7}[0-9A-Z]$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'IT',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (partita IVA)',
+    validationPattern: '^IT[0-9]{11}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'PL',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (NIP)',
+    validationPattern: '^PL[0-9]{10}$',
+    sortOrder: 20,
+  },
+  {
+    /*
+     * Greece is GR to ISO-3166 and EL to the VAT system, and both are correct.
+     * The country key is the ISO code, because that is what the seller's
+     * account stores; the PREFIX in the number is EL, which is what the help
+     * text has to say or every Greek seller types GR and is refused.
+     */
+    countryKey: 'GR',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (ΑΦΜ)',
+    helpText: 'Greek VAT numbers carry the EL prefix, not GR — for example EL123456789.',
+    validationPattern: '^EL[0-9]{9}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'BE',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (BTW-nr / n° TVA)',
+    validationPattern: '^BE[01][0-9]{9}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'AT',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (UID)',
+    helpText: 'Including the ATU prefix, e.g. ATU12345678.',
+    validationPattern: '^ATU[0-9]{8}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'IE',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number',
+    validationPattern: '^IE[0-9][0-9A-Z+*][0-9]{5}[A-W][A-I]?$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'PT',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (NIF)',
+    validationPattern: '^PT[0-9]{9}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'SE',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (momsnummer)',
+    validationPattern: '^SE[0-9]{12}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'DK',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT identification number (CVR/SE-nummer)',
+    validationPattern: '^DK[0-9]{8}$',
+    sortOrder: 20,
+  },
+  {
     countryKey: 'DE',
     stepKey: 'business_identity',
     fieldKey: 'eori_number',
@@ -239,6 +369,154 @@ const REQUIREMENTS: readonly RequirementSeed[] = Object.freeze([
     isDocument: true,
     isRequired: false,
     sortOrder: 30,
+  },
+
+  // --- The rest of the world ----------------------------------------------
+  //
+  // Same shape as the EU and India blocks, for the markets a deployment is
+  // most likely to meet outside them. They exist so that the generic
+  // "GSTIN / VAT registration number" is the fallback rather than the norm: a
+  // seller in Sydney is asked for an ABN by name, which is both clearer and
+  // checkable, and the eleven-digit pattern catches a typo before an operator
+  // has to write and ask for it.
+  //
+  // A deployment that never sells here deletes the rows, exactly as a German
+  // one deletes India's.
+  {
+    countryKey: 'GB',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT registration number',
+    helpText: 'Nine digits, with or without the GB prefix.',
+    validationPattern: '^(GB)?[0-9]{9}([0-9]{3})?$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'GB',
+    stepKey: 'business_identity',
+    fieldKey: 'company_registration_number',
+    label: 'Company number (Companies House)',
+    helpText:
+      'Eight characters, as it appears on the register - 12345678, SC123456, OC123456.',
+    sortOrder: 10,
+  },
+  {
+    countryKey: 'GB',
+    stepKey: 'kyb_kyc',
+    fieldKey: 'pan_number',
+    label: 'Unique Taxpayer Reference (UTR)',
+    helpText: 'The ten-digit reference HMRC issues to the company.',
+    validationPattern: '^[0-9]{10}$',
+    isRequired: false,
+    sortOrder: 5,
+  },
+  {
+    countryKey: 'US',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'Sales tax permit or state tax ID',
+    helpText:
+      'The registration for the state you collect sales tax in. Leave blank if you have ' +
+      'no sales tax nexus.',
+    isRequired: false,
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'US',
+    stepKey: 'kyb_kyc',
+    fieldKey: 'pan_number',
+    label: 'Employer Identification Number (EIN)',
+    helpText: 'Nine digits, as issued by the IRS — for example 12-3456789.',
+    validationPattern: '^[0-9]{2}-?[0-9]{7}$',
+    sortOrder: 5,
+  },
+  {
+    countryKey: 'CA',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'GST/HST number',
+    helpText: 'Your nine-digit Business Number followed by RT and four digits.',
+    validationPattern: '^[0-9]{9} ?RT ?[0-9]{4}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'AU',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'Australian Business Number (ABN)',
+    helpText: 'Eleven digits, spaces optional.',
+    validationPattern: '^[0-9]{2} ?[0-9]{3} ?[0-9]{3} ?[0-9]{3}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'NZ',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'GST registration number',
+    validationPattern: '^[0-9]{8,9}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'AE',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'Tax Registration Number (TRN)',
+    helpText: 'The fifteen-digit number on your FTA VAT certificate.',
+    validationPattern: '^[0-9]{15}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'SA',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT registration number',
+    helpText: 'Fifteen digits, as issued by ZATCA.',
+    validationPattern: '^[0-9]{15}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'SG',
+    stepKey: 'business_identity',
+    fieldKey: 'company_registration_number',
+    label: 'Unique Entity Number (UEN)',
+    validationPattern: '^[0-9A-Z]{9,10}$',
+    sortOrder: 10,
+  },
+  {
+    countryKey: 'SG',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'GST registration number',
+    helpText: 'Leave blank if you are not GST-registered.',
+    isRequired: false,
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'ZA',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT registration number',
+    helpText: 'Ten digits, beginning with 4.',
+    validationPattern: '^4[0-9]{9}$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'CH',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'VAT number (MWST/TVA/IVA)',
+    helpText: 'For example CHE-123.456.789 MWST.',
+    validationPattern: '^CHE-?[0-9]{3}\\.?[0-9]{3}\\.?[0-9]{3}( (MWST|TVA|IVA))?$',
+    sortOrder: 20,
+  },
+  {
+    countryKey: 'JP',
+    stepKey: 'business_identity',
+    fieldKey: 'tax_registration_number',
+    label: 'Qualified invoice issuer registration number',
+    helpText: 'A T followed by your thirteen-digit corporate number.',
+    validationPattern: '^T[0-9]{13}$',
+    sortOrder: 20,
   },
 ]);
 

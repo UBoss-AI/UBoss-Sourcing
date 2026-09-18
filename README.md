@@ -695,6 +695,17 @@ Identity steps of their application. What the deployment actually *requires* is
 operator edits. Nothing is required by default: the marketplace is general, and
 a seller of packaging has no quality certificate.
 
+**The tax identifiers a seller is asked for are named per country, not per
+deployment.** Rows are seeded for India, the UK, the US, Canada, Australia, New
+Zealand, Singapore, Japan, Switzerland, the UAE, Saudi Arabia, South Africa and
+thirteen EU states, each with the local name and format — GSTIN, VAT, ABN, EIN,
+TRN, UEN. A seller in a country with no row of its own is asked for
+**"GSTIN / VAT registration number"** and **"PAN / unique taxpayer reference"**,
+dual-named so the field is answerable anywhere, with the second one optional
+because plenty of countries issue only one number. A wrong format is reported
+back to the seller as an unfinished step rather than refused at save, so nobody
+loses what they typed.
+
 Only PDFs and pictures are accepted, decided by the file's own magic bytes and
 never by what the browser claims, up to 10 MB. The bytes are written under the
 private storage prefix, which the static route is not mounted over, and are

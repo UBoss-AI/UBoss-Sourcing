@@ -327,7 +327,7 @@ function BusinessPanel(): React.JSX.Element {
 
               <Field
                 label={t('label.gstin')}
-                hint={t('settings.theIndianRegistration')}
+                hint={t('settings.taxRegistrationHint')}
                 error={errors.gstin?.message}
               >
                 {({ inputId, describedBy }) => (
