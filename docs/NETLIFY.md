@@ -213,6 +213,48 @@ On a repository-connected site:
 | Base directory | *(empty — the repository root)* |
 | Build command | `node scripts/build-netlify-combined.mjs` |
 | Publish directory | `output/netlify-site` |
+| Environment variable | `API_ORIGIN` — see below |
+
+### `API_ORIGIN`, and why the hostname is no longer in the repository
+
+`deploy/netlify-combined.toml` has to name *some* API host in its `/api/*` and
+`/media/*` proxies, and whatever it names is wrong for everybody except the
+person who last edited it.
+
+That is not hypothetical. The four `netlify.toml` files in this repository
+named a `trycloudflare.com` quick tunnel; the last folder built from them named
+an ngrok one; the two had disagreed silently for weeks; and by the time anybody
+looked, **both were dead**. The site itself was perfectly healthy — it served
+its pages, and the repository-connected build had deployed the latest commit —
+but every `/api/*` call came back **502** and signing in failed with nothing on
+screen to say why.
+
+So the build substitutes it instead:
+
+```powershell
+$env:API_ORIGIN = 'https://api.your-company.com'
+node scripts/build-netlify-combined.mjs
+```
+
+On a repository-connected site, set `API_ORIGIN` once under **Site
+configuration → Environment variables**. Every build from then on points at it.
+Moving the API is one variable and a redeploy — nothing to edit, nothing to
+re-pack, and no second copy to drift out of step.
+
+It must be a scheme and a host with no path and no trailing slash —
+`https://api.your-company.com`, not `https://api.your-company.com/api`. The
+build refuses anything else rather than deploying a site whose proxy points at
+a URL that cannot work.
+
+Leave it unset and the committed placeholder is kept, with a warning naming the
+host it kept. That is deliberate: `node scripts/build-netlify-combined.mjs`
+with nothing exported should still produce a site you can look at, and a build
+with no API behind it renders perfectly well right up to the point somebody
+signs in.
+
+Netlify cannot interpolate an environment variable inside `netlify.toml` — the
+file is read as written — which is exactly why the substitution happens in the
+build that *writes* that file, and not in the file itself.
 
 Demo sign-ins are **three** variables here rather than one, because the three
 applications now share a site and therefore share its environment. The build
@@ -369,7 +411,8 @@ shipment data, and the same reasoning about seeded accounts applies.
 | A repository-connected site crashes on its first screen reading a property of `undefined` | Same thing, one layer along. ngrok's interstitial is HTML with status **200**, so the browser network panel shows every API call succeeding; the application parses the HTML as its config, gets `undefined` where an object should be, and dies rendering. Check the response body with a browser `User-Agent`, not with curl's |
 | Every API call returns HTML about visiting a site "served for free through ngrok.com" | ngrok's free interstitial, `ERR_NGROK_6024`. It cannot be worked around from Netlify's side. Use `cloudflared`, or a paid ngrok plan |
 | Every API call returns Cloudflare **error 1033** | The cloudflared tunnel registered but cannot be reached — outbound UDP 7844 is blocked and it is trying QUIC. Restart it with `--protocol http2`. Its own start-up precheck says so: `UDP Connectivity … fail` |
-| It worked yesterday and today every call 404s or times out | A `trycloudflare.com` quick tunnel takes a new hostname every restart. Re-pack with the new one and redeploy |
+| It worked yesterday and today every call 404s or times out | A `trycloudflare.com` quick tunnel takes a new hostname every restart. Set `API_ORIGIN` to the new one and redeploy |
+| Every `/api/*` call returns **502** while the site itself loads fine | The proxy is reaching a host that is not answering. The site is healthy and the deploy is current; what is dead is whatever `API_ORIGIN` points at. Check it directly: `curl https://<that-host>/health/ready` should return 200 |
 | Every request fails with a CORS error | The request is not going through the proxy. Check that `VITE_API_BASE_URL` in the bundle is relative — a build made with plain `npm run build` bakes in `http://localhost:4000/api/v1` and will not work anywhere but your machine |
 | `/api/v1/…` returns Netlify's 404 page | The proxy rule is below the `/*` catch-all, or missing. Netlify takes the first rule that matches, so a rule added below the catch-all is dead and dead silently |
 | Product images are broken, everything else works | The `/media/*` proxy, when the API stores files itself (`STORAGE_DRIVER=local`). The carrier portal has no such rule because it shows no product images |

@@ -36,7 +36,7 @@
  * and publish `output/netlify-site`.
  */
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -133,7 +133,83 @@ const config = join(repoRoot, 'deploy', 'netlify-combined.toml');
 if (!existsSync(config)) {
   throw new Error(`missing ${config} - the site would deploy with no /api proxy and no SPA fallback`);
 }
-cpSync(config, join(outDir, 'netlify.toml'));
+
+/**
+ * Where the API actually is, at BUILD time.
+ *
+ * ## Why this is an environment variable and not a line in the file
+ *
+ * `deploy/netlify-combined.toml` has to name some host, and whatever it names
+ * is wrong for everybody except the person who last edited it. That is not a
+ * hypothetical: the four `netlify.toml` files in this repository named a
+ * `trycloudflare.com` quick tunnel, the last folder built from them named an
+ * ngrok one, the two had silently disagreed for weeks, and by the time anybody
+ * looked BOTH were dead - so every `/api/*` call from the deployed site came
+ * back 502 and signing in failed with no clue as to why.
+ *
+ * A quick tunnel is the worst case of this because it takes a NEW random
+ * hostname on every restart, so a hostname committed to git is wrong within a
+ * day. But the same applies to a real API host that moves once a year: an
+ * address belongs to a deployment, not to source control.
+ *
+ * So: set `API_ORIGIN` in the Netlify UI (Site configuration → Environment
+ * variables) and every build from then on points at it. Moving the API is one
+ * variable and a redeploy, with nothing to edit, nothing to re-pack and no
+ * second copy to drift.
+ *
+ * Netlify cannot interpolate an environment variable inside `netlify.toml`
+ * itself - the file is read as-is - which is exactly why this substitution
+ * happens HERE, in the build that writes the file.
+ *
+ * Unset, the committed placeholder is kept. That is deliberate rather than a
+ * failure: a local `node scripts/build-netlify-combined.mjs` should produce a
+ * site to look at without anybody exporting anything, and a build with no API
+ * behind it renders perfectly well right up to the point somebody signs in.
+ */
+const apiOrigin = (process.env.API_ORIGIN ?? '').trim().replace(/\/+$/, '');
+
+let toml = readFileSync(config, 'utf8');
+
+if (apiOrigin.length > 0) {
+  if (!/^https?:\/\/[^/\s]+$/.test(apiOrigin)) {
+    throw new Error(
+      `API_ORIGIN must be a scheme and host with no path or trailing slash, e.g. https://api.example.com - got "${apiOrigin}"`,
+    );
+  }
+
+  // Every `to =` that points at an absolute origin, whatever that origin
+  // currently is. Matching the placeholder by name would break the moment
+  // somebody edited it, which is the failure this whole block exists to stop.
+  const before = toml;
+  toml = toml.replace(
+    /(to\s*=\s*")https?:\/\/[^/"]+(\/(?:api|media)\/:splat")/g,
+    `$1${apiOrigin}$2`,
+  );
+
+  if (toml === before) {
+    throw new Error(
+      `API_ORIGIN was set but no proxy line in ${config} matched - the site would deploy pointing somewhere else`,
+    );
+  }
+
+  console.log(`API proxy -> ${apiOrigin}`);
+} else {
+  const placeholder =
+    /to\s*=\s*"(https?:\/\/[^/"]+)\/api\/:splat"/.exec(toml)?.[1] ?? '(none)';
+  console.warn(
+    `
+WARNING: API_ORIGIN is not set, so the API proxy keeps the committed placeholder:
+` +
+      `  ${placeholder}
+` +
+      `If that host is not live, the site deploys and nobody can sign in - every
+` +
+      `/api call returns 502. Set API_ORIGIN in the Netlify UI, or export it here.
+`,
+  );
+}
+
+writeFileSync(join(outDir, 'netlify.toml'), toml);
 
 console.log(`\nDone. Publish: ${outDir}`);
 console.log('  /            storefront');
