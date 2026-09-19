@@ -256,6 +256,14 @@ search away for anybody who finds the site. The command replaces all nine with
 random ones, revokes every session, and prints the new passwords once. Nothing
 brings the old ones back, including a re-seed.
 
+The sign-ins themselves are not per-environment, and it is worth being explicit
+because the opposite is the natural assumption: the accounts live in the API's
+database, and a Netlify site, a tunnel and `localhost` are three routes to one
+API. The nine credentials README prints are the nine credentials everywhere.
+When the demo is over and the machine is private again,
+`npm run db:restore-seed-passwords` puts the published ones back — it is the
+only thing that does, because a re-seed will not.
+
 That is the floor, not the finish. Netlify's own password protection or an
 access policy belongs in front of the site as well (both are paid features),
 and before there is anything real behind it, delete these accounts and create

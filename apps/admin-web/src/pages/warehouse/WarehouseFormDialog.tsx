@@ -42,18 +42,27 @@ import {
   Spinner,
 } from '@/components/ui';
 import { CountryFlag } from '@/components/CountryFlag';
+import { AddressSuggest } from '@/components/AddressSuggest';
+import type { AddressSuggestion } from '@/components/AddressSuggest';
 import { ApiError, api } from '@/lib/api';
 import { nullIfBlank } from '@/lib/forms';
 import { majorToMinor } from '@/lib/format';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
-import { OPERATIONAL_STATUSES, operationalLabelKey } from '@/lib/warehouses';
+import {
+  MAP_HEIGHT_COMPACT,
+  OPERATIONAL_STATUSES,
+  operationalLabelKey,
+} from '@/lib/warehouses';
 import type {
   CountriesResponse,
   GeocodeResponse,
+  MapConfig,
+  MappablePlace,
   OperationalStatus,
   Warehouse,
   WorldCountriesResponse,
 } from '@/lib/warehouses';
+import { WarehouseMap } from './WarehouseMap';
 
 /** One country closed on this warehouse, as the form holds it. */
 interface ExclusionDraft {
@@ -244,12 +253,21 @@ interface WarehouseFormDialogProps {
    * configured. The page already has it from the warehouses response.
    */
   defaultRadiusKm: number;
+  /**
+   * What the operator configured, for the preview under the coordinates.
+   *
+   * Passed in rather than fetched: the page this dialog opens from already has
+   * it from the warehouses response, and a second request for a setting that
+   * cannot have changed since the screen loaded is a request for nothing.
+   */
+  map: MapConfig;
   onClose: () => void;
   onSaved: (warehouse: Warehouse, wasCreated: boolean) => void;
 }
 
 export function WarehouseFormDialog({
   editing,
+  map,
   defaultRadiusKm,
   onClose,
   onSaved,
@@ -414,6 +432,48 @@ export function WarehouseFormDialog({
       .map((part) => part.trim())
       .filter((part) => part.length > 0)
       .join(', ');
+
+  /**
+   * Take a place somebody chose from the suggestions.
+   *
+   * The whole address and its position in one change, which is the reason the
+   * suggestions exist: the street on the paperwork and the pin on the map come
+   * from the same row rather than from a typed address and a separate guess
+   * at it afterwards.
+   *
+   * **A field the geocoder did not name is left exactly as it is.** Not
+   * cleared - a geocoder that knows the street but not the postcode must not
+   * wipe a postcode somebody typed from the envelope in front of them.
+   *
+   * The country is the one exception that has to be checked rather than
+   * trusted: `countryCode` is a foreign key to this deployment's own country
+   * table, so a suggestion in a country this operator does not trade with
+   * would be a code the select cannot show and the server will refuse. Where
+   * it is not in the list, the coordinates and the address still land and the
+   * country stays for somebody to answer.
+   */
+  const applySuggestion = (suggestion: AddressSuggestion): void => {
+    const known = (countries.data?.countries ?? []).some(
+      (country) => country.code === suggestion.countryCode,
+    );
+
+    setDraft((current) => ({
+      ...current,
+      line1: suggestion.line1 ?? current.line1,
+      city: suggestion.city ?? current.city,
+      region: suggestion.region ?? current.region,
+      postalCode: suggestion.postalCode ?? current.postalCode,
+      countryCode: known && suggestion.countryCode !== null ? suggestion.countryCode : current.countryCode,
+      latitude: String(suggestion.latitude),
+      longitude: String(suggestion.longitude),
+    }));
+
+    setLookupNote(
+      suggestion.label === null
+        ? t('warehouses.form.lookupFound')
+        : t('warehouses.form.lookupFoundLabel', { place: suggestion.label }),
+    );
+  };
 
   /**
    * Ask the server to turn the address into coordinates.
@@ -595,6 +655,34 @@ export function WarehouseFormDialog({
   const problem = formError ?? localProblem;
   const canLookUp = addressQuery().length > 0;
 
+  /**
+   * The one place the preview map draws, or null when there is nothing to draw.
+   *
+   * Built from the typed coordinates rather than from the saved warehouse, so
+   * the marker moves the moment a suggestion is chosen or a number corrected -
+   * this is there to be checked *before* saving, and a map showing last week's
+   * position would be worse than no map.
+   *
+   * A `NaN` is null: somebody is midway through typing "18." and a marker is
+   * not owed to that.
+   */
+  const preview = ((): MappablePlace | null => {
+    const latitude = parseCoordinate(draft.latitude);
+    const longitude = parseCoordinate(draft.longitude);
+
+    if (latitude === null || longitude === null) return null;
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+
+    return {
+      id: editing?.id ?? 'draft',
+      code: draft.code.trim().toUpperCase(),
+      name: draft.name.trim(),
+      latitude,
+      longitude,
+    };
+  })();
+
   return (
     <Modal
       isOpen
@@ -745,18 +833,27 @@ export function WarehouseFormDialog({
 
         <FieldGroup legend={t('warehouses.form.addressLegend')} hint={t('warehouses.form.addressHint')}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label={t('warehouses.form.line1')}>
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  maxLength={160}
-                  value={draft.line1}
-                  onChange={(event) => {
-                    set('line1', event.target.value);
-                  }}
-                />
-              )}
-            </Field>
+            <AddressSuggest
+              endpoint="/admin/inventory/warehouses/geocode/suggest"
+              label={t('warehouses.form.line1')}
+              hint={t('addressSuggest.hint')}
+              maxLength={160}
+              value={draft.line1}
+              /*
+               * What is already chosen, so a street search is answered in the
+               * right country. The city is deliberately included: two towns in
+               * one country share a street name far more often than two
+               * countries share a town.
+               */
+              context={[draft.city, draft.countryCode]
+                .map((part) => part.trim())
+                .filter((part) => part.length > 0)
+                .join(', ')}
+              onChange={(next) => {
+                set('line1', next);
+              }}
+              onPick={applySuggestion}
+            />
 
             <Field label={t('warehouses.form.line2')}>
               {({ inputId }) => (
@@ -875,6 +972,39 @@ export function WarehouseFormDialog({
                 </p>
               )}
             </div>
+
+            {/*
+             * The pin, before it is saved.
+             *
+             * Two coordinates are unverifiable - nobody reads 18.520438 and
+             * knows whether it is the right side of the river - and this is
+             * the whole of the answer to that. It appears only once there is
+             * a position to draw, so an empty form is not half a screen of
+             * grey; a warehouse with no coordinates is an ordinary warehouse
+             * and this section says so without a map having to.
+             *
+             * The same component the Warehouses screen draws, at a height
+             * that fits a dialog, so the picture here and the picture there
+             * cannot disagree - including the case where the operator has
+             * configured no basemap at all, where this is a marker on plain
+             * ground and still answers "did the lookup move it far?".
+             */}
+            {preview !== null && (
+              <div className="space-y-2">
+                <WarehouseMap
+                  warehouses={[preview]}
+                  map={map}
+                  selectedId={preview.id}
+                  heightClassName={MAP_HEIGHT_COMPACT}
+                  onSelect={() => {
+                    // Nothing to select: there is one marker and it is this
+                    // form's own. Kept as a no-op rather than made optional
+                    // on the map, whose other callers all have a table.
+                  }}
+                />
+                <p className="text-xs text-ink-muted">{t('warehouses.form.previewHint')}</p>
+              </div>
+            )}
           </div>
         </FieldGroup>
 

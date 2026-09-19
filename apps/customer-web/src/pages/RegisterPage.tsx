@@ -33,6 +33,15 @@
  * **It does not sign anybody in.** Registration issues no session: the whole
  * point of the confirmation link is that nobody has yet proved they can read
  * the address they typed.
+ *
+ * ## The frame
+ *
+ * All three states this route can be in — the form, the "check your email"
+ * screen after it and the invitation-only page — use `AuthSplit`, so a
+ * customer who posts the form does not watch the page jump to a different
+ * layout to be told it worked. From `lg` up that puts a turning earth on the
+ * left half; it is decoration, `aria-hidden`, and every word and control is in
+ * the column beside it.
  */
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,7 +50,15 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
-import { Button, Field, Input, Select } from '@/components/ui';
+import { Button, Field, Select } from '@/components/ui';
+import {
+  AuthCard,
+  AuthDivider,
+  BottomGradient,
+  GRADIENT_CTA,
+  GlowInput,
+} from '@/components/ui/auth-form';
+import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
@@ -201,188 +218,202 @@ function RegistrationForm(): React.JSX.Element {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md py-8">
+    <AuthSplit>
       <LanguageSwitcher placement="auth" />
 
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          {t('auth.register.formHeading')}
-        </h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
+      {/* The same card as the sign-in page next door, for the same reason:
+          somebody bounced between the two should not feel they have changed
+          product. */}
+      <AuthCard className="mt-2">
+        <h1 className="text-xl font-bold text-ink">{t('auth.register.formHeading')}</h1>
+        <p className="mt-2 max-w-sm text-sm text-ink-muted">
           {t('auth.register.formIntro', { business: business.displayName })}
         </p>
-      </div>
 
-      <form
-        onSubmit={(event) => {
-          void handleSubmit(onSubmit)(event);
-        }}
-        noValidate
-        className="space-y-4 rounded-lg border border-border bg-surface p-6 shadow-card"
-      >
-        {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
-            {formError}
-          </div>
-        )}
-
-        <Field label={t('auth.register.fullName')} error={errors.fullName?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="text"
-              autoComplete="name"
-              aria-describedby={describedBy}
-              invalid={errors.fullName !== undefined}
-              {...register('fullName')}
-            />
-          )}
-        </Field>
-
-        <Field label={t('common.emailAddress')} error={errors.email?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="email"
-              autoComplete="email"
-              aria-describedby={describedBy}
-              invalid={errors.email !== undefined}
-              {...register('email')}
-            />
-          )}
-        </Field>
-
-        {/* Country before phone, so the dial-prefix hint below is already
-            filled in by the time the number is typed. */}
-        <Field
-          label={t('auth.register.country')}
-          hint={t('auth.register.countryHint')}
-          error={errors.country?.message}
-          required
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(onSubmit)(event);
+          }}
+          noValidate
+          className="my-8 space-y-4"
         >
-          {({ inputId, describedBy }) => (
-            <Select
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={errors.country !== undefined}
-              {...register('country')}
+          {formError !== null && (
+            <div
+              role="alert"
+              className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
             >
-              <option value="">{t('auth.register.countryPlaceholder')}</option>
-              {localisation.countries.map((entry) => (
-                <option key={entry.code} value={entry.code}>
-                  {entry.name}
-                </option>
-              ))}
-            </Select>
+              {formError}
+            </div>
           )}
-        </Field>
 
-        <Field
-          label={t('auth.register.mobile')}
-          hint={
-            dialPrefix === null
-              ? t('auth.register.mobileHint')
-              : t('auth.register.mobileHintPrefix', { prefix: dialPrefix })
-          }
-          error={errors.phone?.message}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              aria-describedby={describedBy}
-              invalid={errors.phone !== undefined}
-              {...register('phone')}
-            />
+          <Field label={t('auth.register.fullName')} error={errors.fullName?.message} required>
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="text"
+                autoComplete="name"
+                aria-describedby={describedBy}
+                invalid={errors.fullName !== undefined}
+                {...register('fullName')}
+              />
+            )}
+          </Field>
+
+          <Field label={t('common.emailAddress')} error={errors.email?.message} required>
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="email"
+                autoComplete="email"
+                aria-describedby={describedBy}
+                invalid={errors.email !== undefined}
+                {...register('email')}
+              />
+            )}
+          </Field>
+
+          {/* Country before phone, so the dial-prefix hint below is already
+              filled in by the time the number is typed. */}
+          <Field
+            label={t('auth.register.country')}
+            hint={t('auth.register.countryHint')}
+            error={errors.country?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <Select
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={errors.country !== undefined}
+                {...register('country')}
+              >
+                <option value="">{t('auth.register.countryPlaceholder')}</option>
+                {localisation.countries.map((entry) => (
+                  <option key={entry.code} value={entry.code}>
+                    {entry.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <Field
+            label={t('auth.register.mobile')}
+            hint={
+              dialPrefix === null
+                ? t('auth.register.mobileHint')
+                : t('auth.register.mobileHintPrefix', { prefix: dialPrefix })
+            }
+            error={errors.phone?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                aria-describedby={describedBy}
+                invalid={errors.phone !== undefined}
+                {...register('phone')}
+              />
+            )}
+          </Field>
+
+          <Field
+            label={t('auth.register.organization')}
+            hint={t('auth.register.organizationHint')}
+            error={errors.organization?.message}
+          >
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="text"
+                autoComplete="organization"
+                aria-describedby={describedBy}
+                invalid={errors.organization !== undefined}
+                {...register('organization')}
+              />
+            )}
+          </Field>
+
+          <Field
+            label={t('auth.register.password')}
+            hint={t('auth.register.passwordHint')}
+            error={errors.password?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="password"
+                autoComplete="new-password"
+                aria-describedby={describedBy}
+                invalid={errors.password !== undefined}
+                {...register('password')}
+              />
+            )}
+          </Field>
+
+          <Field
+            label={t('auth.register.confirmPassword')}
+            error={errors.confirmPassword?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="password"
+                autoComplete="new-password"
+                aria-describedby={describedBy}
+                invalid={errors.confirmPassword !== undefined}
+                {...register('confirmPassword')}
+              />
+            )}
+          </Field>
+
+          <AcceptTermsCheckbox
+            label={t('auth.register.acceptTerms')}
+            error={errors.acceptedTerms?.message}
+            errorId="terms-error"
+            {...register('acceptedTerms')}
+          />
+
+          {/* Said before the form is sent, not after. Somebody who needs to
+              order today should learn that an account is reviewed while they
+              still have the option of ringing instead. */}
+          {features.selfRegistrationRequiresApproval !== false && (
+            <p className="rounded-md border border-border bg-surface-sunken px-3 py-2.5 text-xs leading-relaxed text-ink-muted">
+              {t('auth.register.approvalNotice')}
+            </p>
           )}
-        </Field>
 
-        <Field
-          label={t('auth.register.organization')}
-          hint={t('auth.register.organizationHint')}
-          error={errors.organization?.message}
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="text"
-              autoComplete="organization"
-              aria-describedby={describedBy}
-              invalid={errors.organization !== undefined}
-              {...register('organization')}
-            />
-          )}
-        </Field>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            fullWidth
+            isLoading={isSubmitting}
+            className={GRADIENT_CTA}
+          >
+            {t('auth.register.submit')}
+            {/* Decoration, and hidden as such. In the accessible name this
+                button is "Create account", not "Create account right arrow". */}
+            <span aria-hidden="true">&rarr;</span>
+            <BottomGradient />
+          </Button>
+        </form>
 
-        <Field
-          label={t('auth.register.password')}
-          hint={t('auth.register.passwordHint')}
-          error={errors.password?.message}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="password"
-              autoComplete="new-password"
-              aria-describedby={describedBy}
-              invalid={errors.password !== undefined}
-              {...register('password')}
-            />
-          )}
-        </Field>
+        <AuthDivider className="my-8" />
 
-        <Field
-          label={t('auth.register.confirmPassword')}
-          error={errors.confirmPassword?.message}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="password"
-              autoComplete="new-password"
-              aria-describedby={describedBy}
-              invalid={errors.confirmPassword !== undefined}
-              {...register('confirmPassword')}
-            />
-          )}
-        </Field>
-
-        <AcceptTermsCheckbox
-          label={t('auth.register.acceptTerms')}
-          error={errors.acceptedTerms?.message}
-          errorId="terms-error"
-          {...register('acceptedTerms')}
-        />
-
-        {/* Said before the form is sent, not after. Somebody who needs to order
-            today should learn that an account is reviewed while they still have
-            the option of ringing instead. */}
-        {features.selfRegistrationRequiresApproval !== false && (
-          <p className="rounded-md border border-border bg-surface-sunken px-3 py-2.5 text-xs leading-relaxed text-ink-muted">
-            {t('auth.register.approvalNotice')}
-          </p>
-        )}
-
-        <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          {t('auth.register.submit')}
-        </Button>
-      </form>
-
-      <p className="mt-5 text-center text-sm text-ink-muted">
-        {t('auth.register.haveAccount')}{' '}
-        <Link to="/login" className="font-medium text-brand hover:underline">
-          {t('auth.register.backToSignIn')}
-        </Link>
-      </p>
-    </div>
+        <p className="text-center text-sm text-ink-muted">
+          {t('auth.register.haveAccount')}{' '}
+          <Link to="/login" className="font-medium text-brand hover:underline">
+            {t('auth.register.backToSignIn')}
+          </Link>
+        </p>
+      </AuthCard>
+    </AuthSplit>
   );
 }
 
@@ -424,16 +455,14 @@ function CheckYourEmail({
       await api.post('/auth/verify-email/resend', { email });
       setResent(true);
     } catch (error) {
-      setResendError(
-        errorMessage(t, error, t('auth.register.resendFailed')),
-      );
+      setResendError(errorMessage(t, error, t('auth.register.resendFailed')));
     } finally {
       setResending(false);
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-md py-8">
+    <AuthSplit>
       <div className="rounded-lg border border-success/30 bg-success-soft p-6 text-center">
         <h1 className="text-lg font-semibold text-success">{t('auth.register.sentHeading')}</h1>
         <p className="mt-2 text-sm text-ink">{t('auth.register.sentBody', { email })}</p>
@@ -479,7 +508,7 @@ function CheckYourEmail({
           {t('auth.register.backToSignIn')}
         </Link>
       </p>
-    </div>
+    </AuthSplit>
   );
 }
 
@@ -501,7 +530,7 @@ function InvitationOnly(): React.JSX.Element {
   useDocumentMeta({ title: t('auth.register.pageTitle'), noIndex: true }, business.displayName);
 
   return (
-    <div className="mx-auto w-full max-w-md py-8">
+    <AuthSplit>
       <LanguageSwitcher placement="auth" />
 
       <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
@@ -549,7 +578,7 @@ function InvitationOnly(): React.JSX.Element {
           {t('auth.register.backToSignIn')}
         </Link>
       </div>
-    </div>
+    </AuthSplit>
   );
 }
 

@@ -273,6 +273,7 @@ export type MediaAssetWhereInput = {
   uploadedById?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   productMedia?: Prisma.ProductMediaListRelationFilter
+  variantMedia?: Prisma.ProductVariantMediaListRelationFilter
   categoryImages?: Prisma.CategoryListRelationFilter
   categoryBanners?: Prisma.CategoryListRelationFilter
   businessProfiles?: Prisma.BusinessProfileListRelationFilter
@@ -291,6 +292,7 @@ export type MediaAssetOrderByWithRelationInput = {
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   productMedia?: Prisma.ProductMediaOrderByRelationAggregateInput
+  variantMedia?: Prisma.ProductVariantMediaOrderByRelationAggregateInput
   categoryImages?: Prisma.CategoryOrderByRelationAggregateInput
   categoryBanners?: Prisma.CategoryOrderByRelationAggregateInput
   businessProfiles?: Prisma.BusinessProfileOrderByRelationAggregateInput
@@ -313,6 +315,7 @@ export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
   uploadedById?: Prisma.StringNullableFilter<"MediaAsset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MediaAsset"> | Date | string
   productMedia?: Prisma.ProductMediaListRelationFilter
+  variantMedia?: Prisma.ProductVariantMediaListRelationFilter
   categoryImages?: Prisma.CategoryListRelationFilter
   categoryBanners?: Prisma.CategoryListRelationFilter
   businessProfiles?: Prisma.BusinessProfileListRelationFilter
@@ -367,6 +370,7 @@ export type MediaAssetCreateInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileCreateNestedManyWithoutLogoMediaInput
@@ -385,6 +389,7 @@ export type MediaAssetUncheckedCreateInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryUncheckedCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileUncheckedCreateNestedManyWithoutLogoMediaInput
@@ -403,6 +408,7 @@ export type MediaAssetUpdateInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUpdateManyWithoutLogoMediaNestedInput
@@ -421,6 +427,7 @@ export type MediaAssetUncheckedUpdateInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUncheckedUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUncheckedUpdateManyWithoutLogoMediaNestedInput
@@ -586,6 +593,20 @@ export type MediaAssetUpdateOneWithoutCategoryBannersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MediaAssetUpdateToOneWithWhereWithoutCategoryBannersInput, Prisma.MediaAssetUpdateWithoutCategoryBannersInput>, Prisma.MediaAssetUncheckedUpdateWithoutCategoryBannersInput>
 }
 
+export type MediaAssetCreateNestedOneWithoutVariantMediaInput = {
+  create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedCreateWithoutVariantMediaInput>
+  connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutVariantMediaInput
+  connect?: Prisma.MediaAssetWhereUniqueInput
+}
+
+export type MediaAssetUpdateOneRequiredWithoutVariantMediaNestedInput = {
+  create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedCreateWithoutVariantMediaInput>
+  connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutVariantMediaInput
+  upsert?: Prisma.MediaAssetUpsertWithoutVariantMediaInput
+  connect?: Prisma.MediaAssetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MediaAssetUpdateToOneWithWhereWithoutVariantMediaInput, Prisma.MediaAssetUpdateWithoutVariantMediaInput>, Prisma.MediaAssetUncheckedUpdateWithoutVariantMediaInput>
+}
+
 export type MediaAssetCreateNestedOneWithoutProductMediaInput = {
   create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutProductMediaInput, Prisma.MediaAssetUncheckedCreateWithoutProductMediaInput>
   connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutProductMediaInput
@@ -613,6 +634,7 @@ export type MediaAssetCreateWithoutBusinessProfilesInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryCreateNestedManyWithoutBannerMediaInput
 }
@@ -630,6 +652,7 @@ export type MediaAssetUncheckedCreateWithoutBusinessProfilesInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryUncheckedCreateNestedManyWithoutBannerMediaInput
 }
@@ -663,6 +686,7 @@ export type MediaAssetUpdateWithoutBusinessProfilesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUpdateManyWithoutBannerMediaNestedInput
 }
@@ -680,6 +704,7 @@ export type MediaAssetUncheckedUpdateWithoutBusinessProfilesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUncheckedUpdateManyWithoutBannerMediaNestedInput
 }
@@ -697,6 +722,7 @@ export type MediaAssetCreateWithoutCategoryImagesInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryBanners?: Prisma.CategoryCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileCreateNestedManyWithoutLogoMediaInput
 }
@@ -714,6 +740,7 @@ export type MediaAssetUncheckedCreateWithoutCategoryImagesInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryBanners?: Prisma.CategoryUncheckedCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileUncheckedCreateNestedManyWithoutLogoMediaInput
 }
@@ -736,6 +763,7 @@ export type MediaAssetCreateWithoutCategoryBannersInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
   businessProfiles?: Prisma.BusinessProfileCreateNestedManyWithoutLogoMediaInput
 }
@@ -753,6 +781,7 @@ export type MediaAssetUncheckedCreateWithoutCategoryBannersInput = {
   uploadedById?: string | null
   createdAt?: Date | string
   productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
   businessProfiles?: Prisma.BusinessProfileUncheckedCreateNestedManyWithoutLogoMediaInput
 }
@@ -786,6 +815,7 @@ export type MediaAssetUpdateWithoutCategoryImagesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryBanners?: Prisma.CategoryUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUpdateManyWithoutLogoMediaNestedInput
 }
@@ -803,6 +833,7 @@ export type MediaAssetUncheckedUpdateWithoutCategoryImagesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryBanners?: Prisma.CategoryUncheckedUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUncheckedUpdateManyWithoutLogoMediaNestedInput
 }
@@ -831,6 +862,7 @@ export type MediaAssetUpdateWithoutCategoryBannersInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUpdateManyWithoutLogoMediaNestedInput
 }
@@ -848,7 +880,96 @@ export type MediaAssetUncheckedUpdateWithoutCategoryBannersInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
+  variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
+  businessProfiles?: Prisma.BusinessProfileUncheckedUpdateManyWithoutLogoMediaNestedInput
+}
+
+export type MediaAssetCreateWithoutVariantMediaInput = {
+  id: string
+  storageKey: string
+  url: string
+  mimeType: string
+  sizeBytes: number
+  width?: number | null
+  height?: number | null
+  altText?: string | null
+  checksum?: string | null
+  uploadedById?: string | null
+  createdAt?: Date | string
+  productMedia?: Prisma.ProductMediaCreateNestedManyWithoutMediaInput
+  categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
+  categoryBanners?: Prisma.CategoryCreateNestedManyWithoutBannerMediaInput
+  businessProfiles?: Prisma.BusinessProfileCreateNestedManyWithoutLogoMediaInput
+}
+
+export type MediaAssetUncheckedCreateWithoutVariantMediaInput = {
+  id: string
+  storageKey: string
+  url: string
+  mimeType: string
+  sizeBytes: number
+  width?: number | null
+  height?: number | null
+  altText?: string | null
+  checksum?: string | null
+  uploadedById?: string | null
+  createdAt?: Date | string
+  productMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutMediaInput
+  categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
+  categoryBanners?: Prisma.CategoryUncheckedCreateNestedManyWithoutBannerMediaInput
+  businessProfiles?: Prisma.BusinessProfileUncheckedCreateNestedManyWithoutLogoMediaInput
+}
+
+export type MediaAssetCreateOrConnectWithoutVariantMediaInput = {
+  where: Prisma.MediaAssetWhereUniqueInput
+  create: Prisma.XOR<Prisma.MediaAssetCreateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedCreateWithoutVariantMediaInput>
+}
+
+export type MediaAssetUpsertWithoutVariantMediaInput = {
+  update: Prisma.XOR<Prisma.MediaAssetUpdateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedUpdateWithoutVariantMediaInput>
+  create: Prisma.XOR<Prisma.MediaAssetCreateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedCreateWithoutVariantMediaInput>
+  where?: Prisma.MediaAssetWhereInput
+}
+
+export type MediaAssetUpdateToOneWithWhereWithoutVariantMediaInput = {
+  where?: Prisma.MediaAssetWhereInput
+  data: Prisma.XOR<Prisma.MediaAssetUpdateWithoutVariantMediaInput, Prisma.MediaAssetUncheckedUpdateWithoutVariantMediaInput>
+}
+
+export type MediaAssetUpdateWithoutVariantMediaInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  altText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productMedia?: Prisma.ProductMediaUpdateManyWithoutMediaNestedInput
+  categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
+  categoryBanners?: Prisma.CategoryUpdateManyWithoutBannerMediaNestedInput
+  businessProfiles?: Prisma.BusinessProfileUpdateManyWithoutLogoMediaNestedInput
+}
+
+export type MediaAssetUncheckedUpdateWithoutVariantMediaInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  altText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutMediaNestedInput
+  categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
+  categoryBanners?: Prisma.CategoryUncheckedUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUncheckedUpdateManyWithoutLogoMediaNestedInput
 }
 
@@ -864,6 +985,7 @@ export type MediaAssetCreateWithoutProductMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  variantMedia?: Prisma.ProductVariantMediaCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileCreateNestedManyWithoutLogoMediaInput
@@ -881,6 +1003,7 @@ export type MediaAssetUncheckedCreateWithoutProductMediaInput = {
   checksum?: string | null
   uploadedById?: string | null
   createdAt?: Date | string
+  variantMedia?: Prisma.ProductVariantMediaUncheckedCreateNestedManyWithoutMediaInput
   categoryImages?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageMediaInput
   categoryBanners?: Prisma.CategoryUncheckedCreateNestedManyWithoutBannerMediaInput
   businessProfiles?: Prisma.BusinessProfileUncheckedCreateNestedManyWithoutLogoMediaInput
@@ -914,6 +1037,7 @@ export type MediaAssetUpdateWithoutProductMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variantMedia?: Prisma.ProductVariantMediaUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUpdateManyWithoutLogoMediaNestedInput
@@ -931,6 +1055,7 @@ export type MediaAssetUncheckedUpdateWithoutProductMediaInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variantMedia?: Prisma.ProductVariantMediaUncheckedUpdateManyWithoutMediaNestedInput
   categoryImages?: Prisma.CategoryUncheckedUpdateManyWithoutImageMediaNestedInput
   categoryBanners?: Prisma.CategoryUncheckedUpdateManyWithoutBannerMediaNestedInput
   businessProfiles?: Prisma.BusinessProfileUncheckedUpdateManyWithoutLogoMediaNestedInput
@@ -943,6 +1068,7 @@ export type MediaAssetUncheckedUpdateWithoutProductMediaInput = {
 
 export type MediaAssetCountOutputType = {
   productMedia: number
+  variantMedia: number
   categoryImages: number
   categoryBanners: number
   businessProfiles: number
@@ -950,6 +1076,7 @@ export type MediaAssetCountOutputType = {
 
 export type MediaAssetCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productMedia?: boolean | MediaAssetCountOutputTypeCountProductMediaArgs
+  variantMedia?: boolean | MediaAssetCountOutputTypeCountVariantMediaArgs
   categoryImages?: boolean | MediaAssetCountOutputTypeCountCategoryImagesArgs
   categoryBanners?: boolean | MediaAssetCountOutputTypeCountCategoryBannersArgs
   businessProfiles?: boolean | MediaAssetCountOutputTypeCountBusinessProfilesArgs
@@ -970,6 +1097,13 @@ export type MediaAssetCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
  */
 export type MediaAssetCountOutputTypeCountProductMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductMediaWhereInput
+}
+
+/**
+ * MediaAssetCountOutputType without action
+ */
+export type MediaAssetCountOutputTypeCountVariantMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductVariantMediaWhereInput
 }
 
 /**
@@ -1007,6 +1141,7 @@ export type MediaAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   uploadedById?: boolean
   createdAt?: boolean
   productMedia?: boolean | Prisma.MediaAsset$productMediaArgs<ExtArgs>
+  variantMedia?: boolean | Prisma.MediaAsset$variantMediaArgs<ExtArgs>
   categoryImages?: boolean | Prisma.MediaAsset$categoryImagesArgs<ExtArgs>
   categoryBanners?: boolean | Prisma.MediaAsset$categoryBannersArgs<ExtArgs>
   businessProfiles?: boolean | Prisma.MediaAsset$businessProfilesArgs<ExtArgs>
@@ -1032,6 +1167,7 @@ export type MediaAssetSelectScalar = {
 export type MediaAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storageKey" | "url" | "mimeType" | "sizeBytes" | "width" | "height" | "altText" | "checksum" | "uploadedById" | "createdAt", ExtArgs["result"]["mediaAsset"]>
 export type MediaAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productMedia?: boolean | Prisma.MediaAsset$productMediaArgs<ExtArgs>
+  variantMedia?: boolean | Prisma.MediaAsset$variantMediaArgs<ExtArgs>
   categoryImages?: boolean | Prisma.MediaAsset$categoryImagesArgs<ExtArgs>
   categoryBanners?: boolean | Prisma.MediaAsset$categoryBannersArgs<ExtArgs>
   businessProfiles?: boolean | Prisma.MediaAsset$businessProfilesArgs<ExtArgs>
@@ -1042,6 +1178,7 @@ export type $MediaAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "MediaAsset"
   objects: {
     productMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
+    variantMedia: Prisma.$ProductVariantMediaPayload<ExtArgs>[]
     categoryImages: Prisma.$CategoryPayload<ExtArgs>[]
     categoryBanners: Prisma.$CategoryPayload<ExtArgs>[]
     businessProfiles: Prisma.$BusinessProfilePayload<ExtArgs>[]
@@ -1405,6 +1542,7 @@ readonly fields: MediaAssetFieldRefs;
 export interface Prisma__MediaAssetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   productMedia<T extends Prisma.MediaAsset$productMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$productMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  variantMedia<T extends Prisma.MediaAsset$variantMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$variantMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categoryImages<T extends Prisma.MediaAsset$categoryImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$categoryImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categoryBanners<T extends Prisma.MediaAsset$categoryBannersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$categoryBannersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   businessProfiles<T extends Prisma.MediaAsset$businessProfilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$businessProfilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1817,6 +1955,30 @@ export type MediaAsset$productMediaArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ProductMediaScalarFieldEnum | Prisma.ProductMediaScalarFieldEnum[]
+}
+
+/**
+ * MediaAsset.variantMedia
+ */
+export type MediaAsset$variantMediaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductVariantMedia
+   */
+  select?: Prisma.ProductVariantMediaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductVariantMedia
+   */
+  omit?: Prisma.ProductVariantMediaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductVariantMediaInclude<ExtArgs> | null
+  where?: Prisma.ProductVariantMediaWhereInput
+  orderBy?: Prisma.ProductVariantMediaOrderByWithRelationInput | Prisma.ProductVariantMediaOrderByWithRelationInput[]
+  cursor?: Prisma.ProductVariantMediaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductVariantMediaScalarFieldEnum | Prisma.ProductVariantMediaScalarFieldEnum[]
 }
 
 /**

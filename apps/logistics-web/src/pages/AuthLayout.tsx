@@ -10,8 +10,19 @@
  * one thing on the page to act on. That is the whole of the effect; nothing
  * animates and nothing moves, because half the people opening this are doing
  * it at four in the morning in a vehicle.
+ *
+ * ## The picture beside it
+ *
+ * From `lg` up the card moves to the right half and `AuthSplit` puts a turning
+ * earth on the left, the same one the storefront and the admin panel sign in
+ * beside. **Below `lg` nothing changes at all**, and that is the important
+ * half of this: the device a driver actually opens this on is a phone in a
+ * cab, and it gets the page it has always had — no canvas, no WebGL context,
+ * no chunk fetched. The panel is a desk-sized flourish, it is `aria-hidden`,
+ * and it is the first thing to go.
  */
 import type { ReactNode } from 'react';
+import { AuthSplit } from '@/components/ui/auth-split';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useI18n } from '@/i18n/i18n-context';
@@ -68,8 +79,13 @@ export function AuthLayout({
         </span>
       </header>
 
-      <main className="relative flex flex-1 items-start justify-center px-4 pb-16 pt-6 sm:items-center sm:pt-0">
-        <div className={wide ? 'w-full max-w-2xl' : 'w-full max-w-md'}>
+      {/*
+        `items-start` on a phone and centred from `sm`, exactly as before. The
+        split inside supplies its own gutters, so `main` keeps only the bottom
+        padding that stops the card sitting on the edge of a short window.
+      */}
+      <main className="relative flex flex-1 flex-col justify-center pb-16 sm:pb-0">
+        <AuthSplit contentClassName={wide ? 'max-w-2xl' : 'max-w-md'}>
           <div className="rounded-2xl border border-border bg-surface p-6 shadow-lg sm:p-8">
             <h1 className="text-xl font-semibold tracking-tight text-ink">{heading}</h1>
             {subheading === undefined ? null : (
@@ -78,7 +94,7 @@ export function AuthLayout({
 
             <div className="mt-6">{children}</div>
           </div>
-        </div>
+        </AuthSplit>
       </main>
     </div>
   );

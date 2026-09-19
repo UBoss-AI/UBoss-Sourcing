@@ -39,7 +39,7 @@
 import { env } from '../../config/env.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { prisma } from '../../infra/prisma.js';
-import { activeProvider } from './assistant.service.js';
+import { activeProvider, catalogueStamp } from './assistant.service.js';
 
 /** How many catalogue matches are worth showing. Beyond this it is a browse. */
 const MAX_MATCHES = 12;
@@ -47,18 +47,7 @@ const MAX_MATCHES = 12;
 /** A list of slugs and a sentence. It does not need more room than this. */
 const MAX_TOKENS = 700;
 
-/**
- * How long the index is reused before it is rebuilt.
- *
- * Shorter than it looks: it is the same sixty seconds the chat snapshot uses,
- * and for the same reason — a product published a minute ago should be
- * findable, and rebuilding a list of a few thousand rows on every upload would
- * put a database read in front of a provider call that is already the slow
- * part.
- */
-const INDEX_TTL_MS = 60_000;
-
-let index: { text: string; slugs: Set<string>; builtAt: number } | null = null;
+let index: { text: string; slugs: Set<string>; stamp: string } | null = null;
 
 /**
  * The catalogue as the vision model sees it.
@@ -98,21 +87,38 @@ async function buildIndex(): Promise<{ text: string; slugs: Set<string> }> {
   return { text, slugs };
 }
 
+/**
+ * The index for this upload, rebuilt only where the catalogue has moved.
+ *
+ * Held against `catalogueStamp()` rather than a timer, for the reason set out
+ * where that function lives: a sixty-second TTL meant a product published
+ * moments ago could not be matched from a photograph of it, and the hook that
+ * was meant to close that window was exported and never called by anything.
+ * The stamp costs a handful of aggregates and is shared with the chat
+ * snapshot, so the two surfaces can no longer disagree about what is on sale.
+ */
 async function catalogueIndex(): Promise<{ text: string; slugs: Set<string> }> {
-  if (index !== null && Date.now() - index.builtAt < INDEX_TTL_MS) return index;
+  const stamp = await catalogueStamp();
+  if (index !== null && index.stamp === stamp) return index;
 
   const built = await buildIndex();
-  index = { ...built, builtAt: Date.now() };
+  index = { ...built, stamp };
   return index;
 }
 
-/** Called after a catalogue write, so a new product is findable immediately. */
-export function invalidateImageSearchIndex(): void {
+/** Drops the cached index. For tests; nothing else needs it — see above. */
+export function resetImageSearchIndexCache(): void {
   index = null;
 }
 
-const SYSTEM_PROMPT = `You identify medical and laboratory products in photographs for a
-medical supplies store, and match them against that store's own catalogue.
+const SYSTEM_PROMPT = `You identify products in photographs for an online store, and match
+them against that store's own catalogue.
+
+The catalogue index below is the only thing that tells you what kind of store
+this is. It is a marketplace: it lists what this operator stocks and what
+independent sellers have listed here, which between them may be anything from
+fasteners to laboratory glassware to workwear to medical devices. Do not assume
+a trade and do not let one narrow what you are willing to recognise.
 
 Rules:
 - Match on what the item IS: the type of product, its form, its material, its
@@ -121,7 +127,7 @@ Rules:
   invent one, never correct one, never guess at one.
 - Order the matches best first, and return at most ${String(MAX_MATCHES)}.
 - Return no matches at all rather than a bad one. A shopper shown the wrong
-  cannula gauge is worse off than a shopper shown nothing.
+  size, grade or rating is worse off than a shopper shown nothing.
 - If the photograph is not of a product at all — a person, a document, a room,
   a screenshot — return no matches and say what it is in one short sentence.
 - Never comment on, describe or speculate about any person visible in the

@@ -13,6 +13,12 @@
  * The terms have to be accepted on every sign-in, not remembered from the
  * last one. Nothing is stored to say "this browser already agreed", because a
  * consent that carries itself forward is a consent nobody gave this time.
+ *
+ * The frame is `AuthSplit`: from `lg` up the form takes the right half and a
+ * turning earth takes the left. That panel is decoration and is `aria-hidden`
+ * — every word and every control on this screen is in the column below, and
+ * the page is finished on a phone, on a machine with no WebGL and with the
+ * chunk behind the globe still in flight.
  */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,7 +28,15 @@ import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
-import { Button, Field, Input, Spinner } from '@/components/ui';
+import { Button, Field, Spinner } from '@/components/ui';
+import {
+  AuthCard,
+  AuthDivider,
+  BottomGradient,
+  GRADIENT_CTA,
+  GlowInput,
+} from '@/components/ui/auth-form';
+import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError } from '@/lib/api';
@@ -223,122 +237,136 @@ export function LoginPage(): React.JSX.Element {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md py-8">
+    <AuthSplit>
       {/* Above the form, not tucked into the footer. Somebody who cannot read
           the interface cannot navigate to a setting buried inside it, so the
           first screen they land on is the one that has to offer the way out.
           The choice is remembered and carried into the session on sign-in. */}
       <LanguageSwitcher placement="auth" />
 
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          {t('auth.login.heading')}
-        </h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
+      {/* Title, form and the way to an account are one card, not three
+          stacked panels: everything a visitor who cannot get in needs to read
+          is inside one boundary. */}
+      <AuthCard className="mt-2">
+        <h1 className="text-xl font-bold text-ink">{t('auth.login.heading')}</h1>
+        <p className="mt-2 max-w-sm text-sm text-ink-muted">
           {/* Reaching here means not signed in as a customer. A user object
               that still exists is therefore a staff session, which cannot
               shop — saying so beats an unexplained sign-in form. */}
           {user === null ? t('auth.login.introVisitor') : t('auth.login.introStaff')}
         </p>
-      </div>
 
-      <form
-        onSubmit={(event) => {
-          void handleSubmit(onSubmit)(event);
-        }}
-        noValidate
-        className="space-y-4 rounded-lg border border-border bg-surface p-6 shadow-card"
-      >
-        {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
-            <p>{formError}</p>
-            {extraHelp !== null && <p className="mt-1.5 text-ink">{extraHelp}</p>}
-          </div>
-        )}
-
-        <Field label={t('common.emailAddress')} error={errors.email?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="email"
-              autoComplete="username"
-              aria-describedby={describedBy}
-              invalid={errors.email !== undefined}
-              {...register('email')}
-            />
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(onSubmit)(event);
+          }}
+          noValidate
+          className="my-8 space-y-4"
+        >
+          {formError !== null && (
+            <div
+              role="alert"
+              className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
+            >
+              <p>{formError}</p>
+              {extraHelp !== null && <p className="mt-1.5 text-ink">{extraHelp}</p>}
+            </div>
           )}
-        </Field>
 
-        <Field label={t('common.password')} error={errors.password?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="password"
-              autoComplete="current-password"
-              aria-describedby={describedBy}
-              invalid={errors.password !== undefined}
-              {...register('password')}
-            />
-          )}
-        </Field>
-
-        {/* Above the button, not below it. The tick is a condition of signing
-            in, so it has to be read before the thing it gates. */}
-        <AcceptTermsCheckbox
-          label={t('auth.login.acceptTerms')}
-          error={errors.acceptedTerms?.message}
-          errorId="login-terms-error"
-          {...register('acceptedTerms')}
-        />
-
-        <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          {t('auth.login.submit')}
-        </Button>
-
-        <p className="text-center text-sm">
-          <Link to="/forgot-password" className="font-medium text-brand hover:underline">
-            {t('auth.login.forgotPassword')}
-          </Link>
-        </p>
-      </form>
-
-      <div className="mt-5 rounded-lg border border-border bg-surface p-5 text-sm">
-        <h2 className="font-medium text-ink">{t('auth.login.noAccountHeading')}</h2>
-
-        {features.selfRegistration ? (
-          <p className="mt-1.5 text-ink-muted">
-            <Link to="/register" className="font-medium text-brand hover:underline">
-              {t('auth.login.createOne')}
-            </Link>{' '}
-            {t('auth.login.createOneSuffix')}
-          </p>
-        ) : (
-          <p className="mt-1.5 text-ink-muted">
-            {t('auth.login.inviteOnly')}
-            {business.supportEmail !== null && (
-              <>
-                {' '}
-                {t('auth.login.inviteOnlyNotReceived')}{' '}
-                <a
-                  href={`mailto:${business.supportEmail}`}
-                  className="font-medium text-brand hover:underline"
-                >
-                  {t('auth.login.getInTouch')}
-                </a>
-                .
-              </>
+          <Field label={t('common.emailAddress')} error={errors.email?.message} required>
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="email"
+                autoComplete="username"
+                aria-describedby={describedBy}
+                invalid={errors.email !== undefined}
+                {...register('email')}
+              />
             )}
+          </Field>
+
+          <Field label={t('common.password')} error={errors.password?.message} required>
+            {({ inputId, describedBy }) => (
+              <GlowInput
+                id={inputId}
+                type="password"
+                autoComplete="current-password"
+                aria-describedby={describedBy}
+                invalid={errors.password !== undefined}
+                {...register('password')}
+              />
+            )}
+          </Field>
+
+          {/* Above the button, not below it. The tick is a condition of signing
+              in, so it has to be read before the thing it gates. */}
+          <AcceptTermsCheckbox
+            label={t('auth.login.acceptTerms')}
+            error={errors.acceptedTerms?.message}
+            errorId="login-terms-error"
+            {...register('acceptedTerms')}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            fullWidth
+            isLoading={isSubmitting}
+            className={GRADIENT_CTA}
+          >
+            {t('auth.login.submit')}
+            {/* Decoration, and hidden as such. In the accessible name this
+                button is "Sign in", not "Sign in right arrow". */}
+            <span aria-hidden="true">&rarr;</span>
+            <BottomGradient />
+          </Button>
+
+          <p className="text-center text-sm">
+            <Link to="/forgot-password" className="font-medium text-brand hover:underline">
+              {t('auth.login.forgotPassword')}
+            </Link>
           </p>
-        )}
-      </div>
+        </form>
+
+        <AuthDivider className="my-8" />
+
+        <div className="text-sm">
+          <h2 className="font-medium text-ink">{t('auth.login.noAccountHeading')}</h2>
+
+          {features.selfRegistration ? (
+            <p className="mt-1.5 text-ink-muted">
+              <Link to="/register" className="font-medium text-brand hover:underline">
+                {t('auth.login.createOne')}
+              </Link>{' '}
+              {t('auth.login.createOneSuffix')}
+            </p>
+          ) : (
+            <p className="mt-1.5 text-ink-muted">
+              {t('auth.login.inviteOnly')}
+              {business.supportEmail !== null && (
+                <>
+                  {' '}
+                  {t('auth.login.inviteOnlyNotReceived')}{' '}
+                  <a
+                    href={`mailto:${business.supportEmail}`}
+                    className="font-medium text-brand hover:underline"
+                  >
+                    {t('auth.login.getInTouch')}
+                  </a>
+                  .
+                </>
+              )}
+            </p>
+          )}
+        </div>
+      </AuthCard>
 
       {/* Sits at the bottom of the first screen a customer sees, which is
           where a wording complaint is most likely to be worth acting on.
           Renders nothing in English. */}
       <TranslationQualityNotice className="mt-5 text-center" />
-    </div>
+    </AuthSplit>
   );
 }

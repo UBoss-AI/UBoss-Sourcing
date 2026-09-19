@@ -31,6 +31,7 @@ import {
   listWarehouses,
   mapConfig,
   recordErpSync,
+  suggestAddresses,
   updateWarehouse,
 } from '../../modules/inventory/location.service.js';
 import {
@@ -1132,6 +1133,35 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
       const result = await forwardGeocode(body.query);
 
       return reply.status(200).send({ result });
+    },
+  );
+
+  /**
+   * The same lookup, answering with every candidate rather than the first.
+   *
+   * What the address fields on the warehouse form type into. A POST for the
+   * same reason as the one above - a half-typed address is still an address,
+   * and it has no business sitting in an access log.
+   *
+   * `{ suggestions: [] }` with a 200 covers every way this can come to
+   * nothing: no geocoder configured, a slow one, a firewalled one, or a
+   * perfectly healthy one that has never heard of the street. The dropdown
+   * simply does not open, and the fields underneath it still take typing.
+   */
+  app.post(
+    '/inventory/warehouses/geocode/suggest',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          query: z.string().trim().min(1).max(512),
+          limit: z.number().int().min(1).max(10).optional(),
+        })
+        .parse(request.body);
+
+      const suggestions = await suggestAddresses(body.query, body.limit ?? 6);
+
+      return reply.status(200).send({ suggestions });
     },
   );
 

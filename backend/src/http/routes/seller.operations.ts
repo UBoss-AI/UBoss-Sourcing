@@ -17,7 +17,11 @@ import {
   recordStockMovement,
   updateStockSettings,
 } from '../../modules/seller/inventory.service.js';
-import { forwardGeocode } from '../../modules/inventory/location.service.js';
+import {
+  forwardGeocode,
+  mapConfig,
+  suggestAddresses,
+} from '../../modules/inventory/location.service.js';
 import {
   archiveLocation,
   createLocation,
@@ -85,12 +89,25 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
   // --- Places -------------------------------------------------------------
 
+  /**
+   * The seller's dispatch addresses, and the map they are drawn on.
+   *
+   * The map settings travel with the list rather than from a second request,
+   * for the same reason the console's warehouses response carries them: they
+   * are the operator's, they cannot change while a screen is open, and a
+   * separate call for them would be a round trip for a string.
+   *
+   * They are not on the public `/config` either, and that is deliberate. The
+   * Google path carries the deployment's API key, and a key on an endpoint
+   * every anonymous visitor reads is a key being spent by anyone who looks.
+   * Behind a seller's session it reaches the people who need a map.
+   */
   app.get(
     '/locations',
     { preHandler: requireSeller(SellerPermission.LOCATION_READ) },
     async (request, reply) => {
       const locations = await listLocations(currentSeller(request));
-      return reply.status(200).send({ locations });
+      return reply.status(200).send({ locations, map: mapConfig() });
     },
   );
 
@@ -129,6 +146,36 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
       const result = await forwardGeocode(body.query);
 
       return reply.status(200).send({ result });
+    },
+  );
+
+  /**
+   * Every candidate for what the seller has typed so far, not just the first.
+   *
+   * This is what makes a seller's address land on the map at all. The single
+   * lookup above is a button pressed after the fact, which means a place is
+   * only placed if somebody remembers to press it; a suggestion list is part
+   * of typing the address, so the coordinates arrive with it.
+   *
+   * Empty for every failure, exactly like the endpoint above, and behind the
+   * same permission: this sends the seller's half-written address to whatever
+   * geocoder the operator configured, and only somebody already trusted to
+   * write a dispatch address should be able to make that call.
+   */
+  app.post(
+    '/locations/geocode/suggest',
+    { preHandler: requireSeller(SellerPermission.LOCATION_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          query: z.string().trim().min(1).max(512),
+          limit: z.number().int().min(1).max(10).optional(),
+        })
+        .parse(request.body);
+
+      const suggestions = await suggestAddresses(body.query, body.limit ?? 6);
+
+      return reply.status(200).send({ suggestions });
     },
   );
 

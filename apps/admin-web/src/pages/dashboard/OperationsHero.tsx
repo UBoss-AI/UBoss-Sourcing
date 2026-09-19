@@ -1,11 +1,14 @@
 /**
- * The top of the admin dashboard: what is waiting, and what to do about it.
+ * The admin dashboard: what is waiting, drawn as a ring, with the insights
+ * panel beside it.
  *
- * Its own component rather than three hundred more lines inside
- * `DashboardPage.tsx`, because it answers a different question from everything
- * below it. The panels underneath are the month's SALES; this is the morning's
- * WORK, and the two want different data, a different refresh cadence and a
- * different permission model.
+ * Its own component rather than a hundred more lines inside `DashboardPage.tsx`,
+ * which owns the page heading, the reporting window and the refresh control and
+ * nothing else. This file owns the one request the screen makes.
+ *
+ * There is nothing under the ring. Every figure it draws belongs to a queue
+ * screen that is in the navigation rail already, and a second, thinner list of
+ * those screens under the chart was a copy that could only ever go stale.
  *
  * ---
  *
@@ -24,24 +27,17 @@
  * disagrees with the first.
  */
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BentoCell } from '@/components/dashboard/console';
 import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
 import { AiInsightsCard } from '@/components/dashboard/AiInsightsCard';
-import { Badge } from '@/components/ui';
-import { ChevronRightIcon } from '@/components/icons';
 import { useInsightStream } from '@/lib/use-insight-stream';
 import { formatRelative } from '@/lib/format';
 import {
   GROUP_LABELS,
   OPERATIONS_QUERY_KEY,
-  QUEUE_LABELS,
   fetchOperations,
   operationsSegments,
-  queuesInGroup,
-  type OperationsGroupName,
-  type OperationsOverview,
 } from '@/lib/operations';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { ReportingWindow } from '@/lib/dashboard-range';
@@ -77,10 +73,9 @@ export function OperationsHero({
 
   /*
    * The insight arrives as Server-Sent Events, so the summary is on screen
-   * while it is still being written. The findings underneath it appear only
-   * once the stream closes — that is the server's doing, and it is the reason
-   * a citation can be trusted: it has been checked against the metric bundle
-   * before it is sent.
+   * while it is still being written. The finished object that replaces it when
+   * the stream closes is the validated one — the server checks every figure the
+   * model cited against the metric bundle before it sends it.
    */
   const insights = useInsightStream('/admin/dashboard/insights/stream', () => ({
     from: reportingWindow.from,
@@ -136,7 +131,6 @@ export function OperationsHero({
             remainder: t('operations.remainder'),
             clampNote: t('operations.clampNote'),
           }}
-          footer={<QueueList data={data} group={selectedGroup} />}
         />
       </BentoCell>
 
@@ -153,14 +147,12 @@ export function OperationsHero({
           onAsk={(question) => {
             insights.ask(question);
           }}
-          suggestions={[
+          placeholders={[
             t('operations.ai.q1'),
             t('operations.ai.q2'),
             t('operations.ai.q3'),
             t('operations.ai.q4'),
           ]}
-          placeholders={[t('operations.ai.q1'), t('operations.ai.q2'), t('operations.ai.q3')]}
-          renderLink={(href, children) => <Link to={href}>{children}</Link>}
           generatedLabel={
             insights.insight === null ? undefined : formatRelative(insights.insight.generatedAt)
           }
@@ -175,20 +167,11 @@ export function OperationsHero({
             explaining: t('aiInsights.explaining'),
             explained: t('aiInsights.explained'),
             explainFailed: t('aiInsights.explainFailed'),
-            suggestions: t('aiInsights.suggestions'),
-            findings: t('aiInsights.findings'),
-            nextSteps: t('aiInsights.nextSteps'),
-            evidence: t('aiInsights.evidence'),
             generated: t('aiInsights.generated'),
             disclosure: t('aiInsights.disclosure'),
             deterministic: t('aiInsights.deterministic'),
             unavailable: t('aiInsights.unavailable'),
             idle: t('aiInsights.idle'),
-            severity: {
-              info: t('aiInsights.severity.info'),
-              attention: t('aiInsights.severity.attention'),
-              urgent: t('aiInsights.severity.urgent'),
-            },
           }}
         />
       </BentoCell>
@@ -196,94 +179,15 @@ export function OperationsHero({
   );
 }
 
-/**
- * The queues behind the ring, filtered by the selected group.
+/*
+ * The queue list that used to hang under the ring is gone.
  *
- * Every row links to the screen the work is decided on, and the link comes
- * from the SERVER — `queue.href` — rather than from a table in this file. That
- * is what makes "clicking a segment opens the right queue" true by
- * construction: the thing that counted the rows is the thing that says where
- * they live, so a queue cannot be counted from one place and linked to
- * another.
+ * It repeated, as a column of rows with counts and chevrons, exactly what the
+ * ring above it had just drawn — and every row went to a screen that is in the
+ * navigation rail anyway. This dashboard is the chart and the insights panel
+ * now: the shape carries the information, and the queue it names is one click
+ * away wherever you were already going to click.
  *
- * Domains are never merged. Selecting "payments" shows payment queues; it does
- * not roll a failed schedule charge in with a rejected webhook and call the
- * total "money problems", because they are fixed on different screens by
- * different people.
+ * `queuesInGroup` and `QUEUE_LABELS` in lib/operations.ts are untouched, and
+ * the server still returns every queue. Its markup is in this file's history.
  */
-function QueueList({
-  data,
-  group,
-}: {
-  data: OperationsOverview | undefined;
-  group: string | null;
-}): React.JSX.Element | null {
-  const { t } = useI18n();
-
-  if (data === undefined) return null;
-
-  const rows = queuesInGroup(data, group);
-  if (rows.length === 0) return null;
-
-  return (
-    <div className="border-t border-console-border/70 pt-3">
-      <h3 className="mb-2 text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-        {group === null
-          ? t('operations.everyQueue')
-          : translateKey(t, GROUP_LABELS[group as OperationsGroupName])}
-      </h3>
-
-      <ul className="space-y-0.5">
-        {rows.map((queue) => {
-          const label = QUEUE_LABELS[queue.key];
-
-          return (
-            <li key={queue.key}>
-              <Link
-                to={queue.href}
-                className="group flex min-h-[2.25rem] items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover/60"
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  {/*
-                    The count first, because that is what is being scanned. A
-                    queue holding nothing is muted rather than hidden — "no
-                    data-subject requests are waiting" is worth seeing on the
-                    screen that exists to say what is waiting.
-                  */}
-                  <span
-                    className={
-                      queue.count === 0
-                        ? 'tabular w-8 shrink-0 text-right text-sm text-ink-subtle'
-                        : queue.severity === 'urgent'
-                          ? 'tabular w-8 shrink-0 text-right text-sm font-semibold text-danger'
-                          : queue.severity === 'attention'
-                            ? 'tabular w-8 shrink-0 text-right text-sm font-semibold text-warning'
-                            : 'tabular w-8 shrink-0 text-right text-sm font-semibold text-ink'
-                    }
-                  >
-                    {queue.count}
-                  </span>
-                  <span className="min-w-0 truncate text-xs text-ink-muted group-hover:text-ink">
-                    {label === undefined ? queue.key : translateKey(t, label)}
-                  </span>
-                </span>
-
-                <span className="flex shrink-0 items-center gap-1.5">
-                  {/*
-                    A word as well as a colour, and only where it is non-zero.
-                    An "urgent" chip on a queue holding nothing teaches people
-                    to ignore the word.
-                  */}
-                  {queue.count > 0 && queue.severity === 'urgent' ? (
-                    <Badge tone="danger">{t('aiInsights.severity.urgent')}</Badge>
-                  ) : null}
-                  <ChevronRightIcon className="h-3.5 w-3.5 text-ink-subtle" />
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}

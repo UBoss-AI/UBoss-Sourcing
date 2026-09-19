@@ -59,8 +59,8 @@ export function MfaSetupPage(): React.JSX.Element {
     defaultValues: { code: '' },
   });
 
-  const focusCode = useFocusOnMount();
   const { ref: codeRef, ...codeField } = form.register('code');
+  const focusCode = useFocusOnMount<HTMLInputElement>(codeRef);
 
   const confirm = form.handleSubmit(async (values) => {
     setFailure(null);
@@ -157,10 +157,7 @@ export function MfaSetupPage(): React.JSX.Element {
                   id={inputId}
                   aria-describedby={describedBy}
                   {...codeField}
-                  ref={(node) => {
-                    codeRef(node);
-                    focusCode(node);
-                  }}
+                  ref={focusCode}
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   maxLength={6}
@@ -194,8 +191,8 @@ export function MfaChallengePage(): React.JSX.Element {
     defaultValues: { code: '' },
   });
 
-  const focusCode = useFocusOnMount();
   const { ref: codeRef, ...codeField } = form.register('code');
+  const focusCode = useFocusOnMount<HTMLInputElement>(codeRef);
 
   const submit = form.handleSubmit(async (values) => {
     setFailure(null);
@@ -221,15 +218,18 @@ export function MfaChallengePage(): React.JSX.Element {
         <Field label={useRecovery ? t('mfa.useRecovery') : t('mfa.code')}>
           {({ inputId, describedBy }) => (
             <Input
+              // Switching to a recovery code is a new box as far as this
+              // screen is concerned, and the cursor belongs in it: the button
+              // that switched has just emptied the field the person was in.
+              // A stable ref only focuses on mount, so the remount is what
+              // asks for it.
+              key={useRecovery ? 'recovery' : 'totp'}
               id={inputId}
               aria-describedby={describedBy}
               // A recovery code is letters and dashes; a TOTP code is six
               // digits. The keyboard a phone offers should match.
               {...codeField}
-              ref={(node) => {
-                codeRef(node);
-                focusCode(node);
-              }}
+              ref={focusCode}
               inputMode={useRecovery ? 'text' : 'numeric'}
               autoComplete="one-time-code"
               maxLength={useRecovery ? 16 : 6}

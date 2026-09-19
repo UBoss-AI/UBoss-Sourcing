@@ -87,6 +87,22 @@ export function StoreLayout(): React.JSX.Element {
    */
   const isImmersive = location.pathname === AI_MODE_PATH;
 
+  /*
+   * Sign in and create-account take the full width under the header.
+   *
+   * Not immersive — the header, the footer and the page's own height are all
+   * still right for these two, and a customer who arrives at sign-in from a
+   * product page must still be able to press the logo and go back. What they
+   * drop is the reading measure and the gutters: the screens render a
+   * two-column split with the globe on one half, and a split centred inside an
+   * 80rem column with 16px padding either side is a split with a margin drawn
+   * down the middle of it.
+   *
+   * Listed by path rather than asked of the page, because the decision belongs
+   * to whatever draws the frame, and the frame is here.
+   */
+  const isFullBleed = location.pathname === '/login' || location.pathname === '/register';
+
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
   // region is what a full page load would have done.
@@ -139,7 +155,10 @@ export function StoreLayout(): React.JSX.Element {
         tabIndex={-1}
         className={cx(
           'w-full flex-1 outline-none',
-          isImmersive ? 'min-h-0' : 'mx-auto max-w-content px-4 py-6 sm:py-8',
+          isImmersive && 'min-h-0',
+          // Full width and no padding of its own: the split inside supplies
+          // both halves' gutters, and it needs the whole frame to divide.
+          !isImmersive && !isFullBleed && 'mx-auto max-w-content px-4 py-6 sm:py-8',
         )}
       >
         <Outlet />

@@ -11,6 +11,12 @@
  * Nothing is stored to say "this browser already agreed": a console is shared
  * by several staff accounts behind nothing but a password, so a tick carried
  * forward would be one person's acceptance shown to the next.
+ *
+ * The frame is `AuthSplit`, the same one the storefront and the logistics
+ * portal sign in through: from `lg` up the form takes the right half and a
+ * turning earth takes the left. The panel is decoration and `aria-hidden` —
+ * every word and control on this screen is in the column beside it, and the
+ * page is finished on a narrow window and on a machine with no WebGL.
  */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,10 +25,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
-import { Button, Checkbox, Field, Input, Spinner } from '@/components/ui';
+import { Button, Checkbox, Field, Spinner } from '@/components/ui';
+import {
+  AuthCard,
+  AuthDivider,
+  BottomGradient,
+  GRADIENT_CTA,
+  GlowInput,
+} from '@/components/ui/auth-form';
+import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
+import { cx } from '@/lib/cx';
 
 /**
  * Built per render rather than once at module scope, because the messages
@@ -154,32 +169,31 @@ export function LoginPage(): React.JSX.Element {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4">
-      <div className="w-full max-w-sm">
-        {/* On the first screen, not buried in a settings page inside the
-            panel. A warehouse or finance user who cannot read English cannot
-            navigate to a setting written in it, and this is the one screen
-            they are guaranteed to reach. The choice carries into the session
-            on sign-in. */}
-        <LanguageSwitcher placement="auth" />
+    <AuthSplit className="min-h-screen">
+      {/* On the first screen, not buried in a settings page inside the panel.
+          A warehouse or finance user who cannot read English cannot navigate
+          to a setting written in it, and this is the one screen they are
+          guaranteed to reach. The choice carries into the session on
+          sign-in. */}
+      <LanguageSwitcher placement="auth" />
 
-        <div className="mb-6 flex flex-col items-center">
-          <span
-            aria-hidden="true"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
-          >
-            U
-          </span>
-          <h1 className="text-lg font-semibold tracking-tight text-ink">
-            {t('auth.login.heading')}
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted">{t('auth.login.subheading')}</p>
-        </div>
+      {/* Mark, title and form are one card rather than a heading floating
+          above a panel — the same shape the storefront's sign-in uses, so the
+          two surfaces read as one product. */}
+      <AuthCard className="mt-2">
+        <span
+          aria-hidden="true"
+          className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
+        >
+          U
+        </span>
+        <h1 className="text-xl font-bold text-ink">{t('auth.login.heading')}</h1>
+        <p className="mt-2 max-w-sm text-sm text-ink-muted">{t('auth.login.subheading')}</p>
 
         <form
           onSubmit={(event) => void handleSubmit(onSubmit)(event)}
           noValidate
-          className="space-y-4 rounded-lg border border-border bg-surface p-6 shadow-card"
+          className="my-8 space-y-4"
         >
           {formError !== null && (
             <div
@@ -193,7 +207,7 @@ export function LoginPage(): React.JSX.Element {
 
           <Field label={t('common.emailAddress')} error={errors.email?.message} required>
             {({ inputId, describedBy }) => (
-              <Input
+              <GlowInput
                 id={inputId}
                 type="email"
                 autoComplete="username"
@@ -206,7 +220,7 @@ export function LoginPage(): React.JSX.Element {
 
           <Field label={t('common.password')} error={errors.password?.message} required>
             {({ inputId, describedBy }) => (
-              <Input
+              <GlowInput
                 id={inputId}
                 type="password"
                 autoComplete="current-password"
@@ -218,7 +232,7 @@ export function LoginPage(): React.JSX.Element {
           </Field>
 
           {/* Above the button, not below it. The tick is a condition of
-              signing in, so it has to be read before the thing it gates. */}
+                signing in, so it has to be read before the thing it gates. */}
           <div>
             <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink">
               <Checkbox
@@ -235,8 +249,8 @@ export function LoginPage(): React.JSX.Element {
                       <span key={label}>
                         {index > 0 && ', '}
                         {/* A new tab, deliberately: somebody reading the terms
-                            should not lose the email they have already
-                            typed to do it. */}
+                              should not lose the email they have already
+                              typed to do it. */}
                         <a
                           href={href}
                           target="_blank"
@@ -260,20 +274,31 @@ export function LoginPage(): React.JSX.Element {
             )}
           </div>
 
-          <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            className={cx('w-full', GRADIENT_CTA)}
+            isLoading={isSubmitting}
+          >
             {t('auth.login.submit')}
+            {/* Decoration, and hidden as such. In the accessible name this
+                  button is "Sign in", not "Sign in right arrow". */}
+            <span aria-hidden="true">&rarr;</span>
+            <BottomGradient />
           </Button>
-
-          <p className="text-center text-sm">
-            <Link to="/forgot-password" className="font-medium text-accent hover:underline">
-              {t('auth.login.forgotPassword')}
-            </Link>
-          </p>
         </form>
 
-        {/* Renders nothing in English. */}
-        <TranslationQualityNotice className="mt-5 text-center" />
-      </div>
-    </div>
+        <AuthDivider className="my-8" />
+
+        <p className="text-center text-sm">
+          <Link to="/forgot-password" className="font-medium text-accent hover:underline">
+            {t('auth.login.forgotPassword')}
+          </Link>
+        </p>
+      </AuthCard>
+
+      {/* Renders nothing in English. */}
+      <TranslationQualityNotice className="mt-5 text-center" />
+    </AuthSplit>
   );
 }

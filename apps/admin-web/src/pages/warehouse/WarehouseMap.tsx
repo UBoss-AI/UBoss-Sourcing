@@ -75,6 +75,13 @@ interface WarehouseMapProps<T extends MappablePlace> {
   coverage?: DeliveryCoverage | null;
   onPointAt?: ((id: string | null) => void) | undefined;
   overlay?: React.ReactNode;
+  /**
+   * How tall the map is, for the callers whose page is not the full panel.
+   *
+   * Handed to whichever implementation draws, so a preview beside a form is
+   * the same map at a different size rather than a third component.
+   */
+  heightClassName?: string;
 }
 
 /*
@@ -94,6 +101,7 @@ export function WarehouseMap<T extends MappablePlace>({
   coverage = null,
   onPointAt,
   overlay,
+  heightClassName,
 }: WarehouseMapProps<T>): React.JSX.Element {
   if (map.provider === 'GOOGLE') {
     return (
@@ -104,6 +112,7 @@ export function WarehouseMap<T extends MappablePlace>({
         mapId={map.mapId}
         selectedId={selectedId}
         onSelect={onSelect}
+        {...(heightClassName === undefined ? {} : { heightClassName })}
       />
     );
   }
@@ -123,6 +132,7 @@ export function WarehouseMap<T extends MappablePlace>({
       coverage={coverage}
       onPointAt={onPointAt}
       overlay={overlay}
+      {...(heightClassName === undefined ? {} : { heightClassName })}
     />
   );
 }

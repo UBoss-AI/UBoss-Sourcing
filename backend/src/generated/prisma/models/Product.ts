@@ -170,6 +170,7 @@ export type ProductCountAggregateOutputType = {
   qtyIncrement: number
   isRecurringEligible: number
   hasVariants: number
+  variantAxesJson: number
   isMarketplaceProduct: number
   createdBySellerAccountId: number
   requiresColdChain: number
@@ -336,6 +337,7 @@ export type ProductCountAggregateInputType = {
   qtyIncrement?: true
   isRecurringEligible?: true
   hasVariants?: true
+  variantAxesJson?: true
   isMarketplaceProduct?: true
   createdBySellerAccountId?: true
   requiresColdChain?: true
@@ -471,6 +473,7 @@ export type ProductGroupByOutputType = {
   qtyIncrement: number
   isRecurringEligible: boolean
   hasVariants: boolean
+  variantAxesJson: runtime.JsonValue | null
   isMarketplaceProduct: boolean
   createdBySellerAccountId: string | null
   requiresColdChain: boolean
@@ -542,6 +545,7 @@ export type ProductWhereInput = {
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  variantAxesJson?: Prisma.JsonNullableFilter<"Product">
   isMarketplaceProduct?: Prisma.BoolFilter<"Product"> | boolean
   createdBySellerAccountId?: Prisma.StringNullableFilter<"Product"> | string | null
   requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
@@ -613,6 +617,7 @@ export type ProductOrderByWithRelationInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isMarketplaceProduct?: Prisma.SortOrder
   createdBySellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresColdChain?: Prisma.SortOrder
@@ -689,6 +694,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  variantAxesJson?: Prisma.JsonNullableFilter<"Product">
   isMarketplaceProduct?: Prisma.BoolFilter<"Product"> | boolean
   createdBySellerAccountId?: Prisma.StringNullableFilter<"Product"> | string | null
   requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
@@ -759,6 +765,7 @@ export type ProductOrderByWithAggregationInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isMarketplaceProduct?: Prisma.SortOrder
   createdBySellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresColdChain?: Prisma.SortOrder
@@ -815,6 +822,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   qtyIncrement?: Prisma.IntWithAggregatesFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  variantAxesJson?: Prisma.JsonNullableWithAggregatesFilter<"Product">
   isMarketplaceProduct?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   createdBySellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   requiresColdChain?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
@@ -861,6 +869,7 @@ export type ProductCreateInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -929,6 +938,7 @@ export type ProductUncheckedCreateInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -993,6 +1003,7 @@ export type ProductUpdateInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1061,6 +1072,7 @@ export type ProductUncheckedUpdateInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1127,6 +1139,7 @@ export type ProductCreateManyInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -1173,6 +1186,7 @@ export type ProductUpdateManyMutationInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1218,6 +1232,7 @@ export type ProductUncheckedUpdateManyInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1282,6 +1297,7 @@ export type ProductCountOrderByAggregateInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrder
   isMarketplaceProduct?: Prisma.SortOrder
   createdBySellerAccountId?: Prisma.SortOrder
   requiresColdChain?: Prisma.SortOrder
@@ -1922,6 +1938,7 @@ export type ProductCreateWithoutTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -1988,6 +2005,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -2083,6 +2101,7 @@ export type ProductScalarWhereInput = {
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  variantAxesJson?: Prisma.JsonNullableFilter<"Product">
   isMarketplaceProduct?: Prisma.BoolFilter<"Product"> | boolean
   createdBySellerAccountId?: Prisma.StringNullableFilter<"Product"> | string | null
   requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
@@ -2129,6 +2148,7 @@ export type ProductCreateWithoutCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -2195,6 +2215,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -2285,6 +2306,7 @@ export type ProductCreateWithoutVariantsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -2352,6 +2374,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -2431,6 +2454,7 @@ export type ProductUpdateWithoutVariantsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2498,6 +2522,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2561,6 +2586,7 @@ export type ProductCreateWithoutMediaInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -2628,6 +2654,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -2707,6 +2734,7 @@ export type ProductUpdateWithoutMediaInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2774,6 +2802,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2837,6 +2866,7 @@ export type ProductCreateWithoutAttributesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -2904,6 +2934,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -2983,6 +3014,7 @@ export type ProductUpdateWithoutAttributesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3050,6 +3082,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3113,6 +3146,7 @@ export type ProductCreateWithoutPackagingsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -3180,6 +3214,7 @@ export type ProductUncheckedCreateWithoutPackagingsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -3259,6 +3294,7 @@ export type ProductUpdateWithoutPackagingsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3326,6 +3362,7 @@ export type ProductUncheckedUpdateWithoutPackagingsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3389,6 +3426,7 @@ export type ProductCreateWithoutImportRecordsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -3456,6 +3494,7 @@ export type ProductUncheckedCreateWithoutImportRecordsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -3535,6 +3574,7 @@ export type ProductUpdateWithoutImportRecordsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3602,6 +3642,7 @@ export type ProductUncheckedUpdateWithoutImportRecordsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3665,6 +3706,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -3732,6 +3774,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -3811,6 +3854,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3878,6 +3922,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3941,6 +3986,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -4008,6 +4054,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -4087,6 +4134,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4154,6 +4202,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4217,6 +4266,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -4284,6 +4334,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -4363,6 +4414,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4430,6 +4482,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4493,6 +4546,7 @@ export type ProductCreateWithoutCartItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -4560,6 +4614,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -4639,6 +4694,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4706,6 +4762,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4769,6 +4826,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -4836,6 +4894,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -4915,6 +4974,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4982,6 +5042,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5045,6 +5106,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -5112,6 +5174,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -5180,6 +5243,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -5247,6 +5311,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -5326,6 +5391,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5393,6 +5459,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5467,6 +5534,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5534,6 +5602,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5597,6 +5666,7 @@ export type ProductCreateWithoutPricesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -5664,6 +5734,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -5743,6 +5814,7 @@ export type ProductUpdateWithoutPricesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5810,6 +5882,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5873,6 +5946,7 @@ export type ProductCreateWithoutTranslationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -5940,6 +6014,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -6019,6 +6094,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6086,6 +6162,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6149,6 +6226,7 @@ export type ProductCreateWithoutManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -6216,6 +6294,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -6289,6 +6368,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -6356,6 +6436,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -6461,6 +6542,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -6528,6 +6610,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -6607,6 +6690,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6674,6 +6758,7 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6737,6 +6822,7 @@ export type ProductCreateWithoutCountryRestrictionsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -6804,6 +6890,7 @@ export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -6883,6 +6970,7 @@ export type ProductUpdateWithoutCountryRestrictionsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6950,6 +7038,7 @@ export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7013,6 +7102,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -7080,6 +7170,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -7159,6 +7250,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -7226,6 +7318,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7289,6 +7382,7 @@ export type ProductCreateWithoutCreatedBySellerAccountInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -7356,6 +7450,7 @@ export type ProductUncheckedCreateWithoutCreatedBySellerAccountInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -7445,6 +7540,7 @@ export type ProductCreateWithoutSellerOffersInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -7512,6 +7608,7 @@ export type ProductUncheckedCreateWithoutSellerOffersInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -7591,6 +7688,7 @@ export type ProductUpdateWithoutSellerOffersInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -7658,6 +7756,7 @@ export type ProductUncheckedUpdateWithoutSellerOffersInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7722,6 +7821,7 @@ export type ProductCreateManyTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -7768,6 +7868,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -7834,6 +7935,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7899,6 +8001,7 @@ export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7946,6 +8049,7 @@ export type ProductCreateManyCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -7992,6 +8096,7 @@ export type ProductUpdateWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -8058,6 +8163,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8123,6 +8229,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8171,6 +8278,7 @@ export type ProductCreateManyManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -8218,6 +8326,7 @@ export type ProductCreateManyEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: string | null
   requiresColdChain?: boolean
@@ -8263,6 +8372,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -8330,6 +8440,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8395,6 +8506,7 @@ export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8440,6 +8552,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -8507,6 +8620,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8572,6 +8686,7 @@ export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8619,6 +8734,7 @@ export type ProductCreateManyCreatedBySellerAccountInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: boolean
   requiresColdChain?: boolean
   weightGrams?: number | null
@@ -8664,6 +8780,7 @@ export type ProductUpdateWithoutCreatedBySellerAccountInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -8731,6 +8848,7 @@ export type ProductUncheckedUpdateWithoutCreatedBySellerAccountInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -8796,6 +8914,7 @@ export type ProductUncheckedUpdateManyWithoutCreatedBySellerAccountInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -9018,6 +9137,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   qtyIncrement?: boolean
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: boolean
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: boolean
   requiresColdChain?: boolean
@@ -9092,6 +9212,7 @@ export type ProductSelectScalar = {
   qtyIncrement?: boolean
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  variantAxesJson?: boolean
   isMarketplaceProduct?: boolean
   createdBySellerAccountId?: boolean
   requiresColdChain?: boolean
@@ -9112,7 +9233,7 @@ export type ProductSelectScalar = {
   updatedById?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "hasProvisionalPrice" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "isMarketplaceProduct" | "createdBySellerAccountId" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "hasProvisionalPrice" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "variantAxesJson" | "isMarketplaceProduct" | "createdBySellerAccountId" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   taxClass?: boolean | Prisma.TaxClassDefaultArgs<ExtArgs>
@@ -9272,6 +9393,29 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     qtyIncrement: number
     isRecurringEligible: boolean
     hasVariants: boolean
+    /**
+     * The variant axes this product actually sells along, as an ordered list of
+     * template axis keys: `["size_system", "size", "colour"]`.
+     * 
+     * The KEYS only. The labels, input types, units, suggestions and sort order
+     * all live in `src/domain/variants/` - one registry of 112 subcategory
+     * templates that the seller's matrix builder, the buyer's selector and the
+     * catalogue's facets all read. Copying an axis definition onto every
+     * product would mean a corrected label reaching the products listed after
+     * the correction and no others.
+     * 
+     * NULL and `[]` both mean "this product declares no axes", and that is the
+     * ordinary case rather than an unfinished one. Every product that existed
+     * before this column behaves exactly as it did: a product with variants but
+     * no axes gets the free-form option picker the catalogue has always had -
+     * which is what keeps Medical Devices, where a hospital buyer chooses
+     * several sizes at once, working the way it works today.
+     * 
+     * A key the product's template does not offer is ignored on read rather
+     * than failing, so removing an axis from a template cannot break a product
+     * already selling along it. See `resolveActiveAxes`.
+     */
+    variantAxesJson: runtime.JsonValue | null
     /**
      * A catalogue entry that exists because a seller listed it, rather than
      * because the operator stocks it.
@@ -9774,6 +9918,7 @@ export interface ProductFieldRefs {
   readonly qtyIncrement: Prisma.FieldRef<"Product", 'Int'>
   readonly isRecurringEligible: Prisma.FieldRef<"Product", 'Boolean'>
   readonly hasVariants: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly variantAxesJson: Prisma.FieldRef<"Product", 'Json'>
   readonly isMarketplaceProduct: Prisma.FieldRef<"Product", 'Boolean'>
   readonly createdBySellerAccountId: Prisma.FieldRef<"Product", 'String'>
   readonly requiresColdChain: Prisma.FieldRef<"Product", 'Boolean'>

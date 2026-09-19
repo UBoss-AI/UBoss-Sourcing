@@ -213,10 +213,23 @@ export interface MapStyle {
  * the names as data, so the panel can ask for English and get it worldwide.
  * See `labelInEnglish` in `WarehouseMapLibre.tsx`.
  */
+/**
+ * Satellite imagery is the GROUND a map is drawn on, not a provider of its own.
+ *
+ * That is why it sits on three of the four rather than beside them. With a
+ * vector style it goes *underneath* that style's roads, borders and labels -
+ * the hybrid view, where a warehouse stands on a photograph of its own estate
+ * and the street reaching it is still named, still in one language. With
+ * nothing else configured it is the whole map.
+ *
+ * `null` on `RASTER` on purpose: those tiles are already a finished picture of
+ * the ground, and two grounds is one too many. `GOOGLE` has no field at all,
+ * because their imagery is a map type inside their own API.
+ */
 export type MapConfig =
-  | { provider: 'NONE' }
-  | { provider: 'RASTER'; tiles: MapTiles }
-  | { provider: 'VECTOR'; style: MapStyle }
+  | { provider: 'NONE'; satellite: MapTiles | null }
+  | { provider: 'RASTER'; tiles: MapTiles; satellite: null }
+  | { provider: 'VECTOR'; style: MapStyle; satellite: MapTiles | null }
   /**
    * The key is public, and that is not an oversight. The Maps JavaScript API
    * has no server side - every deployment's key is visible to anybody who
@@ -244,6 +257,19 @@ export type MapConfig =
 export function supportsDeliveryCoverage(map: MapConfig): boolean {
   return map.provider !== 'GOOGLE';
 }
+
+/**
+ * How tall a map is when nobody said otherwise.
+ *
+ * Here rather than inside either map component so the two cannot drift, and
+ * because it is the *default* rather than the only answer: the map inside a
+ * form dialog is confirming one pin, not surveying a network, and a full
+ * panel's worth of height there pushes the fields under it off the screen.
+ */
+export const MAP_HEIGHT = 'h-[22rem] sm:h-[26rem]';
+
+/** What a preview beside a form gets. */
+export const MAP_HEIGHT_COMPACT = 'h-56';
 
 export interface WarehousesResponse {
   warehouses: Warehouse[];

@@ -325,9 +325,9 @@ export interface MapStyle {
  * same in Pune and in Athens needs `VECTOR`.
  */
 export type MapConfig =
-  | { provider: 'NONE' }
-  | { provider: 'RASTER'; tiles: MapTiles }
-  | { provider: 'VECTOR'; style: MapStyle }
+  | { provider: 'NONE'; satellite: MapTiles | null }
+  | { provider: 'RASTER'; tiles: MapTiles; satellite: null }
+  | { provider: 'VECTOR'; style: MapStyle; satellite: MapTiles | null }
   /**
    * The key is here on purpose. The Maps JavaScript API has no server side:
    * every deployment's key is public to anyone who opens the panel, and what
@@ -335,6 +335,22 @@ export type MapConfig =
    * itself. See MAP_GOOGLE_API_KEY in config/env.ts.
    */
   | { provider: 'GOOGLE'; apiKey: string; mapId: string };
+
+/**
+ * Why `satellite` sits on three of the four rather than beside the union.
+ *
+ * It is the *ground* a MapLibre map is drawn on, not a provider of its own,
+ * and that is a different kind of answer from `provider`. With a vector style
+ * it goes underneath that style's roads, borders and labels - the hybrid view,
+ * where a warehouse is on a photograph of the estate it stands on and the
+ * street reaching it is still named in one language. With nothing else
+ * configured it is the whole map.
+ *
+ * It is typed as `null` on `RASTER` on purpose rather than left possible:
+ * raster tiles are already a finished picture of the ground, and two grounds
+ * is one too many. `GOOGLE` has no field at all, because their imagery is a
+ * map type in their own API and is not this repository's to compose.
+ */
 
 /**
  * Which of the four, from settings.
@@ -358,9 +374,20 @@ export function resolveMapConfig(source: {
   styleAttribution: string;
   tileUrl: string;
   tileAttribution: string;
+  satelliteUrl?: string;
+  satelliteAttribution?: string;
 }): MapConfig {
   const apiKey = source.googleApiKey.trim();
   const mapId = source.googleMapId.trim();
+
+  const satelliteTemplate = (source.satelliteUrl ?? '').trim();
+  const satellite: MapTiles | null =
+    satelliteTemplate.length === 0
+      ? null
+      : {
+          urlTemplate: satelliteTemplate,
+          attribution: (source.satelliteAttribution ?? '').trim(),
+        };
 
   // Both, or neither. `env.ts` refuses to start a process with a key and no
   // map ID, so reaching here with half a pair means this was called from
@@ -378,18 +405,22 @@ export function resolveMapConfig(source: {
     return {
       provider: 'VECTOR',
       style: { url: styleUrl, attribution: source.styleAttribution.trim() },
+      satellite,
     };
   }
 
   const urlTemplate = source.tileUrl.trim();
   if (urlTemplate.length > 0) {
+    // Their raster tiles are already a finished picture of the ground, so
+    // imagery underneath would be paid for and never seen.
     return {
       provider: 'RASTER',
       tiles: { urlTemplate, attribution: source.tileAttribution.trim() },
+      satellite: null,
     };
   }
 
-  return { provider: 'NONE' };
+  return { provider: 'NONE', satellite };
 }
 
 export function mapConfig(): MapConfig {
@@ -400,6 +431,8 @@ export function mapConfig(): MapConfig {
     styleAttribution: env.MAP_STYLE_ATTRIBUTION,
     tileUrl: env.MAP_TILE_URL,
     tileAttribution: env.MAP_TILE_ATTRIBUTION,
+    satelliteUrl: env.MAP_SATELLITE_URL,
+    satelliteAttribution: env.MAP_SATELLITE_ATTRIBUTION,
   });
 }
 
@@ -2270,22 +2303,62 @@ export interface GeocodedAddress {
 }
 
 /**
- * An address to coordinates.
+ * One place a geocoder offered, with its address broken back out.
  *
- * The mirror of `reverseGeocode` in identity/session-location.service.ts, and
- * deliberately total in the same way: no URL configured, a timeout, a non-200,
- * a body in an unrecognised shape, or simply no match all return null rather
- * than throwing. The caller is a button that fills in two fields; a geocoder
- * having a bad afternoon must not stop a warehouse being recorded.
+ * A superset of `GeocodedAddress` rather than a different idea: the extra
+ * fields are what let a form fill itself in from a chosen suggestion instead
+ * of only dropping a pin. Every one of them is nullable because a geocoder is
+ * allowed to know where somewhere is without knowing its postcode, and a form
+ * that overwrote a typed postcode with an empty string would be destroying a
+ * fact to make a screen tidier.
  */
-export async function forwardGeocode(query: string): Promise<GeocodedAddress | null> {
+export interface AddressSuggestion extends GeocodedAddress {
+  /** House number and street, where the geocoder named them. */
+  line1: string | null;
+  city: string | null;
+  region: string | null;
+  postalCode: string | null;
+  /** ISO 3166-1 alpha-2, upper case. */
+  countryCode: string | null;
+}
+
+/**
+ * The most suggestions one lookup will ever ask a geocoder for.
+ *
+ * A ceiling rather than a preference. The list is read by somebody choosing
+ * between places with a keyboard, and past about ten it stops being a choice
+ * and becomes a search result page. It also bounds what a caller can make this
+ * deployment fetch from a third party on one keystroke.
+ */
+const SUGGESTION_LIMIT_MAX = 10;
+
+/**
+ * Several addresses matching what somebody has typed so far.
+ *
+ * The forward geocoder's real shape: an address search answers with a list of
+ * candidates, and `forwardGeocode` below is this function asked for one. That
+ * is the right way round, because a single answer is the lossy case - "find
+ * this address" silently picks the geocoder's first guess, and a person
+ * choosing from a list picks the right one.
+ *
+ * Total in exactly the way `forwardGeocode` always was: no URL configured, a
+ * timeout, a non-200, a body in an unrecognised shape or simply no match all
+ * come back as an empty list rather than throwing. What feeds from this is a
+ * dropdown beside fields somebody can always type into, and a geocoder having
+ * a bad afternoon must never stop an address being saved.
+ */
+export async function suggestAddresses(
+  query: string,
+  limit: number = SUGGESTION_LIMIT_MAX,
+): Promise<AddressSuggestion[]> {
   const address = query.trim();
-  if (address.length === 0) return null;
+  if (address.length === 0) return [];
 
   const template = env.GEOCODE_FORWARD_URL.trim();
-  if (template.length === 0) return null;
+  if (template.length === 0) return [];
 
-  const url = template.replace('{query}', encodeURIComponent(address));
+  const wanted = Math.min(Math.max(Math.trunc(limit), 1), SUGGESTION_LIMIT_MAX);
+  const url = geocodeSearchUrl(template, address, wanted);
 
   try {
     const response = await fetch(url, {
@@ -2300,7 +2373,7 @@ export async function forwardGeocode(query: string): Promise<GeocodedAddress | n
 
     if (!response.ok) {
       logger.warn({ status: response.status }, 'forward geocode answered a non-200');
-      return null;
+      return [];
     }
 
     const body: unknown = await response.json();
@@ -2314,31 +2387,163 @@ export async function forwardGeocode(query: string): Promise<GeocodedAddress | n
         ? body.results
         : [];
 
-    const first = candidates[0];
-    if (typeof first !== 'object' || first === null) return null;
+    const suggestions: AddressSuggestion[] = [];
 
-    const record = first as Record<string, unknown>;
-    const latitude = Number(record.lat ?? record.latitude);
-    const longitude = Number(record.lon ?? record.lng ?? record.longitude);
+    for (const candidate of candidates) {
+      const suggestion = toSuggestion(candidate);
+      if (suggestion !== null) suggestions.push(suggestion);
+      if (suggestions.length === wanted) break;
+    }
 
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
-    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
-
-    const label = [record.display_name, record.name].find(
-      (value): value is string => typeof value === 'string' && value.trim().length > 0,
-    );
-
-    return {
-      // Rounded to the column's scale, so the panel shows the value that will
-      // actually be stored rather than one that changes on save.
-      latitude: Number(latitude.toFixed(6)),
-      longitude: Number(longitude.toFixed(6)),
-      label: label === undefined ? null : label.trim().slice(0, 255),
-    };
+    return suggestions;
   } catch (error) {
     logger.warn({ err: error }, 'forward geocode failed');
-    return null;
+    return [];
   }
+}
+
+/**
+ * An address to coordinates.
+ *
+ * The mirror of `reverseGeocode` in identity/session-location.service.ts, and
+ * deliberately total in the same way: no URL configured, a timeout, a non-200,
+ * a body in an unrecognised shape, or simply no match all return null rather
+ * than throwing. The caller is a button that fills in two fields; a geocoder
+ * having a bad afternoon must not stop a warehouse being recorded.
+ *
+ * Kept as its own export rather than folded into `suggestAddresses`, because
+ * the callers that want one answer genuinely want one: an address saved
+ * through the API is placed on the map without anybody being asked, and there
+ * is nobody there to choose between candidates.
+ */
+export async function forwardGeocode(query: string): Promise<GeocodedAddress | null> {
+  const [first] = await suggestAddresses(query, 1);
+  return first ?? null;
+}
+
+/**
+ * The URL one search is fetched from.
+ *
+ * `{query}` is the operator's placeholder and always substituted.
+ * `{limit}` is honoured where they used it, and where they did not the
+ * parameters are set on the URL instead - which is what makes the shipped
+ * default work unchanged. That default carries `limit=1`, written when the
+ * only caller wanted one answer, and an installation that has been running for
+ * a year has that string copied into its own `.env`. Rewriting the parameter
+ * rather than requiring a new template means their suggestions list is not
+ * one row long until somebody notices.
+ *
+ * `addressdetails` is added the same way and only when absent, because the
+ * broken-out city and postcode below come from it. Both are Nominatim's
+ * spelling; a geocoder that does not know them ignores two unrecognised query
+ * parameters, which is the same thing it did before they were sent.
+ */
+function geocodeSearchUrl(template: string, query: string, limit: number): string {
+  const substituted = template.replace('{query}', encodeURIComponent(query));
+
+  if (substituted.includes('{limit}')) {
+    return substituted.replace('{limit}', String(limit));
+  }
+
+  let url: URL;
+  try {
+    url = new URL(substituted);
+  } catch {
+    // Not something this process can parse - a relative path, or a template
+    // with a placeholder left in it. Handed over exactly as the operator
+    // wrote it rather than rejected: they know their geocoder, and the fetch
+    // below fails safely if they do not.
+    return substituted;
+  }
+
+  url.searchParams.set('limit', String(limit));
+  if (!url.searchParams.has('addressdetails')) url.searchParams.set('addressdetails', '1');
+
+  return url.toString();
+}
+
+/** One record from a geocoder's list, or null when it cannot be plotted. */
+function toSuggestion(value: unknown): AddressSuggestion | null {
+  if (typeof value !== 'object' || value === null) return null;
+
+  const record = value as Record<string, unknown>;
+  const latitude = Number(record.lat ?? record.latitude);
+  const longitude = Number(record.lon ?? record.lng ?? record.longitude);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+
+  const parts =
+    typeof record.address === 'object' && record.address !== null
+      ? (record.address as Record<string, unknown>)
+      : {};
+
+  const houseNumber = text(parts.house_number);
+  const road = text(parts.road) ?? text(parts.pedestrian) ?? text(parts.footway);
+  const street =
+    road === null ? null : houseNumber === null ? road : `${houseNumber} ${road}`;
+
+  const country = text(parts.country_code);
+
+  return {
+    // Rounded to the column's scale, so the panel shows the value that will
+    // actually be stored rather than one that changes on save.
+    latitude: Number(latitude.toFixed(6)),
+    longitude: Number(longitude.toFixed(6)),
+    label: clip(text(record.display_name) ?? text(record.name), 255),
+    line1: clip(street ?? text(record.name), 255),
+    city: clip(pick(parts, PLACE_KEYS), 128),
+    region: clip(pick(parts, REGION_KEYS), 128),
+    postalCode: clip(text(parts.postcode), 16),
+    countryCode:
+      country === null || country.length !== 2 ? null : country.toUpperCase(),
+  };
+}
+
+/**
+ * Which key holds the town, in the order a person would answer the question.
+ *
+ * A geocoder answers with whichever administrative level the place actually
+ * belongs to, so a warehouse on an industrial estate has a `village` and no
+ * `city` while one in Berlin has the reverse. First match wins, and `county`
+ * is last because it is the one most likely to be wrong in a city form.
+ */
+const PLACE_KEYS = [
+  'city',
+  'town',
+  'village',
+  'municipality',
+  'city_district',
+  'suburb',
+  'county',
+] as const;
+
+/** The same idea one level up: state, province, or whatever the country calls it. */
+const REGION_KEYS = ['state', 'province', 'region', 'state_district'] as const;
+
+function pick(parts: Record<string, unknown>, keys: readonly string[]): string | null {
+  for (const key of keys) {
+    const found = text(parts[key]);
+    if (found !== null) return found;
+  }
+  return null;
+}
+
+function text(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+/**
+ * Cut to what the column behind the field holds.
+ *
+ * Done here rather than at each form, so a suggestion never arrives carrying a
+ * value the save would reject - a geocoder's `display_name` runs well past 255
+ * characters, and a postcode field that takes 16 would refuse a long one.
+ */
+function clip(value: string | null, max: number): string | null {
+  return value === null ? null : value.slice(0, max);
 }
 
 function isResultsEnvelope(body: unknown): body is { results: unknown[] } {

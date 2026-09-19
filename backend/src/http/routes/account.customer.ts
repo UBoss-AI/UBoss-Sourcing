@@ -52,6 +52,7 @@ import {
   buyerInsightMetrics,
 } from '../../modules/reports/buyer-dashboard.service.js';
 import { resolveWindow } from '../../modules/reports/report.service.js';
+import { suggestAddresses } from '../../modules/inventory/location.service.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
 import {
   INSIGHT_RATE_LIMIT,
@@ -470,6 +471,36 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     });
 
     return reply.status(201).send(result);
+  });
+
+  /**
+   * Addresses matching what the customer has typed so far.
+   *
+   * The delivery address is already geocoded when it is saved - that is what
+   * puts a distance on each fulfilment option at checkout - but it is geocoded
+   * from whatever was typed, and a mistyped street quietly places an order
+   * somewhere else. Choosing from a list makes the address and its coordinates
+   * the same decision.
+   *
+   * A POST rather than a GET: a half-typed home address is exactly the kind of
+   * thing that must not be sitting in an access log or a proxy's.
+   *
+   * Behind `requireCustomer` rather than open, because it spends this
+   * deployment's geocoder quota, and 200 with an empty list for every way a
+   * lookup can come to nothing. The form still takes typing when nothing is
+   * suggested, which is what an installation with no geocoder configured gets.
+   */
+  app.post('/addresses/geocode/suggest', { preHandler: requireCustomer }, async (request, reply) => {
+    const body = z
+      .object({
+        query: z.string().trim().min(1).max(512),
+        limit: z.number().int().min(1).max(10).optional(),
+      })
+      .parse(request.body);
+
+    const suggestions = await suggestAddresses(body.query, body.limit ?? 6);
+
+    return reply.header('cache-control', 'no-store').status(200).send({ suggestions });
   });
 
   app.patch('/addresses/:addressId', { preHandler: requireCustomer }, async (request, reply) => {

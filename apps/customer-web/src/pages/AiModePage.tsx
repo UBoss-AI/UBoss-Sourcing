@@ -71,6 +71,8 @@ import { ImageSearchDialog } from '@/components/hero-search/ImageSearchDialog';
 import { Button, ButtonLink, Spinner } from '@/components/ui';
 import { SidebarIcon, SparkIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
+import { formatNumber } from '@/lib/format';
+import { GREETING_KEYS, greetingPeriod } from '@/lib/greeting-time';
 import { ApiError, api, requestStream } from '@/lib/api';
 import { readAssistantStream } from '@/lib/assistant-stream';
 import { AI_MODE_PATH, takePendingQuestion } from '@/lib/ai-mode';
@@ -78,6 +80,8 @@ import type { ImageSearchResult } from '@/lib/image-search';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
+import { stockedCategories } from '@/lib/category-tree';
+import type { CategoryNode } from '@/lib/types';
 import { AiComposer } from './ai/AiComposer';
 import { AiMessage } from './ai/AiMessage';
 import { AiSidebar } from './ai/AiSidebar';
@@ -88,20 +92,51 @@ import type { ConversationSummary } from './ai/conversations';
 const MAX_TURNS = 20;
 
 /**
- * The starters.
+ * The starters that do not depend on what is in stock.
  *
- * Five, and every one of them is something this system can actually answer
- * from: the catalogue, stock, an order history, a recurring schedule, the
- * operator's own supplier requirements. A chip that opens a conversation the
- * assistant has to decline is worse than no chip.
+ * Two, down from five, and the three that went were the tell. "Find suitable
+ * diagnostic equipment" named one trade on a marketplace that sells every
+ * trade. "Check warehouse availability" opened a conversation the assistant is
+ * told in its own prompt it cannot have - it has no live stock figures.
+ * "Explain supplier requirements" was a sentence rather than a question, and
+ * the assistant has nothing behind it. A chip that opens a conversation the
+ * assistant must decline is worse than no chip.
+ *
+ * What replaced them is below, and it is not a fixed list at all: the real
+ * categories of this deployment's own catalogue.
  */
 const SUGGESTIONS: readonly TranslationKey[] = [
-  'aiMode.suggestion.diagnostics',
   'aiMode.suggestion.compare',
-  'aiMode.suggestion.warehouse',
   'aiMode.suggestion.recurring',
-  'aiMode.suggestion.supplier',
 ];
+
+/** How many live categories are offered as starters beside the fixed two. */
+const CATEGORY_SUGGESTIONS = 3;
+
+/**
+ * The starters this deployment can actually answer, newest catalogue first.
+ *
+ * A chip reading "What do you have in Cables & Wiring?" does two things a
+ * hard-coded one cannot. It is true - the category exists here, today, with
+ * products in it - and it tells somebody opening the panel what kind of shop
+ * they are in before they have typed anything. On a marketplace whose range is
+ * whatever its sellers list, that is not decoration: it is the only honest
+ * answer to "what can I ask you about", and it rewrites itself the moment a
+ * seller opens up a category nobody was trading in yesterday.
+ *
+ * Biggest first, and top level only. A department with four hundred lines
+ * behind it is a better invitation than a leaf category with one, and the
+ * question is meant to open a conversation rather than end it.
+ */
+function categoryStarters(tree: CategoryNode[] | undefined): string[] {
+  if (tree === undefined) return [];
+
+  return stockedCategories(tree)
+    .slice()
+    .sort((left, right) => right.totalProductCount - left.totalProductCount)
+    .slice(0, CATEGORY_SUGGESTIONS)
+    .map((node) => node.name);
+}
 
 interface ConversationDetail extends ConversationSummary {
   messages: { id: string; role: 'user' | 'assistant'; content: string; createdAt: string }[];
@@ -126,6 +161,53 @@ export function AiModePage(): React.JSX.Element {
    * and "Hello, Ops" is worse than no name at all.
    */
   const identity = useAccountIdentity(isCustomer);
+
+  /**
+   * Which greeting the hour has earned, and whether a name goes in it.
+   *
+   * Read once per mount rather than watched. A greeting that changed under
+   * somebody at midday because a tab had been open since eleven would be a
+   * jump on a page they are reading, and the page is replaced by a transcript
+   * the moment they ask anything.
+   *
+   * Null only for a guest in the small hours, where the period is `plain` and
+   * there is no name to put in "Hello, ...". That is the one combination with
+   * nothing worth saying, and the line is dropped rather than filled.
+   */
+  const greetingKey = ((): TranslationKey | null => {
+    const keys = GREETING_KEYS[greetingPeriod()];
+    return identity.shortName === null ? keys.bare : keys.named;
+  })();
+
+  /*
+   * The catalogue's own shape, for the starters and the line under the
+   * greeting.
+   *
+   * Same query key and same endpoint as the catalogue page, so on a visit that
+   * has already browsed - which is most of them - this is a cache read and
+   * costs no request. A failure is not handled because there is nothing to
+   * handle: the starters fall back to the fixed two and the greeting drops one
+   * line, which is the page it used to be.
+   */
+  const categoryTree = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => api.get<{ categories: CategoryNode[] }>('/catalog/categories'),
+    staleTime: 5 * 60_000,
+  });
+
+  const starterCategories = categoryStarters(categoryTree.data?.categories);
+
+  /**
+   * How many products the whole shop has on sale, and the range it covers.
+   *
+   * Counted from the top level, where `totalProductCount` already includes
+   * everything filed beneath - summing every node instead would count a
+   * product once for its department and again for each of its ancestors.
+   */
+  const catalogueSize = (categoryTree.data?.categories ?? []).reduce(
+    (total, node) => total + node.totalProductCount,
+    0,
+  );
 
   /**
    * Whether this visitor will be refused before they have typed anything.
@@ -672,7 +754,7 @@ export function AiModePage(): React.JSX.Element {
             {isEmpty ? (
               <div className="pt-8 text-center sm:pt-16">
                 {/*
-                 * The greeting, and it is two lines rather than a paragraph.
+                 * The greeting, and it is three lines rather than a paragraph.
                  *
                  * What used to be here was a heading plus four lines
                  * explaining what the assistant could be asked and where its
@@ -683,30 +765,64 @@ export function AiModePage(): React.JSX.Element {
                  * asked by being askable, which is a better answer than a
                  * sentence claiming it.
                  *
-                 * The name is a separate line above the question rather than
-                 * folded into it, so its absence costs nothing - a guest sees
-                 * the question, correctly positioned, and not a re-flowed
-                 * heading with a gap where a name was meant to be.
+                 * The first line greets by the hour and by name — "Good
+                 * morning, Priya" — because "Hello" is correct at every hour
+                 * and warm at none of them, and a shop that notices what time
+                 * of day it is reads as a shop staffed by somebody. What it
+                 * must never do is guess wrong, so `greetingPeriod` hands back
+                 * the plain greeting between ten at night and five in the
+                 * morning rather than wishing a dispatch desk a good evening
+                 * at three.
+                 *
+                 * The greeting is a separate line above the question rather
+                 * than folded into it, so a missing name costs nothing - a
+                 * guest is still greeted, correctly positioned, rather than
+                 * seeing a re-flowed heading with a gap where a name was meant
+                 * to be.
                  *
                  * The gradient runs the brand blue into its own hover step and
                  * ends before it reaches the question, which stays solid ink:
                  * a decorative fill on the words somebody actually has to read
                  * is a contrast cost for nothing.
                  */}
-                {identity.shortName !== null && (
+                {greetingKey !== null && (
                   <p className="bg-gradient-to-br from-brand to-brand-hover bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-4xl">
-                    {t('aiMode.greeting', { name: identity.shortName })}
+                    {identity.shortName === null
+                      ? t(greetingKey)
+                      : t(greetingKey, { name: identity.shortName })}
                   </p>
                 )}
 
                 <h1
                   className={cx(
                     'text-2xl font-semibold tracking-tight text-ink sm:text-4xl',
-                    identity.shortName !== null && 'mt-1.5',
+                    greetingKey !== null && 'mt-1.5',
                   )}
                 >
                   {t('aiMode.greetingQuestion')}
                 </h1>
+
+                {/*
+                 * One line, and only where the catalogue has answered.
+                 *
+                 * The paragraph that used to live here explained what the
+                 * assistant was and where its answers came from, and was
+                 * removed for good reasons that still hold - somebody who has
+                 * opened a chat has already decided to type. This is not that
+                 * paragraph coming back. It is a single line of this shop's
+                 * own figures, and it earns its place by being the thing a
+                 * generic greeting could not say: how much there is and what
+                 * kind of shop this is. It costs nothing when the read has not
+                 * landed, because then it is not drawn.
+                 */}
+                {catalogueSize > 0 && starterCategories.length > 0 && (
+                  <p className="mt-3 text-sm text-ink-muted sm:text-base">
+                    {t('aiMode.greetingRange', {
+                      total: formatNumber(catalogueSize),
+                      categories: starterCategories.join(', '),
+                    })}
+                  </p>
+                )}
 
                 {/* Not offered to somebody who cannot ask. A chip that opens a
                     conversation the deployment will refuse is the same mistake
@@ -714,16 +830,22 @@ export function AiModePage(): React.JSX.Element {
                     here, because a chip looks like an invitation. */}
                 {!mustSignIn && (
                   <ul className="mt-8 flex flex-wrap justify-center gap-2">
-                    {SUGGESTIONS.map((key) => (
-                      <li key={key}>
+                    {[
+                      ...starterCategories.map((category) => ({
+                        key: `category:${category}`,
+                        label: t('aiMode.suggestion.category', { category }),
+                      })),
+                      ...SUGGESTIONS.map((key) => ({ key, label: t(key) })),
+                    ].map((chip) => (
+                      <li key={chip.key}>
                         <button
                           type="button"
                           onClick={() => {
-                            void send(t(key));
+                            void send(chip.label);
                           }}
                           className="rounded-full border border-border bg-surface px-3.5 py-2 text-sm text-ink-muted shadow-card transition-[background-color,border-color,color,box-shadow] hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-card-hover focus-visible:border-brand focus-visible:bg-brand-soft focus-visible:text-brand motion-reduce:transition-none"
                         >
-                          {t(key)}
+                          {chip.label}
                         </button>
                       </li>
                     ))}

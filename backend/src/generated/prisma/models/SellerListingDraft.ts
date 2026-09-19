@@ -102,6 +102,8 @@ export type SellerListingDraftCountAggregateOutputType = {
   offerJson: number
   stockJson: number
   packagingJson: number
+  variantAxesJson: number
+  variantsJson: number
   generatedTitle: number
   generatedTitleSource: number
   sellerEditedTitle: number
@@ -189,6 +191,8 @@ export type SellerListingDraftCountAggregateInputType = {
   offerJson?: true
   stockJson?: true
   packagingJson?: true
+  variantAxesJson?: true
+  variantsJson?: true
   generatedTitle?: true
   generatedTitleSource?: true
   sellerEditedTitle?: true
@@ -305,6 +309,8 @@ export type SellerListingDraftGroupByOutputType = {
   offerJson: runtime.JsonValue | null
   stockJson: runtime.JsonValue | null
   packagingJson: runtime.JsonValue | null
+  variantAxesJson: runtime.JsonValue | null
+  variantsJson: runtime.JsonValue | null
   generatedTitle: string | null
   generatedTitleSource: runtime.JsonValue | null
   sellerEditedTitle: string | null
@@ -357,6 +363,8 @@ export type SellerListingDraftWhereInput = {
   offerJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   stockJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   packagingJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantAxesJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantsJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   generatedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   generatedTitleSource?: Prisma.JsonNullableFilter<"SellerListingDraft">
   sellerEditedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -391,6 +399,8 @@ export type SellerListingDraftOrderByWithRelationInput = {
   offerJson?: Prisma.SortOrderInput | Prisma.SortOrder
   stockJson?: Prisma.SortOrderInput | Prisma.SortOrder
   packagingJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedTitleSource?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerEditedTitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -429,6 +439,8 @@ export type SellerListingDraftWhereUniqueInput = Prisma.AtLeast<{
   offerJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   stockJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   packagingJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantAxesJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantsJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   generatedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   generatedTitleSource?: Prisma.JsonNullableFilter<"SellerListingDraft">
   sellerEditedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -463,6 +475,8 @@ export type SellerListingDraftOrderByWithAggregationInput = {
   offerJson?: Prisma.SortOrderInput | Prisma.SortOrder
   stockJson?: Prisma.SortOrderInput | Prisma.SortOrder
   packagingJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   generatedTitleSource?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerEditedTitle?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -500,6 +514,8 @@ export type SellerListingDraftScalarWhereWithAggregatesInput = {
   offerJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
   stockJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
   packagingJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
+  variantAxesJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
+  variantsJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
   generatedTitle?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
   generatedTitleSource?: Prisma.JsonNullableWithAggregatesFilter<"SellerListingDraft">
   sellerEditedTitle?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
@@ -526,6 +542,8 @@ export type SellerListingDraftCreateInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -560,6 +578,8 @@ export type SellerListingDraftUncheckedCreateInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -588,6 +608,8 @@ export type SellerListingDraftUpdateInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -622,6 +644,8 @@ export type SellerListingDraftUncheckedUpdateInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -653,6 +677,8 @@ export type SellerListingDraftCreateManyInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -679,6 +705,8 @@ export type SellerListingDraftUpdateManyMutationInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -708,6 +736,8 @@ export type SellerListingDraftUncheckedUpdateManyInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -753,6 +783,8 @@ export type SellerListingDraftCountOrderByAggregateInput = {
   offerJson?: Prisma.SortOrder
   stockJson?: Prisma.SortOrder
   packagingJson?: Prisma.SortOrder
+  variantAxesJson?: Prisma.SortOrder
+  variantsJson?: Prisma.SortOrder
   generatedTitle?: Prisma.SortOrder
   generatedTitleSource?: Prisma.SortOrder
   sellerEditedTitle?: Prisma.SortOrder
@@ -998,6 +1030,8 @@ export type SellerListingDraftCreateWithoutCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1030,6 +1064,8 @@ export type SellerListingDraftUncheckedCreateWithoutCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1090,6 +1126,8 @@ export type SellerListingDraftScalarWhereInput = {
   offerJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   stockJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   packagingJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantAxesJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
+  variantsJson?: Prisma.JsonNullableFilter<"SellerListingDraft">
   generatedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   generatedTitleSource?: Prisma.JsonNullableFilter<"SellerListingDraft">
   sellerEditedTitle?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
@@ -1116,6 +1154,8 @@ export type SellerListingDraftCreateWithoutSellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1148,6 +1188,8 @@ export type SellerListingDraftUncheckedCreateWithoutSellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1202,6 +1244,8 @@ export type SellerListingDraftCreateWithoutBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1234,6 +1278,8 @@ export type SellerListingDraftUncheckedCreateWithoutBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1288,6 +1334,8 @@ export type SellerListingDraftCreateWithoutMediaInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1321,6 +1369,8 @@ export type SellerListingDraftUncheckedCreateWithoutMediaInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1364,6 +1414,8 @@ export type SellerListingDraftUpdateWithoutMediaInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1397,6 +1449,8 @@ export type SellerListingDraftUncheckedUpdateWithoutMediaInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1424,6 +1478,8 @@ export type SellerListingDraftCreateWithoutIssuesInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1457,6 +1513,8 @@ export type SellerListingDraftUncheckedCreateWithoutIssuesInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1500,6 +1558,8 @@ export type SellerListingDraftUpdateWithoutIssuesInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1533,6 +1593,8 @@ export type SellerListingDraftUncheckedUpdateWithoutIssuesInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1562,6 +1624,8 @@ export type SellerListingDraftCreateManyCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1588,6 +1652,8 @@ export type SellerListingDraftUpdateWithoutCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1620,6 +1686,8 @@ export type SellerListingDraftUncheckedUpdateWithoutCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1650,6 +1718,8 @@ export type SellerListingDraftUncheckedUpdateManyWithoutCategoryInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1678,6 +1748,8 @@ export type SellerListingDraftCreateManySellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1704,6 +1776,8 @@ export type SellerListingDraftUpdateWithoutSellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1736,6 +1810,8 @@ export type SellerListingDraftUncheckedUpdateWithoutSellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1766,6 +1842,8 @@ export type SellerListingDraftUncheckedUpdateManyWithoutSellerAccountInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1794,6 +1872,8 @@ export type SellerListingDraftCreateManyBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: string | null
@@ -1820,6 +1900,8 @@ export type SellerListingDraftUpdateWithoutBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1852,6 +1934,8 @@ export type SellerListingDraftUncheckedUpdateWithoutBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1882,6 +1966,8 @@ export type SellerListingDraftUncheckedUpdateManyWithoutBrandInput = {
   offerJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   stockJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   packagingJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  variantsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   generatedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   generatedTitleSource?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sellerEditedTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1951,6 +2037,8 @@ export type SellerListingDraftSelect<ExtArgs extends runtime.Types.Extensions.In
   offerJson?: boolean
   stockJson?: boolean
   packagingJson?: boolean
+  variantAxesJson?: boolean
+  variantsJson?: boolean
   generatedTitle?: boolean
   generatedTitleSource?: boolean
   sellerEditedTitle?: boolean
@@ -1988,6 +2076,8 @@ export type SellerListingDraftSelectScalar = {
   offerJson?: boolean
   stockJson?: boolean
   packagingJson?: boolean
+  variantAxesJson?: boolean
+  variantsJson?: boolean
   generatedTitle?: boolean
   generatedTitleSource?: boolean
   sellerEditedTitle?: boolean
@@ -2003,7 +2093,7 @@ export type SellerListingDraftSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "version" | "submittedVersion" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
+export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "variantAxesJson" | "variantsJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "version" | "submittedVersion" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
 export type SellerListingDraftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SellerListingDraft$categoryArgs<ExtArgs>
@@ -2072,6 +2162,26 @@ export type $SellerListingDraftPayload<ExtArgs extends runtime.Types.Extensions.
      * out to, so a later change to the arithmetic is visible rather than silent.
      */
     packagingJson: runtime.JsonValue | null
+    /**
+     * The axes this listing sells along, and the values the seller offers on
+     * each: `{ axes: [{ axisKey, values: [{ label, amount?, unit? }] }] }`.
+     * 
+     * Null on a listing with one configuration, which is most of them, and an
+     * empty `axes` means the seller was asked and said no. Those two are
+     * deliberately different: the wizard shows the variant question again to
+     * the first and not to the second.
+     */
+    variantAxesJson: runtime.JsonValue | null
+    /**
+     * The combinations the seller actually approved, each with its own SKU,
+     * price, stock and pack - the matrix, as they last left it.
+     * 
+     * Not the Cartesian product of `variantAxesJson`. A seller who offers
+     * black in four sizes and white in two has six rows here and not eight,
+     * because the two the factory does not make are the ones a buyer must be
+     * told are "not offered" rather than "out of stock".
+     */
+    variantsJson: runtime.JsonValue | null
     /**
      * The title the rules generated, and the fields that produced it. Null
      * until every title-component attribute is valid - which is exactly when
@@ -2505,6 +2615,8 @@ export interface SellerListingDraftFieldRefs {
   readonly offerJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
   readonly stockJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
   readonly packagingJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
+  readonly variantAxesJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
+  readonly variantsJson: Prisma.FieldRef<"SellerListingDraft", 'Json'>
   readonly generatedTitle: Prisma.FieldRef<"SellerListingDraft", 'String'>
   readonly generatedTitleSource: Prisma.FieldRef<"SellerListingDraft", 'Json'>
   readonly sellerEditedTitle: Prisma.FieldRef<"SellerListingDraft", 'String'>

@@ -374,8 +374,13 @@ describe('CatalogPage listing controls', () => {
    * results; this is how you see what the shelves are in the first place. A
    * department filed above two dozen sub-categories whose only sign of them is
    * a list in the filter panel is a department that looks empty of structure.
+   *
+   * It is a deck rather than a grid now — `catalog/SubCategoryRail.tsx` — so
+   * one shelf is in focus with a link into it and the rest are offered as
+   * buttons that bring them forward. Both are asserted here: a deck that
+   * stopped offering the ones behind would be a department showing one shelf.
    */
-  it('shows what is inside the department as cards, not only in the sidebar', async () => {
+  it('shows what is inside the department as a deck, not only in the sidebar', async () => {
     renderWithProviders(
       <Routes>
         <Route path="/category/:slug" element={<CatalogPage />} />
@@ -388,8 +393,8 @@ describe('CatalogPage listing controls', () => {
     // The count is the whole subtree, because that is what opening it shows.
     const card = within(inside).getByRole('link', { name: /Line Access/ });
     expect(card).toHaveAttribute('href', '/category/line-access');
-    expect(within(inside).getByText('7 products')).toBeInTheDocument();
-    expect(within(inside).getByRole('link', { name: /Syringes/ })).toBeInTheDocument();
+    expect(within(inside).getByText(/7 products/)).toBeInTheDocument();
+    expect(within(inside).getByRole('button', { name: /Syringes/ })).toBeInTheDocument();
   });
 
   it('does not offer the shelves above a set of search results', async () => {

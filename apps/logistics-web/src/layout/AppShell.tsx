@@ -2,8 +2,13 @@
  * The frame every screen sits in.
  *
  * A sidebar on a desktop, a drawer on a phone, and one `<main>` that every
- * route renders into. Three things it does that are easy to leave out and
- * expensive to add later:
+ * route renders into. The sidebar is `components/ui/sidebar.tsx` — a rail of
+ * icons that widens to labelled rows while a pointer or the keyboard is inside
+ * it — and it is the same component the admin console and the storefront's
+ * account area use, so the three surfaces navigate the same way.
+ *
+ * Three things this does that are easy to leave out and expensive to add
+ * later:
  *
  *   - **A skip link.** The first focusable thing on the page, visible only
  *     when focused. Without it a keyboard user tabs through the whole sidebar
@@ -17,15 +22,21 @@
  *     work stopped.
  */
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CloseIcon, MenuIcon, SignOutIcon } from '@/components/icons';
-import { Badge, Button } from '@/components/ui';
+import { MenuIcon, SignOutIcon } from '@/components/icons';
+import { Button } from '@/components/ui';
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLabel,
+  SidebarLink,
+  SidebarSection,
+} from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { useI18n } from '@/i18n/i18n-context';
 import { useSession } from '@/auth/session-context';
-import { cx } from '@/lib/cx';
 import { exceptionsKey, fetchExceptions } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { locateRoute, visibleNavigation } from './navigation';
@@ -80,53 +91,29 @@ export function AppShell(): React.JSX.Element {
       </a>
 
       <div className="flex min-h-screen">
-        {/* --- Sidebar, from `lg` up ------------------------------------- */}
-        <aside className="hidden w-64 shrink-0 border-r border-border bg-surface lg:block">
-          <Brand />
-          <NavList sections={sections} active={active} exceptions={exceptionCount.data ?? 0} />
-        </aside>
-
-        {/* --- Drawer, below `lg` ---------------------------------------- */}
-        {drawerOpen ? (
-          <div className="fixed inset-0 z-40 lg:hidden">
-            <button
-              type="button"
-              aria-label={t('shell.closeMenu')}
-              className="absolute inset-0 bg-navy/50"
-              onClick={() => {
+        {/* --- The rail from `md` up, a drawer below it ------------------- */}
+        <Sidebar open={drawerOpen} setOpen={setDrawerOpen}>
+          <SidebarBody
+            label={t('shell.menu')}
+            closeLabel={t('shell.closeMenu')}
+            className="md:sticky md:top-0 md:h-screen"
+          >
+            <PortalNav
+              sections={sections}
+              exceptions={exceptionCount.data ?? 0}
+              onNavigate={() => {
                 setDrawerOpen(false);
               }}
             />
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label={t('shell.menu')}
-              className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-surface shadow-xl"
-            >
-              <div className="flex items-center justify-between">
-                <Brand />
-                <button
-                  type="button"
-                  className="mr-3 rounded-md p-2 text-ink-muted hover:bg-surface-hover"
-                  aria-label={t('shell.closeMenu')}
-                  onClick={() => {
-                    setDrawerOpen(false);
-                  }}
-                >
-                  <CloseIcon className="h-5 w-5" />
-                </button>
-              </div>
-              <NavList sections={sections} active={active} exceptions={exceptionCount.data ?? 0} />
-            </div>
-          </div>
-        ) : null}
+          </SidebarBody>
+        </Sidebar>
 
         {/* --- The page -------------------------------------------------- */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-surface/95 px-4 py-3 backdrop-blur lg:px-8">
             <button
               type="button"
-              className="rounded-md p-2 text-ink-muted hover:bg-surface-hover lg:hidden"
+              className="rounded-md p-2 text-ink-muted hover:bg-surface-hover md:hidden"
               aria-label={t('shell.menu')}
               aria-expanded={drawerOpen}
               onClick={() => {
@@ -193,19 +180,21 @@ function Brand(): React.JSX.Element {
   const { t } = useI18n();
 
   return (
-    <div className="flex items-center gap-3 px-5 py-5">
+    <div className="flex h-10 shrink-0 items-center gap-3 px-2">
       {/*
         The mark. A simple parcel-and-route glyph rather than an imported
         image, so it renders before any network request and inherits the theme
-        - which matters on a depot's tablet on a bad connection.
+        - which matters on a depot's tablet on a bad connection. At sixty
+        pixels it is the whole of the brand, which is the one thing on the rail
+        that still says which portal this is.
       */}
       <span
         aria-hidden="true"
-        className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-sm"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm"
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5"
+          className="h-4 w-4"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -214,65 +203,98 @@ function Brand(): React.JSX.Element {
           <path d="M3 8.5 12 13l9-4.5M12 13v7" strokeLinejoin="round" />
         </svg>
       </span>
-      <span className="text-sm font-semibold tracking-tight text-ink">{t('app.name')}</span>
+      <SidebarLabel className="truncate text-sm font-semibold tracking-tight text-ink">
+        {t('app.name')}
+      </SidebarLabel>
     </div>
   );
 }
 
-function NavList({
+/**
+ * The rows, in both presentations.
+ *
+ * Rendered once into the rail and once into the drawer — the shared component
+ * mounts this twice — so nothing here may assume which of the two it is in.
+ *
+ * `aria-current="page"` is what a screen reader uses to say "you are here";
+ * the colour alone says it only to people who can see it. `NavLink` sets it,
+ * and matching a prefix is what keeps Shipments lit on a shipment.
+ */
+function PortalNav({
   sections,
-  active,
   exceptions,
+  onNavigate,
 }: {
   sections: ReturnType<typeof visibleNavigation>;
-  active: string | null;
   exceptions: number;
+  onNavigate: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
+  const { session } = useSession();
 
   return (
-    <nav className="flex-1 overflow-y-auto px-3 pb-6" aria-label={t('shell.menu')}>
-      {sections.map((section, index) => (
-        <div key={section.labelKey ?? `section-${String(index)}`} className="mb-5">
-          {section.labelKey === null ? null : (
-            <p className="px-3 pb-2 text-[0.7rem] font-semibold uppercase tracking-wider text-ink-subtle">
-              {t(section.labelKey)}
-            </p>
-          )}
+    <>
+      <div className="flex flex-1 flex-col">
+        <Brand />
 
-          <ul className="space-y-0.5">
-            {section.entries.map((entry) => {
-              const Icon = entry.icon;
-              const isActive = active === entry.to;
+        <div className="mt-6 space-y-4">
+          {sections.map((section, index) => (
+            <SidebarSection
+              key={section.labelKey ?? `section-${String(index)}`}
+              label={section.labelKey === null ? null : t(section.labelKey)}
+            >
+              {section.entries.map((entry) => {
+                const label = t(entry.labelKey);
+                const waiting = entry.badge === 'exceptions' ? exceptions : 0;
 
-              return (
-                <li key={entry.to}>
-                  <NavLink
-                    to={entry.to}
-                    // `aria-current` is what a screen reader uses to say "you
-                    // are here"; the colour alone says it only to people who
-                    // can see it.
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cx(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                      isActive
-                        ? 'bg-brand-soft font-medium text-brand'
-                        : 'text-ink-muted hover:bg-surface-hover hover:text-ink',
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1 truncate">{t(entry.labelKey)}</span>
-                    {entry.badge === 'exceptions' && exceptions > 0 ? (
-                      <Badge tone="warning">{exceptions}</Badge>
-                    ) : null}
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
+                return (
+                  <SidebarLink
+                    key={entry.to}
+                    onNavigate={onNavigate}
+                    link={{
+                      to: entry.to,
+                      label,
+                      icon: entry.icon,
+                      matchPrefix: true,
+                      badge: waiting,
+                      // The count in words, not only in a pill: a screen reader
+                      // otherwise gets the destination and none of the reason
+                      // it is worth opening now rather than later.
+                      ariaLabel:
+                        waiting > 0 ? `${label} — ${t('shell.attention', { waiting })}` : undefined,
+                    }}
+                  />
+                );
+              })}
+            </SidebarSection>
+          ))}
         </div>
-      ))}
-    </nav>
+      </div>
+
+      {/* Who is signed in, and for which carrier. The top bar says the same
+          thing in full; at sixty pixels this is the initials alone, which is
+          what a dispatcher with two portals open is checking. */}
+      {session === null ? null : (
+        <div className="mt-4 shrink-0 border-t border-border pt-3">
+          <div className="flex h-10 items-center gap-3 rounded-md px-2">
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[0.7rem] font-semibold text-brand ring-1 ring-inset ring-brand/20"
+            >
+              {session.partner.displayName.slice(0, 2).toUpperCase()}
+            </span>
+            <SidebarLabel display="block" className="min-w-0 leading-tight">
+              <span className="block truncate text-xs font-medium text-ink">
+                {session.partner.displayName}
+              </span>
+              <span className="block truncate text-[0.7rem] text-ink-subtle">
+                {session.user.fullName}
+              </span>
+            </SidebarLabel>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

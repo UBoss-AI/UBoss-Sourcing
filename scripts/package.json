@@ -9,6 +9,7 @@
   },
   "scripts": {
     "guide": "node build-feature-guide-doc.mjs",
+    "check:ai": "node check-ai-provider.mjs",
     "dev": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1",
     "dev:tunnel": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Tunnel",
     "dev:status": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Status",

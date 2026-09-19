@@ -120,7 +120,7 @@ database too.
 | `Port 4000`, `5173`, `5174` or `5175` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
 | `DATABASE_URL is not set` | `backend\.env` is missing | Copy `.env.example` to `.env` inside `backend` |
 | A Prisma table or column error | New migrations have not been applied | `cd backend`, then `npm run db:migrate:deploy` |
-| Sign-in says the credentials are wrong | Sample data is missing, it is the wrong site, or the passwords were rotated | Run `npm run db:seed`. Admin logins only work on 5173, customer logins only on 5174. If `db:rotate-seed-passwords` was run on this database, the ones in this file no longer apply and re-seeding will not bring them back — rotate again for a fresh set |
+| Sign-in says the credentials are wrong | Sample data is missing, it is the wrong site, or the passwords were rotated | `cd backend`, then `npm run db:restore-seed-passwords` — it puts the passwords in this file back and says how many were wrong. If nothing was found, `npm run db:seed` first. Admin logins only work on 5173, customer logins only on 5174 |
 | The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed` |
 | No emails appear anywhere | The worker is not running | `.\scripts\dev-stack.ps1 -Restart` |
 | The site is reaching a public ngrok address | The project is in tunnel mode | `.\scripts\dev-stack.ps1 -Restart -Local` |
@@ -160,10 +160,30 @@ so re-seeding leaves the rotated ones alone. The tables below then describe a
 fresh clone rather than your database, which is correct — leave them as they
 are.
 
+**If your machine is private again and you want the tables below to be true**,
+this is the way back, and it is the only one — re-seeding will not do it:
+
+```powershell
+cd backend ; npm run db:restore-seed-passwords
+```
+
+It writes the published passwords back for all nine and clears the other
+reasons a correct password is rejected: a lockout, a run of failed attempts, an
+unverified address, a deactivated account. It refuses to run when `NODE_ENV` is
+production.
+
+**These are the sign-ins for every address, not just for `localhost`.** The
+three front ends hold no accounts — only the API does, and a tunnel or a
+Netlify site reaches that same API and that same database. There is no separate
+set of credentials per environment, and nothing to keep in step.
+
 | Where | Email | Password |
 |---|---|---|
 | Admin Panel (5173) | `owner@uboss.local` | `OwnerDev!2026` |
 | Admin Panel — catalogue role | `catalog@uboss.local` | `CatalogDev!2026` |
+| Admin Panel — stock role | `inventory@uboss.local` | `StockDev!2026` |
+| Admin Panel — orders role | `orders@uboss.local` | `OrdersDev!2026` |
+| Admin Panel — finance role | `finance@uboss.local` | `FinanceDev!2026` |
 | Storefront (5174) | `buyer@acme.local` | `BuyerDev!2026` |
 
 The three below exist **only where the logistics portal is switched on**, and
@@ -556,6 +576,7 @@ npm run db:migrate:deploy   # Apply existing migrations safely
 npm run db:migrate          # Create a new migration (asks questions)
 npm run db:seed             # Restore or update the sample data
 npm run db:rotate-seed-passwords   # Fresh random passwords for the nine seeded accounts
+npm run db:restore-seed-passwords  # Put the passwords printed above back, and unlock the accounts
 ```
 
 `npm run db:reset` erases and rebuilds the development database. Do not run it

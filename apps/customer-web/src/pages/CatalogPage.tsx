@@ -48,8 +48,9 @@ import {
 } from '@/lib/format';
 import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { cx } from '@/lib/cx';
-import { CategoryCards } from '@/components/catalog/CategoryCards';
-import { findCategoryInTree, stockedCategories } from '@/lib/category-tree';
+import { CategoryStrip } from '@/components/catalog/CategoryStrip';
+import { SubCategoryRail } from '@/components/catalog/SubCategoryRail';
+import { findCategoryInTree, rootCategorySlug } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
@@ -989,17 +990,56 @@ export function CatalogPage(): React.JSX.Element {
    * a band of departments above the matches would be answering a question
    * nobody asked.
    */
+  /*
+   * The shelves inside this department — all of them, stocked or not.
+   *
+   * This used to be `stockedCategories`, on the rule that a link to an empty
+   * page is a dead end. That rule is right for a grid of cards competing with
+   * the products underneath them, and wrong for the deck that replaced it:
+   * the deck is the shape of the department, and a department that hides the
+   * three shelves nobody has listed against yet is a department that looks
+   * smaller than it is. Every slide states its own count, so an empty shelf
+   * says "0 products" rather than pretending.
+   *
+   * It also matters for the product this is. A buyer who has just installed
+   * UBOSS has the starter catalogue and nothing in it; under the old rule
+   * their first look at a department was a blank page.
+   */
   const subCategories =
     q !== ''
       ? []
-      : stockedCategories(
-          findCategoryInTree(categoryTree.data?.categories, category)?.node.children ?? [],
-        );
+      : (findCategoryInTree(categoryTree.data?.categories, category)?.node.children ?? []);
+
+  /*
+   * The department strip: the whole top level, and which of it is lit.
+   *
+   * The strip is on every listing this component serves, search results
+   * included — unlike the sub-category deck above, which is not. The two are
+   * answering different questions: "where else could I look" is useful beside
+   * a page of matches for "cannula 24g", and "what is inside this department"
+   * is not, because a search result is not inside one.
+   *
+   * The lit item is the ROOT department, not the slug in the address: see
+   * `rootCategorySlug`, which is the whole reason that function exists.
+   *
+   * Every department, not only the stocked ones. A strip is a floor plan, and
+   * a floor plan that left out three aisles because nothing is on their
+   * shelves this week is a floor plan nobody can trust — a shopper who found
+   * Laboratory & Scientific yesterday and cannot find it today concludes the
+   * shop stopped selling it. The grid underneath still tells the truth about
+   * what is in each one.
+   */
+  const departments = categoryTree.data?.categories ?? [];
+  const activeDepartment = rootCategorySlug(categoryTree.data?.categories, category);
 
   const heading =
     q !== ''
       ? t('catalog.resultsFor', { query: q })
-      : (categoryName ?? (category === null ? t('catalog.allProducts') : t('catalog.category')));
+      : // "Products", not "All products". The strip underneath already has an
+        // "All products" item, and a page titled the same thing as the control
+        // that reaches it reads as a description of the control rather than of
+        // the page. The breadcrumb ends on the same word, which is the point.
+        (categoryName ?? (category === null ? t('catalog.products') : t('catalog.category')));
 
   // What kind of listing this is, above the title. A search result and a
   // department are not the same thing arrived at the same way, and the
@@ -1260,15 +1300,25 @@ export function CatalogPage(): React.JSX.Element {
         </div>
       </header>
 
+      {/* Under the title, not above the breadcrumb.
+
+          It is the shop's floor plan, and a floor plan is read after you know
+          which room you are standing in — the breadcrumb and the heading say
+          that, and putting a twenty-six item row in front of them made the
+          page open on navigation rather than on an answer. The strip is the
+          same on `/products` and on every department page; see
+          `CategoryStrip`. */}
+      <CategoryStrip departments={departments} activeSlug={activeDepartment} />
+
       {subCategories.length > 0 && (
         <section aria-labelledby="what-is-inside" className="mb-6">
           <h2
             id="what-is-inside"
-            className="mb-3 text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle"
+            className="mb-4 text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle"
           >
             {t('catalog.whatIsInside')}
           </h2>
-          <CategoryCards categories={subCategories} />
+          <SubCategoryRail department={heading} subCategories={subCategories} />
         </section>
       )}
 

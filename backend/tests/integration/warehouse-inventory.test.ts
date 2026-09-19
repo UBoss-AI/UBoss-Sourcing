@@ -261,6 +261,7 @@ beforeAll(async () => {
         sku: `${VARIED}-A`,
         name: 'Option A',
         optionsJson: { Size: 'A' },
+        optionSignature: 'size:a',
         sortOrder: 0,
       },
       {
@@ -269,6 +270,7 @@ beforeAll(async () => {
         sku: `${VARIED}-B`,
         name: 'Option B',
         optionsJson: { Size: 'B' },
+        optionSignature: 'size:b',
         sortOrder: 1,
       },
     ],

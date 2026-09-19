@@ -56,6 +56,7 @@ import {
   usePiecesPerCarton,
 } from '@/lib/packaging';
 import type { Product } from '@/lib/types';
+import { useTilt } from '@/lib/pointer-tilt';
 import { useI18n } from '@/i18n/i18n-context';
 
 /** How many of a product's attributes the row lists before it stops. */
@@ -133,6 +134,19 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
       ? null
       : sellUnitPriceMinor(product.compareAtPrice.minor, sellUnit);
 
+  /*
+   * The glare, in the half of it a row can have.
+   *
+   * `ProductCard` gets both halves: a coloured halo around a detached card and
+   * a specular sliding across its photograph. A row has no detached edge to
+   * put a halo around — the listing is one bordered sheet with hairlines
+   * between the rows, and forty haloes inside it would erase the one boundary
+   * that matters. So a row takes the specular and leaves the halo, which is
+   * what the `.sheen` class in `index.css` exists for: the hook's highlight
+   * without the hook's lean.
+   */
+  const tilt = useTilt();
+
   return (
     /*
      * `relative`, for the stretched link on the name — the same pattern the
@@ -144,10 +158,18 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
      * `group` so the name can respond to the pointer being anywhere on the
      * row, which is the whole point of the hit area.
      */
-    <article className="group relative flex flex-col gap-4 p-4 transition-colors hover:bg-surface-hover sm:flex-row sm:gap-5 sm:p-5">
+    <article
+      ref={tilt.ref}
+      onPointerEnter={tilt.onPointerEnter}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+      className="sheen group relative flex flex-col gap-4 p-4 transition-colors hover:bg-surface-hover sm:flex-row sm:gap-5 sm:p-5"
+    >
       {/* Fixed, not fluid: a column of photographs that each choose their own
-          width is a column with no edge to run the eye down. */}
-      <div className="h-40 w-40 shrink-0 self-center overflow-hidden rounded-lg border border-border-subtle bg-surface-sunken sm:h-44 sm:w-44 sm:self-start">
+          width is a column with no edge to run the eye down.
+
+          `relative`, so the specular below is clipped to this frame. */}
+      <div className="relative h-40 w-40 shrink-0 self-center overflow-hidden rounded-lg border border-border-subtle bg-surface-sunken sm:h-44 sm:w-44 sm:self-start">
         {product.primaryImage === null ? (
           <ImageFallback />
         ) : (
@@ -163,6 +185,12 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
             className="h-full w-full object-contain p-3 transition-transform duration-200 group-hover:scale-[1.04]"
           />
         )}
+
+        {/* The specular, over the photograph and nowhere else — the same
+            placement `ProductCard` uses, and for the reason written there: over
+            the whole row it would put a blue veil across the price and the
+            specification, which is a contrast cost for a decoration. */}
+        <span aria-hidden="true" className="tilt-sheen" />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">

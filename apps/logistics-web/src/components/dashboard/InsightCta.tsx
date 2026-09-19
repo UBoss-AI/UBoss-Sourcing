@@ -105,8 +105,14 @@ export function InsightCta({
         whileHover={reduced ? {} : { y: -1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 28 }}
         className={cx(
-          'group relative isolate inline-flex min-h-[2.75rem] items-center gap-2 overflow-hidden rounded-full px-5 py-2.5',
-          'text-sm font-semibold transition-colors',
+          /*
+           * Sized to sit in the insights panel's one-line header. It was a
+           * 2.75rem pill at `text-sm`, which was taller than the heading it
+           * shares a row with and set the height of the whole header. 2rem
+           * still clears the 24px WCAG 2.2 target minimum comfortably.
+           */
+          'group relative isolate inline-flex min-h-[2rem] items-center gap-1.5 overflow-hidden rounded-full px-3.5 py-1.5',
+          'text-xs font-semibold transition-colors',
           // The ground sits ON TOP of the rotating gradient behind it, which
           // is what turns a spinning disc into a travelling edge.
           'bg-console-raised text-ink',
@@ -127,7 +133,7 @@ export function InsightCta({
           />
         )}
 
-        <span className="relative z-10 flex items-center gap-2">
+        <span className="relative z-10 flex items-center gap-1.5">
           <SparkIcon spinning={streaming && !reduced} />
           <span>{labels[state]}</span>
         </span>
@@ -159,7 +165,7 @@ function SparkIcon({ spinning }: { spinning: boolean }): React.JSX.Element {
   return (
     <svg
       viewBox="0 0 20 20"
-      className={cx('h-4 w-4 shrink-0 text-brand', spinning && 'animate-spin')}
+      className={cx('h-3.5 w-3.5 shrink-0 text-brand', spinning && 'animate-spin')}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"

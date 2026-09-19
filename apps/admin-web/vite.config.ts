@@ -52,6 +52,24 @@ export default defineConfig(({ mode }) => {
     // here, so every asset URL this app emits has to carry that prefix.
     base: throughTunnel ? '/admin/' : '/',
     plugins: [react()],
+    /*
+     * MapLibre is served from its own package, never pre-bundled.
+     *
+     * Vite's dependency optimiser rewrites `maplibre-gl` into
+     * `node_modules/.vite/deps/` and does not copy its sibling
+     * `maplibre-gl-worker.mjs` with it. The library then creates its worker
+     * from a URL beside itself, that URL 404s, and **nothing reports it**: the
+     * map is built, the style loads, tiles are requested and downloaded, and
+     * every one of them is then handed to a worker that does not exist. What
+     * the reader sees is a map with no roads, no water and no labels, stuck
+     * under its own loading message, with an empty console.
+     *
+     * Excluding it means the browser loads `maplibre-gl.mjs` from the package
+     * itself, where the worker sits next to it. Development only - a
+     * production build bundles the worker correctly either way - but that is
+     * exactly the split that made this expensive to find.
+     */
+    optimizeDeps: { exclude: ['maplibre-gl'] },
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },

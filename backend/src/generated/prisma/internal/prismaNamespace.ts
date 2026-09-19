@@ -416,6 +416,7 @@ export const ModelName = {
   Category: 'Category',
   Product: 'Product',
   ProductVariant: 'ProductVariant',
+  ProductVariantMedia: 'ProductVariantMedia',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
   ProductPackaging: 'ProductPackaging',
@@ -582,7 +583,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1837,6 +1838,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductVariantCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductVariantCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductVariantMedia: {
+      payload: Prisma.$ProductVariantMediaPayload<ExtArgs>
+      fields: Prisma.ProductVariantMediaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductVariantMediaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductVariantMediaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductVariantMediaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductVariantMediaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        findMany: {
+          args: Prisma.ProductVariantMediaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>[]
+        }
+        create: {
+          args: Prisma.ProductVariantMediaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        createMany: {
+          args: Prisma.ProductVariantMediaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductVariantMediaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        update: {
+          args: Prisma.ProductVariantMediaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductVariantMediaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductVariantMediaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductVariantMediaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantMediaPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductVariantMediaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVariantMedia>
+        }
+        groupBy: {
+          args: Prisma.ProductVariantMediaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantMediaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductVariantMediaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantMediaCountAggregateOutputType> | number
         }
       }
     }
@@ -12166,6 +12233,7 @@ export const ProductScalarFieldEnum = {
   qtyIncrement: 'qtyIncrement',
   isRecurringEligible: 'isRecurringEligible',
   hasVariants: 'hasVariants',
+  variantAxesJson: 'variantAxesJson',
   isMarketplaceProduct: 'isMarketplaceProduct',
   createdBySellerAccountId: 'createdBySellerAccountId',
   requiresColdChain: 'requiresColdChain',
@@ -12197,7 +12265,24 @@ export const ProductVariantScalarFieldEnum = {
   gtin: 'gtin',
   modelIdentifier: 'modelIdentifier',
   optionsJson: 'optionsJson',
+  optionSignature: 'optionSignature',
   priceMinor: 'priceMinor',
+  compareAtPriceMinor: 'compareAtPriceMinor',
+  minOrderQty: 'minOrderQty',
+  qtyIncrement: 'qtyIncrement',
+  maxOrderQty: 'maxOrderQty',
+  leadTimeDays: 'leadTimeDays',
+  multipackCount: 'multipackCount',
+  netContentValue: 'netContentValue',
+  netContentUnit: 'netContentUnit',
+  unitPricingBaseValue: 'unitPricingBaseValue',
+  unitPricingBaseUnit: 'unitPricingBaseUnit',
+  manufacturerPackLabel: 'manufacturerPackLabel',
+  shippingWeightGrams: 'shippingWeightGrams',
+  shippingLengthMm: 'shippingLengthMm',
+  shippingWidthMm: 'shippingWidthMm',
+  shippingHeightMm: 'shippingHeightMm',
+  shippingClass: 'shippingClass',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   archivedAt: 'archivedAt',
@@ -12207,6 +12292,18 @@ export const ProductVariantScalarFieldEnum = {
 } as const
 
 export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
+
+
+export const ProductVariantMediaScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  mediaId: 'mediaId',
+  sortOrder: 'sortOrder',
+  isPrimary: 'isPrimary',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductVariantMediaScalarFieldEnum = (typeof ProductVariantMediaScalarFieldEnum)[keyof typeof ProductVariantMediaScalarFieldEnum]
 
 
 export const ProductMediaScalarFieldEnum = {
@@ -14515,6 +14612,8 @@ export const SellerListingDraftScalarFieldEnum = {
   offerJson: 'offerJson',
   stockJson: 'stockJson',
   packagingJson: 'packagingJson',
+  variantAxesJson: 'variantAxesJson',
+  variantsJson: 'variantsJson',
   generatedTitle: 'generatedTitle',
   generatedTitleSource: 'generatedTitleSource',
   sellerEditedTitle: 'sellerEditedTitle',
@@ -15824,10 +15923,24 @@ export const ProductVariantOrderByRelevanceFieldEnum = {
   name: 'name',
   gtin: 'gtin',
   modelIdentifier: 'modelIdentifier',
+  optionSignature: 'optionSignature',
+  netContentUnit: 'netContentUnit',
+  unitPricingBaseUnit: 'unitPricingBaseUnit',
+  manufacturerPackLabel: 'manufacturerPackLabel',
+  shippingClass: 'shippingClass',
   importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantOrderByRelevanceFieldEnum = (typeof ProductVariantOrderByRelevanceFieldEnum)[keyof typeof ProductVariantOrderByRelevanceFieldEnum]
+
+
+export const ProductVariantMediaOrderByRelevanceFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  mediaId: 'mediaId'
+} as const
+
+export type ProductVariantMediaOrderByRelevanceFieldEnum = (typeof ProductVariantMediaOrderByRelevanceFieldEnum)[keyof typeof ProductVariantMediaOrderByRelevanceFieldEnum]
 
 
 export const ProductMediaOrderByRelevanceFieldEnum = {
@@ -19191,6 +19304,7 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   product?: Prisma.ProductOmit
   productVariant?: Prisma.ProductVariantOmit
+  productVariantMedia?: Prisma.ProductVariantMediaOmit
   productMedia?: Prisma.ProductMediaOmit
   productAttribute?: Prisma.ProductAttributeOmit
   productPackaging?: Prisma.ProductPackagingOmit

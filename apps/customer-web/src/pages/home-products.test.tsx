@@ -7,8 +7,8 @@
  * the Products *tab* had been pressed saved one catalogue read and left that
  * tab sitting visibly selected, blue underline and all, with nothing beneath
  * it. Tying it to which tab was current then meant choosing AI Mode unmounted
- * it. AI Mode is a link to its own page now, so Products is the only thing the
- * bar can be and the list is simply part of the page.
+ * it. Every item in that row is a link to a page now, and none of them is a
+ * state this page can be in, so the list is simply part of the page.
  *
  * Two things here are worth more than the rest.
  *
@@ -21,7 +21,6 @@
  * page past the headline somebody came to read is its own bug.
  */
 import { screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HomePage } from './HomePage';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
@@ -32,7 +31,7 @@ import type { StorefrontConfig } from '@/lib/types';
 // Fixtures
 // ---------------------------------------------------------------------------
 
-/** The assistant on, because the Products tab only exists beside an AI tab. */
+/** The assistant on, which is what puts all three items in the hero row. */
 function makeConfig(features: Partial<StorefrontConfig['features']> = {}): StorefrontConfig {
   return {
     ...FALLBACK_CONFIG,
@@ -107,6 +106,19 @@ function serve({
   });
 }
 
+/**
+ * The row of destinations above the search bar.
+ *
+ * Named, because the whole page is full of navigation and the assertions below
+ * are about this row in particular — the sourcing graphic above it carries its
+ * own link to the same AI page, under the same name.
+ */
+const HERO_ROW_LABEL = 'Home, the AI Assistant, or the catalogue';
+
+function heroRow(): HTMLElement {
+  return screen.getByRole('navigation', { name: HERO_ROW_LABEL });
+}
+
 /** Which catalogue reads have been made. The point of most of these tests. */
 function productReads(): string[] {
   return fetchMock.mock.calls
@@ -158,21 +170,18 @@ describe('the greeting page product list', () => {
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
-  it('stays put when AI Mode is offered beside it, because that is a link away', async () => {
-    const user = userEvent.setup();
+  it('stays put when the AI Assistant is offered beside it, because that is a link away', async () => {
     renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
 
     await screen.findByRole('region', { name: 'Products' });
 
-    // The search module opens as a pill, so AI Mode is behind one press — see
-    // the header of `hero-search/HeroSearch.tsx`. Unfolding it is the thing
-    // this test needs to survive: it is a change of state in the hero, and the
-    // list below has to be indifferent to it.
-    await user.click(screen.getByRole('button', { name: 'Search the catalogue' }));
-
-    // AI Mode used to be a tab that unmounted this section. It is a link to
-    // another page, so the only thing that takes the list away is leaving.
-    expect(await screen.findByRole('link', { name: /AI Mode/ })).toHaveAttribute('href', '/ai');
+    // Scoped to the search row, because the sourcing graphic above carries a
+    // node with the same name pointing at the same page — which is the point
+    // of them sharing it, and also why an unscoped query here would match two.
+    expect(within(heroRow()).getByRole('link', { name: /AI Assistant/ })).toHaveAttribute(
+      'href',
+      '/ai',
+    );
     expect(screen.getByRole('region', { name: 'Products' })).toBeInTheDocument();
     expect(productReads()).toHaveLength(1);
   });
@@ -184,11 +193,9 @@ describe('the greeting page product list', () => {
 
     // A landing page whose product strip could not load is still a landing
     // page — the hero above it works perfectly well — so this reports rather
-    // than replacing the page with an error wall. The search module being
-    // there and pressable is what says the hero survived; it is also the way
-    // to everything the failed strip was offering.
+    // than replacing the page with an error wall.
     expect(await screen.findByRole('button', { name: /Try again/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Search the catalogue' })).toBeEnabled();
+    expect(within(heroRow()).getByRole('link', { name: /AI Assistant/ })).toBeInTheDocument();
   });
 
   it('says so plainly when the catalogue is empty', async () => {
@@ -201,23 +208,21 @@ describe('the greeting page product list', () => {
     expect(await screen.findByText('Nothing is published yet')).toBeInTheDocument();
   });
 
-  it('still lists products on a deployment with no assistant, and shows no row', async () => {
-    // One item is not a row: with no AI provider the module is a search bar,
-    // and a row above it would be a label pretending to be a choice. The
-    // catalogue below is unaffected — it never depended on the row.
-    const user = userEvent.setup();
+  it('still lists products on a deployment with no assistant, and keeps the row', async () => {
+    // With no AI provider the row loses its middle item and keeps Home and
+    // Products, which are pages every deployment has. The catalogue below is
+    // unaffected — it never depended on the row.
     renderWithProviders(<HomePage />, {
       config: makeConfig({ assistant: false }),
       session: GUEST,
     });
 
-    // Opened first, or this would pass on a deployment that *does* have an
-    // assistant: a folded module has no row in it either way, and the absence
-    // being asserted has to be the configured one.
-    await user.click(screen.getByRole('button', { name: 'Search the catalogue' }));
-    await screen.findByRole('textbox', { name: 'Search the catalogue' });
-
-    expect(screen.queryByRole('link', { name: /AI Mode/ })).not.toBeInTheDocument();
+    const row = screen.getByRole('navigation', { name: 'Home, or the catalogue' });
+    expect(within(row).getByRole('link', { name: 'Products' })).toHaveAttribute(
+      'href',
+      '/products',
+    );
+    expect(within(row).queryByRole('link', { name: /AI Assistant/ })).not.toBeInTheDocument();
     expect(await screen.findByRole('region', { name: 'Products' })).toBeInTheDocument();
   });
 });

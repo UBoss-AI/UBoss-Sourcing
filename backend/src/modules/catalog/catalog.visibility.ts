@@ -177,6 +177,14 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
       id: true,
       name: true,
       slug: true,
+      /**
+       * The materialised ancestor trail, so the variant template for a shelf
+       * an operator added under one of ours can be resolved without a walk up
+       * the tree. See `findTemplate`: lookup is nearest-slug-first, and a
+       * "Safety Boots" an operator created under "Footwear" inherits
+       * Footwear's axes because that is what a subcategory of it is.
+       */
+      path: true,
       translations: { select: { name: true }, take: 1 },
     },
   },
@@ -232,6 +240,21 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
     take: 1,
   },
 
+  /**
+   * The dimensions this product sells along, as template axis keys.
+   *
+   * Public because the storefront cannot draw a selector without them. Only
+   * the keys travel; the labels, units and sort orders are served by
+   * `/catalog/variant-axes`, which the storefront caches for the session -
+   * sending 112 templates' worth of definitions on every product read would be
+   * the same data over and over.
+   *
+   * Null or empty means "no declared axes", and the storefront then shows the
+   * option list it has always shown. That is what keeps Medical Devices, where
+   * a hospital buyer picks several sizes at once, working as it does.
+   */
+  variantAxesJson: true,
+
   variants: {
     // A deactivated variant must not be selectable on the storefront.
     where: { isActive: true, archivedAt: null },
@@ -244,6 +267,41 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
       sortOrder: true,
       gtin: true,
       modelIdentifier: true,
+
+      /**
+       * Public because every one of these changes what the buy panel says
+       * BEFORE the button is pressed.
+       *
+       * A minimum of ten discovered at the cart has wasted the buyer twice; a
+       * pack of ten discovered on the delivery note has sent them ten times
+       * what they meant to buy. Both are on the product page or they are a
+       * surprise.
+       *
+       * Stock quantities are deliberately still not among them. This
+       * storefront does not publish warehouse figures, and a variant selector
+       * is not the place to start.
+       */
+      compareAtPriceMinor: true,
+      minOrderQty: true,
+      qtyIncrement: true,
+      maxOrderQty: true,
+      leadTimeDays: true,
+      multipackCount: true,
+      netContentValue: true,
+      netContentUnit: true,
+      unitPricingBaseValue: true,
+      unitPricingBaseUnit: true,
+      manufacturerPackLabel: true,
+
+      /** This size's own photographs, falling back to the family's. */
+      media: {
+        select: {
+          isPrimary: true,
+          sortOrder: true,
+          media: { select: { url: true, altText: true, width: true, height: true } },
+        },
+        orderBy: { sortOrder: 'asc' },
+      },
     },
     orderBy: { sortOrder: 'asc' },
   },

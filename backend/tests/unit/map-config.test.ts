@@ -31,7 +31,7 @@ const NOTHING = {
 
 describe('nothing configured', () => {
   it('is NONE, which is a working state rather than a fault', () => {
-    expect(resolveMapConfig(NOTHING)).toEqual({ provider: 'NONE' });
+    expect(resolveMapConfig(NOTHING)).toEqual({ provider: 'NONE', satellite: null });
   });
 
   it('is NONE for settings that hold only whitespace', () => {
@@ -44,7 +44,7 @@ describe('nothing configured', () => {
         tileUrl: ' ',
         tileAttribution: ' ',
       }),
-    ).toEqual({ provider: 'NONE' });
+    ).toEqual({ provider: 'NONE', satellite: null });
   });
 });
 
@@ -67,6 +67,7 @@ describe('vector tiles', () => {
     ).toEqual({
       provider: 'VECTOR',
       style: { url: 'https://tiles.openfreemap.org/styles/liberty', attribution: '' },
+      satellite: null,
     });
   });
 
@@ -90,6 +91,7 @@ describe('vector tiles', () => {
         url: 'https://tiles.internal/styles/warehouse.json',
         attribution: 'Basemap: ACME GIS',
       },
+      satellite: null,
     });
   });
 
@@ -125,6 +127,7 @@ describe('raster tiles', () => {
         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         attribution: '© OpenStreetMap contributors',
       },
+      satellite: null,
     });
   });
 
@@ -141,6 +144,7 @@ describe('raster tiles', () => {
     expect(config).toEqual({
       provider: 'RASTER',
       tiles: { urlTemplate: 'https://tiles.internal/{z}/{x}/{y}.png', attribution: '' },
+      satellite: null,
     });
   });
 
@@ -185,12 +189,14 @@ describe('Google Maps', () => {
   it('is not offered with a key and no map ID', () => {
     expect(resolveMapConfig({ ...NOTHING, googleApiKey: 'AIza-test-key' })).toEqual({
       provider: 'NONE',
+      satellite: null,
     });
   });
 
   it('is not offered with a map ID and no key', () => {
     expect(resolveMapConfig({ ...NOTHING, googleMapId: 'uboss-light' })).toEqual({
       provider: 'NONE',
+      satellite: null,
     });
   });
 
@@ -221,5 +227,78 @@ describe('Google Maps', () => {
     expect(
       resolveMapConfig({ ...NOTHING, googleApiKey: ' AIza-test-key ', googleMapId: ' uboss-light ' }),
     ).toEqual({ provider: 'GOOGLE', apiKey: 'AIza-test-key', mapId: 'uboss-light' });
+  });
+});
+
+/**
+ * Satellite imagery is the GROUND, not a fifth provider.
+ *
+ * That distinction is the whole of these tests. It rides along with whichever
+ * MapLibre answer was chosen rather than replacing it, so an operator who
+ * turns imagery on keeps the labels, the roads and the one language they
+ * configured the vector style for - and an operator who has raster tiles
+ * already has a finished picture of the ground and gets no second one.
+ */
+describe('satellite imagery', () => {
+  const IMAGERY =
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+  it('rides under a vector style, so the hybrid keeps its labels', () => {
+    const config = resolveMapConfig({
+      ...NOTHING,
+      styleUrl: 'https://tiles.openfreemap.org/styles/liberty',
+      satelliteUrl: IMAGERY,
+      satelliteAttribution: 'Imagery: Esri',
+    });
+
+    expect(config).toEqual({
+      provider: 'VECTOR',
+      style: { url: 'https://tiles.openfreemap.org/styles/liberty', attribution: '' },
+      satellite: { urlTemplate: IMAGERY, attribution: 'Imagery: Esri' },
+    });
+  });
+
+  it('is the whole map where nothing else is configured', () => {
+    const config = resolveMapConfig({ ...NOTHING, satelliteUrl: IMAGERY });
+
+    expect(config).toEqual({
+      provider: 'NONE',
+      satellite: { urlTemplate: IMAGERY, attribution: '' },
+    });
+  });
+
+  it('is ignored under raster tiles, which are already a picture of the ground', () => {
+    const config = resolveMapConfig({
+      ...NOTHING,
+      tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      satelliteUrl: IMAGERY,
+    });
+
+    expect(config.provider).toBe('RASTER');
+    expect(config).toMatchObject({ satellite: null });
+  });
+
+  it('is absent from the Google answer, whose imagery is their own map type', () => {
+    const config = resolveMapConfig({
+      ...NOTHING,
+      googleApiKey: 'AIza-test-key',
+      googleMapId: 'uboss-light',
+      satelliteUrl: IMAGERY,
+    });
+
+    expect(config).toEqual({ provider: 'GOOGLE', apiKey: 'AIza-test-key', mapId: 'uboss-light' });
+  });
+
+  it('is null for a setting holding only whitespace', () => {
+    expect(resolveMapConfig({ ...NOTHING, satelliteUrl: '   ' })).toEqual({
+      provider: 'NONE',
+      satellite: null,
+    });
+  });
+
+  it('trims a template pasted with a newline on the end', () => {
+    expect(
+      resolveMapConfig({ ...NOTHING, satelliteUrl: ` ${IMAGERY}\n` }),
+    ).toMatchObject({ satellite: { urlTemplate: IMAGERY } });
   });
 });

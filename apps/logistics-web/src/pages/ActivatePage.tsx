@@ -55,8 +55,8 @@ export function ActivatePage(): React.JSX.Element {
     defaultValues: { password: '', confirm: '', acceptedTerms: false as unknown as true },
   });
 
-  const focusPassword = useFocusOnMount();
   const { ref: passwordRef, ...passwordField } = form.register('password');
+  const focusPassword = useFocusOnMount<HTMLInputElement>(passwordRef);
 
   if (token.length === 0) {
     return (
@@ -128,10 +128,7 @@ export function ActivatePage(): React.JSX.Element {
               id={inputId}
               aria-describedby={describedBy}
               {...passwordField}
-              ref={(node) => {
-                passwordRef(node);
-                focusPassword(node);
-              }}
+              ref={focusPassword}
               type="password"
               autoComplete="new-password"
             />

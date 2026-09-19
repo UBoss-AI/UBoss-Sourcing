@@ -97,6 +97,24 @@ Escape — so a test can assert that a dialog is labelled and that its contents
 are sound, and **cannot** assert that focus is trapped. That one is on the
 manual list below, deliberately, rather than papered over.
 
+**The department rail is reached through its cards, not through the box.** A
+sideways-scrolling box with no focusable content is unreachable without a
+mouse, which is why every wide table above is a focusable region. The category
+rail on the storefront front page is the same problem in another shape and
+takes the other answer: every card in it is a `<button>`, so Tab walks the
+departments and the browser scrolls the track to whichever one has focus. It
+is therefore deliberately **not** `tabIndex={0}` — a focusable box wrapping
+focusable buttons is a tab stop that announces nothing and does nothing. The
+two labelled arrow buttons underneath are the pointer equivalent, and each is
+disabled when there is genuinely nothing that way, including on arrival.
+
+**White text over a photograph is not covered by the token audit.** The rail's
+cards write a department name across a picture nobody in this project chose
+the pixels of. `scripts/contrast-audit.cjs` models token pairs and cannot
+model that, so the name sits on a scrim dark enough to carry it rather than on
+the photograph itself — and the pair belongs on the manual list below, under
+real contrast in the browser.
+
 **Safety warnings are plain text.** GPSR warnings render with
 `whitespace-pre-line`, never `dangerouslySetInnerHTML`. A safety warning is the
 last field in this application that should be able to carry markup.

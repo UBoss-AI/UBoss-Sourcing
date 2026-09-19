@@ -39,7 +39,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Spinner } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
-import { isPlaced } from '@/lib/warehouses';
+import { MAP_HEIGHT, isPlaced } from '@/lib/warehouses';
 import type { MappablePlace } from '@/lib/warehouses';
 import { PLAIN_LOOK, markerElement } from './warehouse-marker';
 import type { MarkerLook } from './warehouse-marker';
@@ -56,6 +56,14 @@ interface WarehouseMapGoogleProps<T extends MappablePlace> {
   /** The row the table has selected, drawn larger and in front. */
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /**
+   * How tall the map is, where the full-screen panel's height is wrong for it.
+   *
+   * The default is that panel's. A preview inside a form dialog is confirming
+   * one pin rather than surveying a network, and a map that tall pushes the
+   * fields underneath it off the screen.
+   */
+  heightClassName?: string;
 }
 
 /**
@@ -107,6 +115,7 @@ export function WarehouseMapGoogle<T extends MappablePlace>({
   mapId,
   selectedId,
   onSelect,
+  heightClassName,
 }: WarehouseMapGoogleProps<T>): React.JSX.Element {
   const { t } = useI18n();
 
@@ -355,7 +364,8 @@ export function WarehouseMapGoogle<T extends MappablePlace>({
         <div
           ref={containerRef}
           className={cx(
-            'h-[22rem] w-full overflow-hidden rounded-lg border border-border sm:h-[26rem]',
+            'w-full overflow-hidden rounded-lg border border-border',
+            heightClassName ?? MAP_HEIGHT,
             // The ground before Google's renderer paints. Deliberately the
             // panel's sunken surface rather than a grey, so the wait reads as
             // part of this screen rather than as a map that failed.

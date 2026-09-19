@@ -26,6 +26,10 @@ import {
   Select,
 } from '@/components/ui';
 import { Modal } from '@/components/Modal';
+import { AddressSuggest } from '@/components/AddressSuggest';
+import type { AddressSuggestion } from '@/components/AddressSuggest';
+import { LocationMap } from '@/components/LocationMap';
+import type { MapConfig } from '@/components/LocationMap';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
@@ -38,6 +42,7 @@ import {
   fetchLocations,
   fetchMembers,
   geocodeLocation,
+  LOCATION_SUGGEST_ENDPOINT,
   removeMember,
   removeSellerLogo,
   updateLocation,
@@ -90,6 +95,28 @@ export function SellerProfilePage(): React.JSX.Element {
 
   const canManageTeam = seller.permissions.includes('seller.member.write');
   const canManageLocations = seller.permissions.includes('seller.location.write');
+
+  /*
+   * The addresses that can actually be drawn, and how many cannot.
+   *
+   * Two separate facts on purpose. A place with no coordinates is not an
+   * error - it dispatches orders exactly like the rest - but a seller looking
+   * at four pins for five addresses deserves to be told which way round that
+   * is, rather than counting.
+   */
+  const placedLocations = (locations.data?.locations ?? [])
+    .filter(
+      (location): location is SellerLocation & { latitude: number; longitude: number } =>
+        location.latitude !== null && location.longitude !== null,
+    )
+    .map((location) => ({
+      id: location.id,
+      label: `${location.name} (${location.code})`,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    }));
+
+  const unplacedCount = (locations.data?.locations ?? []).length - placedLocations.length;
 
   return (
     <div className="space-y-6">
@@ -203,6 +230,32 @@ export function SellerProfilePage(): React.JSX.Element {
           />
         )}
 
+        {/*
+         * The addresses, drawn.
+         *
+         * Only where at least one of them has been placed, so a Hub whose
+         * seller has never used the lookup is a list rather than half a screen
+         * of empty ground. An address with no coordinates is an ordinary
+         * address - it dispatches orders exactly like the others - and the row
+         * underneath says "not on the map yet" rather than this having to.
+         *
+         * The list below is the accessible copy of it, which is why the map
+         * itself is hidden: every address on the canvas is a real row with its
+         * own name, code and buttons a few pixels lower.
+         */}
+        {placedLocations.length > 0 && (
+          <div className="px-6 pb-4">
+            <LocationMap places={placedLocations} map={locations.data?.map ?? { provider: 'NONE', satellite: null }} />
+            {unplacedCount > 0 && (
+              <p className="mt-2 text-xs text-ink-muted">
+                {unplacedCount === 1
+                  ? 'One address is not on the map yet. Open it and use “Find it on the map”.'
+                  : `${String(unplacedCount)} addresses are not on the map yet. Open each one and use “Find it on the map”.`}
+              </p>
+            )}
+          </div>
+        )}
+
         {locations.data !== undefined && locations.data.locations.length > 0 && (
           <ul className="divide-y divide-border-subtle">
             {locations.data.locations.map((location) => (
@@ -277,6 +330,8 @@ export function SellerProfilePage(): React.JSX.Element {
 
       {isAdding && (
         <AddLocationDialog
+          // The operator's background, already in hand from the list above.
+          map={locations.data?.map ?? { provider: 'NONE', satellite: null }}
           onClose={() => {
             setIsAdding(false);
           }}
@@ -295,6 +350,7 @@ export function SellerProfilePage(): React.JSX.Element {
       {editing !== null && (
         <EditLocationDialog
           location={editing}
+          map={locations.data?.map ?? { provider: 'NONE', satellite: null }}
           onClose={() => {
             setEditing(null);
           }}
@@ -323,9 +379,11 @@ export function SellerProfilePage(): React.JSX.Element {
  */
 function EditLocationDialog({
   location,
+  map,
   onClose,
 }: {
   location: SellerLocation;
+  map: MapConfig;
   onClose: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
@@ -514,6 +572,27 @@ function EditLocationDialog({
               {placed.latitude.toFixed(5)}, {placed.longitude.toFixed(5)}
               {locate.isSuccess && ' — Save to keep it.'}
             </p>
+          )}
+
+          {/* Where the pin actually is. A lookup that found the right town and
+              the wrong street reads identically as two numbers, and this is
+              the half of the answer that catches it. */}
+          {placed !== null && (
+            <div className="mt-3">
+              <LocationMap
+                places={[
+                  {
+                    id: location.id,
+                    label: `${location.name} (${location.code})`,
+                    latitude: placed.latitude,
+                    longitude: placed.longitude,
+                  },
+                ]}
+                map={map}
+                selectedId={location.id}
+                heightClassName="h-52"
+              />
+            </div>
           )}
 
           {placeSearched && placed === null && (
@@ -917,7 +996,13 @@ function RoleSelect({ memberId, current }: { memberId: string; current: string }
   );
 }
 
-function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Element {
+function AddLocationDialog({
+  map,
+  onClose,
+}: {
+  map: MapConfig;
+  onClose: () => void;
+}): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
@@ -957,6 +1042,39 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
     setPlaced(null);
     setPlaceLabel(null);
     setPlaceSearched(false);
+  };
+
+  /**
+   * Take a place the seller chose from the suggestions.
+   *
+   * The address and its pin in one change. A field the geocoder did not name
+   * is left exactly as it is rather than cleared: one that knows the street
+   * but not the postcode must not wipe a postcode somebody typed off the
+   * envelope in front of them.
+   *
+   * The country is the one part that is checked rather than trusted. It is a
+   * `<select>` of the countries this deployment trades in, so a suggestion
+   * from anywhere else would set a value the control cannot show - the
+   * coordinates and the street still land, and the country stays for the
+   * seller to answer.
+   */
+  const applySuggestion = (suggestion: AddressSuggestion): void => {
+    const known = localisation.countries.some(
+      (entry) => entry.code === suggestion.countryCode,
+    );
+
+    setForm((previous) => ({
+      ...previous,
+      addressLine1: suggestion.line1 ?? previous.addressLine1,
+      city: suggestion.city ?? previous.city,
+      postcode: suggestion.postalCode ?? previous.postcode,
+      countryCode:
+        known && suggestion.countryCode !== null ? suggestion.countryCode : previous.countryCode,
+    }));
+
+    setPlaced({ latitude: suggestion.latitude, longitude: suggestion.longitude });
+    setPlaceLabel(suggestion.label);
+    setPlaceSearched(true);
   };
 
   const locate = useMutation({
@@ -1068,17 +1186,32 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
           </Field>
         </div>
 
-        <Field label="Address" required>
-          {({ inputId }) => (
-            <Input
-              id={inputId}
-              value={form.addressLine1}
-              onChange={(event) => {
-                set('addressLine1', event.currentTarget.value);
-              }}
-            />
-          )}
-        </Field>
+        {/*
+         * The address field, and the only thing on this dialog that can place
+         * a pin without anybody pressing a button.
+         *
+         * Picking from the list fills the street, the town, the postcode, the
+         * country and the coordinates in one change - which is the point. The
+         * button below still exists for an address typed out by hand, and for
+         * the deployments where no geocoder is configured and the list never
+         * opens at all.
+         */}
+        <AddressSuggest
+          endpoint={LOCATION_SUGGEST_ENDPOINT}
+          label="Address"
+          hint={t('addressSuggest.hint')}
+          required
+          maxLength={255}
+          value={form.addressLine1}
+          context={[form.city, form.countryCode]
+            .map((part) => part.trim())
+            .filter((part) => part.length > 0)
+            .join(', ')}
+          onChange={(next) => {
+            set('addressLine1', next);
+          }}
+          onPick={applySuggestion}
+        />
 
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="City" required>
@@ -1155,6 +1288,27 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
               Found{placeLabel === null ? '' : `: ${placeLabel}`} ·{' '}
               {placed.latitude.toFixed(5)}, {placed.longitude.toFixed(5)}
             </p>
+          )}
+
+          {/* The pin, before it is saved. Two coordinates are unverifiable;
+              this is what makes "is that the right side of the river?" a
+              question somebody can actually answer. */}
+          {placed !== null && (
+            <div className="mt-3">
+              <LocationMap
+                places={[
+                  {
+                    id: 'draft',
+                    label: form.name.trim().length > 0 ? form.name.trim() : form.addressLine1,
+                    latitude: placed.latitude,
+                    longitude: placed.longitude,
+                  },
+                ]}
+                map={map}
+                selectedId="draft"
+                heightClassName="h-52"
+              />
+            </div>
           )}
 
           {placeSearched && placed === null && (

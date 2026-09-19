@@ -82,6 +82,33 @@ export function ChevronRightIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/*
+ * The two long arrows on the category rail.
+ *
+ * A chevron says "there is more this way" beside a link; a long arrow says
+ * "press this and I will move something". The rail's buttons scroll a track
+ * rather than navigate anywhere, so they are drawn as arrows — and they are
+ * deliberately not the chevron above, because the rail shows both at 16px and
+ * a shopper has to be able to tell the scroller from the link.
+ */
+export function ArrowLeftIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M19 12H5" />
+      <path d="m11 18-6-6 6-6" />
+    </Icon>
+  );
+}
+
+export function ArrowRightIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </Icon>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Operational cues
 // ---------------------------------------------------------------------------
@@ -381,6 +408,15 @@ export function CalendarIcon(props: IconProps): React.JSX.Element {
     <Icon {...props}>
       <rect x="3.2" y="5.2" width="17.6" height="15.6" rx="2.2" />
       <path d="M3.2 10h17.6M8.2 3.2v4M15.8 3.2v4" />
+    </Icon>
+  );
+}
+
+/** Open the navigation. Three rules, the same ones the other two apps draw. */
+export function MenuIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 6.6h16M4 12h16M4 17.4h16" />
     </Icon>
   );
 }

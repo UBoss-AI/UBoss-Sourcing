@@ -17,7 +17,7 @@
  *     with `role="alert"`, so the problem is not only a colour change.
  *   - Colour is never the only signal. Every badge carries its own text.
  */
-import { forwardRef, useId } from 'react';
+import { forwardRef, useCallback, useId } from 'react';
 import { Link } from 'react-router-dom';
 import type {
   ButtonHTMLAttributes,
@@ -391,6 +391,14 @@ export const Select = forwardRef<
  * Focused when it appears, so a keyboard or screen-reader user is taken to the
  * problem rather than left at the submit button wondering why nothing
  * happened. Each entry links to its field.
+ *
+ * "When it appears" is the whole of it, and it is why the ref below is stable.
+ * React reattaches an inline callback ref on every render, so an inline
+ * `(node) => node?.focus()` focuses again on every render of the form behind
+ * it - which, once a form has been submitted once and re-validates on every
+ * keystroke, means the cursor is dragged out of the field somebody is fixing
+ * and onto this summary, mid-word. A stable callback runs when the summary
+ * mounts, which is exactly when it appears, and never again while it is up.
  */
 export function ErrorSummary({
   title,
@@ -401,6 +409,9 @@ export function ErrorSummary({
 }): React.JSX.Element | null {
   // Before the early return: a hook cannot sit behind a condition.
   const { t } = useI18n();
+  const focusSummary = useCallback((node: HTMLDivElement | null) => {
+    node?.focus();
+  }, []);
 
   if (errors.length === 0) return null;
 
@@ -408,9 +419,7 @@ export function ErrorSummary({
     <div
       role="alert"
       tabIndex={-1}
-      ref={(node) => {
-        node?.focus();
-      }}
+      ref={focusSummary}
       className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 outline-none"
     >
       <h2 className="text-title-xs text-danger">{title ?? t('common.problem')}</h2>

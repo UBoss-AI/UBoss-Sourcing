@@ -691,15 +691,28 @@ describe('public visibility', () => {
     await attachImage(productId);
     await prisma.productVariant.createMany({
       data: [
+        // Written straight through Prisma rather than through `createVariant`,
+        // so the signature is set here. Two variants of one product may never
+        // describe themselves identically - which is what these two, both with
+        // no options at all, would otherwise do.
         {
           id: newId(),
           productId,
           sku: 'V-ACTIVE',
           name: 'Active',
           optionsJson: {},
+          optionSignature: 'sku:v-active',
           isActive: true,
         },
-        { id: newId(), productId, sku: 'V-OFF', name: 'Off', optionsJson: {}, isActive: false },
+        {
+          id: newId(),
+          productId,
+          sku: 'V-OFF',
+          name: 'Off',
+          optionsJson: {},
+          optionSignature: 'sku:v-off',
+          isActive: false,
+        },
       ],
     });
     await publishProduct(productId, actor);

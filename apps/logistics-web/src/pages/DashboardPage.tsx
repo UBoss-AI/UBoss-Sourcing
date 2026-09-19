@@ -18,7 +18,6 @@
  * the page is a window onto data the screen cannot see all of.
  */
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ErrorState, Select } from '@/components/ui';
 import { BentoCell, BentoGrid, ConsoleGround, ConsoleHeader } from '@/components/dashboard/console';
@@ -26,7 +25,7 @@ import { RangeTabs, RefreshButton } from '@/components/dashboard/controls';
 import { ModernDonutCard } from '@/components/dashboard/ModernDonutCard';
 import { AiInsightsCard } from '@/components/dashboard/AiInsightsCard';
 import { useDashboardParams } from '@/lib/use-dashboard-params';
-import { segmentStatuses, shipmentSegments } from '@/lib/shipment-donut';
+import { shipmentSegments } from '@/lib/shipment-donut';
 import type { ShipmentSegmentKey } from '@/lib/shipment-donut';
 import { useInsightStream } from '@/lib/use-insight-stream';
 import { useI18n } from '@/i18n/i18n-context';
@@ -100,10 +99,9 @@ export function DashboardPage(): React.JSX.Element {
 
   /*
    * The insight arrives as Server-Sent Events, so the summary is on screen
-   * while it is still being written. The findings underneath it appear only
-   * once the stream closes — that is the server's doing, and it is the reason
-   * a citation can be trusted: it has been checked against the metric bundle
-   * before it is sent.
+   * while it is still being written. The finished object that replaces it when
+   * the stream closes is the validated one — the server checks every figure the
+   * model cited against the metric bundle before it sends it.
    */
   const insights = useInsightStream('/logistics/dashboard/insights/stream', () => ({
     from: params.window.from,
@@ -235,18 +233,6 @@ export function DashboardPage(): React.JSX.Element {
               remainder: t('carrierDashboard.remainder'),
               clampNote: t('carrierDashboard.clampNote'),
             }}
-            footer={
-              params.segment === null ? undefined : (
-                <Link
-                  to={`/shipments?status=${segmentStatuses(params.segment).join(',')}${
-                    driverId === null ? '' : `&driverProfileId=${driverId}`
-                  }`}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-                >
-                  {t('carrierDashboard.openInShipments')}
-                </Link>
-              )
-            }
           />
         </BentoCell>
 
@@ -263,18 +249,12 @@ export function DashboardPage(): React.JSX.Element {
             onAsk={(question) => {
               insights.ask(question);
             }}
-            suggestions={[
+            placeholders={[
               t('carrierDashboard.ai.q1'),
               t('carrierDashboard.ai.q2'),
               t('carrierDashboard.ai.q3'),
               t('carrierDashboard.ai.q4'),
             ]}
-            placeholders={[
-              t('carrierDashboard.ai.q1'),
-              t('carrierDashboard.ai.q2'),
-              t('carrierDashboard.ai.q3'),
-            ]}
-            renderLink={(href, children) => <Link to={href}>{children}</Link>}
             generatedLabel={
               insights.insight === null ? undefined : formatRelative(insights.insight.generatedAt)
             }
@@ -289,20 +269,11 @@ export function DashboardPage(): React.JSX.Element {
               explaining: t('aiInsights.explaining'),
               explained: t('aiInsights.explained'),
               explainFailed: t('aiInsights.explainFailed'),
-              suggestions: t('aiInsights.suggestions'),
-              findings: t('aiInsights.findings'),
-              nextSteps: t('aiInsights.nextSteps'),
-              evidence: t('aiInsights.evidence'),
               generated: t('aiInsights.generated'),
               disclosure: t('aiInsights.disclosure'),
               deterministic: t('aiInsights.deterministic'),
               unavailable: t('aiInsights.unavailable'),
               idle: t('aiInsights.idle'),
-              severity: {
-                info: t('aiInsights.severity.info'),
-                attention: t('aiInsights.severity.attention'),
-                urgent: t('aiInsights.severity.urgent'),
-              },
             }}
           />
         </BentoCell>
@@ -337,4 +308,14 @@ export function DashboardPage(): React.JSX.Element {
  * — `readDashboard` returns all of it — and every one of them is still
  * reachable on the screen that owns it: Shipments, Collections, Dispatch and
  * Problems. Their markup is in this file's history if it is ever wanted back.
+ */
+
+/*
+ * The "open in shipments" link under the ring went with them.
+ *
+ * Selecting a segment still filters, and the ring says so in words; what the
+ * link added was a second way to reach a screen the rail already offers, sitting
+ * under a chart that is now the only thing on the page. `segmentStatuses` in
+ * lib/shipment-donut.ts is untouched and still builds that query string for the
+ * shipments screen itself.
  */

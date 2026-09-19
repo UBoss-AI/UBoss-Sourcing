@@ -243,16 +243,99 @@ export interface ProductVariant {
   name: string;
   options: Record<string, string>;
   price: Money | null;
+  /** This size's own "was" price, quoted through the same destination. */
+  compareAtPrice?: Money | null;
   isActive?: boolean;
   availableQty?: number | null;
+
+  /**
+   * Whether this one can be had right now. Never how many there are.
+   *
+   * A boolean, deliberately: this storefront does not publish warehouse
+   * figures. Null means the question has no answer — an untracked product, or
+   * a listing read that did not look stock up — and the selector treats that
+   * as purchasable, because stock is confirmed when the item goes in the
+   * basket.
+   */
+  isInStock?: boolean | null;
   /** GPSR Art. 19(c), per sellable SKU. Two sizes are two barcodes. */
   gtin?: string | null;
   modelIdentifier?: string | null;
+
+  /**
+   * This size's own terms of trade, or null where the product's apply.
+   *
+   * Null is not missing data. It means "whatever the product says", which is
+   * what almost every variant says, and the server resolves it the same way on
+   * every cart mutation — so honouring it here is a courtesy to the shopper
+   * rather than a rule the client gets to decide.
+   */
+  minOrderQty?: number | null;
+  qtyIncrement?: number | null;
+  maxOrderQty?: number | null;
+  leadTimeDays?: number | null;
+
+  /**
+   * What is in one purchasable unit.
+   *
+   * `multipackCount` is how many identical units are supplied together — the
+   * 10 in "Pack of 10". It is NOT how many the shopper wants; that is the
+   * quantity control, and the page states the two separately so that "3 of a
+   * Pack of 10" cannot be read as three packets.
+   */
+  multipackCount?: number | null;
+  /** A decimal string with its unit beside it, never a number. */
+  netContentValue?: string | null;
+  netContentUnit?: string | null;
+  /** What a unit price is quoted against — "per 1 kg", "per 100 g". */
+  unitPricingBaseValue?: string | null;
+  unitPricingBaseUnit?: string | null;
+  /** The manufacturer's own carton, in their words. Displayed, never parsed. */
+  manufacturerPackLabel?: string | null;
+
+  /** This size's photographs. Empty means "show the product's". */
+  images?: ProductImage[];
+
   /**
    * This size's own packing. Present on the detail read, absent on a listing —
    * a grid of two dozen products does not need thirty packing rows each.
    */
   packaging?: ProductPackaging | null;
+}
+
+/**
+ * One dimension a product can be chosen along, as the server defines it.
+ *
+ * Served once per session from `/catalog/variant-axes` rather than repeated on
+ * every product, and defined in exactly one place — the 112 subcategory
+ * templates in `backend/src/domain/variants/`. The storefront holds no list of
+ * its own, which is what stops a filter and a selector disagreeing about what
+ * "Size" means.
+ */
+export interface VariantAxisDefinition {
+  key: string;
+  label: string;
+  input: 'TEXT_SELECT' | 'NUMERIC' | 'MEASUREMENT' | 'COLOUR' | 'BOOLEAN' | 'PACK_COUNT';
+  display:
+    | 'CHIPS'
+    | 'SIZE_BUTTONS'
+    | 'SWATCHES'
+    | 'IMAGE_SWATCHES'
+    | 'DROPDOWN'
+    | 'MEASUREMENT'
+    | 'PACK'
+    | 'SPEC_TABLE';
+  /** How the values are put in order. Alphabetical puts L before M. */
+  sort: 'NUMERIC' | 'APPAREL' | 'GIVEN' | 'ALPHA';
+  units: string[] | null;
+  /**
+   * Axes that must be answered first.
+   *
+   * Size depends on size system: an 8 is three different shoes in UK, EU and
+   * US, and offering the number first offers a measurement with no unit.
+   */
+  dependsOn: string[];
+  inTitle: boolean;
 }
 
 /** One box, as the catalogue knows it. */
@@ -365,6 +448,37 @@ export interface Product {
   category: { id: string; name: string; slug: string } | null;
   isStockTracked: boolean;
   hasVariants: boolean;
+
+  /**
+   * Whether the product itself can be had now. Never how many there are.
+   *
+   * The answer for a product sold as a single item, and the fallback for one
+   * whose options are listed the old way. Null means the question has no
+   * answer, and null is purchasable: stock is confirmed when the item goes in
+   * the basket, which is what actually happens.
+   */
+  isInStock?: boolean | null;
+
+  /**
+   * The dimensions this product is chosen along, as axis keys.
+   *
+   * Empty is the ordinary case, and it means the page shows the option list
+   * it has always shown: one row per variant, several selectable at once,
+   * which is how a hospital buys three sizes of syringe in one go. A
+   * non-empty list turns on the narrowing selector instead — colour, then
+   * size, with the combinations nobody stocks disabled.
+   *
+   * The keys only. The labels and units come from /catalog/variant-axes.
+   */
+  variantAxisKeys?: string[];
+
+  /**
+   * Which of the catalogue templates this product's shelf uses.
+   *
+   * The key the axis definitions are looked up under. Null for a category
+   * with no template, which is the same thing an empty variantAxisKeys says.
+   */
+  variantTemplateSlug?: string | null;
   publishedAt: string | null;
   primaryImage: ProductImage | null;
   images: ProductImage[];

@@ -40,6 +40,7 @@ import { useLocale } from '@/app/locale-context';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, ButtonLink } from '@/components/ui';
+import { BackgroundGradient } from '@/components/ui/background-gradient';
 import { AlertIcon, BoxIcon, CartIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
@@ -50,6 +51,7 @@ import {
   sellUnitPriceMinor,
   usePiecesPerCarton,
 } from '@/lib/packaging';
+import { useTilt } from '@/lib/pointer-tilt';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Money, Product } from '@/lib/types';
 
@@ -137,6 +139,10 @@ function CardImage({ product }: { product: AiProductCard }): React.JSX.Element {
           className="h-full w-full object-contain p-2 transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100 sm:p-3"
         />
       )}
+
+      {/* The specular, over the photograph and nowhere else — `ProductCard`
+          explains why it is not over the whole card. */}
+      <span aria-hidden="true" className="tilt-sheen" />
     </div>
   );
 }
@@ -239,159 +245,183 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
     },
   });
 
+  // The lean towards the pointer, on the glare's box rather than on the tile —
+  // a halo that stayed flat behind a card tipping away from it reads as two
+  // objects. `lib/pointer-tilt.ts` explains why this is four CSS variables
+  // written through a ref rather than anything React re-renders.
+  const tilt = useTilt<HTMLDivElement>();
+
   return (
     <li className="min-w-0">
-      {/* `relative` is the containing block for the stretched link below, so
-          the whole tile is clickable while the only anchor in the tab order is
-          the product name. See `components/ProductCard.tsx`, which explains
-          the pattern at length; this is the same one at card scale. */}
-      <article
-        className="group relative flex h-full items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface
-                   p-3.5 shadow-card transition-[box-shadow,border-color] hover:border-border-hover hover:shadow-card-hover
-                   focus-within:border-brand/40 focus-within:shadow-card-hover motion-reduce:transition-none"
+      {/* The glare: the coloured halo behind the tile and the gradient rim in
+          the four pixels around it, both only while it is hovered. The same
+          treatment `components/ProductCard.tsx` carries, because this is the
+          same object — a product, as a card — and a shopper who learned that
+          hover in the catalogue meets it again in the assistant.
+
+          The box also leans, carries the `group` the tile's insides key off,
+          and is what the grid stretches, so `h-full` is on it and the tile
+          fills it. */}
+      <BackgroundGradient
+        ref={tilt.ref}
+        onPointerEnter={tilt.onPointerEnter}
+        onPointerMove={tilt.onPointerMove}
+        onPointerLeave={tilt.onPointerLeave}
+        containerClassName="tilt group h-full"
+        className="h-full"
       >
-        {/* Words first in the source, photograph second — the card reads left
-            to right on screen and top to bottom to a screen reader, and both
-            orders put the product's name before its picture. */}
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5 self-stretch">
-          <h4 className="text-sm font-semibold leading-snug text-ink">
-            <Link
-              to={`/product/${product.slug}`}
-              className="line-clamp-2 rounded after:absolute after:inset-0 after:content-[''] hover:text-brand
-                         hover:underline hover:decoration-brand/40 hover:underline-offset-2
-                         group-hover:text-brand focus-visible:outline-none"
-            >
-              {product.name}
-            </Link>
-          </h4>
+        {/* `relative` is the containing block for the stretched link below, so
+            the whole tile is clickable while the only anchor in the tab order is
+            the product name. See `components/ProductCard.tsx`, which explains
+            the pattern at length; this is the same one at card scale. */}
+        <article
+          className="relative flex h-full items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface
+                     p-3.5 shadow-card transition-[box-shadow,border-color] group-hover:border-border-hover group-hover:shadow-card-hover
+                     group-focus-within:border-brand/40 group-focus-within:shadow-card-hover motion-reduce:transition-none"
+        >
+          {/* Words first in the source, photograph second — the card reads left
+              to right on screen and top to bottom to a screen reader, and both
+              orders put the product's name before its picture. */}
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 self-stretch">
+            <h4 className="text-sm font-semibold leading-snug text-ink">
+              <Link
+                to={`/product/${product.slug}`}
+                className="line-clamp-2 rounded after:absolute after:inset-0 after:content-[''] hover:text-brand
+                           hover:underline hover:decoration-brand/40 hover:underline-offset-2
+                           group-hover:text-brand focus-visible:outline-none"
+              >
+                {product.name}
+              </Link>
+            </h4>
 
-          {/* The product code, raised above the stretched link so a buyer
-              checking a card against a purchase order can still select it. */}
-          <p className="truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
-            <span className="relative z-[1] select-text">{product.sku}</span>
-          </p>
-
-          {product.shortDescription !== null && (
-            <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
-              {product.shortDescription}
-            </p>
-          )}
-
-          <div className="mt-auto space-y-1 pt-1.5">
-            <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              {isPriceOnRequest ? (
-                <span className="text-sm font-semibold text-brand">
-                  {t('productCard.requestAQuote')}
-                </span>
-              ) : product.price === null ? (
-                // Not sold in the shopper's market is a real state, and the
-                // honest answer is to say so rather than quote another
-                // market's figure — which would price a JPY 5,000 item at
-                // USD 5,000.
-                <span className="text-xs text-ink-muted">{t('aiProducts.notPricedHere')}</span>
-              ) : (
-                <>
-                  <span className="text-sm font-semibold tabular text-ink">
-                    {formatMoneyMinor(
-                      sellUnitPriceMinor(product.price.minor, sellUnit),
-                      product.price.currency,
-                    )}
-                  </span>
-                  <span className="text-xxs text-ink-subtle">
-                    {soldByThePiece
-                      ? t('packaging.soldByThePiece')
-                      : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
-                  </span>
-                  <span className="text-xxs text-ink-subtle">
-                    {product.tax.inclusive
-                      ? t('productCard.taxIncluded')
-                      : t('productCard.plusTaxRate', {
-                          rate: product.tax.ratePercent,
-                          code: product.tax.code,
-                        })}
-                  </span>
-                </>
-              )}
+            {/* The product code, raised above the stretched link so a buyer
+                checking a card against a purchase order can still select it. */}
+            <p className="truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
+              <span className="relative z-[1] select-text">{product.sku}</span>
             </p>
 
-            <StockLine product={product} />
-
-            {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
-              <p className="flex flex-wrap gap-1 pt-0.5">
-                {isUnavailable && (
-                  <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>
-                )}
-                {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
-                {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
+            {product.shortDescription !== null && (
+              <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
+                {product.shortDescription}
               </p>
             )}
-          </div>
 
-          {addError !== null && (
-            <p
-              role="alert"
-              className="relative z-[1] rounded-md border border-danger/30 bg-danger-soft px-2.5 py-2 text-xxs text-danger"
-            >
-              {addError}
-            </p>
-          )}
+            <div className="mt-auto space-y-1 pt-1.5">
+              <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                {isPriceOnRequest ? (
+                  <span className="text-sm font-semibold text-brand">
+                    {t('productCard.requestAQuote')}
+                  </span>
+                ) : product.price === null ? (
+                  // Not sold in the shopper's market is a real state, and the
+                  // honest answer is to say so rather than quote another
+                  // market's figure — which would price a JPY 5,000 item at
+                  // USD 5,000.
+                  <span className="text-xs text-ink-muted">{t('aiProducts.notPricedHere')}</span>
+                ) : (
+                  <>
+                    <span className="text-sm font-semibold tabular text-ink">
+                      {formatMoneyMinor(
+                        sellUnitPriceMinor(product.price.minor, sellUnit),
+                        product.price.currency,
+                      )}
+                    </span>
+                    <span className="text-xxs text-ink-subtle">
+                      {soldByThePiece
+                        ? t('packaging.soldByThePiece')
+                        : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+                    </span>
+                    <span className="text-xxs text-ink-subtle">
+                      {product.tax.inclusive
+                        ? t('productCard.taxIncluded')
+                        : t('productCard.plusTaxRate', {
+                            rate: product.tax.ratePercent,
+                            code: product.tax.code,
+                          })}
+                    </span>
+                  </>
+                )}
+              </p>
 
-          {/* Above the stretched link, or none of it would be clickable.
-              Side by side rather than stacked: the card is a wide row now, and
-              two full-width buttons down a column that also holds the name and
-              the description would be the tallest thing in the transcript. */}
-          <div className="relative z-[1] mt-2 flex flex-wrap gap-1.5 border-t border-border-subtle pt-2.5">
-            <ButtonLink
-              // The specifications heading, which is the anchor the product
-              // page actually carries. A product with no attributes has no
-              // specifications block and lands at the top of its own page,
-              // which is the honest destination rather than a dead fragment.
-              to={`/product/${product.slug}#specifications-heading`}
-              size="sm"
-              aria-label={t('aiProducts.viewSpecificationsOf', { product: product.name })}
-            >
-              {t('aiProducts.viewSpecifications')}
-            </ButtonLink>
+              <StockLine product={product} />
 
-            {!isCustomer ? (
-              // A guest has no cart to add to. The product page is where
-              // signing in is offered in context, rather than a button here
-              // that can only bounce them.
-              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
-                {t('product.signInToOrder')}
-              </ButtonLink>
-            ) : needsOptions ? (
-              // A product with options cannot be added from a card without
-              // choosing one on the customer's behalf. It says which step is
-              // next instead of guessing.
-              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
-                {t('product.chooseAnOption')}
-              </ButtonLink>
-            ) : (
-              <Button
-                variant="action"
-                size="sm"
-                // A card whose product is quoted per account or taken off sale
-                // has no basket path at all. The server would refuse the add
-                // anyway - see `assertPurchasable` - and finding that out by
-                // pressing a button that looked ready is the worse way to
-                // learn it.
-                disabled={soldOut || unpriced || isPriceOnRequest || isUnavailable}
-                isLoading={add.isPending}
-                onClick={() => {
-                  add.mutate();
-                }}
-                aria-label={t('aiProducts.addToCartLabel', { product: product.name })}
+              {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
+                <p className="flex flex-wrap gap-1 pt-0.5">
+                  {isUnavailable && (
+                    <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>
+                  )}
+                  {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
+                  {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
+                </p>
+              )}
+            </div>
+
+            {addError !== null && (
+              <p
+                role="alert"
+                className="relative z-[1] rounded-md border border-danger/30 bg-danger-soft px-2.5 py-2 text-xxs text-danger"
               >
-                <CartIcon className="h-4 w-4" aria-hidden="true" />
-                {t('product.addToCart')}
-              </Button>
+                {addError}
+              </p>
             )}
-          </div>
-        </div>
 
-        <CardImage product={product} />
-      </article>
+            {/* Above the stretched link, or none of it would be clickable.
+                Side by side rather than stacked: the card is a wide row now, and
+                two full-width buttons down a column that also holds the name and
+                the description would be the tallest thing in the transcript. */}
+            <div className="relative z-[1] mt-2 flex flex-wrap gap-1.5 border-t border-border-subtle pt-2.5">
+              <ButtonLink
+                // The specifications heading, which is the anchor the product
+                // page actually carries. A product with no attributes has no
+                // specifications block and lands at the top of its own page,
+                // which is the honest destination rather than a dead fragment.
+                to={`/product/${product.slug}#specifications-heading`}
+                size="sm"
+                aria-label={t('aiProducts.viewSpecificationsOf', { product: product.name })}
+              >
+                {t('aiProducts.viewSpecifications')}
+              </ButtonLink>
+
+              {!isCustomer ? (
+                // A guest has no cart to add to. The product page is where
+                // signing in is offered in context, rather than a button here
+                // that can only bounce them.
+                <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
+                  {t('product.signInToOrder')}
+                </ButtonLink>
+              ) : needsOptions ? (
+                // A product with options cannot be added from a card without
+                // choosing one on the customer's behalf. It says which step is
+                // next instead of guessing.
+                <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
+                  {t('product.chooseAnOption')}
+                </ButtonLink>
+              ) : (
+                <Button
+                  variant="action"
+                  size="sm"
+                  // A card whose product is quoted per account or taken off sale
+                  // has no basket path at all. The server would refuse the add
+                  // anyway - see `assertPurchasable` - and finding that out by
+                  // pressing a button that looked ready is the worse way to
+                  // learn it.
+                  disabled={soldOut || unpriced || isPriceOnRequest || isUnavailable}
+                  isLoading={add.isPending}
+                  onClick={() => {
+                    add.mutate();
+                  }}
+                  aria-label={t('aiProducts.addToCartLabel', { product: product.name })}
+                >
+                  <CartIcon className="h-4 w-4" aria-hidden="true" />
+                  {t('product.addToCart')}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <CardImage product={product} />
+        </article>
+      </BackgroundGradient>
     </li>
   );
 }
@@ -401,9 +431,13 @@ function CardsSkeleton({ count }: { count: number }): React.JSX.Element {
   return (
     <div aria-hidden="true" className="grid gap-3">
       {Array.from({ length: Math.min(count, 3) }, (_unused, index) => (
+        /* `m-[4px]` is the room a real card's glare rim takes around it. It
+           draws nothing — there is no reason to glow at somebody who is
+           waiting — but it has to occupy the same space, or every card steps
+           four pixels sideways the moment the data lands. */
         <div
           key={index}
-          className="flex items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface p-3.5"
+          className="m-[4px] flex items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface p-3.5"
         >
           <div className="flex-1 space-y-2">
             <div className="skeleton h-4 w-4/5" />

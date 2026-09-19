@@ -8,6 +8,8 @@
  *   - the keyboard reaches every segment;
  *   - changing the reporting window asks the server again;
  *   - the selection survives in the URL;
+ *   - the selection reaches the insights panel, which is the only other thing
+ *     on this screen;
  *   - loading, empty and error each look like themselves.
  *
  * The chart's own arithmetic is covered by `lib/donut.test.ts`, and the
@@ -142,19 +144,28 @@ describe('the ring', () => {
 });
 
 describe('selecting a segment', () => {
-  it('filters the detail list from the legend', async () => {
+  /*
+   * There is no list under the ring any more, so a selection cannot be checked
+   * by watching rows disappear. What it does now is: press the legend entry,
+   * say in words which slice is showing, offer a way back out, and hand the
+   * slice to the insights panel. Those four are what these tests hold.
+   */
+
+  it('says which slice is showing, and offers a way out', async () => {
     serve();
     renderWithProviders(<DashboardPage />, { route: '/account/dashboard' });
 
-    // Both orders to begin with.
-    expect(await screen.findByText('UB-2026-000001')).toBeInTheDocument();
-    expect(screen.getByText('UB-2026-000002')).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: /Waiting on you/i }));
 
-    await userEvent.click(screen.getByRole('button', { name: /Waiting on you/i }));
+    expect(screen.getByText('Showing Waiting on you only')).toBeInTheDocument();
 
-    // Only the one whose status is in that group.
-    expect(screen.getByText('UB-2026-000001')).toBeInTheDocument();
-    expect(screen.queryByText('UB-2026-000002')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filter' }));
+
+    expect(screen.queryByText('Showing Waiting on you only')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Waiting on you/i })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 
   it('marks the selected entry as pressed', async () => {
@@ -172,7 +183,8 @@ describe('selecting a segment', () => {
     /*
      * The ring's arcs are `aria-hidden` decoration; the LEGEND is the control.
      * So "keyboard selectable" has to be true of the legend entries, and this
-     * is the test that says so — tab to one, press it, and the list filters.
+     * is the test that says so — tab to one, press it, and the chart reports
+     * the slice it is now showing.
      */
     serve();
     renderWithProviders(<DashboardPage />, { route: '/account/dashboard' });
@@ -185,7 +197,7 @@ describe('selecting a segment', () => {
     await userEvent.keyboard('{Enter}');
 
     expect(entry).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.queryByText('UB-2026-000002')).not.toBeInTheDocument();
+    expect(screen.getByText('Showing Waiting on you only')).toBeInTheDocument();
   });
 
   it('clears when the selected entry is chosen again', async () => {
@@ -199,17 +211,7 @@ describe('selecting a segment', () => {
 
     await userEvent.click(entry);
     expect(entry).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByText('UB-2026-000002')).toBeInTheDocument();
-  });
-
-  it('offers an explicit way to clear the filter', async () => {
-    serve();
-    renderWithProviders(<DashboardPage />, { route: '/account/dashboard' });
-
-    await userEvent.click(await screen.findByRole('button', { name: /Waiting on you/i }));
-    await userEvent.click(screen.getByRole('button', { name: 'Clear filter' }));
-
-    expect(screen.getByText('UB-2026-000002')).toBeInTheDocument();
+    expect(screen.queryByText(/^Showing /)).not.toBeInTheDocument();
   });
 
   it('starts filtered when the URL says so', async () => {
@@ -219,8 +221,7 @@ describe('selecting a segment', () => {
       route: '/account/dashboard?segment=delivered',
     });
 
-    await screen.findByText('UB-2026-000002');
-    expect(screen.queryByText('UB-2026-000001')).not.toBeInTheDocument();
+    expect(await screen.findByText('Showing Delivered only')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Delivered/i })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -228,15 +229,44 @@ describe('selecting a segment', () => {
   });
 
   it('ignores a segment the build does not know', async () => {
-    // A stale link from an older deploy. It must show everything rather than
-    // filter to nothing and look broken.
+    // A stale link from an older deploy. It must show the whole ring rather
+    // than filter to nothing and look broken.
     serve();
     renderWithProviders(<DashboardPage />, {
       route: '/account/dashboard?segment=made-up',
     });
 
-    expect(await screen.findByText('UB-2026-000001')).toBeInTheDocument();
-    expect(screen.getByText('UB-2026-000002')).toBeInTheDocument();
+    await screen.findByTestId('donut-total');
+
+    expect(screen.queryByText(/^Showing /)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Waiting on you/i })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('tells the insights panel which slice is selected', async () => {
+    /*
+     * The one place a selection goes besides the ring's own state, now that
+     * nothing else is on this screen: the question the insights panel asks is
+     * measured over the slice, so the paragraph beside the chart is about what
+     * the reader has actually singled out.
+     */
+    serve();
+    renderWithProviders(<DashboardPage />, { route: '/account/dashboard' });
+
+    await userEvent.click(await screen.findByRole('button', { name: /Waiting on you/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Explain this chart/i }));
+
+    await waitFor(() => {
+      const asked = fetchMock.mock.calls.find((call) =>
+        String(call[0]).includes('/insights/stream'),
+      );
+      expect(asked).toBeDefined();
+      expect(JSON.parse(String((asked?.[1] as { body?: unknown } | undefined)?.body))).toMatchObject(
+        { segment: 'action' },
+      );
+    });
   });
 });
 

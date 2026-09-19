@@ -89,8 +89,8 @@ import type {
 import { Spinner } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
-import { isPlaced } from '@/lib/warehouses';
-import type { MapConfig, MappablePlace } from '@/lib/warehouses';
+import { MAP_HEIGHT, isPlaced } from '@/lib/warehouses';
+import type { MapConfig, MapTiles, MappablePlace } from '@/lib/warehouses';
 import type { DeliveryCoverage } from '@/lib/delivery-coverage';
 import { PLAIN_LOOK, markerElement, setMarkerPulse, setMarkerSelected } from './warehouse-marker';
 import type { MarkerLook } from './warehouse-marker';
@@ -136,6 +136,14 @@ interface WarehouseMapLibreProps<T extends MappablePlace> {
   onPointAt?: ((id: string | null) => void) | undefined;
   /** Rendered over the map, top-right. The page decides what goes in it. */
   overlay?: React.ReactNode;
+  /**
+   * How tall the map is, where the full-screen panel's height is wrong for it.
+   *
+   * The default is that panel's. A preview inside a form dialog is confirming
+   * one pin rather than surveying a network, and a map that tall pushes the
+   * fields underneath it off the screen.
+   */
+  heightClassName?: string;
 }
 
 /**
@@ -277,7 +285,10 @@ async function vectorStyle(url: string): Promise<StyleSpecification> {
 async function styleFor(
   background: WarehouseMapLibreProps<MappablePlace>['background'],
 ): Promise<StyleSpecification> {
-  if (background.provider === 'VECTOR') return vectorStyle(background.style.url);
+  if (background.provider === 'VECTOR') {
+    const style = await vectorStyle(background.style.url);
+    return background.satellite === null ? style : overImagery(style, background.satellite);
+  }
 
   if (background.provider === 'RASTER') {
     return {
@@ -298,7 +309,75 @@ async function styleFor(
     };
   }
 
+  if (background.satellite !== null) return imageryStyle(background.satellite);
+
   return { version: 8, sources: {}, layers: [] };
+}
+
+/** The source and layer ids the imagery is added under, kept out of the way. */
+const IMAGERY_SOURCE = 'uboss-satellite';
+
+/** Imagery and nothing else, for a deployment that configured no style. */
+function imageryStyle(satellite: MapTiles): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      [IMAGERY_SOURCE]: {
+        type: 'raster',
+        tiles: [satellite.urlTemplate],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: escapeHtml(satellite.attribution),
+      },
+    },
+    layers: [{ id: IMAGERY_SOURCE, type: 'raster', source: IMAGERY_SOURCE }],
+  };
+}
+
+/**
+ * The operator's style, redrawn over satellite imagery.
+ *
+ * The hybrid view, and the reason it is worth having: a warehouse on a vector
+ * basemap sits on a beige rectangle, and a warehouse on imagery sits on the
+ * roof it is actually in - which is the difference between believing a
+ * coordinate and checking it. Nobody reads 51.219, 4.402 and knows whether it
+ * is the right side of the dock.
+ *
+ * **Which layers survive is by type, not by name**, and that is what makes
+ * this work with any style rather than with the one it was written against.
+ * Imagery already shows the ground - the water, the fields, the buildings - so
+ * everything that *paints* ground is what would hide it: the background, every
+ * fill, the style's own hillshade and its low-zoom relief raster. What is kept
+ * is `line` and `symbol`: the roads, the borders and every label. A style's
+ * layer names are its author's business and change between versions; the
+ * layer's `type` is in the specification.
+ *
+ * The relabelling in `labelInEnglish` has already run by here, so the labels
+ * that survive are the English ones - which is the whole point of pairing the
+ * two. Imagery carries no place names at all, so a hybrid built any other way
+ * would be a beautiful map nobody can navigate.
+ */
+function overImagery(style: StyleSpecification, satellite: MapTiles): StyleSpecification {
+  const kept = style.layers.filter((layer) => layer.type === 'line' || layer.type === 'symbol');
+
+  return {
+    ...style,
+    sources: {
+      ...style.sources,
+      [IMAGERY_SOURCE]: {
+        type: 'raster',
+        tiles: [satellite.urlTemplate],
+        tileSize: 256,
+        // Past this most imagery services run out and the map would go blank;
+        // MapLibre stretches the last level instead, which is soft but keeps
+        // the markers where they belong.
+        maxzoom: 19,
+        attribution: escapeHtml(satellite.attribution),
+      },
+    },
+    // First in the array is lowest on the screen. The imagery is the ground.
+    layers: [{ id: IMAGERY_SOURCE, type: 'raster', source: IMAGERY_SOURCE }, ...kept],
+  };
 }
 
 /** Past this, a fitted view of two nearby warehouses reads as a street map. */
@@ -306,6 +385,58 @@ const MAX_FIT_ZOOM = 13;
 
 /** What one warehouse gets, since a single point has no extent to fit. */
 const SINGLE_WAREHOUSE_ZOOM = 11;
+
+/**
+ * Where the map opens, decided *before* it is built rather than flown to after.
+ *
+ * This is a correctness fix rather than a nicety, and the failure it prevents
+ * is worth writing down because the screen it produces looks like a bug in
+ * this file.
+ *
+ * A map constructed at zoom 2 immediately asks its style's sources for the
+ * whole world. On a planet-wide vector style - OpenFreeMap's `liberty`, which
+ * is the one the documentation recommends - a single zoom-2 tile is about
+ * 1.5 MB, and the opening view needs several. Until every one of them arrives
+ * MapLibre does not fire `load`, because `load` means "the first complete
+ * rendering has happened". On an ordinary office connection that is tens of
+ * seconds; on a slow one it effectively never comes. The visible result was a
+ * map stuck under its own "Loading the map" overlay, showing the style's
+ * low-zoom relief layer and no labels, with the camera never moving to the
+ * warehouses - and none of it reported as an error, because nothing had
+ * failed.
+ *
+ * Opening on the warehouses means the only tiles ever requested are the ones
+ * somebody is going to look at. The world view is kept for the one case that
+ * genuinely has no answer: an installation where nothing has been placed yet.
+ */
+function openingCamera(
+  places: readonly MappablePlace[],
+): { center: [number, number]; zoom: number } | { bounds: [number, number, number, number] } {
+  const placed = places.filter(isPlaced);
+
+  if (placed.length === 0) return { center: [0, 20], zoom: 2 };
+
+  if (placed.length === 1) {
+    const only = placed[0];
+    if (only !== undefined) {
+      return { center: [only.longitude, only.latitude], zoom: SINGLE_WAREHOUSE_ZOOM };
+    }
+  }
+
+  let west = 180;
+  let south = 90;
+  let east = -180;
+  let north = -90;
+
+  for (const place of placed) {
+    west = Math.min(west, place.longitude);
+    east = Math.max(east, place.longitude);
+    south = Math.min(south, place.latitude);
+    north = Math.max(north, place.latitude);
+  }
+
+  return { bounds: [west, south, east, north] };
+}
 
 type Status = 'loading' | 'ready' | 'failed';
 
@@ -382,6 +513,7 @@ export function WarehouseMapLibre<T extends MappablePlace>({
   coverage = null,
   onPointAt,
   overlay,
+  heightClassName,
 }: WarehouseMapLibreProps<T>): React.JSX.Element {
   const { t } = useI18n();
 
@@ -445,6 +577,17 @@ export function WarehouseMapLibre<T extends MappablePlace>({
     )
     .join('|');
 
+  /*
+   * The warehouses, readable from inside an effect that runs once.
+   *
+   * The map is built in an effect with no dependencies, and it needs to know
+   * where it is going *before* it is constructed - see `openingCamera`. A ref
+   * rather than a dependency, because adding `placed` to that effect's list
+   * would rebuild the whole map every time a warehouse is edited.
+   */
+  const placedRef = useRef(placed);
+  placedRef.current = placed;
+
   // --- Create the map, once -------------------------------------------------
   useEffect(() => {
     const markers = markersRef.current;
@@ -496,9 +639,11 @@ export function WarehouseMapLibre<T extends MappablePlace>({
         const map = new maplibre.Map({
           container: containerRef.current,
           style,
-          // The whole world until the warehouses are fitted below.
-          center: [0, 20],
-          zoom: 2,
+          // Opened on the warehouses, not on the world and flown in
+          // afterwards. See `openingCamera` for why that distinction decides
+          // whether this map ever finishes loading at all.
+          ...openingCamera(placedRef.current),
+          fitBoundsOptions: { padding: 48, maxZoom: MAX_FIT_ZOOM },
           maxZoom: 19,
           // Scroll-wheel zoom off. This map sits in a scrolling page, and a
           // wheel that zooms instead of scrolling traps the reader on it.
@@ -599,20 +744,28 @@ export function WarehouseMapLibre<T extends MappablePlace>({
 
 
         /**
-         * Ready is the style having loaded, not the constructor having
-         * returned - which is the one real difference from a raster tile
-         * library, where there is nothing to wait for. Until `load` fires
-         * there are no layers to repoint at their English names and nothing
-         * for a marker to sit on top of.
+         * Ready is the style having been applied - `style.load` - and not
+         * `load`.
+         *
+         * The two sound interchangeable and are not, and the difference is
+         * what used to leave this map permanently under its own loading
+         * overlay. `load` means the first *complete* rendering has happened,
+         * which waits for every tile in the opening view; on a planet-wide
+         * vector style those are megabytes each and can take a minute, or on
+         * a poor connection never arrive at all. `style.load` means the style
+         * document is up: there are layers to relabel, the camera is where it
+         * belongs, and a marker has something to sit on. Everything this
+         * component does on becoming ready is true at that moment, and the
+         * tiles paint themselves in underneath as they arrive - which is what
+         * a map is supposed to look like while it loads.
          *
          * `on` rather than `once`, which would say the intent better and does
          * not typecheck as cleanly: MapLibre's `once` doubles as a promise
          * when its listener is omitted, so its return type is a union with a
-         * `Promise` in it and every call site is a floating promise. `load`
-         * fires exactly once in a map's life, so the two are the same thing
-         * here.
+         * `Promise` in it and every call site is a floating promise. The event
+         * fires once per style, and the style is set once here.
          */
-        map.on('load', () => {
+        map.on('style.load', () => {
           if (isCancelled()) return;
 
           styleLoaded = true;
@@ -955,7 +1108,8 @@ export function WarehouseMapLibre<T extends MappablePlace>({
         <div
           ref={containerRef}
           className={cx(
-            'h-[22rem] w-full overflow-hidden rounded-lg border border-border sm:h-[26rem]',
+            'w-full overflow-hidden rounded-lg border border-border',
+            heightClassName ?? MAP_HEIGHT,
             // The ground under a map with no basemap. Deliberately the sunken
             // surface rather than a renderer's own grey, which reads as a map
             // that failed to load rather than one with nothing behind it.

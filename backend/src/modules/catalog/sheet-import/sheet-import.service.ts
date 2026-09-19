@@ -32,6 +32,7 @@
  */
 import type { Prisma } from '../../../generated/prisma/client.js';
 import { ErrorCode, badRequest } from '../../../domain/errors.js';
+import { normaliseValue, signatureOfMap } from '../../../domain/variants/axis.js';
 import { newId, NO_VARIANT_KEY } from '../../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../../audit/audit.service.js';
@@ -1026,12 +1027,32 @@ export async function importProductSheet(options: SheetImportOptions): Promise<S
 
         for (const [index, planUnit] of planned.variants.entries()) {
           const variantId = planUnit.existingVariantId ?? newId();
+          const options: Record<string, string> =
+            planUnit.record.model === null ? {} : { Size: planUnit.record.model };
+
+          /**
+           * The combination's identity, under `uq_variant_option_signature`.
+           *
+           * A supplier sheet routinely lists several rows whose model column
+           * says the same thing - the same "3ml" in four tip styles, with the
+           * difference living in the SKU and nowhere else. Those are four real
+           * SKUs, so the signature falls back to the row's own SKU where the
+           * options do not distinguish it, rather than the import refusing a
+           * catalogue that is not wrong.
+           *
+           * `npm run variants:audit` reports every product this happens to, so
+           * the missing option can be added by somebody who knows what the
+           * difference actually is.
+           */
+          const optionSignature =
+            Object.keys(options).length === 0
+              ? `sku:${normaliseValue(planUnit.sku)}`
+              : `${signatureOfMap(options)}|sku:${normaliseValue(planUnit.sku)}`;
+
           const variantData = {
             name: planUnit.name.slice(0, 255),
-            optionsJson:
-              planUnit.record.model === null
-                ? ({} as Prisma.InputJsonValue)
-                : ({ Size: planUnit.record.model } as Prisma.InputJsonValue),
+            optionsJson: options as Prisma.InputJsonValue,
+            optionSignature: optionSignature.slice(0, 512),
             gtin: planUnit.record.gtinNormalised,
             modelIdentifier: planUnit.record.model?.slice(0, 64) ?? null,
             sortOrder: index,

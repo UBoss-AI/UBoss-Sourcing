@@ -173,7 +173,7 @@ export function CouponsPage(): React.JSX.Element {
           <p className="mt-5 border-t border-border-subtle pt-4 text-sm text-ink-muted">
             {t('coupons.applyAtCheckout')}{' '}
             <Link to="/cart" className="font-medium text-brand hover:underline">
-              {t('coupons.goToBasket')}
+              {t('coupons.goToCart')}
             </Link>
           </p>
         </AccountPanel>

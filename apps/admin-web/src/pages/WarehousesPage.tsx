@@ -348,7 +348,7 @@ export function WarehousesPage(): React.JSX.Element {
    */
   const radiusKm = query.data?.coverage.radiusKm ?? 500;
 
-  const mapConfig = query.data?.map ?? { provider: 'NONE' as const };
+  const mapConfig = query.data?.map ?? { provider: 'NONE' as const, satellite: null };
   const canShowCoverage = supportsDeliveryCoverage(mapConfig);
 
   /**
@@ -931,7 +931,7 @@ export function WarehousesPage(): React.JSX.Element {
           ) : (
             <SellerWarehousePanel
               warehouses={sellerQuery.data?.warehouses ?? []}
-              map={sellerQuery.data?.map ?? { provider: 'NONE' }}
+              map={sellerQuery.data?.map ?? { provider: 'NONE', satellite: null }}
               isTruncated={sellerQuery.data?.isTruncated ?? false}
               isLoading={sellerQuery.isPending}
               isError={sellerQuery.isError}
@@ -1273,6 +1273,9 @@ export function WarehousesPage(): React.JSX.Element {
           // The deployment's own default, from the response. The form shows it
           // as the hint under an empty radius box.
           defaultRadiusKm={radiusKm}
+          // The same background this page's own map draws on, so the preview
+          // under the coordinates is the picture the operator already knows.
+          map={mapConfig}
           onClose={() => {
             setIsCreating(false);
             setEditing(null);

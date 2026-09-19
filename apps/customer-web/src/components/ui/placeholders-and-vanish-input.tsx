@@ -19,8 +19,8 @@
  *
  * The shape of this is the Aceternity `placeholders-and-vanish-input`. Ten
  * things could not survive contact with this repository, and most of them are
- * defects rather than house style — `ui/flip-words.tsx` and `ui/gooey-input.tsx`
- * keep the same kind of list, for the same reason.
+ * defects rather than house style — `ui/flip-words.tsx` keeps the same kind of
+ * list, for the same reason.
  *
  *   - **`cn` is `cx`, and there is no `"use client"`.** Same two as every other
  *     adapted component here. This is a Vite single-page application.

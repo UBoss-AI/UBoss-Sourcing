@@ -22,7 +22,7 @@
  * here.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SessionProvider } from '@/auth/session';
@@ -41,6 +41,7 @@ vi.mock('@/lib/logistics', () => ({
 const logistics = await import('@/lib/logistics');
 
 const fetchSession = vi.mocked(logistics.fetchSession);
+const signIn = vi.mocked(logistics.signIn);
 const signOut = vi.mocked(logistics.signOut);
 
 function sessionFor(company: string, id: string, email: string): PortalSession {
@@ -197,5 +198,86 @@ describe('opening the portal with nothing to go on', () => {
     release(sessionFor('XYZ Logistics', 'partner-b', 'owner@xyz.example'));
 
     expect(await screen.findByText(/signed in as XYZ Logistics/i)).toBeDefined();
+  });
+});
+
+describe('filling the form in again after the server refused the credentials', () => {
+  beforeEach(() => {
+    fetchSession.mockRejectedValue(
+      new ApiError(401, { code: 'UNAUTHENTICATED', message: 'Not signed in.' }),
+    );
+    signIn.mockRejectedValue(
+      new ApiError(401, {
+        code: 'INVALID_CREDENTIALS',
+        message: 'That email and password do not match.',
+      }),
+    );
+  });
+
+  /**
+   * The reported bug, and the whole reason the fields are worth a test.
+   *
+   * Before the first submit, nothing on this screen re-renders while somebody
+   * types. After it, every keystroke is re-validated, so the page renders
+   * again on each one - and an inline callback ref is reattached by React on
+   * every render. The email field's ref focused itself when it was attached,
+   * which meant the second attempt threw the cursor out of whatever box the
+   * person was typing in and back into the email box, mid-word.
+   */
+  async function refuseOneAttempt(): Promise<{
+    email: HTMLElement;
+    password: HTMLElement;
+  }> {
+    renderPortal();
+
+    const email = await screen.findByLabelText('Work email');
+    const password = screen.getByLabelText('Password');
+
+    fireEvent.change(email, { target: { value: 'dispatch@sahyadri.example' } });
+    fireEvent.change(password, { target: { value: 'not-the-password' } });
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
+
+    expect(await screen.findByText(/do not match/i)).toBeDefined();
+
+    return { email, password };
+  }
+
+  it('leaves the cursor in the password box while it is being retyped', async () => {
+    const { password } = await refuseOneAttempt();
+
+    // The person clears the password to type it again. Emptying it is what
+    // raises its own error, which is what renders the page a second time.
+    password.focus();
+    fireEvent.change(password, { target: { value: '' } });
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('alert').length).toBeGreaterThan(1);
+    });
+
+    expect(document.activeElement).toBe(password);
+  });
+
+  it('keeps what is typed next in the box it was typed into', async () => {
+    const { email, password } = await refuseOneAttempt();
+
+    // Emptying the password raises its error; filling it in again clears it.
+    // Both are renders, and it is the second one - the error going away - that
+    // used to land the rest of the password in the email box.
+    password.focus();
+    fireEvent.change(password, { target: { value: '' } });
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('alert').length).toBeGreaterThan(1);
+    });
+
+    password.focus();
+    fireEvent.change(password, { target: { value: 'the-right-one' } });
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('alert')).toHaveLength(1);
+    });
+
+    expect(document.activeElement).toBe(password);
+    expect((email as HTMLInputElement).value).toBe('dispatch@sahyadri.example');
   });
 });

@@ -92,3 +92,25 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     return null;
   };
 }
+
+/**
+ * `scrollIntoView`, which jsdom does not implement either.
+ *
+ * Not a stub for convenience: the method is simply absent from
+ * `Element.prototype`, so calling it is a `TypeError` rather than a no-op, and
+ * a component that scrolls something into view takes down whatever test
+ * touched it. The department rail closes its panel by scrolling the card that
+ * opened it back under the cursor — see `ui/apple-cards-carousel.tsx` — and
+ * that ran inside an animation callback, where the throw arrived as an
+ * unhandled rejection attributed to whichever test happened to be running.
+ *
+ * A no-op, like the `ResizeObserver` above and for the same reason: jsdom has
+ * no layout, so there is no viewport for anything to be scrolled into. A test
+ * that cares whether something scrolled replaces this with its own spy, which
+ * is what `pages/home-products.test.tsx` does.
+ */
+if (typeof Element !== 'undefined' && typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = function scrollIntoView(): void {
+    // Nothing to scroll.
+  };
+}

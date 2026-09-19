@@ -666,6 +666,31 @@ const envSchema = z
     // licence that asks for a line of its own.
     MAP_STYLE_ATTRIBUTION: z.string().default(''),
 
+    // Satellite imagery, as the ground the map is drawn on.
+    //
+    // An XYZ raster template like MAP_TILE_URL, and empty by default for the
+    // same reason everything else here is: a tile request tells whoever serves
+    // it which part of the world is being looked at, and where a deployment's
+    // warehouses are is not a fact this repository sends to a third party on
+    // the operator's behalf.
+    //
+    // **It is the ground, not the whole map.** Set it alongside MAP_STYLE_URL
+    // and the imagery goes underneath that style's roads, borders and labels -
+    // the hybrid view, where a warehouse sits on a photograph of the estate it
+    // is on and the street it is reached by is still named, still in one
+    // language. Set it with no style and the map is imagery and markers, which
+    // is honest but hard to read. Set it alongside MAP_TILE_URL and it is
+    // ignored: those tiles are already a finished picture of the ground, and
+    // two grounds is one too many.
+    //
+    // Any XYZ imagery service works; {z}/{x}/{y} are substituted by the
+    // browser. Esri's World Imagery -
+    // https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+    // - is keyless and global, and its terms require the credit line, so a
+    // deployment pointing here must also set MAP_SATELLITE_ATTRIBUTION.
+    MAP_SATELLITE_URL: z.string().default(''),
+    MAP_SATELLITE_ATTRIBUTION: z.string().default(''),
+
     // How far a warehouse delivers, when the warehouse itself does not say.
     //
     // A setting rather than a constant because it is a commercial promise, not

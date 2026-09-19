@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Field, Input, Select } from '@/components/ui';
+import { AddressSuggest } from '@/components/AddressSuggest';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import type { Address } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
@@ -83,6 +84,8 @@ export function AddressForm({
     register,
     handleSubmit,
     setError,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(buildSchema(t)),
@@ -101,6 +104,18 @@ export function AddressForm({
       isDefaultBilling: existing?.isDefaultBilling ?? false,
     },
   });
+
+  /*
+   * The three fields the address suggestions read.
+   *
+   * `line1` is the search itself; the other two narrow it, so a street typed
+   * from a form that already says Antwerp and BE is not answered with one in
+   * Poland. Watched rather than read from a ref because the combobox is
+   * controlled - it has to re-render as the text changes.
+   */
+  const line1 = watch('line1');
+  const city = watch('city');
+  const country = watch('country');
 
   const save = useMutation({
     mutationFn: (values: FormValues) => {
@@ -208,17 +223,64 @@ export function AddressForm({
         </Field>
       </div>
 
-      <Field label={t('addressForm.addressLine1')} error={errors.line1?.message} required>
-        {({ inputId, describedBy }) => (
-          <Input
-            id={inputId}
-            autoComplete="address-line1"
-            aria-describedby={describedBy}
-            invalid={errors.line1 !== undefined}
-            {...register('line1')}
-          />
-        )}
-      </Field>
+      {/*
+       * The street, with the real addresses matching it offered underneath.
+       *
+       * Why this field and not a button beside the form: a delivery address is
+       * geocoded when it is saved - that is what puts a distance on each
+       * fulfilment option at checkout - and it is geocoded from whatever was
+       * typed. A mistyped street is a confident pin in the wrong place that
+       * nobody is ever shown. Choosing from the list makes the address and its
+       * position the same decision.
+       *
+       * Registered through `setValue` rather than `register` because this is a
+       * controlled combobox: it has to read the current text to search on it.
+       * `shouldValidate` so choosing a suggestion clears the error the empty
+       * field was showing, the way typing into it would.
+       */}
+      <AddressSuggest
+        endpoint="/account/addresses/geocode/suggest"
+        label={t('addressForm.addressLine1')}
+        hint={t('addressSuggest.hint')}
+        error={errors.line1?.message}
+        required
+        maxLength={255}
+        value={line1}
+        context={[city, country].filter((part) => part.trim().length > 0).join(', ')}
+        onChange={(next) => {
+          setValue('line1', next, { shouldValidate: true, shouldDirty: true });
+        }}
+        onPick={(suggestion) => {
+          /*
+           * A field the geocoder did not name is left exactly as it is.
+           *
+           * Not cleared: a geocoder that knows the street but not the postcode
+           * must not wipe a postcode somebody typed off the envelope in front
+           * of them. The country is the exception that is checked rather than
+           * trusted - the schema takes a two-letter code, and a suggestion
+           * from a geocoder that answered with something else would fail
+           * validation on submit rather than here.
+           */
+          const fill = (
+            field: 'line1' | 'city' | 'state' | 'postalCode' | 'country',
+            value: string | null,
+          ): void => {
+            if (value === null) return;
+            setValue(field, value, { shouldValidate: true, shouldDirty: true });
+          };
+
+          fill('line1', suggestion.line1);
+          fill('city', suggestion.city);
+          fill('state', suggestion.region);
+          fill('postalCode', suggestion.postalCode);
+          fill(
+            'country',
+            suggestion.countryCode !== null && suggestion.countryCode.length === 2
+              ? suggestion.countryCode
+              : null,
+          );
+        }}
+      />
 
       <Field label={t('addressForm.addressLine2')} error={errors.line2?.message}>
         {({ inputId, describedBy }) => (

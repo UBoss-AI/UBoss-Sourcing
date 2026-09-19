@@ -1297,7 +1297,13 @@ describe('the map configuration', () => {
     // And it arrives with nothing else on it. A `NONE` carrying a leftover
     // tile URL or an API key would be a setting the operator switched off and
     // this response published anyway.
-    expect(Object.keys(map)).toEqual(['provider']);
+    //
+    // `satellite` is on it and null, which is the same statement rather than an
+    // exception to it: imagery is the ground a map is drawn on rather than a
+    // provider of its own, so every MapLibre answer carries the field and null
+    // is how this one says the operator configured none.
+    expect(Object.keys(map).sort()).toEqual(['provider', 'satellite']);
+    expect(map).toMatchObject({ satellite: null });
   });
 });
 

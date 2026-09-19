@@ -53,8 +53,9 @@ import { HEADLINE_WORDS, splitHeadline } from '@/lib/greeting-headline';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
-import { CategoryCards } from '@/components/catalog/CategoryCards';
+import { CategoryCarousel } from '@/components/catalog/CategoryCarousel';
 import { stockedCategories } from '@/lib/category-tree';
+import { formatNumber } from '@/lib/format';
 import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -333,14 +334,24 @@ function Greeting(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 /*
- * Categories have no image in the API, so every card needs a mark — and a grid
- * of twelve identical placeholders is worse than the plain text cards this
- * replaced, because it looks like twelve failed image loads.
+ * Categories have no image in the API, so every card has to supply its own —
+ * and a grid of twelve identical placeholders is worse than the plain text
+ * cards that preceded it, because it looks like twelve failed image loads.
  *
- * A department this catalogue recognises by name gets a drawn picture of the
- * thing in it; anything else falls back to the abstract stock geometry every
- * category used to get. Both halves and the reasoning are in
- * `lib/category-mark.ts`.
+ * Two lookups answer it, both keyed on the department's NAME so that a
+ * deployment slugging its catalogue differently still gets the right picture.
+ * A department this catalogue recognises gets a photograph
+ * (`lib/category-cover.ts`); anything else gets its drawn mark on a brand
+ * plate (`lib/category-mark.ts`), which is what every category used to get and
+ * is still a finished-looking card. Neither is a fact about the operator's
+ * business, so a fresh deployment that has uploaded nothing still has a front
+ * page.
+ *
+ * It is a rail rather than a grid. Twenty-five departments as a grid is most
+ * of a screen of small tiles between the greeting and the catalogue — the two
+ * things the page is actually for — and it pushed both below the fold. A rail
+ * shows the same twenty-five in one band, at a size where the picture does
+ * some work, and leaves the rest of the page where it was.
  */
 
 function CategoryStrip(): React.JSX.Element | null {
@@ -363,13 +374,19 @@ function CategoryStrip(): React.JSX.Element | null {
         <h2 id="shop-by-category" className="text-title-lg text-ink">
           {t('home.shopByCategory')}
         </h2>
+        {/* Translated, which it was not: this line used to build itself out
+            of an English noun and an English plural rule in JSX, so a
+            storefront read in Greek said "22 departments currently stocked."
+            in the middle of a Greek page. */}
         <p className="mt-1 text-sm text-ink-muted">
-          {categories.length} {categories.length === 1 ? 'department' : 'departments'} currently
-          stocked.
+          {t('home.departmentsStocked', {
+            count: categories.length,
+            departments: formatNumber(categories.length),
+          })}
         </p>
       </header>
 
-      <CategoryCards categories={categories} />
+      <CategoryCarousel categories={categories} />
     </section>
   );
 }

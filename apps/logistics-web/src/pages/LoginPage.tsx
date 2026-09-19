@@ -32,7 +32,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ApiError, NetworkError } from '@/lib/api';
 import { useFocusOnMount } from '@/lib/use-focus-on-mount';
-import { Button, Callout, Field, Input, Spinner } from '@/components/ui';
+import { Button, Callout, Field, Spinner } from '@/components/ui';
+import { AuthDivider, BottomGradient, GRADIENT_CTA, GlowInput } from '@/components/ui/auth-form';
+import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import { useSession } from '@/auth/session-context';
 import { AuthLayout } from './AuthLayout';
@@ -68,8 +70,8 @@ export function LoginPage(): React.JSX.Element {
     defaultValues: { email: '', password: '' },
   });
 
-  const focusEmail = useFocusOnMount();
   const { ref: emailRef, ...emailField } = form.register('email');
+  const focusEmail = useFocusOnMount<HTMLInputElement>(emailRef);
 
   const from = (location.state as { from?: string } | null)?.from;
 
@@ -192,14 +194,11 @@ export function LoginPage(): React.JSX.Element {
 
         <Field label={t('auth.email')} error={form.formState.errors.email?.message}>
           {({ inputId, describedBy }) => (
-            <Input
+            <GlowInput
               id={inputId}
               aria-describedby={describedBy}
               {...emailField}
-              ref={(node) => {
-                emailRef(node);
-                focusEmail(node);
-              }}
+              ref={focusEmail}
               type="email"
               autoComplete="username"
             />
@@ -208,7 +207,7 @@ export function LoginPage(): React.JSX.Element {
 
         <Field label={t('auth.password')} error={form.formState.errors.password?.message}>
           {({ inputId, describedBy }) => (
-            <Input
+            <GlowInput
               id={inputId}
               aria-describedby={describedBy}
               type="password"
@@ -218,12 +217,27 @@ export function LoginPage(): React.JSX.Element {
           )}
         </Field>
 
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+        {/* `primary`, where this used to be the default `secondary`. The
+            gradient replaces the fill, so the label has to be the white one
+            that goes with a filled button — dark ink on brand blue is the one
+            way this restyle could have broken a contrast rule. */}
+        <Button
+          type="submit"
+          variant="primary"
+          className={cx('w-full', GRADIENT_CTA)}
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
+          {/* Decoration, and hidden as such. In the accessible name this
+              button is "Sign in", not "Sign in right arrow". */}
+          <span aria-hidden="true">&rarr;</span>
+          <BottomGradient />
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-ink-subtle">{t('auth.noSelfSignup')}</p>
+      <AuthDivider className="my-6" />
+
+      <p className="text-center text-xs text-ink-subtle">{t('auth.noSelfSignup')}</p>
     </AuthLayout>
   );
 }

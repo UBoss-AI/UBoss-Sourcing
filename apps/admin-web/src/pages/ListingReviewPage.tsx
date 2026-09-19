@@ -20,7 +20,7 @@
  * else's description would leave the seller answering for words they did not
  * write, which is exactly what the audit trail cannot express.
  */
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
@@ -653,6 +653,21 @@ function NoteButton({
   const [isOpen, setIsOpen] = useState(false);
   const [text, setText] = useState('');
 
+  /*
+   * Focused on open rather than with `autoFocus`. The attribute focuses on
+   * mount wherever the element happens to be, which on a page this long would
+   * yank a moderator's scroll position; this only fires because they just
+   * pressed "Note" on this field.
+   *
+   * Stable, and it has to be: React reattaches an inline callback ref on every
+   * render, so an inline arrow would focus this box again every time anything
+   * re-rendered this row - including while the moderator is typing into the
+   * note they opened on the photo below it.
+   */
+  const focusNote = useCallback((node: HTMLTextAreaElement | null) => {
+    node?.focus();
+  }, []);
+
   if (disabled) return null;
 
   return (
@@ -686,15 +701,7 @@ function NoteButton({
         <div className="absolute right-0 top-full z-20 mt-1.5 w-64 space-y-2 rounded-lg border border-border bg-surface p-2 shadow-popover">
           <Textarea
             rows={3}
-            /*
-              Focused on open rather than with `autoFocus`. The attribute
-              focuses on mount wherever the element happens to be, which on a
-              page this long would yank a moderator's scroll position; this only
-              fires because they just pressed "Note" on this field.
-            */
-            ref={(node) => {
-              node?.focus();
-            }}
+            ref={focusNote}
             value={text}
             aria-label={`Note about ${label}`}
             placeholder="What is wrong with it, and what would fix it."

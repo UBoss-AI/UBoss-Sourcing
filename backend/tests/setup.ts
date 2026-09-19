@@ -53,12 +53,16 @@ process.env.GEOCODE_FORWARD_URL = '';
 // than politeness. A developer who has pointed MAP_TILE_URL at a tile server -
 // or set a Google key - in their own .env would otherwise see the warehouse
 // tests disagree with CI about which provider the panel is configured for.
-// All three cleared, because Google wins over the tiles when both are set and
-// clearing only one of them would leave the outcome depending on the other.
+// All of them cleared, because Google wins over the tiles when both are set,
+// and clearing only one would leave the outcome depending on the others.
+// MAP_SATELLITE_URL is in the list for the same reason: it is the ground a
+// MapLibre map is drawn on, so it rides along with whichever provider was
+// chosen and a developer who switched imagery on would see it in every answer.
 process.env.MAP_TILE_URL = '';
 process.env.MAP_STYLE_URL = '';
 process.env.MAP_GOOGLE_API_KEY = '';
 process.env.MAP_GOOGLE_MAP_ID = '';
+process.env.MAP_SATELLITE_URL = '';
 
 /**
  * A carton of one piece, unless the test file has said otherwise.

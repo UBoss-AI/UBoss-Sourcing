@@ -13,8 +13,8 @@
  *     paragraph describing a requirement is expensive to lose;
  *   - the history is a list of the customer's own threads that can be opened,
  *     renamed and deleted, and deleting asks first;
- *   - the greeting says the customer's own first name, and says nothing where
- *     there is no name to say;
+ *   - the greeting is warm, greets by the hour and by the customer's own first
+ *     name, and never invents one from their email address;
  *   - a reply about particular products renders cards built from a CATALOGUE
  *     read rather than from the reply text, and the reference line the model
  *     wrote is never shown.
@@ -119,6 +119,15 @@ interface Routes {
   startStatus?: number;
   detail?: { messages: { id: string; role: 'user' | 'assistant'; content: string }[] };
   chat?: () => Response;
+  /**
+   * What `/catalog/categories` answers.
+   *
+   * The starters and the line under the greeting are built from this, so a
+   * test that wants either has to say what this deployment sells. Absent means
+   * an empty tree, which is the cold-start page: the two fixed chips and no
+   * range line.
+   */
+  categories?: { name: string; totalProductCount: number }[];
   onRequest?: (url: string, init: RequestInit | undefined) => void;
 }
 
@@ -128,6 +137,25 @@ function stubFetch(routes: Routes = {}): void {
     vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
       routes.onRequest?.(url, init);
+
+      if (url.includes('/catalog/categories')) {
+        return Promise.resolve(
+          jsonResponse({
+            categories: (routes.categories ?? []).map((category, index) => ({
+              id: `cat-${String(index)}`,
+              name: category.name,
+              slug: category.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+              parentId: null,
+              depth: 0,
+              sortOrder: index,
+              isActive: true,
+              productCount: category.totalProductCount,
+              totalProductCount: category.totalProductCount,
+              children: [],
+            })),
+          }),
+        );
+      }
 
       if (url.includes('/catalog/product-cards')) {
         return Promise.resolve(
@@ -201,34 +229,75 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
+/**
+ * The catalogue these tests' deployment sells.
+ *
+ * Deliberately nothing like a medical supplier, because that is the bug the
+ * starters had: three of the five named one trade, and this marketplace's
+ * range is whatever its sellers list.
+ */
+const CATEGORIES = [
+  { name: 'Fasteners & Fixings', totalProductCount: 120 },
+  { name: 'Cables & Wiring', totalProductCount: 64 },
+  { name: 'Safety Footwear', totalProductCount: 31 },
+  { name: 'Musical Instruments', totalProductCount: 4 },
+];
+
 describe('the empty state', () => {
-  it('offers starters that this system can actually answer from', () => {
-    stubFetch();
+  it('offers starters built from what this deployment actually sells', async () => {
+    stubFetch({ categories: CATEGORIES });
     renderWithProviders(<AiModePage />, { config: CONFIG });
 
     expect(
-      screen.getByRole('heading', { name: /what are you looking for today/i }),
+      screen.getByRole('heading', { name: /how can we help you today/i }),
     ).toBeInTheDocument();
 
-    // Every chip is about the catalogue, stock, orders or a schedule — a chip
-    // opening a conversation the assistant has to decline is worse than none.
-    expect(screen.getByRole('button', { name: 'Check warehouse availability' })).toBeInTheDocument();
+    // The three biggest categories, biggest first, and not the fourth. A chip
+    // naming a trade this deployment does not stock is the failure this
+    // replaced: the starters used to be a fixed list that said "diagnostic
+    // equipment" to a shop selling cable ties.
+    expect(
+      await screen.findByRole('button', { name: 'What do you have in Fasteners & Fixings?' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'What do you have in Cables & Wiring?' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'What do you have in Musical Instruments?' }),
+    ).not.toBeInTheDocument();
+
+    // And the size of the shop, which is the other thing a generic greeting
+    // could not say. 219 is the four totals, counted at the top level.
+    expect(screen.getByText(/219 products on sale/)).toBeInTheDocument();
 
     // AI Act Art. 50(1): said before they engage, not in a footnote afterwards.
     expect(screen.getByText(/chatting with an AI assistant/i)).toBeInTheDocument();
+  });
+
+  it('still offers the fixed starters before the catalogue has answered', () => {
+    stubFetch();
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    // No categories, no range line, and no empty chip row: the two starters
+    // that hold whatever the shop sells are still there.
+    expect(screen.getByRole('button', { name: 'Compare two products' })).toBeInTheDocument();
+    expect(screen.queryByText(/products on sale/)).not.toBeInTheDocument();
   });
 
   it('asks a suggested prompt when it is pressed', async () => {
     const user = userEvent.setup();
     const seen: string[] = [];
     stubFetch({
+      categories: CATEGORIES,
       onRequest: (url) => {
         seen.push(url);
       },
     });
 
     renderWithProviders(<AiModePage />, { config: CONFIG });
-    await user.click(screen.getByRole('button', { name: 'Check warehouse availability' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'What do you have in Fasteners & Fixings?' }),
+    );
 
     await waitFor(() => {
       expect(seen.some((url) => url.includes('/assistant/chat'))).toBe(true);
@@ -401,7 +470,7 @@ describe('the conversation history', () => {
 
     expect(screen.queryByText('Yes, in boxes of 50.')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: /what are you looking for today/i }),
+      screen.getByRole('heading', { name: /how can we help you today/i }),
     ).toBeInTheDocument();
   });
 });
@@ -418,7 +487,7 @@ describe('a visitor with no account, where the deployment lets guests ask', () =
     // catalogue has what they need can ask before opening an account.
     expect(screen.getByRole('textbox')).toBeEnabled();
     expect(
-      screen.getByRole('heading', { name: /what are you looking for today/i }),
+      screen.getByRole('heading', { name: /how can we help you today/i }),
     ).toBeInTheDocument();
 
     // And no name line, because a guest has no name. The question stands on
@@ -548,8 +617,24 @@ describe('a visitor with no account, where the deployment lets guests ask', () =
   });
 });
 
+/**
+ * Every greeting the hour can produce, so an assertion can name one.
+ *
+ * The page reads the real clock, and a suite that ran green at ten in the
+ * morning and red at ten at night would be a worse test than none. The bands
+ * themselves are pinned in `lib/greeting-time.test.ts`, against a fixed date;
+ * what is asserted here is that the page greets by name at whatever hour the
+ * suite happens to run, and never from the email address.
+ */
+const NAMED_GREETINGS = [
+  'Good morning, Priya',
+  'Good afternoon, Priya',
+  'Good evening, Priya',
+  'Hello, Priya',
+];
+
 describe('the greeting', () => {
-  it('says the first name on the account, and only the first', async () => {
+  it('greets by the hour, and by the first name on the account', async () => {
     stubFetch({
       profile: {
         fullName: 'Priya Raman Iyer',
@@ -560,15 +645,18 @@ describe('the greeting', () => {
 
     renderWithProviders(<AiModePage />, { config: CONFIG });
 
-    // The first word, not the full legal name somebody typed into a
-    // purchasing account.
+    // Warm, and the first word only - not the full legal name somebody typed
+    // into a purchasing account.
     await waitFor(() => {
-      expect(screen.getByText('Hello, Priya')).toBeInTheDocument();
+      const greeting = NAMED_GREETINGS.map((text) => screen.queryByText(text)).find(
+        (node) => node !== null,
+      );
+      expect(greeting).toBeTruthy();
     });
     expect(screen.queryByText(/Raman Iyer/)).not.toBeInTheDocument();
   });
 
-  it('greets an account with no name by asking the question only', async () => {
+  it('still greets an account with no name, without inventing one', async () => {
     stubFetch({
       profile: { fullName: null, email: 'ops.procurement@example.test', organization: null },
     });
@@ -577,13 +665,15 @@ describe('the greeting', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: /what are you looking for today/i }),
+        screen.getByRole('heading', { name: /how can we help you today/i }),
       ).toBeInTheDocument();
     });
 
-    // Never derived from the address. "Hello, Ops" is worse than no greeting,
-    // and "Hello, ops.procurement@example.test" is worse still.
-    expect(screen.queryByText(/^Hello,/)).not.toBeInTheDocument();
+    // Never derived from the address. "Good morning, Ops" is worse than no
+    // name, and "Good morning, ops.procurement@example.test" is worse still.
+    for (const text of NAMED_GREETINGS) {
+      expect(screen.queryByText(text)).not.toBeInTheDocument();
+    }
     expect(screen.queryByText(/ops\.procurement/)).not.toBeInTheDocument();
   });
 
@@ -772,9 +862,7 @@ describe('a visitor with no account, where the assistant is for account holders'
 
     // And no starter chips: a chip that opens a conversation the deployment
     // will refuse looks like an invitation and is not one.
-    expect(
-      screen.queryByRole('button', { name: 'Check warehouse availability' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Compare two products' })).not.toBeInTheDocument();
   });
 
   it('never asks the API to start a conversation it cannot have', async () => {

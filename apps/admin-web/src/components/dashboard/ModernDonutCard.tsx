@@ -126,8 +126,6 @@ export interface ModernDonutCardProps {
   ariaLabel?: string | undefined;
   labels: DonutCardLabels;
   className?: string | undefined;
-  /** Rendered under the legend — a footnote, a link to the full queue. */
-  footer?: React.ReactNode;
 }
 
 /** The SVG is drawn in a fixed user-space box and scaled by CSS. */
@@ -154,7 +152,6 @@ export function ModernDonutCard({
   ariaLabel,
   labels,
   className,
-  footer,
 }: ModernDonutCardProps): React.JSX.Element {
   const headingId = useId();
   const [hovered, setHovered] = useState<string | null>(null);
@@ -457,8 +454,6 @@ export function ModernDonutCard({
               </table>
             </div>
           </details>
-
-          {footer === undefined ? null : <div className="mt-4">{footer}</div>}
         </div>
       </div>
     );

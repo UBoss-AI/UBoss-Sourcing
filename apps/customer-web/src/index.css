@@ -1110,8 +1110,28 @@
   pointer-events: none;
 }
 
-.tilt:hover .tilt-sheen {
+.tilt:hover .tilt-sheen,
+.sheen:hover .tilt-sheen {
   opacity: 1;
+}
+
+/*
+ * The sheen on its own, for something that must not lean.
+ *
+ * `.tilt` does two things: it leans the element, and it is the hover host that
+ * turns the highlight on. The catalogue's product rows want the second without
+ * the first — they sit in one bordered sheet with hairlines between them, and
+ * a row that tipped six degrees would lift its own edge off the divider above
+ * it and read as a list coming apart.
+ *
+ * So this is the hover host alone. `useTilt` still writes all four custom
+ * properties to the element, and only `--tilt-gx` / `--tilt-gy` do anything,
+ * because nothing here reads `--tilt-x` / `--tilt-y`. That is deliberate: the
+ * hook stays one hook, and which half of it applies is a class on the element
+ * rather than an option in TypeScript.
+ */
+.sheen {
+  position: relative;
 }
 
 /*
@@ -1353,4 +1373,28 @@
   .zoom-layer {
     transition: none;
   }
+}
+
+/*
+ * A track that scrolls sideways without a scrollbar drawn across it.
+ *
+ * The category rail on the front page. Its cards are the affordance — one is
+ * always half-cut at the edge of the column, which is what says there is more
+ * to the right — and it carries a pair of arrow buttons underneath for anybody
+ * who would rather press than swipe. A scrollbar on top of that is a third
+ * control saying the same thing, and on Windows it is a permanent grey bar
+ * under a row of photographs.
+ *
+ * Nothing here removes a way of doing anything: the track still scrolls with a
+ * wheel, a trackpad, a finger and the arrow keys once a card inside it has
+ * focus. This hides the *drawn* bar only, which is why it is safe; hiding a
+ * scrollbar on a track with no other affordance would not be.
+ */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }

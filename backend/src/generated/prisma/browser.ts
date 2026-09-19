@@ -127,6 +127,22 @@ export type Product = Prisma.ProductModel
  */
 export type ProductVariant = Prisma.ProductVariantModel
 /**
+ * Model ProductVariantMedia
+ * A photograph of one particular size or colour.
+ * 
+ * Separate from `product_media` rather than a nullable column on it, because
+ * the two are read at different times and by different queries: the gallery
+ * loads the family's photographs on every product page, and these are pulled
+ * in only once a buyer has narrowed to a variant. A nullable `variantId` on
+ * the existing table would have meant every gallery read filtering rows it
+ * never wants, and a change to a unique index that products already depend on.
+ * 
+ * A variant with no media of its own shows the family's. That is a fallback in
+ * the reader, not a copy here: duplicating the family's photographs onto forty
+ * rows means a replaced photograph reaching some of them.
+ */
+export type ProductVariantMedia = Prisma.ProductVariantMediaModel
+/**
  * Model ProductMedia
  * 
  */

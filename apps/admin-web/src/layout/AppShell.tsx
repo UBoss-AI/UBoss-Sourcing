@@ -1,6 +1,11 @@
 /**
  * The application shell: sidebar, top bar, and the routed page.
  *
+ * The sidebar is `components/ui/sidebar.tsx` — a rail of icons that widens to
+ * labelled rows while a pointer or the keyboard is inside it, and a drawer
+ * below `md`. The same component frames the storefront's account area and the
+ * logistics portal, so the three surfaces navigate the same way.
+ *
  * Accessibility decisions worth keeping:
  *   - A skip link is the first focusable element, so a keyboard user reaches
  *     the page without tabbing the whole sidebar every time.
@@ -9,21 +14,27 @@
  *   - The mobile drawer is a real modal: focus moves into it, Tab cycles
  *     inside it, Escape closes it, and focus returns to the button that
  *     opened it. A drawer you can tab behind is a drawer a keyboard user
- *     silently falls out of.
+ *     silently falls out of. That now lives in the shared component.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
-  CloseIcon,
   MenuIcon,
   RefreshIcon,
   SignOutIcon,
 } from '@/components/icons';
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLabel,
+  SidebarLink,
+  SidebarSection,
+} from '@/components/ui/sidebar';
 import { cx } from '@/lib/cx';
 import { useAttention, type AttentionView } from '@/lib/attention';
 import { roleLabel } from '@/lib/permissions';
@@ -35,73 +46,71 @@ import { LocaleMenu } from './LocaleMenu';
 import { NotificationBell } from './NotificationBell';
 
 /**
- * The brand block.
+ * The brand block, at the top of the rail.
  *
  * Two lines rather than one: the mark and the product name are the thing you
  * look at once, and "Admin console" underneath is what tells someone with two
  * UBOSS tabs open which one they are in. The whole block is a link home, since
  * a logo that is not clickable is the single most reliably-attempted dead
  * control in any admin panel.
+ *
+ * At sixty pixels the two lines are gone and the mark is the whole of it —
+ * which is the one part of the rail that still says which product this is.
  */
 function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
   const { t } = useI18n();
 
   return (
-    <div className="flex h-16 shrink-0 items-center border-b border-border px-4">
-      <Link
-        to="/"
-        onClick={onNavigate}
-        className="flex items-center gap-3 rounded-md py-1 pr-2 transition-colors hover:opacity-90"
+    <Link
+      to="/"
+      onClick={onNavigate}
+      className="relative z-20 flex h-10 shrink-0 items-center gap-3 rounded-md px-2 transition-opacity hover:opacity-90"
+    >
+      <span
+        aria-hidden="true"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-fill text-sm font-bold tracking-tight text-white shadow-card"
       >
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-fill text-sm font-bold tracking-tight text-white shadow-card"
-        >
-          U
+        U
+      </span>
+      <SidebarLabel display="block" className="min-w-0 leading-tight">
+        <span className="block text-sm font-semibold tracking-tight text-ink">UBOSS</span>
+        <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
+          {t('shell.adminConsole')}
         </span>
-        <span className="min-w-0 leading-tight">
-          <span className="block text-sm font-semibold tracking-tight text-ink">UBOSS</span>
-          <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
-            {t('shell.adminConsole')}
-          </span>
-        </span>
-      </Link>
-    </div>
+      </SidebarLabel>
+    </Link>
   );
 }
 
 /**
- * The mark on a navigation row that has work waiting behind it.
+ * Who is signed in, at the foot of the rail.
  *
- * A number in a pill, not a bare dot. A dot says "something"; an operator
- * arriving in the morning needs to know whether that something is one listing
- * or forty, because the answer decides what they open first — and the whole
- * point of putting this on the rail rather than on each screen is that it is
- * readable without opening anything.
- *
- * Three things it is careful about:
- *
- *   - **It is never the only signal.** The count is in the row's accessible
- *     name as a sentence, so a screen reader announces "Listing review, 4
- *     waiting" rather than "Listing review 4". The pill itself is
- *     `aria-hidden`, or the number would be read twice.
- *   - **Zero draws nothing.** An empty queue is the normal state, and a rail
- *     carrying fourteen zeroes is a rail whose badges mean nothing.
- *   - **It does not move the label.** The pill sits after the truncating name
- *     and never shrinks, so a long translation ellipsises instead of pushing
- *     the count off the edge of the column.
+ * Not a control: signing out, the roles in full and the address live in the
+ * account menu in the top bar, three inches away and on every screen. This is
+ * the reassurance an operator wants when they have two consoles open for two
+ * deployments — and at sixty pixels it is the avatar alone, which is the same
+ * thing the top bar shows.
  */
-function AttentionBadge({ count }: { count: number }): React.JSX.Element {
+function SignedInAs(): React.JSX.Element | null {
+  const { user } = useSession();
+
+  if (user === null) return null;
+
   return (
-    <span
-      aria-hidden="true"
-      className={cx(
-        'ml-auto flex h-[1.15rem] min-w-[1.15rem] shrink-0 items-center justify-center',
-        'rounded-full bg-danger-fill px-1.5 text-xxs font-semibold leading-none text-white',
-      )}
-    >
-      {count > 99 ? '99+' : count}
-    </span>
+    <div className="flex h-10 items-center gap-3 rounded-md px-2">
+      <span
+        aria-hidden="true"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xxs font-semibold text-accent ring-1 ring-inset ring-accent/20"
+      >
+        {user.email.slice(0, 2).toUpperCase()}
+      </span>
+      <SidebarLabel display="block" className="min-w-0 leading-tight">
+        <span className="block truncate text-xs font-medium text-ink">{user.email}</span>
+        <span className="block truncate text-xxs text-ink-subtle">
+          {user.roles.map(roleLabel).join(', ')}
+        </span>
+      </SidebarLabel>
+    </div>
   );
 }
 
@@ -113,98 +122,82 @@ function countFor(item: NavItem, attention: AttentionView | undefined): number {
 }
 
 /**
- * The sidebar.
+ * The rows, in both presentations.
  *
- * White, over a sky-tinted page. It used to be navy, and the reason for the
- * navy still holds: chrome has to be visually apart from the data surface, or
- * the eye re-finds the edge of the table on every page. What changed is which
- * side is which — the page ground is now the tinted one and the sidebar is
- * pure white, so the separation is the same and the panel stops carrying a
- * dark band no other surface in the product answers to.
+ * Rendered once into the rail and once into the drawer — the shared component
+ * mounts this twice — so nothing here may assume which of the two it is in.
+ * `useSidebar` answers that where it matters: the brand block above reads it,
+ * and so does the count on a row, which becomes a dot at sixty pixels.
  *
- * Three signals separate the current page from the other thirteen, because one
- * is never enough: a tinted ground, a brand-blue label and icon against the
- * muted rest, and a rail down the left edge. The rail is what survives a
- * monochrome screen; `aria-current="page"` from NavLink is what survives no
- * screen at all.
+ * The queue counts are one React Query subscription regardless, de-duplicated
+ * by key across both copies.
  */
-function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
+function ConsoleNav({ onNavigate }: { onNavigate: () => void }): React.JSX.Element {
   const { can } = useSession();
   const { t } = useI18n();
   const groups = visibleNavigation(can);
-  // De-duplicated by React Query across the desktop rail and the mobile
-  // drawer, both of which render this component.
   const attention = useAttention().data;
 
   return (
-    <nav
-      aria-label={t('shell.mainNav')}
-      className="scrollbar-none flex h-full flex-col overflow-y-auto border-r border-border bg-surface"
-    >
-      <Brand onNavigate={onNavigate} />
+    <>
+      <div className="flex flex-1 flex-col">
+        <Brand onNavigate={onNavigate} />
 
-      <div className="flex-1 space-y-5 px-2.5 py-4">
-        {groups.map((group) => (
-          <div key={group.labelKey}>
-            <h2 className="px-3 pb-1.5 text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-              {translateKey(t, group.labelKey)}
-            </h2>
-            <ul className="space-y-px">
+        <div className="mt-6 space-y-4">
+          {groups.map((group) => (
+            <SidebarSection key={group.labelKey} label={translateKey(t, group.labelKey)}>
               {group.items.map((item) => {
-                const ItemIcon = item.icon;
                 const waiting = countFor(item, attention);
                 const label = translateKey(t, item.labelKey);
 
                 return (
-                  <li key={item.to}>
-                    <NavLink
-                      to={item.to}
-                      end={item.matchPrefix !== true}
-                      onClick={onNavigate}
+                  <SidebarLink
+                    key={item.to}
+                    onNavigate={onNavigate}
+                    link={{
+                      to: item.to,
+                      label,
+                      icon: item.icon,
+                      matchPrefix: item.matchPrefix,
+                      badge: waiting,
                       // The count in words, not only in a pill. Without this a
                       // screen-reader user gets the destination and none of the
                       // reason it is worth going there.
-                      aria-label={
+                      ariaLabel:
                         waiting > 0
                           ? `${label} — ${t('shell.attention', { waiting })}`
-                          : undefined
-                      }
-                      className={({ isActive }) =>
-                        cx(
-                          'group relative flex h-9 items-center gap-2.5 rounded-md pl-3.5 pr-2.5',
-                          'text-sm transition-colors',
-                          isActive
-                            ? // The rail. `before:` rather than a sibling
-                              // element so it cannot drift out of step with
-                              // the state that draws it.
-                              'bg-brand-soft font-medium text-brand ' +
-                                'before:absolute before:left-0 before:top-2 before:h-5 before:w-[3px] ' +
-                                "before:rounded-full before:bg-brand before:content-['']"
-                            : 'text-ink-muted hover:bg-surface-hover hover:text-ink',
-                        )
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <ItemIcon
-                            className={cx(
-                              'h-[1.15rem] w-[1.15rem] shrink-0 transition-colors',
-                              isActive ? 'text-brand' : 'text-ink-subtle group-hover:text-ink-muted',
-                            )}
-                          />
-                          <span className="truncate">{label}</span>
-                          {waiting > 0 && <AttentionBadge count={waiting} />}
-                        </>
-                      )}
-                    </NavLink>
-                  </li>
+                          : undefined,
+                    }}
+                  />
                 );
               })}
-            </ul>
-          </div>
-        ))}
+            </SidebarSection>
+          ))}
+        </div>
       </div>
-    </nav>
+
+      <div className="mt-4 shrink-0 border-t border-border pt-3">
+        <SignedInAs />
+
+        {/*
+         * The language picker, below `sm` only.
+         *
+         * It lives beside the account menu in the top bar at every width the
+         * bar can hold it, and below `sm` the bar cannot: on a 320px screen
+         * the five controls up there came to 351px, and what silently lost
+         * the argument was the breadcrumb — it collapsed to zero width, so
+         * the one signal a phone has for "which section am I in" was gone
+         * while a 106px language select stayed.
+         *
+         * So on a phone it comes down here. `sm:hidden` is also what keeps it
+         * out of the rail: the rail only exists from `md`, which is always at
+         * or above `sm`, so this renders in the drawer and nowhere else.
+         */}
+        <div className="px-1 pt-3 sm:hidden">
+          <LanguageSwitcher />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -414,158 +407,25 @@ function UserMenu(): React.JSX.Element {
   );
 }
 
-/**
- * The mobile drawer.
- *
- * A modal, and treated as one. The three things that separate a drawer from a
- * panel that merely slid in:
- *
- *   - Focus moves in on open and back to the trigger on close.
- *   - Tab cycles inside it. Without the cycle, tabbing past the last link
- *     lands on the page behind the scrim, where nothing is visible and every
- *     subsequent keystroke goes somewhere the user cannot see.
- *   - The page behind it does not scroll, so dismissing the drawer does not
- *     also mean finding your place again.
- */
-function MobileDrawer({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}): React.JSX.Element | null {
-  const { t } = useI18n();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return undefined;
-
-    closeRef.current?.focus();
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        onClose();
-        return;
-      }
-
-      if (event.key !== 'Tab') return;
-
-      const panel = panelRef.current;
-      if (panel === null) return;
-
-      // `select` is in the list because the drawer carries the language
-      // picker below `sm`. A trap that does not know about a control inside
-      // the panel sends Tab past it to the page behind the scrim, which is
-      // the exact failure the trap exists to prevent.
-      const focusable = panel.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), select:not([disabled])',
-      );
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (first === undefined || last === undefined) return;
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-40 lg:hidden">
-      <div
-        className="absolute inset-0 animate-fade-in bg-ink/50"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('shell.navigation')}
-        className="absolute inset-y-0 left-0 flex w-[17rem] max-w-[85%] animate-drawer-in flex-col bg-surface shadow-overlay"
-      >
-        {/* The close button sits over the brand block rather than in a bar of
-            its own — a drawer this size cannot spare 48px to say "close" when
-            the scrim and Escape both already do. */}
-        <button
-          ref={closeRef}
-          type="button"
-          onClick={onClose}
-          className="absolute right-2 top-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
-        >
-          <CloseIcon className="h-5 w-5" />
-          <span className="sr-only">{t('shell.closeNavigation')}</span>
-        </button>
-
-        <Sidebar onNavigate={onClose} />
-
-        {/*
-         * The language picker, below `sm` only.
-         *
-         * It lives beside the account menu in the top bar at every width the
-         * bar can hold it, and below `sm` the bar cannot: on a 320px screen
-         * the five controls up there came to 351px, and what silently lost
-         * the argument was the breadcrumb — it collapsed to zero width, so
-         * the one signal a phone has for "which section am I in" was gone
-         * while a 106px language select stayed.
-         *
-         * So on a phone it comes down here. This is the navigation, not a
-         * settings screen: it is one tap from every page in the panel, which
-         * is the whole of what the header placement was protecting.
-         */}
-        <div className="shrink-0 border-t border-border p-3 sm:hidden">
-          <LanguageSwitcher />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function AppShell(): React.JSX.Element {
   const { t } = useI18n();
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  // The drawer, below `md`, and nothing else: the rail widens on hover and
+  // keeps that to itself. See `components/ui/sidebar.tsx`.
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
   // region on navigation is what a full page load would have done.
+  //
+  // Closing the drawer here is also what dismisses it after a row is followed;
+  // focus is not handed back to the menu button in that case, because the line
+  // below has already sent it to the new page, which is where it belongs.
   useEffect(() => {
-    setIsMobileNavOpen(false);
+    setIsDrawerOpen(false);
     mainRef.current?.focus();
   }, [location.pathname]);
-
-  // Dismissing the drawer without navigating hands focus back to the control
-  // that opened it. Navigating away does not: the effect above has already
-  // sent focus to the new page, which is where it belongs.
-  //
-  // Stable across renders on purpose - the drawer keys its focus and
-  // scroll-lock effect on this, and a fresh function every render would tear
-  // that effect down and rebuild it mid-interaction, snatching focus back to
-  // the close button while somebody was tabbing the links.
-  const closeMobileNav = useCallback((): void => {
-    setIsMobileNavOpen(false);
-    menuButtonRef.current?.focus();
-  }, []);
 
   return (
     <div className="min-h-screen">
@@ -573,27 +433,33 @@ export function AppShell(): React.JSX.Element {
         {t('shell.skipToContent')}
       </a>
 
-      <div className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-        {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen bg-surface lg:block">
-          <Sidebar />
-        </aside>
+      <div className="flex min-h-screen">
+        <Sidebar open={isDrawerOpen} setOpen={setIsDrawerOpen}>
+          <SidebarBody
+            label={t('shell.mainNav')}
+            closeLabel={t('shell.closeNavigation')}
+            className="md:sticky md:top-0 md:h-screen"
+          >
+            <ConsoleNav
+              onNavigate={() => {
+                setIsDrawerOpen(false);
+              }}
+            />
+          </SidebarBody>
+        </Sidebar>
 
-        <MobileDrawer isOpen={isMobileNavOpen} onClose={closeMobileNav} />
-
-        <div className="flex min-h-screen min-w-0 flex-col">
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           {/* Opaque, not the translucent white this replaced: a sticky bar
               that lets the page through is a bar with table rows sliding
               behind its own text. */}
           <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-surface px-2 sm:gap-3 sm:px-3 lg:px-6">
             <button
-              ref={menuButtonRef}
               type="button"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink lg:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink md:hidden"
               onClick={() => {
-                setIsMobileNavOpen(true);
+                setIsDrawerOpen(true);
               }}
-              aria-expanded={isMobileNavOpen}
+              aria-expanded={isDrawerOpen}
             >
               <MenuIcon className="h-5 w-5" />
               <span className="sr-only">{t('shell.openNavigation')}</span>
@@ -638,7 +504,7 @@ export function AppShell(): React.JSX.Element {
               *
               * Below `sm` there is no room for it up here, and the language
               * moves to the foot of the navigation drawer — which is
-              * navigation, not a settings screen. See MobileDrawer.
+              * navigation, not a settings screen. See `ConsoleNav`.
               */}
             <LocaleMenu className="hidden sm:block" />
 

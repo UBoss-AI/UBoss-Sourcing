@@ -70,6 +70,7 @@ export const ModelName = {
   Category: 'Category',
   Product: 'Product',
   ProductVariant: 'ProductVariant',
+  ProductVariantMedia: 'ProductVariantMedia',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
   ProductPackaging: 'ProductPackaging',
@@ -560,6 +561,7 @@ export const ProductScalarFieldEnum = {
   qtyIncrement: 'qtyIncrement',
   isRecurringEligible: 'isRecurringEligible',
   hasVariants: 'hasVariants',
+  variantAxesJson: 'variantAxesJson',
   isMarketplaceProduct: 'isMarketplaceProduct',
   createdBySellerAccountId: 'createdBySellerAccountId',
   requiresColdChain: 'requiresColdChain',
@@ -591,7 +593,24 @@ export const ProductVariantScalarFieldEnum = {
   gtin: 'gtin',
   modelIdentifier: 'modelIdentifier',
   optionsJson: 'optionsJson',
+  optionSignature: 'optionSignature',
   priceMinor: 'priceMinor',
+  compareAtPriceMinor: 'compareAtPriceMinor',
+  minOrderQty: 'minOrderQty',
+  qtyIncrement: 'qtyIncrement',
+  maxOrderQty: 'maxOrderQty',
+  leadTimeDays: 'leadTimeDays',
+  multipackCount: 'multipackCount',
+  netContentValue: 'netContentValue',
+  netContentUnit: 'netContentUnit',
+  unitPricingBaseValue: 'unitPricingBaseValue',
+  unitPricingBaseUnit: 'unitPricingBaseUnit',
+  manufacturerPackLabel: 'manufacturerPackLabel',
+  shippingWeightGrams: 'shippingWeightGrams',
+  shippingLengthMm: 'shippingLengthMm',
+  shippingWidthMm: 'shippingWidthMm',
+  shippingHeightMm: 'shippingHeightMm',
+  shippingClass: 'shippingClass',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   archivedAt: 'archivedAt',
@@ -601,6 +620,18 @@ export const ProductVariantScalarFieldEnum = {
 } as const
 
 export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
+
+
+export const ProductVariantMediaScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  mediaId: 'mediaId',
+  sortOrder: 'sortOrder',
+  isPrimary: 'isPrimary',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductVariantMediaScalarFieldEnum = (typeof ProductVariantMediaScalarFieldEnum)[keyof typeof ProductVariantMediaScalarFieldEnum]
 
 
 export const ProductMediaScalarFieldEnum = {
@@ -2909,6 +2940,8 @@ export const SellerListingDraftScalarFieldEnum = {
   offerJson: 'offerJson',
   stockJson: 'stockJson',
   packagingJson: 'packagingJson',
+  variantAxesJson: 'variantAxesJson',
+  variantsJson: 'variantsJson',
   generatedTitle: 'generatedTitle',
   generatedTitleSource: 'generatedTitleSource',
   sellerEditedTitle: 'sellerEditedTitle',
@@ -4218,10 +4251,24 @@ export const ProductVariantOrderByRelevanceFieldEnum = {
   name: 'name',
   gtin: 'gtin',
   modelIdentifier: 'modelIdentifier',
+  optionSignature: 'optionSignature',
+  netContentUnit: 'netContentUnit',
+  unitPricingBaseUnit: 'unitPricingBaseUnit',
+  manufacturerPackLabel: 'manufacturerPackLabel',
+  shippingClass: 'shippingClass',
   importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantOrderByRelevanceFieldEnum = (typeof ProductVariantOrderByRelevanceFieldEnum)[keyof typeof ProductVariantOrderByRelevanceFieldEnum]
+
+
+export const ProductVariantMediaOrderByRelevanceFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  mediaId: 'mediaId'
+} as const
+
+export type ProductVariantMediaOrderByRelevanceFieldEnum = (typeof ProductVariantMediaOrderByRelevanceFieldEnum)[keyof typeof ProductVariantMediaOrderByRelevanceFieldEnum]
 
 
 export const ProductMediaOrderByRelevanceFieldEnum = {
