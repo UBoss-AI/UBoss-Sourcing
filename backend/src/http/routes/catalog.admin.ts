@@ -65,6 +65,13 @@ import {
   listVariants,
   updateVariant,
 } from '../../modules/catalog/variant.service.js';
+import {
+  bulkEditVariants,
+  commitMatrix,
+  loadProductAxes,
+  previewMatrix,
+  setProductAxes,
+} from '../../modules/catalog/variant-matrix.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 import type { FastifyRequest } from 'fastify';
 
@@ -1059,6 +1066,35 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
 
   // --- Variants ------------------------------------------------------------
 
+  /**
+   * The optional commercial half of a variant.
+   *
+   * Every field nullable AND optional, and the two mean different things:
+   * absent leaves the column alone, explicit null clears the override. A form
+   * that could not say "this size no longer has a minimum of its own" would
+   * make an override impossible to remove once set.
+   */
+  const variantCommerce = {
+    compareAtPriceMinor: minorUnits.nullable().optional(),
+    minOrderQty: z.number().int().min(1).max(1_000_000).nullable().optional(),
+    qtyIncrement: z.number().int().min(1).max(1_000_000).nullable().optional(),
+    maxOrderQty: z.number().int().min(1).max(1_000_000).nullable().optional(),
+    leadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
+    multipackCount: z.number().int().min(1).max(100_000).nullable().optional(),
+    netContentValue: z.string().trim().max(24).nullable().optional(),
+    netContentUnit: z.string().trim().max(16).nullable().optional(),
+    unitPricingBaseValue: z.string().trim().max(24).nullable().optional(),
+    unitPricingBaseUnit: z.string().trim().max(16).nullable().optional(),
+    manufacturerPackLabel: z.string().trim().max(64).nullable().optional(),
+    shippingWeightGrams: z.number().int().min(0).max(10_000_000).nullable().optional(),
+    shippingLengthMm: z.number().int().min(0).max(100_000).nullable().optional(),
+    shippingWidthMm: z.number().int().min(0).max(100_000).nullable().optional(),
+    shippingHeightMm: z.number().int().min(0).max(100_000).nullable().optional(),
+    shippingClass: z.string().trim().max(32).nullable().optional(),
+    gtin: z.string().trim().max(14).nullable().optional(),
+    modelIdentifier: z.string().trim().max(64).nullable().optional(),
+  };
+
   const variantBody = z.object({
     sku: z.string().trim().min(1).max(64),
     name: z.string().trim().min(1).max(255),
@@ -1067,6 +1103,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     priceMinor: minorUnits.nullable().optional(),
     isActive: z.boolean().optional(),
     sortOrder: z.number().int().min(0).max(10_000).optional(),
+    ...variantCommerce,
   });
 
   /**
@@ -1131,6 +1168,146 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       // orders or schedules reference it.
       const result = await archiveVariant(params.id, params.variantId, actorFrom(request));
       return reply.status(200).send(result);
+    },
+  );
+
+  // --- Variant axes and the matrix builder ---------------------------------
+
+  /**
+   * The variant template for this product's category, and the axes it uses.
+   *
+   * The template comes from `domain/variants/` rather than from the database:
+   * 112 subcategory templates that the seller's matrix builder, the buyer's
+   * selector and the catalogue's facets all read, so an axis label corrected
+   * once is corrected everywhere. Served rather than duplicated into each
+   * frontend, which is what would guarantee they eventually disagreed.
+   *
+   * A category with no template answers `template: null`, and the panel then
+   * shows the free-form option editor the catalogue has always had. That is
+   * what keeps Medical Devices exactly as it is.
+   */
+  app.get(
+    '/products/:id/variant-template',
+    { preHandler: requireAdmin(Permission.PRODUCT_READ) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const { template, activeAxisKeys, categorySlugs } = await loadProductAxes(id);
+
+      return reply.status(200).send({
+        template:
+          template === null
+            ? null
+            : {
+                categorySlug: template.categorySlug,
+                subcategorySlug: template.subcategorySlug,
+                label: template.label,
+                axes: template.axes,
+              },
+        activeAxisKeys,
+        categorySlugs,
+      });
+    },
+  );
+
+  app.put(
+    '/products/:id/variant-axes',
+    { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = z
+        .object({ axisKeys: z.array(z.string().trim().min(1).max(64)).max(12) })
+        .parse(request.body);
+
+      return reply.status(200).send(await setProductAxes(id, body.axisKeys, actorFrom(request)));
+    },
+  );
+
+  const matrixAxes = z.object({
+    axes: z
+      .array(
+        z.object({
+          axisKey: z.string().trim().min(1).max(64),
+          values: z
+            .array(
+              z.object({
+                label: z.string().trim().max(128),
+                amount: z.string().trim().max(24).nullable().optional(),
+                unit: z.string().trim().max(16).nullable().optional(),
+              }),
+            )
+            .max(100),
+        }),
+      )
+      .max(8),
+    skuPrefix: z.string().trim().max(16).nullable().optional(),
+  });
+
+  /**
+   * What generating would produce, without producing it.
+   *
+   * A read, deliberately: the seller sees the table, the SKUs, which rows
+   * already exist and how many would be created, and only then decides. A
+   * generator that wrote first would be one that had to be undone.
+   */
+  app.post(
+    '/products/:id/variants/preview',
+    { preHandler: requireAdmin(Permission.PRODUCT_READ) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = matrixAxes.parse(request.body);
+
+      return reply
+        .status(200)
+        .send(await previewMatrix(id, body.axes, body.skuPrefix ?? null));
+    },
+  );
+
+  app.post(
+    '/products/:id/variants/generate',
+    { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = z
+        .object({
+          rows: z
+            .array(
+              z.object({
+                optionSignature: z.string().trim().min(1).max(512),
+                options: z.record(z.string().max(64), z.string().max(128)),
+                name: z.string().trim().min(1).max(255),
+                sku: z.string().trim().min(1).max(64),
+                priceMinor: minorUnits.nullable().optional(),
+                isActive: z.boolean().optional(),
+                ...variantCommerce,
+              }),
+            )
+            .min(1)
+            .max(500),
+        })
+        .parse(request.body);
+
+      return reply.status(201).send(await commitMatrix(id, body.rows, actorFrom(request)));
+    },
+  );
+
+  app.post(
+    '/products/:id/variants/bulk',
+    { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const body = z
+        .object({
+          variantIds: z.array(z.string().length(26)).min(1).max(500),
+          priceMinor: minorUnits.nullable().optional(),
+          compareAtPriceMinor: minorUnits.nullable().optional(),
+          minOrderQty: z.number().int().min(1).max(1_000_000).nullable().optional(),
+          qtyIncrement: z.number().int().min(1).max(1_000_000).nullable().optional(),
+          leadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
+          isActive: z.boolean().optional(),
+        })
+        .parse(request.body);
+
+      return reply.status(200).send(await bulkEditVariants(id, body, actorFrom(request)));
     },
   );
 

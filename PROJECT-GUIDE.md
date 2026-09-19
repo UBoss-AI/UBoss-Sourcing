@@ -56,7 +56,7 @@ product page to the invoice.
 Imagine a real shop.
 
 - There is a **shop floor** where customers walk around, look at products, put
-  things in a basket, and pay at the till.
+  things in a cart, and pay at the till.
 - There is a **back office** where the staff add new products, check how much
   stock is left, pack orders, and look at the books.
 - There is a **stock room and filing cabinet** where everything is actually
@@ -196,7 +196,7 @@ described below. The rule that produces the light one:
   ground it is drawn on instead of being a grey line over a cool surface.
 - **Blue is navigation and primary actions. Orange is the buy path, and
   nothing else.** Add to Cart, Checkout, Place Order — and the storefront's
-  basket button, which is the only orange in the chrome. A CTA that looked
+  cart button, which is the only orange in the chrome. A CTA that looked
   like a link would stop being noticed as either.
 - **Teal is a standing arrangement** — schedules, Autopay — so committing to
   a repeat delivery never has to borrow the buy path's orange.
@@ -342,7 +342,7 @@ when adding a screen:
 Where the two apps reflow:
 
 - **The storefront header is one band at every width.** Brand on the left;
-  appearance, market, account and basket on the right. It used to be three
+  appearance, market, account and cart on the right. It used to be three
   bands below `md` — a market strip, an identity band and a search row — and
   it is one now because two of the controls were removed outright: see *The
   header* in section 4 for the global search box and the category bar, and why
@@ -355,20 +355,42 @@ Where the two apps reflow:
   currency is on the trigger at every width above `lg` and one press away
   below it.
 
-- **The account area is two columns from `lg` and a disclosure below it.** The
-  content column carries `min-w-0`, which is load bearing: a grid track's
+- **All three sidebars are one component, and it is a rail that widens.** The
+  admin console, the account area and the logistics portal render
+  `components/ui/sidebar.tsx` — sixty pixels of icons while nobody is using
+  it, three hundred while a pointer or the keyboard is inside it. It pushes
+  the page rather than floating over it, so nothing under the cursor is
+  covered by the labels arriving. Three things it is careful about, all of
+  which the shape it was adapted from left out:
+
+  - **A collapsed row still has a name.** The label is animated to
+    `display: none`, which takes it out of the accessibility tree as well as
+    off the screen, so every row carries an `aria-label` — and the rail opens
+    on focus as well as on hover, so a sighted keyboard user sees what a
+    mouse user sees.
+  - **The rail and the drawer keep separate state.** One `open` for both is
+    what makes closing the drawer after a route change also collapse the rail,
+    under a cursor that is still inside it and will not send another
+    `mouseenter`.
+  - **A group heading becomes the rule between groups** when the rail closes,
+    rather than disappearing. The grouping survives at sixty pixels even
+    though the words do not.
+
+- **Those sidebars become a drawer below `md`** — a real modal, with focus
+  moved into it, Tab cycling inside it, Escape closing it and focus handed
+  back to whatever opened it. In the admin panel the language picker moves to
+  the foot of that drawer below `sm`, because at 320px the top bar's five
+  controls came to 351px and what silently lost was the breadcrumb — the only
+  thing telling a phone user which section they are in. The drawer is
+  navigation, not a settings screen, so the picker is still one tap from every
+  page.
+
+- **The account area is two columns from `md` and a drawer below it.** The
+  content column carries `min-w-0`, which is load bearing: a flex item's
   default minimum is its content's min-content, and that column holds order
   tables and product grids whose min-content is wider than a laptop. Without
-  it the track refuses to shrink and the whole page scrolls sideways, taking
+  it the column refuses to shrink and the whole page scrolls sideways, taking
   the sidebar with it — which is rule 1 above, broken by a default.
-
-- **The admin panel's sidebar becomes a drawer below `lg`** — a real modal,
-  with focus moved into it, Tab cycling inside it and Escape closing it. The
-  language picker moves to the foot of that drawer below `sm`, because at
-  320px the top bar's five controls came to 351px and what silently lost was
-  the breadcrumb — the only thing telling a phone user which section they
-  are in. The drawer is navigation, not a settings screen, so the picker is
-  still one tap from every page.
 
 - **Wide admin tables scroll inside themselves,** and `DataTable` columns can
   be marked `secondary` (hidden below `lg`) or `tertiary` (hidden below `xl`)
@@ -405,6 +427,59 @@ Two conventions worth knowing before adding to a page:
 - **A short viewport is its own case.** A phone held sideways is ~400px tall,
   where the storefront's sticky rows would be 40% of the screen, so they trim
   their vertical padding under `max-height: 480px`.
+
+### The sign-in screens are a split, with the earth on one side
+
+From `lg` up, every signed-out screen in all three frontends is two columns:
+the form on the right at the measure it has always had, and a turning earth on
+the left. Below `lg` the picture is not there at all and the screens are
+exactly what they were.
+
+| | Screens that use it |
+|---|---|
+| Storefront | `/login`, `/register` — including the "check your email" screen after a sign-up and the invitation-only page, so posting the form does not change the layout under the reader |
+| Admin panel | `/login` |
+| Logistics portal | Sign in, activate, and both second-factor screens — they share one frame, so they share this |
+
+The picture is **decoration and nothing else**. It is `aria-hidden`, it holds
+no text, no control and no tab stop, and every word a person has to read is in
+the column beside it. Three separate things can take it away — a narrow
+window, a machine with no WebGL, a chunk that never arrives — and on all three
+the screen is finished, because what is underneath is a drawn one.
+
+**What is on it.** The earth, textured and lit nearly flat so no pin is ever on
+a night side, inside an atmosphere in the deployment's own brand hue; a thin
+shell of particles for depth; and fifteen pins, one per sourcing hub, each
+standing off the surface on a stem with its country's two-letter code on top.
+The pins on the far side are hidden, because the heads are DOM and DOM has no
+depth buffer — without that the object stops reading as a sphere.
+
+**The hubs are an illustration, not a claim.** They are real deep-water ports,
+spread deliberately: four in Europe, four in the Americas, two in Africa and
+the Gulf, five across Asia and the Pacific. The storefront hero's own list was
+tried first and could not be used — nine of its thirteen sit inside twenty
+degrees of each other, which on a sphere this size is a heap of overlapping
+discs over the Alps. Nothing here is read from the API, and nothing here says
+that a particular operator ships anywhere.
+
+**What it costs.** Nothing before the form is typeable. three.js, Fiber, Drei
+and both earth textures are behind a `React.lazy` boundary and land in their
+own chunk fetched after the first paint; a weak device is given no canvas at
+all, a mid-range one a thinner version. A hidden tab stops the loop once there
+is a frame to hold, and somebody who asked for reduced motion gets a single
+still frame rather than a slower rotation.
+
+| File | What it is |
+|---|---|
+| `components/ui/auth-split.tsx` | The two columns, and the rule that the picture goes first |
+| `components/ui/auth-globe.tsx` | The decisions: whether to render, how much, when to stop — and the drawn earth underneath |
+| `components/ui/auth-globe-scene.tsx` | The scene: the hubs, the palette, the depth field |
+| `components/ui/3d-globe.tsx` | The earth itself, shared with the storefront's front page |
+
+All four are **byte-identical in the three apps**, the same rule
+`auth-form.tsx` states: one brand system, three densities, and a change to one
+copy is a change to all three or the sign-in screens drift apart while claiming
+to be one product.
 
 ## Why the worker is separate
 
@@ -540,7 +615,7 @@ comes back in the exact same shape:
 | `/activate` | Set your password (from a staff invitation link) | No |
 | `/forgot-password` | Ask for a reset link | No |
 | `/reset-password` | Choose a new password | No |
-| `/cart` | The basket — the **Instant Buy** tab | **Yes** |
+| `/cart` | The cart — the **Instant Buy** tab | **Yes** |
 | `/accounts/schedule` | Schedule Cart: the standing orders, and where one is changed | **Yes** |
 | `/checkout` | Address, shipping, payment choice | **Yes** |
 | `/checkout/payment/:orderId` | The payment sheet | **Yes** |
@@ -577,7 +652,7 @@ on the layout route rather than on each page:
 | `/account/notifications` | A record of what has been sent to this account | My stuff |
 
 **Schedule Cart is a sibling of the cart, not an account page.** `/cart` and
-`/accounts/schedule` are two ways to spend a basket, so they share the cart's
+`/accounts/schedule` are two ways to spend a cart, so they share the cart's
 full-width frame and are linked by a two-tab control at the top of both.
 Dropping the workspace into the account section would open it with a settings
 sidebar beside a list beside an editor — three columns of chrome around the one
@@ -629,13 +704,12 @@ a 401. Browsing, searching and filtering the catalogue stay open to everybody.
 
 One band over a tinted page, and five things in it: the brand on the left,
 then the appearance control, the market control, the account control and the
-basket on the right. That is all. Two things that used to be here are gone, and both removals are
+cart on the right. That is all. Two things that used to be here are gone, and both removals are
 the point of the current shape.
 
-**The global search box is gone.** The front page opens on a search module —
-a pill that unfolds into a large bar — and a second, smaller search field in
-the chrome directly above it was two front doors to the same room — behaving
-differently, at that: the
+**The global search box is gone.** The front page opens on a large search
+module, and a second, smaller search field in the chrome directly above
+it was two front doors to the same room — behaving differently, at that: the
 header field always went to `/search`, while the hero bar goes to the catalogue
 with the filters and facets applied. Searching from anywhere is still one press
 away, and the catalogue page grew a search field of its own **at the top of its
@@ -651,6 +725,12 @@ phone it scrolled sideways, so the department you were in was frequently half
 off screen — a navigation aid you have to navigate. The header no longer asks
 for `/catalog/categories` either; a removed bar that still fetches is a removed
 bar in name only.
+
+(The catalogue page grew a department strip of its own later — see "Opening a
+category" below. It is not that bar coming back: it is not sticky, it is not in
+the header, it is not on every page in the storefront, and it costs nothing on
+the pages that do not show it. It is on the two pages whose whole job is
+browsing departments, which is where a floor plan belongs.)
 
 What is left is deliberately not padded out to fill the space they left. The
 brand shrinks and the controls do not, so the gap between them is whatever is
@@ -668,7 +748,7 @@ shape with the width:
 | Below `sm` | One icon that advances through the same three — 40px |
 
 That is a measurement rather than a preference. At 345px the band has about
-44px left once the brand, the market chip, the account and the basket have
+44px left once the brand, the market chip, the account and the cart have
 taken theirs, and a segmented control forced in there takes the page
 sideways. Dropping a *segment* instead would be worse: the one that would go
 is "match my device", so a phone user who pressed "light" once could never
@@ -791,7 +871,7 @@ Four decisions worth knowing:
   answered by showing where you are.
 - **Signing out asks first.** It sits one row under Notifications in a list
   people scan quickly, and on a shared purchasing machine an accidental
-  sign-out costs somebody their basket. The confirmation is a real dialog
+  sign-out costs somebody their cart. The confirmation is a real dialog
   rather than a second click on the same button, and it says what is *kept*.
 
 Escape closes it and returns focus to the trigger; so does a click outside.
@@ -841,61 +921,30 @@ module, its sibling `globe.ts` and the dependency itself are all gone with it.
 ## The front page: the search module
 
 To the left of the sourcing graphic, under the headline, sits the thing this
-page exists to offer: **a pill that unfolds into one large search bar, with a
-two-item row above it.**
+page exists to offer: **one large search bar, with a row of three destinations
+above it.**
 
 | Item | What pressing it does |
 |---|---|
-| **AI Mode** | Opens `/ai` — the AI Mode page — immediately |
-| **Products** | Nothing. It is where you already are, and the bar below it is the catalogue search |
+| **Home** | Opens `/` — the greeting page. It is the current item while you are on it |
+| **AI Assistant** | Opens `/ai` — the AI Mode page — immediately |
+| **Products** | Opens `/products` — the catalogue, with its filters, facets and categories |
+
+**Every item is a link to a page, and the underlined one is the page you are
+on.** On the greeting page that is **Home**. Which item is underlined is read
+from the URL rather than assumed, so the row cannot start lying the day the
+module is mounted somewhere else.
+
+Products used to be marked as the current item here, which said the greeting
+page *was* the catalogue — and left somebody who wanted the catalogue with no
+way to press for it. It is a link now, and Home took the place it was
+occupying.
 
 It replaced a pair of call-to-action buttons, and the swap is the point. The
 old buttons said "Browse the catalogue" and "Sign in"; the first of those asked
 somebody to go and *look* for a thing they could already name. Nothing was lost
 with them — submitting an empty box goes to the same browse-all page the orange
 button did, and the sign-in path is in the header on every screen.
-
-### It opens as a pill, and that costs something
-
-The page loads showing one rounded button: a magnifier and the words "Search
-the catalogue". Pressing it unfolds the whole module — the row, the bar, the
-camera, the microphone and the AI notice — in a single gooey transition, and
-the caret lands in the field.
-
-**What the fold costs is worth stating plainly, because it is a real trade and
-not a free one.** The AI Mode link and the catalogue field are one press
-further away than they were, and neither is visible to somebody who never
-presses. What it buys is a greeting that opens on one clear invitation instead
-of on a control panel — a full bar, a two-item row, two icon buttons and a
-legal notice is six things to read before a visitor has decided they want any
-of them.
-
-**The transition is the gooey filter**, which lives in
-`components/ui/gooey-input.tsx` and is shared rather than reimplemented: the
-pill stretches into the bar while a round bubble pinches off its left end, the
-two joined by a neck that thins and breaks. The bubble is **not decoration**
-once it has landed — it is the Search button, and the filled "Search" button
-that used to sit inside the bar was removed when it arrived. Two controls with
-the same name doing the same thing is one of them somebody has to rule out
-first.
-
-Three things about the filter are deliberate and each one was a defect in the
-component this was adapted from; `ui/gooey-input.tsx` carries the full list.
-The filter is **mounted only while something is moving** — an SVG filter left
-over a live text field re-runs on every keystroke and costs the text its
-subpixel antialiasing. The `<svg>` holding it is **not `display: none`**,
-because WebKit drops filter references into a subtree it has been told not to
-render. And `prefers-reduced-motion` gets **no goo at all**: the module still
-opens and closes, with no spring, no travelling icon and no filter.
-
-**It folds back up** on `Escape`, and when focus leaves the module with the box
-empty. Each half of that rule is load-bearing. The box being empty is the
-condition, because folding a bar somebody has typed into throws their words
-away. It is the *module* that has to lose focus and not the field, because the
-field loses focus every time somebody reaches for the camera beside it. And an
-open image dialog holds it open, because opening that dialog moves focus
-outside the module — without the guard, closing the dialog would hand the
-customer back a pill.
 
 **Submitting searches the catalogue, and only that.** The term goes into the
 URL as `/products?q=…`, and the catalogue page owns what a result looks like —
@@ -904,10 +953,17 @@ are the ones the results arrive in. An empty box is the whole catalogue rather
 than a no-op. A second grid of search results on the front page would be a
 second definition of "a search result".
 
-### AI Mode is a link, and it used to be a tab
+### Every item is a link, and two of them used to be tabs
 
-The row looks like two tabs and is not two tabs. Pressing **AI Mode** goes
+The row looks like tabs and is not tabs. Pressing **AI Assistant** goes
 straight to the AI Mode page.
+
+**It reads "AI Assistant", which is what the sourcing graphic beside it calls
+the same destination.** The row said "AI Mode" and the graphic's node said "AI
+Assistant", in all eight languages — two names for one page on one screen, and
+the first thing a visitor has to rule out is that they are two different
+things. The page itself is still AI Mode: in the route, in the admin console,
+and everywhere else in this guide.
 
 It used to select a tab: the bar switched its placeholder to "Ask anything
 about medical sourcing", and pressing **Search** then navigated. That was two
@@ -926,17 +982,91 @@ gets pasted into a chat window, logged by a proxy, or kept in browser history.
 
 **There is no `role="tablist"` here any more, and there was.** A tablist
 promises that its items switch panels inside the page and that arrow keys move
-between them. One of these two items leaves the page, so announcing it as tab
+between them. Every item here leaves the page, so announcing it as tab
 selection describes a control that no longer exists. What is left is a labelled
-row: the current item carries `aria-current`, the other is a link. The sliding
-underline went with it — nothing moves, so the underline is a `span` inside the
-current item, which is exact in all eight languages without a `ResizeObserver`,
-a font-load handler and a layout effect.
+row of links, and the one you are on carries `aria-current="page"` — which is
+what that value means — while staying a link, so that it is never a dead word
+in the middle of a row of live ones. The sliding underline went with the
+tablist: the underline is a `span` inside the current item, which is exact in
+all eight languages without a `ResizeObserver`, a font-load handler and a
+layout effect.
 
-The AI Mode item is **absent, not disabled**, on a deployment with no AI
-provider configured. The bar is then a search bar with nothing above it, which
-is the honest shape for that deployment — the same rule the rest of the
-storefront follows for a capability the operator has not switched on.
+The AI item is **absent, not disabled**, on a deployment with no AI provider
+configured — the same rule the rest of the storefront follows for a capability
+the operator has not switched on. The row itself stays: Home and Products are
+pages every deployment has. Its accessible name has a second wording for that
+case, because a landmark that names a destination a screen reader will not find
+in it is worse than a vaguer one.
+
+### Shop by category: a rail of departments, not a grid
+
+Between the hero and the catalogue sits one band: one card per department that
+has something published beneath it, scrolled sideways.
+
+```
+Shop by category
+5 departments currently stocked.
+┌────────────┐ ┌────────────┐ ┌────────────┐ ┌──────────
+│ 240 PRODUCTS│ │ 1 PRODUCT  │ │ 1 PRODUCT  │ │ 1 PRODUC
+│ Medical    │ │ Tools &    │ │ Agriculture│ │ Food Ser
+│ Devices    │ │ Hardware   │ │ & Gardening│ │ & Cateri
+│            │ │            │ │            │ │
+│ (photo)    │ │ (photo)    │ │ (photo)    │ │ (photo)
+│            │ │            │ │            │ │
+│ 26 sub-  → │ │ 1 sub-   → │ │ 1 sub-   → │ │ 1 sub-
+└────────────┘ └────────────┘ └────────────┘ └──────────
+                                                  ( ← ) ( → )
+```
+
+**It was a grid and it is a rail.** Twenty-five departments as a grid of small
+tiles is most of a screen between the greeting and the catalogue — the two
+things the page is actually for — and it pushed both below the fold. A rail
+shows the same twenty-five in one band, at a size where the picture does some
+work, and gives the rest of the page back.
+
+**Every number on a card is the whole subtree**, because that is what pressing
+the card will show. A department whose products all sit one level down holds
+none of its own, and a card reading "0 products" over a photograph of a
+warehouse is a card that has lied. Sub-departments with nothing in them are not
+counted and not offered.
+
+**Pressing a card opens a panel, not a page.** The panel lists the
+sub-departments with their counts, two columns, plus one filled link into the
+department itself. For a buyer who knows roughly what they want that is the
+right shelf in two presses without reading a price; for a department with
+nothing beneath it, the link on its own is the whole useful answer. Every link
+in the panel closes it on the way out — a modal that stays up while the page
+changes underneath it reads as a page that failed to respond.
+
+**The pictures are a lookup, not a column.** A category in this product has no
+image: it has a name, a slug and two counts. Requiring an operator to upload
+twenty-five photographs before their front page stopped looking broken would
+break the rule that a fresh deployment has to look finished with nothing
+supplied. So `lib/category-cover.ts` recognises the department names this
+catalogue knows — matched on the *name*, whole words, narrowest pattern first,
+exactly as the mark lookup beside it works — and dresses those. Anything else
+gets its drawn mark on a brand-tinted plate, which is what every department
+used to get and is still a finished card. Nobody is shown a photograph that is
+confidently wrong about what a department sells.
+
+The photographs are hotlinked from a public image CDN at the width the card
+actually uses. They are decoration and nothing depends on them: each one sits
+behind a scrim with the department's own name in real text on top, the `<img>`
+is `aria-hidden` so a screen reader does not read the name twice, and a request
+that fails falls back to the same drawn plate. A deployment that cannot reach
+the CDN loses the pictures and keeps the rail.
+
+**The rail is keyboard- and screen-reader-complete.** The panel is a native
+`<dialog>` opened with `showModal()`, so focus is trapped, the page behind is
+inert, Escape closes it and focus returns to the card that opened it. Closing
+scrolls that card back under the cursor rather than leaving the track where the
+page loaded it. The two arrow buttons under the rail are labelled, and each is
+disabled when there is genuinely nothing that way — including on arrival, where
+a rail whose cards all fit offers no live button that does nothing.
+
+Under `prefers-reduced-motion` the staggered entrance, the hover lift, the
+panel fade and the smooth scrolling all stop. Nothing is lost with them: every
+card, every number and every link is still there.
 
 ### The catalogue is simply on the page
 
@@ -957,8 +1087,9 @@ all, with nothing underneath it — which reads as a broken page to exactly the
 person least able to tell that it is not. Tying it to *which tab was current*
 then meant choosing AI Mode unmounted it, and the section scrolled itself into
 view when it came back, which was right after a press and wrong on arrival.
-With AI Mode a link, Products is the only thing the bar can be, and all of that
-machinery is gone: nothing reveals the list, so nothing scrolls.
+Every item in that row is a link to a page now, and none of them is a state
+this page can be in, so all of that machinery is gone: nothing reveals the
+list, so nothing scrolls.
 
 **It is a taste of the catalogue, not a second catalogue.** The section reuses
 `ProductCard`, the same `/catalog/products` read and the same pricing as every
@@ -1058,7 +1189,7 @@ that fits a 10 Fr port?" against a picture of the thing. That was already true
 for an uploaded picture; it is now true for one taken on the spot.
 
 **A capability the operator has not configured is absent, not disabled.** On a
-deployment with no AI provider there is no AI Mode link and no camera button —
+deployment with no AI provider there is no AI item and no camera button —
 and with only one item left, no row above the bar either, because one item is a
 label pretending to be a choice.
 
@@ -1572,8 +1703,18 @@ Hovering a product card tilts it a few degrees in perspective, lifts it very
 slightly, and slides a soft highlight across the photograph. It is the one
 piece of decoration in this storefront aimed at a specific moment: a buyer
 scanning a grid of cards, deciding which one to open. That is the front page
-strip, the related-products rail and the wishlist — a category listing is rows
-now, and rows do not tilt.
+strip, the related-products rail, the wishlist, the image-search results and
+the cards the assistant puts under an answer.
+
+**Where a product is a row instead, it takes half of it.** The category
+listing is one bordered sheet with hairlines between the rows, and forty
+haloes inside it would erase the one boundary that matters — where one product
+stops and the next begins. A row would also lift its own edge off the divider
+above it if it leant. So a row gets the specular that follows the pointer
+across its photograph and nothing else: `.sheen` in `index.css` is the hover
+host on its own, `useTilt` still writes all four custom properties, and only
+the two the highlight reads do anything. One hook; which half of it applies is
+a class on the element rather than an option in TypeScript.
 
 | Part | What it is |
 |---|---|
@@ -1683,11 +1824,18 @@ is the shape a department is actually read in.
 Home / Products / Medical Devices
 CATEGORY
 Medical Devices   239 products
+┌──────────────────────────────────────────────────────────────┐
+│  ▢      ▣      ▢      ▢      ▢      ▢      ▢      ▢      ▢   │
+│ All  Medical  Lab  Indust  Tools  Elec  Compu  Phones  …     │
+│      ━━━━━━━                                                 │
+└──────────────────────────────────────────────────────────────┘
 WHAT IS INSIDE
-┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│ ▣ ABG Kit│ │ ▣ Adult  │ │ ▣ Flush  │ │ ▣ IV     │
-│ 6 products│ │ 15 …    │ │ 6 …      │ │ 51 …     │
-└──────────┘ └──────────┘ └──────────┘ └──────────┘
+            ┌───────────────────┐
+     ┌──┐   │                   │   ┌──┐
+     │  │   │      ABG Kit      │   │  │
+     └──┘   │  [Browse  6 …]    │   └──┘
+            └───────────────────┘
+                 ‹  1/26  ›
 ┌──────────────────────────────────────────────────────────────┐
 │ Sort by  Newest first  Price: low to high  …                 │
 └──────────────────────────────────────────────────────────────┘
@@ -1704,14 +1852,123 @@ WHAT IS INSIDE
 └───────────────┘
 ```
 
-**What is inside, above the results.** A category with sub-categories shows
-them as cards between the heading and the toolbar — the same cards the front
-page uses, from the same component, so a shopper who learnt a department by its
-mark on one page finds the same mark on the other. The filter rail lists the
-same names, and deliberately: the list is the compact way to hop between
-shelves once you are deep in the results, and the cards are the way in. They
-are not shown above a set of search results, where "what is inside" is
-answering a question nobody asked.
+**The department strip, under the title.** Every top-level department in one
+scrolling row — a mark and a name each, "All products" first — and it is the
+same strip on `/products`, on every `/category/:slug` and above a set of search
+results. A shopper who has read the row once knows where everything is, and
+moving between departments stops being "go back, find the grid, press the next
+one" and becomes one press in a row that never moves. It sits *under* the
+breadcrumb and heading, not above them: a floor plan is read after you know
+which room you are standing in.
+
+They look like tabs and they are links, deliberately. Pressing one goes to a
+real page with its own address, its own title and its own place in the history,
+so a filtered department is something a buyer can send to a colleague. A tab
+strip that swapped the grid in place would lose all three.
+
+Two things about what is on it. **Every department, stocked or not** — a strip
+that dropped three aisles because nothing is on their shelves this week is a
+floor plan nobody can trust, and on a fresh deployment it would be empty
+altogether. And **the lit item is the department, not the slug in the address**:
+a shopper inside "IV Cannula" is inside Medical Devices, so `rootCategorySlug`
+walks up the tree and lights the department they are actually in.
+
+The marks are their own set — `components/department-icons.tsx`, chosen by
+`lib/department-mark.ts`. They are two-tone, which nothing else in either app
+is: one filled accent in the brand colour per mark, on ink line work. A row of
+twenty-six single-weight stroke drawings at 24px is a picket fence, and the
+filled shape is what the eye catches on. The accent is a token, so it re-tints
+in dark mode and an operator who changes the brand blue changes it here too. A
+department name this catalogue has never seen gets a plain folder rather than a
+guess — the rule `components/icons.tsx` writes down at length.
+
+**What is inside, as a deck.** A category with sub-categories shows them as
+square photographic cards between the heading and the toolbar: one square to
+the reader with its name and a Browse button carrying the count, the rest
+tipped back a few degrees and dimmed behind it, arrows and a position
+underneath. It replaced a grid of small mark-name-count rows, and the reason is
+the one the front page's rail already gives — a shopper who does not yet know
+the catalogue's vocabulary cannot pick between "Consumables & Sampling" and
+"Measurement & Calibration" from the words, and can from the pictures.
+
+The deck fills the page's column at both ends rather than parking one card in
+the middle of an empty band. It centres the card in focus until it runs out of
+deck and then stops, the way a filmstrip does — the component this came from
+translates its track by a fixed share of its width, which is correct in the
+middle and leaves half a viewport of nothing beside the first card and the
+last. A department with fewer cards than fit is centred instead.
+
+**A sideways gesture moves the deck. A vertical one never does.** The strip
+turns a vertical wheel into a sideways step, because it is 72px tall and a
+mouse has no other way to reach its far end. The deck deliberately does not,
+and the difference is size: it is 288px tall and spans the column, so the
+cursor is over it for most of the way down the page. Converting there meant
+that scrolling past the deck silently changed which shelf was in focus, which
+reads as a component moving on its own while you are trying to get past it.
+
+The first attempt tested the *timing* instead — it took vertical ticks once
+the pointer had rested for a fifth of a second, on the theory that a settled
+pointer meant intent. It does not. A reader who pauses over a photograph and
+then carries on scrolling has settled by that definition, and the deck moved
+under them anyway. The axis is the honest test: nothing on this page scrolls
+horizontally, so a sideways gesture over the deck can only mean the deck.
+Shift-and-wheel counts too, being the long-standing way to say "horizontally"
+on hardware that cannot. A mouse with only a vertical wheel reaches the deck
+through the arrows, which is what they are for.
+
+It still hands the gesture back at both ends. The arrows still wrap around,
+deliberately: a press is a request, and going round is the useful answer to
+one.
+
+**A card behind the one in focus highlights under the pointer.** It comes half
+way forward, its picture lifts from half-dimmed to nearly lit, and it takes a
+hairline ring — because a photograph with no border and no label is not
+obviously a control, and the hover is what says it is one. The lean is a pair
+of custom properties rather than an inline `transform` precisely so `:hover`
+can change it; an inline style beats every class, so a `hover:scale-*` on a
+slide carrying one is a rule that silently never fires. The ring is the part
+that survives reduced motion, which is right — a line appearing under the
+pointer is not movement.
+
+**A different department opens at its first shelf.** `CatalogPage` stays
+mounted as a shopper moves between departments, so the deck is re-rendered
+rather than remounted and keeps whatever index it was left on. Stepping to the
+fifth shelf of Medical Devices and then pressing Tools & Hardware opened that
+department at 5 of 5 — the last card, clamped against the right-hand edge,
+which reads as a department opening at its end. Clamping the index into range
+was the first answer and it only hid the half of the fault that crashed: a deck
+left at nine and handed thirty shelves still opens nine in.
+
+So the deck resets when its *identity* changes, and the identity is the shelf
+count plus the first shelf's id. That is O(1) per render, it changes for any
+department a shopper can reach, and it deliberately does not change when the
+same deck re-renders — a background refetch of the category tree must not throw
+away the shelf somebody is reading. Both halves are pinned in
+`CategoryStrip.test.tsx`.
+
+The photographs come from `lib/subcategory-cover.ts`, an exact table keyed on
+the sub-category's name. Exact, where the department-level lookup beside it is
+patterns: a department is a broad word and "Tools", "Tooling" and "Hand Tools"
+all want one picture, while "Tyres & Wheels" and "Vehicle Care" sit inside one
+department and want different ones. A name that is not in the table gets the
+drawn plate instead — the shelf's own mark, large, on the brand gradient —
+which is a finished card rather than an apology for a missing one.
+
+All the children are on the deck, not only the stocked ones. The deck is the
+*shape* of the department, and every card states its own count, so an empty
+shelf says "0 products" rather than hiding. The filter rail lists the same
+names, and deliberately: the list is the compact way to hop between shelves
+once you are deep in the results, and the deck is the way in. It is not shown
+above a set of search results, where "what is inside" is answering a question
+nobody asked — unlike the strip, where "where else could I look" is still
+useful.
+
+Only the card in focus carries a live link, and that is a condition in the
+component rather than a CSS class: `invisible` takes a link out of the tab
+order in a browser and does nothing where there is no CSS, so a deck of
+twenty-six would be twenty-six tab stops for one visible choice in exactly the
+environment nobody checks. Every other card is a button that says which shelf
+it would bring forward.
 
 **Why rows.** A card 240px wide holds a name, a code and a price. A buyer
 choosing between eleven infusion sets needs the *differences* — the bore, the
@@ -1791,8 +2048,8 @@ left, the conversation on the right.
 
 | Left rail | Main pane |
 |---|---|
-| New chat | The greeting: a name, and one question |
-| Conversation history, most recent first | Five suggested starters |
+| New chat | The greeting: a name, one question, and the size of the shop |
+| Conversation history, most recent first | Suggested starters, built from the live catalogue |
 | Rename a thread | The transcript, with the reply streaming in |
 | Delete a thread (asks first) | Composer: text, attach, voice, Send / Stop |
 | Collapse the rail | Copy and **Ask again** under a finished reply |
@@ -1800,26 +2057,100 @@ left, the conversation on the right.
 
 ### The greeting
 
-Two lines, and nothing else above the starters:
+Three lines, and nothing else above the starters:
 
-> **Hello, Priya**
-> **What are you looking for today?**
+> **Good morning, Priya**
+> **How can we help you today?**
+> 219 products on sale, from Fasteners & Fixings, Cables & Wiring, Safety
+> Footwear and more.
+
+**The first line greets by the hour.** "Hello" is correct at every hour of the
+day and warm at none of them, and a shop that notices whether it is somebody's
+morning or their evening reads as a shop staffed by a person. `lib/greeting-time.ts`
+holds the bands, and they are read off the **reader's own clock** rather than
+the operator's timezone — a buyer in Rotterdam greeted by a shop's Indian
+morning is being told about somebody else's day.
+
+| Local time | Greeting |
+|---|---|
+| 05:00–11:59 | Good morning |
+| 12:00–16:59 | Good afternoon |
+| 17:00–21:59 | Good evening |
+| 22:00–04:59 | Hello |
+
+**The small hours get the plain greeting back on purpose.** "Good evening" at
+three in the morning is worse than "Hello": it is the kind of wrongness a
+person notices instantly and reads as a machine guessing, which is the opposite
+of what a warm greeting is for. Night shifts are a real part of this audience —
+wards, warehouses and dispatch desks all order at four in the morning.
+
+**A guest is greeted too.** Each period has two whole sentences in the
+catalogue, one with a name and one without, so a visitor with no account still
+gets "Good morning" rather than nothing. Two sentences rather than a greeting
+with a name concatenated onto it: gluing works in all eight languages this
+ships in, which is exactly what makes it a trap — the ninth wants the name
+somewhere else, and by then the concatenation is in a component where no
+translator can reach it. The one combination that draws nothing is a guest in
+the small hours, where "Hello" alone says nothing the line beneath it does not.
 
 The name is the first word of the name on the account, read through the same
 `useAccountIdentity` hook the header button and the account sidebar use — so
 this page greets somebody by exactly the name they are greeted by everywhere
-else, and on a signed-in visit it usually costs no request at all. Where there
-is no name — a guest, an account with the field blank, a read still in flight —
-the name line is simply absent and the question stands on its own. It is
+else, and on a signed-in visit it usually costs no request at all. It is
 **never** derived from the email address: a purchasing account is routinely
-`ops.procurement@`, and "Hello, Ops" is worse than no greeting.
+`ops.procurement@`, and "Good morning, Ops" is worse than no name at all.
+
+**The question is asked the way a person would ask it.** "How can we help you
+today?" rather than "What are you looking for today?" — the second is a
+database prompt with a question mark on it, and the first is an offer. The
+same politeness runs through the reply rules: the system prompt now has a
+MANNERS section telling the assistant to greet somebody who greets it, thank
+somebody who thanks it, and refuse kindly with a way forward. That sits
+directly above the rules against empty filler, and says so, because the two
+are easily confused: filler is a sentence that could be deleted without losing
+anything, and a greeting answering a greeting is not one.
 
 What this replaced was a heading and a four-line paragraph explaining what the
 assistant could be asked and where its answers came from. All of it true, none
 of it read: somebody who has opened a chat has already decided to type, and an
 onboarding paragraph between them and the composer is a thing to scroll past.
-The five starters below say what can be asked by being askable, which is a
-better answer than a sentence claiming it.
+The starters below say what can be asked by being askable, which is a better
+answer than a sentence claiming it.
+
+**The third line is this shop's own figures, and it is not that paragraph
+coming back.** It is the catalogue's product total and its three biggest
+departments, read from `/catalog/categories` — the same query key the catalogue
+page uses, so on a visit that has already browsed it costs no request. Where
+that read has not landed, or the catalogue is empty, the line is simply not
+drawn and the page is the two-line one it was. It earns its place by saying the
+one thing a greeting cannot otherwise say: how much there is, and what kind of
+shop this is.
+
+### The starters
+
+Two of them are fixed — **Compare two products** and **Help me prepare a
+recurring order** — and the rest are the real categories of this deployment's
+own catalogue, biggest first, three of them:
+
+> **What do you have in Fasteners & Fixings?**  **What do you have in Cables &
+> Wiring?**  **What do you have in Safety Footwear?**
+
+There used to be five fixed chips, and three of them were wrong in ways worth
+naming, because each is a different mistake:
+
+  - **"Find suitable diagnostic equipment"** named one trade. This is a
+    marketplace whose range is whatever its sellers list, and a buyer who sells
+    cable ties opened the assistant to be told what it thought they sold.
+  - **"Check warehouse availability"** opened a conversation the assistant is
+    told in its own system prompt it cannot have — it has no live stock
+    figures, and the honest reply is a referral to support.
+  - **"Explain supplier requirements"** had nothing behind it at all.
+
+A chip that opens a conversation the assistant has to decline is worse than no
+chip, and a chip that describes a shop this deployment is not is worse again. A
+category chip cannot be either: it is true, today, because the category exists
+with products in it — and it rewrites itself the moment a seller opens up a
+category nobody was trading in yesterday.
 
 ### The words blow away when they are sent
 
@@ -1891,9 +2222,10 @@ every storefront read uses. So:
   - there is no path by which a URL that arrived in generated text reaches an
     `img src`.
 
-On a catalogue of cannulae and feeding tubes that is not a stylistic
-preference. A hallucinated product code with a confident price beside it is
-somebody ordering the wrong device.
+On a trade catalogue that is not a stylistic preference. A hallucinated product
+code with a confident price beside it is somebody ordering the wrong thing —
+and on the ranges these deployments carry, the wrong thing can be a device, a
+chemical or a load-rated part.
 
 Two details that follow from the same rule. The half-arrived reference line is
 hidden while it streams, because watching `[[products: nitrile-examin` type
@@ -1929,7 +2261,7 @@ presentations, because two components is how the pair stops agreeing about what
 **Delete is soft, and the interface does not pretend otherwise.** From the
 customer's side the thread is gone for good: it leaves the list, leaves every
 read, and cannot be continued. What survives is the transcript, because what
-this deployment's AI told a buyer about a medical device is a record it has to
+this deployment's AI told a buyer about a product is a record it has to
 be able to produce — staff still read it under Chat enquiries, and the
 retention sweep is what eventually clears it. Erasure under Art. 17 is a
 different act with its own route, and that one deletes the rows.
@@ -2014,11 +2346,15 @@ route rather than on each page. The sidebar stays mounted across a navigation,
 so the scroll position holds, the profile read is not repeated, and the active
 row moves rather than the whole column redrawing.
 
-Below `lg` the sidebar collapses to a **disclosure** rather than to nothing.
-Hiding the navigation entirely strands somebody who arrived on a deep link with
-no way to the rest of their account, so on a phone the current page's name is a
-button that opens the list. (Longest path match wins, so
-`/account/orders/ORD-1` is labelled "My orders" rather than "Account".)
+From `md` the sidebar is the shared rail — icons until a pointer or the
+keyboard reaches it, labelled rows while one is inside it — and the profile
+card is its head, which collapses to the avatar alone.
+
+Below `md` it is a **drawer** rather than nothing. Hiding the navigation
+entirely strands somebody who arrived on a deep link with no way to the rest of
+their account, so on a phone the current page's name is a button that opens the
+list over the page. (Longest path match wins, so `/account/orders/ORD-1` is
+labelled "My orders" rather than "Account".)
 
 ### The dashboard
 
@@ -2044,14 +2380,15 @@ them as one would be the bug.
 groups a buyer actually thinks in: waiting on you, being prepared, on the way,
 delivered, and cancelled-or-returned. `DRAFT` is in none of them and in none of
 the totals — the window filters on `placedAt`, which a draft does not have,
-because a draft is a basket somebody abandoned rather than an order.
+because a draft is a cart somebody abandoned rather than an order.
 
-Clicking a slice, or its legend entry, filters the order list underneath it.
-Both the ring and the list are built from one table in `lib/buyer-dashboard.ts`,
-so a segment showing four orders cannot open a list showing three. A test holds
-that mapping to covering every status exactly once — a status belonging to no
-group would be counted in no segment, and the ring would add up to less than
-the total with nothing on screen saying so.
+Clicking a slice, or its legend entry, singles that group out: the chart says
+"Showing waiting on you only" and offers a way back, and the insights panel
+beside it is asked about that group rather than the whole period. The mapping
+lives in one table in `lib/buyer-dashboard.ts`, and a test holds it to covering
+every status exactly once — a status belonging to no group would be counted in
+no segment, and the ring would add up to less than the total with nothing on
+screen saying so.
 
 **The chart is not the only way to read it.** The ring itself is one image with
 a label carrying every figure; its arcs are decoration in the accessibility
@@ -2067,12 +2404,20 @@ Back from an order returns to the ring it was clicked from. Today, 7 days, 30
 days and a custom pair; "today" is the calendar day rather than the last 24
 hours, because a delivery that happened yesterday afternoon is not due today.
 
-Beside the ring sits **UBOSS AI Insights** — see section 8. The cards under it
-are the supporting figures: what was paid this period against the period
-before, what is promised in the next seven days, how many schedules cannot run
-without the cardholder, the orders needing payment or an approval (however
-old — an unpaid order from six weeks ago is more urgent than one from this
-morning), and whether the buyer's own ERP feed is working.
+Beside the ring sits **UBOSS AI Insights** — see section 8. **There is nothing
+under the ring.** The three stat tiles and the five cards that used to be there
+— spend against the preceding period, what is promised in the next seven days,
+schedules needing a card, orders needing payment or an approval, recent orders
+and the buyer's own ERP health — were all removed. The screen is the shape and
+the paragraph about it, and everything the cards said is a click away on the
+screen that owns it: Orders, Payments, Schedules, Integrations.
+
+None of the DATA went. `GET /account/dashboard` still returns spend,
+deliveries, payment actions, schedules and ERP health in the same one round
+trip, and the insights panel is measured over the whole bundle — so the
+paragraph beside the ring can still say that three orders are waiting on
+payment, or that a plan cannot run without a card, even though no tile shows
+it.
 
 ### Profile information
 
@@ -2217,7 +2562,7 @@ ask for the same irreversible thing is one too many.
 this customer is quoted in, read from the same `listPublicCoupons` the cart
 reads — so a code offered here is a code the cart will accept. It deliberately
 does **not** say whether a coupon is eligible: eligibility depends on what is
-in the basket, and a page printing "eligible" against an empty cart would be
+in the cart, and a page printing "eligible" against an empty cart would be
 promising something it cannot know. The minimum order value is stated instead.
 Redemptions are listed from `codeSnapshot`, not from the coupon's current code:
 a coupon can be renamed or repercentaged afterwards, and what an order actually
@@ -2238,13 +2583,13 @@ correctly without a table growing a row.
 **Saved for later** (`/account/wishlist`) is the narrowest useful feature, and
 the absences are the design: no quantity, no note, no reordering.
 
-> A wishlist that carries a quantity is a second basket with none of a basket's
+> A wishlist that carries a quantity is a second cart with none of a cart's
 > rules — no minimum order quantity, no increment, no stock reservation, no
 > priced total — and the moment one exists somebody tries to check it out.
 
 Saving a line says "remind me about this"; buying it means putting it in the
 cart. That is also why the row's action goes to the product page rather than
-straight into the basket: adding from here would have to invent a quantity, and
+straight into the cart: adding from here would have to invent a quantity, and
 the quantity is exactly what a purchase rule constrains.
 
 Lines are saved from a quiet **Save for later** control under the buy path on
@@ -2329,9 +2674,544 @@ same name and the same photograph, so the option name is the only thing on the
 row that says which is which — and a cart that cannot be read is a cart that
 gets ordered wrong.
 
+## The product page: narrowing down to one thing
+
+The option list above is one of **two** ways this catalogue is bought from, and
+which one a product shows is decided by the product itself.
+
+A hospital buying syringes wants the 3 ml **and** the 5 ml, so it gets the
+list. Somebody buying a safety boot wants one boot — black, size 8, standard
+width — and offering them a tick box per combination would be a screen with
+twenty-four rows on it. So a product whose seller has declared the dimensions
+it varies by gets a **narrowing selector** instead: colour, then size, with
+every combination nobody stocks switched off as you go.
+
+```
+Colour  Brown
+[ Black ]  [ Brown ]
+
+Size  8
+[ 6 ]  [ 7 ]  [ 8 ]  [ 9 ]  [ 10 ]
+        ───      ⨯       ⨯
+
+Options with a line through them are either out of stock or not sold
+in this combination.
+
+500 g · Pack of 10
+Each pack contains 5000 g in total.
+
+Quantity  [ − ]  2  [ + ]
+2 packs is 20 units, 10000 g in total.
+
+              [ Add to cart ]
+```
+
+### Three states, not two
+
+The single most common way a variant selector lies to somebody is by greying
+out two different situations in the same grey:
+
+- **Available** — there is one, and it is here.
+- **Out of stock** — there is one, it is not here right now. Come back, or ask.
+- **Not offered** — no such thing is sold. Size 8 in black when black runs 6 to
+  7. Nothing to wait for.
+
+They are drawn differently — a struck-through rule for one, an underline for
+the other — and they read differently to a screen reader, which hears
+"Size: 8, not available in this combination". **Colour is never the only
+signal**, because roughly one man in twelve cannot rely on the difference
+between a grey chip and a live one.
+
+### Where availability comes from
+
+Two things: the real variant list, and one boolean per SKU.
+
+This storefront does not publish warehouse figures — a competitor should
+not be able to read stock levels off a shop front. But **"is there one"
+and "how many are there" are different questions**, and refusing to answer
+the first costs the buyer something real: without it the selector can only
+ever say "not offered", and a size that is temporarily empty looks
+identical to a size that is not sold at all.
+
+So the product read publishes `isInStock` per variant — a boolean, never a
+quantity. Null means the question has no answer here (an untracked
+product), and null is purchasable, because stock is confirmed when the item
+goes in the basket, which is what actually happens.
+
+**The option list gets the same answer.** Every product listed before
+variant axes existed uses that list, and until this it said nothing at all
+about availability — a buyer could tick an option with nothing behind it
+and find out at the cart. A sold-out option is now struck through, labelled
+in words, and cannot be ticked. A product sold as a single item with
+nothing behind it cannot be added at all.
+
+The rest is the variant list, and nothing else. Four sizes and two colours is eight
+buttons and, very often, five SKUs. The resolver takes the combination chosen
+so far, finds every variant compatible with it on the *other* axes, and asks
+whether any of them has stock. Picking black must not grey out brown — an axis
+never disables itself on its own answer, or the only way to change your mind is
+to reload the page.
+
+### Pack count is not cart quantity
+
+This is the distinction the whole feature is built around, and the one a
+catalogue most often leaves to the reader.
+
+"Pack of 10" is a thing a warehouse picks, weighs and ships as **one item**. It
+has its own SKU, its own barcode and its own price. How many of those packs
+somebody wants is a number they type on this page, and it lives on the cart
+line — never on the variant.
+
+So a buyer choosing a 500 g packet, Pack of 10, quantity 2 is buying **2 packs
+= 20 packets = 10 kg**, and the page says so in those words before the button
+is pressed. A system that folded the 2 into the variant would have invented a
+"Pack of 20" nobody stocks.
+
+### Everything else the selector has to get right
+
+**A size run is sorted as a size run.** 8 before 10, which no locale gives you.
+Apparel hangs XS, S, M, L, XL, 2XL — alphabetical produces L, M, S, XL, which
+is a word list. Which of the two applies is a property of the shelf: `size` on
+a shoe is numeric and `size` on a shirt is semantic, which is why the axis
+definitions are served **per shelf** rather than as one global dictionary.
+
+**A size system is its own choice.** An 8 is three different shoes in UK, EU
+and US. The size axis declares the size-system axis as a prerequisite, so the
+numbers cannot be offered before the system is settled.
+
+**The choice is in the URL.** `?colour=brown&size=8`, using the axis keys
+themselves. A shared link opens on the thing the sender was looking at, and a
+refresh does not throw the choice away. A link naming a colour the product no
+longer sells opens partly filled rather than on an impossible state.
+
+**An axis with one value answers itself.** Asking somebody to choose between
+one option is not a choice, it is a click. A product with a single SKU shows no
+selector at all.
+
+**Add to Basket stays live while the choice is incomplete.** Pressing it says
+*"Choose a size to continue"* and puts the caret on the size buttons. A
+disabled button is the obvious implementation and the worse one: it cannot take
+focus, screen readers skip it, and it answers "why can't I buy this?" with
+silence.
+
+**The photographs follow the choice.** A variant with its own pictures shows
+them; one without shows the product's. A fallback, never a merge — a seller who
+photographed the brown boot meant those to be the pictures of the brown boot.
+
+### Which products get which control
+
+| The product declares… | What the buyer sees |
+|---|---|
+| No variant axes | The option list — several choosable at once |
+| Variant axes, one value each | No selector; just a quantity box |
+| Variant axes, several values | The narrowing selector |
+
+Every product that existed before this feature declares no axes, so **nothing
+about them changed**. That includes the whole of Medical Devices, which has no
+variant template and never will: a hospital picking three sizes of syringe in
+one go is a working purchasing flow, not a worse version of a shoe page.
+
+## The variant templates: 24 departments, 112 shelves
+
+A seller listing a cable should be asked about cores and cross-sectional area.
+A seller listing a lipstick should be asked about shade and finish. Neither
+should be asked about the other, and neither should have to invent the list
+themselves.
+
+So every non-medical shelf in the starter catalogue has a **variant template**:
+the dimensions products on that shelf are commonly stocked in more than one
+form. Twenty-four departments, a hundred and twelve shelves, one registry —
+read by the seller's matrix builder, by the buyer's selector, and by the
+server's own validation, so all three agree about what "Size" means.
+
+They are **candidates, not a form to fill in.** A template knows a laptop can
+vary by RAM, storage and colour; it does not know that this seller stocks one
+colour. The seller switches on only the dimensions their catalogue really has,
+and a seller with one size switches nothing on and sells one SKU.
+
+Three things are deliberately *not* axes:
+
+- **A specification.** Country of origin, warranty wording, an installation
+  note. None of them changes what leaves the warehouse, and turning a fact into
+  a selector leaves somebody staring at a dropdown with one entry in it.
+- **A purchasing rule.** A minimum of ten boxes is a term of trade, not a
+  variety of the product. The buyer is told about it, not asked to pick it.
+- **A batch or an expiry date.** A 500 g packet is the same variant whichever
+  delivery it came out of. Batches belong to the stock in a warehouse; making
+  one an axis would give a catalogue a new SKU every week.
+
+A category with no template — Medical Devices, or a shelf the operator invented
+— simply has none, and the free-form option editor the catalogue has always had
+is what its sellers use. That is a supported state, not a gap: a marketplace
+where somebody cannot list a thing because our list of shelves did not
+anticipate it is not a marketplace.
+
+## The seller's side: building a variant matrix
+
+The admin panel's product page grows a **Variant builder** above the variant
+table, for a product whose category has a template. The table is still where a
+single row is corrected; the builder is how forty of them come into existence.
+
+It works in three steps, and the middle one is the point.
+
+**1. Which dimensions does this product vary by?** The template's candidates as
+toggle chips, with the usual ones for that shelf marked as such. Advice, never
+a rule.
+
+**2. What are the values?** Suggestions from the template as one-tap chips, plus
+a free-text box wherever the template allows custom values — which is nearly
+everywhere, because no template can know every grit, voltage or shade a seller
+stocks. Values can be reordered, because the order is what a buyer sees.
+
+**3. Show the table.** Every combination, its generated SKU, and whether it
+already exists. Nothing is written until Save.
+
+```
+6 combinations, 3 of them new.
+
+┌───────────────────────┬──────────────────────┬──────────────────────┐
+│ Combination           │ SKU                  │ Status               │
+├───────────────────────┼──────────────────────┼──────────────────────┤
+│ 6 / Black             │ UB-SHOE01-BLACK-6    │ Already listed       │
+│ 7 / Black             │ UB-SHOE01-BLACK-7    │ Already listed       │
+│ 8 / Black             │ UB-SHOE01-BLACK-8    │ Already listed       │
+│ 6 / Brown             │ [UB-SHOE01-BROWN-6 ] │ Will be created      │
+│ 7 / Brown             │ [UB-SHOE01-BROWN-7 ] │ Will be created      │
+│ 8 / Brown             │ [UB-SHOE01-BROWN-8 ] │ Will be created      │
+└───────────────────────┴──────────────────────┴──────────────────────┘
+
+             [ Create 3 variants ]   [ Start again ]
+```
+
+**Generating never removes anything, and never overwrites anything.** A
+combination that already exists is left exactly as it is — its price, its
+stock, its hand-edited SKU. Re-running after adding one size creates the one
+row. That is what makes the builder safe to press twice, which people do.
+
+**A generated SKU is a suggestion.** It is deterministic — the same combination
+always produces the same code, so a re-run does not churn the labels already
+printed — and it is editable in the table before saving. An operator with their
+own numbering scheme uses theirs.
+
+**Two ceilings, for the same reason.** Past a hundred combinations the builder
+warns; past five hundred it refuses. Neither is a database limit. They are the
+point past which nobody reads the table before pressing Save, and a catalogue
+gains a thousand SKUs at a placeholder price.
+
+**Removing an axis is not destructive.** Variants that already carry values for
+it keep them and keep selling; the axis simply stops being offered. The panel
+says how many are affected before saving, because that is a decision somebody
+should make knowingly.
+
+## The marketplace seller's side: versions in the listing wizard
+
+Everything above is the operator's own catalogue, edited in the admin panel. A
+third-party seller never sees that screen. They see the listing wizard — and
+until they could describe their sizes there, a shirt in four sizes was four
+separate listings, and a buyer looking for it saw four cards instead of one
+shirt with a size picker.
+
+So the wizard has a fourth step, **Set up versions**, after the details.
+
+**It asks before it assumes.** The step opens with one question: does this
+product come in more than one version? Answering "no" is a real, stored answer
+and the wizard stops asking; the price and stock from the details step cover
+the listing, and the buyer sees no chooser at all. Answering "yes" opens the
+axis picker. "Not asked yet" and "asked, answered no" are deliberately
+different states, because a seller who has already said no should not be
+nagged on every save.
+
+**Nothing is ticked on the seller's behalf.** The category's template supplies
+the candidate axes and the suggested values — the same 112 templates the admin
+builder uses, resolved from the category's slug and its ancestors' — and every
+one of them arrives switched off. A footwear template offers sizes 5 to 12; it
+does not claim the seller stocks them. A seller who sells 8 and 9 ends up with
+two combinations, and the sizes they never ticked are genuinely **not offered**
+rather than merely out of stock. That distinction is the whole point of the
+feature, and it survives only if nobody guesses on the seller's behalf.
+
+**A category with no template is not a dead end.** Medical Devices has none on
+purpose, and an operator who invents a shelf of their own has none yet. In both
+cases the seller names their own axes and types their own values, and the same
+validation, normalisation and signature rules apply. A marketplace that refuses
+to list what it did not anticipate is not a marketplace.
+
+**The count comes before the table.** Six sizes, four colours and three widths
+is seventy-two rows to price, and being told that before pressing the button is
+the difference between a decision and a surprise. The bar under the axes shows
+the projected total and each axis's contribution; past a hundred it warns, past
+five hundred it refuses.
+
+**Adding a colour does not throw away an afternoon.** Regenerating matches rows
+by option signature and keeps every one that already exists — its code, its
+price, its stock, exactly as typed. Adding a third colour to a priced six-row
+matrix produces nine rows, six of them untouched. Starting again is a separate
+action behind a confirmation that says what will be lost, because an afternoon
+of typing is the most expensive thing on that screen.
+
+**Removing a row is how "we do not make that" is said.** The seller prunes the
+generated grid down to what they actually stock. A combination removed is not
+offered; a combination kept with no stock is out of stock. Two different
+sentences to a buyer, and only the seller knows which is true.
+
+### What the draft holds, and when it becomes real
+
+The wizard writes to two JSON columns on `seller_listing_drafts`:
+`variantAxesJson` (the axes, and the values chosen on each) and `variantsJson`
+(the approved combinations, each with its own code, price, stock and box).
+
+JSON rather than rows, for the same reason the draft's attributes, offer, stock
+and packaging are already JSON: a draft is a half-finished form that autosaves
+from a tab left open for three days, and half of what it holds is invalid at
+any given moment. Foreign keys and CHECK constraints would mean the wizard
+could not save until it was correct, which is the opposite of what a draft is
+for.
+
+The real rows appear on **approval**, inside the same transaction that creates
+the product:
+
+| Per approved combination | Row created |
+|---|---|
+| The thing itself — options, signature, pack, shipping box | `ProductVariant` |
+| This seller's terms for it — price, MOQ, regions | `SellerOffer`, with `variantKey` set |
+| Opening stock, per warehouse | `SellerInventory` and a `RECEIPT` movement |
+
+A listing with no versions takes the same path with a single entry in it: one
+offer, `variantKey: ''`, no variant row. That is not a special case bolted on
+beside the new one — it is the identical loop, which is what stops "what does
+approval create" from drifting into two answers. Every listing approved before
+this feature existed has exactly that shape.
+
+**Switched-off combinations are not created at all.** A combination the seller
+disabled before publishing has never been ordered, so there is nothing to
+preserve, and an offer nobody can buy is a row in their listings table asking
+to be explained.
+
+### What blocks a submission, and what only warns
+
+Validation runs on every save and every read, server-side, and each finding
+carries the field it belongs to so the wizard can put it beside the input that
+caused it. The split follows one rule: a **blocker** is something that would be
+wrong if it went live; a **warning** is something a reasonable seller might
+mean.
+
+| Finding | Severity | Why |
+|---|---|---|
+| An axis switched on with no values | Blocker | Nothing to combine |
+| More combinations than the ceiling | Blocker | Nobody checks a table that size |
+| No combinations built yet | Blocker | The seller chose versions and stopped |
+| Every combination switched off | Blocker | Nothing for a buyer to order |
+| Two rows sharing a code | Blocker | A picker cannot tell them apart |
+| A code already used on another listing | Blocker | A code is unique per seller |
+| An on-sale row with no price | Blocker | No reading of that a buyer can be shown |
+| A "was" price below the selling price | Blocker | Not a discount — the opposite |
+| A minimum order above the maximum | Blocker | Nothing satisfies it |
+| An off-sale row with no code or price | Warning | It is not being sold |
+| A combination with no stock anywhere | Warning | "We sell it, we are out of it" is true |
+| An axis the category no longer offers | Warning | Dropped, and said so, after a category change |
+
+**The option signature is never trusted from the browser.** It is recomputed
+server-side from the option values on every save, by the same function the
+catalogue uses. A client that computed its own — or simply sent the same string
+twice — would otherwise put two rows on one product that the unique index
+rejects halfway through an approval.
+
+### A matched product keeps its own versions
+
+Matching is the case where three distributors compete on one product page. The
+sizes and colours on that page belong to the **product**, not to whichever of
+them listed most recently, so a draft with `matchedProductId` set always
+produces the single base offer and never creates variants. Otherwise one seller
+could add "Neon Pink" to a shirt the other two also sell, and the other two
+would find themselves on a page offering a colour they have never stocked.
+
+Choosing *which* of an existing product's versions a seller offers is a real
+and separate feature. Silently guessing is not a stand-in for it.
+
+### Adding versions to something already listed
+
+The wizard covers a listing being written. It says nothing about the case every
+catalogue is already in: a suit listed years ago as one thing, one code, one
+price, with a rack of four sizes behind it and no way to say so.
+
+Deleting and relisting is the wrong answer — it throws away the code, the sales
+history and every order that points at the row. So `listings/:id`, which used
+to render the listings table again and made "Edit" a link to nowhere, is now
+the listing's own page, and its first job is this.
+
+**The versions are added beside the original, never instead of it.** The
+listing that is already selling keeps its id, its code, its price and its
+order history. What happens to it afterwards — archive it, pause it, or leave
+it as the "no particular version" line — is the seller's decision, made
+explicitly, because it is the row their past orders point at and nothing here
+can know which they meant.
+
+**Nothing is inferred from the old listing.** This is the rule that is most
+tempting to break: a product called "Raymond, Suits & Clothing" is obviously a
+suit, and a suit is obviously sold in 38 to 44, and offering that as a
+pre-filled matrix would save the seller a minute. It would also put four
+combinations on a product page that nobody has confirmed anyone can ship. The
+template suggests the axes; the seller says which values are real.
+
+**A structural change needs the listing paused first.** Adding versions changes
+what a buyer is choosing between, on a page somebody may have open right now.
+A listing that is on sale shows the pause instead, along with the sentence that
+actually matters to a seller hesitating over it — orders already placed are not
+affected.
+
+**New versions arrive off sale.** Adding six sizes must not put six things in
+front of buyers the instant Save is pressed. Each is switched on from the
+listings table when its stock is real.
+
+**Pressing Save twice adds nothing the second time.** Rows are matched by
+option signature, so a combination the seller already offers is skipped rather
+than duplicated or overwritten — which means a seller adding one size to a
+range of six does not re-price the six.
+
+Unlike the wizard, this refuses rather than reports. A draft is allowed to be
+half-finished, because nobody can buy it; every row accepted here becomes
+something a buyer can put in a basket within the minute, so a version with no
+price cannot be stored and fixed later.
+
+### How a seller's versions reach a shopper
+
+Describing sizes in the wizard is worth nothing unless somebody can buy them,
+and the two halves are joined by `product_prices`. The storefront grid, the
+facet counts and the selector on the product page all read prices out of that
+table rather than out of the offers, so a seller's version only exists, as far
+as a shopper is concerned, once it has a row there.
+
+Putting a listing on sale writes those rows in the same transaction as the
+status change:
+
+| Row | What it holds | Who reads it |
+|---|---|---|
+| One per version | That version's own price, from that version's offer | The selector on the product page |
+| One under the empty variant key | The cheapest of them — the "from" price | The category grid, search, facets |
+
+**The "from" row is not decoration.** A listing whose every offer is against a
+version has no base offer at all, and without a synthesised base row it would
+be priced perfectly on its own page and invisible in every category, every
+search result and every facet count. It is the cheapest thing a shopper could
+actually buy, so the figure the grid advertises is one the cart will honour.
+
+**Rows go when the offers go.** Pausing one size removes that size's row and
+leaves the others alone; the "from" price recomputes from whatever is still
+live. Deletion is matched on the version-and-currency pair rather than on
+currency alone, which is what stops a seller who stops offering one size from
+either keeping a price nothing backs or losing the prices of everything else.
+
+**Availability comes from the sellers, not from the operator's ledger.** A
+marketplace product has no rows in `InventoryBalance` — that is the operator's
+own warehouse — so its stock is read from the live offers' denormalised
+quantities, grouped by version and summed across sellers. Two sellers each
+holding four is eight a buyer can have. One size sold out while the next is
+not is a thing the page can now say, which a single figure for the whole
+product never could.
+
+## Pausing, editing and resuming a listing
+
+A seller who wants to change something on a live listing needs somewhere safe
+to do it. The answer is not to delete and relist — that loses the SKU history
+and the order references — it is to take it off sale for a while.
+
+**Pause** is on every active listing, behind a dialog that says what will
+happen and, just as importantly, what will not:
+
+- It disappears from search and cannot be added to a basket.
+- Anyone who already has it in a basket is told it is unavailable.
+- **Orders already placed are untouched.** They still have to be packed and
+  shipped, and fulfilment carries on exactly as before.
+- Stock, product code and sales history are all kept.
+- Everything about it stays editable.
+
+The dialog also takes an optional **reason**, which is seller-visible and never
+shown to a buyer. It is what the listings table shows three weeks later when
+somebody else in the same business is looking at a paused row and cannot tell
+whether it is waiting for stock or has been withdrawn. It is written to the
+offer and to the audit entry, so a later pause overwriting the column does not
+erase the history.
+
+**Resume** re-checks the listing rather than trusting the state it was paused
+in — because pausing is what a seller does in order to *change* things, so the
+state they paused in is not the state they are resuming from. A listing paused
+to fix a price and resumed with the price field emptied would otherwise go back
+on sale at zero.
+
+| Checked on resume | Refused when |
+|---|---|
+| Product code | Blank |
+| Price | Zero or unset |
+| Recommended price | Lower than the selling price |
+| Stock | Negative |
+| The product | Archived |
+| The version it sells | Archived, or switched off |
+
+Each refusal names the one thing to fix. "This listing is not valid" on a
+screen with forty fields is a dead end.
+
+`NEEDS_CHANGES` has no resume button at all, and the server refuses it too.
+That state exists to stop something being sold — an expired certificate, a
+withdrawn brand — and a button that overrode it would make the state
+decorative.
+
+**Archiving is not pausing.** An archived listing is kept for history, hidden
+from selling, and never hard-deleted while an order references it.
+
+## What makes two variants different: the option signature
+
+Two rows describing the same thing is the failure this whole area is built to
+prevent. It is not a tidiness problem: with two matching rows the selector has
+to pick one, and it picks whichever the database happened to return first.
+
+So every variant stores an **option signature** — its combination, folded to a
+comparable form and sorted by axis key:
+
+```
+colour:black|size:8|size_system:uk
+```
+
+Case, spacing and punctuation are folded, so "Black", "black" and " BLACK "
+are one colour. Accents fold to their base letters, and the letters that do not
+decompose are handled by name — a German "Größe" folds to `grosse`, because
+without that it becomes `gro-e` and collides with "Gro E". The signature is
+never shown to anybody: the seller wrote "2.5 mm²" and that is what the page
+says.
+
+`unique(productId, optionSignature)` is the constraint that makes it real, and
+the same computation runs in the browser, so a shared link built on one
+spelling resolves on the other.
+
+**Sorted by axis key rather than by the template's order**, deliberately. A
+template can gain an axis, lose one or reorder them next month; a signature
+that moved when it did would orphan every row already stored.
+
+## What a variant carries beyond its options
+
+Each sellable combination can hold its own:
+
+- selling price, and its own "was" price (which is refused if it is below the
+  price it is compared against — a false saving is worse than none)
+- barcode and manufacturer model number
+- minimum order quantity, order increment and maximum
+- lead time
+- pack make-up: how many units are supplied together, and what is in one of
+  them
+- the base a unit price is quoted against — "per kg", "per 100 g", and the
+  difference between the two is a factor of ten a shopper has to be able to see
+- shipping weight and box dimensions, because a ten-pack and a single do not
+  weigh the same
+- its own photographs
+
+Every one of them is optional, and **absent means "whatever the product says"**.
+That is what every variant written before these existed says, so none of them
+changed. The server resolves the fallback the same way on every cart mutation,
+so honouring it in the browser is a courtesy rather than a rule the client gets
+to decide.
+
 ## The cart: Instant Buy and Schedule Cart
 
-The basket opens with two tabs above the heading, and they are the only two
+The cart opens with two tabs above the heading, and they are the only two
 things you can do with it:
 
 | Tab | Where it goes | What it is |
@@ -2353,18 +3233,18 @@ lives only in a background colour is invisible to a screen reader and to
 anybody who cannot tell the two blues apart.
 
 The row appears on the **empty** cart too. Somebody with nothing in their
-basket is exactly the person who has not yet found out that a standing order is
+cart is exactly the person who has not yet found out that a standing order is
 on offer, and a control that appears only once there is something to buy is one
 they meet too late.
 
 It appears at all only where the second destination exists. A deployment with
-`recurringOrders` off has one way to spend a basket, and a tab leading to a
+`recurringOrders` off has one way to spend a cart, and a tab leading to a
 screen that explains the feature is switched off teaches the customer that the
 navigation lies — the same rule `account-nav.ts` follows.
 
 ## The cart: where this can ship from
 
-Under the order summary, the basket carries a **Where this can ship from**
+Under the order summary, the cart carries a **Where this can ship from**
 panel. It is the buyer's half of [geofencing](#geofencing-how-far-a-warehouse-reaches-and-where-it-refuses-to-go):
 the same geometry the admin panel's ring is drawn from, read from the other end
 — *my* country is fixed, and I want to know who can serve it, when, and for how
@@ -2386,7 +3266,7 @@ money.
     in words. "3-5 days, free" printed because a field was null is a promise
     this software made up.
   - **It does not hide the near miss.** A warehouse in range that holds only
-    part of the basket appears under its own heading, naming the lines it is
+    part of the cart appears under its own heading, naming the lines it is
     short of and by how much. Dropping it would leave a buyer wondering why the
     depot in their own city is missing; offering it as available would break
     the order at the picking face.
@@ -2523,7 +3403,7 @@ Four rules keep the projection from becoming a lie:
 
 - **It is written in the same transaction as the offer change.** Not on a
   schedule and not on a queue. A projection that can lag is one that shows a
-  price in the grid and charges a different one in the basket, which is the
+  price in the grid and charges a different one in the cart, which is the
   dispute this codebase is arranged to make impossible.
 - **It only ever touches `isMarketplaceProduct` rows.** The operator's own
   prices are typed by a person; a bug here that reached them would rewrite the
@@ -2540,11 +3420,11 @@ the shelf marked out of stock, exactly as the operator's own products do: a
 buyer needs to find the thing and then learn it is unavailable, not fail to find
 it at all.
 
-**And the basket binds the offer, on the server.** Adding a marketplace product
+**And the cart binds the offer, on the server.** Adding a marketplace product
 without naming an offer resolves the cheapest live one — the same offer the
 projection quoted — and stores it on the line. Done server-side so that every
-existing route into a basket (a product card, a reorder, AI Mode, a scheduled
-basket) works on a seller's product without any of them learning marketplaces
+existing route into a cart (a product card, a reorder, AI Mode, a scheduled
+cart) works on a seller's product without any of them learning marketplaces
 exist, and so no client can nominate an offer it was never shown. A marketplace
 product with no live offer is refused rather than priced off a row nobody sells
 at.
@@ -2588,7 +3468,7 @@ What that means exactly:
   distinction the carrier portal's second factor draws. Choosing it once must
   not leave every later sign-in walking straight in.
 - Changing it shuts every other browser's Hub, and leaves their shop sign-in
-  alone. Somebody who thinks the password is known keeps their basket.
+  alone. Somebody who thinks the password is known keeps their cart.
 - The hash lives on the membership, so a person selling for two businesses
   holds two locks and neither opens the other.
 - **Close the Hub** in the rail shuts it without signing out of the shop.
@@ -3041,7 +3921,7 @@ each fragment**: a seller who cannot edit the title and cannot see why it says
 
 Submission creates `PENDING_REVIEW`, never a public listing. A `Product` row and
 a `SellerOffer` come into being only when a moderator approves — which is what
-guarantees nothing reaches a buyer's basket without having been looked at, and
+guarantees nothing reaches a buyer's cart without having been looked at, and
 what stops an abandoned wizard leaving an unpublishable product in the catalogue
 forever.
 
@@ -3298,14 +4178,14 @@ to compute it against marks a seller late against a deadline nobody gave them.
 
 #### Whose shelf, whose van, and what the buyer is told
 
-A marketplace line is somebody else's box from the moment it enters the basket,
+A marketplace line is somebody else's box from the moment it enters the cart,
 and four places used to assume otherwise. Each one looked fine on screen and was
 wrong underneath.
 
-**The basket counts the seller's stock, not the operator's.** `resolveCart`
+**The cart counts the seller's stock, not the operator's.** `resolveCart`
 reads `SellerOffer.availableQuantity` for a line that names an offer. Measured
 against the operator's balances the answer is always zero, so every marketplace
-line was buyable in the catalogue and refused in the basket, for a reason the
+line was buyable in the catalogue and refused in the cart, for a reason the
 shopper could not act on and the seller could not see.
 
 **Checkout reserves nothing for it.** `submitCheckout` filters the seller lines
@@ -3315,7 +4195,7 @@ the seller could have filled from a full shelf.
 
 **The warehouse question is not asked.** `quoteWarehouseOptions` measures only
 the operator's own lines, so one glove bought from a seller cannot close every
-warehouse in the country for a basket none of them was going to touch. A basket
+warehouse in the country for a cart none of them was going to touch. A cart
 made **entirely** of sellers' goods comes back with no options and no
 `ineligible` at all — there is no warehouse question to put — plus
 `sellerFulfilled`, which names who is sending it. The checkout titles that
@@ -3336,7 +4216,7 @@ back.
 
 Every one of those writes ends at `refreshOfferTotals`, because
 `SellerOffer.availableQuantity` is a cached sum of the location rows and is what
-the storefront, the listings table and the basket read. Moving a location row
+the storefront, the listings table and the cart read. Moving a location row
 and leaving the offer alone keeps the shop selling units that are already
 promised to somebody.
 
@@ -3434,7 +4314,7 @@ On a seller's shop:
   "no such product" by the status code.
 - **Category counts are theirs.** A sidebar reading "Medical Devices 239" beside
   a grid of four is 235 links to a 404.
-- **The basket line gets their offer from the host**, in
+- **The cart line gets their offer from the host**, in
   `withStorefrontSeller`. A `sellerOfferId` in the body is ignored rather than
   trusted — accepting one would let a shopper on one seller's domain post
   another seller's offer id and buy at that seller's price out of their stock.
@@ -3641,8 +4521,11 @@ meantime.
 
 ## The dashboard: the morning's work, above the month's figures
 
-The admin dashboard is a ring called **Platform operations**, the queues behind
-it, and the insights panel. Nothing else.
+The admin dashboard is a ring called **Platform operations** and the insights
+panel. Nothing else — not even the queue list that used to hang under the ring,
+which repeated as rows what the ring had just drawn and linked to screens that
+are in the navigation rail anyway. `queuesInGroup` still exists and the server
+still returns every queue.
 
 The sales half — five headline figures with sparklines and deltas, the
 order-status bar and its table, the payments summary, the low-stock queue and
@@ -3834,9 +4717,15 @@ listings and one brand are waiting without opening a single screen.
 
 Three decisions in it:
 
-- **A number, not a dot.** A dot says "something"; whether that something is one
-  listing or forty decides what gets opened first, and the whole point of
-  putting this on the rail is that it is readable without opening anything.
+- **A number, not a dot** — wherever there is room for one. A dot says
+  "something"; whether that something is one listing or forty decides what gets
+  opened first, and the whole point of putting this on the rail is that it is
+  readable without opening anything. The one place the number cannot fit is the
+  collapsed rail, which is sixty pixels wide, and there it *is* a dot on the
+  icon: "this row has work behind it" is what survives the width, and the
+  number is one hover away. The count is in the row's accessible name either
+  way, as a sentence — "Listing review, 4 waiting" — so a screen reader never
+  depends on the pill.
 - **Each count is gated by the permission that makes it actionable**, not by the
   one that makes the page visible. Somebody who may read orders but not approve
   them does not need a badge about approvals.
@@ -4849,7 +5738,7 @@ The rules that matter:
   dead end.
 
 This is the same discipline as `assertTransition` for orders and
-`schedule-state.ts` for scheduled baskets, and for the same reason: a status
+`schedule-state.ts` for scheduled carts, and for the same reason: a status
 that anything can write is a status nobody can explain.
 
 ## The same event twice does not happen twice
@@ -4967,8 +5856,8 @@ nothing rather than being refused with a message that confirms it exists.
 **Everything else on this screen was removed.** The fourteen counters, the four
 service metrics, urgent exceptions, deliveries due today, upcoming pickups,
 recent activity and carrier-integration health have all gone, along with the
-four-segment proportion bar the ring replaced. The dashboard is the ring, the
-stage list under it and the insights panel.
+four-segment proportion bar the ring replaced and the "open in shipments" link
+that sat under the ring. The dashboard is the ring and the insights panel.
 
 None of the data went with them: `GET /logistics/dashboard` still returns every
 one of those figures, and each is still reachable on the screen that owns it —
@@ -5089,7 +5978,7 @@ is refused for the same reason a driver is.
 ### Assignment is at the SHIPMENT, never at the order
 
 An order splits. `createShipmentsForOrder` raises one consignment per
-**(order, seller group, warehouse)**, so a basket holding two sellers' goods
+**(order, seller group, warehouse)**, so a cart holding two sellers' goods
 from three buildings is three consignments that can go to three different
 carriers on three different days. Assigning one driver to "the order" would
 mean assigning them to work two other carriers are doing.
@@ -5487,7 +6376,7 @@ Each folder under `src/modules/` owns one area:
 | `customers` | Customer accounts, self-registration, purchasing limits |
 | `catalog` | Categories, products, variants, prices, translations, imports, product-safety data |
 | `inventory` | Stock balances, movements, reservations |
-| `cart` | The basket |
+| `cart` | The cart |
 | `orders` | Checkout, order status changes, idempotency |
 | `payments` | Gateways (Razorpay, Stripe), transactions, webhooks, payment links, refunds |
 | `fulfilment` | Shipments and returns |
@@ -5791,8 +6680,8 @@ compared** — and neither surface can be used to discover whether an account
 exists on the other.
 
 **One public endpoint is a POST, and it changes nothing.**
-`POST /api/v1/delivery/options` asks which warehouses can deliver a basket to a
-country. The basket is the input — up to a hundred product ids with quantities
+`POST /api/v1/delivery/options` asks which warehouses can deliver a cart to a
+country. The cart is the input — up to a hundred product ids with quantities
 — which does not fit in a query string a proxy will keep, and which would sit
 in this server's access log and in every log in front of it if it did. There is
 no caching to lose either: the answer depends on live stock, and a cached "yes,
@@ -5808,7 +6697,7 @@ not understand, and the buyer would be shown a fault instead of a fact.
 
 **Its signed-in counterpart is a POST that really does change something.**
 `POST /api/v1/fulfilment/warehouse-options` answers the same shape of question
-for a particular customer's basket going to a particular address of theirs, and
+for a particular customer's cart going to a particular address of theirs, and
 every answer **writes rows**: each option carries a `quoteId` naming a stored
 offer with an expiry, which is what makes the total on the card the total on
 the order. So the two are not variants of one endpoint. One is a browsing
@@ -5883,9 +6772,22 @@ asks the operator to narrow the search rather than quietly showing the first
 few hundred as though they were all of them.
 ## UBOSS AI Insights
 
-Every role dashboard carries a panel that explains its own figures, answers a
-typed question about them, and suggests what to look at first. It is a reading
-aid, not an operator: **nothing in it changes anything.**
+Every role dashboard carries a panel that explains its own figures and answers
+a typed question about them. It is a reading aid, not an operator: **nothing in
+it changes anything.**
+
+**On screen it is a paragraph and a question box, and nothing else.** One line
+of heading with the CTA, the summary, the line saying when it was written and
+by which model, and the field. The panel used to draw the findings, the
+suggested next steps and an evidence list under the summary; three stacked
+sections and a row of prompt chips made the reading aid the tallest thing on a
+screen whose subject is the chart beside it. The role's suggested questions did
+not go — they are the field's cycling placeholder.
+
+The server still produces all three. `findings`, `suggestedActions` and
+`evidence` are still in the payload, still validated against the metric bundle
+before they are sent, and the summary is still written knowing them; the panel
+simply does not render them.
 
 `POST /account/dashboard/insights`, `POST /admin/dashboard/insights` and
 `POST /logistics/dashboard/insights`. Three routes, three guards, one service —
@@ -5918,6 +6820,24 @@ and a link is never taken from the reply — `href` is copied from the metric th
 action cites. A model-generated URL in an operations console is a URL somebody
 clicks.
 
+**There is a command that asks whether the provider is actually answering.**
+`cd scripts ; npm run check:ai`. It reads `backend/.env`, makes one real call,
+and separates the three failures — no key, a key that is refused, a model that
+is gone or out of quota — because they have three different fixes. It never
+prints the key, and it exits 0 / 1 / 2 so a scheduler can read it.
+
+It exists because of the paragraph immediately below this one. Everything in
+this product is built to degrade quietly when the provider is down, which is
+right, and which means a dead key produces no error anywhere — just a duller
+dashboard. Something has to go and look, and a person reading a screen that was
+designed not to alarm them is not that something.
+
+The failure it catches most often is not the key at all: Google meters its free
+tier **per model**, so a `GEMINI_MODEL` that worked yesterday returns 429 today
+while every other model on the same key answers. The fix is one line of
+`backend/.env` and a restart. `backend/.env.example` records the same trap
+beside the variable.
+
 **A deployment with no key gets an honest answer.** Which is the default. The
 panel falls back to a deterministic summary built from the same metric bundle,
 marked `source: "deterministic"`, and says so on screen in as many words. It is
@@ -5933,7 +6853,9 @@ stream — `POST …/dashboard/insights/stream` — and the summary appears word
 word. The findings, the suggested actions and the evidence arrive in one event
 at the END, once every metric key they cite has been checked against the
 bundle. That ordering is the point: streaming buys responsiveness, not a window
-in which an unvalidated claim is on screen.
+in which an unvalidated claim is on screen. It is also why the panel can stop
+drawing those three without weakening anything — the validation was never the
+card's job.
 
 The model is asked for its reply in two parts — prose, then a `---DETAIL---`
 marker, then JSON. Everything before the marker is forwarded; everything after
@@ -5947,10 +6869,11 @@ Ten requests per five minutes per route. Guests never reach it: all three
 routes are behind a session guard, and the carrier one is behind the MFA gate
 as well.
 
-**It cannot act.** Suggested actions are links to the screen where the work is
-done. Approving a seller, charging a card, assigning a driver, changing a
-tracking state and resolving an exception all remain a deliberate press behind
-their own authorization check and their own audit entry.
+**It cannot act.** There is nothing to press on the panel but "explain" and
+"ask". Approving a seller, charging a card, assigning a driver, changing a
+tracking state and resolving an exception all remain a deliberate press on the
+screen that owns them, behind their own authorization check and their own audit
+entry.
 
 ## The AI assistant
 
@@ -6062,6 +6985,45 @@ where there is no session. A limit says how much may be spent; it does not stop
 the endpoint being driven as a general-purpose relay. Only the fixed parameters
 do that: the request body cannot name a model, a system prompt or a token
 budget, and a body carrying one is a `400`.
+
+**What the assistant knows about the catalogue, and how it stays true.** The
+system prompt carries a rendered snapshot of the published catalogue: every
+product, its page path, its category, its tax, its ordering rules, its
+attributes and its variants, under the same visibility filter every storefront
+read uses. The prompt says, in as many words, that anything absent from the
+snapshot does not exist here — so a product code the model has never seen is
+one it must decline rather than invent.
+
+Three things the snapshot says that a list of products on its own does not:
+
+  - **What kind of shop this is.** It opens with an index of every category
+    that has something on sale in it, with a count. That index is the only
+    thing "what do you sell?" can be answered from: a flat list of several
+    hundred products answers "do you stock X" and cannot answer the other
+    question, so the assistant answered it out of whichever trade happened to
+    be at the top. Nothing in the prompt names a trade any more. What this
+    deployment sells is whatever its own categories say it sells.
+  - **Who is selling, and in what unit.** Each product says whether it is the
+    operator's own stock, sold by the carton, or an independent seller's,
+    sold by the piece — and names the seller. A marketplace listing's price
+    comes from its cheapest **live offer**, which is the figure the basket will
+    charge, not from the mirror on the product row.
+  - **What is not for sale.** A product priced on request quotes no price and
+    points at the support contact. A marketplace product whose sellers have all
+    paused says so, instead of quoting a price nobody will honour.
+
+**The snapshot is held against the catalogue, not against a clock.** It is
+cached, and the cache is keyed on a *stamp* — counts and `MAX(updatedAt)` over
+exactly the rows it renders, read on every question for about a millisecond. A
+seller switching a listing on, an operator retiring a range, a price corrected
+two seconds ago: the next question gets the new answer. What this replaced was
+a sixty-second timer plus an invalidation hook that catalogue writes were meant
+to call and **nothing in the codebase ever called** — which is the failure mode
+of every "remember to invalidate" design rather than an oversight peculiar to
+this one. Asking the database what changed needs no write path to remember
+anything, and it works across worker processes, which a timer in one process's
+memory never did. Image search's own catalogue index is held against the same
+stamp, so the two surfaces cannot disagree about what is on sale.
 
 **What the assistant knows about the customer.** Because a signed-in caller is
 authenticated, it never has to ask. The system prompt carries a few lines read
@@ -6653,7 +7615,7 @@ POST /api/v1/fulfilment/warehouse-options
 Signed in, unlike `POST /delivery/options` on the cart page, and the difference
 is not an oversight. That one answers a **browsing** question — can you reach
 Belgium, roughly when — from a country code, before anybody has an account.
-This one answers a **buying** question about a particular person's basket going
+This one answers a **buying** question about a particular person's cart going
 to a particular address of theirs, so it needs the session for both: the cart
 it prices is the one on the session, and the address is checked against the
 session's own profile rather than taken on trust from an id in a body.
@@ -6679,7 +7641,7 @@ All of these, and the destination is a full address rather than a country:
 | The operator has not closed that country on this warehouse | `WarehouseCountryExclusion` |
 | Enough of **every** line, on hand minus what other live checkouts hold | `InventoryBalance` |
 | The goods' own restrictions — cold chain, weight | `WarehouseDeliveryZone`, `Product` |
-| The lane prices delivery in the basket's currency | `WarehouseDeliveryZone.shippingFeeCurrency` |
+| The lane prices delivery in the cart's currency | `WarehouseDeliveryZone.shippingFeeCurrency` |
 | The destination itself accepts the goods | `ProductCountryRestriction` |
 
 **The 100 km circle on the warehouse map is a drawing, not a rule.** It shows
@@ -6690,7 +7652,7 @@ circle. Distance is reported on the card as information and decides nothing.
 
 ### One warehouse per order
 
-A warehouse that holds four of the five things in a basket **is not an
+A warehouse that holds four of the five things in a cart **is not an
 option**. There is no approved split-fulfilment flow in this project, so an
 offer that cannot cover every line would break at the picking face. Those
 warehouses still come back, under `ineligible`, with the lines they are short
@@ -6716,7 +7678,7 @@ empty option list would have taken every such deployment offline.
 Goods bought from a seller on the marketplace leave that seller's own building,
 so they are neither counted against a warehouse's stock nor carried by its
 lanes. They are reported separately as `sellerFulfilled`, named by seller, and a
-basket made entirely of them comes back with no options and no `ineligible` —
+cart made entirely of them comes back with no options and no `ineligible` —
 there is no warehouse question to answer, and the checkout says *Sent by the
 seller* instead of asking one. See **One order, each seller's share of it** in
 section 4a for what happens to those lines afterwards.
@@ -6766,7 +7728,7 @@ make by hand.
                             ▼
 ┌── POST /cart/checkout { …, fulfilmentQuoteId } ──────────────┐
 │ The server checks the quote again — owner, cart, address,    │
-│ basket digest, expiry, warehouse still shipping, stock still │
+│ cart digest, expiry, warehouse still shipping, stock still │
 │ there — then reprices the cart with the lane's fee as a      │
 │ shipping override, so the free-above threshold and           │
 │ `assertTotalsConsistent` run over it exactly as they do for  │
@@ -6794,7 +7756,7 @@ make by hand.
 The error codes are the published contract, and each is a different thing that
 happened: `FULFILMENT_QUOTE_EXPIRED` (the offer lapsed),
 `FULFILMENT_QUOTE_INVALID` (not this customer's, or an estimate),
-`FULFILMENT_QUOTE_STALE` (the basket or the price moved),
+`FULFILMENT_QUOTE_STALE` (the cart or the price moved),
 `FULFILMENT_WAREHOUSE_UNAVAILABLE`, `FULFILMENT_STOCK_CHANGED`,
 `FULFILMENT_NO_ELIGIBLE_WAREHOUSE`. Collapsing them into one sentence would
 leave the customer unable to tell which of them they can do something about.
@@ -6880,13 +7842,13 @@ overwritten.
 
 ## 9.5 Scheduled orders — Buy Later and Subscribe & Reorder
 
-Checkout offers three things to do with a basket:
+Checkout offers three things to do with a cart:
 
 | Option | What it means | What it creates |
 |---|---|---|
 | **Buy Now** | Pay now, as always | An order |
-| **Buy Later** | Deliver this basket once, on a date I pick | A ONE_TIME plan |
-| **Subscribe & Reorder** | Deliver this basket again and again | A RECURRING plan |
+| **Buy Later** | Deliver this cart once, on a date I pick | A ONE_TIME plan |
+| **Subscribe & Reorder** | Deliver this cart again and again | A RECURRING plan |
 
 The last two are the same machinery with a different frequency. Both are
 optional, and neither charges anybody until the customer has read a review
@@ -6894,7 +7856,7 @@ screen and confirmed it.
 
 ### The two records
 
-A **plan** (`recurring_schedules`) is the standing instruction: this basket,
+A **plan** (`recurring_schedules`) is the standing instruction: this cart,
 this often, to this address, on this card. An **occurrence**
 (`schedule_occurrences`) is one billing cycle of it. One plan, many
 occurrences — and every occurrence is priced, validated and charged on its own.
@@ -6997,7 +7959,7 @@ chances for the storefront to offer a schedule the API then refuses.
 
 ### Where a customer starts one
 
-Four doors lead to the builder at `/schedules/new`, which turns a basket into
+Four doors lead to the builder at `/schedules/new`, which turns a cart into
 a plan:
 
 | From | What they see |
@@ -7010,7 +7972,7 @@ a plan:
 A fifth door leads somewhere else. The cart's **Schedule Cart** tab opens
 `/accounts/schedule`, which is the workspace rather than the builder: it lists
 the plans that already exist, opens one for editing beside the list, and can
-start a new one from nothing rather than from a basket. See *Schedule Cart*
+start a new one from nothing rather than from a cart. See *Schedule Cart*
 below.
 
 The cart and checkout doors are the ones that matter, because they are where
@@ -7022,7 +7984,7 @@ The checkout offer is deliberately **not** a second orange button and sits
 *below* Place Order. Place Order is what that page is for; this is an
 alternative to it, and two equally loud calls to action is how somebody ends up
 on a subscription they meant to buy once. It appears only when the store offers
-repeat purchases and the basket has at least one eligible line, so it never
+repeat purchases and the cart has at least one eligible line, so it never
 leads to the builder's empty state.
 
 ### Autopay, from the cart
@@ -7063,14 +8025,14 @@ state.
 
 ```
 Cart → POST /recurring-schedules/preview
-        │  prices the basket under the proposed schedule.
+        │  prices the cart under the proposed schedule.
         │  Writes nothing. Shows items, quantities, price,
         │  discount, tax, delivery, total, address, payment
         │  method, frequency and the next processing date.
         ▼
 POST /recurring-schedules/from-cart  →  a DRAFT
         │  the cart is untouched: an abandoned draft must not
-        │  cost the customer their basket
+        │  cost the customer their cart
         ▼
 POST /recurring-schedules/:id/activate
         │  explicit consent, recorded and versioned.
@@ -7162,7 +8124,7 @@ products get withdrawn, VAT rates change on the first of the month, stock runs
 out, a card expires, a customer moves country and changes their tax treatment.
 
 `quoteSchedule` in `recurring/schedule-quote.service.ts` is the one function
-that answers "what does this basket cost". **The review screen and the worker
+that answers "what does this cart cost". **The review screen and the worker
 both call it**, so the number the customer agreed to and the number they are
 charged come from the same code.
 
@@ -7235,14 +8197,14 @@ The editor beside it can:
 | **Remove** | On the card, and only once the plan has stopped — see below |
 
 Creating is there too: **New schedule** builds one from nothing — products,
-cadence, address, payment mode, consent — rather than from a basket, so a buyer
+cadence, address, payment mode, consent — rather than from a cart, so a buyer
 can keep as many independent arrangements as they need without going through
 the cart for each.
 
 Which plan is open lives in the URL (`?id=`), so a schedule is linkable and
 survives a refresh, and the editor is keyed on that id so switching plans
 remounts the form rather than leaving one plan's unsaved quantities on
-another's basket.
+another's cart.
 
 #### Removing a finished schedule from the list
 
@@ -7400,7 +8362,7 @@ clipped by the bottom of a phone.
     address — so the same request applied twice lands on the same state. That
     is what makes a retry, a double-click or a dropped response safe: there is
     no "add one more of this" for a second attempt to apply again. The server
-    replaces the basket rather than merging into it.
+    replaces the cart rather than merging into it.
   - **The screen refuses what the server would refuse, and says why first.** A
     plan inside its cutoff, one with a delivery being priced, and one that is
     cancelled or finished are read-only here, with the reason named above the
@@ -7409,7 +8371,7 @@ clipped by the bottom of a phone.
   - **The money comes from the server.** The estimate is `quoteSchedule`'s
     answer — the same function that prices the occurrence the customer is
     eventually charged for. Nothing on the screen multiplies a unit price by a
-    quantity, because a second implementation of "what does this basket cost"
+    quantity, because a second implementation of "what does this cart cost"
     is how somebody ends up disputing a total nobody can explain. It is
     labelled an estimate, and it is one: every delivery is repriced when it
     runs.
@@ -7422,7 +8384,7 @@ an accidental no-op save is a real write against a live standing order.
 
 Up to the **edit cutoff** — `SCHEDULE_EDIT_CUTOFF_MINUTES`, default 24 hours
 before a delivery. Inside it the worker may already be pricing the order, and
-an edit would race the charge: the customer would see one basket and be billed
+an edit would race the charge: the customer would see one cart and be billed
 for another. The refusal names the date they *can* change, because "too late"
 without one is not an answer. Administrators are not bound by it — somebody is
 usually on the phone.
@@ -7440,7 +8402,7 @@ fires at 06:00 in the wrong city, and "cancel it and build another" is not an
 answer when the alternative is one field.
 
 **A second guard sits beside the cutoff, and it is a fact rather than a
-clock.** An edit is refused while the engine is *holding the basket* — an
+clock.** An edit is refused while the engine is *holding the cart* — an
 occurrence at `AWAITING_VALIDATION`, where `quoteSchedule` is reading the
 items, or `PROCESSING`, where the money is moving. By then `nextRunAt` has
 usually moved on to the following cycle, so the cutoff window for *that* slot
@@ -7545,7 +8507,7 @@ an explicit `payment_method` — never Stripe's default for the customer, which
 could silently become a card they never authorised for this plan.
 
 The application owns the scheduler. Stripe is the payment rail, not the
-subscription engine — which is the whole point: the basket, the prices, the
+subscription engine — which is the whole point: the cart, the prices, the
 warehouse stock and the customer's ERP rules are all rechecked by this system
 on every cycle, and none of that is something Stripe Subscriptions could
 decide.
@@ -9144,7 +10106,7 @@ answers.
 `isPriceOnRequest` says the price is negotiated per account. The storefront
 shows **Request a quote** where the figure would be, the buy button is replaced
 rather than greyed out, and the publication check accepts a zero price and the
-neutral placeholder image. Nothing priced on request can reach a basket — there
+neutral placeholder image. Nothing priced on request can reach a cart — there
 is no figure to charge.
 
 `isOrderable` says the product is listed and readable but not for sale this
@@ -9159,7 +10121,7 @@ A catalogue does not have to stay priced on request either: `catalog:prices`
 takes it out of that state with a placeholder that is marked as one — see
 *Placeholder prices* below.
 Both are enforced in one place, `assertPurchasable` in
-`backend/src/modules/catalog/purchasability.ts`, which the basket, Instant Buy
+`backend/src/modules/catalog/purchasability.ts`, which the cart, Instant Buy
 and scheduled plans all call. Two copies of that rule is how one of them
 eventually forgets a case, and the case it forgets is a customer charged for
 something nobody priced.
@@ -9178,7 +10140,7 @@ question about price.
 ## Placeholder prices, and finding them again
 
 A catalogue imported from a supplier sheet has no prices. Priced on request, it
-is readable and correct and **cannot be demonstrated**: no basket, no checkout,
+is readable and correct and **cannot be demonstrated**: no cart, no checkout,
 no schedule, no totals. So there is a command that gives every unpriced product
 something to sell at while the real figures are gathered.
 
@@ -9340,19 +10302,19 @@ There are two answers, and **which one applies is decided by who is selling**:
 
 That second answer is newer than the first, and it exists because the first was
 being applied to both. A seller listing a ten-rupee item priced it per piece, a
-buyer asked for twelve, and the basket converted "twelve pieces" into one
+buyer asked for twelve, and the cart converted "twelve pieces" into one
 carton of five hundred and charged five thousand for it. Nothing was broken in
 a way that showed up as an error: the arithmetic was right, it was simply the
 operator's arithmetic applied to somebody else's offer.
 
-**The fix is an ordering, not a formula.** The basket resolves WHO IS SELLING a
+**The fix is an ordering, not a formula.** The cart resolves WHO IS SELLING a
 line before it decides what the line is counted in. Deciding "how many pieces
 is this" first can only ever produce the operator's answer.
 
 Nothing here is decided from a category name, a seller's name, a route or a
 string comparison — it comes from product ownership (`Product.isMarketplaceProduct`)
 and the offer's own `orderingUnit`, on the server, on the same code path that
-prices the basket.
+prices the cart.
 
 The number is `PIECES_PER_CARTON`, an environment setting that defaults to 500.
 It is a setting rather than a constant because the next company to buy this
@@ -9384,7 +10346,7 @@ piece; every customer-facing figure is that piece price multiplied by the
 line's own factor — the carton size on the operator's products, and 1 on a
 seller's. That happens in one function — `sellUnitPriceMinor` in
 `apps/customer-web/src/lib/packaging.ts` — so the card, the product page, the
-basket and the schedule cannot quote four different numbers for one product.
+cart and the schedule cannot quote four different numbers for one product.
 
 The factor is never worked out in the browser. The server sends it per product
 in a `sellUnit` block on every catalogue read (`unit`, `piecesPerUnit`,
@@ -9448,7 +10410,7 @@ is the worse of the two answers. A product minimum that lands mid-carton takes
 the whole carton above it. `PATCH /cart/items/:id` does the same with a piece
 count.
 
-**The route takes both units; the basket decides which one this line is.**
+**The route takes both units; the cart decides which one this line is.**
 `orderingUnit` accepts `PIECE` and `OUTER_CARTON` — the two the shop sells in —
 and `INNER_PACK` is refused by the schema, because nothing new is written with
 it. Which of the two a line may name is **not** a question a route schema can
@@ -9463,10 +10425,10 @@ both ways round.** `addLines` checks the named unit against the offer's own
 spec the moment that spec is known:
 
 - `OUTER_CARTON` against a seller's piece offer gets
-  `SELLER_OFFER_UNIT_MISMATCH` and nothing in the basket. The generous reading
+  `SELLER_OFFER_UNIT_MISMATCH` and nothing in the cart. The generous reading
   hands the shopper five hundred pieces at the price of one.
 - `PIECE` against the operator's carton gets `VALIDATION_FAILED` and the same
-  empty basket: it is a request to buy something this shop does not sell, and
+  empty cart: it is a request to buy something this shop does not sell, and
   it is told so rather than handed a carton it did not ask for.
 
 Naming **nothing** is untouched, and is still the documented route for a caller
@@ -9502,7 +10464,7 @@ default available. `sellerSellUnit()` refuses it at runtime with
 `SELLER_OFFER_UNIT_UNSUPPORTED`; the migration
 `20260916120000_seller_offers_sold_by_the_piece` flags it for a human.
 
-**What the rest of the system shows.** The basket steps in cartons and prints
+**What the rest of the system shows.** The cart steps in cartons and prints
 the piece total under it. An order line, on the customer's page and in the
 admin console, shows both — *2 cartons × ₹6,250.00* over *1,000 pieces* —
 because "how many did they order?" and "how many do we pick?" are two
@@ -9510,10 +10472,15 @@ questions with two answers. The invoice keeps its quantity column in pieces,
 which is what the unit price is per and what `unitCode="C62"` means on the UBL
 line, and names the packing in the description: *Disposable Syringe 5ml
 (2 cartons of 500)*. The AI assistant is told the selling unit before it is
-told a single price, and every price in its catalogue snapshot is a carton
-price.
+told a single price, and **every product line in its catalogue snapshot names
+its own unit**: the operator's own products carry a carton price, a seller's
+carry a piece price, and the snapshot says which on each one. It did not, once.
+It applied the carton multiplier to every row it rendered, which quoted a
+seller's item to customers at five hundred times the figure on that item's own
+product page — and nothing about the answer looked wrong, because every number
+in it was a real number from the database.
 
-**What the rest of the system shows for a seller's line.** The basket steps in
+**What the rest of the system shows for a seller's line.** The cart steps in
 pieces at the seller's own minimum and increment, and prints *Sold by the
 piece* under the stepper. The product page says it above the quantity box, with
 the minimum and the step beside it. *Packaging and ordering* drops the carton
@@ -9530,10 +10497,10 @@ carton to 500 themselves, because at one piece to the carton every assertion
 below would pass against the unfixed code:
 
 - `tests/integration/carton-ordering.test.ts` proves the operator's path end to
-  end, basket to order row.
+  end, cart to order row.
 - `tests/integration/seller-piece-selling.test.ts` proves a seller's twelve
   pieces cost twelve times the piece price, that the operator's two cartons
-  still come to a thousand, and that both sit in one basket each keeping its
+  still come to a thousand, and that both sit in one cart each keeping its
   own unit and its own price basis.
 - `tests/integration/seller-offer-authority.test.ts` proves where those numbers
   are allowed to come from: the factor is always 1, a carton request on a piece
@@ -9637,6 +10604,16 @@ They are drawn rather than downloaded, for the same reasons every other icon
 here is: one stroke weight, `currentColor` so they follow the theme in light and
 dark, no request, no licence — and each one can be drawn for the actual product,
 which is why the ENFit syringe has a different tip from the oral one.
+
+**There is a second set one level up.** `lib/department-mark.ts` and
+`components/department-icons.tsx` answer a different question: not "what is in
+this box?" but "which aisle am I in?", for the twenty-five headings the starter
+catalogue is filed under. Ask `categoryMark` about "Medical Devices" and it
+matches nothing recognisable and returns an abstract hexagon — correct for a
+card with a name beside it, useless for a strip where the mark is most of what
+a shopper sees. The two sets follow the same three rules above and do not
+overlap; the department set adds one filled brand-coloured accent per mark,
+because a row of twenty-six single-weight drawings at 24px is a picket fence.
 
 ---
 
@@ -9818,6 +10795,47 @@ The account list lives in `backend/src/seed/accounts.ts` rather than in the
 rotation script, so the two cannot drift — the earlier version of this tool
 kept its own list and had silently never included the three carrier-portal
 accounts.
+
+### And the way back, because rotation is otherwise a one-way door
+
+Everything above is right for an installation somebody else can reach, and it
+leaves a private development machine somewhere nothing can recover from. The
+printed passwords are gone; `db:seed` will not write new ones over an existing
+row; and the documentation that lists nine credentials is now confidently
+wrong. The observed cost of that gap is a developer who is no longer sure which
+password belongs to which surface and starts guessing.
+
+```powershell
+cd backend ; npm run db:restore-seed-passwords
+```
+
+Writes the published password back for every seeded account that exists, and
+clears the other four ways a correct password is rejected — `lockedUntil`,
+`failedLoginCount`, a null `emailVerifiedAt`, a status that is not `ACTIVE` —
+plus `mustChangePassword` and its expiry, left behind by a temporary password.
+A restore that fixed only the digest would leave somebody typing the right
+credential into a locked account and reading the same message as before.
+
+It revokes sessions for the same reason rotation does, in the opposite
+direction: the sessions belonging to whoever held the rotated password should
+not outlive it. It reports how many accounts had actually drifted, which is the
+question somebody runs it to answer. It reads the same
+`backend/src/seed/accounts.ts`, so it cannot drift from the seed either.
+
+**It refuses when `NODE_ENV` is production**, which is a harder line than the
+warning rotation prints, and the asymmetry is the point: rotating on a live
+system is a stopgap in the right direction, and restoring on one writes a
+credential that is a search away for anybody who finds the repository.
+
+### One database, so one set of credentials everywhere
+
+Worth stating because the opposite is assumed: there are no per-environment
+sign-ins. The three front ends are static files holding no accounts. The API is
+the only thing with a user table, and `localhost`, a cloudflared or ngrok
+tunnel and a Netlify site are three routes to one API and one database — see
+`docs/NETLIFY.md`. A credential that works on one and not another is never an
+account problem; it is a site pointed at a different API, or `COOKIE_SECURE`
+wrong for HTTPS.
 
 ## Tokens
 
@@ -10208,7 +11226,9 @@ them set the affected provider says so on screen rather than pretending.
 | `MAP_STYLE_ATTRIBUTION` | *(empty)* | Added to what the style's own sources already declare, which is why it is usually left empty. For a self-hosted style that declares none |
 | `MAP_TILE_URL` | *(empty)* | The XYZ **raster** tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged. Note that raster place names are baked into the image in the local language and cannot be translated |
 | `MAP_TILE_ATTRIBUTION` | *(empty)* | Shown in the corner of the map. Every tile licence requires it |
-| `GEOCODE_FORWARD_URL` | Nominatim | Turns a typed address into coordinates for the "look up" button. `{query}` is substituted. Empty switches it off |
+| `MAP_SATELLITE_URL` | *(empty)* | Satellite imagery, as the **ground** the map is drawn on rather than a fifth provider. Set it alongside `MAP_STYLE_URL` and the imagery goes underneath that style's roads, borders and labels — the hybrid view, where a warehouse stands on a photograph of its own estate and the street reaching it is still named, still in one language. Set it with no style and the map is imagery and markers. Set it alongside `MAP_TILE_URL` and it is ignored: those tiles are already a finished picture of the ground. Esri's World Imagery is keyless and global |
+| `MAP_SATELLITE_ATTRIBUTION` | *(empty)* | Shown in the corner beside whatever else the map credits. Every imagery licence requires it |
+| `GEOCODE_FORWARD_URL` | Nominatim | Turns a typed address into places to choose from. `{query}` is substituted, and `{limit}` too where the operator used it — where they did not, both it and `addressdetails` are set on the URL, so the shipped default's `limit=1` does not leave every suggestion list one row long. Empty switches the suggestions off and every address field carries on as plain text |
 
 **Four providers, and the panel has an implementation of each.** The
 warehouses response carries a `map` field — `{ provider: 'NONE' }`,
@@ -10285,6 +11305,40 @@ sign-in location check) and shares its `GEOCODE_TIMEOUT_MS`. Both are
 best-effort: unreachable, slow or unconfigured, and the panel reports that it
 found nothing and lets somebody type the coordinates. Neither can block a save.
 
+**The forward geocoder answers with a list, not one place, and that is what
+makes an address land on the map.** `suggestAddresses` in
+`location.service.ts` is the real shape and `forwardGeocode` is that function
+asked for one; three endpoints expose it — `/admin/inventory/warehouses/
+geocode/suggest`, `/seller/locations/geocode/suggest` and
+`/account/addresses/geocode/suggest`, each behind the permission that already
+guards writing that kind of address. All three are POSTs, so a half-typed home
+address never reaches an access log or a proxy, and all three answer `200`
+with an empty list for every way a lookup comes to nothing.
+
+The field that reads them is `AddressSuggest`, one copy per frontend. It is an
+ordinary text input first: choosing a row fills the street, the town, the
+region, the postal code, the country and the coordinates together, typing
+alone never moves a pin, and a part the geocoder did not name is left as it
+was typed rather than cleared. The country is checked against the deployment's
+own country list before it is applied, because it is a foreign key and a
+suggestion from a country this operator does not trade with is not one the
+select can show.
+
+**Two things about the map itself that were wrong for a long time and are
+worth stating, because both were silent.** A MapLibre map built at zoom 2 asks
+its style for the whole world, and on a planet-wide vector style a single
+low-zoom tile is over a megabyte — so `load`, which means "the first complete
+rendering has happened", never fired and the map sat under its own loading
+message. Both maps now open framed on the places they are going to draw, and
+both treat `style.load` as ready: the camera is right and a marker has
+something to sit on at that moment, and the tiles paint in underneath as they
+arrive. Separately, **Vite's dependency optimiser rewrites `maplibre-gl` into
+`.vite/deps/` and does not copy `maplibre-gl-worker.mjs` with it**, so the
+worker URL 404s, every tile is downloaded and handed to a worker that does not
+exist, and the console stays empty. Both apps list `maplibre-gl` under
+`optimizeDeps.exclude`. It is a development-only failure, which is exactly
+what made it expensive to find.
+
 ## Fulfilment and delivery dates
 
 Two numbers that decide what a buyer is offered, and both are settings rather
@@ -10298,7 +11352,7 @@ before that answer lands.
 |---|---|---|
 | `SCHEDULE_MIN_NOTICE_DAYS` | `7` | How many **calendar days** of notice a schedule's first delivery needs, counted on the customer's own clock. Zero is a real setting — a shop delivering from stock in the buyer's own city has no week to ask for. The picker greys out everything below it; `createSchedule` and `updateSchedule` refuse it with `SCHEDULE_DATE_TOO_SOON` whatever the browser did. Note this is only half the floor: a plan pinned to a warehouse is held to `max(this, that warehouse's soonest)` — see 9.5 |
 | `FULFILMENT_QUOTE_TTL_MINUTES` | `15` | How long a warehouse option stays an offer. Each option written by `POST /fulfilment/warehouse-options` carries an expiry, and after it the quote is refused rather than repriced — which is what makes the total on the card the total on the order. Too short and a customer reading the page loses their offer mid-decision; too long and the shop is holding a price against stock that has moved. The checkout page is told the figure so it can re-ask *before* the lapse rather than after |
-| `PIECES_PER_CARTON` | `500` | How many pieces are in one carton — the only unit this shop sells in. A buyer chooses cartons; the piece count that reaches the warehouse, the invoice and the ERP is that number multiplied by this one, and every price a shopper sees is the catalogue's piece price multiplied by it. Published to the storefront in `/config` under `ordering`, because a browser cannot print a price without it. Changing it does not rewrite history: every basket, plan and order line keeps the carton size it was agreed at |
+| `PIECES_PER_CARTON` | `500` | How many pieces are in one carton — the only unit this shop sells in. A buyer chooses cartons; the piece count that reaches the warehouse, the invoice and the ERP is that number multiplied by this one, and every price a shopper sees is the catalogue's piece price multiplied by it. Published to the storefront in `/config` under `ordering`, because a browser cannot print a price without it. Changing it does not rewrite history: every cart, plan and order line keeps the carton size it was agreed at |
 
 Neither has a feature flag, and neither needs one. A deployment that has drawn
 no delivery zones gets no warehouse options, the checkout section says nothing,
@@ -10661,13 +11715,21 @@ UBoss-Software/
 │   │   ├── ThemeToggle.tsx         The appearance control, in both apps
 │   │   └── CountryFlag.tsx         Every served market, drawn in SVG
 │   ├── lib/pointer-tilt.ts         The product card's lean, in four CSS vars
+│   ├── components/department-icons.tsx  The strip's two-tone department marks
+│   ├── lib/department-mark.ts      Which department gets which of them
+│   ├── lib/subcategory-cover.ts    Which photograph a shelf gets on the deck
+│   ├── components/catalog/
+│   │   ├── CategoryStrip.tsx       Every department, in one scrolling row
+│   │   ├── SubCategoryRail.tsx     What a department opens into, as a deck
+│   │   └── CategoryCarousel.tsx    The front page's rail of departments
 │   ├── components/ui/
+│   │   ├── carousel.tsx            The deck itself, knowing nothing of categories
 │   │   ├── background-gradient.tsx The glare behind a hovered product card
 │   │   ├── flip-words.tsx        The greeting headline's changing word
-│   │   ├── gooey-input.tsx      The pill that unfolds, and the filter that blobs
-│   │   ├── gooey.ts             Its filter id and its spring, shared with the hero
 │   │   ├── placeholders-and-vanish-input.tsx  Text that blows away when sent
-│   │   └── vanish.ts            The particles, and the placeholder clock
+│   │   ├── vanish.ts            The particles, and the placeholder clock
+│   │   ├── sidebar.tsx          The rail that widens — the same file in all three apps
+│   │   └── sidebar-context.ts   What it knows about itself, and its row type
 │   ├── lib/greeting-headline.ts  Which half of the shop's name the word replaces
 │   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
 │   ├── lib/camera.ts               The device camera, as one still photograph
@@ -10716,14 +11778,17 @@ UBoss-Software/
 | Change the greeting headline's changing word | `lib/greeting-headline.ts` for the words and which half of the name they replace, `components/ui/flip-words.tsx` for how one becomes the next |
 | Change how a sent question leaves the AI composer | `components/ui/vanish.ts` for the particles, `pages/ai/AiComposer.tsx` for where the canvas sits |
 | Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the lean and the specular, `.glare*` there and `components/ui/background-gradient.tsx` for the glow around it |
+| Change what a product ROW does on hover | the same files, but a row uses `.sheen` rather than `.tilt` — the highlight without the lean, because the listing is one sheet and a leaning row lifts off the divider above it |
 | Change the product image magnifier | `lib/pointer-zoom.ts` for the maths, `.zoom-layer` in `index.css` for the scale and the easing |
 | Change how a photograph is taken or what it is taken as | `lib/camera.ts` — the constraints, the JPEG quality, and every path that releases the device |
 | Change what image search accepts | `lib/image-search.ts` in the browser **and** `UPLOAD_MAX_BYTES` plus the magic-byte sniffer on the API; the browser's checks are for speed, the server's are the control |
 | Change what a category listing looks like | `pages/CatalogPage.tsx` for the rail, the sort bar and the layout; `components/ProductRow.tsx` for one row |
+| Change the department strip | `components/catalog/CategoryStrip.tsx` for the row, `lib/department-mark.ts` for which mark a department gets, `components/department-icons.tsx` to draw a new one |
+| Change what a department opens into | `components/catalog/SubCategoryRail.tsx` for what a shelf card says, `components/ui/carousel.tsx` for the deck, `lib/subcategory-cover.ts` for the photographs |
 | Change how many specs a listing row shows | `SPECS_SHOWN` in `components/ProductRow.tsx` |
 | Change what focus looks like | the `:focus-visible` rules in `index.css` in **both** apps — text fields are deliberately excluded from the ring |
 | Change the hero band's height or how its two columns align | `pages/HomePage.tsx` — the comment on the grid says what each value is holding |
-| Change the front page search bar, the AI Mode link above it, or when the pill unfolds | `components/hero-search/HeroSearch.tsx` for the module, `components/ui/gooey-input.tsx` and `components/ui/gooey.ts` for the filter and the spring it shares |
+| Change the front page search bar or the AI Assistant link above it | `components/hero-search/HeroSearch.tsx` |
 | Change the catalogue's filters or facets | `FilterFields` in `pages/CatalogPage.tsx`; the facet list itself is the administrator's, from `/catalog/filters` |
 | Change a colour | `src/index.css` in **both** apps — the light block and the dark one — then `npm run audit:contrast` |
 | Add a theme option, or change what the appearance control does | `app/ThemeProvider.tsx` and `components/ThemeToggle.tsx` in both apps, plus the inline script in each `index.html` |
@@ -10736,6 +11801,7 @@ UBoss-Software/
 | Add a destination to the account menu **and** the account sidebar | `pages/account/account-nav.ts` — one table, both surfaces |
 | Change what the account dropdown looks like | `components/account/AccountMenu.tsx` |
 | Change the account area's frame or its sidebar | `pages/account/AccountLayout.tsx` |
+| Change how any sidebar behaves — the widths, the drawer, what a collapsed row shows | `components/ui/sidebar.tsx`, and the same file in `admin-web` and `logistics-web`. They are one file in three places: change one, copy it to the other two |
 | Add a panel to My Profile | `pages/account/ProfileInformationPage.tsx`, using `AccountPanel` / `PanelRow` |
 | Change how an email address or telephone number is confirmed | `modules/customers/contact-change.service.ts`; the link lands on `/confirm-contact` |
 | Change what closing an account does | `modules/customers/account-closure.service.ts` — and remember erasure is a data request, not this |
@@ -10745,6 +11811,8 @@ UBoss-Software/
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
 | Put a background behind the warehouse map | `MAP_STYLE_URL` in `backend/.env` (or `MAP_TILE_URL`, or `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`) |
 | Get the map's country names in English | `MAP_STYLE_URL` — a vector style. Raster tiles have the local name painted into the picture |
+| Put satellite imagery under the map | `MAP_SATELLITE_URL` + `MAP_SATELLITE_ATTRIBUTION` in `backend/.env`. With a style already set it becomes the hybrid: imagery under the roads, borders and labels |
+| Suggest real addresses as somebody types one | `GEOCODE_FORWARD_URL` in `backend/.env`. It fills the coordinates on a warehouse, a seller's dispatch address and a customer's delivery address |
 | Change how long a marker must be hovered, or how long "Delivers to" lingers after the pointer leaves the map | `HOVER_INTENT_MS` and `HOVER_LEAVE_MS` in `pages/warehouse/WarehouseMapLibre.tsx` — and the effect beside them that decides leaving the map, rather than leaving the marker, is what closes it |
 | Change how the "Delivers to" panel leaves | `COVERAGE_EXIT_MS` in `lib/delivery-coverage.ts` **and** the matching `duration-200` on the panel's root — see `lib/use-lingering.ts` for what keeps it mounted while it goes |
 | Change how far one warehouse delivers | its **Delivery radius** on the warehouse form. Leave it empty and `DELIVERY_COVERAGE_RADIUS_KM` applies |

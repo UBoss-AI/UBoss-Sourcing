@@ -1,0 +1,44 @@
+-- A seller describes their variants while they are listing, not afterwards.
+--
+-- `20260919090000_product_variant_axes` gave the CATALOGUE a variant system:
+-- axes on the product, a signature per variant, per-variant terms of trade.
+-- That is the shape a product has once it exists. It says nothing about how a
+-- product comes to exist, which on this marketplace is a seller filling in a
+-- wizard and a moderator approving what they filled in.
+--
+-- Until now that wizard could describe exactly one sellable thing: one SKU,
+-- one price, one pile of stock. A seller with a shirt in four sizes and three
+-- colours had to list it twelve times, as twelve unrelated products, and the
+-- buyer saw twelve cards instead of one shirt with a size picker. The two
+-- columns here are what let the seller say "one shirt, twelve combinations"
+-- in one draft.
+--
+-- WHY JSON RATHER THAN ROWS
+--
+-- Because a draft is not a catalogue. `attributesJson`, `offerJson`,
+-- `stockJson` and `packagingJson` are already JSON on this table for the same
+-- reason: a draft is a half-finished form that autosaves from a tab the seller
+-- left open for three days, and half of what it holds is invalid at any given
+-- moment. Giving it foreign keys and CHECK constraints would mean the wizard
+-- could not save a row until it was correct, which is the opposite of what a
+-- draft is for. The real rows - `product_variants`, `seller_offers`,
+-- `seller_inventory` - are created on APPROVAL, by `decideListing`, and those
+-- carry every constraint.
+--
+-- Both columns are nullable and nothing reads them unless they are present, so
+-- a deployment that upgrades and changes nothing behaves as it did before, and
+-- every draft already in flight stays exactly as its seller left it.
+--
+-- ROLLING BACK
+--
+--   ALTER TABLE `seller_listing_drafts`
+--       DROP COLUMN `variantAxesJson`, DROP COLUMN `variantsJson`;
+--
+-- That loses only what this version writes. A draft submitted with variants
+-- and rolled back becomes a single-SKU draft again - the seller's variant work
+-- is gone, but nothing that was ever approved is touched, because approval
+-- copies out of these columns into real rows rather than pointing at them.
+
+ALTER TABLE `seller_listing_drafts`
+    ADD COLUMN `variantAxesJson` JSON NULL AFTER `packagingJson`,
+    ADD COLUMN `variantsJson`    JSON NULL AFTER `variantAxesJson`;

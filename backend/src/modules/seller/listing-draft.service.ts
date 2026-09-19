@@ -36,10 +36,25 @@ import {
   assertListingTransition,
   type ListingDraftStatusName,
 } from '../../domain/seller-state.js';
+import type { VariantAxis } from '../../domain/variants/axis.js';
+import { findTemplate, resolveActiveAxes } from '../../domain/variants/registry.js';
+import { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { categorySlugPath } from '../catalog/variant-matrix.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import { isBrandApprovedForSeller } from './brand.service.js';
+import {
+  generateMatrix,
+  normaliseAxes,
+  normaliseRows,
+  projectMatrix,
+  readDraftVariants,
+  validateVariants,
+  type DraftVariantAxis,
+  type DraftVariantRow,
+  type MatrixProjection,
+} from './listing-variants.js';
 import {
   assertSellerOwnership,
   assertSellerPermission,
@@ -104,6 +119,17 @@ export interface DraftPatch {
   stock?: DraftStock[] | null;
   packaging?: DraftPackaging | null;
   sellerEditedTitle?: string | null;
+  /**
+   * The axes this listing sells along.
+   *
+   * An empty array is the seller answering "one configuration only" and is
+   * stored as such; `undefined` leaves whatever was there alone. Those are
+   * different saves and the wizard sends both - the first when the seller
+   * answers the variant question, the second on every autosave of another
+   * section.
+   */
+  variantAxes?: DraftVariantAxis[] | null;
+  variants?: DraftVariantRow[] | null;
 }
 
 export interface DraftView {
@@ -128,6 +154,30 @@ export interface DraftView {
   reviewComment: string | null;
   version: number;
   updatedAt: string;
+  /**
+   * The variant section, normalised.
+   *
+   * `axes` null means the seller has not answered the variant question;
+   * empty means they answered "one configuration". `rows` is the matrix as
+   * the server re-keyed it, so the signatures the wizard renders are the ones
+   * approval will use.
+   */
+  variantAxes: DraftVariantAxis[] | null;
+  variants: DraftVariantRow[] | null;
+  /**
+   * What this category CAN be sold along, for the axis picker.
+   *
+   * Null for a shelf with no template - Medical Devices, or one an operator
+   * invented - where the seller names their own axes instead.
+   */
+  variantTemplate: {
+    categorySlug: string;
+    subcategorySlug: string | null;
+    label: string;
+    axes: VariantAxis[];
+  } | null;
+  /** How many combinations the current axes would make, and the caps. */
+  variantProjection: MatrixProjection;
   media: {
     id: string;
     slot: string;
@@ -206,11 +256,29 @@ async function evaluateDraft(
   issues: ListingIssue[];
   isSubmittable: boolean;
   title: TitleResult | null;
+  variantAxes: DraftVariantAxis[] | null;
+  variantRows: DraftVariantRow[] | null;
+  variantTemplate: DraftView['variantTemplate'];
+  variantProjection: MatrixProjection;
 }> {
+  const emptyVariants = {
+    variantAxes: null,
+    variantRows: null,
+    variantTemplate: null,
+    variantProjection: projectMatrix([]),
+  } as const;
+
   if (row.categoryId === null) {
     // No category chosen yet. Not an error - it is step one of the wizard, and
     // the seller is looking at the category picker rather than the form.
-    return { schema: null, sections: [], issues: [], isSubmittable: false, title: null };
+    return {
+      schema: null,
+      sections: [],
+      issues: [],
+      isSubmittable: false,
+      title: null,
+      ...emptyVariants,
+    };
   }
 
   const schema = await loadListingSchema(row.categoryId);
@@ -295,6 +363,35 @@ async function evaluateDraft(
     });
   }
 
+  /*
+   * The variant section.
+   *
+   * Re-normalised on every evaluation rather than trusted as stored, because
+   * the axes a category offers can change underneath a draft: an operator
+   * edits a template, or - far more often - the seller changes category at
+   * step two and the four axes they had chosen no longer exist. Recomputing
+   * here means the wizard is always showing what would actually be created,
+   * and `normaliseAxes` reports the ones it dropped rather than losing them
+   * silently.
+   */
+  const stored = readDraftVariants(row.variantAxesJson, row.variantsJson);
+  const categorySlugs = await categorySlugPath(row.categoryId);
+  const template = findTemplate(categorySlugs);
+
+  const normalisedAxes =
+    stored.axes === null ? null : normaliseAxes(template, stored.axes);
+  const normalisedRows = stored.rows === null ? null : normaliseRows(stored.rows);
+
+  const variantIssues = validateVariants({
+    axes: normalisedAxes?.axes ?? null,
+    rows: normalisedRows?.rows ?? null,
+    unknownAxisKeys: normalisedAxes?.unknownKeys ?? [],
+    duplicateSignatures: normalisedRows?.duplicateSignatures ?? [],
+    skusInUseElsewhere: await sellerSkusInUseElsewhere(row.sellerAccountId, row.id),
+  });
+
+  issues.push(...variantIssues);
+
   const title = generateTitle({
     components: titleComponents(schema),
     values: attributes,
@@ -307,7 +404,56 @@ async function evaluateDraft(
     issues,
     isSubmittable: !issues.some((issue) => issue.severity === 'BLOCKER'),
     title,
+    variantAxes: normalisedAxes?.axes ?? null,
+    variantRows: normalisedRows?.rows ?? null,
+    variantTemplate:
+      template === null
+        ? null
+        : {
+            categorySlug: template.categorySlug,
+            subcategorySlug: template.subcategorySlug,
+            label: template.label,
+            axes: [...template.axes],
+          },
+    variantProjection: projectMatrix(normalisedAxes?.axes ?? []),
   };
+}
+
+/**
+ * Every SKU this seller already uses, apart from on this draft.
+ *
+ * Live offers and other drafts together, because a code that clashes with a
+ * draft the seller submits tomorrow is a clash they will hit tomorrow, and
+ * finding out then - with the matrix already priced - is the expensive way.
+ * Lower-cased, because the matrix compares that way.
+ */
+async function sellerSkusInUseElsewhere(
+  sellerAccountId: string,
+  draftId: string,
+): Promise<Set<string>> {
+  const [offers, drafts] = await Promise.all([
+    prisma.sellerOffer.findMany({
+      where: { sellerAccountId, archivedAt: null, sourceDraftId: { not: draftId } },
+      select: { sellerSku: true },
+    }),
+    prisma.sellerListingDraft.findMany({
+      where: {
+        sellerAccountId,
+        id: { not: draftId },
+        status: { notIn: ['ARCHIVED', 'REJECTED'] },
+        sellerSku: { not: null },
+      },
+      select: { sellerSku: true },
+    }),
+  ]);
+
+  const taken = new Set<string>();
+  for (const row of offers) taken.add(row.sellerSku.toLowerCase());
+  for (const row of drafts) {
+    if (row.sellerSku !== null) taken.add(row.sellerSku.toLowerCase());
+  }
+
+  return taken;
 }
 
 /**
@@ -374,6 +520,10 @@ function toView(
     reviewComment: row.reviewComment,
     version: row.version,
     updatedAt: row.updatedAt.toISOString(),
+    variantAxes: evaluation.variantAxes,
+    variants: evaluation.variantRows,
+    variantTemplate: evaluation.variantTemplate,
+    variantProjection: evaluation.variantProjection,
     media: row.media.map((item) => ({
       id: item.id,
       slot: item.slot,
@@ -558,6 +708,27 @@ export async function saveDraft(input: SaveDraftInput): Promise<DraftView> {
       ...(patch.stock === undefined || patch.stock === null
         ? {}
         : { stockJson: patch.stock as never }),
+      /*
+       * Wrapped in `{ axes }` rather than stored as a bare array.
+       *
+       * A JSON column holding sometimes-an-array-sometimes-null has nowhere to
+       * put anything else, and the next thing this needs - a remembered SKU
+       * prefix, the seller's answer to "do you want variants" held separately
+       * from the axes themselves - would force a migration to add it. The
+       * object costs nothing now and `readDraftVariants` narrows it.
+       *
+       * `undefined` leaves the column alone; an explicit `null` clears it back
+       * to "not answered". Both are sends the wizard makes.
+       */
+      ...(patch.variantAxes === undefined
+        ? {}
+        : {
+            variantAxesJson:
+              patch.variantAxes === null ? Prisma.DbNull : ({ axes: patch.variantAxes } as never),
+          }),
+      ...(patch.variants === undefined
+        ? {}
+        : { variantsJson: patch.variants === null ? Prisma.DbNull : (patch.variants as never) }),
       ...(patch.sellerEditedTitle === undefined
         ? {}
         : { sellerEditedTitle: patch.sellerEditedTitle }),
@@ -654,6 +825,102 @@ async function refreshDraftState(
     });
   }
 
+  return toView(refreshed, await evaluateDraft(refreshed), await moderatorIssues(draftId));
+}
+
+export interface GenerateMatrixInput {
+  membership: SellerMembership;
+  draftId: string;
+  /** The axes to build from. Saved as part of the same call. */
+  axes: DraftVariantAxis[];
+  /**
+   * Whether to discard rows the seller has already edited.
+   *
+   * False by default and that default matters: the ordinary use is adding one
+   * more colour to a matrix that is already priced, and regenerating it from
+   * scratch would silently throw away every price and stock figure the seller
+   * typed. True is the explicit "start again" the wizard asks them to
+   * confirm.
+   */
+  replaceExisting?: boolean;
+  correlationId?: string | null;
+}
+
+/**
+ * Build the combination rows for a draft's axes.
+ *
+ * Refuses only one thing - a matrix larger than the cap - because everything
+ * else about a half-built matrix is a normal state of a draft and is reported
+ * as an issue instead. The cap is refused rather than reported because the
+ * alternative is writing a hundred thousand rows into a JSON column to then
+ * tell the seller it was too many.
+ */
+export async function generateDraftMatrix(input: GenerateMatrixInput): Promise<DraftView> {
+  const { membership, draftId } = input;
+
+  assertSellerPermission(membership, SellerPermission.LISTING_WRITE);
+
+  const existing = await loadDraftRow(membership, draftId);
+
+  if (!LISTING_EDITABLE_STATUSES.includes(existing.status)) {
+    throw conflict(
+      ErrorCode.LISTING_TRANSITION_NOT_ALLOWED,
+      'This listing cannot be changed right now.',
+    );
+  }
+
+  const template =
+    existing.categoryId === null
+      ? null
+      : findTemplate(await categorySlugPath(existing.categoryId));
+
+  const { axes } = normaliseAxes(template, input.axes);
+  const projection = projectMatrix(axes);
+
+  if (projection.exceedsMaximum) {
+    throw badRequest(
+      ErrorCode.VARIANT_MATRIX_TOO_LARGE,
+      `Those options make ${projection.total} combinations, and ${projection.maximum} is the most ` +
+        'one listing can hold.',
+      [{ field: 'variants.axes', code: 'TOO_MANY_COMBINATIONS' }],
+    );
+  }
+
+  const stored = readDraftVariants(existing.variantAxesJson, existing.variantsJson);
+  const keep =
+    input.replaceExisting === true || stored.rows === null
+      ? []
+      : normaliseRows(stored.rows).rows;
+
+  const { rows } = generateMatrix(axes, {
+    existing: keep,
+    // The template's own axes, so generated names read in template order
+    // rather than in whatever order the seller switched them on.
+    templateAxes: template === null ? [] : resolveActiveAxes(template, axes.map((a) => a.axisKey)),
+    productCode: existing.sellerSku,
+  });
+
+  await prisma.sellerListingDraft.update({
+    where: { id: draftId },
+    data: {
+      variantAxesJson: { axes } as never,
+      variantsJson: rows as never,
+      version: { increment: 1 },
+    },
+  });
+
+  await recordSellerAudit({
+    sellerAccountId: membership.sellerAccountId,
+    action: 'seller.listing.variants_generated',
+    actor: { type: 'CUSTOMER', label: membership.displayName },
+    resourceType: 'seller_listing_draft',
+    resourceId: draftId,
+    after: { axes: axes.map((axis) => axis.axisKey), combinations: rows.length },
+    summary: `${rows.length} variant combinations were generated.`,
+    correlationId: input.correlationId ?? null,
+  });
+
+  const refreshed = await loadDraftRow(membership, draftId);
   return toView(refreshed, await evaluateDraft(refreshed), await moderatorIssues(draftId));
 }
 

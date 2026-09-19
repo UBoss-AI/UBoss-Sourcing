@@ -30,6 +30,7 @@ import { ConfirmDialog } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
 import { SpecificationsPanel } from '@/pages/product/SpecificationsPanel';
 import { VariantsPanel } from '@/pages/product/VariantsPanel';
+import { VariantMatrixPanel } from '@/pages/product/VariantMatrixPanel';
 import { CurrencyPricesPanel } from '@/pages/product/CurrencyPricesPanel';
 import { TranslationsPanel } from '@/pages/product/TranslationsPanel';
 import { ProductSafetyPanel } from '@/pages/product/ProductSafetyPanel';
@@ -1379,6 +1380,7 @@ export function ProductDetailPage(): React.JSX.Element {
               }))}
             />
           )}
+          {!isNew && product !== undefined && <VariantMatrixPanel productId={product.id} />}
           {!isNew && product !== undefined && <VariantsPanel productId={product.id} />}
 
           {/* Directly under the GPSR panel: both are listing obligations, and

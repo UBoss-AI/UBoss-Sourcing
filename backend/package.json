@@ -30,6 +30,7 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx src/seed/index.ts",
     "db:rotate-seed-passwords": "tsx src/seed/rotate-seed-passwords.cli.ts",
+    "db:restore-seed-passwords": "tsx src/seed/restore-seed-passwords.cli.ts",
     "db:reference": "tsx src/seed/reference-data.cli.ts",
     "openapi:export": "tsx src/http/openapi-export.ts",
     "test": "vitest run",
@@ -39,6 +40,8 @@
     "catalog:images": "tsx src/modules/catalog/product-images/attach-product-images.cli.ts",
     "catalog:prices": "tsx src/modules/catalog/provisional-price/set-provisional-prices.cli.ts",
     "catalog:group": "tsx src/modules/catalog/group-root-categories.cli.ts",
+    "variants:audit": "tsx src/modules/catalog/variant-audit.cli.ts",
+    "variants:demo": "tsx scripts/demo-variants.ts",
     "marketplace:sync": "tsx src/modules/catalog/marketplace-price.cli.ts"
   },
   "prisma": {

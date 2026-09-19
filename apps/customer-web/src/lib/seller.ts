@@ -17,6 +17,7 @@
  *     hand somebody else's.
  */
 import { api, postFile } from './api';
+import type { MapConfig } from '@/components/LocationMap';
 
 // ---------------------------------------------------------------------------
 // Who is selling
@@ -456,8 +457,13 @@ export function fetchOffers(params: URLSearchParams): Promise<OfferListResult> {
   return api.get<OfferListResult>(`/seller/listings?${params.toString()}`);
 }
 
-export function setOfferStatus(id: string, status: 'ACTIVE' | 'PAUSED' | 'ARCHIVED'): Promise<never> {
-  return api.patch<never>(`/seller/listings/${id}/status`, { status });
+export function setOfferStatus(
+  id: string,
+  status: 'ACTIVE' | 'PAUSED' | 'ARCHIVED',
+  /** Seller-visible note, kept against a pause. Never shown to a buyer. */
+  reason: string | null = null,
+): Promise<never> {
+  return api.patch<never>(`/seller/listings/${id}/status`, { status, reason });
 }
 
 export function updateOfferPrice(
@@ -657,6 +663,92 @@ export function deleteListingMedia(draftId: string, mediaId: string): Promise<ne
   return api.delete<never>(`/seller/listing-drafts/${draftId}/media/${mediaId}`);
 }
 
+/**
+ * One candidate dimension, as the category's template offers it.
+ *
+ * Mirrors `backend/src/domain/variants/axis.ts`. The template is data the
+ * server sends, not a list the browser holds: there are 112 of them and
+ * bundling the lot into every page that might list a product would be most of
+ * a megabyte for the 111 the seller is not using.
+ */
+export interface VariantTemplateAxis {
+  key: string;
+  label: string;
+  importance: 'REQUIRED' | 'RECOMMENDED' | 'OPTIONAL';
+  input: 'TEXT_SELECT' | 'NUMERIC' | 'MEASUREMENT' | 'COLOUR' | 'BOOLEAN' | 'PACK_COUNT';
+  display:
+    | 'CHIPS'
+    | 'SIZE_BUTTONS'
+    | 'SWATCHES'
+    | 'IMAGE_SWATCHES'
+    | 'DROPDOWN'
+    | 'MEASUREMENT'
+    | 'PACK'
+    | 'SPEC_TABLE';
+  units?: string[];
+  suggestions?: string[];
+  allowsCustomValues: boolean;
+  affectsSku: boolean;
+  isFilterable: boolean;
+  inTitle: boolean;
+  sortOrder: number;
+  sort: 'NUMERIC' | 'APPAREL' | 'GIVEN' | 'ALPHA';
+  dependsOn?: string[];
+  helpText?: string;
+}
+
+export interface VariantTemplateView {
+  categorySlug: string;
+  subcategorySlug: string | null;
+  label: string;
+  axes: VariantTemplateAxis[];
+}
+
+/** One axis the seller switched on, with the values they stock. */
+export interface DraftVariantAxis {
+  axisKey: string;
+  values: { label: string; amount?: string | null; unit?: string | null }[];
+}
+
+/** One combination, with its own code, price, stock and box. */
+export interface DraftVariantRow {
+  optionSignature: string;
+  options: Record<string, string>;
+  name: string;
+  sku: string;
+  barcode?: string | null;
+  isActive: boolean;
+
+  priceMinor?: string | null;
+  compareAtPriceMinor?: string | null;
+
+  minOrderQty?: number | null;
+  qtyIncrement?: number | null;
+  maxOrderQty?: number | null;
+  leadTimeDays?: number | null;
+
+  multipackCount?: number | null;
+  netContentValue?: string | null;
+  netContentUnit?: string | null;
+
+  shippingWeightGrams?: number | null;
+  shippingLengthMm?: number | null;
+  shippingWidthMm?: number | null;
+  shippingHeightMm?: number | null;
+
+  stock: { locationId: string; availableQuantity: number }[];
+  mediaId?: string | null;
+}
+
+/** How many combinations the chosen axes make, and the caps on that. */
+export interface VariantProjection {
+  total: number;
+  /** Past this the wizard asks the seller to confirm before generating. */
+  warnAbove: number;
+  maximum: number;
+  exceedsMaximum: boolean;
+}
+
 export interface DraftView {
   id: string;
   status: ListingDraftStatus;
@@ -678,6 +770,17 @@ export interface DraftView {
   reviewComment: string | null;
   version: number;
   updatedAt: string;
+  /**
+   * The axes this listing sells along.
+   *
+   * `null` means the seller has not answered the variant question yet; an
+   * empty array means they answered "one configuration only". The wizard
+   * renders those two states differently, so they must not be collapsed.
+   */
+  variantAxes: DraftVariantAxis[] | null;
+  variants: DraftVariantRow[] | null;
+  variantTemplate: VariantTemplateView | null;
+  variantProjection: VariantProjection;
   media: {
     id: string;
     slot: string;
@@ -698,8 +801,90 @@ export interface DraftPatch {
   offer?: DraftOffer;
   stock?: DraftStock[];
   packaging?: DraftPackaging;
+  variantAxes?: DraftVariantAxis[] | null;
+  variants?: DraftVariantRow[] | null;
   /** The version last read. A stale save is refused rather than merged. */
   expectedVersion?: number;
+}
+
+/** One version this seller already offers of a published product. */
+export interface OfferVariantRow {
+  offerId: string;
+  sellerSku: string;
+  status: OfferStatus;
+  priceMinor: string;
+  compareAtPriceMinor: string | null;
+  availableQuantity: number;
+  /** The original single listing, which has no options of its own. */
+  isBaseListing: boolean;
+  variantId: string | null;
+  name: string | null;
+  options: Record<string, string>;
+  optionSignature: string;
+  inventory: { locationId: string; availableQuantity: number }[];
+}
+
+export interface OfferVariantsView {
+  offerId: string;
+  status: OfferStatus;
+  sellerSku: string;
+  currency: string;
+  version: number;
+  productId: string;
+  productName: string;
+  hasVariants: boolean;
+  /** False while the listing is on sale: structural changes need a pause. */
+  isEditable: boolean;
+  blockedReason: string | null;
+  template: VariantTemplateView | null;
+  existing: OfferVariantRow[];
+}
+
+/** The versions of a published listing, and what its category can offer. */
+export function fetchOfferVariants(offerId: string): Promise<OfferVariantsView> {
+  return api.get<OfferVariantsView>(`/seller/listings/${offerId}/variants`);
+}
+
+/** What these axes would produce, with the ones already listed marked. */
+export function previewOfferVariants(
+  offerId: string,
+  axes: DraftVariantAxis[],
+): Promise<{
+  rows: (DraftVariantRow & { exists: boolean })[];
+  total: number;
+  warnAbove: number;
+  maximum: number;
+  exceedsMaximum: boolean;
+}> {
+  return api.post(`/seller/listings/${offerId}/variants/preview`, { axes });
+}
+
+/** Create the versions the seller approved. Existing combinations are skipped. */
+export function addOfferVariants(
+  offerId: string,
+  axes: DraftVariantAxis[],
+  rows: DraftVariantRow[],
+  expectedVersion?: number,
+): Promise<{ created: number; skipped: number }> {
+  return api.post(`/seller/listings/${offerId}/variants`, { axes, rows, expectedVersion });
+}
+
+/**
+ * Build the combination rows for these axes.
+ *
+ * `replaceExisting` false - the default - keeps every row the seller has
+ * already priced and adds only the new combinations, which is what makes
+ * "add one more colour" safe on a matrix somebody spent an afternoon on.
+ */
+export function generateVariantMatrix(
+  draftId: string,
+  axes: DraftVariantAxis[],
+  replaceExisting = false,
+): Promise<DraftView> {
+  return api.post<DraftView>(`/seller/listing-drafts/${draftId}/variants/generate`, {
+    axes,
+    replaceExisting,
+  });
 }
 
 export function fetchListingSchema(categoryId: string): Promise<ListingSchema> {
@@ -847,8 +1032,18 @@ export interface SellerLocation {
   closedReason: string | null;
 }
 
-export function fetchLocations(): Promise<{ locations: SellerLocation[] }> {
-  return api.get<{ locations: SellerLocation[] }>('/seller/locations');
+/**
+ * The seller's dispatch addresses, and the map they are drawn on.
+ *
+ * `map` travels with the list rather than from a request of its own: it is the
+ * operator's setting, it cannot change while the screen is open, and a second
+ * call for it would be a round trip for a string. It is on this endpoint
+ * rather than the public `/config` because the Google path carries the
+ * deployment's API key, and a key every anonymous visitor can read is a key
+ * anyone can spend.
+ */
+export function fetchLocations(): Promise<{ locations: SellerLocation[]; map: MapConfig }> {
+  return api.get<{ locations: SellerLocation[]; map: MapConfig }>('/seller/locations');
 }
 
 export function createLocation(input: Record<string, unknown>): Promise<SellerLocation> {
@@ -874,6 +1069,21 @@ export interface GeocodedAddress {
 export function geocodeLocation(query: string): Promise<{ result: GeocodedAddress | null }> {
   return api.post<{ result: GeocodedAddress | null }>('/seller/locations/geocode', { query });
 }
+
+/**
+ * Where the address field's dropdown gets its rows.
+ *
+ * The same geocoder as above, asked for every candidate rather than the first,
+ * and with each one broken back out into the fields a form has. That is the
+ * difference that matters: the lookup above is a button pressed after the
+ * address is typed, so a place is only placed if somebody remembers to press
+ * it, while this is part of typing it.
+ *
+ * Empty for every way a lookup can come to nothing, exactly like the single
+ * one - the fields underneath still take typing, and an address with no pin
+ * saves perfectly well.
+ */
+export const LOCATION_SUGGEST_ENDPOINT = '/seller/locations/geocode/suggest';
 
 export interface InventoryRow {
   offerId: string;

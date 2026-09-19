@@ -62,11 +62,13 @@ import {
 import type { CategoryNode } from '@/lib/types';
 import { ApprovalRequiredNotice, type SellerOutletContext } from './SellerLayout';
 import { ListingMediaPanel } from './ListingMediaPanel';
+import { VariantStepPanel } from './VariantStepPanel';
 
 const STEPS = [
   { key: 'category', label: 'Select category' },
   { key: 'brand', label: 'Select brand' },
   { key: 'details', label: 'Add product details' },
+  { key: 'variants', label: 'Set up versions' },
 ] as const;
 
 type StepKey = (typeof STEPS)[number]['key'];
@@ -184,7 +186,7 @@ function WizardBody({
           <h1 className="mt-1 text-title-xl text-ink">Add a single listing</h1>
         </div>
 
-        {draft !== null && step === 'details' && (
+        {draft !== null && (step === 'details' || step === 'variants') && (
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <SaveIndicator mutation={saveMutation} updatedAt={draft.updatedAt} />
             <Link to="/seller/listings">
@@ -256,12 +258,44 @@ function WizardBody({
       )}
 
       {step === 'details' && draft !== null && (
-        <DetailsStep
+        <>
+          <DetailsStep
+            draft={draft}
+            onSave={(patch) => {
+              saveMutation.mutate({ ...patch, expectedVersion: draft.version });
+            }}
+            isSaving={saveMutation.isPending}
+          />
+
+          {/*
+            The way through to versions.
+
+            A "next" button rather than only the stepper, because the variant
+            step is the one a seller does not know to look for: everything
+            before it is a form they expected to fill in, and a size run is
+            something they would otherwise list twelve times by hand.
+          */}
+          <div className="flex justify-end">
+            <Button
+              variant="primary"
+              onClick={() => {
+                setManualStep('variants');
+              }}
+            >
+              {draft.variantAxes === null
+                ? 'Next: does this come in versions?'
+                : 'Next: versions and stock'}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {step === 'variants' && draft !== null && (
+        <VariantStepPanel
           draft={draft}
-          onSave={(patch) => {
-            saveMutation.mutate({ ...patch, expectedVersion: draft.version });
+          onBack={() => {
+            setManualStep('details');
           }}
-          isSaving={saveMutation.isPending}
         />
       )}
     </div>
@@ -286,6 +320,12 @@ function Stepper({
   const valueFor = (key: StepKey): string | null => {
     if (key === 'category') return draft?.schema?.categoryName ?? null;
     if (key === 'brand') return draft?.brandName ?? null;
+    if (key === 'variants') {
+      if (draft === null || draft.variantAxes === null) return null;
+      if (draft.variantAxes.length === 0) return 'One version';
+      const count = draft.variants?.length ?? 0;
+      return count === 0 ? 'Not built yet' : `${count} combinations`;
+    }
     return null;
   };
 

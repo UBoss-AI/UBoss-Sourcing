@@ -309,8 +309,15 @@ function OfferTable({
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, next }: { id: string; next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED' }) =>
-      setOfferStatus(id, next),
+    mutationFn: ({
+      id,
+      next,
+      reason,
+    }: {
+      id: string;
+      next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED';
+      reason?: string | null;
+    }) => setOfferStatus(id, next, reason ?? null),
     onSuccess: async () => {
       // Every offer query, not just this page's: pausing a listing changes the
       // tab counts as well as the row.
@@ -408,6 +415,9 @@ function OfferTable({
                       onStatus={(next) => {
                         statusMutation.mutate({ id: row.id, next });
                       }}
+                      onPause={(reason) => {
+                        statusMutation.mutate({ id: row.id, next: 'PAUSED', reason });
+                      }}
                     />
                   </td>
                 </tr>
@@ -433,6 +443,9 @@ function OfferTable({
                 isBusy={statusMutation.isPending}
                 onStatus={(next) => {
                   statusMutation.mutate({ id: row.id, next });
+                }}
+                onPause={(reason) => {
+                  statusMutation.mutate({ id: row.id, next: 'PAUSED', reason });
                 }}
               />
             </li>
@@ -565,14 +578,116 @@ function QualityCell({ score }: { score: number | null }): React.JSX.Element {
   );
 }
 
+/**
+ * Pausing, with the consequences said out loud first.
+ *
+ * Pausing is not a small action: it takes the listing off the storefront and
+ * it will be rejected in the basket of anybody who already had it there. A
+ * seller who meant "stop taking new orders while I fix the price" and a
+ * seller who meant "we have stopped selling this" press the same button, and
+ * only one of them expects the second thing. So the dialog says what will
+ * happen, and - just as important - what will NOT: orders already placed are
+ * untouched and still have to be shipped.
+ *
+ * The reason is optional and seller-only. It is what the listings table shows
+ * three weeks later when somebody else in the same business is looking at a
+ * paused row and cannot tell whether it is waiting for stock or withdrawn.
+ */
+function PauseButton({
+  row,
+  isBusy,
+  onPause,
+}: {
+  row: OfferRow;
+  isBusy: boolean;
+  onPause: (reason: string | null) => void;
+}): React.JSX.Element {
+  const [isOpen, setIsOpen] = useState(false);
+  const [reason, setReason] = useState('');
+
+  return (
+    <>
+      <Button
+        size="sm"
+        disabled={isBusy}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        Pause
+      </Button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        title={`Pause ${row.sellerSku}?`}
+        description="Buyers will not be able to order it until you put it back on sale."
+        footer={
+          <>
+            <Button
+              onClick={() => {
+                setIsOpen(false);
+              }}
+            >
+              Keep it on sale
+            </Button>
+            <Button
+              variant="primary"
+              isLoading={isBusy}
+              onClick={() => {
+                onPause(reason.trim() === '' ? null : reason.trim());
+                setIsOpen(false);
+                setReason('');
+              }}
+            >
+              Pause this listing
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <ul className="list-disc space-y-1 pl-5 text-sm text-ink-subtle">
+            <li>It disappears from search and cannot be added to a basket.</li>
+            <li>Anyone who already has it in a basket is told it is unavailable.</li>
+            <li>
+              <strong className="text-ink">Orders already placed are not affected.</strong> You
+              still need to pack and ship them.
+            </li>
+            <li>Your stock, product code and sales history are all kept.</li>
+            <li>You can edit everything about it while it is paused.</li>
+          </ul>
+
+          <Field label="Why are you pausing it? (optional)" hint="Only your team sees this.">
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                value={reason}
+                placeholder="Waiting for stock, price under review…"
+                onChange={(event) => {
+                  setReason(event.target.value);
+                }}
+              />
+            )}
+          </Field>
+        </div>
+      </Modal>
+    </>
+  );
+}
+
 function RowActions({
   row,
   isBusy,
   onStatus,
+  onPause,
 }: {
   row: OfferRow;
   isBusy: boolean;
   onStatus: (next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED') => void;
+  onPause: (reason: string | null) => void;
 }): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
@@ -580,17 +695,7 @@ function RowActions({
         <Button size="sm">Edit</Button>
       </Link>
 
-      {row.status === 'ACTIVE' && (
-        <Button
-          size="sm"
-          disabled={isBusy}
-          onClick={() => {
-            onStatus('PAUSED');
-          }}
-        >
-          Pause
-        </Button>
-      )}
+      {row.status === 'ACTIVE' && <PauseButton row={row} isBusy={isBusy} onPause={onPause} />}
 
       {(row.status === 'PAUSED' || row.status === 'INACTIVE') && (
         <Button

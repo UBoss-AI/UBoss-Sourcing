@@ -94,7 +94,7 @@ p('English edition • September 2026', { align: AlignmentType.CENTER, color: C.
 children.push(new Paragraph({ text: '', spacing: { before: 300, after: 60 } }));
 note('Purpose', 'This document explains, in simple English, what customers, staff and the system can do. It describes implemented features and clearly marks features that depend on configuration.', C.blue);
 h2('Quick answer');
-p('UBOSS Sourcing is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a basket, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
+p('UBOSS Sourcing is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a cart, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
 h2('How to use this guide');
 bullets([
   'Read “Customer features” to understand what a buyer can do on the storefront.',
@@ -157,31 +157,78 @@ page();
 h1('3. Customer Features — Product Discovery and AI');
 h2('3.1 Home page and catalogue');
 table(['Customer action', 'What the system provides'], [
-  ['Open the home page', 'The business name with a changing word beside it and a one-line introduction, a search button that opens into the product search, product categories, latest / featured catalogue items, basket access and account access.'],
-  ['Browse all products', 'A list of published products available for the selected market.'],
-  ['Open a category', 'Only the products within that category, with normal catalogue tools. Anything filed inside it is shown as cards above the results.'],
+  ['Open the home page', 'The business name with a changing word beside it and a one-line introduction, a large search bar, a sideways row of department cards, latest / featured catalogue items, cart access and account access.'],
+  ['Press a department card', 'A panel naming everything inside that department with a count beside each one, and a button into the department itself.'],
+  ['Browse all products', 'A list of published products available for the selected market, with a row of every department across the top.'],
+  ['Press a department in the row', 'That department opens as its own page, the row stays where it is with that department marked, and what is filed inside it is shown as large picture cards.'],
+  ['Open a category', 'Only the products within that category, with normal catalogue tools. What is filed inside it is shown as large picture cards above the results.'],
   ['Search for a product', 'Search results for product names, identifiers and relevant catalogue content.'],
   ['Use filters and sort', 'Narrow the catalogue by the available catalogue facets and change ordering.'],
   ['Use voice search', 'Use supported browser voice input for a search query.'],
   ['Use image search', 'Upload a product image to match relevant products when the feature is available to the signed-in customer.'],
 ], [3500, 6800]);
 p('The home page opens with the business\'s own name in large type, and beside it a single word that changes every few seconds — sourcing, then intelligence, then optimism, then innovation — so the name reads as a different phrase each time. Under it sits one short line about what the business does. If the business name already ends in one of those four words, the system does not print it twice: the name gives its last word to the changing one, so a business called \"Acme Sourcing\" opens reading exactly that and then moves on to \"Acme Intelligence\". Anyone whose computer or phone is set to reduce animation sees one word, standing still, and anyone using a screen reader hears the business name once rather than a heading that rewrites itself.');
-p('The search on the home page begins as a single rounded button reading \"Search the catalogue\". Pressing it opens the full search: the box to type in, the choice between searching products and asking the assistant, the camera for searching by photograph, the microphone for speaking a search, and the note about the assistant. The opening is a smooth, liquid movement in which a round Search button separates out of the bar, and the cursor is placed in the box so the buyer can start typing straight away. It closes again on the Escape key, or when the buyer moves away from it with the box empty — never while there are words in it. A buyer whose computer or phone is set to reduce animation gets the same search, opening and closing without the movement.');
+p('The search sits on the home page as one large search bar, ready to type into. Above it is a row of three places to go — Home, which is the page the buyer is already on and is marked as such, AI Assistant, which opens the assistant page, and Products, which opens the full catalogue. Pressing any of the three goes straight there. Around the bar are the camera for searching by photograph, the microphone for speaking a search, a Search button, and the note about the assistant. Typing a few words and pressing Search — or simply pressing Enter — opens the full product list with that search already applied, so the usual filters and sorting are there to narrow it further. Leaving the box empty and pressing Search opens the whole catalogue.');
 
-p('Each department on the home page carries a picture of what is in it — a cannula beside IV Cannula, a glove beside Surgical Gloves — so a buyer can find the department they came for by shape before they finish reading the labels. A department the system does not recognise by name gets a plain shape instead of a wrong picture.');
+p('The departments sit on the home page as a row of large picture cards that scrolls sideways, with arrows underneath for anybody who would rather press than swipe. Each card carries a photograph of the kind of thing in that department, the department\'s name, how many products are behind it and how many shelves they are filed on. Every count is for the whole department including everything beneath it, because that is what pressing the card will show.');
+p('Pressing a card opens a panel over the page listing the shelves inside that department, each with its own count, and a button into the department itself. A buyer who knows roughly what they want reaches the right shelf in two presses without reading a single price. The panel closes on the Escape key or its own close button, and it closes by itself the moment the buyer follows a link out of it.');
+p('The pictures are chosen by the system from the department\'s name, not uploaded by the business, so a shop that has supplied nothing still opens looking finished. A department the system does not recognise by name is drawn instead — its own mark on a coloured panel — rather than being given a photograph of the wrong thing. The same drawing appears if a photograph cannot be fetched, so a shop on a company network with no access to the outside world keeps every card, every name and every count.');
+p('Anyone whose computer or phone is set to reduce animation gets the same row without the movement. Anyone using a keyboard can reach every card, open it, read the panel and leave it again, and anyone using a screen reader hears each department named once.');
 p('The top of the home page carries a moving three-dimensional graphic: a slowly turning picture of the earth, with trade routes arcing between real trading cities and a light travelling along each one, three paths circling the planet, and four cards riding around it for the four things a buyer can do beyond ordinary ordering — ask the assistant, schedule a repeat delivery, set up automatic payment, and connect their own business system. The cards are real buttons, not decoration, and each one either opens the screen behind it or explains why it cannot.');
 p('The picture of the earth is supplied with the software rather than fetched from anywhere, so the home page looks the same on a company network with no access to the outside world as it does anywhere else, and nothing on the page waits for it. The whole planet is evenly lit, so no part of the mark is ever in shadow as it turns. A slower or smaller device is given a simpler version automatically, and a device that cannot show it at all is given a still drawing instead, with the same four cards. Anyone whose computer or phone is set to reduce animation sees the graphic standing still.');
 p('A business that has not uploaded its own logo gets a small version of the same earth as the mark beside its name at the top of every page, turning gently. A business that has uploaded a logo sees its own logo there, unchanged. Where the small earth cannot be shown — an older browser, or a visitor who has asked for less animation — the first letter of the business name is shown in its place, exactly as before.');
 p('The graphic is built to be polite about what it costs. It stops completely as soon as it is scrolled out of view or the tab is put in the background, it shows a still picture instead of moving for anyone whose device is set to reduce motion, and on a phone or a computer that would struggle with it the page falls back to a plain drawn version that looks finished in its own right. It is also downloaded separately from the rest of the shop, so a buyer who only wants to search for a product never waits for it.');
+p('The product list and every department page carry a row of departments across the top, under the page title. Every department the business has is in it, each shown as a small drawing with its name underneath, and the first entry is All products. The department being read is marked with a line under it and a tinted panel behind its drawing, so a buyer always knows where they are. The row scrolls sideways: a finger swipes it, a mouse wheel moves it along, and arrows appear at whichever end still has more to show. Pressing an entry opens that department as a real page with its own web address, so a buyer can bookmark it or send it to a colleague.');
+p('Departments with nothing on their shelves this week are still shown. A row that quietly dropped them would make a buyer think the business had stopped selling that kind of thing, and a business that has just installed the software would open to an empty row.');
+p('Inside a department, what is filed in it is shown as large square picture cards: one card faces the buyer with its name and a button carrying the number of products behind it, and the others sit tipped back on either side. Pressing one of those brings it to the front; arrows underneath step through them and a counter says how far along the buyer is. Every shelf in the department is on it, stocked or not, and each card states its own count, so an empty shelf says so rather than hiding.');
+p('Those cards move with a sideways swipe on a touchpad as well as with the arrows. Scrolling the page up or down never moves them, even when the pointer is over them, so passing the cards on the way down the page leaves them exactly as they were. Resting the pointer on a card behind the one at the front brings it half way forward, brightens its picture and outlines it, so it is clear it can be pressed.');
+p('Moving to another department always starts its cards at the first one, whatever card the buyer had reached in the department before.');
+p('The pictures on those cards are chosen by the system from the shelf\'s name, exactly as the home page chooses department pictures, so a business that has uploaded nothing still opens looking finished. A shelf the system does not recognise is drawn instead — its own mark on a coloured panel — rather than being given a picture of the wrong thing, and the same drawing appears if a picture cannot be fetched.');
+p('Anyone whose computer or phone is set to reduce animation gets the same cards without the tipping or the sliding. Anyone using a keyboard can reach the department row and every card, and the card at the front is the only one offering a link, so tabbing through does not walk past two dozen invisible ones.');
+
 h2('3.2 Product detail page');
 bullets([
   'See product images, product name, SKU/reference, specifications and descriptions.',
   'Choose a variant where a product has more than one option.',
   'See quantity rules, including minimum order quantity and permitted quantity steps.',
   'Read product safety and medical-device information where the product requires it.',
-  'View tax and market price context before adding to the basket.',
-  'Add the item to the basket or save it for later where the relevant feature is available.',
+  'View tax and market price context before adding to the cart.',
+  'Add the item to the cart or save it for later where the relevant feature is available.',
 ]);
+h2('3.2a Choosing between forms of the same product');
+p('Many things are sold in more than one form. A safety shoe comes in two colours and six sizes. A bag of seeds comes as a single packet or as a pack of ten. A cable comes in three thicknesses and two lengths. Each of those is a separate thing to pick, weigh and ship, with its own reference number and often its own price — so the page has to let a buyer get to the exact one they want, and stop them asking for one that does not exist.');
+p('There are two ways of choosing, and the product decides which one a buyer sees. A hospital ordering syringes usually wants several sizes at once, so those products keep a list where every size can be switched on and given its own quantity. A buyer choosing a shoe wants one shoe, so those products narrow the choice down instead: pick a colour, then pick a size, with anything the business does not stock switched off as you go.');
+table(['What the customer sees', 'What the customer can do'], [
+  ['Buttons for each choice — colours, sizes, pack sizes — with the one they have picked named beside the heading.', 'See at a glance what they have chosen so far, without hunting for a highlighted button.'],
+  ['Sizes in size order: 6, 7, 8, 9, 10. Clothing in the order a rail hangs: XS, S, M, L, XL, 2XL.', 'Read a size run the way they expect to read one.'],
+  ['Three different answers, not two: available, out of stock, and not sold in this combination.', 'Tell the difference between something worth coming back for and something that will never exist.'],
+  ['A line through anything they cannot pick, and words to match — never colour on its own.', 'Use the page whether or not they can tell one shade of grey from another.'],
+  ['The price, the reference number, the delivery information and the photographs all change as the choice changes.', 'See exactly what they are about to buy before they buy it.'],
+  ['A price range before anything is chosen, where the forms differ in price.', 'Know roughly what this will cost before working through the choices.'],
+  ['The choice kept in the web address.', 'Send somebody a link to the exact black size 8, and get back to it after a refresh.'],
+], [5000, 5000]);
+bullets([
+  'Where a product comes in only one form, no choosing is offered at all. Asking somebody to pick between one option is not a choice.',
+  'Add to Cart stays available while the choice is unfinished. Pressing it says what is still missing — “Choose a size to continue” — and moves the cursor to the size buttons, rather than sitting there greyed out with no explanation.',
+  'Nothing can be added to a cart unless it is a real, complete combination the business actually sells. The system checks this again on its own side, so it cannot be worked around from a browser.',
+  'Where a choice depends on another — a shoe size only means something once the sizing system is known — the second choice waits until the first is made.',
+  'Everything in this section is for products whose form was described by whoever listed them. Products listed without one keep the list they have always had, and nothing about them changed.',
+  'Products listed the older way show it too. On those, the list of options now crosses out anything that is out of stock and says so in words, and it cannot be chosen. A product sold as a single item with none left cannot be added to a cart at all. Whether something is in stock is the only stock fact the shop states publicly - how many there are is never shown to a customer.',
+]);
+h2('3.2b Packs, and how many of them');
+p('A “pack of ten” is one thing the warehouse picks up, weighs and sends. It has its own reference number and its own price. How many of those packs somebody wants is a separate number, typed into the quantity box — and confusing the two is how a person meaning to buy three packets is sent thirty.');
+p('So the page states both, in words, before anything is added to a cart.');
+table(['What the customer sees', 'What it means'], [
+  ['“500 g · Pack of 10”', 'One packet holds 500 g, and ten packets are supplied together as one item.'],
+  ['“Each pack contains 5000 g in total.”', 'The arithmetic, done for them rather than left to them.'],
+  ['“2 packs is 20 units, 10000 g in total.”', 'What the whole line comes to, once they have said how many packs they want.'],
+  ['A price per kilogram or per 100 g, where the figures allow it.', 'Compare two listings that are packed differently.'],
+], [4200, 5800]);
+bullets([
+  'The amount a unit price is quoted against is always stated — per kilogram, or per 100 g — because the two are a factor of ten apart and a buyer comparing listings has to be able to see which is which.',
+  'Where whoever listed the product did not state what is in the box, nothing is shown. A figure is never invented to fill the space.',
+]);
+
 h2('3.3 What a buyer counts in: cartons and pieces');
 p('There are two ways something is sold here, and which one applies depends on who is selling it. What the shop itself sells is sold by the carton, and one carton holds 500 pieces: the buyer types a number of cartons, and every price they have been shown is the price of one carton. What an outside seller sells is sold by the piece, at that seller’s own price for one piece.');
 p('The buyer never has to work out which is which. Every product says it, in plain words, under its name and above its quantity box, and the price beside those words is the price of the thing named.');
@@ -194,12 +241,12 @@ table(['What the customer sees', 'What the customer can do'], [
   ['A Dimensions section with the box sizes as the supplier recorded them.', 'Check what will arrive against the space they have.'],
 ]);
 bullets([
-  'The basket counts cartons and prints the piece total under them, and so does a repeating plan. A line sold by the piece is counted in pieces, and the basket says so under the quantity.',
+  'The cart counts cartons and prints the piece total under them, and so does a repeating plan. A line sold by the piece is counted in pieces, and the cart says so under the quantity.',
   'An order shows both: how many cartons were ordered, and the pieces those came to. The invoice names the packing in the line description, such as “Disposable Syringe 5ml (2 cartons of 500)”. A line bought by the piece is shown and invoiced in pieces, with no mention of a carton.',
-  'One basket can hold both at once — cartons from the shop and pieces from two different sellers — and each line keeps its own unit, its own quantity and its own price. Nothing is converted between them.',
+  'One cart can hold both at once — cartons from the shop and pieces from two different sellers — and each line keeps its own unit, its own quantity and its own price. Nothing is converted between them.',
   'A carton is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
   'A seller sets their own smallest order and their own step, in pieces. A buyer asking for fewer than the smallest is moved up to it, and a quantity between two steps is moved up to the next one.',
-  'The price of a carton is the price of one piece multiplied by 500. The price of a piece is simply the price of a piece. Neither is a total: tax, discounts and how many were ordered are still worked out at the basket and the checkout.',
+  'The price of a carton is the price of one piece multiplied by 500. The price of a piece is simply the price of a piece. Neither is a total: tax, discounts and how many were ordered are still worked out at the cart and the checkout.',
 ]);
 note('How many is in a carton', 'Five hundred is a setting, not a fixed part of the software. A business that packs its own product differently changes one number, and every price, every quantity box and every page that says “one carton has 500 pieces” follows it.', C.purple);
 note('Why an outside seller’s goods are not sold by the carton', 'The carton belongs to the business running this shop — it is how they pack and ship their own product. An outside seller packs their own way, and their price is the price of one item. Applying the shop’s carton to their listing would have shown a ten-rupee item at five thousand rupees, and charged it. So what a line is counted in is decided by who is selling it, worked out by the system before any quantity or price is calculated, and never guessed from the name of the product or the department it sits in.', C.orange);
@@ -207,23 +254,29 @@ note('Searching by price when both appear together', 'A price range is matched o
 h2('3.4 AI Mode');
 p('AI Mode is a full page, not a small floating chat window. A signed-in customer can ask product questions and keep a conversation history. Whether somebody without an account can ask at all is a setting, and it starts switched off — every answer costs the business money with its AI supplier, and a page anybody on the internet can open is not where that spending should begin by default. Switched on, a visitor can ask before opening an account; left off, the page invites them to sign in and keeps the question they typed so they do not lose it.');
 bullets([
-  'Ask natural-language questions such as “show sterile syringes” or “which item matches this need?”.',
+  'Ask questions in ordinary words, such as “what do you have in safety footwear?” or “which of these two is cheaper?”.',
   'Receive product-aware answers and product cards where results are available.',
   'Use the assistant as a discovery tool before buying.',
   'Staff can review AI-related customer enquiries in the Admin → Chat enquiries area.',
 ]);
+p('The assistant knows the whole shop, and it knows it as the shop is right now. Before every answer it is given a fresh description of everything on sale: each department and how much is in it, then each product with its page, its price, what that price buys, and — where an outside seller is the one selling — that seller’s name. It covers the business’s own stock and every outside seller’s listing together, because a buyer asking what is available means all of it. Nothing in the assistant is set up for one trade: a shop selling bolts and a shop selling gloves each get an assistant that describes what that shop actually has, with nothing to write and nothing to switch on.');
+p('The description is rebuilt the moment anything changes. Publish a product, approve an outside seller’s listing, change a price or take something off sale, and the very next question is answered from the new position — there is no waiting period, nothing to restart, and no way for the assistant to quote a price the shop has stopped charging.');
+p('Two things it will not do. It will not quote a figure the shop has not published: a product priced on application, or one whose sellers have all paused it, is described honestly and the buyer is pointed at the support contact. And it describes products rather than advising on their use — for whether something is suitable, safe or approved for a particular job, patient or site, it says the decision belongs to the qualified person responsible for it.');
+p('The opening screen greets the buyer by the time of day and by their first name — “Good morning, Priya” — and asks how it can help, rather than simply saying hello. The time is read from the buyer’s own clock, so somebody ordering from another country is greeted for the day they are actually having; between ten at night and five in the morning it says a plain “Hello” instead, because a cheerful “Good evening” at three in the morning is the kind of mistake a night shift notices. A visitor without an account is greeted too, just without a name, and a name is never guessed from an email address.');
+p('The assistant itself is courteous in the same way. It greets somebody who greets it, thanks somebody who thanks it, and where it cannot help it says so kindly and says who can. It still answers in a sentence or two rather than a speech — the shop’s buyers are at work — but short is not the same as curt.');
+p('Under the greeting the screen shows the size of the shop and its three largest departments, with a question ready for each one. Those come from the catalogue itself, so they are true on the day they are read and change as the shop changes.');
 p('When a question is sent in AI Mode, the words the buyer typed break apart and blow away out of the box, so it is obvious the question has gone. The message itself is not affected by this: if the AI supplier cannot be reached, or the sign-in has expired while the buyer was typing, the question is still in the box afterwards, ready to send again. Anyone whose computer or phone is set to reduce animation sees the box simply clear.');
 
 note('Image search access', 'Image search is more expensive than text search because it uses an AI vision request. The storefront keeps this action behind the customer session.', C.purple);
 page();
 
 // 4
-h1('4. Customer Features — Basket, Warehouse Choice and Checkout');
-h2('4.1 Basket management');
+h1('4. Customer Features — Cart, Warehouse Choice and Checkout');
+h2('4.1 Cart management');
 bullets([
-  'Add one product or multiple product variants to the basket.',
+  'Add one product or multiple product variants to the cart.',
   'Increase or reduce quantity using the quantity control.',
-  'Remove a line from the basket.',
+  'Remove a line from the cart.',
   'Apply an eligible coupon code.',
   'Review product subtotal, tax, delivery context and estimated total.',
   'Move eligible items toward repeat purchase planning when recurring orders are enabled.',
@@ -231,12 +284,12 @@ bullets([
   'Change a line by the carton, with the piece total updating beside it.',
 ]);
 h2('4.2 Customer warehouse choice — exact behaviour');
-p('Yes. Once a customer has basket items, the basket can show a “Where this can ship from” panel. It helps the buyer decide which eligible warehouse they prefer for the order.');
+p('Yes. Once a customer has cart items, the cart can show a “Where this can ship from” panel. It helps the buyer decide which eligible warehouse they prefer for the order.');
 table(['What the customer sees', 'What the customer can do', 'What the system checks'], [
   ['Available warehouses', 'Choose a preferred shipping source based on location, delivery timing and fee information.', 'The warehouse must be active, able to operate today, in delivery range and not excluded for the customer country.'],
   ['Lead time and fee', 'Compare options such as “faster with a fee” versus “slower with a lower fee”.', 'The system only shows a promise that the business has configured; it does not invent delivery data.'],
   ['Soonest / cheapest markers', 'Quickly identify the quickest or lowest-fee offer.', 'Options are ordered by soonest delivery, but the buyer makes the final preference.'],
-  ['Partial-stock warehouse', 'See that a nearby warehouse has only part of the basket.', 'The screen names shortages instead of pretending the whole basket can ship from that warehouse.'],
+  ['Partial-stock warehouse', 'See that a nearby warehouse has only part of the cart.', 'The screen names shortages instead of pretending the whole cart can ship from that warehouse.'],
   ['No eligible warehouse', 'Understand that delivery is outside range or closed for the country.', 'The system does not reveal private operational reasons to the buyer.'],
 ], [2900, 3400, 3700]);
 note('Important current behaviour', 'Choosing a warehouse records a delivery preference. The warehouse-specific delivery fee is not automatically used to recalculate the existing cart total or change fulfilment by itself. The screen makes this clear so it never promises one amount and charges another.', C.orange);
@@ -268,7 +321,7 @@ h2('5.2 Order life cycle');
 p('The normal order path is Draft → Pending Approval or Pending Payment → Confirmed → Processing → Shipped → Delivered. Cancellation, return and refund are controlled transitions with history and reason rules.');
 h2('5.3 Buy Later and Subscribe & Reorder');
 table(['Option', 'What the customer can do', 'Result'], [
-  ['Buy Now', 'Pay for the basket now.', 'Creates a normal order.'],
+  ['Buy Now', 'Pay for the cart now.', 'Creates a normal order.'],
   ['Buy Later', 'Select one future delivery date and review it before confirming.', 'Creates a one-time schedule.'],
   ['Subscribe & Reorder', 'Set a repeating delivery pattern, such as every 15 days, monthly, every 2/3/6 months or yearly.', 'Creates a recurring schedule with multiple future occurrences.'],
 ], [2500, 4400, 3400]);
@@ -284,16 +337,16 @@ page();
 // 6
 h1('6. Customer Features — Self-Service Account Area');
 h2('6.0 The dashboard');
-p('Opening the account area lands on a dashboard. It answers the question a buyer has not yet thought to ask: is anything waiting on me?');
+p('Opening the account area lands on a dashboard. It answers the question a buyer has not yet thought to ask: is anything waiting on me? It answers it as a picture, and there is nothing underneath it: one ring, and beside it a short written summary of what the ring shows.');
 bullets([
   'A ring shows every order placed in the chosen period, split into five groups: waiting on you, being prepared, on the way, delivered, and cancelled or returned.',
-  'Choosing a group filters the order list underneath it. Choosing it again clears the filter, and there is a button to clear it as well.',
+  'Choosing a group singles it out. The screen says which group it is showing and offers a way back, and the written summary beside the ring is then about that group rather than the whole period. Choosing it again clears it, and there is a button to clear it as well.',
   'The exact counts and percentages are listed beside the ring, and “View as a table” shows the same figures as a table, so nothing can only be read by looking at the picture.',
-  'Cards beside it show what has been paid in this period against the period before, what is promised to arrive in the next seven days, how many repeat orders cannot run without the cardholder, which orders are waiting for payment or an approval, and whether the buyer’s own business system is still exchanging messages.',
   'The period can be today, the last seven days, the last thirty days, or any two dates the buyer picks.',
   'The period and the chosen group are both part of the web address, so a buyer can send a colleague exactly the view they are looking at, and going back returns to it.',
 ]);
-p('Orders waiting for payment or an approval are listed however old they are, not only the ones inside the chosen period. An unpaid order from six weeks ago needs more attention than one from this morning, and a period filter would have quietly hidden it.');
+p('There are no tiles and no lists under the ring. Spend against the period before, what is promised in the next seven days, repeat orders that cannot run without the cardholder, orders waiting for payment or an approval, and whether the buyer’s own business system is still exchanging messages were all shown here once, and each of them belongs to a screen of its own: My orders, Payments, Scheduled orders, ERP connections. A shorter copy of a screen is a copy that goes out of date.');
+p('None of that information became unavailable. The dashboard still fetches all of it, and the written summary beside the ring is worked out from the whole of it — so it can still say that three orders are waiting for payment, or that a repeat order needs a card, even though no tile shows it. Orders waiting for payment or an approval are counted however old they are, not only the ones inside the chosen period, because an unpaid order from six weeks ago needs more attention than one from this morning.');
 h2('6.1 Profile and company');
 table(['Account page', 'What the customer can do'], [
   ['Profile', 'Edit personal details in separate panels, change password, view purchasing limits, request contact changes, view own data and deactivate/close account.'],
@@ -419,17 +472,37 @@ note('Reasons are written for the seller', 'Every refusal needs a reason, and th
 note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If somebody else decided it in the meantime, the second decision is refused rather than quietly overwriting the first.', C.purple);
 
 h2('6a.5 Listing a product');
-p('A seller adds one listing at a time through a three-step flow: choose the category, choose the brand, then fill in the product details. The order matters — which details a product needs depends on its category, and the brand decides whether the seller is allowed to list it at all.');
+p('A seller adds one listing at a time through a four-step flow: choose the category, choose the brand, fill in the product details, then say whether it comes in more than one version. The order matters — which details a product needs depends on its category, and the brand decides whether the seller is allowed to list it at all.');
 table(['Step', 'What the seller does', 'What the system does'], [
   ['Choose a category', 'Searches or browses to the right category.', 'Creates a saved draft straight away, so closing the tab loses nothing.'],
   ['Choose a brand', 'Picks an approved brand, or asks for one that is missing.', 'Offers brands already used by this seller first. A requested brand can be used on a draft while it is decided, but not on anything on sale.'],
   ['Add product details', 'Fills in five sections: photos, price and stock, description, extra information, and compliance.', 'Counts each section as it is filled in, shows what is missing, and puts every problem beside the field that caused it.'],
   ['Set the price and how it is sold', 'Enters the price per piece, the stock in pieces at each address, the smallest order, any step, and any per-order limit.', 'Labels every one of those boxes in pieces, refuses a smallest order or a step below one, and refuses a limit that no allowed quantity could reach.'],
+  ['Set up versions', 'Says whether the product comes in sizes, colours, capacities or pack sizes, and lists the ones actually stocked.', 'Suggests the choices that department is normally sold by, works out every combination, and gives each one its own code, price and stock.'],
 ], [1800, 4100, 4100]);
 note('There is a department for whatever they sell', 'A new business starts with twenty-five departments already in place — medical, laboratory, industrial supplies, tools, electrical, electronics, IT, phones, office, packaging, safety, cleaning, building, automotive, agriculture, catering, furniture, home, clothing, beauty, sports, toys, books, chemicals and energy — each with sections underneath. A seller therefore always has somewhere sensible to file a product, whatever it is, from the first day the shop opens.', C.teal);
 note('The questions fit the product', 'A seller listing a bolt is asked for a thread size, a length and a grade. A seller listing a power supply is asked for voltage and whether it ships with a battery. A seller listing a medical instrument is asked for a device class and a UDI. Nobody is asked for somebody else’s fields.', C.teal);
 note('Photographs', 'Every listing needs a front view and a picture of the packaging. A category that asks for a barcode or UDI also asks for a readable photograph of that label, and one that asks about sterility asks for a photograph of the seal.', C.blue);
 note('A seller prices one piece', 'Everything on the price and stock step is counted in pieces, and every label says so: price per piece, stock in pieces, smallest order, and step. That is what a buyer will see and what the seller will be paid on. Nothing a seller lists is shown to buyers as a carton, and the shop’s own carton of 500 never appears on a seller’s listing.', C.teal);
+
+h2('6a.5a Selling one thing in several versions');
+p('Most things are sold in more than one form. A T-shirt comes in sizes and colours; a shoe comes in sizes and widths; a laptop comes with different memory and storage; seeds come in a 500 gram packet or a kilo, singly or in a box of ten. Each of those is a separate thing to price, count and pack, and each needs its own code — but they are all one product as far as a buyer is concerned, and they belong on one page with a chooser rather than on a dozen separate pages.');
+p('After the product details, the seller is asked one question: does this come in more than one version? Answering no finishes the listing — the price and stock already entered cover it, and buyers see no chooser. Answering yes opens the version builder.');
+table(['What the seller does', 'What the system does'], [
+  ['Picks which things a buyer chooses between — size, colour, capacity, length, pack size and so on.', 'Offers the choices that department is normally sold by, as suggestions. Nothing is switched on until the seller switches it on.'],
+  ['Lists the values actually stocked — for example only sizes 8 and 9, not the whole size run.', 'Accepts the suggestions as one-tap choices and lets the seller type anything else. Two spellings of the same value count as one.'],
+  ['Checks how many combinations that makes.', 'Shows the total before anything is built, warns when the table is getting large, and refuses one too big to fill in honestly.'],
+  ['Builds the table.', 'Creates one row per combination, each with a suggested code, ready for a price and a stock figure.'],
+  ['Removes the combinations they do not make.', 'Treats what is left as the full list. A combination that was removed is shown to buyers as not offered, which is different from out of stock.'],
+  ['Fills in each row — code, price, previous price, stock and whether it is on sale.', 'Can set a price or a stock figure across every row at once, and can fill in any missing codes automatically.'],
+  ['Adds another colour later.', 'Keeps every code, price and stock figure already entered and adds only the new combinations.'],
+], [4600, 5400]);
+note('Nothing is invented on the seller’s behalf', 'The suggestions are a starting point, never a claim. A shoe department offers sizes 5 to 12; it does not say the seller has them. A seller who stocks two sizes ends up with two versions, and the sizes they never picked are genuinely not offered rather than quietly shown as sold out. Only the seller knows which is true, so only the seller decides.', C.teal);
+note('Not offered, and out of stock, are different answers', 'A buyer choosing black and then looking for size 8 is told one of two things. If the seller never listed black in 8, it says not offered — nobody makes it. If they listed it and have none, it says out of stock — it exists and will come back. Blurring the two sends a buyer away from something they could have waited for, or waiting for something that will never arrive.', C.blue);
+note('Every version is counted and packed separately', 'Each combination has its own code, its own price where it differs, and its own stock at each address. Black in medium can be sold out while black in large is not. Adding one to a basket picks that exact version, and the order records which one was bought, so what is packed is what was chosen.', C.teal);
+note('A pack of ten is not a quantity of ten', 'Where a seller offers a 500 gram packet and a box of ten of them, the box is one version with ten packets in it. A buyer ordering two boxes has ordered twenty packets. The pack size belongs to the version; how many of them somebody wants belongs to the basket. Keeping them apart is what stops an order for two boxes being packed as two packets.', C.orange);
+note('Departments without suggestions still work', 'Some departments have no suggested list — medical devices, and anything a business has added itself. There the seller names the choices and types the values, and everything else behaves the same way. A shop cannot be stopped from selling something just because nobody anticipated it.', C.blue);
+p('When staff approve the listing, every combination the seller marked as on sale becomes a real item in the catalogue with its own code, its own price and its own stock at each address. Combinations switched off are not created at all. From that point the product page shows a chooser, and picking a version updates the price, the picture and whether it can be bought.');
 
 h2('6a.6 Photographs and videos');
 p('A seller uploads real photographs and real videos against a listing. Photographs go into named slots so that everybody knows which picture is which; videos are a separate strip, because a video either exists or it does not.');
@@ -465,12 +538,12 @@ bullets([
 ]);
 note('The decision applies to the version that was read', 'If a seller sends in a newer version while a member of staff has the older one open, or if a colleague has already decided it, the decision is refused and the screen says which of the two happened. Approving a version nobody read is the mistake this prevents, and it is worth preventing because the record would afterwards show that person approving it.', C.orange);
 note('Putting it on sale is what buyers see', 'The moment a seller switches an approved listing on, it appears in its category, in search and in the filter counts of the shop, at the seller’s own price. Pausing it takes it straight back out again. That is the whole meaning of the on-sale switch: the shop shows what somebody is actually selling right now, not everything that has ever been approved.', C.teal);
-note('Whose price a buyer sees', 'Where several sellers offer the same thing, the shop shows the lowest price anyone is currently selling it at, and the basket buys from that seller. Prices are never converted between currencies to make that comparison — a seller who prices in rupees is compared with other rupee prices and with nothing else.', C.purple);
+note('Whose price a buyer sees', 'Where several sellers offer the same thing, the shop shows the lowest price anyone is currently selling it at, and the cart buys from that seller. Prices are never converted between currencies to make that comparison — a seller who prices in rupees is compared with other rupee prices and with nothing else.', C.purple);
 
 h2('6a.8 Running the shop');
 table(['Area', 'What the seller can do'], [
   ['Home', 'See new orders, orders that need dispatching, anything past its dispatch time, sales and earnings for a chosen period, open returns, listings needing attention, and stock running low — all from live figures.'],
-  ['Listings', 'See everything on sale and everything still being written, filter by status and stock, pause or resume a listing, change a price, and duplicate one as the basis for another.'],
+  ['Listings', 'See everything on sale and everything still being written, filter by status and stock, pause or resume a listing, change a price, edit versions and their stock, and duplicate one as the basis for another.'],
   ['Inventory', 'See what is held at each address, set a reorder level, record stock received, and correct a count — with a reason, which is kept on the record.'],
   ['Orders', 'Accept or reject an order, choose which address it ships from, and mark it picked, ready and shipped. Opening one shows what to pack, where to send it, what it earns after commission, and a form for recording a shipment with its carrier and tracking number — including a part shipment, where the quantities are itemised.'],
   ['Payments', 'Read every statement line by line — sales, commission, processing, refunds and adjustments — and see the payouts made against them.'],
@@ -484,10 +557,38 @@ note('Payouts are not set up on this installation', 'No payment provider is conn
 note('One order, split by seller', 'A buyer places a single order. Each seller sees only their own part of it, with its own number and its own dispatch deadline. Sellers are not shown the buyer’s email address, phone number or payment details, and never see another seller’s lines.', C.teal);
 note('Accepting puts the stock aside', 'When a seller accepts an order they say which of their addresses it ships from, and the goods for it are set aside at that address straight away. Nobody else can be sold those units afterwards, and the seller’s own stock figures drop to match everywhere they appear. If there is not enough on the shelf the order cannot be accepted, which is a better answer than accepting one that can never be sent. Cancelling puts the goods back; recording a shipment takes them out for good.', C.teal);
 note('The dispatch deadline comes from the address', 'It is worked out from that address’s own working days, its daily cut-off time and how long it takes to pack — on the local clock there, not the buyer’s. An order accepted after the cut-off starts counting from the next working day, so nobody is marked late for a van that had already gone.', C.blue);
+note('Putting an address on the map', 'Adding an address offers the real places matching what is being typed, and choosing one fills the town, the postal code, the country and the map position together. A map under the form shows the pin before anything is saved, and the list of addresses shows all of them together, so a place put in the wrong town is seen rather than discovered later. An address with no position still works exactly like the rest — it simply says it is not on the map yet.', C.teal);
 note('A shipment can be recorded at any point', 'Marking an order as being picked and then ready to go is there for sellers who want it. A seller who accepts, packs and hands the parcel to a courier can record the shipment straight away — what makes an order shipped is a carrier and a tracking number, not a box being ticked first.', C.purple);
 note('If a figure cannot be worked out', 'Each number on the seller’s home screen is worked out separately. If one of them fails, the screen says so instead of showing a zero — because a seller who reads "no new orders" and goes home is worse off than one who is told the figure is unavailable.', C.purple);
 note('The seller’s own name over their own shop', 'The seller’s workspace is headed by their company logo and trading name, not by the marketplace’s. A business that has not uploaded a logo yet sees its own initial instead — never somebody else’s mark over its name. The logo is uploaded and replaced on the Profile screen.', C.blue);
 note('A brand new seller is not shown a screen of zeroes', 'Until a business has listed something, its home screen does not draw the figures at all. It shows the three things to do first — finish the account, add the first product, get ready for orders — with how far through setting up it is underneath. Twenty numbers all reading nought say nothing, and no sales on the day somebody joined is not news.', C.teal);
+
+h2('6a.8a Adding versions to something already on sale');
+p('Most sellers have listings that were created before versions existed: one product, one code, one price, with a rack of four sizes behind it and no way to say so. Deleting the listing and creating it again would throw away its code, its sales history and its link to past orders, so the versions are added to the listing that is already there.');
+table(['What the seller does', 'What the system does'], [
+  ['Opens a listing from their listings table.', 'Shows every version they currently sell of that product. A listing with none says so plainly.'],
+  ['Pauses it.', 'Required before versions can be added, because it changes what a buyer is choosing between on a page somebody may have open. Orders already placed are not affected.'],
+  ['Picks the options and lists the values they stock.', 'Suggests what that department is normally sold by, with nothing chosen for them.'],
+  ['Builds and prices the table.', 'Suggests a code for each combination and starts each at the listing’s existing price, which the seller can change.'],
+  ['Saves.', 'Creates each version alongside the original listing, which keeps its code and its history. New versions are created off sale.'],
+  ['Switches each new version on when its stock is real.', 'Only then does it appear to buyers, at that version’s own price.'],
+], [4400, 5600]);
+note('Nothing is guessed from the old listing', 'A product called "Raymond, Suits & Clothing" is obviously a suit, and a suit is usually sold in sizes 38 to 44 — and offering those as a ready-made table would save the seller a minute while putting four sizes on a product page that nobody has confirmed anyone can send. The department suggests the options; the seller says which sizes they actually have.', C.teal);
+note('The original listing is never destroyed', 'It keeps its code, its price and every order that refers to it, and it appears in the table as "no particular version". Whether to archive it, pause it or leave it selling is the seller’s decision afterwards — it is the row their past orders point at, and nothing here can know which they intended.', C.blue);
+note('Saving twice adds nothing twice', 'Versions are matched by the combination they describe, so one that is already listed is skipped rather than created again or overwritten. A seller adding one more size to a range of six does not have to re-enter the prices of the six.', C.teal);
+
+h2('6a.8b Taking something off sale to change it');
+p('A seller who needs to change something on a listing that is already selling does not have to delete it and start again — doing that would throw away its code, its history and its link to past orders. Instead they pause it, make the change, and put it back on sale.');
+table(['What the seller does', 'What the system does'], [
+  ['Presses Pause on a listing that is on sale.', 'Asks them to confirm, and says plainly what will happen and what will not.'],
+  ['Optionally writes down why.', 'Keeps the note for the seller’s own team. Buyers never see it. It shows beside the listing so somebody looking at it weeks later knows whether it is waiting for stock or has been withdrawn.'],
+  ['Changes whatever needs changing.', 'Everything stays editable while it is paused — title, pictures, description, price, versions, stock and compliance details.'],
+  ['Presses Put on sale.', 'Checks the listing is fit to sell again before letting it back, and if it is not, says the one thing that needs fixing.'],
+], [4200, 5800]);
+note('What pausing does, and what it does not', 'A paused listing disappears from search and cannot be added to a basket, and anybody who already had it in their basket is told it is unavailable. Orders already placed are not affected at all — they still have to be packed and sent, and the delivery carries on exactly as before. Stock, codes and sales history are all kept.', C.blue);
+note('Putting it back on sale is checked, not assumed', 'Pausing is what a seller does in order to change things, so the state it was paused in is not the state it is coming back in. Before it goes live again the system checks it still has a code, a price, a previous price that is not lower than the price, stock that is not negative, and a product and version that are both still active. A listing paused to fix a price and put back with the price box empty would otherwise go on sale at nothing.', C.orange);
+note('Some listings cannot simply be resumed', 'Where the marketplace has stopped a listing itself — an expired certificate, a brand that was withdrawn — there is no Put on sale button, and the system refuses it as well. That state exists to stop something being sold, and a button that overrode it would make it meaningless. The seller fixes the thing that is wrong and the listing becomes resumable.', C.orange);
+note('Archiving is not pausing', 'A listing that is finished with is archived rather than deleted. It is kept so that past orders still make sense, hidden from selling, and never removed while an order refers to it.', C.teal);
 
 h2('6a.9 Who can do what inside a seller business');
 table(['Role', 'What they can do'], [
@@ -535,22 +636,18 @@ table(['Staff role', 'Main abilities'], [
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
-p('The console opens on the work waiting for the team this morning, with the month’s trading figures underneath it. The two are kept apart on purpose: the figures below are read once a week, and a queue nobody has looked at is a seller waiting four days for a decision.');
+p('The console opens on the work waiting for the team this morning, and on nothing else: one ring, and beside it a short written summary of what the ring shows. The month’s trading figures used to sit underneath and were moved out, because they are read once a week and a queue nobody has looked at is a seller waiting four days for a decision. Every one of those figures is on the screen that owns it — Reports, Orders, Payments, Inventory, Recurring — all still in the menu.');
 bullets([
   'A ring shows everything waiting, in five groups: approvals, payments, stock, deliveries and the platform itself.',
-  'Choosing a group lists the queues inside it, and every one links straight to the screen where that work is decided.',
+  'Choosing a group singles it out, and the written summary beside the ring is then about that group. The screens where that work is decided are in the menu on the left.',
   'A member of staff only ever sees the queues they are allowed to act on. A queue somebody cannot act on is absent from their chart rather than shown as an empty one, so the chart never reveals that a queue exists to somebody who may not see it.',
   'Work somebody has already taken on, or already finished, is not counted as waiting. A number nobody can clear is a number everybody learns to ignore.',
   'The reporting period can be today, the last seven days, the last thirty days, or any two dates.',
 ]);
-h2('7.3a The trading figures');
+h2('7.3a The trading figures, and the bell');
+p('The month’s figures are not on the dashboard. They are on Reports, which is where somebody goes to read them properly: orders, gross sales, collected payments, net revenue, average order value, low stock and upcoming repeat orders, each against the period before it and each showing the shape of the days behind it, so a total that arrived in one afternoon does not look like a steady month. Where the period before holds nothing to compare against, the figure says so rather than showing a rise out of nothing.');
 bullets([
-  'See orders, gross sales, collected payments, net revenue, average order value, low-stock information and upcoming recurring orders.',
-  'See how each of those figures compares with the period before it, and the shape of the days behind it, so a total that arrived in one afternoon does not look like a steady month.',
-  'Where the period before holds nothing to compare against, the figure says so rather than showing a rise out of nothing.',
-  'See where every order in the period sits, as one bar running from the earliest stage to delivered, with the exact counts listed beside it and in the table underneath.',
   'Change reporting period and refresh business totals.',
-  'Open linked items from dashboard cards, order-status summaries and payment summaries.',
   'Use the notification bell for events such as staff sign-ins, customer activity, order/payment changes, certificates a seller has sent in, and operational alerts.',
 ]);
 p('The bell keeps two kinds of message apart, because they finish in opposite ways. Something that simply happened — a customer placed an order, a colleague signed in — is finished when the person looking at it has read it, and reading it changes nothing for anybody else. Something that has gone wrong — a delivery that failed, goods that got too warm, a data protection request with a legal deadline running, a certificate nobody has decided — stays on the bell until the problem itself is dealt with, for everybody, however many people have looked at it.');
@@ -593,15 +690,36 @@ table(['Admin feature', 'What staff can do'], [
   ['Packaging', 'Review how each size is boxed, the figures read from the supplier sheet, and the text they were read from.'],
   ['Source record', 'See which file and row a product came from, with the licence, capacity and internal status columns that came with it.'],
 ], [3000, 7000]);
+h2('8.1a Building the forms a product comes in');
+p('A product that comes in several forms needs one entry per form, each with its own reference number, price and stock. Typing forty of those by hand is slow and it is where mistakes get made, so staff are given a builder instead.');
+p('Every section of the catalogue carries a suggested list of the ways things on that shelf are normally sold. Cables are normally sold by number of cores, thickness and length. Clothing is normally sold by size and colour. Twenty-four departments and a hundred and twelve sections each carry their own list, so a member of staff listing a cable is asked about cable things and a member of staff listing a lipstick is asked about lipstick things.');
+table(['Step', 'What staff do'], [
+  ['1. Choose what this product varies by', 'Switch on only the ways this product really differs. The suggested list is advice, not a form to fill in: a product that comes in one colour has nothing switched on for colour.'],
+  ['2. Enter the values', 'Pick from the suggestions with one tap, or type values of their own. Values can be reordered, because the order is the order a buyer sees.'],
+  ['3. Look at the table', 'Every combination is listed, with the reference number it would be given and whether it already exists. Nothing is saved yet.'],
+  ['4. Save', 'Only the new rows are created. Anything that already exists is left exactly as it is.'],
+], [3200, 6800]);
+bullets([
+  'Generating never deletes anything and never overwrites anything. A form that already exists keeps its price, its stock and any reference number staff typed themselves, so the builder is safe to use twice — and people do use it twice.',
+  'Reference numbers are suggested, not imposed. The same combination always gets the same suggestion, so running the builder again does not change numbers already printed on labels, and any of them can be edited in the table before saving.',
+  'The builder warns above a hundred combinations and refuses above five hundred. Neither is a technical limit; both are the point past which nobody reads the table before saving it.',
+  'Two forms of one product can never describe themselves the same way. “Black” and “black” are one colour, and the system refuses the second rather than leaving two identical rows a buyer could be given either of.',
+  'Switching off one of the ways a product varies is not destructive. Forms that already carry a value for it keep it and keep selling; it simply stops being offered as a choice. Staff are told how many are affected before saving.',
+  'Each form can carry its own price, its own “was” price, its own barcode, its own smallest order and step, its own lead time, its own pack make-up, its own shipping weight and box size, and its own photographs. Anything left blank uses the product’s own figure.',
+  'A “was” price below the price it is being compared against is refused. A saving that is not a saving is worse than no saving shown.',
+  'Sections of the catalogue with no suggested list — including medical devices — keep the simpler editor they have always had, where staff describe each form in their own words.',
+]);
+note('What is not one of the ways a product varies', 'Country of origin, warranty wording and installation notes describe the product but do not change what leaves the warehouse — they are specifications. A smallest order of ten boxes is a term of trade, told to the buyer rather than chosen by them. A batch number and an expiry date belong to the stock sitting in a warehouse: a 500 g packet is the same product whichever delivery it came out of, and treating a batch as a form of the product would give the catalogue a new reference number every week.', C.purple);
+
 h2('8.2 Price on request, and taking something off sale');
 p('Two switches decide whether a customer may buy a product. They are separate from publishing, which decides whether a customer may see it at all.');
 table(['Setting', 'What the customer sees', 'When to use it'], [
-  ['Price on request', 'The listing shows “Request a quote” where the price would be. Nothing can be added to a basket.', 'A range the business quotes per account, or per volume, rather than at a list price.'],
+  ['Price on request', 'The listing shows “Request a quote” where the price would be. Nothing can be added to a cart.', 'A range the business quotes per account, or per volume, rather than at a list price.'],
   ['Available to order (off)', 'The listing, the specifications and the packaging stay readable. A notice says it cannot be ordered, in the words the business chose.', 'A product that is made but held this month. Unpublishing would make the page disappear entirely.'],
 ], [2200, 4400, 3400]);
 bullets([
   'A product priced on request can be published without a price, and without a photograph. Everything else still has to be complete.',
-  'Both settings are enforced by the system on every basket change and again at checkout, so they cannot be worked around from a browser.',
+  'Both settings are enforced by the system on every cart change and again at checkout, so they cannot be worked around from a browser.',
   'A product with a real price still needs a photograph before it can be published.',
 ]);
 h2('8.3 Loading a supplier product sheet');
@@ -627,7 +745,7 @@ note('Where duplicates go', 'Supplier sheets often reuse a product code or a bar
 h2('8.4 Placeholder prices');
 p('A catalogue loaded from a supplier sheet usually arrives with no prices. Until the real figures are agreed, the system can put a placeholder on every unpriced product so the shop can be opened, shown to people and tested all the way through checkout.');
 bullets([
-  'A product with a placeholder behaves like any other: it can be added to a basket, bought, and put on a repeating plan.',
+  'A product with a placeholder behaves like any other: it can be added to a cart, bought, and put on a repeating plan.',
   'Where the supplier sheet listed its own figure, that is used. Everything else gets one flat, obviously temporary amount.',
   'Every placeholder is marked as one, and the product page in the Admin Panel says so plainly.',
   'Typing a real price clears the mark by itself — there is nothing separate to remember to untick.',
@@ -692,7 +810,7 @@ h2('6a.11 A seller’s own shop front');
 p('A seller can be given a web address of their own — their name in front of the marketplace’s, such as northwind.example.com. Opening it shows their shop and nobody else’s: their products, their prices, their name at the top and their support details at the bottom. Somebody buying there is buying from them.');
 table(['What a buyer sees there', 'How it differs from the marketplace’s own shop'], [
   ['Only that seller’s products', 'Anything the seller does not sell is simply not in the shop, even if the marketplace sells it. Opening a link to one says the page cannot be found.'],
-  ['That seller’s prices', 'Every figure — in the list, on the product, in the basket — is the seller’s own. The marketplace’s price is never shown there.'],
+  ['That seller’s prices', 'Every figure — in the list, on the product, in the cart — is the seller’s own. The marketplace’s price is never shown there.'],
   ['That seller’s name and contact details', 'The shop is branded to them, and questions go to them rather than to the marketplace.'],
   ['Category counts that match the shelf', 'A category saying four means four, not the number the marketplace as a whole has.'],
 ], [3200, 6800]);
@@ -703,7 +821,7 @@ note('The address decides the seller', 'Nothing a visitor can change decides who
 note('An address that belongs to nobody', 'A made-up name in front of the domain shows “no shop here” rather than quietly showing the marketplace’s own shop under somebody else’s name. A seller who has been suspended has no shop either.', C.purple);
 note('Off unless it is set up', 'A business that sells everything itself never sees any of this. Seller addresses only exist once the business configures the domain they hang off.', C.teal);
 
-note('Buying from a seller', 'Goods bought from a seller leave that seller’s own building, so the buyer is never asked to choose one of the marketplace’s warehouses for them. Checkout says who is sending the order instead, and the seller confirms the dispatch date when they accept it. A basket holding both — something from the marketplace and something from a seller — asks the warehouse question only about the part the marketplace is sending, and says plainly that the rest comes separately and may arrive on a different day.', C.blue);
+note('Buying from a seller', 'Goods bought from a seller leave that seller’s own building, so the buyer is never asked to choose one of the marketplace’s warehouses for them. Checkout says who is sending the order instead, and the seller confirms the dispatch date when they accept it. A cart holding both — something from the marketplace and something from a seller — asks the warehouse question only about the part the marketplace is sending, and says plainly that the rest comes separately and may arrive on a different day.', C.blue);
 note('The order follows the seller', 'On an order nobody at the marketplace packs, the buyer’s order still moves through “being prepared”, “on its way” and “delivered” as the seller works through it. It only says on its way once every seller involved has dispatched — one of three sending a parcel is not an order that has shipped. The buyer’s tracking list names who sent each parcel, so two boxes arriving on two days can be told apart.', C.teal);
 note('When a seller is paid', 'An order a seller is part of is split the moment it is paid for, not when it is placed — an unpaid order is not work anybody should start. Each seller then gets their own copy of it with its own number, its own status and its own money: what the goods came to, what the marketplace kept, and what is left for them. The rate used is stored with the figure, so a statement can always be checked afterwards.', C.blue);
 note('What the marketplace keeps', 'A percentage of the goods only. Never of the tax, which is money passing through the seller to a tax authority, and never of the delivery charge, which is recovery of a cost rather than earnings. A seller on an agreed rate of their own keeps it when the standard rate changes.', C.teal);
@@ -731,6 +849,7 @@ p('The Warehouses screen is where staff manage physical places that hold stock. 
 table(['Warehouse detail', 'What staff can manage'], [
   ['Identity and address', 'Unique warehouse code, warehouse name, address, country and timezone.'],
   ['Map location', 'Latitude/longitude, address lookup and map display when a map provider is configured.'],
+  ['Address suggestions', 'Start typing the address and choose the right place from a list. The town, region, postal code, country and map position are all filled in together, and the map beside the form shows the pin straight away so it can be checked before saving. A part the lookup does not know is left exactly as typed.'],
   ['Operational state', 'Operational, limited, maintenance or suspended status.'],
   ['Active/default status', 'Retire a warehouse safely; maintain the default warehouse used when an incoming receipt has no location.'],
   ['Delivery promise', 'Delivery radius, lead-time range and delivery fee/currency for customer warehouse-choice information.'],
@@ -754,7 +873,7 @@ bullets([
   'Warehouse codes are unique and are stamped on stock movements for traceability.',
   'Active and operational are separate: a warehouse can remain a valid record but be temporarily unable to ship.',
 ]);
-note('Customer and warehouse link', 'Customers can see eligible shipping warehouses in the basket. Admin staff configure the warehouse delivery range, operating state, lead time and fee information that makes this possible.', C.orange);
+note('Customer and warehouse link', 'Customers can see eligible shipping warehouses in the cart. Admin staff configure the warehouse delivery range, operating state, lead time and fee information that makes this possible.', C.orange);
 h2('9.4 Seeing where sellers dispatch from');
 p('On a marketplace, a growing share of what a buyer orders never passes through a building the business owns. It ships from a seller’s own depot. The Warehouses screen therefore offers three views, chosen by a control under the title: the business’s own warehouses, one seller company’s dispatch places, or every seller’s at once.');
 bullets([
@@ -927,7 +1046,7 @@ note('Telephone numbers are hidden by default', 'A contact number is shown with 
 
 h2('12a.4 The carrier’s own screens');
 table(['Screen', 'What it is for'], [
-  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised. A ring across the top shows the whole workload split into the eight stages a dispatcher does something about — see below.'],
+  ['Dashboard', 'One ring showing the whole workload split into the eight stages a dispatcher does something about, and beside it a short written summary of what the ring shows. Nothing else — see below.'],
   ['Consignments', 'The full list, with filters, search, saved filters and a spreadsheet export of whatever is on screen. It can be narrowed to one driver, or to only the deliveries with a problem open on them.'],
   ['One consignment', 'The route, everything that has happened to it, the boxes, the contacts and the documents — where the status is changed, and who is driving it, including everyone who has driven it before and why it moved.'],
   ['Collections', 'What has to be picked up, and confirming that it was.'],
@@ -942,9 +1061,9 @@ note('No pretend tracking', 'Where nothing has reported a position, the map says
 note('What the buyer sees when the haulage company moves it', 'The moment a carrier records that they have collected a parcel, the buyer’s own order page moves on with it — to “being prepared” and then “on its way”, each with a line saying a carrier now has it. The buyer is never shown the word consignment, and never has to go looking somewhere else to find out where their order has got to. When the carrier confirms the delivery, and every parcel on the order has arrived, the order says delivered. An order that has already been cancelled is left alone.', C.teal);
 
 h2('12a.4a The dashboard ring');
-p('The first thing a dispatcher sees is a ring of everything assigned to their company, split into the eight stages somebody actually does something about: waiting for your answer, accepted, collected, in transit, out for delivery, delivered, a problem, and going back or cancelled.');
+p('The dispatcher’s whole dashboard is a ring of everything assigned to their company, split into the eight stages somebody actually does something about — waiting for your answer, accepted, collected, in transit, out for delivery, delivered, a problem, and going back or cancelled — with a short written summary of it beside. There is nothing underneath: the counters, the service figures, the problems, the pickups and the day’s deliveries each have a screen of their own, all still in the menu.');
 bullets([
-  'Choosing a stage filters the list underneath it, and opens the same set on the Consignments screen.',
+  'Choosing a stage singles it out, and the written summary beside the ring is then about that stage. The same set can be opened in full on the Consignments screen.',
   'The exact counts and percentages are listed beside the ring, and the same figures can be shown as a table, so nothing has to be read off the picture.',
   'A failed delivery is never shown the same way as a completed one. A parcel going back is shown as work with a different destination rather than as something that has gone wrong.',
   'The period can be today, the last seven days, the last thirty days, or any two dates.',
@@ -1075,12 +1194,15 @@ bullets([
 h2('14.2 Accessibility and responsive use');
 bullets([
   'Customer and admin interfaces are responsive for desktop and smaller screens.',
-  'The account sidebar becomes an accessible disclosure on smaller screens rather than disappearing.',
+  'The shop, the admin panel and the carrier portal all use the same side menu: a narrow strip of symbols that widens into full labels when you point at it or reach it with the keyboard, and gives the rest of the width back to the page when you move away.',
+  'On a phone or a small tablet that side menu becomes a panel you open from a button and close with a tap, the Escape key or the button it came from, rather than disappearing.',
   'Controls, status indicators and forms use labelled accessible patterns.',
   'The system includes light/dark theme support and contrast checking.',
   'The shop, the admin panel and the carrier portal are each translated into eight languages, and every page of all three changes when the reader picks a language.',
   'The language picker is on every page, including the sign-in and password pages, so somebody who cannot read the interface does not have to navigate to a settings page first.',
   'Each of the three keeps its own language choice, so choosing Greek in one does not change the other two for the same person.',
+  'On a wide screen, the sign-in and create-account pages of all three put the form on one side and a slowly turning picture of the earth on the other, with a marker on each of fifteen shipping ports around the world. It is a picture and nothing more: it holds no wording and nothing to press, screen readers skip it, and everything a person has to read or fill in is in the column beside it.',
+  'That picture is left out on a narrow screen, on a computer that cannot draw it, and for anybody whose device is set to reduce movement, who is shown a still one instead. In every one of those cases the page is complete, and the form itself is unchanged.',
 ]);
 h2('14.3 Data accuracy');
 bullets([
@@ -1104,8 +1226,10 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Customer ERP', 'Requires customer integration path/configuration and safe endpoint validation.'],
   ['Live monday.com connections', 'Requires the store to register an application with monday.com and hold its details in configuration. Without one, customers can still set up a monday.com test connection.'],
   ['Warehouse map provider', 'Works with configured Google Maps, vector-map or raster-tile settings; the screen still works without a map background.'],
+  ['Satellite view', 'Appears once the business points the system at a satellite imagery service. With a map already configured the two are combined: the photograph underneath, and the roads, borders and place names drawn on top so the map can still be read. Without it the map looks exactly as it did.'],
+  ['Address suggestions', 'Appear once the business points the system at an address lookup service, which it does out of the box. Typing an address offers the real places matching it, and choosing one fills the rest of the address and the map position together. Without the service every address field is an ordinary box that still works.'],
   ['AI assistant / image search', 'Requires assistant configuration. Asking without an account is a separate setting and starts switched off.'],
-  ['Dashboard insights panel', 'Present on all three dashboards whether or not an AI provider is configured. With one, the summary is written by the provider. Without one — which is how the software arrives — the panel builds the same summary from the figures itself and says so on screen. See 15.1.'],
+  ['Dashboard insights panel', 'Present on all three dashboards whether or not an AI provider is configured, and it is half of what a dashboard is: the chart, and this. With a provider, the summary is written by the provider. Without one — which is how the software arrives — the panel builds the same summary from the figures itself and says so on screen. See 15.1.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
@@ -1114,13 +1238,14 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Logistics partner portal', 'Turned on by the logistics feature. Gives haulage companies their own place to work and the business its own view of every delivery. Off, and none of chapter 12a exists. On, it works straight away with carriers whose staff record each status themselves; connecting a haulage company’s computer system needs that company’s own credentials, and until they are in place the system says so rather than pretending.'],
 ], [3500, 6500]);
 h2('15.1 The insights panel on each dashboard');
-p('Beside the chart on every dashboard is a panel that explains the figures in plain words, answers a typed question about them, and says what to look at first. It is there to help somebody read the screen. It cannot do anything.');
+p('Beside the chart on every dashboard is a panel that explains the figures in plain words and answers a typed question about them. It is there to help somebody read the screen. It cannot do anything.');
+p('It is deliberately small: a short paragraph, one line saying when it was written and by which provider, and a box to type a question in. It is a note about the chart, not a second screen beside it, and the questions worth asking appear one at a time in the box itself.');
 bullets([
   'It only ever talks about figures the person is already allowed to see. A buyer’s panel is built from that buyer’s own orders, a haulage company’s from its own deliveries, and a member of staff’s from the queues they are allowed to act on.',
   'Nothing that names anybody is sent to the provider. Counts and totals only — no order numbers, no company names, no addresses, no card details.',
-  'Every statement it makes points at a figure shown on the same screen, and the panel lists them underneath the answer so they can be checked. Anything it says that does not point at one of those figures is removed before the answer reaches the screen.',
+  'Every statement it makes has to point at a figure the system worked out itself. Anything it says that does not point at one of those figures is removed before the answer reaches the screen.',
   'It never invents a number. The figures are worked out by the system before the question is asked, and the provider is only asked to explain and prioritise them.',
-  'It cannot approve a seller, take a payment, assign a driver, change a delivery status or close a problem. What it offers is a link to the screen where a person does that.',
+  'It cannot approve a seller, take a payment, assign a driver, change a delivery status or close a problem. There is nothing to press on it but “explain” and “ask”; that work is done by a person, on the screen that owns it.',
   'Where no provider is configured, the panel builds the same summary itself from the same figures, marks clearly that it did so, and carries on working. The software arrives this way.',
   'The same honest fallback covers a provider that is too busy, out of quota, or slow to answer, so the panel can never stop a dashboard from loading.',
   'Nobody can reach it without signing in, and there is a limit on how often it can be asked.',
@@ -1136,7 +1261,7 @@ h2('Example A — Customer buys a product');
 table(['Step', 'Customer action', 'System response'], [
   ['1', 'Opens home page and searches products.', 'Shows catalogue items available in the chosen country/currency.'],
   ['2', 'Opens a product, chooses variant and how many — cartons where the shop is selling it, pieces where an outside seller is.', 'Checks product/variant relationship and quantity rules, and shows what the choice comes to in pieces.'],
-  ['3', 'Adds item to basket.', 'Works out who is selling the line first, then turns the chosen quantity into pieces — by its own carton size for the shop’s own goods, and one for one for a seller’s. Stores the basket line and recalculates server-owned totals.'],
+  ['3', 'Adds item to cart.', 'Works out who is selling the line first, then turns the chosen quantity into pieces — by its own carton size for the shop’s own goods, and one for one for a seller’s. Stores the cart line and recalculates server-owned totals.'],
   ['4', 'Reviews “Where this can ship from”.', 'Shows eligible warehouses, lead-time/fee information and any partial-stock warnings.'],
   ['5', 'Chooses a warehouse preference and continues.', 'Records preference; actual total remains the clearly shown checkout total.'],
   ['6', 'Selects address/payment choice and places order.', 'Creates one order, reserves stock, applies tax/coupon/limits and starts payment/approval path.'],
@@ -1199,8 +1324,8 @@ table(['Step', 'Who acts', 'What happens'], [
   ['2', 'A member of staff', 'Approves it. A catalogue entry now exists, switched off — nothing is on sale yet.'],
   ['3', 'The seller', 'Sets their price and stock and switches the listing on.'],
   ['4', 'The system', 'Puts the product on the shop’s shelf at that seller’s price, in the same moment — so it appears in its category, in search and in the filter counts straight away.'],
-  ['5', 'A buyer', 'Opens that category, sees the product, and adds it to their basket.'],
-  ['6', 'The system', 'Attaches that seller to the basket line, so the price shown is the price charged, the order reaches the seller who has to pack it, and the commission is worked out against the right agreement.'],
+  ['5', 'A buyer', 'Opens that category, sees the product, and adds it to their cart.'],
+  ['6', 'The system', 'Attaches that seller to the cart line, so the price shown is the price charged, the order reaches the seller who has to pack it, and the commission is worked out against the right agreement.'],
   ['7', 'The seller', 'Pauses the listing later — to restock, or because it is withdrawn.'],
   ['8', 'The system', 'Takes it out of every category at once. A buyer cannot find or order something nobody is selling.'],
 ], [700, 2300, 7000]);

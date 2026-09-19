@@ -474,10 +474,20 @@ export const router = createBrowserRouter([
           import('@/pages/seller/SellerListingsPage').then((m) => m.SellerListingsPage),
         ),
       },
+      /*
+       * One listing, and the versions it sells in.
+       *
+       * Used to render the listings table again, so "Edit" on a live listing
+       * went to a page that looked identical to the one it was pressed from.
+       * It is its own screen because the errand is its own: a seller opens it
+       * to add the sizes a product has always come in and was listed without.
+       */
       {
         path: 'listings/:id',
         ...accountPage(() =>
-          import('@/pages/seller/SellerListingsPage').then((m) => m.SellerListingsPage),
+          import('@/pages/seller/SellerListingDetailPage').then(
+            (m) => m.SellerListingDetailPage,
+          ),
         ),
       },
       /*

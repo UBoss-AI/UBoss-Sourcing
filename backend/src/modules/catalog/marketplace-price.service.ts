@@ -56,31 +56,68 @@ const NO_VARIANT_KEY = '';
 
 type Client = PrismaTransaction | typeof prisma;
 
+/** One price row this product should end up with. */
+interface PriceRow {
+  variantKey: string;
+  currency: string;
+  priceMinor: bigint;
+}
+
 /**
- * The cheapest live offer per currency, for one product.
+ * The cheapest live offer per variant per currency, for one product.
  *
  * `groupBy` rather than reading every offer: a popular product may carry
  * dozens, and this runs inside the transaction of a seller pressing "put back
  * on sale". `_min` over the price is the whole question being asked.
+ *
+ * GROUPED BY VARIANT AS WELL AS CURRENCY, and that is what lets a seller's
+ * size run reach a shopper. A seller who lists a shirt in four sizes gets four
+ * offers, each against its own variant, and a shopper choosing "Large" has to
+ * be shown the price of the large one. Grouping by currency alone would
+ * publish one figure for the whole shirt and quietly charge a different one.
+ *
+ * THE BASE ROW IS SYNTHESISED FROM THE CHEAPEST OF THEM. The storefront grid
+ * is rooted at the `variantKey: ''` row, so a product whose every offer is
+ * against a variant - which is now the normal shape for anything sold in
+ * sizes - would otherwise be priced correctly on its own page and invisible
+ * in every category, search result and facet count. The base row is the
+ * "from" price: the cheapest thing a shopper could actually buy.
  */
-async function cheapestLiveOffers(
-  client: Client,
-  productId: string,
-): Promise<{ currency: string; priceMinor: bigint }[]> {
+async function liveOfferPrices(client: Client, productId: string): Promise<PriceRow[]> {
   const groups = await client.sellerOffer.groupBy({
-    by: ['currency'],
+    by: ['variantKey', 'currency'],
     where: {
       productId,
-      variantKey: NO_VARIANT_KEY,
       status: 'ACTIVE',
       archivedAt: null,
     },
     _min: { priceMinor: true },
   });
 
-  return groups
+  const rows: PriceRow[] = groups
     .filter((group) => group._min.priceMinor !== null)
-    .map((group) => ({ currency: group.currency, priceMinor: group._min.priceMinor as bigint }));
+    .map((group) => ({
+      variantKey: group.variantKey,
+      currency: group.currency,
+      priceMinor: group._min.priceMinor as bigint,
+    }));
+
+  // The "from" price per currency, across every variant. Written under the
+  // empty variant key, which is where the grid reads.
+  const cheapestPerCurrency = new Map<string, bigint>();
+  for (const row of rows) {
+    const seen = cheapestPerCurrency.get(row.currency);
+    if (seen === undefined || row.priceMinor < seen) {
+      cheapestPerCurrency.set(row.currency, row.priceMinor);
+    }
+  }
+
+  const withBase = rows.filter((row) => row.variantKey !== NO_VARIANT_KEY);
+  for (const [currency, priceMinor] of cheapestPerCurrency) {
+    withBase.push({ variantKey: NO_VARIANT_KEY, currency, priceMinor });
+  }
+
+  return withBase;
 }
 
 /**
@@ -94,13 +131,17 @@ async function cheapestLiveOffers(
 async function compareAtFor(
   client: Client,
   productId: string,
+  variantKey: string,
   currency: string,
   priceMinor: bigint,
 ): Promise<bigint | null> {
   const offer = await client.sellerOffer.findFirst({
     where: {
       productId,
-      variantKey: NO_VARIANT_KEY,
+      // The base row's price came from whichever variant was cheapest, so its
+      // was-price has to come from that same offer rather than from a
+      // base-product offer that may not exist at all.
+      ...(variantKey === NO_VARIANT_KEY ? {} : { variantKey }),
       status: 'ACTIVE',
       archivedAt: null,
       currency,
@@ -128,8 +169,8 @@ export async function syncMarketplacePrice(client: Client, productId: string): P
 
   if (product === null || !product.isMarketplaceProduct) return;
 
-  const live = await cheapestLiveOffers(client, productId);
-  const currencies = live.map((entry) => entry.currency);
+  const live = await liveOfferPrices(client, productId);
+  const currencies = [...new Set(live.map((entry) => entry.currency))];
 
   /*
    * Currencies this deployment does not hold are skipped rather than written.
@@ -152,22 +193,37 @@ export async function syncMarketplacePrice(client: Client, productId: string): P
 
   const usable = live.filter((entry) => known.includes(entry.currency));
 
-  // Gone first: a seller who switched currency leaves a row behind on the old
-  // one, and a row nothing points at is a product on a shelf nobody stocks.
-  await client.productPrice.deleteMany({
-    where: {
-      productId,
-      variantKey: NO_VARIANT_KEY,
-      ...(usable.length === 0
-        ? {}
-        : { currencyCode: { notIn: usable.map((entry) => entry.currency) } }),
-    },
+  /*
+   * Gone first: a seller who switched currency leaves a row behind on the old
+   * one, and a row nothing points at is a product on a shelf nobody stocks.
+   *
+   * Scoped by the (variant, currency) PAIR rather than by currency alone,
+   * because a seller who stops offering one size must lose that size's price
+   * row while every other size keeps its own. A composite NOT IN is not
+   * something Prisma expresses against MariaDB, so the surviving pairs are
+   * matched in memory and the rest deleted by id - a handful of rows per
+   * product, read once.
+   */
+  const keep = new Set(usable.map((entry) => `${entry.variantKey}\u0000${entry.currency}`));
+
+  const existing = await client.productPrice.findMany({
+    where: { productId },
+    select: { id: true, variantKey: true, currencyCode: true },
   });
+
+  const stale = existing
+    .filter((row) => !keep.has(`${row.variantKey}\u0000${row.currencyCode}`))
+    .map((row) => row.id);
+
+  if (stale.length > 0) {
+    await client.productPrice.deleteMany({ where: { id: { in: stale } } });
+  }
 
   for (const entry of usable) {
     const compareAtPriceMinor = await compareAtFor(
       client,
       productId,
+      entry.variantKey,
       entry.currency,
       entry.priceMinor,
     );
@@ -176,17 +232,20 @@ export async function syncMarketplacePrice(client: Client, productId: string): P
       where: {
         productId_variantKey_currencyCode: {
           productId,
-          variantKey: NO_VARIANT_KEY,
+          variantKey: entry.variantKey,
           currencyCode: entry.currency,
         },
       },
       create: {
         id: newId(),
         productId,
-        variantKey: NO_VARIANT_KEY,
+        variantKey: entry.variantKey,
         currencyCode: entry.currency,
         basePriceMinor: entry.priceMinor,
         compareAtPriceMinor,
+        // A variant row has to name its variant as well as its key: the
+        // product page joins on `variantId` when it prices the selector.
+        ...(entry.variantKey === NO_VARIANT_KEY ? {} : { variantId: entry.variantKey }),
       },
       update: { basePriceMinor: entry.priceMinor, compareAtPriceMinor },
     });

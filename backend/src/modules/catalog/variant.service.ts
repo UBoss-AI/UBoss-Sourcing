@@ -12,6 +12,7 @@
 import type { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import { signatureOfMap } from '../../domain/variants/axis.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -24,7 +25,35 @@ export interface VariantActor {
   correlationId?: string | null;
 }
 
-export interface VariantInput {
+/**
+ * What one purchasable unit contains, and how it trades.
+ *
+ * Every field optional and every one meaning "inherit from the product family"
+ * when absent. That is what every variant written before these existed says,
+ * so nothing about them changed.
+ */
+export interface VariantCommerceInput {
+  compareAtPriceMinor?: string | null;
+  minOrderQty?: number | null;
+  qtyIncrement?: number | null;
+  maxOrderQty?: number | null;
+  leadTimeDays?: number | null;
+  multipackCount?: number | null;
+  netContentValue?: string | null;
+  netContentUnit?: string | null;
+  unitPricingBaseValue?: string | null;
+  unitPricingBaseUnit?: string | null;
+  manufacturerPackLabel?: string | null;
+  shippingWeightGrams?: number | null;
+  shippingLengthMm?: number | null;
+  shippingWidthMm?: number | null;
+  shippingHeightMm?: number | null;
+  shippingClass?: string | null;
+  gtin?: string | null;
+  modelIdentifier?: string | null;
+}
+
+export interface VariantInput extends VariantCommerceInput {
   sku: string;
   name: string;
   /** Selected option values, e.g. { "Size": "1L", "Pack": "12" }. */
@@ -61,6 +90,174 @@ function parseMinor(value: string, field: string): bigint {
     ]);
   }
   return BigInt(value.trim());
+}
+
+/**
+ * The signature for a set of options, refused rather than mangled.
+ *
+ * `signatureOfMap` throws when one axis appears twice under two spellings -
+ * `{ "Colour": "Black", "colour": "Brown" }` - which is a request that cannot
+ * mean anything. Turning it into a 400 here rather than letting it reach the
+ * database means the caller is told which field is wrong.
+ */
+function signatureFor(options: Record<string, string>): string {
+  try {
+    return signatureOfMap(options);
+  } catch (error) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, (error as Error).message, [
+      { field: 'options', code: 'DUPLICATE_AXIS' },
+    ]);
+  }
+}
+
+/**
+ * No two variants of one product may describe themselves identically.
+ *
+ * The database says the same thing with a unique index, and this exists so the
+ * answer is a named error code the two frontends already map to a message
+ * rather than a 500 with a constraint name in it.
+ */
+async function assertSignatureAvailable(
+  productId: string,
+  signature: string,
+  excludeVariantId: string | null,
+): Promise<void> {
+  const clash = await prisma.productVariant.findFirst({
+    where: { productId, optionSignature: signature },
+    select: { id: true, sku: true },
+  });
+
+  if (clash !== null && clash.id !== excludeVariantId) {
+    throw conflict(
+      ErrorCode.VARIANT_COMBINATION_EXISTS,
+      `This combination is already sold as "${clash.sku}".`,
+      [{ field: 'options', code: 'DUPLICATE_COMBINATION', meta: { sku: clash.sku } }],
+    );
+  }
+}
+
+/** A decimal a seller typed, as the database's Decimal(18,6) wants it. */
+function parseDecimal(value: string, field: string): Prisma.Decimal | string {
+  const trimmed = value.trim();
+  if (!/^\d+(\.\d{1,6})?$/.test(trimmed)) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'Enter a positive number with up to six decimal places.',
+      [{ field, code: 'INVALID_MEASUREMENT' }],
+    );
+  }
+  return trimmed;
+}
+
+/**
+ * Turn the optional commercial fields into a Prisma payload.
+ *
+ * `undefined` leaves a column alone; an explicit `null` clears it. The two are
+ * different requests - "I did not mention the lead time" and "this size no
+ * longer has a lead time of its own" - and a partial update that could not
+ * tell them apart would make an override impossible to remove.
+ */
+function commerceData(
+  input: VariantCommerceInput,
+): Prisma.ProductVariantUncheckedUpdateInput {
+  const data: Prisma.ProductVariantUncheckedUpdateInput = {};
+
+  const money = (
+    key: 'compareAtPriceMinor',
+    value: string | null | undefined,
+  ): void => {
+    if (value === undefined) return;
+    data[key] = value === null ? null : parseMinor(value, key);
+  };
+
+  const count = (
+    key:
+      | 'minOrderQty'
+      | 'qtyIncrement'
+      | 'maxOrderQty'
+      | 'leadTimeDays'
+      | 'multipackCount'
+      | 'shippingWeightGrams'
+      | 'shippingLengthMm'
+      | 'shippingWidthMm'
+      | 'shippingHeightMm',
+    value: number | null | undefined,
+  ): void => {
+    if (value === undefined) return;
+    if (value !== null && (!Number.isInteger(value) || value < 0)) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Enter a whole number of zero or more.', [
+        { field: key, code: 'INVALID_NUMBER' },
+      ]);
+    }
+    data[key] = value;
+  };
+
+  const decimal = (
+    key: 'netContentValue' | 'unitPricingBaseValue',
+    value: string | null | undefined,
+  ): void => {
+    if (value === undefined) return;
+    data[key] = value === null ? null : parseDecimal(value, key);
+  };
+
+  const text = (
+    key:
+      | 'netContentUnit'
+      | 'unitPricingBaseUnit'
+      | 'manufacturerPackLabel'
+      | 'shippingClass'
+      | 'gtin'
+      | 'modelIdentifier',
+    value: string | null | undefined,
+  ): void => {
+    if (value === undefined) return;
+    const trimmed = value === null ? null : value.trim();
+    data[key] = trimmed === null || trimmed === '' ? null : trimmed;
+  };
+
+  money('compareAtPriceMinor', input.compareAtPriceMinor);
+  count('minOrderQty', input.minOrderQty);
+  count('qtyIncrement', input.qtyIncrement);
+  count('maxOrderQty', input.maxOrderQty);
+  count('leadTimeDays', input.leadTimeDays);
+  count('multipackCount', input.multipackCount);
+  count('shippingWeightGrams', input.shippingWeightGrams);
+  count('shippingLengthMm', input.shippingLengthMm);
+  count('shippingWidthMm', input.shippingWidthMm);
+  count('shippingHeightMm', input.shippingHeightMm);
+  decimal('netContentValue', input.netContentValue);
+  decimal('unitPricingBaseValue', input.unitPricingBaseValue);
+  text('netContentUnit', input.netContentUnit);
+  text('unitPricingBaseUnit', input.unitPricingBaseUnit);
+  text('manufacturerPackLabel', input.manufacturerPackLabel);
+  text('shippingClass', input.shippingClass);
+  text('gtin', input.gtin);
+  text('modelIdentifier', input.modelIdentifier);
+
+  return data;
+}
+
+/**
+ * A "was" price below the "now" price is a discount claim that is false.
+ *
+ * Checked against whichever price will actually apply once the write lands -
+ * the variant's own override, or the product's base price where it has none -
+ * because a compare-at set against a figure the variant does not use would
+ * print a saving nobody is getting.
+ */
+function assertCompareAtIsAbove(
+  compareAtPriceMinor: bigint | null,
+  effectivePriceMinor: bigint | null,
+): void {
+  if (compareAtPriceMinor === null || effectivePriceMinor === null) return;
+
+  if (compareAtPriceMinor < effectivePriceMinor) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'The compare-at price cannot be below the selling price.',
+      [{ field: 'compareAtPriceMinor', code: 'BELOW_SELLING_PRICE' }],
+    );
+  }
 }
 
 /**
@@ -185,7 +382,26 @@ export async function listVariants(
       sku: row.sku,
       name: row.name,
       options: row.optionsJson,
+      optionSignature: row.optionSignature,
       priceMinor: row.priceMinor?.toString() ?? null,
+      compareAtPriceMinor: row.compareAtPriceMinor?.toString() ?? null,
+      gtin: row.gtin,
+      modelIdentifier: row.modelIdentifier,
+      minOrderQty: row.minOrderQty,
+      qtyIncrement: row.qtyIncrement,
+      maxOrderQty: row.maxOrderQty,
+      leadTimeDays: row.leadTimeDays,
+      multipackCount: row.multipackCount,
+      netContentValue: row.netContentValue?.toString() ?? null,
+      netContentUnit: row.netContentUnit,
+      unitPricingBaseValue: row.unitPricingBaseValue?.toString() ?? null,
+      unitPricingBaseUnit: row.unitPricingBaseUnit,
+      manufacturerPackLabel: row.manufacturerPackLabel,
+      shippingWeightGrams: row.shippingWeightGrams,
+      shippingLengthMm: row.shippingLengthMm,
+      shippingWidthMm: row.shippingWidthMm,
+      shippingHeightMm: row.shippingHeightMm,
+      shippingClass: row.shippingClass,
       /**
        * What a customer in `country` pays for that override, in that market's
        * currency.
@@ -223,7 +439,7 @@ export async function createVariant(
 ): Promise<{ id: string }> {
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, archivedAt: true, hasVariants: true },
+    select: { id: true, archivedAt: true, hasVariants: true, basePriceMinor: true },
   });
 
   if (product === null || product.archivedAt !== null) throw notFound('Product');
@@ -237,20 +453,33 @@ export async function createVariant(
     ]);
   }
 
+  const optionSignature = signatureFor(input.options);
+  await assertSignatureAvailable(productId, optionSignature, null);
+
+  const priceMinor =
+    input.priceMinor === null || input.priceMinor === undefined
+      ? null
+      : parseMinor(input.priceMinor, 'priceMinor');
+
+  const commerce = commerceData(input);
+  assertCompareAtIsAbove(
+    typeof commerce.compareAtPriceMinor === 'bigint' ? commerce.compareAtPriceMinor : null,
+    priceMinor ?? product.basePriceMinor,
+  );
+
   const id = newId();
 
   await prisma.$transaction(async (tx) => {
     await tx.productVariant.create({
       data: {
+        ...(commerce as Prisma.ProductVariantUncheckedCreateInput),
         id,
         productId,
         sku,
         name: input.name.trim(),
         optionsJson: input.options as never,
-        priceMinor:
-          input.priceMinor === null || input.priceMinor === undefined
-            ? null
-            : parseMinor(input.priceMinor, 'priceMinor'),
+        optionSignature,
+        priceMinor,
         isActive: input.isActive ?? true,
         sortOrder: input.sortOrder ?? 0,
       },
@@ -294,7 +523,7 @@ export async function updateVariant(
 
   if (existing === null) throw notFound('Variant');
 
-  const data: Prisma.ProductVariantUncheckedUpdateInput = {};
+  const data: Prisma.ProductVariantUncheckedUpdateInput = commerceData(input);
 
   if (input.sku !== undefined) {
     const sku = input.sku.trim().toUpperCase();
@@ -303,7 +532,23 @@ export async function updateVariant(
   }
 
   if (input.name !== undefined) data.name = input.name.trim();
-  if (input.options !== undefined) data.optionsJson = input.options;
+
+  if (input.options !== undefined) {
+    if (Object.keys(input.options).length === 0) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Give the variant at least one option value.', [
+        { field: 'options', code: 'REQUIRED' },
+      ]);
+    }
+
+    const optionSignature = signatureFor(input.options);
+    // Excluding this variant, so re-saving a row with its options unchanged is
+    // not reported as a clash with itself.
+    await assertSignatureAvailable(productId, optionSignature, variantId);
+
+    data.optionsJson = input.options;
+    data.optionSignature = optionSignature;
+  }
+
   if (input.isActive !== undefined) data.isActive = input.isActive;
   if (input.sortOrder !== undefined) data.sortOrder = input.sortOrder;
 
@@ -311,6 +556,32 @@ export async function updateVariant(
     data.priceMinor =
       input.priceMinor === null ? null : parseMinor(input.priceMinor, 'priceMinor');
   }
+
+  // Against the price that will apply after this write, not the one before it:
+  // a request that lowers the compare-at and the selling price together is
+  // valid, and checking against the stored figure would refuse it.
+  const effectivePrice =
+    (input.priceMinor === undefined
+      ? existing.priceMinor
+      : input.priceMinor === null
+        ? null
+        : parseMinor(input.priceMinor, 'priceMinor')) ??
+    (
+      await prisma.product.findUnique({
+        where: { id: productId },
+        select: { basePriceMinor: true },
+      })
+    )?.basePriceMinor ??
+    null;
+
+  assertCompareAtIsAbove(
+    input.compareAtPriceMinor === undefined
+      ? existing.compareAtPriceMinor
+      : typeof data.compareAtPriceMinor === 'bigint'
+        ? data.compareAtPriceMinor
+        : null,
+    effectivePrice,
+  );
 
   await prisma.$transaction(async (tx) => {
     await tx.productVariant.update({ where: { id: variantId }, data });

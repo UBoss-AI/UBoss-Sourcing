@@ -32,6 +32,8 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { z } from 'zod';
 import { AppError, ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import type { VariantAxis } from '../../domain/variants/axis.js';
+import { VARIANT_TEMPLATES, findTemplate } from '../../domain/variants/registry.js';
 import { prisma } from '../../infra/prisma.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
 import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index.js';
@@ -355,6 +357,50 @@ function sellUnitFor(
   };
 }
 
+/**
+ * Each category's slug, then its ancestors' slugs, nearest first.
+ *
+ * What `findTemplate` walks: a shelf an operator added under "Footwear"
+ * inherits Footwear's axes, because that is what a subcategory of footwear is.
+ * `path` is the materialised `/rootId/childId/` trail, so this is one indexed
+ * read for the whole page rather than a walk up the tree per product.
+ */
+async function categorySlugPathsFor(
+  categories: readonly { id: string; slug: string; path: string }[],
+): Promise<Map<string, string[]>> {
+  const ancestorIds = [
+    ...new Set(categories.flatMap((entry) => entry.path.split('/').filter((part) => part !== ''))),
+  ];
+
+  const slugById = new Map(
+    ancestorIds.length === 0
+      ? []
+      : (
+          await prisma.category.findMany({
+            where: { id: { in: ancestorIds } },
+            select: { id: true, slug: true },
+          })
+        ).map((row) => [row.id, row.slug] as const),
+  );
+
+  return new Map(
+    categories.map((entry) => [
+      entry.id,
+      [
+        entry.slug,
+        // The trail reads root-to-leaf, so it is reversed: the nearest
+        // ancestor is the one whose template a child should inherit.
+        ...entry.path
+          .split('/')
+          .filter((part) => part !== '')
+          .reverse()
+          .map((id) => slugById.get(id))
+          .filter((slug): slug is string => slug !== undefined),
+      ],
+    ]),
+  );
+}
+
 function serialiseProduct(
   product: PublicProduct,
   currency: string,
@@ -367,6 +413,34 @@ function serialiseProduct(
     orderIncrement: number;
     maximumOrderQuantity: number | null;
   } | null,
+  /**
+   * Category id to its slug trail, nearest first, for resolving the variant
+   * template of a shelf an operator created under one of ours.
+   *
+   * Supplied on the detail read, where one extra query is nothing and the
+   * answer decides whether a selector can be labelled. Absent on a grid, where
+   * no selector is drawn and the product's own category slug is the only
+   * lookup worth paying for.
+   */
+  categorySlugPaths?: Map<string, string[]>,
+  /**
+   * Whether each sellable SKU can be had right now, keyed `productId:variantKey`.
+   *
+   * A BOOLEAN, never a quantity, and that distinction is the whole reason this
+   * exists as its own argument. This storefront deliberately does not publish
+   * warehouse figures - a competitor should not be able to read stock levels
+   * off a shop front - but "is there one" and "how many are there" are
+   * different questions, and refusing to answer the first one costs the buyer
+   * something real.
+   *
+   * Without it the variant selector could only ever say "not offered". A size
+   * that exists and is empty would look identical to a size that is not sold,
+   * which is the single most common way a variant selector lies to somebody.
+   *
+   * Absent on a grid, and absent for an untracked product, both of which mean
+   * "no answer" rather than "no stock".
+   */
+  variantStock?: Map<string, boolean>,
 ): Record<string, unknown> {
   const primaryImage = product.media[0]?.media ?? null;
 
@@ -544,6 +618,54 @@ function serialiseProduct(
     },
     isStockTracked: product.isStockTracked,
     hasVariants: product.hasVariants,
+
+    /**
+     * The dimensions this product is chosen along, as template axis keys.
+     *
+     * An empty list is the ordinary case and means the storefront shows the
+     * option list it has always shown - one row per variant, several
+     * selectable at once. A non-empty list turns on the narrowing selector:
+     * colour, then size, with combinations nobody stocks disabled.
+     *
+     * Only the keys. `/catalog/variant-axes` serves the labels, units and
+     * orders once per session; repeating 112 templates' worth of definitions
+     * on every product read would be the same payload over and over.
+     */
+    variantAxisKeys: Array.isArray(product.variantAxesJson)
+      ? product.variantAxesJson.filter((entry): entry is string => typeof entry === 'string')
+      : [],
+
+    /**
+     * Which of the 112 templates this product's shelf uses.
+     *
+     * The storefront looks the axis definitions up under this key, because a
+     * `size` on a shoe and a `size` on a shirt are sorted differently and one
+     * global definition of "size" would hang a shirt rail L, M, S, XL.
+     *
+     * Null for a category with no template - Medical Devices, and any shelf an
+     * operator invented - which is the same thing an empty `variantAxisKeys`
+     * says, and both mean "show the option list this catalogue has always
+     * shown".
+     */
+    variantTemplateSlug:
+      categorySlugPaths?.get(product.category.id) === undefined
+        ? (findTemplate([product.category.slug])?.subcategorySlug ?? null)
+        : (findTemplate(categorySlugPaths.get(product.category.id) ?? [])?.subcategorySlug ?? null),
+
+    /**
+     * Whether the product itself can be had now. Never how many there are.
+     *
+     * The answer for a product sold as a single item, and the fallback for one
+     * whose options are listed the old way. Null means the question has no
+     * answer - an untracked product, or a grid read that did not look stock up
+     * - and every reader treats null as purchasable, because stock is confirmed
+     * when the item goes in the basket.
+     *
+     * This is what lets the whole catalogue that was already on sale say "out
+     * of stock" where it is true. Before it, the page could only say nothing.
+     */
+    isInStock: variantStock?.get(`${product.id}:${NO_VARIANT_KEY}`) ?? null,
+
     publishedAt: product.publishedAt?.toISOString() ?? null,
 
     primaryImage:
@@ -572,6 +694,19 @@ function serialiseProduct(
           ? null
           : quoteShelfPrice(shelf.setup, line, variantPrice.basePriceMinor);
 
+      /**
+       * The compare-at figure, quoted like every other price on this page.
+       *
+       * Through the same destination as the selling price beside it, because
+       * two figures a shopper reads as "was" and "now" have to have been
+       * worked out the same way. A "was" price left at its listed value beside
+       * a VAT-adjusted "now" price is a saving that is not the saving.
+       */
+      const compareAtQuote =
+        variant.compareAtPriceMinor === null
+          ? null
+          : quoteShelfPrice(shelf.setup, line, variant.compareAtPriceMinor);
+
       return {
         id: variant.id,
         sku: variant.sku,
@@ -579,10 +714,61 @@ function serialiseProduct(
         options: variant.optionsJson,
         availableInCurrency: variantPrice !== null,
         price: variantQuote === null ? null : serialiseMoney(variantQuote.unitPriceMinor, currency),
+        compareAtPrice:
+          compareAtQuote === null ? null : serialiseMoney(compareAtQuote.unitPriceMinor, currency),
         // GPSR Art. 19(c) per sellable SKU. A barcode belongs to the thing in
         // the box, and two sizes are two boxes with two barcodes.
         gtin: variant.gtin,
         modelIdentifier: variant.modelIdentifier,
+
+        /**
+         * Whether this one can be had now. Never how many there are.
+         *
+         * Null means the question has no answer here - an untracked product,
+         * or a listing read where stock was not looked up - and the selector
+         * treats that as purchasable, because stock is confirmed when the item
+         * goes in the basket, which is what actually happens.
+         */
+        isInStock: variantStock?.get(`${product.id}:${variant.id}`) ?? null,
+
+        /**
+         * This size's own terms of trade, or null where the family's apply.
+         *
+         * Null is not a missing value the storefront has to guess at: it means
+         * "the figure shown against the product". The storefront falls back to
+         * the product's rules, and the server enforces the same thing on every
+         * cart mutation - so a client that ignored these could not buy on
+         * different terms than a client that honoured them.
+         */
+        minOrderQty: variant.minOrderQty,
+        qtyIncrement: variant.qtyIncrement,
+        maxOrderQty: variant.maxOrderQty,
+        leadTimeDays: variant.leadTimeDays,
+
+        /**
+         * What is in one purchasable unit.
+         *
+         * `multipackCount` is how many identical units are supplied together -
+         * the 10 in "Pack of 10" - and it is NOT the quantity the buyer wants.
+         * That is the cart line's, and the page states both separately so the
+         * total on the delivery note is never a surprise.
+         */
+        multipackCount: variant.multipackCount,
+        netContentValue: variant.netContentValue?.toString() ?? null,
+        netContentUnit: variant.netContentUnit,
+        unitPricingBaseValue: variant.unitPricingBaseValue?.toString() ?? null,
+        unitPricingBaseUnit: variant.unitPricingBaseUnit,
+        manufacturerPackLabel: variant.manufacturerPackLabel,
+
+        /** This size's photographs. Empty means "show the family's". */
+        images: variant.media.map((entry) => ({
+          url: entry.media.url,
+          altText: entry.media.altText,
+          width: entry.media.width,
+          height: entry.media.height,
+          isPrimary: entry.isPrimary,
+        })),
+
         // Present on the detail read, absent on a listing - see the select.
         // Falls back to the product-level row so a size whose packing was never
         // recorded separately still shows the product's.
@@ -765,8 +951,7 @@ function priceWhereFor(
    * product cannot answer - and only there, so an unfiltered grid still shows
    * everything the catalogue sells.
    */
-  const excludeUnpriced =
-    bounded || query.onSaleOnly === 'true' ? { isPriceOnRequest: false } : {};
+  const excludeUnpriced = bounded || query.onSaleOnly === 'true' ? { isPriceOnRequest: false } : {};
 
   const narrowed: Prisma.ProductWhereInput = { ...productWhere, ...excludeUnpriced };
 
@@ -835,8 +1020,12 @@ async function listSellerProducts(input: {
     ...(bounded
       ? {
           priceMinor: {
-            ...(query.minPrice !== undefined ? { gte: toListed(BigInt(query.minPrice), shelf.scale) } : {}),
-            ...(query.maxPrice !== undefined ? { lte: toListed(BigInt(query.maxPrice), shelf.scale) } : {}),
+            ...(query.minPrice !== undefined
+              ? { gte: toListed(BigInt(query.minPrice), shelf.scale) }
+              : {}),
+            ...(query.maxPrice !== undefined
+              ? { lte: toListed(BigInt(query.maxPrice), shelf.scale) }
+              : {}),
           },
         }
       : {}),
@@ -879,6 +1068,51 @@ async function listSellerProducts(input: {
 }
 
 export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * The variant axis definitions, for the whole catalogue.
+   *
+   * Served rather than duplicated into the storefront, because it is the same
+   * registry the admin panel's matrix builder and the server's own validation
+   * read. Three copies of 112 templates is three copies that eventually
+   * disagree about what "Size" means - which shows up as a facet that filters
+   * one thing and a selector that offers another.
+   *
+   * KEYED BY SUBCATEGORY, not flattened into one map of axis key to
+   * definition. The flat version is smaller and it is wrong: `size` is a
+   * NUMERIC run on a shoe and a semantic one on a shirt, and one definition
+   * for both hangs a shirt rail in the order L, M, S, XL. Any axis whose
+   * meaning depends on the shelf it is on has to be served per shelf.
+   *
+   * One cacheable request per session for the whole shop. It never varies by
+   * shopper, by currency or by language - the labels travel in English and the
+   * storefront translates the ones it shows - so it is the same bytes for
+   * everybody.
+   *
+   * No authentication and no personalisation: this is a description of the
+   * shop's shelves, which is exactly as public as the shelves.
+   */
+  app.get('/variant-axes', async (_request, reply) => {
+    const serialise = (candidate: VariantAxis) => ({
+      key: candidate.key,
+      label: candidate.label,
+      input: candidate.input,
+      display: candidate.display,
+      sort: candidate.sort,
+      units: candidate.units ?? null,
+      dependsOn: candidate.dependsOn ?? [],
+      inTitle: candidate.inTitle,
+    });
+
+    return reply.status(200).send({
+      templates: Object.fromEntries(
+        VARIANT_TEMPLATES.map((entry) => [
+          entry.subcategorySlug ?? entry.categorySlug,
+          { label: entry.label, axes: entry.axes.map(serialise) },
+        ]),
+      ),
+    });
+  });
+
   /** Storefront navigation. Inactive categories are excluded by default. */
   app.get('/categories', async (request, reply) => {
     // The category bar is on every page of the storefront, so it has to follow
@@ -1033,14 +1267,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     });
 
     if (unknownCategory) {
-      return reply
-        .status(200)
-        .send({
-          currency,
-          country: shelf.country,
-          priceRange: { min: null, max: null },
-          attributes: [],
-        });
+      return reply.status(200).send({
+        currency,
+        country: shelf.country,
+        priceRange: { min: null, max: null },
+        attributes: [],
+      });
     }
 
     const scopedProductWhere: Prisma.ProductWhereInput = {
@@ -1201,6 +1433,110 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           ).map((row) => row.currencyCode)
         : [];
 
+    // The shelf this product sits on, and the shelves above it, so a variant
+    // template can be resolved for a subcategory an operator created under one
+    // of ours. One extra read, on the one page where a selector is drawn.
+    const categorySlugPaths = await categorySlugPathsFor([product.category]);
+
+    /*
+     * Which sizes can be had right now - as booleans, on the one page that
+     * needs them.
+     *
+     * The detail page is where somebody narrows to one thing and presses buy,
+     * so it is where "this one exists but is empty" has to be sayable. A grid
+     * does not draw a selector and does not pay for this read.
+     *
+     * Only for a stock-tracked product. An untracked one gets an empty map,
+     * every variant answers null, and the selector treats null as purchasable
+     * - which is correct, because "we do not count these" is not "there are
+     * none of these".
+     */
+    const variantStock = new Map<string, boolean>();
+    /*
+     * Stock is a courtesy on this page, never a precondition for it.
+     *
+     * `getAvailabilityMap` resolves the default warehouse and REFUSES when a
+     * deployment has not configured one - which is correct for a stock
+     * movement and completely wrong here. Letting that refusal escape turned
+     * every product page of a warehouse-less deployment into a 400: a shop
+     * that had been selling perfectly well suddenly could not show a product.
+     *
+     * So the lookup is allowed to fail and the answer becomes "no answer",
+     * which every reader already treats as purchasable. A page that cannot
+     * find out whether something is in stock still has to render the product.
+     */
+    if (product.isMarketplaceProduct) {
+      /*
+       * A marketplace product's stock is the SELLERS' stock, not the
+       * operator's.
+       *
+       * `InventoryBalance` is the operator's own warehouse ledger and it has
+       * no row for anything a third-party seller listed - so asking it about
+       * a seller's shirt returns zero, and the page says "out of stock" about
+       * something with a hundred in a warehouse. The answer lives on the live
+       * offers, denormalised onto `availableQuantity` by `refreshOfferTotals`
+       * as stock moves.
+       *
+       * Grouped by `variantKey`, which is what makes a size run answerable:
+       * black in medium can be sold out while black in large is not, and one
+       * figure for the whole shirt cannot say that. `_sum` across sellers,
+       * because two sellers each holding four is eight a buyer can have.
+       */
+      const offerStock = await prisma.sellerOffer.groupBy({
+        by: ['variantKey'],
+        where: { productId: product.id, status: 'ACTIVE', archivedAt: null },
+        _sum: { availableQuantity: true },
+      });
+
+      const byVariantKey = new Map(
+        offerStock.map((row) => [row.variantKey, row._sum.availableQuantity ?? 0]),
+      );
+
+      // The base answer is "can anything under this product be had", which is
+      // what a card in a grid is asking. A product whose every offer is
+      // against a variant has no '' row of its own.
+      const anyInStock = [...byVariantKey.values()].some((quantity) => quantity > 0);
+      variantStock.set(`${product.id}:${NO_VARIANT_KEY}`, anyInStock);
+
+      for (const variant of product.variants) {
+        variantStock.set(`${product.id}:${variant.id}`, (byVariantKey.get(variant.id) ?? 0) > 0);
+      }
+    } else if (product.isStockTracked) {
+      try {
+        /*
+         * The base product AND every variant.
+         *
+         * The base row matters for the whole catalogue that existed before
+         * variant axes did: a product sold as a single item, and a product whose
+         * options are listed the old way, both get their answer from
+         * `productId:''`. Publishing it only for template-driven products would
+         * have left every listing already on sale exactly as silent as before.
+         */
+        const availability = await getAvailabilityMap([
+          { productId: product.id, variantId: null },
+          ...product.variants.map((variant) => ({ productId: product.id, variantId: variant.id })),
+        ]);
+
+        // A row with no balance at this warehouse has never been received into
+        // it, which is zero rather than unknown - the row is written by the
+        // first receipt.
+        variantStock.set(
+          `${product.id}:${NO_VARIANT_KEY}`,
+          (availability.get(`${product.id}:${NO_VARIANT_KEY}`) ?? 0) > 0,
+        );
+
+        for (const variant of product.variants) {
+          variantStock.set(
+            `${product.id}:${variant.id}`,
+            (availability.get(`${product.id}:${variant.id}`) ?? 0) > 0,
+          );
+        }
+      } catch {
+        // No default warehouse configured, so there is nothing to read. The
+        // map stays empty, every SKU answers null, and the page renders.
+        variantStock.clear();
+      }
+    }
 
     return reply.status(200).send({
       product: serialiseProduct(
@@ -1211,6 +1547,8 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         shelf,
         variantPackaging,
         offerTerms,
+        categorySlugPaths,
+        variantStock,
       ),
       currency,
       country: shelf.country,

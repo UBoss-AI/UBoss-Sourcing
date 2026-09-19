@@ -203,6 +203,35 @@ describe('the price is the price of a carton', () => {
     expect(screen.queryByText('₹12.50')).not.toBeInTheDocument();
   });
 
+  it('drops the carton line entirely on something sold by the piece', async () => {
+    /*
+     * A third-party seller's listing. The headline figure is already the
+     * price of one, so the carton line would say the same thing twice - and
+     * would say it wrongly, because a carton of one is not a carton and
+     * "per carton of 1 pieces" reads as a bug. "Sold by the piece", which
+     * the quantity block carries, is the whole of the unit here.
+     */
+    renderProduct(
+      makeProduct({
+        purchaseRules: simpleRules,
+        price: money('799900'),
+        variants: [],
+        hasVariants: false,
+        sellUnit: {
+          unit: 'PIECE',
+          piecesPerUnit: 1,
+          minimumOrderQuantity: 1,
+          orderIncrement: 1,
+          maximumOrderQuantity: null,
+          isPricedPerSellUnit: true,
+        },
+      }),
+    );
+
+    expect(await screen.findByText('₹7999.00')).toBeInTheDocument();
+    expect(screen.queryByText(/per carton of/i)).not.toBeInTheDocument();
+  });
+
   it('scales the strike-through by the same factor as the price', async () => {
     renderProduct(
       makeProduct({

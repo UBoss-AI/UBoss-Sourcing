@@ -30,8 +30,8 @@
  * where the gallery has just taken a full screen, the controls read as one
  * thing to work through rather than as four stacked fragments.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
@@ -55,6 +55,16 @@ import type {
   PurchaseRules,
   TaxInfo,
 } from '@/lib/types';
+import { VariantSelector } from '@/components/VariantSelector';
+import { useVariantAxes } from '@/lib/use-variant-axes';
+import {
+  lineContent,
+  resolveVariants,
+  rulesForVariant,
+  selectionFromParams,
+  selectionToParams,
+  summarisePack,
+} from '@/lib/variants';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { DimensionsSection, PackagingSection } from '@/components/ProductPackagingPanel';
@@ -86,11 +96,37 @@ import { usePointerZoom } from '@/lib/pointer-zoom';
  * `lib/pointer-zoom.ts` for why it is two CSS variables rather than anything
  * React re-renders.
  */
-function Gallery({ product }: { product: Product }): React.JSX.Element {
+function Gallery({
+  product,
+  variant,
+}: {
+  product: Product;
+  /** The size or colour currently chosen, where the page has narrowed to one. */
+  variant?: ProductVariant | null;
+}): React.JSX.Element {
   const { t } = useI18n();
 
-  const images = product.images;
+  /**
+   * The chosen variant's own photographs, falling back to the product's.
+   *
+   * A fallback rather than a merge: a seller who photographed the brown boot
+   * means those to be the pictures of the brown boot, and appending the black
+   * ones after them shows the buyer a colour they did not choose. A variant
+   * with no photographs of its own shows the family's, which is the ordinary
+   * case and is why the fallback exists at all.
+   */
+  const variantImages = variant?.images ?? [];
+  const images = variantImages.length > 0 ? variantImages : product.images;
+
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Back to the first photograph whenever the set changes. Holding index 3
+  // across a switch to a variant with two pictures shows the fallback, which
+  // reads as the gallery having failed.
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [variant?.id]);
+
   const active = images[activeIndex] ?? product.primaryImage;
 
   // Where the pointer is over the photograph, for the magnifier. Called
@@ -294,6 +330,16 @@ function VariantPicker({
         {variants.map((variant) => {
           const wanted = chosen.get(variant.id);
           const isChosen = wanted !== undefined;
+          /*
+           * Whether this one can be had now.
+           *
+           * `isInStock` is a boolean the server sends - never a quantity,
+           * because this storefront does not publish warehouse figures.
+           * Null or absent means the question has no answer here (an
+           * untracked product), and that is purchasable: stock is confirmed
+           * when the item goes in the basket.
+           */
+          const isSoldOut = variant.isInStock === false;
           const optionText = Object.entries(variant.options)
             .map(([key, value]) => `${key}: ${value}`)
             .join(', ');
@@ -304,17 +350,29 @@ function VariantPicker({
               className={`rounded-lg border transition-colors ${
                 isChosen
                   ? 'border-brand bg-brand-soft ring-1 ring-inset ring-brand/30'
-                  : 'border-border-strong bg-surface hover:border-brand/40 hover:bg-surface-hover'
+                  : isSoldOut
+                    ? 'border-border bg-surface-sunken'
+                    : 'border-border-strong bg-surface hover:border-brand/40 hover:bg-surface-hover'
               }`}
             >
               <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-2.5 sm:flex-nowrap">
                 <button
                   type="button"
                   aria-pressed={isChosen}
+                  // Nothing useful to do with an option that has nothing
+                  // behind it. Ticking it only defers the refusal to the cart.
+                  disabled={isSoldOut}
+                  aria-label={
+                    isSoldOut
+                      ? `${variant.name}, ${t('variants.outOfStock')}`
+                      : undefined
+                  }
                   onClick={() => {
                     onToggle(variant);
                   }}
-                  className="flex min-w-0 flex-1 items-center gap-3 rounded text-left"
+                  className={`flex min-w-0 flex-1 items-center gap-3 rounded text-left ${
+                    isSoldOut ? 'cursor-not-allowed' : ''
+                  }`}
                 >
                   {/* A box that fills, rather than a tick that appears. With
                       five options on screen, "which of these are on?" has to
@@ -324,7 +382,9 @@ function VariantPicker({
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 ${
                       isChosen
                         ? 'border-brand bg-brand-fill text-white'
-                        : 'border-border-strong bg-surface'
+                        : isSoldOut
+                          ? 'border-border bg-surface-sunken'
+                          : 'border-border-strong bg-surface'
                     }`}
                   >
                     {isChosen && (
@@ -346,10 +406,24 @@ function VariantPicker({
 
                   <span className="min-w-0">
                     <span
-                      className={`block text-sm font-medium ${isChosen ? 'text-brand' : 'text-ink'}`}
+                      className={`block text-sm font-medium ${
+                        isChosen
+                          ? 'text-brand'
+                          : isSoldOut
+                            ? 'text-ink-subtle line-through decoration-ink-subtle/70'
+                            : 'text-ink'
+                      }`}
                     >
                       {variant.name}
                     </span>
+
+                    {/* Said in words as well as drawn, because roughly one
+                        man in twelve cannot rely on the grey. */}
+                    {isSoldOut && (
+                      <span className="mt-0.5 block text-xxs font-medium uppercase tracking-wide text-ink-subtle">
+                        {t('variants.outOfStock')}
+                      </span>
+                    )}
                     {optionText !== '' && (
                       <span className="mt-0.5 block text-xxs text-ink-muted">{optionText}</span>
                     )}
@@ -591,6 +665,21 @@ export function ProductPage(): React.JSX.Element {
   const [addError, setAddError] = useState<string | null>(null);
 
   /**
+   * The guided selection: axis key to the value chosen, for a product whose
+   * seller declared the dimensions it sells along.
+   *
+   * Held in the URL rather than only in state, so a shared link opens on the
+   * black size 8 the sender was looking at, and a refresh does not throw the
+   * choice away. The parameters are the axis keys themselves —
+   * `?colour=black&size=8` — which is readable, and which is why the keys are
+   * stable enough that renaming one is a migration.
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selection, setSelection] = useState<Readonly<Record<string, string>>>({});
+  /** Set after a failed Add to Basket, to put the caret on the first gap. */
+  const [focusAxisKey, setFocusAxisKey] = useState<string | null>(null);
+
+  /**
    * What the numbers on this page are counting.
    *
    * There is no control for this and no state behind it, and there must not
@@ -651,9 +740,142 @@ export function ProductPage(): React.JSX.Element {
     const opening = clampToRules(product.purchaseRules.minOrderQty, product.purchaseRules);
     setQuantity(opening);
 
+    // The only option is switched on for them - unless there is nothing
+    // behind it, in which case switching it on would only defer the refusal
+    // to the cart.
     const only = product.variants.length === 1 ? product.variants[0] : undefined;
-    setChosen(only === undefined ? new Map() : new Map([[only.id, opening]]));
+    const usable = only !== undefined && only.isInStock !== false ? only : undefined;
+    setChosen(usable === undefined ? new Map() : new Map([[usable.id, opening]]));
   }, [product]);
+
+  /**
+   * The axes this product is chosen along, and their definitions.
+   *
+   * Empty for everything that has always been sold off a list of options, and
+   * that is the ordinary case — the request below is not even made for one.
+   */
+  const axisKeys = useMemo(() => product?.variantAxisKeys ?? [], [product]);
+  const isGuided = axisKeys.length > 0 && (product?.variants.length ?? 0) > 0;
+  const { axes: axisDefinitions, isLoading: axesLoading } = useVariantAxes(
+    isGuided ? (product?.variantTemplateSlug ?? null) : null,
+  );
+
+  /**
+   * Seed the selection from the URL, or from the only thing on offer.
+   *
+   * A link is honoured first, because somebody followed it to see a particular
+   * thing. What it cannot name — an axis the seller has since removed, a
+   * colour no longer stocked — is dropped rather than carried, so a stale
+   * bookmark opens partly filled instead of on an impossible state.
+   *
+   * An axis with exactly one value is answered automatically. Asking somebody
+   * to choose between one option is not a choice, it is a click.
+   */
+  const seededFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (product === undefined || axisKeys.length === 0) return;
+    // Once per product. Choosing a value writes to the URL, so re-running on
+    // every `searchParams` change would feed the shopper's own choice back in
+    // and fight the state it just set.
+    if (seededFor.current === product.id) return;
+    seededFor.current = product.id;
+
+    const fromLink = selectionFromParams(axisKeys, searchParams, product.variants);
+
+    const seeded: Record<string, string> = { ...fromLink };
+    for (const axisKey of axisKeys) {
+      if (seeded[axisKey] !== undefined) continue;
+
+      const values = new Set(
+        product.variants
+          .filter((variant) => variant.isActive !== false)
+          .map((variant) => variant.options[axisKey])
+          .filter((value): value is string => value !== undefined && value !== ''),
+      );
+
+      const only = [...values][0];
+      if (values.size === 1 && only !== undefined) seeded[axisKey] = only;
+    }
+
+    setSelection(seeded);
+  }, [product, axisKeys, searchParams]);
+
+  /**
+   * What the current selection resolves to.
+   *
+   * One derived value rather than several pieces of state that have to be kept
+   * in step: which values are still possible, which variant is identified,
+   * what is still unanswered and what the price band is all come out of the
+   * same pass over the variant list.
+   */
+  const resolution = useMemo(
+    () =>
+      product === undefined || !isGuided
+        ? null
+        : resolveVariants(axisKeys, axisDefinitions, product.variants, selection),
+    [product, isGuided, axisKeys, axisDefinitions, selection],
+  );
+
+  const selectedVariant = resolution?.variant ?? null;
+
+  /**
+   * Bring the quantity onto the chosen size's own terms.
+   *
+   * A product sold in ones can have a pallet size sold in twenty-fours. Leaving
+   * the box on 1 after somebody picks the pallet means Add to Basket is
+   * refused by the server for a rule the page had already been told about —
+   * which reads as the page being broken rather than as the seller's terms.
+   *
+   * Only ever upward, to the nearest permitted step. It never reduces what
+   * somebody typed.
+   */
+  useEffect(() => {
+    if (product === undefined || selectedVariant === null) return;
+
+    const variantRules = {
+      ...product.purchaseRules,
+      ...rulesForVariant(product.purchaseRules, selectedVariant),
+    };
+
+    setQuantity((current) => {
+      const clamped = clampToRules(current, variantRules);
+      return clamped === current ? current : clamped;
+    });
+  }, [product, selectedVariant]);
+
+  /** Record a choice, and put it in the URL so the page can be shared. */
+  const chooseAxisValue = (axisKey: string, label: string): void => {
+    setSelection((current) => {
+      // Tapping the chosen value again clears it, which is the only way back
+      // to "show me everything" once a colour has narrowed the size run.
+      const isClearing = current[axisKey] === label || label === '';
+
+      const next = Object.fromEntries(
+        Object.entries(current).filter(([key]) => key !== axisKey),
+      );
+      if (!isClearing) next[axisKey] = label;
+
+      setSearchParams(
+        (params) => {
+          const updated = new URLSearchParams(params);
+          for (const key of axisKeys) updated.delete(key);
+          for (const [key, value] of Object.entries(selectionToParams(next))) {
+            updated.set(key, value);
+          }
+          return updated;
+        },
+        // A variant choice is not a page somebody wants to press Back through
+        // four times to leave.
+        { replace: true },
+      );
+
+      return next;
+    });
+
+    setFocusAxisKey(null);
+    setAddError(null);
+  };
 
   // `exactOptionalPropertyTypes` means an absent description is an absent key,
   // not a key holding undefined — so the object is built before it is passed.
@@ -710,11 +932,28 @@ export function ProductPage(): React.JSX.Element {
       return [lineFor(null, quantity)];
     }
 
+    /**
+     * A guided product buys ONE thing: the combination the shopper narrowed
+     * down to. Nothing at all until they have finished narrowing, which is
+     * what keeps Add to Basket from sending an incomplete choice.
+     */
+    if (isGuided) {
+      return selectedVariant === null ? [] : [lineFor(selectedVariant.id, quantity)];
+    }
+
     return product.variants.flatMap((variant) => {
       const wanted = chosen.get(variant.id);
       return wanted === undefined ? [] : [lineFor(variant.id, wanted)];
     });
-  }, [product, chosen, quantity, sellUnit.piecesPerUnit, sellUnit.unit]);
+  }, [
+    product,
+    chosen,
+    quantity,
+    isGuided,
+    selectedVariant,
+    sellUnit.piecesPerUnit,
+    sellUnit.unit,
+  ]);
 
 
   const addToCart = useMutation({
@@ -773,11 +1012,40 @@ export function ProductPage(): React.JSX.Element {
 
   if (product === undefined) return <NotFoundPage />;
 
-  const needsVariant = product.hasVariants && product.variants.length > 0;
-  const chosenVariants = product.variants.filter((variant) => chosen.has(variant.id));
+  // The option LIST — the multiple choice this catalogue has always offered,
+  // where a hospital buys three sizes of syringe in one go. A guided product
+  // uses the narrowing selector instead, so the two never appear together.
+  const needsVariant = product.hasVariants && product.variants.length > 0 && !isGuided;
+  const chosenVariants = isGuided
+    ? selectedVariant === null
+      ? []
+      : [selectedVariant]
+    : product.variants.filter((variant) => chosen.has(variant.id));
   const isReady = chosenLines.length > 0;
 
-  const rules = product.purchaseRules;
+  /**
+   * The rules the quantity control enforces.
+   *
+   * The chosen size's own where it has them, the product's otherwise. A pallet
+   * quantity sold in tens and a single sold in ones are two different terms of
+   * trade on one product, and the box has to snap to whichever one the shopper
+   * is actually buying.
+   */
+  const rules: PurchaseRules = isGuided
+    ? { ...product.purchaseRules, ...rulesForVariant(product.purchaseRules, selectedVariant) }
+    : product.purchaseRules;
+
+  /**
+   * What is in one of these, and what the whole line comes to.
+   *
+   * "500 g · Pack of 10 · 5 kg in each pack" — and with a quantity of 2,
+   * "20 packets, 10 kg in total". The arithmetic a catalogue most often leaves
+   * to the reader, and the one a shopper most often gets wrong. Null wherever
+   * the seller stated no net content, because the honest thing to print then
+   * is nothing.
+   */
+  const pack = selectedVariant === null ? null : summarisePack(selectedVariant);
+  const packLineTotal = pack === null ? null : lineContent(pack, quantity);
 
   const toggleVariant = (variant: ProductVariant): void => {
     setChosen((current) => {
@@ -900,7 +1168,18 @@ export function ProductPage(): React.JSX.Element {
   // fact where they did not. Never an empty notice.
   const unavailabilityReason =
     purchasability?.unavailabilityReason ?? t('product.currentlyUnavailable');
-  const canBuy = purchasability === null ? true : purchasability.canAddToCart;
+  /**
+   * A product with no options at all, and nothing behind it.
+   *
+   * Only for a product sold as a single item: where there are options, the
+   * answer is per option and the picker says it on each row. `isInStock` is a
+   * boolean the server sends and null means "no answer" — an untracked product
+   * — which is purchasable.
+   */
+  const isSimpleAndSoldOut = !product.hasVariants && product.isInStock === false;
+
+  const canBuy =
+    !isSimpleAndSoldOut && (purchasability === null ? true : purchasability.canAddToCart);
 
   // The packing of whatever is currently chosen. One option chosen shows that
   // option's carton; none or several fall back to the product's, which is the
@@ -953,7 +1232,7 @@ export function ProductPage(): React.JSX.Element {
       </nav>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
-        <Gallery product={product} />
+        <Gallery product={product} variant={selectedVariant} />
 
         <div className="min-w-0">
           <h1 className="text-title-lg text-ink sm:text-title-xl">{product.name}</h1>
@@ -1018,15 +1297,26 @@ export function ProductPage(): React.JSX.Element {
 
             {/* What that figure is the price OF.
 
-                Never omitted. The number above is the price of a carton of
-                five hundred, and a buyer who reads it as the price of one
-                syringe has misread the only figure on the page that matters. */}
-            <p className="mt-1 text-sm font-medium text-brand">
-              {t('product.pricePerCarton', {
-                pieces: formatNumber(displayUnitPrice.pieces),
-                each: formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency),
-              })}
-            </p>
+                Never omitted on the operator's own goods. The number above is
+                the price of a carton of five hundred, and a buyer who reads it
+                as the price of one syringe has misread the only figure on the
+                page that matters.
+
+                OMITTED WHEN THE THING IS SOLD BY THE PIECE, which is every
+                third-party seller's listing. There the headline figure is
+                already the price of one, so the line says the same thing
+                twice - and says it wrongly: a carton of one is not a carton,
+                and "per carton of 1 pieces" reads as a bug to the buyer and
+                is one. "Sold by the piece" below the price is what carries
+                the unit for these, and it carries it correctly. */}
+            {!soldByThePiece && (
+              <p className="mt-1 text-sm font-medium text-brand">
+                {t('product.pricePerCarton', {
+                  pieces: formatNumber(displayUnitPrice.pieces),
+                  each: formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency),
+                })}
+              </p>
+            )}
 
             <p className="mt-1.5 text-sm text-ink-muted">
               {taxLine(t, product.tax, countryNames)}
@@ -1098,6 +1388,87 @@ export function ProductPage(): React.JSX.Element {
                 )}
               </p>
 
+              {/* The narrowing selector, for a product whose seller declared
+                  the dimensions it sells along. Colour, then size, with the
+                  combinations nobody stocks disabled — and the quantity box
+                  below it, because a guided product buys one thing. */}
+              {/* A skeleton while the axis labels are on their way. Without
+                  it the selector draws for half a second with raw keys
+                  (`size_system`) where the labels go, and a page that flashes
+                  machine names at somebody reads as broken. Fixed heights, so
+                  nothing below it jumps when the real thing arrives. */}
+              {isGuided && axesLoading && (
+                <div aria-hidden="true" className="space-y-4">
+                  {[0, 1].map((row) => (
+                    <div key={row}>
+                      <div className="h-4 w-24 rounded bg-surface-sunken" />
+                      <div className="mt-2 flex gap-2">
+                        {[0, 1, 2, 3].map((chip) => (
+                          <div key={chip} className="h-11 w-16 rounded-lg bg-surface-sunken" />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {isGuided && !axesLoading && resolution !== null && (
+                <VariantSelector
+                  axes={resolution.axes}
+                  onChoose={chooseAxisValue}
+                  focusKey={focusAxisKey}
+                  missingMessage={
+                    focusAxisKey === null
+                      ? null
+                      : t('variants.selectToContinue', {
+                          axis:
+                            resolution.axes.find((axis) => axis.key === focusAxisKey)?.label ??
+                            focusAxisKey,
+                        })
+                  }
+                />
+              )}
+
+              {/* What is actually in one of these, before the button rather
+                  than on the delivery note. "Pack of 10" and "5 kg in each"
+                  are the two figures a shopper most often has to multiply for
+                  themselves, and the one they most often get wrong. */}
+              {pack !== null && (pack.netContent !== null || pack.multipackCount > 1) && (
+                <div className="rounded-md border border-border-subtle bg-surface-sunken px-3 py-2 text-sm text-ink-muted">
+                  <p className="font-medium text-ink">
+                    {[
+                      pack.netContent === null
+                        ? null
+                        : `${pack.netContent.value} ${pack.netContent.unit}`,
+                      pack.multipackCount > 1
+                        ? t('variants.packOf', { n: formatNumber(pack.multipackCount) })
+                        : null,
+                      pack.manufacturerPackLabel,
+                    ]
+                      .filter((part): part is string => part !== null && part !== '')
+                      .join(' · ')}
+                  </p>
+
+                  {pack.totalContent !== null && pack.multipackCount > 1 && (
+                    <p className="mt-0.5 text-xs">
+                      {t('variants.eachPackContains', {
+                        amount: `${pack.totalContent.value} ${pack.totalContent.unit}`,
+                      })}
+                    </p>
+                  )}
+
+                  {packLineTotal !== null && quantity > 1 && (
+                    <p className="mt-0.5 text-xs">
+                      {t('variants.lineTotalContent', {
+                        packs: formatNumber(quantity),
+                        units: formatNumber(pack.multipackCount * quantity),
+                        amount: `${packLineTotal.value} ${packLineTotal.unit}`,
+                      })}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {needsVariant ? (
                 <VariantPicker
                   variants={product.variants}
@@ -1167,9 +1538,26 @@ export function ProductPage(): React.JSX.Element {
                       <Button
                         variant="action"
                         size="lg"
-                        disabled={!isReady || !canBuy}
+                        /*
+                         * On a guided product the button stays live while the
+                         * choice is incomplete, and says what is missing when
+                         * it is pressed.
+                         *
+                         * A disabled button is the obvious implementation and
+                         * the worse one: it cannot take focus, screen readers
+                         * skip it, and it answers "why can't I buy this?" with
+                         * silence. Pressing it and being told "choose a size"
+                         * — with the caret landing on the size buttons — is
+                         * the same guard and an answer.
+                         */
+                        disabled={(!isGuided && !isReady) || !canBuy}
                         isLoading={addToCart.isPending}
                         onClick={() => {
+                          if (isGuided && !isReady) {
+                            const missing = resolution?.missingAxisKeys[0] ?? null;
+                            setFocusAxisKey(missing);
+                            return;
+                          }
                           addToCart.mutate();
                         }}
                         // Full width on a phone, where a half-width primary
@@ -1203,7 +1591,14 @@ export function ProductPage(): React.JSX.Element {
 
                   {!isReady && (
                     <p className="text-sm text-ink-muted">
-                      {t('product.chooseAnOptionToContinue')}
+                      {isGuided && resolution !== null && resolution.missingAxisKeys.length > 0
+                        ? t('variants.selectToContinue', {
+                            axis:
+                              resolution.axes.find(
+                                (axis) => axis.key === resolution.missingAxisKeys[0],
+                              )?.label ?? resolution.missingAxisKeys[0],
+                          })
+                        : t('product.chooseAnOptionToContinue')}
                     </p>
                   )}
 

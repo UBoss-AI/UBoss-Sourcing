@@ -660,6 +660,7 @@ model MediaAsset {
   createdAt    DateTime @default(now()) @db.DateTime(3)
 
   productMedia     ProductMedia[]
+  variantMedia     ProductVariantMedia[]
   categoryImages   Category[]        @relation("CategoryImage")
   categoryBanners  Category[]        @relation("CategoryBanner")
   businessProfiles BusinessProfile[]
@@ -827,6 +828,28 @@ model Product {
   isRecurringEligible Boolean @default(false)
   hasVariants         Boolean @default(false)
 
+  /// The variant axes this product actually sells along, as an ordered list of
+  /// template axis keys: `["size_system", "size", "colour"]`.
+  ///
+  /// The KEYS only. The labels, input types, units, suggestions and sort order
+  /// all live in `src/domain/variants/` - one registry of 112 subcategory
+  /// templates that the seller's matrix builder, the buyer's selector and the
+  /// catalogue's facets all read. Copying an axis definition onto every
+  /// product would mean a corrected label reaching the products listed after
+  /// the correction and no others.
+  ///
+  /// NULL and `[]` both mean "this product declares no axes", and that is the
+  /// ordinary case rather than an unfinished one. Every product that existed
+  /// before this column behaves exactly as it did: a product with variants but
+  /// no axes gets the free-form option picker the catalogue has always had -
+  /// which is what keeps Medical Devices, where a hospital buyer chooses
+  /// several sizes at once, working the way it works today.
+  ///
+  /// A key the product's template does not offer is ignored on read rather
+  /// than failing, so removing an axis from a template cannot break a product
+  /// already selling along it. See `resolveActiveAxes`.
+  variantAxesJson Json?
+
   /// A catalogue entry that exists because a seller listed it, rather than
   /// because the operator stocks it.
   ///
@@ -985,10 +1008,100 @@ model ProductVariant {
   modelIdentifier String? @db.VarChar(64)
 
   /// Selected option values, e.g. { "Size": "1L", "Pack": "12" }.
+  ///
+  /// Keyed by the template's axis key for anything the matrix builder created
+  /// (`{ "size": "8", "colour": "Black" }`), and by whatever the author typed
+  /// for a free-form variant. Both are read the same way - the resolver folds
+  /// keys before comparing them - which is what lets one product page serve a
+  /// template-driven shoe and a hand-written medical size side by side.
   optionsJson Json
+
+  /// The deterministic identity of this combination.
+  ///
+  /// `colour:black|size:8|size_system:uk` - axes sorted by key, values case
+  /// and punctuation folded. Computed by `optionSignature`, and the ONLY thing
+  /// that can stop the same combination being stored twice: "Black" and
+  /// "black" are two strings and one shoe, and two rows for one shoe is a
+  /// resolver picking between them at random and a buyer seeing whichever the
+  /// query planner returned.
+  ///
+  /// Empty string for a variant with no readable options, which is why the
+  /// unique index below can exist at all - MariaDB treats every NULL in a
+  /// UNIQUE index as distinct, so a nullable column here would enforce
+  /// nothing. Exactly the trick `variantKey` plays elsewhere in this file.
+  optionSignature String @default("") @db.VarChar(512)
 
   /// Absolute price for this variant. Null falls back to Product.basePriceMinor.
   priceMinor BigInt?
+
+  /// Strike-through price for THIS size, where it differs from the family's.
+  ///
+  /// Must be at or above `priceMinor`; a "was" price below the "now" price is
+  /// a discount claim that is false, and the validator refuses it rather than
+  /// printing a negative saving.
+  compareAtPriceMinor BigInt?
+
+  /// --- Terms of trade, per sellable SKU ---
+  ///
+  /// All nullable, and null means "the product family's rule applies". That is
+  /// what every row written before these columns existed says, so nothing
+  /// changed for any of them. A variant overrides only where the seller
+  /// genuinely trades differently in that size - a pallet quantity that is
+  /// sold in tens while the single is sold in ones.
+  minOrderQty  Int?
+  qtyIncrement Int?
+  maxOrderQty  Int?
+
+  /// Working days between the order and dispatch, where this size is made or
+  /// brought in to order. Null means the family's ordinary lead time.
+  leadTimeDays Int?
+
+  /// --- What is in one purchasable unit ---
+
+  /// How many identical sellable units are supplied together - the 10 in "Pack
+  /// of 10". Null or 1 is a single.
+  ///
+  /// NOT how many the buyer wants. That is the cart line's quantity, and
+  /// conflating the two is how somebody ordering 3 of a Pack of 10 is sent
+  /// three packets. See `domain/variants/commerce.ts`.
+  multipackCount Int?
+
+  /// What is inside ONE of those units - 500 g, 250 ml, 100 sheets.
+  ///
+  /// A decimal and a unit held apart, never a string: "500g" cannot be sorted,
+  /// cannot be compared against "0.5 kg", and cannot be divided into a price
+  /// per kilogram. Decimal rather than Float for the same reason money is
+  /// BigInt - a net weight that is wrong in the seventh decimal place prints
+  /// as wrong on a delivery note.
+  netContentValue Decimal? @db.Decimal(18, 6)
+  netContentUnit  String?  @db.VarChar(16)
+
+  /// The amount a unit price is quoted against - "per 1 kg", "per 100 g".
+  ///
+  /// The seller's choice, because "per 100 g" and "per kg" are a factor of ten
+  /// apart and a shopper comparing two listings has to see which is which. A
+  /// sensible default is offered per unit family where this is null.
+  unitPricingBaseValue Decimal? @db.Decimal(18, 6)
+  unitPricingBaseUnit  String?  @db.VarChar(16)
+
+  /// The manufacturer's own packaged unit, in their words - "Box of 100".
+  /// Displayed, never parsed: it is a label on a carton, not a quantity this
+  /// system does arithmetic with.
+  manufacturerPackLabel String? @db.VarChar(64)
+
+  /// --- Shipping, per sellable SKU ---
+  ///
+  /// A 10-pack and a single weigh different amounts and go in different boxes,
+  /// so reading these off the product would quote one carrier price for both.
+  /// Null falls back to the product's `weightGrams` and to whatever the
+  /// fulfilment quote does today.
+  shippingWeightGrams Int?
+  shippingLengthMm    Int?
+  shippingWidthMm     Int?
+  shippingHeightMm    Int?
+  /// The operator's own handling class - "fragile", "oversize", "hazmat".
+  /// A label this system passes through; nothing here interprets it.
+  shippingClass       String? @db.VarChar(32)
 
   isActive   Boolean   @default(true)
   sortOrder  Int       @default(0)
@@ -1014,9 +1127,47 @@ model ProductVariant {
   importFingerprint String? @unique(map: "uq_variant_import_fingerprint") @db.Char(64)
 
   sellerOffers SellerOffer[]
+  media        ProductVariantMedia[]
 
+  /// One row per combination, per product.
+  ///
+  /// The constraint the whole variant system rests on. Added only after the
+  /// backfill in the same migration has given every existing row a signature,
+  /// because a unique index applied to unnormalised data fails on the first
+  /// duplicate and takes the deployment with it.
+  @@unique([productId, optionSignature], map: "uq_variant_option_signature")
   @@index([productId, isActive, sortOrder], map: "ix_variant_product")
   @@map("product_variants")
+}
+
+/// A photograph of one particular size or colour.
+///
+/// Separate from `product_media` rather than a nullable column on it, because
+/// the two are read at different times and by different queries: the gallery
+/// loads the family's photographs on every product page, and these are pulled
+/// in only once a buyer has narrowed to a variant. A nullable `variantId` on
+/// the existing table would have meant every gallery read filtering rows it
+/// never wants, and a change to a unique index that products already depend on.
+///
+/// A variant with no media of its own shows the family's. That is a fallback in
+/// the reader, not a copy here: duplicating the family's photographs onto forty
+/// rows means a replaced photograph reaching some of them.
+model ProductVariantMedia {
+  id        String @id @db.Char(26)
+  variantId String @db.Char(26)
+  mediaId   String @db.Char(26)
+
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade, map: "fk_variant_media_variant")
+  media   MediaAsset     @relation(fields: [mediaId], references: [id], onDelete: Restrict, map: "fk_variant_media_asset")
+
+  @@unique([variantId, mediaId], map: "uq_variant_media")
+  @@index([variantId, sortOrder], map: "ix_variant_media_sort")
+  @@map("product_variant_media")
 }
 
 model ProductMedia {
@@ -8627,6 +8778,24 @@ model SellerListingDraft {
   /// `packaging.ts`; this stores what the seller entered and what it worked
   /// out to, so a later change to the arithmetic is visible rather than silent.
   packagingJson Json?
+
+  /// The axes this listing sells along, and the values the seller offers on
+  /// each: `{ axes: [{ axisKey, values: [{ label, amount?, unit? }] }] }`.
+  ///
+  /// Null on a listing with one configuration, which is most of them, and an
+  /// empty `axes` means the seller was asked and said no. Those two are
+  /// deliberately different: the wizard shows the variant question again to
+  /// the first and not to the second.
+  variantAxesJson Json?
+
+  /// The combinations the seller actually approved, each with its own SKU,
+  /// price, stock and pack - the matrix, as they last left it.
+  ///
+  /// Not the Cartesian product of `variantAxesJson`. A seller who offers
+  /// black in four sizes and white in two has six rows here and not eight,
+  /// because the two the factory does not make are the ones a buyer must be
+  /// told are "not offered" rather than "out of stock".
+  variantsJson Json?
 
   /// The title the rules generated, and the fields that produced it. Null
   /// until every title-component attribute is valid - which is exactly when

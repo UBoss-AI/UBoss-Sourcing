@@ -191,6 +191,16 @@ export async function setOfferStatus(
   offerId: string,
   next: 'ACTIVE' | 'PAUSED' | 'ARCHIVED',
   correlationId?: string | null,
+  /**
+   * Why the seller paused it. Seller-visible, never shown to a buyer.
+   *
+   * A listings table full of paused rows with no explanation is a table
+   * nobody can act on three weeks later - "is this one waiting for stock, or
+   * did we stop selling it?" - and the person who paused it is often not the
+   * person looking. Ignored on resume and archive, where the reason would be
+   * stale the moment it was written.
+   */
+  reason?: string | null,
 ): Promise<void> {
   assertSellerPermission(membership, SellerPermission.OFFER_PUBLISH);
 
@@ -203,6 +213,10 @@ export async function setOfferStatus(
       statusReason: true,
       sellerSku: true,
       availableQuantity: true,
+      priceMinor: true,
+      compareAtPriceMinor: true,
+      product: { select: { archivedAt: true } },
+      variant: { select: { isActive: true, archivedAt: true, sku: true } },
     },
   });
 
@@ -217,6 +231,54 @@ export async function setOfferStatus(
         ErrorCode.LISTING_TRANSITION_NOT_ALLOWED,
         offer.statusReason ??
           'This listing needs changes before it can go back on sale.',
+      );
+    }
+
+    /*
+     * What has to be true before a buyer can be shown this again.
+     *
+     * Checked on RESUME rather than trusted from whenever it was last live,
+     * because pausing is what a seller does in order to change things - that
+     * is the whole point of the button - and the state they paused in is not
+     * the state they are resuming from. A listing paused to fix a price, and
+     * resumed with the price field emptied, would otherwise go back on sale
+     * at zero.
+     *
+     * Each refusal names the one thing to fix. "This listing is not valid"
+     * on a screen with forty fields is a dead end.
+     */
+    const problems: string[] = [];
+
+    if (offer.sellerSku.trim() === '') {
+      problems.push('it has no product code');
+    }
+
+    if (offer.priceMinor <= 0n) {
+      problems.push('its price is not set');
+    }
+
+    if (offer.compareAtPriceMinor !== null && offer.compareAtPriceMinor < offer.priceMinor) {
+      // Not a discount - a claim that the buyer is paying above the usual
+      // price. Better to show nothing than to show that.
+      problems.push('its recommended price is lower than what you are charging');
+    }
+
+    if (offer.availableQuantity < 0) {
+      problems.push('its stock figure is negative');
+    }
+
+    if (offer.product.archivedAt !== null) {
+      problems.push('the product it belongs to has been archived');
+    }
+
+    if (offer.variant !== null && (offer.variant.archivedAt !== null || !offer.variant.isActive)) {
+      problems.push('the version it sells is no longer active');
+    }
+
+    if (problems.length > 0) {
+      throw conflict(
+        ErrorCode.LISTING_TRANSITION_NOT_ALLOWED,
+        `${offer.sellerSku} cannot go back on sale because ${problems.join(', and ')}.`,
       );
     }
   }
@@ -237,6 +299,12 @@ export async function setOfferStatus(
       data: {
         status: next,
         ...(next === 'ACTIVE' ? { publishedAt: new Date(), statusReason: null } : {}),
+        // Only on pause, and only when one was given: a `reason` left out is
+        // the seller not saying, which must not erase what they said last
+        // time they paused it.
+        ...(next === 'PAUSED' && reason !== undefined && reason !== null
+          ? { statusReason: reason.trim() === '' ? null : reason.trim().slice(0, 2000) }
+          : {}),
         ...(next === 'ARCHIVED' ? { archivedAt: new Date() } : {}),
         version: { increment: 1 },
       },
@@ -251,8 +319,10 @@ export async function setOfferStatus(
     actor: { type: 'CUSTOMER', label: membership.displayName },
     resourceType: 'seller_offer',
     resourceId: offerId,
-    before: { status: offer.status },
-    after: { status: next },
+    before: { status: offer.status, statusReason: offer.statusReason },
+    // The reason is on the audit entry as well as the row, so "who paused
+    // this, when, and why" survives the next pause overwriting the column.
+    after: { status: next, ...(next === 'PAUSED' ? { statusReason: reason ?? null } : {}) },
     summary: `${offer.sellerSku} was ${next === 'ACTIVE' ? 'put back on sale' : next === 'PAUSED' ? 'paused' : 'archived'}.`,
     correlationId: correlationId ?? null,
   });

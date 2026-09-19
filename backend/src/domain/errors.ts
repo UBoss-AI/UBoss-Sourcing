@@ -79,6 +79,39 @@ export const ErrorCode = {
   VARIANT_MISMATCH: 'VARIANT_MISMATCH',
 
   /**
+   * Another variant of this product already sells this exact combination.
+   *
+   * Distinct from SKU_ALREADY_EXISTS, and the distinction is what the author
+   * has to do next. A duplicate SKU means "choose a different code for this
+   * thing"; a duplicate combination means "this thing is already listed" -
+   * the fix is to edit the existing row, not to rename this one.
+   *
+   * Raised before the write, from the option signature, so the message can
+   * name the SKU that already holds the combination.
+   */
+  VARIANT_COMBINATION_EXISTS: 'VARIANT_COMBINATION_EXISTS',
+
+  /**
+   * A generated variant matrix nobody could check before saving.
+   *
+   * Four axes of six values each is 1,296 rows. The limit is not a database
+   * one - it is the point past which a seller clicks Save on a table they have
+   * not read, and a catalogue gains a thousand SKUs with a placeholder price.
+   */
+  VARIANT_MATRIX_TOO_LARGE: 'VARIANT_MATRIX_TOO_LARGE',
+
+  /**
+   * An axis this product's category does not offer.
+   *
+   * The 112 subcategory templates in `domain/variants/` decide which
+   * dimensions a shelf sells along. A request naming one that is not on the
+   * list is either a stale client or a category that has been re-parented, and
+   * both want to be told which key was not recognised rather than to have it
+   * quietly dropped.
+   */
+  VARIANT_AXIS_NOT_IN_TEMPLATE: 'VARIANT_AXIS_NOT_IN_TEMPLATE',
+
+  /**
    * Listed, readable, and not for sale - two different reasons, two codes.
    *
    * They are separate because the customer has to do two different things. A

@@ -24,6 +24,7 @@ import {
 } from '../../modules/seller/brand.service.js';
 import {
   createDraft,
+  generateDraftMatrix,
   listDrafts,
   previewTitle,
   readDraft,
@@ -46,6 +47,11 @@ import {
   setOfferStatus,
   updateOfferPrice,
 } from '../../modules/seller/offer.service.js';
+import {
+  addOfferVariants,
+  previewOfferVariants,
+  readOfferVariants,
+} from '../../modules/seller/offer-variants.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -79,6 +85,84 @@ const draftOfferSchema = z.object({
     .nullable()
     .optional(),
 });
+
+/**
+ * The axes a listing sells along.
+ *
+ * Deliberately permissive about the VALUES - a label is any short string,
+ * because the seller is describing their own stock and this marketplace sells
+ * everything from bolts to books. What is bounded is the SHAPE: five axes and
+ * sixty values each, which is the point past which a matrix stops being
+ * something a person can fill in and starts being a denial of service.
+ *
+ * `normaliseAxes` does the real work afterwards - dropping blanks, folding
+ * duplicates, and refusing an axis the category's template does not offer.
+ */
+const variantAxesSchema = z
+  .array(
+    z.object({
+      axisKey: z.string().trim().min(1).max(64),
+      values: z
+        .array(
+          z.object({
+            label: z.string().trim().max(120),
+            amount: z.string().trim().max(32).nullable().optional(),
+            unit: z.string().trim().max(16).nullable().optional(),
+          }),
+        )
+        .max(60),
+    }),
+  )
+  .max(5);
+
+/**
+ * The matrix rows, as the seller last left them.
+ *
+ * `optionSignature` is accepted and then thrown away - `normaliseRows`
+ * recomputes it from `options`. It is in the shape only because the wizard
+ * round-trips whole rows, and rejecting a field the server itself sent would
+ * be a strange thing to do.
+ */
+const variantRowsSchema = z
+  .array(
+    z.object({
+      optionSignature: z.string().max(512).default(''),
+      options: z.record(z.string().max(64), z.string().max(120)),
+      name: z.string().trim().max(255).default(''),
+      sku: z.string().trim().max(64).default(''),
+      barcode: z.string().trim().max(64).nullable().optional(),
+      isActive: z.boolean().default(true),
+
+      priceMinor: minorUnits.nullable().optional(),
+      compareAtPriceMinor: minorUnits.nullable().optional(),
+
+      minOrderQty: z.number().int().min(0).max(1_000_000).nullable().optional(),
+      qtyIncrement: z.number().int().min(0).max(1_000_000).nullable().optional(),
+      maxOrderQty: z.number().int().min(0).max(1_000_000).nullable().optional(),
+      leadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
+
+      multipackCount: z.number().int().min(1).max(1_000_000).nullable().optional(),
+      netContentValue: z.string().trim().max(32).nullable().optional(),
+      netContentUnit: z.string().trim().max(16).nullable().optional(),
+
+      shippingWeightGrams: z.number().int().min(0).max(100_000_000).nullable().optional(),
+      shippingLengthMm: z.number().int().min(0).max(1_000_000).nullable().optional(),
+      shippingWidthMm: z.number().int().min(0).max(1_000_000).nullable().optional(),
+      shippingHeightMm: z.number().int().min(0).max(1_000_000).nullable().optional(),
+
+      stock: z
+        .array(
+          z.object({
+            locationId: z.string().length(26),
+            availableQuantity: z.number().int().min(0).max(100_000_000),
+          }),
+        )
+        .max(50)
+        .default([]),
+      mediaId: z.string().length(26).nullable().optional(),
+    }),
+  )
+  .max(500);
 
 const draftPatchSchema = z.object({
   categoryId: z.string().length(26).nullable().optional(),
@@ -123,6 +207,8 @@ const draftPatchSchema = z.object({
     .nullable()
     .optional(),
   sellerEditedTitle: z.string().trim().max(512).nullable().optional(),
+  variantAxes: variantAxesSchema.nullable().optional(),
+  variants: variantRowsSchema.nullable().optional(),
   /** The version the client last read. Stale writes are refused, not merged. */
   expectedVersion: z.number().int().min(0).nullable().optional(),
 });
@@ -164,9 +250,21 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     { preHandler: requireSeller(SellerPermission.OFFER_PUBLISH) },
     async (request, reply) => {
       const params = idParam.parse(request.params);
-      const body = z.object({ status: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']) }).parse(request.body);
+      const body = z
+        .object({
+          status: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']),
+          /** Seller-visible note on a pause. Never shown to a buyer. */
+          reason: z.string().trim().max(2000).nullable().optional(),
+        })
+        .parse(request.body);
 
-      await setOfferStatus(currentSeller(request), params.id, body.status, request.correlationId);
+      await setOfferStatus(
+        currentSeller(request),
+        params.id,
+        body.status,
+        request.correlationId,
+        body.reason ?? null,
+      );
       return reply.status(204).send();
     },
   );
@@ -194,6 +292,67 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
 
       await updateOfferPrice(currentSeller(request), params.id, body, request.correlationId);
       return reply.status(204).send();
+    },
+  );
+
+  /*
+   * Versions on a listing that already exists.
+   *
+   * Separate from the wizard's routes because the thing being edited is
+   * different: the wizard writes JSON onto a draft nobody can buy, and these
+   * create real variants and real offers against a product that is already in
+   * the catalogue. Sharing a route would mean one handler whose behaviour
+   * depended on which of two unrelated states it found.
+   */
+  app.get('/listings/:id/variants', async (request, reply) => {
+    const params = idParam.parse(request.params);
+    const view = await readOfferVariants(currentSeller(request), params.id);
+    return reply.header('cache-control', 'no-store').status(200).send(view);
+  });
+
+  app.post(
+    '/listings/:id/variants/preview',
+    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ axes: variantAxesSchema }).parse(request.body);
+
+      const preview = await previewOfferVariants({
+        membership: currentSeller(request),
+        offerId: params.id,
+        axes: body.axes,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(preview);
+    },
+  );
+
+  app.post(
+    '/listings/:id/variants',
+    {
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          axes: variantAxesSchema,
+          rows: variantRowsSchema,
+          expectedVersion: z.number().int().min(0).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const result = await addOfferVariants({
+        membership: currentSeller(request),
+        offerId: params.id,
+        axes: body.axes,
+        rows: body.rows,
+        expectedVersion: body.expectedVersion ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send(result);
     },
   );
 
@@ -305,6 +464,45 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
         draftId: params.id,
         patch,
         expectedVersion: expectedVersion ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send(draft);
+    },
+  );
+
+  /**
+   * Build the combination rows for the axes the seller switched on.
+   *
+   * A POST because it writes, and separate from the ordinary patch because it
+   * is not a save of what the seller typed - it is the server working out what
+   * combinations those choices imply, which the seller then prunes down to the
+   * ones they actually stock.
+   *
+   * Rate limited harder than the autosave: each call can write up to five
+   * hundred rows into a JSON column, and nothing about the wizard needs it
+   * more than a few times a minute.
+   */
+  app.post(
+    '/listing-drafts/:id/variants/generate',
+    {
+      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          axes: variantAxesSchema,
+          replaceExisting: z.boolean().default(false),
+        })
+        .parse(request.body);
+
+      const draft = await generateDraftMatrix({
+        membership: currentSeller(request),
+        draftId: params.id,
+        axes: body.axes,
+        replaceExisting: body.replaceExisting,
         correlationId: request.correlationId,
       });
 

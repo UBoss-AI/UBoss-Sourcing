@@ -231,6 +231,41 @@ real ones from **Staff**.
 After rotating, the tables below are wrong for that database and still right
 for a fresh clone. That is the intended state; do not edit them to match.
 
+### Making the tables true again
+
+On a development machine that is not reachable by anybody else, the rotation is
+usually just in the way: the tables below say one thing, the database says
+another, and `db:seed` cannot reconcile them because it only writes a password
+when it creates the row. One command does:
+
+```powershell
+cd backend ; npm run db:restore-seed-passwords
+```
+
+It writes the published password back for all nine, and clears the other things
+that reject a correct password — a lockout, a failed-attempt count, an
+unverified address, a deactivated account. It revokes their sessions, reports
+which ones had drifted, and **refuses to run when `NODE_ENV` is production**,
+where writing a password out of a public repository is the whole problem rather
+than the fix.
+
+### These credentials belong to the database, not to a URL
+
+The three tables below are the sign-ins for **every** way this system is
+reached. The front ends are files; only the API holds accounts, and every
+surface points at one API and one database:
+
+| Where the browser is | What it reaches |
+|---|---|
+| `localhost:5173` / `5174` / `5175` | the API on `localhost:4000` |
+| A tunnel — cloudflared or ngrok | the same API, through the tunnel |
+| Netlify | the same API, through that site's proxy rule |
+
+So there is nothing per-environment to keep in step. If a credential works on
+`localhost` and not on a deployed URL, the account is not the problem — the
+site is pointed at a different API, or `COOKIE_SECURE` is wrong for HTTPS. Both
+are in [docs/NETLIFY.md](docs/NETLIFY.md).
+
 **Staff**, at <http://localhost:5173>:
 
 | Email | Password | Role |
@@ -263,6 +298,14 @@ cart, which is where the backend puts it. On the admin sign-in page, tick the
 Terms checkbox — and allow the browser's location prompt, or the session will
 not finish (see [Configuration](#configuration)).
 
+On a window 1024px or wider, every signed-out screen in all three apps puts the
+form on the right and a slowly turning earth on the left, with a pin on each of
+fifteen sourcing ports. The picture is decoration: it is hidden from assistive
+technology, it holds no control, and it is absent on a narrow window, on a
+machine without WebGL, and for anybody who has asked for reduced motion — in
+each of which the screen is a drawn globe instead and is finished either way.
+Nothing behind it is fetched until the form is already usable.
+
 ---
 
 ## What each surface does
@@ -275,19 +318,50 @@ a cart that survives sign-in, and checkout with a warehouse chosen for the
 delivery address. After the order: tracking, invoices, returns, and the
 customer's own purchase history.
 
-Two ordering patterns beyond the one-off basket:
+Browsing runs off a **department strip** on `/products` and on every category
+page — every top-level department in one scrolling row, each with a drawn
+two-tone mark, the one you are in underlined. Opening a department shows what is
+inside it as a **deck of photographic cards**, one square to the reader with its
+product count and a way in, the rest tipped back behind. Both dress themselves
+from the catalogue's own names: a department or shelf this software recognises
+gets a picture, and one it does not gets a drawn plate rather than a guess, so a
+fresh install looks finished with no images uploaded.
+
+A product that comes in more than one form is bought in one of **two** ways,
+and the product decides which. A catalogue item whose seller has declared the
+dimensions it varies by gets a **narrowing selector** — colour, then size,
+with combinations nobody stocks switched off as you go, "out of stock" drawn
+differently from "not offered", and the choice kept in the URL so a link
+opens on the thing the sender was looking at. Everything else keeps the
+**option list**, where several sizes are chosen at once and each carries its
+own quantity — which is how a hospital buys three sizes of syringe in one go.
+
+Availability is published as a **boolean per SKU**, never as a quantity:
+this storefront does not put warehouse figures on a shop front, but "is
+there one" and "how many are there" are different questions, and only the
+second is confidential. Without the first, a size that is temporarily
+empty would look identical to a size that is not sold at all. The option
+list gets the same answer, so the whole catalogue that was already on sale
+benefits: a sold-out option is struck through, labelled, and cannot be
+ticked.
+
+Packaged goods state what is actually in the box before the button is
+pressed: "500 g · Pack of 10", "each pack contains 5000 g", and, at a
+quantity of 2, "2 packs is 20 units, 10000 g in total". Pack count is part of
+the product; how many packs somebody wants is not.
+
+Two ordering patterns beyond the one-off cart:
 
 - **Recurring orders** — a schedule that places a real order on a cadence.
-- **Buy Later / Subscribe & Reorder** — a basket priced by `quoteSchedule` and
+- **Buy Later / Subscribe & Reorder** — a cart priced by `quoteSchedule` and
   nothing else, so the figure the customer confirmed on the review screen and
   the figure charged weeks later come from one place.
 
-A **dashboard** at `/account` opens the section: a ring of the buyer's own
-orders, what is promised in the next seven days, what has been paid against the
-period before, schedules that cannot run without the cardholder, and the health
-of their own ERP feed. Choosing a slice filters the order list under it, and the
-period and the selection are both in the URL, so a view is a link somebody can
-send.
+A **dashboard** at `/account` opens the section, and it is a picture: one ring
+of the buyer's own orders grouped the way a buyer thinks about them, with the AI
+panel beside it and nothing underneath. Choosing a slice singles that group out
+and narrows what the panel is asked about, and the period and the selection are
+both in the URL, so a view is a link somebody can send.
 
 Optionally the customer's own ERP can collect orders and post back receipts.
 
@@ -314,13 +388,49 @@ item produce one product row and ten offers, because "the same product" must
 not mean "the same price". `isMarketplaceProduct` says price and stock come
 from the offers rather than from the product row.
 
+**A listing that comes in sizes is described once.** The listing wizard's
+fourth step, *Set up versions*, asks whether the product has more than one
+version and — if it does — offers the candidate dimensions for that shelf from
+the same 112 templates the admin Variant builder uses. Nothing is ticked on the
+seller's behalf: a footwear template offers sizes 5 to 12 and the seller
+switches on the two they stock, so a size nobody confirmed is genuinely *not
+offered* rather than silently out of stock. The projected combination count is
+shown before the table is built; regenerating after adding a colour keeps every
+code, price and stock figure already typed. On approval each approved
+combination becomes a `ProductVariant`, a `SellerOffer` of its own and its own
+per-warehouse stock, in one transaction. A listing with no versions takes the
+same path with one entry and comes out as the single offer it always did.
+
+**A listing published without versions can gain them.** Opening one from the
+listings table shows the versions it sells in — a listing that has none says
+so — and offers that category's candidate options with nothing ticked. New
+versions are added *beside* the original, which keeps its id, its code and its
+order history; they are created off sale, and pressing Save twice adds nothing
+the second time. Because it changes what a buyer is choosing between, the
+listing has to be paused first, and the page offers the pause.
+
+**Pausing is how a live listing is edited.** Pause takes it out of search and
+out of baskets, keeps every order already placed moving through fulfilment
+untouched, and leaves everything editable; an optional reason is kept for the
+seller's own team and never shown to a buyer. Resume re-checks the listing
+rather than trusting the state it was paused in — code, price, recommended
+price, stock, and that the product and version are still active — and each
+refusal names the one thing to fix. Archiving is separate and never
+hard-deletes something an order references.
+
 **A seller's listing appears in the shop the moment they put it on sale**, in
 its category, in search and in the facet counts, at their own price. The
 storefront grid is rooted at the price row for the shopper's currency, so a
-marketplace product's row is kept as a projection of its cheapest live offer —
+marketplace product's rows are kept as a projection of its live offers —
 written in the same transaction as the offer change, so the grid can never quote
-a figure the basket will not charge. Pausing the last offer takes it back off
-the shelf. Adding one to a basket binds that seller's offer server-side, so
+a figure the cart will not charge. A listing sold in sizes publishes **one row
+per version plus a "from" row**: the selector prices each size from its own
+row, and the grid reads the cheapest thing a shopper could actually buy, so a
+product whose every offer is against a version is not priced correctly on its
+own page and invisible everywhere else. Availability comes from the sellers'
+own stock per version, not from the operator's warehouse ledger, so one size
+can be sold out while the next is not. Pausing the last offer takes it back off
+the shelf. Adding one to a cart binds that seller's offer server-side, so
 every existing route into a cart works without knowing marketplaces exist.
 
 An installation that approved listings before this existed has products that are
@@ -362,6 +472,15 @@ customers and their credit terms, coupons, sellers and their applications,
 carriers and consignments, settings, integrations, and an append-only audit
 log.
 
+A product that comes in more than one form is built with a **Variant
+builder**: the dimensions that shelf is normally stocked along, offered as
+chips to switch on; values entered or picked from the template; and then the
+whole table shown — every combination, its generated SKU, and whether it
+already exists — before anything is written. Generating never removes and
+never overwrites, so a combination that already exists keeps its price, its
+stock and its hand-edited SKU, and re-running after adding one size creates
+one row. A category with no template keeps the free-form option editor.
+
 **Companies** is the way into all three audiences at once. A business can buy,
 sell and carry here at the same time, and those are three accounts in three
 tables under three slightly different names; that screen groups them by the
@@ -384,13 +503,21 @@ that does not exist. Both seller views need `inventory.read` **and**
 A location with no usable coordinates stays in the table and is counted under
 the map, so one bad row never takes the map down with it.
 
-The dashboard opens on a reporting window and carries, for each headline
-figure, the change against the window of equal length before it and the shape
-of the days behind it — so a month's total that arrived in one afternoon does
-not read as a steady month. Where the preceding window holds nothing, the tile
-says so rather than reporting a rise out of nothing. Underneath, one bar shows
-where every order in the period sits, from the earliest stage through to
-delivered.
+**An address is typed once and it lands on the map.** The address field on a
+warehouse offers the real places matching what is being typed, and choosing one
+fills the street, the town, the region, the postal code and the coordinates
+together — then draws the pin, on the same map the screen uses, so the position
+is checked before it is saved rather than discovered later as a marker in the
+sea. A field the geocoder did not name is left exactly as it was typed, never
+cleared. The same field is on the seller's dispatch addresses and on a
+customer's delivery address. All of it is a convenience over fields that still
+take typing: with no geocoder configured the list never opens and nothing else
+changes. See `GEOCODE_FORWARD_URL`.
+
+The dashboard is one ring of everything waiting across the queues that member
+of staff can act on, the AI panel beside it, and nothing else. The month's
+figures it used to carry live on the screens that own them — Reports, Orders,
+Payments, Inventory, Recurring — all still in the navigation.
 
 **The navigation rail counts what is waiting.** Every row with a queue behind
 it carries a number when anything is in it — listings in review, brands asked
@@ -432,10 +559,10 @@ Published; bulk import can activate, never publish).
 Gated by `FEATURE_LOGISTICS_PORTAL`. A carrier company signs in on its own
 hostname and sees only its own work: consignments to accept or decline,
 collections, dispatch manifests, exceptions, its drivers and vehicles, and a
-driver's own round with proof-of-delivery capture. The dashboard leads with one
-bar splitting the whole workload between waiting, moving, finished and gone
-wrong, so a dispatcher can see whether the day is still to collect or already
-out.
+driver's own round with proof-of-delivery capture. The dashboard is one ring
+folding the twenty-seven consignment statuses into eight stages, with the AI
+panel beside it, so a dispatcher can see whether the day is still to collect or
+already out.
 
 There is no public registration. A carrier is created from **Logistics →
 Carriers** in the console, which sends a one-time activation link; the person
@@ -519,9 +646,11 @@ take, rather than marking it dead and silently losing the work.
 
 ## Role dashboards
 
-Each of the three signed-in roles opens on a dashboard built from the same
-parts: one dominant ring, supporting figures in a bento grid, a filtered list
-underneath, and an AI panel beside it.
+Each of the three signed-in roles opens on a dashboard built from the same two
+parts: one dominant ring, and an AI panel beside it. **That is the whole
+screen** — no tiles, no lists, nothing under the chart. The shape carries the
+information, the paragraph beside it says what the shape means, and every figure
+either of them mentions has a screen of its own in the navigation.
 
 | Role | Where | The ring |
 |---|---|---|
@@ -543,7 +672,12 @@ telling red from green, and nothing is reachable only by pointing at it.
 
 **The period and the selected slice live in the URL** — `?range=30d&segment=…`
 — so a view is shareable and Back behaves. Today, last 7 days, last 30 days, or
-a custom pair.
+a custom pair. Choosing a slice also narrows what the AI panel is asked about,
+so the paragraph is about the group the reader singled out.
+
+**The AI panel is deliberately small**: the summary, one line saying when it was
+written and by which model, and a field to ask a question. It is a reading aid
+for the chart, not a second screen beside it.
 
 The dashboards follow the theme toggle like every other screen: deep navy in
 dark, a cool near-white in light, both audited by `npm run audit:contrast`.
@@ -574,6 +708,57 @@ hard-coded in the client. It offers only currencies the catalogue is actually
 priced in — a currency staff activated but never priced anything in would
 otherwise give the shopper an empty shop with no explanation.
 
+### The AI, and checking it is actually on
+
+One key switches on every AI surface: the storefront assistant, AI Mode, image
+search and the insights panel on all three dashboards. They share one provider
+seam, so they are on or off together.
+
+**Nothing is told what you sell.** The assistant's system prompt names no
+trade. Everything it knows about the catalogue is read from your database on
+the way into each answer — an index of every category with something on sale in
+it, then every published product with its page, its price, its unit, and the
+seller behind it where a marketplace listing is what is being quoted. Image
+search reads the same catalogue. So a deployment that sells fasteners and a
+deployment that sells surgical gloves get an assistant that describes what it
+actually has, with no prompt to edit and nothing to configure.
+
+**And it is never a minute behind.** That snapshot is cached against a stamp
+taken from the catalogue itself, not against a clock: publish a product, approve
+a seller's listing, change a price, and the next question already knows. There
+is nothing to restart and no cache to clear.
+
+| Variable | What it does |
+|---|---|
+| `ASSISTANT_ENABLED` | The master switch. Default `true` |
+| `ASSISTANT_PROVIDER` | `gemini`, `anthropic`, or blank to use whichever key is set |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | Key from [Google AI Studio](https://aistudio.google.com/apikey). Model defaults to `gemini-2.5-flash` |
+| `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | Key from the Anthropic Console. Model defaults to `claude-opus-5` |
+
+**Set no key and nothing breaks**, which is the point and also the problem. The
+insights panel builds its summary from your own figures and says on screen that
+it did; the assistant widget does not mount at all. A deployment whose key has
+quietly stopped working looks exactly the same as one that never had a key —
+there is no error, just a duller dashboard nobody notices for a month.
+
+So there is a command that goes and looks:
+
+```powershell
+cd scripts ; npm run check:ai
+```
+
+It reads `backend/.env`, makes one real call to the provider configured there,
+and says which of the three things is wrong: no key, a key that is refused, or a
+model that is gone or out of quota. It never prints the key. It exits `0` when
+the provider answered, `1` when it is configured but broken, and `2` when no
+provider is configured — so a scheduled job can read it without parsing prose.
+
+**The trap it exists for.** Google meters its free tier **per model**. A model
+that worked yesterday answers `429` today while every other model on the same
+key is fine, so the fix is usually one line of `backend/.env` and a restart of
+the API rather than anything to do with the key. Enable billing on the Google
+Cloud project before opening any of this to real traffic.
+
 <details>
 <summary><b>Where each sign-in happened</b></summary>
 
@@ -595,7 +780,8 @@ given at all.
 |---|---|
 | `FEATURE_ADMIN_LOGIN_LOCATION` | The requirement itself. Default `false`; enable only after a documented privacy and employment-law assessment |
 | `GEOCODE_REVERSE_URL` | Turns coordinates into a place name. `{lat}` and `{lon}` are substituted. Empty switches the lookup off and the bell shows coordinates |
-| `GEOCODE_TIMEOUT_MS` | How long to wait for it. Default `5000` |
+| `GEOCODE_FORWARD_URL` | The other direction: turns a typed address into places to choose from, which is what fills the coordinates on a warehouse, a seller's dispatch address and a customer's delivery address. `{query}` is substituted, and `{limit}` too where it is used. Empty switches the suggestions off and every field still takes typing |
+| `GEOCODE_TIMEOUT_MS` | How long to wait for either of them. Default `5000` |
 
 **The console must be served over HTTPS.** The browser Geolocation API exists
 only in a secure context, so on plain HTTP (anything but `localhost`) no member
@@ -608,6 +794,13 @@ switch it off. It is best-effort in every failure: a geocoder that is slow,
 firewalled or down leaves the place as coordinates and never blocks a sign-in.
 The default is OpenStreetMap's Nominatim, whose usage policy asks for no bulk
 querying; one lookup per admin sign-in is well inside it.
+
+`GEOCODE_FORWARD_URL` is the same host by default and the same choice: it is
+what the address fields across the product suggest from, so a deployment that
+will not send a half-typed address to a third party empties it and every one of
+those fields carries on as plain text. The requests it makes are POSTed from
+the browser to this API and out from here, so an address never sits in a query
+string, an access log or a proxy's on the way.
 
 </details>
 
@@ -1227,6 +1420,42 @@ default. `docs/DEPLOYMENT.md` §15 has the settings it needs.
 
 ---
 
+### Checking the variant data after an upgrade
+
+The migration that introduced option signatures computed them in SQL,
+because a constraint and the backfill that makes it possible have to land
+together. SQL cannot fold values the way the application does, so the
+historical rows carry a coarser signature than anything written since.
+
+```powershell
+cd backend
+npm run variants:audit            # report only, changes nothing
+npm run variants:audit -- --apply # rewrite the signatures it can
+```
+
+It never merges two variants and never edits an option value. What it
+reports instead is products whose variants their own options cannot tell
+apart — a real thing to find in an imported catalogue, where the
+difference between four SKUs went into the name and never into the
+options. Those rows keep selling; the report says which to fix.
+
+### Two demo products for looking at variants in a browser
+
+A safety shoe and a bag of seeds, which between them exercise everything
+the selector has to do: narrowing along two axes, the difference between
+"out of stock" and "not offered", a size run that has to sort
+numerically, and a pack count that is not a cart quantity.
+
+```powershell
+cd backend
+npm run variants:demo             # creates or replaces both
+npm run variants:demo -- --remove # deletes them and nothing else
+```
+
+Re-running replaces them, so it is safe to press twice.
+
+---
+
 ## The rules this system is built on
 
 Enforced in code. Changing any of them is a deliberate act rather than an edit.
@@ -1247,7 +1476,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   `schedule-state.ts` for the same reason, and it matters more there: an
   occurrence changes status inside a worker with nobody watching, and the states
   it moves between decide whether a card is charged.
-- **A scheduled basket is priced by `quoteSchedule` and nothing else.** The
+- **A scheduled cart is priced by `quoteSchedule` and nothing else.** The
   review screen the customer confirms and the worker that charges them weeks
   later both call it, so the number agreed and the number charged come from one
   place.
@@ -1290,7 +1519,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   exists so the catalogue can find and sort the product, never to price it.
 - **What a line is counted in is decided by who is selling it.** The operator
   sells cartons of `PIECES_PER_CARTON` pieces; a third-party seller sells
-  pieces, at their own minimum and step. The basket resolves the offer *before*
+  pieces, at their own minimum and step. The cart resolves the offer *before*
   it resolves the quantity, because deciding "how many pieces is this" first can
   only ever produce the operator's answer — and the operator's answer on a
   seller's line multiplies their price by the carton. Never decided from a
@@ -1332,6 +1561,21 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   `tests/unit/export-bundle-completeness.test.ts` until the Article 15 export
   accounts for it — either by disclosing it or by listing it as out of scope
   with the reason.
+- **Pack count is not cart quantity.** "Pack of 10" is one thing a warehouse
+  picks, weighs and ships, with its own SKU, barcode and price. How many of
+  those packs somebody wants lives on the cart line and never on the variant.
+  A buyer choosing a 500 g packet, Pack of 10, quantity 2 is buying 2 packs =
+  20 packets = 10 kg, and every screen says so in those words.
+- **No two variants of one product may describe themselves the same way.**
+  Each carries an option signature — its combination, case-folded and sorted
+  by axis key — under `unique(productId, optionSignature)`. Two matching rows
+  would leave the selector picking whichever the database happened to return
+  first.
+- **A variant axis is a choice a buyer makes, not a fact about the product.**
+  Size is an axis. Country of origin is a specification. A minimum order of
+  ten is a term of trade. A batch number belongs to the stock in a warehouse,
+  not to the identity of the thing being sold — a 500 g packet is the same
+  variant whichever delivery it came out of.
 
 ---
 
@@ -1374,5 +1618,10 @@ causes it, not a task for later:
 - **`SETUP.md`** is updated whenever the way the project is started changes.
 - **The feature guide** is regenerated from its script (`cd scripts && npm run
   guide`) whenever a feature is added, changed or removed.
+
+One command is worth running on a schedule rather than on a change: `cd scripts
+; npm run check:ai` asks whether the AI provider is still answering. Nothing
+else in this repository fails when it is not — see "The AI, and checking it is
+actually on".
 
 `CLAUDE.md` states this as a requirement and lists what counts as a change.

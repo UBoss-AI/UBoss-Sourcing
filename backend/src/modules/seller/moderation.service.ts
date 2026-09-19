@@ -31,6 +31,7 @@ import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { listDocumentsForReview } from './document.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
+import { normaliseRows, readDraftVariants, variantNameOf } from './listing-variants.js';
 import { refreshOfferTotals } from './inventory.service.js';
 import { notifySeller } from './notification.service.js';
 import type { SellerApplicationStatusName } from '../../domain/seller-state.js';
@@ -774,6 +775,159 @@ export async function decideListing(input: ListingDecisionInput): Promise<{ offe
  *     it. It is NOT published on its own: a marketplace product becomes visible
  *     because a live offer points at it, not because the product row says so.
  */
+/**
+ * One sellable thing the approval should create.
+ *
+ * `options` null means "this listing has no variants" and is the shape every
+ * listing approved before variants existed still takes: no `ProductVariant`
+ * row, an offer with `variantKey: ''`, and the price and stock read off the
+ * draft's own offer and stock JSON.
+ */
+interface VariantSpec {
+  options: Record<string, string> | null;
+  optionSignature: string;
+  name: string;
+  sellerSku: string;
+  gtin: string | null;
+  priceMinor: bigint | null;
+  compareAtPriceMinor: bigint | null;
+  minOrderQty: number | null;
+  qtyIncrement: number | null;
+  maxOrderQty: number | null;
+  leadTimeDays: number | null;
+  multipackCount: number | null;
+  netContentValue: string | null;
+  netContentUnit: string | null;
+  shippingWeightGrams: number | null;
+  shippingLengthMm: number | null;
+  shippingWidthMm: number | null;
+  shippingHeightMm: number | null;
+  stock: { locationId: string; availableQuantity: number }[];
+}
+
+/** A whole number from a draft's JSON, or null. Never NaN, never negative. */
+function specInt(value: unknown): number | null {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : null;
+}
+
+/** Minor units from a draft's JSON. Rejects anything that is not digits. */
+function specMinor(value: unknown): bigint | null {
+  return typeof value === 'string' && /^\d+$/.test(value) ? BigInt(value) : null;
+}
+
+/** The axis keys a draft switched on, for `Product.variantAxesJson`. */
+function draftAxisKeys(draft: { variantAxesJson: unknown }): string[] {
+  const { axes } = readDraftVariants(draft.variantAxesJson, null);
+  return (axes ?? []).map((axis) => axis.axisKey);
+}
+
+/**
+ * What approval should create, as a list of one or many.
+ *
+ * Falls back to the single base spec whenever the draft has no usable variant
+ * rows - no axes, an empty matrix, or every row switched off. That fallback is
+ * not a defensive nicety: every listing that existed before this feature has
+ * exactly that shape, and a moderator approving one of them must get the same
+ * single offer they would have got last week.
+ *
+ * ACTIVE rows only, and rows with a SKU only. A row with no code cannot be
+ * created - `ProductVariant.sku` is UNIQUE and NOT NULL - and inventing one
+ * here would put a code on a picking label that the seller has never seen.
+ * `validateVariants` already blocks submission on both, so reaching this with
+ * such a row means the draft was approved despite a blocker, and dropping the
+ * row is better than failing the whole approval.
+ */
+function buildVariantSpecs(
+  draft: { variantAxesJson: unknown; variantsJson: unknown; matchedProductId: string | null },
+  base: {
+    sellerSku: string;
+    priceMinor: bigint;
+    stockJson: { locationId: string; availableQuantity: number }[];
+  },
+): VariantSpec[] {
+  const baseSpec: VariantSpec = {
+    options: null,
+    optionSignature: '',
+    name: '',
+    sellerSku: base.sellerSku,
+    gtin: null,
+    priceMinor: base.priceMinor,
+    compareAtPriceMinor: null,
+    minOrderQty: null,
+    qtyIncrement: null,
+    maxOrderQty: null,
+    leadTimeDays: null,
+    multipackCount: null,
+    netContentValue: null,
+    netContentUnit: null,
+    shippingWeightGrams: null,
+    shippingLengthMm: null,
+    shippingWidthMm: null,
+    shippingHeightMm: null,
+    stock: base.stockJson,
+  };
+
+  /*
+   * A MATCHED product's variants are not this seller's to invent.
+   *
+   * Matching is the case where three distributors compete on one product
+   * page, and that page's sizes and colours belong to the product, not to
+   * whichever of them listed it most recently. Creating `ProductVariant` rows
+   * here would let one seller add "Neon Pink" to a shirt the other two also
+   * sell, and the other two would find themselves on a page offering a colour
+   * they have never stocked.
+   *
+   * So a matched draft always produces the single base offer, exactly as it
+   * did before variants existed. Choosing WHICH of an existing product's
+   * variants a seller offers is a real and separate feature; silently
+   * guessing is not a stand-in for it.
+   */
+  if (draft.matchedProductId !== null) return [baseSpec];
+
+  const { axes, rows } = readDraftVariants(draft.variantAxesJson, draft.variantsJson);
+  if (axes === null || axes.length === 0 || rows === null) return [baseSpec];
+
+  // Re-normalised rather than trusted as stored, so the signature written into
+  // the unique index is the one the application computes and not whatever a
+  // client last sent.
+  const usable = normaliseRows(rows).rows.filter(
+    (row) => row.isActive && row.sku !== '',
+  );
+
+  if (usable.length === 0) return [baseSpec];
+
+  return usable.map<VariantSpec>((row) => ({
+    options: row.options,
+    optionSignature: row.optionSignature,
+    // Bounded to the column. 11.4 rejects an over-long value where 10.4
+    // truncates it, so an unbounded join is a bug that only appears in CI.
+    name: variantNameOf(row),
+    sellerSku: row.sku,
+    gtin: row.barcode === undefined || row.barcode === null || row.barcode === '' ? null : row.barcode,
+    priceMinor: specMinor(row.priceMinor) ?? base.priceMinor,
+    compareAtPriceMinor: specMinor(row.compareAtPriceMinor),
+    minOrderQty: specInt(row.minOrderQty),
+    qtyIncrement: specInt(row.qtyIncrement),
+    maxOrderQty: specInt(row.maxOrderQty),
+    leadTimeDays: specInt(row.leadTimeDays),
+    multipackCount: specInt(row.multipackCount),
+    netContentValue:
+      row.netContentValue === undefined || row.netContentValue === null || row.netContentValue === ''
+        ? null
+        : row.netContentValue,
+    netContentUnit:
+      row.netContentUnit === undefined || row.netContentUnit === null || row.netContentUnit === ''
+        ? null
+        : row.netContentUnit,
+    shippingWeightGrams: specInt(row.shippingWeightGrams),
+    shippingLengthMm: specInt(row.shippingLengthMm),
+    shippingWidthMm: specInt(row.shippingWidthMm),
+    shippingHeightMm: specInt(row.shippingHeightMm),
+    stock: row.stock,
+  }));
+}
+
 async function publishApprovedListing(
   tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
   draftId: string,
@@ -836,88 +990,184 @@ async function publishApprovedListing(
     });
   }
 
-  const offerId = newId();
+  /*
+   * One offer, or one per combination.
+   *
+   * This is where the seller's variant matrix stops being a draft and becomes
+   * the thing a buyer can put in a basket. A listing with no variants produces
+   * exactly what it always did - one offer, `variantKey: ''` - and that path
+   * is not a special case bolted on beside the new one, it is the SAME loop
+   * with a single spec in it. Two code paths here would be two places for
+   * "what does approval create" to drift apart, and the single-variant path
+   * is the one every existing listing in every deployment already uses.
+   *
+   * A `ProductVariant` row is created per combination first, because the offer
+   * points at it. The variant carries what is true of the THING - its options,
+   * its signature, its pack make-up, its shipping box. The offer carries what
+   * is true of this SELLER'S terms for it - price, MOQ, regions. A second
+   * seller listing the same shirt in the same sizes gets their own offers
+   * against the same variants, which is the whole reason the two are separate
+   * tables.
+   *
+   * Inactive rows are skipped entirely rather than created and disabled. A
+   * combination the seller switched off before ever publishing has never been
+   * ordered, so there is nothing to preserve, and an offer nobody can buy is
+   * a row that shows up in their listings table asking to be explained.
+   */
+  const variantSpecs = buildVariantSpecs(draft, { sellerSku, priceMinor, stockJson });
 
-  await tx.sellerOffer.create({
-    data: {
-      id: offerId,
-      sellerAccountId: draft.sellerAccountId,
-      productId,
-      variantKey: '',
-      sellerSku,
-      brandId: draft.brandId,
-      // INACTIVE, not ACTIVE. The seller decides when it goes on sale - see the
-      // header of this file. A listing approved at 2am with no stock allocated
-      // would otherwise go straight in front of buyers.
-      status: 'INACTIVE',
-      /*
-       * Pieces, stated rather than left to the column default.
-       *
-       * A third-party seller sells by the piece: their price is a price per
-       * piece and their stock is a count of pieces. Relying on the default
-       * would mean a later change to it silently re-denominating every listing
-       * approved before the change, and the number it would re-denominate is
-       * the price a buyer is charged.
-       */
-      orderingUnit: SELLER_SELLING_UNIT,
-      priceMinor,
-      currency,
-      taxClassId: text('taxClassId'),
-      minimumOrderQuantity: positiveInt(offerJson['minimumOrderQuantity'], 1),
-      orderIncrement: positiveInt(offerJson['orderIncrement'], 1),
-      // Carried across at last. A seller who set a per-order ceiling in the
-      // wizard had it dropped on approval, so the ceiling they agreed to with
-      // their own warehouse was never enforced against a buyer.
-      maximumOrderQuantity: optionalPositiveInt(offerJson['maximumOrderQuantity']),
-      sourceDraftId: draftId,
-      sellingRegionsJson: (offerJson['sellingRegions'] ?? []) as never,
-    },
-  });
+  let firstOfferId: string | null = null;
 
-  // The stock the seller typed in the wizard, applied as real balances with a
-  // movement each - so the ledger explains where the opening stock came from
-  // rather than it simply existing.
-  for (const entry of stockJson) {
-    if (entry.availableQuantity <= 0) continue;
+  for (const [position, spec] of variantSpecs.entries()) {
+    let variantKey = '';
 
-    await tx.sellerInventory.create({
+    if (spec.options !== null) {
+      const variantId = newId();
+      variantKey = variantId;
+
+      await tx.productVariant.create({
+        data: {
+          id: variantId,
+          productId,
+          name: spec.name,
+          sku: spec.sellerSku,
+          optionsJson: spec.options as never,
+          optionSignature: spec.optionSignature,
+          priceMinor: spec.priceMinor,
+          ...(spec.compareAtPriceMinor === null
+            ? {}
+            : { compareAtPriceMinor: spec.compareAtPriceMinor }),
+          // The column is `gtin`, and it holds only a real one. A seller who
+          // left it blank gets null rather than an invented code - see the
+          // trust rules: a fabricated GTIN is a barcode that scans as somebody
+          // else's product.
+          ...(spec.gtin === null ? {} : { gtin: spec.gtin }),
+          isActive: true,
+          // The order the seller arranged the matrix in, which is the order
+          // the buyer's selector will offer the combinations in.
+          sortOrder: position,
+          minOrderQty: spec.minOrderQty,
+          qtyIncrement: spec.qtyIncrement,
+          maxOrderQty: spec.maxOrderQty,
+          leadTimeDays: spec.leadTimeDays,
+          multipackCount: spec.multipackCount,
+          netContentValue: spec.netContentValue,
+          netContentUnit: spec.netContentUnit,
+          shippingWeightGrams: spec.shippingWeightGrams,
+          shippingLengthMm: spec.shippingLengthMm,
+          shippingWidthMm: spec.shippingWidthMm,
+          shippingHeightMm: spec.shippingHeightMm,
+        },
+      });
+    }
+
+    const thisOfferId = newId();
+    if (firstOfferId === null) firstOfferId = thisOfferId;
+
+    await tx.sellerOffer.create({
       data: {
-        id: newId(),
+        id: thisOfferId,
         sellerAccountId: draft.sellerAccountId,
-        offerId,
-        locationId: entry.locationId,
-        availableQuantity: entry.availableQuantity,
+        productId,
+        variantKey,
+        ...(variantKey === '' ? {} : { variantId: variantKey }),
+        sellerSku: spec.sellerSku,
+        brandId: draft.brandId,
+        // INACTIVE, not ACTIVE. The seller decides when it goes on sale - see
+        // the header of this file. A listing approved at 2am with no stock
+        // allocated would otherwise go straight in front of buyers.
+        status: 'INACTIVE',
+        /*
+         * Pieces, stated rather than left to the column default.
+         *
+         * A third-party seller sells by the piece: their price is a price per
+         * piece and their stock is a count of pieces. Relying on the default
+         * would mean a later change to it silently re-denominating every
+         * listing approved before the change, and the number it would
+         * re-denominate is the price a buyer is charged.
+         */
+        orderingUnit: SELLER_SELLING_UNIT,
+        priceMinor: spec.priceMinor ?? priceMinor,
+        currency,
+        taxClassId: text('taxClassId'),
+        minimumOrderQuantity: spec.minOrderQty ?? positiveInt(offerJson['minimumOrderQuantity'], 1),
+        orderIncrement: spec.qtyIncrement ?? positiveInt(offerJson['orderIncrement'], 1),
+        // Carried across at last. A seller who set a per-order ceiling in the
+        // wizard had it dropped on approval, so the ceiling they agreed to
+        // with their own warehouse was never enforced against a buyer.
+        maximumOrderQuantity:
+          spec.maxOrderQty ?? optionalPositiveInt(offerJson['maximumOrderQuantity']),
+        sourceDraftId: draftId,
+        sellingRegionsJson: (offerJson['sellingRegions'] ?? []) as never,
       },
     });
 
-    await tx.sellerInventoryMovement.create({
+    // The stock the seller typed in the wizard, applied as real balances with
+    // a movement each - so the ledger explains where the opening stock came
+    // from rather than it simply existing.
+    for (const entry of spec.stock) {
+      if (entry.availableQuantity <= 0) continue;
+
+      await tx.sellerInventory.create({
+        data: {
+          id: newId(),
+          sellerAccountId: draft.sellerAccountId,
+          offerId: thisOfferId,
+          locationId: entry.locationId,
+          availableQuantity: entry.availableQuantity,
+        },
+      });
+
+      await tx.sellerInventoryMovement.create({
+        data: {
+          id: newId(),
+          sellerAccountId: draft.sellerAccountId,
+          offerId: thisOfferId,
+          locationId: entry.locationId,
+          type: 'RECEIPT',
+          quantityDelta: entry.availableQuantity,
+          balanceAfter: entry.availableQuantity,
+          reason: 'Opening stock from the approved listing.',
+          referenceType: 'seller_listing_draft',
+          referenceId: draftId,
+          // Scoped by SKU as well as location. Without it a twelve-row matrix
+          // stocking one warehouse would produce twelve movements all claiming
+          // the same idempotency key, and eleven of them would be rejected as
+          // replays of the first.
+          idempotencyKey: `opening:${draftId}:${spec.sellerSku}:${entry.locationId}`,
+        },
+      });
+    }
+
+    /*
+     * Roll the opening stock up onto the offer.
+     *
+     * `SellerOffer.availableQuantity` is the denormalised total the buyer's
+     * page and the seller's listings table both read - nothing walks the
+     * locations at read time. Creating the location rows without refreshing it
+     * left every newly approved listing at zero: the seller pressed "Put on
+     * sale", the listing went live, and the product page said out of stock
+     * with stock sitting in the ledger underneath it.
+     */
+    await refreshOfferTotals(tx, thisOfferId);
+  }
+
+  // `buildVariantSpecs` never returns an empty list - a draft with no usable
+  // variant rows falls back to the single base spec - so this is narrowing for
+  // the type checker rather than a case that happens.
+  const offerId = firstOfferId ?? newId();
+
+  // The family is marked as having variants only when it actually got some, so
+  // the buyer's page knows whether to render a selector at all.
+  if (variantSpecs.length > 1 || variantSpecs[0]?.options !== null) {
+    await tx.product.update({
+      where: { id: productId },
       data: {
-        id: newId(),
-        sellerAccountId: draft.sellerAccountId,
-        offerId,
-        locationId: entry.locationId,
-        type: 'RECEIPT',
-        quantityDelta: entry.availableQuantity,
-        balanceAfter: entry.availableQuantity,
-        reason: 'Opening stock from the approved listing.',
-        referenceType: 'seller_listing_draft',
-        referenceId: draftId,
-        idempotencyKey: `opening:${draftId}:${entry.locationId}`,
+        hasVariants: true,
+        variantAxesJson: draftAxisKeys(draft) as never,
       },
     });
   }
-
-  /*
-   * Roll the opening stock up onto the offer.
-   *
-   * `SellerOffer.availableQuantity` is the denormalised total the buyer's page
-   * and the seller's listings table both read - nothing walks the locations at
-   * read time. Creating the location rows without refreshing it left every
-   * newly approved listing at zero: the seller pressed "Put on sale", the
-   * listing went live, and the product page said out of stock with stock
-   * sitting in the ledger underneath it.
-   */
-  await refreshOfferTotals(tx, offerId);
 
   /*
    * Carry the seller's photographs onto the catalogue product.
