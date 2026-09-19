@@ -25,11 +25,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
-import { Button, Checkbox, Field, Spinner } from '@/components/ui';
+import { Button, Field, Spinner } from '@/components/ui';
 import { DemoLoginPanel } from '@/components/DemoLoginPanel';
 import {
   AuthCard,
   AuthDivider,
+  AuthTermsCheckbox,
   BottomGradient,
   GRADIENT_CTA,
   GlowInput,
@@ -38,7 +39,6 @@ import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
-import { cx } from '@/lib/cx';
 
 /**
  * Built per render rather than once at module scope, because the messages
@@ -188,16 +188,16 @@ export function LoginPage(): React.JSX.Element {
           sign-in. */}
       <LanguageSwitcher placement="auth" />
 
-      {/* Mark, title and form are one card rather than a heading floating
-          above a panel — the same shape the storefront's sign-in uses, so the
-          two surfaces read as one product. */}
+      {/* Title, form and the way to an account are one card, not three
+          stacked panels: everything somebody who cannot get in needs to read
+          is inside one boundary.
+
+          NO MARK ABOVE THE TITLE. There used to be a "U" badge here and the
+          storefront's sign-in has never had one, which made the two screens
+          different at the first thing a reader looks at. The panel is already
+          named by its heading and by the browser tab; a badge on one of three
+          otherwise identical screens is a difference that says nothing. */}
       <AuthCard className="mt-2">
-        <span
-          aria-hidden="true"
-          className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
-        >
-          U
-        </span>
         <h1 className="text-xl font-bold text-ink">{t('auth.login.heading')}</h1>
         <p className="mt-2 max-w-sm text-sm text-ink-muted">{t('auth.login.subheading')}</p>
 
@@ -243,53 +243,38 @@ export function LoginPage(): React.JSX.Element {
           </Field>
 
           {/* Above the button, not below it. The tick is a condition of
-                signing in, so it has to be read before the thing it gates. */}
-          <div>
-            <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink">
-              <Checkbox
-                className="mt-0.5"
-                aria-describedby={errors.acceptedTerms === undefined ? undefined : 'terms-error'}
-                {...register('acceptedTerms')}
-              />
-              <span>
-                {t('auth.login.acceptTerms')}
-                {policies.length > 0 && (
-                  <>
-                    {' ('}
-                    {policies.map(([label, href], index) => (
-                      <span key={label}>
-                        {index > 0 && ', '}
-                        {/* A new tab, deliberately: somebody reading the terms
-                              should not lose the email they have already
-                              typed to do it. */}
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-accent hover:underline"
-                        >
-                          {label}
-                        </a>
-                      </span>
-                    ))}
-                    {')'}
-                  </>
-                )}
-              </span>
-            </label>
+              signing in, so it has to be read before the thing it gates.
 
-            {errors.acceptedTerms?.message !== undefined && (
-              <p id="terms-error" role="alert" className="mt-1.5 text-xs font-medium text-danger">
-                {errors.acceptedTerms.message}
-              </p>
-            )}
-          </div>
+              The shared control from `auth-form.tsx`, which is where the same
+              markup the storefront uses now lives. This screen had its own
+              copy of it, identical but for `text-accent` where the storefront
+              had `text-brand` — the exact drift a shared component exists to
+              stop. The policies still come from this app's own `/config`
+              query; only the markup is shared. */}
+          <AuthTermsCheckbox
+            label={t('auth.login.acceptTerms')}
+            policies={policies}
+            error={errors.acceptedTerms?.message}
+            errorId="login-terms-error"
+            {...register('acceptedTerms')}
+          />
 
+          {/* `size="lg"`, matching the storefront: its submit is the large
+              one, and a button a step smaller on an otherwise identical card
+              is the kind of difference nobody can name and everybody notices.
+
+              Full width comes from a class rather than the storefront's
+              `fullWidth` prop, which this app's `Button` does not carry. The
+              rendered button is the same. The three `ui.tsx` copies are one
+              brand system at three densities, not one API, and widening that
+              component for a single call site would be a change to something
+              sixty screens use. */}
           <Button
             type="submit"
             variant="primary"
-            className={cx('w-full', GRADIENT_CTA)}
+            size="lg"
             isLoading={isSubmitting}
+            className={`w-full ${GRADIENT_CTA}`}
           >
             {t('auth.login.submit')}
             {/* Decoration, and hidden as such. In the accessible name this
@@ -297,15 +282,29 @@ export function LoginPage(): React.JSX.Element {
             <span aria-hidden="true">&rarr;</span>
             <BottomGradient />
           </Button>
+
+          {/* Inside the form and under the button, where the storefront puts
+              it. It belongs to the password field above it, not to the
+              "who can have an account" block below the divider. */}
+          <p className="text-center text-sm">
+            <Link to="/forgot-password" className="font-medium text-brand hover:underline">
+              {t('auth.login.forgotPassword')}
+            </Link>
+          </p>
         </form>
 
         <AuthDivider className="my-8" />
 
-        <p className="text-center text-sm">
-          <Link to="/forgot-password" className="font-medium text-accent hover:underline">
-            {t('auth.login.forgotPassword')}
-          </Link>
-        </p>
+        {/* The same block the storefront closes with, answering the same
+            question — "what if I have no account?" — with this surface's own
+            answer. A staff account is created by an administrator; there has
+            never been a way to sign yourself up for one, and a screen that
+            simply omits the question leaves somebody hunting for a button that
+            does not exist. */}
+        <div className="text-sm">
+          <h2 className="font-medium text-ink">{t('auth.login.noAccountHeading')}</h2>
+          <p className="mt-1.5 text-ink-muted">{t('auth.login.staffAccountsAreCreated')}</p>
+        </div>
       </AuthCard>
 
       {/* Renders nothing unless this build was given demo accounts, which is

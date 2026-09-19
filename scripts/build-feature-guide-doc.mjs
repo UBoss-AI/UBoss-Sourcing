@@ -688,6 +688,8 @@ page();
 // 7
 h1('7. Admin Features — Secure Access, Roles and Dashboard');
 h2('7.1 Staff sign-in');
+p('Staff, customers and delivery partners sign in through what is visibly the same screen. The three surfaces are three different programs with three different jobs, but the page somebody lands on reads the same way on all of them: the language chooser, then one panel holding the title, a line saying who the screen is for, and the form, then a line explaining what to do if you have no account. Only that last line differs, because the answers genuinely differ — a customer can often create an account themselves, a member of staff is invited by an administrator, and a delivery partner is created by the marketplace.');
+p('Getting this wrong is cheap to do and expensive to notice: before it was made one screen, the staff sign-in carried a badge above its title that the shop front did not, its links were a different blue, its button was a size smaller, and the "forgot your password?" link sat in a different place. Nobody reports a page like that as broken. They simply trust it slightly less.');
 bullets([
   'Staff use a separate Admin Console from customers.',
   'The application can require a location reading before opening staff routes. The location is a security record, not a rule that decides whether a person is allowed.',

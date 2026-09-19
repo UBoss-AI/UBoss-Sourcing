@@ -488,6 +488,36 @@ all, a mid-range one a thinner version. A hidden tab stops the loop once there
 is a frame to hold, and somebody who asked for reduced motion gets a single
 still frame rather than a slower rotation.
 
+**The three screens are now one screen.** They were not, and the differences
+were the kind nobody can name and everybody notices: the admin panel had a "U"
+badge above its heading that the storefront has never had, its policy links
+were `text-accent` where the storefront's were `text-brand`, its submit was a
+size smaller, and its "forgot your password?" sat below the divider instead of
+under the button it belongs to. The logistics portal was further off again —
+a heading and a subheading floating above a panel with different corners, a
+divider at a different width, and its language switcher in the page header
+rather than above the card.
+
+All three now read top to bottom in the same order: the language switcher in
+its `auth` placement, then one `AuthCard` holding the heading, the
+introduction and the form, then the divider, then the block answering "what if
+I have no account?" — with each surface's own answer, because the answers
+genuinely differ. The storefront offers registration where
+`selfRegistration` is on; the admin panel says a staff account is created by
+an administrator; the portal says a carrier is created by the marketplace.
+
+The consent tick moved into `auth-form.tsx` as `AuthTermsCheckbox`, which
+takes the policy links as DATA rather than reading them — that is what lets one
+piece of markup serve three apps that get them from three different places.
+The storefront's `AcceptTermsCheckbox` is now a three-line wrapper that reads
+`useStorefront()` and delegates, so its three call sites are untouched.
+
+Two differences remain and both are deliberate. The portal keeps its own header
+bar — the mark, the product name and the theme toggle — because it has no
+layout above its signed-out routes and the storefront gets those from
+`StoreLayout`. And the portal asks for no consent tick, because adding a
+condition to signing in is a product decision rather than a styling one.
+
 | File | What it is |
 |---|---|
 | `components/ui/auth-split.tsx` | The two columns, and the rule that the picture goes first |

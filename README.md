@@ -299,6 +299,15 @@ cart, which is where the backend puts it. On the admin sign-in page, tick the
 Terms checkbox — and allow the browser's location prompt, or the session will
 not finish (see [Configuration](#configuration)).
 
+**All three apps sign in through the same screen.** Storefront, admin console
+and logistics portal read top to bottom in the same order — language switcher,
+one card holding the heading, the introduction and the form, a divider, then
+the answer to "what if I have no account?" — with the same fields, the same
+spacing and the same submit button. Only the answers differ, because they
+genuinely do: the storefront offers registration where self-registration is on,
+a staff account is created by an administrator, and a carrier is created by the
+marketplace. The earth does not move while a long form scrolls beside it.
+
 On a window 1024px or wider, every signed-out screen in all three apps puts the
 form on the right and a slowly turning earth on the left, with a pin on each of
 fifteen sourcing ports. The picture is decoration: it is hidden from assistive

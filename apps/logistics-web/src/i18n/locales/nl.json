@@ -512,5 +512,6 @@
   "aiInsights.idle": "Stel een vraag over de cijfers op deze pagina, of kies ‘Leg deze grafiek uit’.",
   "aiInsights.severity.info": "Let op",
   "aiInsights.severity.attention": "Aandacht",
-  "aiInsights.severity.urgent": "Dringend"
+  "aiInsights.severity.urgent": "Dringend",
+  "auth.noAccountHeading": "Nog geen account?"
 }

@@ -2821,5 +2821,7 @@
   "variantMatrix.couldNotPreview": "Die Tabelle konnte nicht berechnet werden.",
   "variantMatrix.couldNotGenerate": "Die Varianten konnten nicht angelegt werden.",
   "variantMatrix.created": "{{created}} angelegt, {{skipped}} bereits vorhanden.",
-  "orderDetail.lineInstructions": "Hinweise:"
+  "orderDetail.lineInstructions": "Hinweise:",
+  "auth.login.noAccountHeading": "Noch kein Konto?",
+  "auth.login.staffAccountsAreCreated": "Mitarbeiterkonten werden von einer Administratorin oder einem Administrator angelegt. Bitten Sie die Person, die diese Installation betreibt, Sie einzuladen; die Einladung kommt per E-Mail."
 }

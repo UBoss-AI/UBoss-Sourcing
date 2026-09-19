@@ -512,5 +512,6 @@
   "aiInsights.idle": "Stellen Sie eine Frage zu den Zahlen auf dieser Seite oder wählen Sie „Diagramm erklären“.",
   "aiInsights.severity.info": "Hinweis",
   "aiInsights.severity.attention": "Achtung",
-  "aiInsights.severity.urgent": "Dringend"
+  "aiInsights.severity.urgent": "Dringend",
+  "auth.noAccountHeading": "Noch kein Konto?"
 }

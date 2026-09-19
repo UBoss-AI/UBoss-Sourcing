@@ -2845,5 +2845,7 @@
   "variantMatrix.couldNotPreview": "No se ha podido calcular la tabla.",
   "variantMatrix.couldNotGenerate": "No se han podido crear las variantes.",
   "variantMatrix.created": "{{created}} creadas, {{skipped}} ya existían.",
-  "orderDetail.lineInstructions": "Instrucciones:"
+  "orderDetail.lineInstructions": "Instrucciones:",
+  "auth.login.noAccountHeading": "¿Aún no tiene cuenta?",
+  "auth.login.staffAccountsAreCreated": "Las cuentas del personal las crea un administrador. Pida a quien gestione esta instalación que le invite; la invitación llega por correo electrónico."
 }

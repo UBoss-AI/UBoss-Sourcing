@@ -512,5 +512,6 @@
   "aiInsights.idle": "Zadaj pytanie o liczby na tej stronie albo wybierz „Wyjaśnij ten wykres”.",
   "aiInsights.severity.info": "Uwaga",
   "aiInsights.severity.attention": "Do sprawdzenia",
-  "aiInsights.severity.urgent": "Pilne"
+  "aiInsights.severity.urgent": "Pilne",
+  "auth.noAccountHeading": "Nie masz jeszcze konta?"
 }

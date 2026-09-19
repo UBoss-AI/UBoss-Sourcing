@@ -2,28 +2,57 @@
  * The frame the four signed-out screens share.
  *
  * Sign in, activate, set up a second factor, answer a challenge. All four are
- * one column on a phone and a centred card on anything wider, and none of them
- * has navigation - there is nowhere else to go until the person is through.
+ * one column on a phone and, from `lg`, the right half of a split with a
+ * turning earth on the left.
  *
- * The depth is deliberate and it carries information rather than decoration:
- * the card sits on a soft radial wash in the brand blue, so the eye finds the
- * one thing on the page to act on. That is the whole of the effect; nothing
- * animates and nothing moves, because half the people opening this are doing
- * it at four in the morning in a vehicle.
+ * ## It is the storefront's sign-in screen, and that is the point
  *
- * ## The picture beside it
+ * The three apps' signed-out screens used to be three screens: the storefront
+ * had a language switcher above a card, the admin panel had the same card with
+ * a "U" badge on it, and this portal had a heading and a subheading floating
+ * above a panel with different corners, different padding and a divider at a
+ * different width. Three densities of one brand system is deliberate
+ * everywhere else in this codebase; three *layouts* for the same task is
+ * drift, and it is the kind a person notices without being able to name it.
  *
- * From `lg` up the card moves to the right half and `AuthSplit` puts a turning
- * earth on the left, the same one the storefront and the admin panel sign in
- * beside. **Below `lg` nothing changes at all**, and that is the important
- * half of this: the device a driver actually opens this on is a phone in a
- * cab, and it gets the page it has always had — no canvas, no WebGL context,
- * no chunk fetched. The panel is a desk-sized flourish, it is `aria-hidden`,
- * and it is the first thing to go.
+ * So the order is now the same on all three, top to bottom:
+ *
+ *   1. The language switcher, in its `auth` placement, above everything. The
+ *      first screen somebody lands on is the one that has to offer the way out
+ *      of a language they cannot read — a setting buried inside the app is no
+ *      use to them.
+ *   2. `AuthCard`, holding the heading, the introduction and the form as one
+ *      boundary rather than three stacked panels.
+ *   3. Whatever the screen closes with.
+ *   4. `TranslationQualityNotice`, which renders nothing in English.
+ *
+ * ## What this app keeps that the other two do not
+ *
+ * The header bar above the split: the mark, the product name and the theme
+ * toggle. That is this app's chrome, and it stays for the same reason the
+ * storefront's own header stays on `/login` — a signed-out screen is still a
+ * page of the product it belongs to. The storefront gets its theme toggle from
+ * `StoreLayout`; this portal has no layout above the signed-out routes, so it
+ * carries its own. The LANGUAGE switcher has moved out of it and above the
+ * card, where the other two put theirs.
+ *
+ * ## The height
+ *
+ * `min-h-screen` below `lg`, an exact window height from `lg` up, with the
+ * overflow clipped. That is what stops the earth beside the card scrolling
+ * away: a frame that IS the window has nothing under it to scroll to, and the
+ * card column inside takes on the scrolling that a ten-recovery-code screen
+ * actually needs. `auth-split.tsx` sets out the whole of that reasoning,
+ * including the invisible `.sr-only` spans that defeated the first two
+ * attempts at it.
+ *
+ * Nothing changes below `lg`: there is no globe there, and a driver's phone
+ * gets the page it has always had.
  */
 import type { ReactNode } from 'react';
 import { AuthSplit } from '@/components/ui/auth-split';
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
+import { AuthCard } from '@/components/ui/auth-form';
+import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -42,20 +71,6 @@ export function AuthLayout({
   const { t } = useI18n();
 
   return (
-    /*
-     * `min-h-screen` below `lg`, an exact window height from `lg` up.
-     *
-     * The exact height is what stops the turning earth beside the card
-     * scrolling away with it. A `sticky` panel can only hold its place while
-     * its container has room left underneath, and a one-viewport globe in a
-     * one-viewport frame has none — so the header above this and any slack
-     * below were enough to drag it up the screen. A frame that IS the window
-     * has nothing under it to scroll to, and the card column inside takes on
-     * the scrolling that a ten-recovery-code screen actually needs.
-     *
-     * Nothing changes below `lg`: there is no globe there, and a driver's
-     * phone gets the page it has always had.
-     */
     <div className="relative flex min-h-screen flex-col bg-surface-sunken lg:h-[100dvh] lg:overflow-hidden">
       {/*
         The wash. `aria-hidden` and `pointer-events-none`: it is a light
@@ -67,7 +82,10 @@ export function AuthLayout({
         className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(60%_100%_at_50%_0%,rgb(var(--bloom)/0.35),transparent_70%)]"
       />
 
-      <header className="relative flex items-center justify-between px-4 py-4 sm:px-8">
+      {/* The mark and the theme toggle only. The language switcher used to sit
+          here too; it is above the card now, where the storefront and the
+          admin panel put theirs. */}
+      <header className="relative flex shrink-0 items-center justify-between px-4 py-4 sm:px-8">
         <span className="flex items-center gap-2.5">
           <span
             aria-hidden="true"
@@ -87,31 +105,38 @@ export function AuthLayout({
           <span className="text-sm font-semibold tracking-tight text-ink">{t('app.name')}</span>
         </span>
 
-        <span className="flex items-center gap-1">
-          <LanguageSwitcher placement="header" />
-          <ThemeToggle />
-        </span>
+        <ThemeToggle />
       </header>
 
-      {/*
-        `items-start` on a phone and centred from `sm`, exactly as before. The
-        split inside supplies its own gutters, so `main` keeps only the bottom
-        padding that stops the card sitting on the edge of a short window.
-      */}
       {/* `lg:min-h-0` is the load-bearing half of the note on the frame above:
           without it a flex child refuses to shrink below its content, the
           split pushes the column past the window, and the document scrolls
           again with the globe on board. */}
       <main className="relative flex flex-1 flex-col justify-center pb-16 sm:pb-0 lg:min-h-0">
         <AuthSplit contentClassName={wide ? 'max-w-2xl' : 'max-w-md'}>
-          <div className="rounded-2xl border border-border bg-surface p-6 shadow-lg sm:p-8">
-            <h1 className="text-xl font-semibold tracking-tight text-ink">{heading}</h1>
+          {/* Above the card, not tucked into a header or a footer. Somebody
+              who cannot read the interface cannot navigate to a setting buried
+              inside it, so the first screen they land on is the one that has
+              to offer the way out. */}
+          <LanguageSwitcher placement="auth" />
+
+          {/* Title, introduction and form are one card, not three stacked
+              panels: everything somebody who cannot get in needs to read is
+              inside one boundary. The same card, at the same measure, with the
+              same padding as the storefront's sign-in. */}
+          <AuthCard className="mt-2">
+            <h1 className="text-xl font-bold text-ink">{heading}</h1>
             {subheading === undefined ? null : (
-              <p className="mt-1.5 text-sm text-ink-muted">{subheading}</p>
+              <p className="mt-2 max-w-sm text-sm text-ink-muted">{subheading}</p>
             )}
 
-            <div className="mt-6">{children}</div>
-          </div>
+            <div className="mt-8">{children}</div>
+          </AuthCard>
+
+          {/* Sits at the bottom of the first screen somebody sees, which is
+              where a wording complaint is most likely to be worth acting on.
+              Renders nothing in English. */}
+          <TranslationQualityNotice className="mt-5 text-center" />
         </AuthSplit>
       </main>
     </div>

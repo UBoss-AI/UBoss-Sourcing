@@ -2869,5 +2869,7 @@
   "variantMatrix.couldNotPreview": "Nie udało się obliczyć tabeli.",
   "variantMatrix.couldNotGenerate": "Nie udało się utworzyć wariantów.",
   "variantMatrix.created": "Utworzono: {{created}}, już istniało: {{skipped}}.",
-  "orderDetail.lineInstructions": "Instrukcje:"
+  "orderDetail.lineInstructions": "Instrukcje:",
+  "auth.login.noAccountHeading": "Nie masz jeszcze konta?",
+  "auth.login.staffAccountsAreCreated": "Konta pracowników zakłada administrator. Poproś osobę prowadzącą tę instalację o zaproszenie; zaproszenie przychodzi e-mailem."
 }

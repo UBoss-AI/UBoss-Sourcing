@@ -222,9 +222,16 @@ export function LoginPage(): React.JSX.Element {
             gradient replaces the fill, so the label has to be the white one
             that goes with a filled button — dark ink on brand blue is the one
             way this restyle could have broken a contrast rule. */}
+        {/* `size="lg"`, matching the storefront and the admin panel: their
+            submit is the large one, and a button a step smaller on an
+            otherwise identical card is the kind of difference nobody can name
+            and everybody notices. Full width comes from a class rather than
+            the storefront's `fullWidth` prop, which this app's `Button` does
+            not carry. */}
         <Button
           type="submit"
           variant="primary"
+          size="lg"
           className={cx('w-full', GRADIENT_CTA)}
           disabled={form.formState.isSubmitting}
         >
@@ -236,9 +243,18 @@ export function LoginPage(): React.JSX.Element {
         </Button>
       </form>
 
-      <AuthDivider className="my-6" />
+      <AuthDivider className="my-8" />
 
-      <p className="text-center text-xs text-ink-subtle">{t('auth.noSelfSignup')}</p>
+      {/* The same block the storefront and the admin panel close with,
+          answering the same question — "what if I have no account?" — with
+          this surface's own answer. It was a single grey line of `text-xs`
+          before, which said the same thing in a way that read as a footnote
+          rather than as the answer to the question somebody standing here is
+          actually asking. */}
+      <div className="text-sm">
+        <h2 className="font-medium text-ink">{t('auth.noAccountHeading')}</h2>
+        <p className="mt-1.5 text-ink-muted">{t('auth.noSelfSignup')}</p>
+      </div>
 
       {/* Renders nothing unless this build was given demo accounts, which is
           every build except a demonstration one. */}

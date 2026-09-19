@@ -512,5 +512,6 @@
   "aiInsights.idle": "Ask a question about the figures on this page, or choose Explain this chart.",
   "aiInsights.severity.info": "Note",
   "aiInsights.severity.attention": "Attention",
-  "aiInsights.severity.urgent": "Urgent"
+  "aiInsights.severity.urgent": "Urgent",
+  "auth.noAccountHeading": "No account yet?"
 }

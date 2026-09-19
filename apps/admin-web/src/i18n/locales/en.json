@@ -2821,5 +2821,7 @@
   "variantMatrix.couldNotPreview": "The table could not be worked out.",
   "variantMatrix.couldNotGenerate": "The variants could not be created.",
   "variantMatrix.created": "{{created}} created, {{skipped}} already existed.",
-  "orderDetail.lineInstructions": "Instructions:"
+  "orderDetail.lineInstructions": "Instructions:",
+  "auth.login.noAccountHeading": "No account yet?",
+  "auth.login.staffAccountsAreCreated": "Staff accounts are created by an administrator. Ask whoever runs this deployment to invite you, and the invitation arrives by email."
 }

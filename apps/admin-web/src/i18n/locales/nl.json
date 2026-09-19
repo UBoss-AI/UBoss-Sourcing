@@ -2821,5 +2821,7 @@
   "variantMatrix.couldNotPreview": "De tabel kon niet worden berekend.",
   "variantMatrix.couldNotGenerate": "De varianten konden niet worden aangemaakt.",
   "variantMatrix.created": "{{created}} aangemaakt, {{skipped}} bestonden al.",
-  "orderDetail.lineInstructions": "Instructies:"
+  "orderDetail.lineInstructions": "Instructies:",
+  "auth.login.noAccountHeading": "Nog geen account?",
+  "auth.login.staffAccountsAreCreated": "Medewerkersaccounts worden door een beheerder aangemaakt. Vraag degene die deze installatie beheert om u uit te nodigen; de uitnodiging komt per e-mail."
 }

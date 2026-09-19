@@ -2821,5 +2821,7 @@
   "variantMatrix.couldNotPreview": "Δεν ήταν δυνατός ο υπολογισμός του πίνακα.",
   "variantMatrix.couldNotGenerate": "Δεν ήταν δυνατή η δημιουργία των παραλλαγών.",
   "variantMatrix.created": "Δημιουργήθηκαν {{created}}, υπήρχαν ήδη {{skipped}}.",
-  "orderDetail.lineInstructions": "Οδηγίες:"
+  "orderDetail.lineInstructions": "Οδηγίες:",
+  "auth.login.noAccountHeading": "Δεν έχετε ακόμη λογαριασμό;",
+  "auth.login.staffAccountsAreCreated": "Οι λογαριασμοί προσωπικού δημιουργούνται από διαχειριστή. Ζητήστε από όποιον διαχειρίζεται αυτή την εγκατάσταση να σας προσκαλέσει· η πρόσκληση έρχεται με email."
 }

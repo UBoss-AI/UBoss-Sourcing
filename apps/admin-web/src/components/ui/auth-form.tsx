@@ -209,3 +209,94 @@ export function AuthDivider({ className }: { className?: string }): React.JSX.El
     />
   );
 }
+
+// ---------------------------------------------------------------------------
+// The consent tick
+// ---------------------------------------------------------------------------
+
+/**
+ * "I accept the terms", with the operator's own policy links beside it.
+ *
+ * Here rather than in each app because all three signed-out screens ask for
+ * the same consent and it has to read identically on every one of them. Two
+ * copies of this markup is how one surface ends up linking to a privacy policy
+ * another does not — which was the state before this existed: the storefront
+ * had its own component, the admin panel had the same markup inlined with
+ * `text-accent` instead of `text-brand`, and the logistics portal had no tick
+ * at all.
+ *
+ * It takes the policies as DATA rather than reading them, which is what keeps
+ * this file byte-identical in three apps that get them from three different
+ * places: the storefront from `useStorefront()`, the admin panel from its own
+ * `/config` query, and the logistics portal from its own. A deployment that
+ * has set none renders the sentence alone rather than a link to a page that
+ * does not exist.
+ *
+ * The box is never ticked for the reader. A pre-ticked consent is not consent,
+ * and every call site's `defaultValues` says `false`.
+ */
+export interface AuthTermsCheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+  /** The sentence beside the box, already translated. */
+  label: string;
+  /** `[text, href]` pairs, in the order the operator set them. */
+  policies?: readonly (readonly [string, string])[];
+  /** The validation message, when the form has one to show. */
+  error?: string | undefined;
+  /**
+   * Only needed where two of these could share a page. The id ties the message
+   * to the box for a screen reader, so it has to be unique in the document.
+   */
+  errorId?: string | undefined;
+}
+
+export const AuthTermsCheckbox = forwardRef<HTMLInputElement, AuthTermsCheckboxProps>(
+  function AuthTermsCheckbox(
+    { label, policies = [], error, errorId = 'accept-terms-error', ...rest },
+    ref,
+  ) {
+    return (
+      <div>
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink">
+          <input
+            ref={ref}
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 rounded border-border-strong text-brand"
+            aria-describedby={error === undefined ? undefined : errorId}
+            {...rest}
+          />
+          <span>
+            {label}
+            {policies.length > 0 && (
+              <>
+                {' ('}
+                {policies.map(([text, href], index) => (
+                  <span key={text}>
+                    {index > 0 && ', '}
+                    {/* A new tab, deliberately: somebody reading the terms
+                        halfway through a form should not lose what they have
+                        typed to do it. */}
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-brand hover:underline"
+                    >
+                      {text}
+                    </a>
+                  </span>
+                ))}
+                {')'}
+              </>
+            )}
+          </span>
+        </label>
+
+        {error !== undefined && (
+          <p id={errorId} role="alert" className="mt-1.5 text-xs font-medium text-danger">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  },
+);

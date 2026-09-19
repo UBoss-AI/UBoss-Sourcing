@@ -512,5 +512,6 @@
   "aiInsights.idle": "Κάντε μια ερώτηση για τα στοιχεία αυτής της σελίδας ή επιλέξτε «Εξήγηση του γραφήματος».",
   "aiInsights.severity.info": "Σημείωση",
   "aiInsights.severity.attention": "Προσοχή",
-  "aiInsights.severity.urgent": "Επείγον"
+  "aiInsights.severity.urgent": "Επείγον",
+  "auth.noAccountHeading": "Δεν έχετε ακόμη λογαριασμό;"
 }
