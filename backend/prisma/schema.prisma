@@ -12091,9 +12091,18 @@ model DemoCatalogEntry {
 
   generatedAt DateTime @default(now()) @db.DateTime(3)
   createdAt   DateTime @default(now()) @db.DateTime(3)
-  updatedAt   DateTime @updatedAt @db.DateTime(3)
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// `@default(now())` as well as `@updatedAt`, because the migration gave the
+  /// column `DEFAULT CURRENT_TIMESTAMP(3)`. Without it the schema describes a
+  /// column with no default, the drift check sees that difference, and CI
+  /// fails. Same shape as every other `updatedAt` here - see
+  /// `docs/DATABASE-MIGRATION.md` section 5.
+  updatedAt DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  /// The constraint is named in the migration, so it is named here too.
+  /// Unmapped, Prisma expects `demo_catalog_entries_productId_fkey` and the
+  /// drift check reports the foreign key as removed and re-added.
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_demo_catalog_product")
 
   @@index([seedSource, seedVersion], map: "ix_demo_catalog_source")
   @@index([subcategorySlug], map: "ix_demo_catalog_subcategory")

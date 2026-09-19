@@ -748,6 +748,11 @@ export type DemoCatalogEntryInclude<ExtArgs extends runtime.Types.Extensions.Int
 export type $DemoCatalogEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DemoCatalogEntry"
   objects: {
+    /**
+     * The constraint is named in the migration, so it is named here too.
+     * Unmapped, Prisma expects `demo_catalog_entries_productId_fkey` and the
+     * drift check reports the foreign key as removed and re-added.
+     */
     product: Prisma.$ProductPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -801,6 +806,13 @@ export type $DemoCatalogEntryPayload<ExtArgs extends runtime.Types.Extensions.In
     imageNeedsReview: boolean
     generatedAt: Date
     createdAt: Date
+    /**
+     * `@default(now())` as well as `@updatedAt`, because the migration gave the
+     * column `DEFAULT CURRENT_TIMESTAMP(3)`. Without it the schema describes a
+     * column with no default, the drift check sees that difference, and CI
+     * fails. Same shape as every other `updatedAt` here - see
+     * `docs/DATABASE-MIGRATION.md` section 5.
+     */
     updatedAt: Date
   }, ExtArgs["result"]["demoCatalogEntry"]>
   composites: {}
