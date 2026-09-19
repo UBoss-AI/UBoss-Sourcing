@@ -134,6 +134,15 @@ export interface CartLine {
     orderIncrement: number;
     maximumOrderQuantity: number | null;
   };
+  /**
+   * The buyer's special instruction for this line, or null.
+   *
+   * Shown in the basket and at the checkout review so nobody agrees to an
+   * order carrying an instruction they cannot see, and editable from the
+   * basket - which is the only place a buyer can change their mind about one
+   * before the order is placed.
+   */
+  note: string | null;
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
 }
@@ -401,6 +410,7 @@ export async function resolveCart(
     availableQty: number | null;
     issues: CartLineIssue[];
     ordering: CartLine['ordering'];
+    note: string | null;
   }[] = [];
 
   for (const item of items) {
@@ -586,6 +596,10 @@ export async function resolveCart(
         orderIncrement: offer?.orderIncrement ?? 1,
         maximumOrderQuantity: offer?.maximumOrderQuantity ?? null,
       },
+      // The buyer's own words about this product. Carried through the basket
+      // so it can be shown back and edited before the order is placed, and
+      // frozen onto the order line at checkout.
+      note: item.note,
     });
   }
 
@@ -717,6 +731,7 @@ export async function resolveCart(
         qtyIncrement: items[index]?.product.qtyIncrement ?? 1,
       },
       ordering: meta.ordering,
+      note: meta.note,
       issues: meta.issues,
     };
   });
@@ -956,6 +971,40 @@ export interface AddItemInput {
    * id belonging to some other product, and is refused the same way.
    */
   sellerOfferId?: string | null;
+  /**
+   * What the buyer needs done to this product, in their own words.
+   *
+   * Absent means "say nothing", which is every caller that existed before this
+   * field did and most lines afterwards. An empty or blank string is the same
+   * as absent - the field is normalised here so a cleared box and an untouched
+   * one cannot be two different states in the database.
+   *
+   * Re-adding a SKU that already carries an instruction does NOT wipe it: see
+   * `noteFor` below, which is where the rule is stated and why.
+   */
+  note?: string | null;
+}
+
+/** As long as `CartItem.note`. Kept here so the refusal names the same figure. */
+export const MAX_LINE_NOTE_CHARS = 500;
+
+/**
+ * An instruction as it should be stored, or null.
+ *
+ * Trimmed, because a box somebody tabbed through is not an instruction; capped,
+ * because the column is; and null rather than '' for an empty one, so "no
+ * instruction" has exactly one representation in the database.
+ *
+ * The cap TRUNCATES here rather than throwing. The route's schema refuses
+ * anything over the limit with a message naming the field, which is where a
+ * person finds out; this is the belt for the callers that do not go through
+ * that schema - the ERP import and the schedule worker - where losing the tail
+ * of an over-long note is better than failing an order over it.
+ */
+function normaliseNote(note: string | null | undefined): string | null {
+  if (note === null || note === undefined) return null;
+  const trimmed = note.trim();
+  return trimmed.length === 0 ? null : trimmed.slice(0, MAX_LINE_NOTE_CHARS);
 }
 
 export interface AddedLine {
@@ -967,6 +1016,8 @@ export interface AddedLine {
   orderingUnit: OrderingUnit;
   unitQuantity: number;
   piecesPerUnitSnapshot: number;
+  /** The instruction the line now carries, after the merge rules above. */
+  note: string | null;
 }
 
 /**
@@ -1058,6 +1109,8 @@ interface WantedLine {
   orderingUnit: OrderingUnit;
   unitQuantity: number;
   piecesPerUnitSnapshot: number;
+  /** Normalised, or null where none was given. */
+  note: string | null;
 }
 
 async function addLines(
@@ -1366,6 +1419,19 @@ async function addLines(
       orderingUnit: already?.orderingUnit ?? resolved.orderingUnit,
       unitQuantity: (already?.unitQuantity ?? 0) + resolved.unitQuantity,
       piecesPerUnitSnapshot: already?.piecesPerUnitSnapshot ?? resolved.piecesPerUnitSnapshot,
+      /*
+       * The same SKU twice in one request keeps the FIRST instruction that
+       * said anything.
+       *
+       * Not concatenated: two instructions joined end to end make a sentence
+       * neither person wrote, and this is read by somebody picking an order.
+       * Not last-one-wins either: a client retrying half a batch resends the
+       * lines it already sent, and the retry commonly carries no note, so
+       * last-one-wins would silently erase the instruction the first attempt
+       * recorded. First non-empty is the only one of the three that cannot
+       * lose something the buyer typed.
+       */
+      note: already?.note ?? normaliseNote(input.note),
     });
   }
 
@@ -1400,7 +1466,24 @@ async function addLines(
             ? existing.unitQuantity + line.unitQuantity
             : Math.round(quantity / Math.max(existing.piecesPerUnitSnapshot, 1));
 
-        await tx.cartItem.update({ where: { id: existing.id }, data: { quantity, unitQuantity } });
+        /*
+         * A NEW instruction replaces the one on the line; no instruction
+         * leaves it alone.
+         *
+         * Adding the same product a second time from the product page, having
+         * typed something in the box, has to reach the line - otherwise the
+         * buyer types an instruction, presses Add, and nothing they can see
+         * says it was ignored. Adding it again from somewhere with no box at
+         * all - a saved list, a reorder, the AI assistant - must not wipe what
+         * they typed a minute ago, which is what writing `line.note` through
+         * unconditionally would do.
+         */
+        const note = line.note ?? existing.note;
+
+        await tx.cartItem.update({
+          where: { id: existing.id },
+          data: { quantity, unitQuantity, note },
+        });
         added.push({
           itemId: existing.id,
           productId: line.productId,
@@ -1409,6 +1492,7 @@ async function addLines(
           orderingUnit: existing.orderingUnit,
           unitQuantity,
           piecesPerUnitSnapshot: existing.piecesPerUnitSnapshot,
+          note,
         });
         continue;
       }
@@ -1459,6 +1543,7 @@ async function addLines(
           orderingUnit: line.orderingUnit,
           unitQuantity,
           piecesPerUnitSnapshot: line.piecesPerUnitSnapshot,
+          note: line.note,
         },
       });
 
@@ -1470,6 +1555,7 @@ async function addLines(
         orderingUnit: line.orderingUnit,
         unitQuantity,
         piecesPerUnitSnapshot: line.piecesPerUnitSnapshot,
+        note: line.note,
       });
     }
 
@@ -1608,6 +1694,46 @@ export async function updateItemPackQuantity(
     where: { id: itemId },
     data: { unitQuantity: resolved.unitQuantity, quantity: resolved.quantity },
   });
+}
+
+/**
+ * Change - or clear - the special instruction on one basket line.
+ *
+ * Its own endpoint rather than a field on the quantity update, and the reason
+ * is the same one that keeps `updateItemQuantity` and `updateItemPackQuantity`
+ * apart: a function taking both has to decide what an absent field means, and
+ * there is no answer that is right for both callers. "Absent means leave it
+ * alone" loses the buyer's ability to clear the box; "absent means clear it"
+ * wipes the instruction every time somebody presses the quantity stepper.
+ *
+ * Here the field is the whole request, so `null` unambiguously means "I have
+ * cleared this" and nothing else can be said by accident.
+ *
+ * Scoped by `cartId` like every other line operation, so an item id from
+ * somebody else's basket is a 404 rather than something to edit. That is the
+ * authorisation, and it is the only one needed: the cart id comes from the
+ * session, never from the request.
+ */
+export async function updateItemNote(
+  customerProfileId: string,
+  itemId: string,
+  note: string | null,
+): Promise<{ note: string | null }> {
+  const cartId = await getOrCreateCart(customerProfileId);
+
+  const item = await prisma.cartItem.findFirst({
+    where: { id: itemId, cartId },
+    select: { id: true },
+  });
+  if (item === null) throw notFound('Cart item');
+
+  const stored = normaliseNote(note);
+
+  await prisma.cartItem.update({ where: { id: itemId }, data: { note: stored } });
+
+  // Returned rather than assumed, so the box on screen shows what was actually
+  // kept - trimmed, and null where it was only whitespace.
+  return { note: stored };
 }
 
 export async function removeItem(customerProfileId: string, itemId: string): Promise<void> {

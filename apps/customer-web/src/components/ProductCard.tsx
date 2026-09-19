@@ -33,10 +33,21 @@
  *     three behaviours wearing one label. The name is the link; the product
  *     page is where the decision is made.
  *
+ *   - **The photograph is not a separate control.** Pressing it goes to the
+ *     product page like every other part of the card. A full-screen viewer was
+ *     tried here and taken out again: on a grid the picture is the biggest
+ *     target on the card, and pressing it means "show me this product" to
+ *     everybody who has ever used a shop. Intercepting that gesture leaves
+ *     somebody looking at a photograph they cannot buy from, with the one
+ *     thing they wanted a press away behind a dialog. The viewer lives on the
+ *     product page instead, where the gallery is half the layout and a press
+ *     cannot be mistaken for navigation.
+ *
  * The card reads top to bottom in the order a buyer scans it: what it is
- * (name, code), what it is for (description), what it costs (price, tax), and
- * what the rules are (minimum, increment, repeat purchase) — the last group
- * fenced off by a hairline so it can be found without being read.
+ * (name, code, brand), what it costs (price, tax), and what the rules are
+ * (minimum, increment, repeat purchase) — the last group fenced off by a
+ * hairline so it can be found without being read. The prose description is
+ * deliberately NOT on it; see the note where it used to be.
  */
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
@@ -209,6 +220,21 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
           {product.primaryImage === null ? (
             <ImageFallback />
           ) : (
+            /*
+             * A plain image. NOT a button, and not a lightbox trigger.
+             *
+             * It was briefly both, and it was the wrong call: on a grid, the
+             * picture is the biggest target on the card and pressing it means
+             * "show me this product" to everybody who has ever used a shop.
+             * Opening a viewer there intercepts the one gesture the whole card
+             * is built around — the stretched link on the name — and leaves
+             * somebody looking at a photograph they cannot buy from.
+             *
+             * The full-screen view lives on the product page, where the
+             * gallery is the left-hand half of the layout and pressing it
+             * cannot be mistaken for navigation, because there is nowhere left
+             * to navigate to. See `Gallery` in `ProductPage.tsx`.
+             */
             <img
               src={product.primaryImage.url}
               // The product name is already the link text right below. Repeating
@@ -274,11 +300,11 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             </p>
           </div>
 
-          {/* What a buyer scanning a shelf of near-identical medical consumables
-              actually tells them apart by. Three short facts on one line rather
-              than three rows: the description underneath carries the same words
-              in prose, and a card that repeats itself twice is a card nobody
-              finishes reading.
+          {/* What a buyer scanning a shelf of near-identical products actually
+              tells them apart by. Three short facts on one line rather than
+              three rows, and — since the prose description came off this card —
+              the only words on it that are about the thing rather than about
+              the transaction.
 
               Each is dropped entirely when the catalogue does not have it — an
               em dash where a brand should be is worse than a shorter card. */}
@@ -300,11 +326,20 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             </p>
           )}
 
-          {product.shortDescription !== null && (
-            <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
-              {product.shortDescription}
-            </p>
-          )}
+          {/* NO DESCRIPTION HERE, deliberately.
+
+              It used to be two clamped lines of `shortDescription`, and on a
+              catalogue whose copy runs to a paragraph that is what made every
+              card in the grid tall enough that four of them filled a laptop
+              screen. A grid is for comparing, and comparing needs more cards in
+              view, not more prose in each.
+
+              Nothing is lost: the name, the code, the brand/model line above
+              and the price below are what a buyer scans a grid by, and the
+              description in full is one click away on the product page —
+              unclamped, where there is room to read it. `ProductRow`, the list
+              view, keeps its line: a row is wide and has the space a card does
+              not. */}
 
           {/* What the price below is the price of. Every card in the grid says
               it, because a grid now mixes the operator's cartons with sellers'
@@ -409,10 +444,12 @@ export function ProductCardSkeleton(): React.JSX.Element {
     <div className="h-full p-[4px]" aria-hidden="true">
       <div className="h-full overflow-hidden rounded-lg border border-border bg-surface">
         <div className="skeleton aspect-square w-full rounded-none" />
+        {/* One bar fewer than it had, matching the description that came off
+            the real card. A skeleton taller than the thing it stands in for
+            makes the whole grid settle upwards when the data lands. */}
         <div className="space-y-2 border-t border-border-subtle p-4">
           <div className="skeleton h-4 w-4/5" />
           <div className="skeleton h-3 w-1/3" />
-          <div className="skeleton h-3 w-full" />
           <div className="skeleton h-5 w-1/3" />
         </div>
       </div>

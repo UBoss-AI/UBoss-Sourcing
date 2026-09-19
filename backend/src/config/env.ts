@@ -831,6 +831,42 @@ const envSchema = z
      */
     ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN: intFromString(1, 1000).default(10),
 
+    /**
+     * How many questions a visitor with no account may ask, in total.
+     *
+     * A DIFFERENT limit from the one above, and the difference is the whole
+     * point of having both:
+     *
+     *   - `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` is a tap. It bounds how fast
+     *     an address can spend the operator's provider budget, and waiting
+     *     five minutes opens it again. It is a defence against a script.
+     *   - This is a TASTE. It bounds how much of the assistant somebody gets
+     *     before they are asked to open an account, and waiting does not give
+     *     them more. It is a product decision, not a defence.
+     *
+     * Five, because that is roughly the length of a real evaluation - what do
+     * you sell, do you have it in 316, what is the lead time, can you ship to
+     * Rotterdam - and it ends where somebody has learned enough to want an
+     * account rather than before they have learned anything. An operator who
+     * would rather be more or less generous moves the number; it is their
+     * provider bill.
+     *
+     * Counted in VISITOR messages on the conversation, not in turns and not in
+     * rows: an answer the model refused, or one cut off by a dropped
+     * connection, still cost a question to ask and must still count. Only what
+     * the visitor sent is counted, so a long answer is not two questions.
+     *
+     * Zero means no cap - guests get the rate limit and nothing else. It is
+     * not the default, because a deployment that has turned guests on has
+     * usually done so to let people try the thing rather than to host a free
+     * AI endpoint.
+     *
+     * It applies ONLY to a guest. A signed-in customer is bounded by
+     * `ASSISTANT_MAX_TURNS` per conversation and by their rate limit, exactly
+     * as before, and starting a new conversation is always open to them.
+     */
+    ASSISTANT_GUEST_MESSAGE_LIMIT: intFromString(0, 1000).default(5),
+
     // --- Data protection (GDPR) ---
     //
     // Storage limitation (Art. 5(1)(e)) is a number, not an intention: personal

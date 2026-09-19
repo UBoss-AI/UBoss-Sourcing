@@ -1164,6 +1164,19 @@ export function CheckoutPage(): React.JSX.Element {
                             count: cartonsOfLine(line.ordering)?.cartons ?? 0,
                           })}`}
                     </span>
+                    {/* The instruction, on the last screen before they pay.
+
+                        This list is deliberately compact — it is a check, not
+                        the cart again — and an instruction still earns its two
+                        lines here, because this is the moment somebody is
+                        confirming what they are about to be charged for and
+                        what is about to be done. Finding out afterwards that
+                        the note did not make it is finding out too late. */}
+                    {line.note != null && line.note !== '' && (
+                      <span className="mt-0.5 block whitespace-pre-line text-xs italic leading-relaxed text-ink-subtle">
+                        {line.note}
+                      </span>
+                    )}
                   </span>
                   <span className="shrink-0 tabular text-ink">{formatMoney(line.lineTotal)}</span>
                 </li>

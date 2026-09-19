@@ -324,6 +324,10 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
           tax: serialiseMoney(item.taxAmountMinor, order.currency),
           lineTotal: serialiseMoney(item.lineTotalMinor, order.currency),
           taxRatePercent: item.taxRatePercent.toString(),
+          // What they asked for on this line. Sent back to the customer as
+          // well as to staff: an instruction somebody cannot re-read on their
+          // own order is one they cannot check was understood.
+          note: item.noteSnapshot,
         })),
         timeline: order.statusHistory.map((entry) => ({
           from: entry.fromStatus,
@@ -556,6 +560,10 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
             lineTotal: serialiseMoney(item.lineTotalMinor, order.currency),
             taxRatePercent: item.taxRatePercent.toString(),
             taxClassCode: item.taxClassCodeSnapshot,
+            // The buyer's instruction for this line. Staff answering a query
+            // about an order are reading exactly what the customer wrote,
+            // beside the line it was written about.
+            note: item.noteSnapshot,
           })),
           timeline: order.statusHistory.map((entry) => ({
             from: entry.fromStatus,

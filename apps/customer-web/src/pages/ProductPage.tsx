@@ -39,8 +39,10 @@ import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
+import { ImageLightbox } from '@/components/ImageLightbox';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
-import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
+import { MAX_LINE_NOTE_CHARS, noteForWire } from '@/lib/line-note';
+import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
@@ -120,6 +122,19 @@ function Gallery({
 
   const [activeIndex, setActiveIndex] = useState(0);
 
+  /**
+   * Whether the full-screen view is up.
+   *
+   * The hover magnifier and this are not alternatives — they answer different
+   * questions. The magnifier answers "what does that bit say?" without leaving
+   * the page; the lightbox answers "let me actually look at this", which needs
+   * the whole window, a zoom that stays where it is put and somewhere to drag
+   * to. Both are on the same photograph, and the second is reached by pressing
+   * it, which is what a photograph that grows when you click it has meant on
+   * every catalogue since catalogues had photographs.
+   */
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
   // Back to the first photograph whenever the set changes. Holding index 3
   // across a switch to a variant with two pictures shows the fallback, which
   // reads as the gallery having failed.
@@ -172,6 +187,29 @@ function Gallery({
        * fill the same box and the mapping is exact.
        */}
       <div className="overflow-hidden rounded-xl border border-border bg-surface-sunken p-6 shadow-card sm:p-8">
+        {/*
+         * A real `<button>` around the photograph, not a click handler on the
+         * `<img>`.
+         *
+         * Pressing the picture is the gesture, and a gesture that only a mouse
+         * can perform is half a feature. Wrapping it in a button gives it a tab
+         * stop, Enter and Space, a focus ring and an accessible name that says
+         * what pressing it does — none of which a `<div onClick>` has, and all
+         * of which somebody buying from a keyboard needs.
+         *
+         * The zoom handlers stay on the element inside it: the magnifier is a
+         * hover effect and the button is a press, so they never contend for
+         * the same event.
+         */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsLightboxOpen(true);
+          }}
+          aria-label={t('product.openFullScreenImage')}
+          className="block w-full rounded-lg focus-visible:outline focus-visible:outline-2
+                     focus-visible:outline-offset-4 focus-visible:outline-brand"
+        >
         <div
           ref={zoom.ref}
           onPointerEnter={zoom.onPointerEnter}
@@ -208,7 +246,32 @@ function Gallery({
             className="zoom-layer"
           />
         </div>
+        </button>
+
+        {/* Said in words under the picture, because the `zoom-in` cursor says
+            it only to a mouse and says the wrong thing about what a press
+            does. `aria-hidden`: the button above it already carries the same
+            sentence as its accessible name, and hearing it twice is worse
+            than hearing it once. */}
+        <p aria-hidden="true" className="mt-2 text-center text-xxs text-ink-subtle">
+          {t('product.clickToEnlarge')}
+        </p>
       </div>
+
+      {/* `images` and not `[active]`: the full-screen view steps between the
+          photographs too, so it needs the set rather than the one currently
+          shown. The fallback covers the product whose only picture is
+          `primaryImage` with an empty `images` — rare, but it is the case
+          where `active` above is non-null and the list is not. */}
+      <ImageLightbox
+        images={images.length > 0 ? images : [active]}
+        startIndex={activeIndex}
+        isOpen={isLightboxOpen}
+        onClose={() => {
+          setIsLightboxOpen(false);
+        }}
+        title={product.name}
+      />
 
       {images.length > 1 && (
         <ul className="mt-3 flex snap-x gap-2 overflow-x-auto pb-1">
@@ -665,6 +728,23 @@ export function ProductPage(): React.JSX.Element {
   const [addError, setAddError] = useState<string | null>(null);
 
   /**
+   * What the buyer needs done to this product, in their own words.
+   *
+   * Sent with the add and stored on the basket line, not held here: a note
+   * that lived only in this component would be gone the moment they carried
+   * on browsing, which is the worst possible behaviour for a box somebody has
+   * typed a paragraph into.
+   *
+   * ONE box for the whole add, even when several options are being added at
+   * once. A hospital buying 3 ml and 5 ml of the same syringe is placing one
+   * instruction about one product - "sterile packs, split across two boxes" -
+   * and asking them to type it twice, into two boxes that look identical, is
+   * how one of the two ends up blank. The server puts the same words on each
+   * line it writes, which is what the buyer meant.
+   */
+  const [lineNote, setLineNote] = useState('');
+
+  /**
    * The guided selection: axis key to the value chosen, for a product whose
    * seller declared the dimensions it sells along.
    *
@@ -970,10 +1050,21 @@ export function ProductPage(): React.JSX.Element {
           // the server looks that up for itself. See cart.customer.ts.
           orderingUnit: line.orderingUnit,
           unitQuantity: line.unitQuantity,
+          // The same instruction on every line this add writes. Null rather
+          // than '' for an untouched box: an empty string would be a value,
+          // and a value overwrites an instruction already on the line.
+          note: noteForWire(lineNote),
         })),
       }),
     onSuccess: async () => {
       setAddError(null);
+      // Cleared only on success, and only here. The words are now on the
+      // basket line, where they can be re-read and edited; leaving them in
+      // the box as well would invite the buyer to press Add again and wonder
+      // why nothing changed. A FAILED add leaves the box exactly as it is,
+      // because retyping a paragraph after a dropped connection is the fastest
+      // way to lose a customer.
+      setLineNote('');
       toast.success(
         chosenLines.length > 1
           ? t('product.optionsAddedToYourCart', { options: formatNumber(chosenLines.length) })
@@ -1145,6 +1236,7 @@ export function ProductPage(): React.JSX.Element {
   const hasDiscount =
     compareAtUnitMinor !== null && BigInt(compareAtUnitMinor) > BigInt(displayUnitPrice.minor);
 
+
   // The schedule path is offered only where it can actually be walked: the
   // store has the feature on, and this product is eligible for it.
   const canSchedule = features.recurringOrders && rules.isRecurringEligible;
@@ -1164,6 +1256,59 @@ export function ProductPage(): React.JSX.Element {
   const purchasability = product.purchasability ?? null;
   const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
   const isUnavailable = purchasability !== null && !purchasability.isOrderable;
+
+  /**
+   * What the chosen quantity comes to, in goods.
+   *
+   * ## This is a multiplication, not a second pricing engine
+   *
+   * The note further up says a total across the chosen options is the one
+   * thing this page must not print, and that reasoning still stands — for the
+   * figure it was about. What it must not print is a figure somebody could
+   * mistake for what they will be CHARGED: that needs tax, the coupon, the
+   * delivery fee, the account's own terms and the order of operations between
+   * them, and there is exactly one implementation of that in this codebase.
+   * A second one here would eventually disagree with it, and the customer
+   * would be the one to find out.
+   *
+   * This is a different figure and it is labelled as one. It is the catalogue's
+   * own per-piece price, which came off the server, multiplied by the number
+   * of pieces in the box on screen — the same arithmetic as the "per carton"
+   * line above it, done once more. A buyer typing 40 cartons is doing that
+   * multiplication on a calculator beside the screen, and sometimes getting it
+   * wrong; doing it for them is the whole point of the line.
+   *
+   * What keeps it honest is the sentence printed under it, which says in
+   * words that this is goods only and that the basket works out what is
+   * actually owed. Both are shown, neither is hidden, and the larger, final
+   * figure is never invented here.
+   *
+   * ## The arithmetic
+   *
+   * `BigInt` throughout, like every money path in this codebase. A price is
+   * minor units and it crosses the API as a string precisely so that nothing
+   * can turn it into a float on the way past.
+   *
+   * Per LINE rather than per product, because a shopper choosing 3 ml and
+   * 5 ml is choosing two things at two prices, and each line is multiplied by
+   * its own.
+   */
+  const goodsSubtotalMinor = isPriceOnRequest
+    ? null
+    : chosenLines
+        .reduce((sum, line) => {
+          const variant =
+            line.variantId === null
+              ? null
+              : (product.variants.find((candidate) => candidate.id === line.variantId) ?? null);
+
+          // `pieceMinor` is the catalogue's price for one piece, and
+          // `line.quantity` is pieces. Multiplying the two needs no knowledge
+          // of cartons at all, which is what makes it right for both a
+          // seller's piece line and the operator's carton line.
+          return sum + BigInt(unitPriceOf(variant).pieceMinor) * BigInt(line.quantity);
+        }, 0n)
+        .toString();
   // The operator's own sentence where they wrote one; a plain statement of
   // fact where they did not. Never an empty notice.
   const unavailabilityReason =
@@ -1256,7 +1401,19 @@ export function ProductPage(): React.JSX.Element {
               Its own panel rather than a pair of hairlines: the price is the
               single most-looked-at thing on this page, and a bordered block
               is what stops the eye at it on the way down. */}
-          <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card">
+          {/* A named region, and it is not decoration.
+
+              The page now carries the same currency figure in two places for
+              a good reason — the price of one unit here, and what the chosen
+              quantity comes to further down — and "₹6,250.00" on its own is
+              ambiguous between them to a screen reader moving through the
+              page, exactly as it was ambiguous to the tests that first caught
+              this. Naming the two regions is what tells them apart, for both. */}
+          <div
+            role="group"
+            aria-label={t('product.priceRegion')}
+            className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card"
+          >
             {/* A price, or the reason there is not one - never both, and never
                 a figure of zero.
 
@@ -1513,6 +1670,124 @@ export function ProductPage(): React.JSX.Element {
                   {t('packaging.comesTo', { n: formatNumber(totalPieces) })}
                 </p>
               )}
+
+              {/* --- What it comes to --------------------------------------
+
+                  Three rows, and each one answers a question a buyer asks out
+                  loud in front of this panel.
+
+                  "What does ONE cost?" is the first, and it is the one this
+                  page used to answer only obliquely — the headline figure is
+                  the price of a carton of five hundred on the operator's
+                  goods, and a buyer comparing two suppliers is comparing the
+                  price of a piece. It is stated here in the same words on
+                  every product, whichever unit the product is sold in, so the
+                  comparison is possible without arithmetic.
+
+                  "How many pieces is that?" is the second, and it is shown
+                  only where it is not simply the number already in the box.
+
+                  "What is that going to cost me?" is the third, and the note
+                  on `goodsSubtotalMinor` sets out at length why it is safe to
+                  answer it here and what it is not. The short version is on
+                  screen, under the figure, in words: goods only, and the
+                  basket is what works out the rest. Nothing on this panel
+                  pretends to be the final bill.
+
+                  Absent entirely on a product priced per account, where there
+                  is no figure to multiply and inventing one would quote
+                  something nobody agreed to charge. */}
+              {goodsSubtotalMinor !== null && totalPieces > 0 && (
+                <div
+                  role="group"
+                  aria-label={t('product.totalRegion')}
+                  className="rounded-md border border-border-subtle bg-surface-sunken px-3 py-2.5"
+                >
+                  <dl className="space-y-1 text-sm">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="text-ink-muted">{t('product.pricePerPiece')}</dt>
+                      <dd className="shrink-0 tabular font-medium text-ink">
+                        {formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency)}
+                      </dd>
+                    </div>
+
+                    {totalPieces !== quantity && (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="text-ink-muted">{t('product.piecesLabel')}</dt>
+                        <dd className="shrink-0 tabular text-ink">{formatNumber(totalPieces)}</dd>
+                      </div>
+                    )}
+
+                    <div className="flex items-baseline justify-between gap-3 border-t border-border-subtle pt-1.5">
+                      <dt className="font-medium text-ink">{t('product.totalCost')}</dt>
+                      {/*
+                        `aria-live="polite"`, because this number changes
+                        without the page navigating and a figure that updates
+                        silently is a figure a screen-reader user never learns
+                        changed. Polite rather than assertive: it should be
+                        announced after the quantity they just typed, not over
+                        the top of it.
+                      */}
+                      <dd
+                        aria-live="polite"
+                        className="shrink-0 text-base font-semibold tabular text-ink"
+                      >
+                        {formatMoneyMinor(goodsSubtotalMinor, priceCurrency)}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className="mt-1.5 text-xxs leading-relaxed text-ink-subtle">
+                    {t('product.totalCostBasis')}
+                  </p>
+                </div>
+              )}
+
+              {/* --- Special instructions -----------------------------------
+
+                  Per product, and this is the field a trade buyer has been
+                  writing into the order note for want of anywhere better.
+
+                  It belongs here rather than at checkout because it is about
+                  THIS product: "the 316 grade, not 304", "match the batch on
+                  our PO 4471", "engrave both ends". Written at checkout those
+                  words arrive attached to nothing — on a basket of nine lines
+                  from four sellers, an order note saying "the blue one"
+                  reaches every seller and identifies none of them. Written
+                  here it travels on the line, and the person picking that line
+                  is the person who reads it.
+
+                  Optional, and said so in the label rather than only by the
+                  absence of an asterisk. Most orders have nothing to add, and
+                  a field that looks required is a field people invent an
+                  answer for.
+
+                  It survives a failed add and is cleared on a successful one —
+                  see the mutation. */}
+              <Field
+                label={t('product.specialInstructions')}
+                hint={t('product.specialInstructionsHint')}
+              >
+                {({ inputId, describedBy }) => (
+                  <Textarea
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    value={lineNote}
+                    // The same 500 the column and the API schema hold, so the
+                    // box stops where the server would have refused. A limit
+                    // discovered as a rejected save is a limit discovered too
+                    // late to be useful.
+                    maxLength={MAX_LINE_NOTE_CHARS}
+                    rows={2}
+                    className="min-h-[4.5rem]"
+                    placeholder={t('product.specialInstructionsPlaceholder')}
+                    onChange={(event) => {
+                      const { value } = event.currentTarget;
+                      setLineNote(value);
+                    }}
+                  />
+                )}
+              </Field>
 
               {addError !== null && (
                 <p

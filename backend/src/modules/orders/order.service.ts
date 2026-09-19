@@ -448,6 +448,12 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         // later tells `splitOrderToSellers` this line is somebody's work and
         // somebody's money rather than the operator's own stock.
         sellerOfferId: resolved.lines[index]?.sellerOfferId ?? null,
+        // The buyer's instruction for this line, frozen with everything else
+        // on the row. Carried across by the same positional join as the offer
+        // above: `pricing.lines` and `lines` are built from `lineMeta` in one
+        // pass, so the index IS the join. The basket is emptied the moment
+        // this commits, so if the words are not copied here they are gone.
+        noteSnapshot: resolved.lines[index]?.note ?? null,
         nameSnapshot: line.nameSnapshot,
         skuSnapshot: line.skuSnapshot,
         variantNameSnapshot: line.variantNameSnapshot,

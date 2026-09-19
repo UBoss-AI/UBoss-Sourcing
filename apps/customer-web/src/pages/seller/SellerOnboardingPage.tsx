@@ -35,6 +35,13 @@ import {
   Textarea,
 } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
+import { BusinessAddressFields } from '@/components/BusinessAddressFields';
+import {
+  isLegacySingleLineAddress,
+  normalisePostalCode,
+  validateBusinessAddress,
+} from '@/lib/business-address';
+import type { BusinessAddress } from '@/lib/business-address';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import {
@@ -471,6 +478,68 @@ const COLUMN_NAMES: Record<string, keyof BusinessProfile> = {
   registered_address: 'registeredAddressLine1',
 };
 
+/**
+ * The one requirement that is not a text box.
+ *
+ * `registered_address` is still a single requirement row — the server still
+ * checks one field to decide whether the step is finished, and an operator can
+ * still delete the row to stop asking — but what it renders is the six-field
+ * address form rather than one input.
+ *
+ * Singled out by key here rather than by a flag on the requirement, because
+ * the requirement table describes what to ASK for and this is a fact about how
+ * this application draws it. A deployment that renames the row's label gets
+ * its own label; one that deletes the row gets no address form. Neither needs
+ * this constant to change.
+ *
+ * `REQUIREMENT_COLUMNS` on the server maps the same key to
+ * `registeredAddressLine1`, so "has the seller answered it?" is still decided
+ * by line 1 having something in it. The other five columns are saved beside
+ * it and are validated by the API, which is where the real check lives.
+ */
+const ADDRESS_FIELD_KEY = 'registered_address';
+
+/**
+ * The stored address, read back into the shape the form holds it in.
+ *
+ * Nulls become empty strings, because a controlled input cannot take null and
+ * a form that swaps between controlled and uncontrolled on first keystroke is
+ * the oldest bug in React.
+ */
+function addressFromProfile(profile: BusinessProfile | null): BusinessAddress {
+  return {
+    line1: profile?.registeredAddressLine1 ?? '',
+    line2: profile?.registeredAddressLine2 ?? '',
+    city: profile?.registeredCity ?? '',
+    region: profile?.registeredRegion ?? '',
+    postcode: profile?.registeredPostcode ?? '',
+    country: profile?.registeredCountry ?? '',
+  };
+}
+
+/** The same address, in the field names the API takes. */
+function addressToPatch(address: BusinessAddress): Record<string, string | null> {
+  const orNull = (value: string): string | null => {
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
+  };
+
+  return {
+    registeredAddressLine1: orNull(address.line1),
+    registeredAddressLine2: orNull(address.line2),
+    registeredCity: orNull(address.city),
+    registeredRegion: orNull(address.region),
+    // Trimmed and otherwise untouched: never upper-cased, never stripped of
+    // spaces or hyphens, and above all never turned into a number. See
+    // `normalisePostalCode`.
+    registeredPostcode: orNull(normalisePostalCode(address.postcode)),
+    // Upper case, because the column is `CHAR(2)` and the `countries` table
+    // holds them upper case. The API upper-cases it again; this is so the
+    // value sent matches the value shown.
+    registeredCountry: orNull(address.country.toUpperCase()),
+  };
+}
+
 function RequirementForm({
   step,
   isEditable,
@@ -490,6 +559,35 @@ function RequirementForm({
   const [values, setValues] = useState<Record<string, string>>({});
   const [isDirty, setIsDirty] = useState(false);
 
+  /**
+   * The address being edited, or null while nothing has been touched.
+   *
+   * `null` rather than a copy of the stored address, and this is the same
+   * decision `StoreProfileForm` records at length further down: a form that
+   * seeds its state from a query has to seed it from a query that has
+   * ANSWERED, and this one renders before the profile arrives. Null means
+   * "show what is stored"; anything else is this visit's edit.
+   *
+   * It also means an address the seller has not touched is not SENT, which is
+   * what stops a save of the GSTIN field from writing six nulls over an
+   * address somebody entered a minute earlier.
+   */
+  const [address, setAddress] = useState<BusinessAddress | null>(null);
+
+  /**
+   * Whether the address has been submitted once.
+   *
+   * Objections are held back until then. A form that reports "enter a valid
+   * postal code" against an empty box the moment it renders is a form that
+   * opens covered in red, and somebody who has typed nothing has done nothing
+   * wrong yet. After a press of Save, every objection is shown at once — all
+   * of them, not the first — and the caret goes to the first field with one.
+   */
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+
+  /** The block the address fields live in, for moving focus into it. */
+  const addressRef = useRef<HTMLDivElement>(null);
+
   const mutation = useMutation({
     mutationFn: () => {
       const patch: Record<string, unknown> = {};
@@ -497,6 +595,13 @@ function RequirementForm({
 
       for (const requirement of step.requirements) {
         if (requirement.isDocument) continue;
+
+        // The address is six columns and is assembled below, not here. Falling
+        // through would write the whole structured address into
+        // `registeredAddressLine1` as one string, which is precisely the
+        // behaviour this change replaced.
+        if (requirement.fieldKey === ADDRESS_FIELD_KEY) continue;
+
         const value = values[requirement.fieldKey];
         if (value === undefined) continue;
 
@@ -508,12 +613,28 @@ function RequirementForm({
         }
       }
 
+      // Only when it has been edited on this visit. An untouched address is
+      // absent from the patch, and an absent field is one the server leaves
+      // alone - so saving the tax number cannot blank the address.
+      if (address !== null) Object.assign(patch, addressToPatch(address));
+
       if (Object.keys(extras).length > 0) patch['extraIdentifiers'] = extras;
 
       return saveBusinessProfile(patch);
     },
     onSuccess: async (result) => {
       setIsDirty(false);
+      setWasSubmitted(false);
+      /*
+       * The local edit is dropped so the form falls back to what is STORED.
+       *
+       * Not kept: the server trims, upper-cases the country and may have
+       * refused part of what was sent, and a box still showing the draft after
+       * a successful save is a box that disagrees with the database without
+       * saying so. Re-reading is the only version where what is on screen is
+       * what was kept.
+       */
+      setAddress(null);
       await client.invalidateQueries({ queryKey: ['seller', 'onboarding'] });
       await client.invalidateQueries({ queryKey: ['seller', 'business-profile'] });
 
@@ -524,12 +645,52 @@ function RequirementForm({
       );
     },
     onError: (error: unknown) => {
+      // Nothing is cleared. A seller who has just typed out a registered
+      // address and lost the connection must not have to type it again, so
+      // `address` is left exactly as it is and the box still holds it.
       toast.error(errorMessage(t, error, 'Those details could not be saved.'));
     },
   });
 
   const profile = profileQuery.data?.profile ?? null;
   const extras = profile?.extraIdentifiersJson ?? {};
+
+  /** What is in the address boxes: this visit's edit, or what is stored. */
+  const shownAddress = address ?? addressFromProfile(profile);
+
+  /**
+   * Whether this step asks for the address at all.
+   *
+   * Read off the requirement rows rather than assumed: a deployment that has
+   * deleted the `registered_address` row is not asking for one, and rendering
+   * six fields for it anyway would be this component overruling the operator's
+   * own configuration.
+   */
+  const addressRequirement =
+    step.requirements.find(
+      (requirement) => requirement.fieldKey === ADDRESS_FIELD_KEY && !requirement.isDocument,
+    ) ?? null;
+
+  const addressProblems = addressRequirement === null ? {} : validateBusinessAddress(shownAddress);
+  const hasAddressProblem = Object.keys(addressProblems).length > 0;
+
+  /**
+   * An existing seller whose address predates the structured fields.
+   *
+   * Their line 1 holds everything they typed into the old single box, and the
+   * other five are null. Nothing is parsed out of it — guessing a state and a
+   * postcode out of a sentence is how a tax registration ends up against the
+   * wrong jurisdiction — so the prose is shown back to them as it was stored
+   * and they are asked to fill in the parts.
+   */
+  const isLegacyAddress = isLegacySingleLineAddress({
+    line1: profile?.registeredAddressLine1 ?? null,
+    line2: profile?.registeredAddressLine2 ?? null,
+    city: profile?.registeredCity ?? null,
+    region: profile?.registeredRegion ?? null,
+    postcode: profile?.registeredPostcode ?? null,
+    country: profile?.registeredCountry ?? null,
+  });
 
   /** The stored value for a requirement, whichever side of the split it is on. */
   const storedValue = (fieldKey: string): string => {
@@ -563,19 +724,96 @@ function RequirementForm({
         )}
 
         <div className="space-y-4">
-          {typed.map((requirement) => (
-            <Field
-              key={requirement.fieldKey}
-              label={requirement.label}
-              {...(requirement.helpText === null ? {} : { hint: requirement.helpText })}
-              required={requirement.isRequired}
-            >
-              {({ inputId, describedBy }) => (
-                <Input
-                  id={inputId}
-                  aria-describedby={describedBy}
-                  disabled={!isEditable}
-                  value={values[requirement.fieldKey] ?? storedValue(requirement.fieldKey)}
+          {typed.map((requirement) =>
+            /*
+             * The address is six fields in a section of its own; everything
+             * else on this step is one text box.
+             *
+             * Rendered in the requirement's own place in the list rather than
+             * appended below it, so the order an operator set with `sortOrder`
+             * is the order on screen — the address sits between the tax number
+             * and the website exactly where the seed puts it.
+             */
+            requirement.fieldKey === ADDRESS_FIELD_KEY ? (
+              <section
+                key={requirement.fieldKey}
+                ref={addressRef}
+                aria-labelledby={`${requirement.fieldKey}-heading`}
+                className="rounded-lg border border-border-subtle bg-surface-sunken/40 px-4 py-4"
+              >
+                <h3
+                  id={`${requirement.fieldKey}-heading`}
+                  className="text-sm font-semibold text-ink"
+                >
+                  {requirement.label}
+                  {requirement.isRequired && (
+                    <>
+                      <span className="ml-1 text-danger" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (required)</span>
+                    </>
+                  )}
+                </h3>
+
+                {requirement.helpText !== null && (
+                  <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+                    {requirement.helpText}
+                  </p>
+                )}
+
+                {/*
+                  An address entered before this form asked for its parts.
+
+                  Shown back as it was stored, with nothing parsed out of it.
+                  Splitting "42 Industrial Estate Phase 2 Noida UP 201301" into
+                  fields means guessing which word is the state, and a guess
+                  that is wrong puts a business in the wrong tax jurisdiction —
+                  so the prose stays, the seller is asked to fill in the parts,
+                  and what they type is what is kept.
+                */}
+                {isLegacyAddress && (
+                  <div className="mt-3 rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5">
+                    <p className="text-xs font-medium text-ink">
+                      {t('sellerAddress.legacyHeading')}
+                    </p>
+                    <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-ink">
+                      {profile?.registeredAddressLine1}
+                    </p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-ink-muted">
+                      {t('sellerAddress.legacyBody')}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4">
+                  <BusinessAddressFields
+                    value={shownAddress}
+                    disabled={!isEditable}
+                    // Held back until the first press of Save — an empty form
+                    // that opens covered in red is objecting to something
+                    // nobody has done yet.
+                    problems={wasSubmitted ? addressProblems : {}}
+                    onChange={(next) => {
+                      setAddress(next);
+                      setIsDirty(true);
+                    }}
+                  />
+                </div>
+              </section>
+            ) : (
+              <Field
+                key={requirement.fieldKey}
+                label={requirement.label}
+                {...(requirement.helpText === null ? {} : { hint: requirement.helpText })}
+                required={requirement.isRequired}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    disabled={!isEditable}
+                    value={values[requirement.fieldKey] ?? storedValue(requirement.fieldKey)}
                   onChange={(event) => {
                     /*
                      * Read out of the event BEFORE the updater.
@@ -588,28 +826,66 @@ function RequirementForm({
                      * application. It has to be captured here, while the
                      * handler is still running.
                      */
-                    const { value } = event.currentTarget;
+                      const { value } = event.currentTarget;
 
-                    setValues((previous) => ({
-                      ...previous,
-                      [requirement.fieldKey]: value,
-                    }));
-                    setIsDirty(true);
-                  }}
-                />
-              )}
-            </Field>
-          ))}
+                      setValues((previous) => ({
+                        ...previous,
+                        [requirement.fieldKey]: value,
+                      }));
+                      setIsDirty(true);
+                    }}
+                  />
+                )}
+              </Field>
+            ),
+          )}
         </div>
-
 
         {isEditable && typed.length > 0 && (
           <div className="flex items-center gap-3 pt-1">
             <Button
               variant="primary"
+              /*
+               * `isLoading` also disables the button, so a second press while
+               * the first save is in flight cannot happen. That is the whole
+               * of the duplicate-submission guard and it is enough: the
+               * mutation is the only path out of this form.
+               */
               isLoading={mutation.isPending}
-              disabled={!isDirty}
+              disabled={!isDirty || mutation.isPending}
               onClick={() => {
+                /*
+                 * Nothing is sent while the address is incomplete.
+                 *
+                 * The objections appear all at once — a form that reveals them
+                 * one at a time is a form somebody submits five times — and
+                 * focus moves to the first field with one, so somebody who
+                 * pressed Save at the bottom of a long step is put where the
+                 * problem is rather than left to find it.
+                 *
+                 * `scrollIntoView` as well as `focus`, because focusing an
+                 * input inside a collapsed-out-of-view section scrolls it into
+                 * the corner of the window rather than showing the section it
+                 * belongs to.
+                 */
+                if (hasAddressProblem) {
+                  setWasSubmitted(true);
+
+                  addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                  // After the render that puts the error markup in place, or
+                  // the query below matches the field before it is marked.
+                  window.setTimeout(() => {
+                    const firstInvalid =
+                      addressRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]') ??
+                      null;
+                    firstInvalid?.focus();
+                  }, 0);
+
+                  return;
+                }
+
+                setWasSubmitted(false);
                 mutation.mutate();
               }}
             >

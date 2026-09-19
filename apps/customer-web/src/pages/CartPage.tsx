@@ -43,7 +43,8 @@ import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { AlertIcon, TrashIcon } from '@/components/icons';
 import { clampToRules } from '@/lib/quantity-rules';
-import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
+import { MAX_LINE_NOTE_CHARS, noteForWire } from '@/lib/line-note';
+import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { api } from '@/lib/api';
 import { autoPayApi, autoPayKeys } from '@/lib/autopay';
 import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
@@ -158,16 +159,155 @@ function cartonsOf(
   };
 }
 
+/**
+ * The special instruction on one line, shown and edited in place.
+ *
+ * ## Why it is collapsed until it is wanted
+ *
+ * Most lines have no instruction and never will. An always-open textarea on
+ * every row would make a basket of nine lines nine textareas tall, and a
+ * control that is empty on eight rows out of nine is noise on all nine. So a
+ * line with nothing on it offers a quiet link; a line WITH something on it
+ * shows the words, because an instruction the buyer cannot see on the basket
+ * is one they cannot check before they agree to the order.
+ *
+ * ## Why the draft is local and the saved value is not
+ *
+ * The box holds a draft. Nothing is sent while somebody is typing — a save per
+ * keystroke would be a request per keystroke against a route that reprices the
+ * whole basket — and nothing is saved by wandering off, which would be a
+ * silent write nobody asked for. Save sends it, Cancel throws the draft away
+ * and puts the stored value back.
+ *
+ * A failed save leaves the box exactly as it is, with the words still in it.
+ * That is the whole reason the draft is separate from the line: the
+ * alternative is a paragraph somebody typed disappearing because a request
+ * timed out.
+ */
+function LineNote({
+  line,
+  isBusy,
+  onSave,
+}: {
+  line: CartLine;
+  isBusy: boolean;
+  onSave: (note: string | null) => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+
+  const stored = line.note ?? null;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(stored ?? '');
+
+  const open = (): void => {
+    // Opened from the stored value rather than from whatever was last typed
+    // and abandoned: reopening the box has to show what is actually saved.
+    setDraft(stored ?? '');
+    setIsEditing(true);
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="mt-2.5">
+        {stored === null ? (
+          <Button size="sm" variant="ghost" onClick={open} disabled={isBusy}>
+            {t('cart.addInstructions')}
+          </Button>
+        ) : (
+          <div className="rounded-md border border-border-subtle bg-surface-sunken px-3 py-2">
+            <p className="text-xxs font-medium uppercase tracking-wide text-ink-subtle">
+              {t('cart.specialInstructions')}
+            </p>
+            {/* `whitespace-pre-line`: somebody who typed three lines meant
+                three lines, and a picking instruction run together into one
+                paragraph is one a packer misreads. */}
+            <p className="mt-0.5 whitespace-pre-line text-sm leading-relaxed text-ink">{stored}</p>
+            <Button size="sm" variant="ghost" onClick={open} disabled={isBusy} className="mt-1">
+              {t('cart.editInstructions')}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2.5">
+      <Field label={t('cart.specialInstructions')}>
+        {({ inputId, describedBy }) => (
+          <Textarea
+            id={inputId}
+            aria-describedby={describedBy}
+            value={draft}
+            rows={2}
+            maxLength={MAX_LINE_NOTE_CHARS}
+            disabled={isBusy}
+            className="min-h-[4.5rem]"
+            onChange={(event) => {
+              const { value } = event.currentTarget;
+              setDraft(value);
+            }}
+          />
+        )}
+      </Field>
+
+      <div className="mt-1.5 flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          variant="primary"
+          disabled={isBusy}
+          onClick={() => {
+            onSave(noteForWire(draft));
+            setIsEditing(false);
+          }}
+        >
+          {t('cart.saveInstructions')}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={isBusy}
+          onClick={() => {
+            setIsEditing(false);
+          }}
+        >
+          {t('common.cancel')}
+        </Button>
+        {stored !== null && (
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={isBusy}
+            className="hover:bg-danger-soft hover:text-danger"
+            onClick={() => {
+              // `null`, not `''`. The route reads null as "clear it" and the
+              // service turns it into a NULL column, so "no instruction" has
+              // one representation rather than two.
+              onSave(null);
+              setIsEditing(false);
+            }}
+          >
+            {t('cart.clearInstructions')}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function LineRow({
   line,
   onQuantityChange,
   onPackQuantityChange,
+  onNoteChange,
   onRemove,
   isBusy,
 }: {
   line: CartLine;
   onQuantityChange: (quantity: number) => void;
   onPackQuantityChange: (unitQuantity: number) => void;
+  onNoteChange: (note: string | null) => void;
   onRemove: () => void;
   isBusy: boolean;
 }): React.JSX.Element {
@@ -417,6 +557,11 @@ function LineRow({
             </span>
           </Button>
         </div>
+
+        {/* Under the line it belongs to and above its problems, because a
+            problem is something to fix now and an instruction is something
+            that travels with the order. */}
+        <LineNote line={line} isBusy={isBusy} onSave={onNoteChange} />
 
         {line.issues.map((issue) => {
           const correction = correctionFor(issue.code);
@@ -680,6 +825,43 @@ export function CartPage(): React.JSX.Element {
     },
   });
 
+  /**
+   * The special instruction on a line, changed or cleared.
+   *
+   * Its own mutation rather than a field on the quantity one, matching the
+   * route: an absent field on a shared endpoint would have to mean either
+   * "leave it alone" or "clear it", and each of those is wrong for one of the
+   * two callers.
+   *
+   * It answers with the whole repriced cart like every other mutation on this
+   * page, even though nothing about the basket's arithmetic has moved. The
+   * shape being identical is what lets `applyCart` be the only place the
+   * response is written, which is the rule this file is built around.
+   */
+  const updateNote = useMutation({
+    mutationFn: ({ itemId, note }: { itemId: string; note: string | null }) =>
+      api.patch<{ cart: Cart }>(`/cart/items/${itemId}/note`, { note }),
+    onMutate: ({ itemId }) => {
+      setBusyItemId(itemId);
+    },
+    onSuccess: (result, variables) => {
+      applyCart(result);
+      // Two different things happened and they are worth telling apart:
+      // somebody who meant to clear an instruction and sees "saved" has no
+      // way to know whether it worked.
+      toast.success(
+        variables.note === null ? t('cart.instructionsCleared') : t('cart.instructionsSaved'),
+      );
+    },
+    onError: (error) => {
+      setActionError(errorMessage(t, error, t('cart.instructionsFailed')));
+      void queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+    onSettled: () => {
+      setBusyItemId(null);
+    },
+  });
+
   const removeItem = useMutation({
     mutationFn: (itemId: string) => api.delete<{ cart: Cart }>(`/cart/items/${itemId}`),
     onMutate: (itemId) => {
@@ -838,6 +1020,9 @@ export function CartPage(): React.JSX.Element {
                 }}
                 onPackQuantityChange={(unitQuantity) => {
                   updatePackQuantity.mutate({ itemId: line.itemId, unitQuantity });
+                }}
+                onNoteChange={(note) => {
+                  updateNote.mutate({ itemId: line.itemId, note });
                 }}
                 onRemove={() => {
                   removeItem.mutate(line.itemId);

@@ -1375,6 +1375,84 @@
   }
 }
 
+/* ==========================================================================
+ * THE LIGHTBOX
+ *
+ * The full-screen view of the same photograph — `components/ImageLightbox.tsx`
+ * — which is a different job from the hover magnifier above. That one is for
+ * glancing at part of a picture while the page stays put; this one is for
+ * making a photograph as large as the screen allows and reading a moulded part
+ * number off it.
+ *
+ * Three rules, and every one of them is here rather than in Tailwind because
+ * it is either a property Tailwind has no utility for or a state the component
+ * cannot express as a class without re-rendering an image on every pointer
+ * move.
+ * ========================================================================== */
+
+/*
+ * The image, and the two properties that decide how the zoom looks.
+ *
+ * `transform-origin: center` so a zoom grows out of the middle of what is on
+ * screen rather than out of the top-left corner, which is what puts the
+ * subject off the edge on the first press of the + button.
+ *
+ * `will-change: transform` promotes it to its own compositor layer, which is
+ * what makes a drag at 6x track the finger instead of trailing behind it. It
+ * is declared here and not toggled from JavaScript on purpose: the element
+ * exists only while the dialog is open, so the layer is created when the
+ * lightbox opens and thrown away when it closes — there is no idle cost to
+ * avoid.
+ *
+ * No `image-rendering` override, deliberately. `pixelated` is the setting
+ * people reach for when they hear "do not lose quality", and it does the
+ * opposite on a photograph: it turns a smooth resample into visible squares.
+ * The browser's default bilinear filtering is the right one for photography,
+ * and the actual defence of quality is that the source is the original file
+ * and the scale is a composited transform rather than a re-rasterisation.
+ */
+.lightbox-image {
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 120ms var(--ease-ui);
+  /* The browser's own drag-the-picture gesture would cancel the pan and leave
+     a ghost image following the cursor out of the window. `draggable={false}`
+     covers the mouse; this covers the rest. */
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+
+/*
+ * No easing while a pointer is on it.
+ *
+ * A 120ms ease is right for the zoom buttons, where it reads as the picture
+ * growing, and wrong for a drag, where it reads as lag. `:active` is the one
+ * selector that distinguishes the two without React being told about every
+ * pointer move.
+ */
+.lightbox-image:active {
+  transition: none;
+}
+
+/*
+ * Nothing behind a lightbox scrolls.
+ *
+ * `showModal()` makes the page inert to clicks and to assistive technology
+ * but NOT to a wheel, so without this the catalogue slides past behind a
+ * photograph somebody is trying to zoom — the single most disorienting thing
+ * this dialog can do. The wheel handler in the component turns the gesture
+ * into a zoom; this is what stops the same gesture also reaching the page.
+ */
+dialog[open] {
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-image {
+    transition: none;
+  }
+}
+
 /*
  * A track that scrolls sideways without a scrollbar drawn across it.
  *

@@ -2226,6 +2226,21 @@ model CartItem {
   /// Pieces in one `orderingUnit` at the moment it was chosen.
   piecesPerUnitSnapshot Int          @default(1)
 
+  /// What the buyer needs done to THIS product, in their own words.
+  ///
+  /// Per line and not per order, because `Order.customerNote` answers a
+  /// different question. That one is about the delivery - a gate code, a time
+  /// window - and reaches everybody. This one is about one product, and on a
+  /// basket holding nine lines from four sellers an order note saying "the
+  /// blue one" identifies nothing and is read by three sellers it does not
+  /// concern.
+  ///
+  /// NULL means no instruction was given, which is what every line placed
+  /// before this column existed says. Never an empty string: the API turns a
+  /// cleared box into NULL, so "" and "nothing" are not two ways of saying the
+  /// same thing.
+  note String? @db.VarChar(500)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -2492,6 +2507,18 @@ model OrderItem {
   orderingUnit          OrderingUnit @default(PIECE)
   unitQuantity          Int          @default(1)
   piecesPerUnitSnapshot Int          @default(1)
+
+  /// The buyer's special instruction for this line, frozen at checkout.
+  ///
+  /// A snapshot like everything else on this row, and for the same reason: the
+  /// basket it was typed into is emptied the moment the order is placed, and
+  /// the words somebody agreed to have to outlive it. Carried across from
+  /// `CartItem.note` by the same positional join as `orderingUnit`.
+  ///
+  /// Read by the packing slip, by the seller's own order screen and by the
+  /// admin order detail. Never by pricing - an instruction is something to be
+  /// done, not something that changes what is charged.
+  noteSnapshot String? @db.VarChar(500)
 
   lineSubtotalMinor BigInt
   taxRatePercent    Decimal @db.Decimal(9, 6)

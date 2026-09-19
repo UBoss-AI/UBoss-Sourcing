@@ -843,6 +843,32 @@ export const ErrorCode = {
   /// the fix is different: that one says "use the other screen", this one says
   /// "there is nothing here to close".
   NOTIFICATION_NOT_AN_ALERT: 'NOTIFICATION_NOT_AN_ALERT',
+
+  // --- The assistant --------------------------------------------------------
+
+  /**
+   * A visitor with no account has used up the free questions.
+   *
+   * Its own code rather than a 401 or a rate-limit, because it is neither and
+   * the storefront has to tell them apart to answer correctly:
+   *
+   *   - `UNAUTHENTICATED` means the assistant is not open to guests at all on
+   *     this deployment. There is nothing to do but sign in, and no preview of
+   *     anything.
+   *   - `RATE_LIMITED` means "too fast, try in a minute". Waiting fixes it.
+   *   - This one means "you have had the free questions, and waiting will not
+   *     give you more". The only way on is an account.
+   *
+   * The storefront answers it with a sign-in prompt rather than an error
+   * banner, and the transcript stays on screen behind it — what they already
+   * got is theirs to read, and taking it away at the moment of asking for an
+   * account is the worst possible trade.
+   *
+   * `details[0].meta` carries `limit` and `used`, so the wording can be
+   * specific about a figure the operator sets rather than one hard-coded into
+   * eight translations.
+   */
+  ASSISTANT_GUEST_LIMIT_REACHED: 'ASSISTANT_GUEST_LIMIT_REACHED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

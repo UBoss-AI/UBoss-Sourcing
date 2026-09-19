@@ -300,6 +300,54 @@ export interface SnapshotInput {
     supportEmail: string | null;
     supportPhone: string | null;
     currency: string;
+    /**
+     * The trading entity's own details, for the questions a catalogue cannot
+     * answer.
+     *
+     * "Who am I actually buying from?", "what is your VAT number for our
+     * accounts payable?", "what time zone are your cut-offs in?" are asked
+     * constantly by a business buyer opening an account, and until now the
+     * assistant could answer none of them - it held the shop's display name
+     * and a support address and nothing else. Every field here is one the
+     * operator already filled in on their own settings page, so this adds no
+     * new thing to maintain.
+     *
+     * All nullable. A deployment that has not stated its VAT number has the
+     * assistant say so rather than invent one.
+     */
+    legalName: string | null;
+    vatNumber: string | null;
+    gstin: string | null;
+    timezone: string | null;
+    /** Registered address, as the settings page stores it. Rendered as typed. */
+    address: string | null;
+    /** The operator's published policies, by name and path. */
+    policies: { label: string; url: string }[];
+  };
+  /**
+   * How buying here actually works: delivery, markets and money.
+   *
+   * This is the FAQ, assembled from the tables that already decide the answers
+   * rather than from a page somebody has to remember to update. That is the
+   * whole reason it is built this way: a hand-written FAQ saying "we deliver
+   * to the Netherlands" outlives the day somebody switches the Netherlands
+   * off, and an assistant quoting it is confidently wrong. These come off the
+   * same rows checkout enforces, so the answer cannot drift from the
+   * behaviour.
+   */
+  howItWorks: {
+    delivery: {
+      name: string;
+      description: string | null;
+      /** Already rendered with its currency; null where the method is free. */
+      price: string | null;
+      freeAbove: string | null;
+      estimatedDays: string | null;
+    }[];
+    /** The markets this deployment serves, and what each is quoted in. */
+    markets: { name: string; currencyCode: string }[];
+    /** Every currency a price can be held in here. */
+    currencies: string[];
   };
   /** Every visible category with something published in it, in shelf order. */
   categories: { name: string; productCount: number }[];
@@ -360,9 +408,31 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
   const lines: string[] = [];
 
   lines.push(`STORE: ${store.displayName}`);
+  if (store.legalName !== null) lines.push(`LEGAL ENTITY: ${store.legalName}`);
   if (store.supportEmail !== null) lines.push(`SUPPORT EMAIL: ${store.supportEmail}`);
   if (store.supportPhone !== null) lines.push(`SUPPORT PHONE: ${store.supportPhone}`);
+  if (store.address !== null) lines.push(`REGISTERED ADDRESS: ${store.address}`);
+  if (store.vatNumber !== null) lines.push(`VAT NUMBER: ${store.vatNumber}`);
+  if (store.gstin !== null) lines.push(`GSTIN: ${store.gstin}`);
+  if (store.timezone !== null) lines.push(`STORE TIME ZONE: ${store.timezone}`);
   lines.push(`STORE CURRENCY: ${store.currency}`);
+
+  /*
+   * Only lines the operator has actually filled in reach the prompt.
+   *
+   * Every one of these is `if (x !== null)` rather than printed with a dash or
+   * "not set", and the difference is the whole point: a model that reads "VAT
+   * NUMBER: not set" has been told there is a field, and will helpfully offer
+   * to find it, guess at its format, or reassure a buyer that one exists. A
+   * model that never sees the line has nothing to be helpful about, and
+   * answers the question it was asked with "the store has not published one -
+   * here is the support address".
+   */
+  if (store.policies.length > 0) {
+    lines.push('');
+    lines.push('PUBLISHED POLICIES (link to these by their path, never invent one):');
+    for (const policy of store.policies) lines.push(`- ${policy.label}: ${policy.url}`);
+  }
 
   /*
    * The two selling units, stated before a single price.
@@ -390,6 +460,78 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
   lines.push(
     '- Every product below says which of the two it is, on its "sold by" line. Quote the price and the unit exactly as that product\'s own lines give them.',
   );
+
+  /*
+   * BUYING HERE: the answers to the questions that are not about a product.
+   *
+   * "Do you ship to Rotterdam", "what does delivery cost", "can I be invoiced
+   * in euros", "where are you registered" are asked at least as often as
+   * anything about a SKU, and until this block existed the assistant had no
+   * grounding for any of them - so it either declined, or answered from
+   * general knowledge about shops, which on a question of fact is the same
+   * thing as making it up.
+   *
+   * Assembled from the tables that already DECIDE these answers - shipping
+   * methods, active countries, active currencies - rather than from a page
+   * somebody has to remember to keep current. That is the difference between
+   * a grounded answer and a stale one: switch the Netherlands off in the
+   * admin panel and the assistant stops offering it within the snapshot's
+   * lifetime, because the row it was reading is gone.
+   *
+   * Each sub-list is omitted entirely when it is empty, on exactly the
+   * reasoning in the note about `policies` above: an empty heading is an
+   * invitation to be helpful about something that does not exist.
+   */
+  const { howItWorks } = input;
+
+  if (
+    howItWorks.delivery.length > 0 ||
+    howItWorks.markets.length > 0 ||
+    howItWorks.currencies.length > 0
+  ) {
+    lines.push('');
+    lines.push('BUYING FROM THIS STORE');
+
+    if (howItWorks.delivery.length > 0) {
+      lines.push('- Delivery options offered at checkout:');
+      for (const option of howItWorks.delivery) {
+        const parts = [
+          option.price === null ? 'free' : option.price,
+          option.freeAbove === null ? null : `free on orders over ${option.freeAbove}`,
+          option.estimatedDays,
+          option.description,
+        ].filter((part): part is string => part !== null && part !== '');
+
+        lines.push(`  - ${option.name}: ${parts.join('; ')}`);
+      }
+      lines.push(
+        '  The exact charge for a basket is worked out at checkout, against the delivery address. Quote these as what is offered, never as a total.',
+      );
+    }
+
+    if (howItWorks.markets.length > 0) {
+      lines.push(
+        `- Countries this store serves (${String(howItWorks.markets.length)}), and what a buyer there is quoted in by default:`,
+      );
+      for (const market of howItWorks.markets) {
+        lines.push(`  - ${market.name} (${market.currencyCode})`);
+      }
+      lines.push(
+        '  A country not on that list is one this store does not serve. Say so plainly rather than offering to check.',
+      );
+    }
+
+    if (howItWorks.currencies.length > 0) {
+      lines.push(`- Currencies prices are held in: ${howItWorks.currencies.join(', ')}.`);
+      lines.push(
+        '  A real price per currency, set by the store - never a conversion. A product with no price in a currency cannot be sold in it.',
+      );
+    }
+
+    lines.push(
+      '- An order is only confirmed once payment is verified. Prices below are list prices; contract pricing, bulk quotations and stock for a large order go to the support contact above.',
+    );
+  }
 
   /*
    * The index, and it is complete. This is the only part of the snapshot a
@@ -533,9 +675,23 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
  * and the row is a projection of it.
  */
 async function buildCatalogueSnapshot(): Promise<SnapshotInput> {
-  const [profile, categories, products] = await Promise.all([
+  const [profile, categories, products, shippingMethods, markets, currencies] = await Promise.all([
     prisma.businessProfile.findFirst({
-      select: { displayName: true, supportEmail: true, supportPhone: true, currency: true },
+      select: {
+        displayName: true,
+        supportEmail: true,
+        supportPhone: true,
+        currency: true,
+        // The trading entity itself, for the questions a product list cannot
+        // answer. Every one of these is a field the operator already fills in
+        // on their settings page.
+        legalName: true,
+        vatNumber: true,
+        gstin: true,
+        timezone: true,
+        addressJson: true,
+        policyLinksJson: true,
+      },
     }),
     prisma.category.findMany({
       where: { ...publicCategoryWhere(), products: { some: publicProductWhere() } },
@@ -588,14 +744,128 @@ async function buildCatalogueSnapshot(): Promise<SnapshotInput> {
       },
       orderBy: [{ category: { sortOrder: 'asc' } }, { name: 'asc' }],
     }),
+
+    /*
+     * The three tables that answer "how does buying here work".
+     *
+     * Only the ACTIVE rows of each, which is what makes this grounding rather
+     * than documentation: a delivery method somebody switched off yesterday
+     * is gone from the next snapshot, and the assistant stops offering it
+     * without anybody editing a page about it.
+     */
+    prisma.shippingMethod.findMany({
+      where: { isActive: true },
+      select: {
+        name: true,
+        description: true,
+        priceMinor: true,
+        freeAboveMinor: true,
+        estimatedDaysMin: true,
+        estimatedDaysMax: true,
+      },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+    }),
+    prisma.country.findMany({
+      where: { isActive: true },
+      select: { name: true, currencyCode: true },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+    }),
+    prisma.currency.findMany({
+      where: { isActive: true },
+      select: { code: true },
+      orderBy: { code: 'asc' },
+    }),
   ]);
+
+  const storeCurrency = profile?.currency ?? env.DEFAULT_CURRENCY;
+
+  /**
+   * The registered address, flattened into the one line a sentence can use.
+   *
+   * `addressJson` is validated by Zod at the API boundary and stored as JSON,
+   * so it arrives here as an unknown shape. Read defensively and field by
+   * field rather than cast: a deployment whose address was written by an older
+   * version of that schema must degrade to a shorter line, never to a crash in
+   * the middle of building a prompt.
+   *
+   * Null when there is nothing in it, so the line is omitted entirely rather
+   * than printed empty - see the note in the renderer about why a blank field
+   * is worse than an absent one.
+   */
+  const address = ((): string | null => {
+    const raw = profile?.addressJson;
+    if (raw === null || raw === undefined || typeof raw !== 'object' || Array.isArray(raw)) {
+      return null;
+    }
+
+    const record = raw as Record<string, unknown>;
+    const part = (key: string): string | null => {
+      const value = record[key];
+      return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+    };
+
+    const parts = ['line1', 'line2', 'city', 'state', 'postalCode', 'country']
+      .map(part)
+      .filter((value): value is string => value !== null);
+
+    return parts.length === 0 ? null : parts.join(', ');
+  })();
+
+  /**
+   * The operator's published policies, as `{ label, url }`.
+   *
+   * Stored as a JSON object of name to URL, so the same defensive read: a
+   * value that is not a string is dropped rather than rendered as `[object
+   * Object]` into a prompt the model will then try to link to.
+   */
+  const policies = ((): { label: string; url: string }[] => {
+    const raw = profile?.policyLinksJson;
+    if (raw === null || raw === undefined || typeof raw !== 'object' || Array.isArray(raw)) {
+      return [];
+    }
+
+    return Object.entries(raw as Record<string, unknown>)
+      .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+      .map(([label, url]) => ({ label, url }));
+  })();
 
   return {
     store: {
       displayName: profile?.displayName ?? 'this store',
       supportEmail: profile?.supportEmail ?? null,
       supportPhone: profile?.supportPhone ?? null,
-      currency: profile?.currency ?? env.DEFAULT_CURRENCY,
+      currency: storeCurrency,
+      legalName: profile?.legalName ?? null,
+      vatNumber: profile?.vatNumber ?? null,
+      gstin: profile?.gstin ?? null,
+      timezone: profile?.timezone ?? null,
+      address,
+      policies,
+    },
+    howItWorks: {
+      delivery: shippingMethods.map((method) => ({
+        name: method.name,
+        description: method.description,
+        // Rendered here rather than in the renderer, because formatting minor
+        // units needs the currency and the renderer would have to be handed it
+        // a second time for this one list.
+        price:
+          method.priceMinor === 0n
+            ? null
+            : `${storeCurrency} ${formatMinorToMajor(method.priceMinor, storeCurrency)}`,
+        freeAbove:
+          method.freeAboveMinor === null
+            ? null
+            : `${storeCurrency} ${formatMinorToMajor(method.freeAboveMinor, storeCurrency)}`,
+        estimatedDays:
+          method.estimatedDaysMin === null && method.estimatedDaysMax === null
+            ? null
+            : method.estimatedDaysMin === method.estimatedDaysMax
+              ? `about ${String(method.estimatedDaysMin ?? 0)} days`
+              : `about ${String(method.estimatedDaysMin ?? 0)}-${String(method.estimatedDaysMax ?? 0)} days`,
+      })),
+      markets: markets.map((market) => ({ name: market.name, currencyCode: market.currencyCode })),
+      currencies: currencies.map((currency) => currency.code),
     },
     categories: categories.map((category) => ({
       name: category.name,
@@ -667,7 +937,7 @@ HOW TO ANSWER
 - Be short. One or two sentences — about 30 words, and never more than about 50, not counting a greeting. Use a list only where the question genuinely has several separate answers, and then at most four lines of a few words each. This is a chat panel on a shop, not a datasheet.
 - Answer the question that was asked and then stop. No preamble, no restating the question, no closing summary, and no volunteering three other products they did not ask about. Ask one short follow-up question only when you genuinely cannot answer without it.
 - Give the fact first and the explanation only if it is needed. Where somebody asks for one specific thing — a price, a pack size, a product code — say it plainly; otherwise leave what the cards carry to the cards.
-- Never ask who they are. Everybody you talk to is signed in, so their name, their email address, their phone number, their organisation and their account number are either already given to you below or are not needed to answer a catalogue question. Answer the question instead of collecting details.
+- Never ask who they are, and never ask for a name, an email address, a phone number, an organisation or an account number. Where the person is signed in, everything about them that could change an answer is already given to you below; where they are not, nothing about them changes the answer to a question about this catalogue. Either way the right move is to answer the question rather than to collect details. If somebody has to open an account to do the thing they are asking about, say so in a few words and let them decide - do not take the details yourself.
 - Write plain text. The panel renders it as-is, so no markdown: no asterisks for emphasis, no headings, no markdown link syntax. For a list, put each item on its own line starting with "- ".
 - Quote real product codes and prices from the catalogue below, exactly as written. Never invent, guess at, correct or extrapolate a product code.
 - Link with the product page paths given in the catalogue, written as plain relative paths taken verbatim from a "product page:" line. Do not invent any other URL. Do not write a path for a product you are also putting on the reference line below — that product already gets a card, and the card is its link.

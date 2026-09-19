@@ -79,6 +79,7 @@ import {
   listCustomerConversations,
   renameCustomerConversation,
   startConversation,
+  visitorMessageCount,
 } from '../../modules/assistant/conversation.service.js';
 import type { ConversationOwner } from '../../modules/assistant/conversation.service.js';
 import { cookieNamesFor, currentUser, optionalCustomer, requireCustomer } from '../plugins/auth.js';
@@ -281,6 +282,23 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(201).send({
         ...started,
         ...(guestToken === null ? {} : { conversationToken: guestToken.token }),
+        /*
+         * How many questions a guest has left, sent with the conversation.
+         *
+         * Sent here so the composer can say "5 free questions" before the
+         * first one rather than after the last - a wall somebody hits without
+         * warning reads as the thing having broken.
+         *
+         * ABSENT, not null, where there is nothing to say: a signed-in
+         * customer, or a deployment that has set no cap. The client reads a
+         * missing field and a null one identically, and leaving the key out
+         * keeps the signed-in answer exactly what it has always been - one
+         * field, the conversation id, and nothing else that could be mistaken
+         * for a bearer secret.
+         */
+        ...(customerProfileId === null && env.ASSISTANT_GUEST_MESSAGE_LIMIT > 0
+          ? { guestMessagesRemaining: env.ASSISTANT_GUEST_MESSAGE_LIMIT }
+          : {}),
       });
     },
   );
@@ -412,6 +430,60 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
         );
       }
 
+      /*
+       * The guest's free questions, counted before anything is bought.
+       *
+       * Only for a guest. A signed-in customer is bounded by the turn cap
+       * above and by their rate limit, and always has a new conversation
+       * available to them.
+       *
+       * ## What this is, and what it honestly is not
+       *
+       * It is a TASTE, and it is a soft gate. The allowance is per guest
+       * conversation, the conversation lives in one tab's `sessionStorage`,
+       * and somebody who clears it gets a fresh one. That is true of every
+       * free-preview wall on the web and it is worth saying out loud rather
+       * than implying otherwise: this is a product decision about when to ask
+       * for an account, not a security control.
+       *
+       * What actually bounds the operator's provider bill is
+       * `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN`, which is per IP, applies before
+       * this handler runs, and cannot be cleared from a browser. The two are
+       * separate settings because they are answering separate questions - see
+       * the note on each in `config/env.ts`.
+       *
+       * Tying it to the address instead was considered and rejected: a
+       * procurement office of forty people behind one NAT address would get
+       * five questions between them, which punishes exactly the customer this
+       * feature exists to win.
+       *
+       * ## Why it is refused here rather than at the model
+       *
+       * Before the provider is called and before the question is recorded, so
+       * a refused question costs nothing and does not appear in the transcript
+       * as something that was asked and ignored.
+       */
+      if (customerProfileId === null && env.ASSISTANT_GUEST_MESSAGE_LIMIT > 0) {
+        const asked = await visitorMessageCount(conversation.id);
+
+        if (asked >= env.ASSISTANT_GUEST_MESSAGE_LIMIT) {
+          throw badRequest(
+            ErrorCode.ASSISTANT_GUEST_LIMIT_REACHED,
+            'Sign in or create an account to carry on the conversation.',
+            [
+              {
+                field: 'message',
+                code: 'GUEST_LIMIT_REACHED',
+                // The figures, so the storefront's wording can name a number
+                // the operator set rather than one hard-coded into eight
+                // translations.
+                meta: { limit: env.ASSISTANT_GUEST_MESSAGE_LIMIT, used: asked },
+              },
+            ],
+          );
+        }
+      }
+
       const [history, customer] = await Promise.all([
         conversationHistory(conversation.id),
         /*
@@ -492,7 +564,28 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
           });
         }
 
-        send('done', { finishReason: result.finishReason });
+        /*
+         * The allowance, with the last frame of the answer.
+         *
+         * Recomputed from the question that was just recorded rather than
+         * decremented on the client: a browser counting down on its own is a
+         * browser that disagrees with the server the first time a request is
+         * retried, and the disagreement always shows up as a wall arriving one
+         * question early or one question late.
+         *
+         * Null for a signed-in customer and where no cap is set, meaning "say
+         * nothing about an allowance" - see the note on `/start`.
+         */
+        send('done', {
+          finishReason: result.finishReason,
+          guestMessagesRemaining:
+            customerProfileId === null && env.ASSISTANT_GUEST_MESSAGE_LIMIT > 0
+              ? Math.max(
+                  0,
+                  env.ASSISTANT_GUEST_MESSAGE_LIMIT - (await visitorMessageCount(conversation.id)),
+                )
+              : null,
+        });
 
         // Counts and identifiers only. Not the question, not the answer, and
         // nothing about who asked beyond a conversation id.

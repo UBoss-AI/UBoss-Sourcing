@@ -763,6 +763,170 @@ export async function markRequirementSteps(
   return byStep;
 }
 
+/**
+ * How a country writes its postal code, for the countries whose format is
+ * genuinely fixed.
+ *
+ * ## The rule this exists to enforce is mostly a rule about NOT validating
+ *
+ * Six digits is right for India and wrong everywhere else. Five is right for
+ * the United States and wrong everywhere else. A single pattern applied
+ * globally - which is what one `\d{6}` in a schema amounts to - makes the field
+ * unfillable for most of the world, and the seller whose application it blocks
+ * has no way to find out why.
+ *
+ * So this is a map from country to ITS rule, and the ABSENCE of an entry is
+ * meaningful: a country not listed is checked for shape only, by
+ * `POSTAL_GENERAL`. That is the honest answer. There are around 200 postal
+ * systems, several countries have no postal code at all, and a wrong rule is
+ * worse than no rule because it refuses a correct address with a confident
+ * message.
+ *
+ * It is a near-copy of the same table in the storefront's
+ * `lib/business-address.ts`, because there is no build step shared between
+ * `backend` and the front ends. The server is authoritative: a browser that
+ * let something through is refused here with a message naming the field, which
+ * is the failure mode worth having. The reverse - a browser refusing something
+ * the server would accept - is caught by the pair being written together.
+ */
+const POSTAL_PATTERNS: Readonly<Record<string, RegExp>> = Object.freeze({
+  IN: /^[1-9]\d{5}$/,
+  US: /^\d{5}(-\d{4})?$/,
+  CA: /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] ?\d[ABCEGHJ-NPRSTV-Z]\d$/,
+  AU: /^\d{4}$/,
+  DE: /^\d{5}$/,
+  FR: /^\d{5}$/,
+  ES: /^\d{5}$/,
+  IT: /^\d{5}$/,
+  NL: /^\d{4} ?[A-Z]{2}$/,
+  PL: /^\d{2}-?\d{3}$/,
+  GR: /^\d{3} ?\d{2}$/,
+  BE: /^\d{4}$/,
+  AT: /^\d{4}$/,
+  CH: /^\d{4}$/,
+  PT: /^\d{4}-?\d{3}$/,
+  SE: /^\d{3} ?\d{2}$/,
+  DK: /^\d{4}$/,
+  NO: /^\d{4}$/,
+  FI: /^\d{5}$/,
+  IE: /^[A-Z]\d{2} ?[A-Z0-9]{4}$/,
+  JP: /^\d{3}-?\d{4}$/,
+  SG: /^\d{6}$/,
+  BR: /^\d{5}-?\d{3}$/,
+  ZA: /^\d{4}$/,
+  GB: /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/,
+});
+
+/**
+ * The fallback, for the roughly 170 countries with no rule above.
+ *
+ * Letters, digits, spaces and hyphens. Wide enough for every postal system in
+ * use and narrow enough to refuse the things that are not a postal code at all:
+ * a sentence, a semicolon, a newline, a script tag. A shape check, not a
+ * lookup.
+ */
+const POSTAL_GENERAL = /^[A-Z0-9][A-Z0-9 -]{0,18}[A-Z0-9]$/;
+
+/**
+ * Check the registered address a patch is trying to write.
+ *
+ * ## Why this is here and not in the Zod schema
+ *
+ * Two of the three checks need something the schema cannot see.
+ *
+ * The COUNTRY has to exist in this deployment's `countries` table, which is a
+ * database read. A two-letter string that passes `.length(2)` is not a country
+ * - "XX" passes - and the storefront picks from that exact table, so a code
+ * that is not in it did not come from the picker. This is the "do not trust a
+ * country name without its stable code" requirement, enforced at the only
+ * place that can: against the list the rest of the system uses.
+ *
+ * The POSTCODE has to be checked against the country the profile will have
+ * AFTER this patch, which is not necessarily the one in the patch. A seller
+ * correcting a typo in their PIN code sends `registeredPostcode` and nothing
+ * else, and the country to check it against is the one already stored. So the
+ * stored row is read and the patch applied over it before anything is judged.
+ *
+ * ## What it deliberately does not do
+ *
+ * It does not require the address to be COMPLETE. Completeness is decided by
+ * `markRequirementSteps`, against the operator's own requirement rows, and
+ * that is the right place for it: a deployment that has deleted the
+ * `registered_address` requirement is not asking for one, and this function
+ * refusing a save because a city is missing would overrule them. What it
+ * checks is that whatever IS present is well formed.
+ */
+async function assertRegisteredAddress(
+  membership: SellerMembership,
+  patch: BusinessProfilePatch,
+): Promise<void> {
+  const touchesAddress =
+    patch.registeredCountry !== undefined || patch.registeredPostcode !== undefined;
+
+  // Nothing to check, and no read to pay for on the common patch that changes
+  // a tax number.
+  if (!touchesAddress) return;
+
+  const stored = await prisma.sellerBusinessProfile.findUnique({
+    where: { sellerAccountId: membership.sellerAccountId },
+    select: { registeredCountry: true, registeredPostcode: true },
+  });
+
+  // The row as it will be once this patch lands. `undefined` means "not in the
+  // patch", which leaves the stored value; `null` means "clear it".
+  const country =
+    patch.registeredCountry === undefined
+      ? (stored?.registeredCountry ?? null)
+      : patch.registeredCountry;
+  const postcode =
+    patch.registeredPostcode === undefined
+      ? (stored?.registeredPostcode ?? null)
+      : patch.registeredPostcode;
+
+  if (country !== null && country.length > 0) {
+    const known = await prisma.country.findUnique({
+      where: { code: country.toUpperCase() },
+      select: { code: true },
+    });
+
+    if (known === null) {
+      throw badRequest(
+        ErrorCode.VALIDATION_FAILED,
+        'That is not a country this marketplace recognises.',
+        [{ field: 'registeredCountry', code: 'UNKNOWN_COUNTRY' }],
+      );
+    }
+  }
+
+  // An absent or cleared postcode is not this function's business - see the
+  // note above about completeness. Only a postcode that is PRESENT is judged.
+  if (postcode === null || postcode.length === 0) return;
+
+  const compared = postcode.trim().toUpperCase();
+  const pattern =
+    country === null || country.length === 0
+      ? POSTAL_GENERAL
+      : (POSTAL_PATTERNS[country.toUpperCase()] ?? POSTAL_GENERAL);
+
+  if (!pattern.test(compared)) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      country !== null && POSTAL_PATTERNS[country.toUpperCase()] !== undefined
+        ? `That is not a valid postal code for ${country.toUpperCase()}.`
+        : 'That is not a valid postal code.',
+      [
+        {
+          field: 'registeredPostcode',
+          code: 'INVALID_FORMAT',
+          // The country the check was made against, so a storefront showing
+          // the message can say which rule was applied.
+          ...(country === null ? {} : { meta: { country: country.toUpperCase() } }),
+        },
+      ],
+    );
+  }
+}
+
 export async function saveBusinessProfile(
   membership: SellerMembership,
   patch: BusinessProfilePatch,
@@ -770,6 +934,9 @@ export async function saveBusinessProfile(
 ): Promise<{ state: OnboardingStepState; missing: string[] }> {
   assertSellerPermission(membership, SellerPermission.ACCOUNT_WRITE);
   assertApplicationEditable(membership);
+
+  // Before the write, so a refused address leaves the stored one untouched.
+  await assertRegisteredAddress(membership, patch);
 
   const { extraIdentifiers, ...columns } = patch;
 

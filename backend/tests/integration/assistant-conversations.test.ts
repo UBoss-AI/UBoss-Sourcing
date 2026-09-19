@@ -213,6 +213,19 @@ function withGuests(allowed: boolean): void {
   });
 }
 
+/**
+ * Set the guest's free-question allowance for one test.
+ *
+ * `beforeEach` puts it back to a known figure, so a test that lowers it cannot
+ * leave it lowered for the next one — and so none of these depends on whatever
+ * the machine's own `.env` happens to say.
+ */
+function withGuestMessageLimit(limit: number): void {
+  Object.assign(env as unknown as { ASSISTANT_GUEST_MESSAGE_LIMIT: number }, {
+    ASSISTANT_GUEST_MESSAGE_LIMIT: limit,
+  });
+}
+
 /** A session, as the conversation service understands ownership. */
 function asCustomer(session: CustomerSession): ConversationOwner {
   return { kind: 'customer', customerProfileId: session.profileId ?? '' };
@@ -290,6 +303,10 @@ beforeEach(async () => {
   // Whatever the deployment's own .env says, these tests describe a store
   // that lets guests in — except the one that deliberately closes the door.
   withGuests(true);
+  // And one that gives them three free questions, except where a test sets
+  // its own. A fixed figure here rather than the default, so moving the
+  // default does not quietly change what these are testing.
+  withGuestMessageLimit(3);
 });
 
 afterAll(async () => {
@@ -359,6 +376,141 @@ describe('who may use the assistant', () => {
       const response = await app.inject({ method, url });
       expect(response.statusCode, `${method} ${url}`).toBe(401);
     }
+  });
+
+  /*
+   * The free questions a visitor gets before being asked to open an account.
+   *
+   * Two settings bound a guest and they answer different questions, which is
+   * why both exist:
+   *
+   *   - `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` is a tap. It bounds how fast one
+   *     address can spend the operator's provider budget, and waiting opens it
+   *     again. It is a defence against a script.
+   *   - `ASSISTANT_GUEST_MESSAGE_LIMIT` is a taste. It bounds how much of the
+   *     assistant somebody gets before the storefront asks for an account, and
+   *     waiting does not give them more. It is a product decision.
+   *
+   * These hold the second one, and the property that matters most is that it
+   * is refused with its OWN code. The storefront has to tell three cases
+   * apart — "guests are not allowed here at all", "too fast, wait a minute"
+   * and "you have had the free ones" — because only the third is answered by
+   * opening an account, and answering any of them with the wrong one sends
+   * somebody looking for a problem that is not there.
+   *
+   * Nothing here reaches the provider. The cap is checked before the question
+   * is recorded and long before a token is bought, which is itself the point:
+   * a refused question costs nothing and leaves no trace in the transcript.
+   */
+  it('lets a guest ask up to the allowance, and refuses the next with its own code', async () => {
+    withGuestMessageLimit(2);
+
+    const { conversationId, conversationToken } = await startAsGuest();
+
+    // Two questions already asked. Recorded through the same service the route
+    // uses, so the count is the one the route will read — without the bill.
+    await appendMessage(conversationId, 'VISITOR', 'Do you stock 22G safety cannulae?');
+    await appendMessage(conversationId, 'ASSISTANT', 'Yes, three lines of them.');
+    await appendMessage(conversationId, 'VISITOR', 'What is the lead time?');
+    await appendMessage(conversationId, 'ASSISTANT', 'Two to four days.');
+
+    const refused = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: { conversationId, conversationToken, message: 'And to Rotterdam?' },
+    });
+
+    expect(refused.statusCode, refused.body).toBe(400);
+
+    const body = JSON.parse(refused.body) as {
+      error: { code: string; details: { field: string; meta?: Record<string, unknown> }[] };
+    };
+
+    expect(body.error.code).toBe('ASSISTANT_GUEST_LIMIT_REACHED');
+    // The figures, so the storefront's wording can name a number the operator
+    // set rather than one hard-coded into eight translations.
+    expect(body.error.details[0]?.meta).toMatchObject({ limit: 2, used: 2 });
+
+    // And the refused question is NOT on the record. It was never asked.
+    const rows = await prisma.assistantMessage.count({
+      where: { conversationId, role: 'VISITOR' },
+    });
+    expect(rows).toBe(2);
+  });
+
+  it('counts questions asked, not turns completed', async () => {
+    withGuestMessageLimit(1);
+
+    const { conversationId, conversationToken } = await startAsGuest();
+
+    // One question whose answer never arrived — the provider failed, or the
+    // tab was closed mid-stream. It still cost a question to ask, and a cap
+    // that let it through would be one somebody could walk past by closing the
+    // tab at the right moment.
+    await appendMessage(conversationId, 'VISITOR', 'Do you ship to Rotterdam?');
+
+    const refused = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: { conversationId, conversationToken, message: 'Anyone there?' },
+    });
+
+    expect(refused.statusCode).toBe(400);
+    expect((JSON.parse(refused.body) as { error: { code: string } }).error.code).toBe(
+      'ASSISTANT_GUEST_LIMIT_REACHED',
+    );
+  });
+
+  it('tells a guest their allowance before they spend any of it', async () => {
+    withGuestMessageLimit(4);
+
+    const started = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
+    const body = JSON.parse(started.body) as { guestMessagesRemaining: number | null };
+
+    // Before the first question rather than after the last: a wall somebody
+    // hits with no warning reads as the thing having broken.
+    expect(body.guestMessagesRemaining).toBe(4);
+  });
+
+  it('says nothing about an allowance where the operator has set none', async () => {
+    withGuestMessageLimit(0);
+
+    const started = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
+    const body = JSON.parse(started.body) as Record<string, unknown>;
+
+    // The field is ABSENT, which the client reads identically to null: "do not
+    // draw a counter", never "none left". A counter on a screen where the
+    // number is unlimited is a limit the interface invented.
+    expect(body).not.toHaveProperty('guestMessagesRemaining');
+  });
+
+  it('never applies the guest allowance to a signed-in customer', async () => {
+    withGuestMessageLimit(1);
+
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    // Well past a guest's one free question.
+    for (let i = 0; i < 6; i += 1) {
+      await appendMessage(id, 'VISITOR', `Question ${String(i)}`);
+      await appendMessage(id, 'ASSISTANT', 'An answer.');
+    }
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+      payload: { conversationId: id, message: 'And one more.' },
+    });
+
+    // Whatever happens next is between them and the provider; what must NOT
+    // happen is the guest cap. A customer is bounded by the turn limit and by
+    // their rate limit, and always has a new conversation available.
+    expect(response.statusCode).not.toBe(400);
+
+    const started = await start(buyer);
+    const body = JSON.parse(started.body) as Record<string, unknown>;
+    expect(body.guestMessagesRemaining ?? null).toBeNull();
   });
 
   it('lets a signed-in customer start, and asks them for nothing', async () => {

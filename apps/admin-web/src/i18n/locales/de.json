@@ -2820,5 +2820,6 @@
   "variantMatrix.couldNotSaveAxes": "Diese Merkmale konnten nicht gespeichert werden.",
   "variantMatrix.couldNotPreview": "Die Tabelle konnte nicht berechnet werden.",
   "variantMatrix.couldNotGenerate": "Die Varianten konnten nicht angelegt werden.",
-  "variantMatrix.created": "{{created}} angelegt, {{skipped}} bereits vorhanden."
+  "variantMatrix.created": "{{created}} angelegt, {{skipped}} bereits vorhanden.",
+  "orderDetail.lineInstructions": "Hinweise:"
 }

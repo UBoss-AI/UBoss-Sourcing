@@ -186,21 +186,38 @@ describe('the price is the price of a carton', () => {
     });
   }
 
+  /*
+   * Scoped to the price panel, and that scoping is load bearing.
+   *
+   * The page carries the same currency figure twice on purpose: the price of
+   * one carton here, and what the chosen quantity comes to in the buy panel
+   * below - which at a quantity of one is the same number. Both regions are
+   * named, so "the headline price" is a thing this file can actually ask for
+   * rather than a lucky first match.
+   */
+  function priceRegion(): HTMLElement {
+    return screen.getByRole('group', { name: 'Price' });
+  }
+
   it('prices the carton, not the piece', async () => {
     renderProduct(pricedProduct());
 
     // 12.50 × 500. Done on BigInt minor units, never on a float.
-    expect(await screen.findByText('₹6250.00')).toBeInTheDocument();
+    expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹6250.00')).toBeInTheDocument();
     // The piece price is never the headline, but it stays on screen so a
     // buyer can check the arithmetic that produced the figure above it.
-    expect(screen.getByText(/per carton of 500 pieces · ₹12\.50 per piece/i)).toBeInTheDocument();
+    expect(within(priceRegion()).getByText(/per carton of 500 pieces · ₹12\.50 per piece/i)).toBeInTheDocument();
   });
 
   it('never shows the piece price as the headline figure', async () => {
     renderProduct(pricedProduct());
 
-    await screen.findByText('₹6250.00');
-    expect(screen.queryByText('₹12.50')).not.toBeInTheDocument();
+    await screen.findByRole('group', { name: 'Price' });
+    // Bare, in the price panel. It appears in the "per carton of 500 pieces"
+    // sentence above and as a labelled "Price per piece" row in the totals
+    // below, and neither of those is the headline.
+    expect(within(priceRegion()).queryByText('₹12.50')).not.toBeInTheDocument();
   });
 
   it('drops the carton line entirely on something sold by the piece', async () => {
@@ -228,7 +245,8 @@ describe('the price is the price of a carton', () => {
       }),
     );
 
-    expect(await screen.findByText('₹7999.00')).toBeInTheDocument();
+    expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹7999.00')).toBeInTheDocument();
     expect(screen.queryByText(/per carton of/i)).not.toBeInTheDocument();
   });
 
@@ -246,8 +264,9 @@ describe('the price is the price of a carton', () => {
 
     // Both sides multiplied by 500: a sixth off a piece is a sixth off a
     // carton. Scaling only one would invent a saving nobody offered.
-    expect(await screen.findByText('₹6250.00')).toBeInTheDocument();
-    expect(screen.getByText('₹7500.00')).toBeInTheDocument();
+    expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹6250.00')).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹7500.00')).toBeInTheDocument();
   });
 });
 

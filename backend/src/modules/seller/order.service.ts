@@ -202,6 +202,33 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
   if (group === null) throw notFound('Order');
   assertSellerOwnership(membership, group.sellerAccountId, 'Order');
 
+  /*
+   * The buyers' instructions for these lines, and nothing else off their rows.
+   *
+   * A second query rather than an `include`, because `SellerOrderLine` holds
+   * `orderItemId` as a plain column with no Prisma relation behind it - the
+   * two tables are joined by id and by a unique index, deliberately, so that
+   * a seller's ledger row cannot be read as though it were the buyer's.
+   *
+   * `select` and not `include`, and the selection is one field on purpose.
+   * `OrderItem` also carries what the BUYER was charged - the operator's
+   * price, the tax, the discount, the coupon's share - and none of that is
+   * this seller's business. What they earn is on their own line. Widening
+   * this select would put another party's pricing into a seller's response,
+   * which is a disclosure and not a convenience.
+   *
+   * Ownership is already settled two lines above: the group belongs to this
+   * seller, so its lines do, so the order items they name do.
+   */
+  const noteByOrderItemId = new Map(
+    (
+      await prisma.orderItem.findMany({
+        where: { id: { in: group.lines.map((line) => line.orderItemId) } },
+        select: { id: true, noteSnapshot: true },
+      })
+    ).map((item) => [item.id, item.noteSnapshot]),
+  );
+
   return {
     id: group.id,
     sellerOrderNumber: group.sellerOrderNumber,
@@ -236,6 +263,9 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       unitPriceMinor: line.unitPriceMinor.toString(),
       lineTotalMinor: line.lineTotalMinor.toString(),
       sellerNetMinor: line.sellerNetMinor.toString(),
+      // What the buyer asked for on this line, in their own words. The seller
+      // is the one who has to do it, so this is the screen it has to reach.
+      note: noteByOrderItemId.get(line.orderItemId) ?? null,
     })),
     shipments: group.shipments.map((shipment) => ({
       id: shipment.id,

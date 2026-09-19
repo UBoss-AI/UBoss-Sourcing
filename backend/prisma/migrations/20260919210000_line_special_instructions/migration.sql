@@ -1,0 +1,61 @@
+-- Special instructions, per line rather than per order.
+--
+-- WHAT WAS MISSING
+--
+-- An order already carries `orders.customerNote`, and that is the right home
+-- for something about the whole delivery: "gate code 4471", "call before the
+-- van arrives". It is the wrong home for something about one product, which is
+-- what a trade buyer actually needs to say -- "engrave both ends", "the 316
+-- grade, not 304", "match the batch on our PO 4471", "pack these separately
+-- from the rest".
+--
+-- Put in the order note, those instructions arrive attached to nothing. On a
+-- basket holding nine lines from four sellers, an order note saying "the blue
+-- one" reaches every seller and identifies nothing, and the warehouse picking
+-- line three has no reason to read a note filed against line one.
+--
+-- WHAT THIS DOES
+--
+-- Two nullable columns, and the pair is the point:
+--
+--   `cart_items.note`          what the buyer typed, while it is still a basket
+--   `order_items.noteSnapshot` the same words, frozen when the order was placed
+--
+-- A SNAPSHOT, like everything else on an order line
+--
+-- `order_items` holds the name, the code, the price and the packing exactly as
+-- they were at checkout, precisely so that a catalogue edit next month cannot
+-- rewrite what somebody bought. An instruction is the same kind of fact and
+-- gets the same treatment: the words on the order are the words that were
+-- agreed to, and emptying the basket afterwards does not take them away.
+--
+-- WHY 500 AND NOT `TEXT`
+--
+-- This is one sentence about one product, and it is read by a person picking
+-- an order with a scanner in their other hand. 500 characters is about four
+-- lines of writing -- comfortably more than any real instruction and short
+-- enough that it cannot become a document pasted into a picking list. The API
+-- enforces the same number, so a rejection is a message rather than a
+-- truncation. `orders.customerNote` stays `TEXT`, because that one genuinely
+-- is about a whole delivery and sometimes runs to a paragraph.
+--
+-- NOTHING EXISTING CHANGES
+--
+-- Both columns are NULL on every row that already exists, and NULL means "no
+-- instruction was given" -- which is true of every line placed before today.
+-- Nothing reads them as anything else, no index depends on them, and no
+-- constraint is added.
+--
+-- ROLLING BACK
+--
+--   ALTER TABLE `cart_items` DROP COLUMN `note`;
+--   ALTER TABLE `order_items` DROP COLUMN `noteSnapshot`;
+--
+-- Instructions already typed are lost, which is the honest consequence and the
+-- reason to be sure before running it.
+
+ALTER TABLE `cart_items`
+    ADD COLUMN `note` VARCHAR(500) NULL AFTER `piecesPerUnitSnapshot`;
+
+ALTER TABLE `order_items`
+    ADD COLUMN `noteSnapshot` VARCHAR(500) NULL AFTER `piecesPerUnitSnapshot`;

@@ -90,13 +90,25 @@ export function StoreLayout(): React.JSX.Element {
   /*
    * Sign in and create-account take the full width under the header.
    *
-   * Not immersive — the header, the footer and the page's own height are all
-   * still right for these two, and a customer who arrives at sign-in from a
-   * product page must still be able to press the logo and go back. What they
-   * drop is the reading measure and the gutters: the screens render a
-   * two-column split with the globe on one half, and a split centred inside an
-   * 80rem column with 16px padding either side is a split with a margin drawn
-   * down the middle of it.
+   * The header stays — a customer who arrives at sign-in from a product page
+   * must still be able to press the logo and go back. What they drop is the
+   * reading measure and the gutters: the screens render a two-column split
+   * with the globe on one half, and a split centred inside an 80rem column
+   * with 16px padding either side is a split with a margin drawn down the
+   * middle of it.
+   *
+   * From `lg` up they ALSO drop the document's scrollbar, and that is not
+   * cosmetic. The globe beside the form was sliding up the screen as the page
+   * scrolled, because a `sticky` item can only hold its place while its
+   * container has room left under it and a one-viewport globe in a
+   * one-viewport grid has none. What was pushing the document past a viewport
+   * was this frame's own chrome — the header above and the footer below — so
+   * the fix belongs here rather than in the split: the column is pinned to the
+   * window's height, the space left under the header is handed to the split as
+   * a definite height, and the split scrolls the FORM inside itself instead.
+   *
+   * Below `lg` none of it applies. The globe is not drawn at all there, the
+   * document scrolls exactly as it always has, and the footer is where it was.
    *
    * Listed by path rather than asked of the page, because the decision belongs
    * to whatever draws the frame, and the frame is here.
@@ -129,7 +141,26 @@ export function StoreLayout(): React.JSX.Element {
      * collapsing browser toolbar, and `vh` is the one that puts the Send button
      * under it.
      */
-    <div className={cx('flex flex-col', isImmersive ? 'h-[100dvh]' : 'min-h-screen')}>
+    <div
+      className={cx(
+        'flex flex-col',
+        isImmersive ? 'h-[100dvh]' : 'min-h-screen',
+        // The signed-out screens, from `lg` up only: a window-height column
+        // with nothing below it to scroll to, so the earth beside the form
+        // holds still. `min-h-screen` stays for the narrow case underneath it.
+        //
+        // `overflow-hidden` goes with it, and is only safe BECAUSE the split
+        // inside now caps itself at `max-h-[100dvh]` and scrolls the form
+        // column internally. Nothing reachable can be clipped: a long
+        // create-account form scrolls in its own column on any window, however
+        // short. Without the clip, a stray pixel of overflow anywhere in the
+        // subtree — a WebGL canvas's own absolutely positioned scaffolding
+        // will do it — puts the document's scrollbar back, and a wheel over
+        // the LEFT half then scrolls the page and takes the picture with it.
+        // Which is the whole complaint.
+        !isImmersive && isFullBleed && 'lg:h-[100dvh] lg:overflow-hidden',
+      )}
+    >
       <a href="#main" className="skip-link">
         {t('storeLayout.skipToContent')}
       </a>
@@ -159,6 +190,11 @@ export function StoreLayout(): React.JSX.Element {
           // Full width and no padding of its own: the split inside supplies
           // both halves' gutters, and it needs the whole frame to divide.
           !isImmersive && !isFullBleed && 'mx-auto max-w-content px-4 py-6 sm:py-8',
+          // `min-h-0` is the load-bearing half of the sentence above about the
+          // sign-in screens: without it a flex child refuses to shrink below
+          // its content, the split pushes the column past the window, and the
+          // document scrolls again with the globe on board.
+          isFullBleed && 'lg:min-h-0',
         )}
       >
         <Outlet />
@@ -166,8 +202,15 @@ export function StoreLayout(): React.JSX.Element {
 
       {/* No footer under a full-height application pane: it would either be
           pushed off screen or steal the height the transcript needs. Every
-          link in it is still one press away in the header. */}
-      {!isImmersive && <Footer />}
+          link in it is still one press away in the header.
+
+          On the signed-out screens it is rendered and then hidden from `lg`
+          up, which is the same reasoning one breakpoint narrower: the frame
+          there is exactly the window, and a footer under it would be the one
+          thing putting a scrollbar back on the document — and the scrollbar
+          is what was taking the globe with it. On a phone, where there is no
+          globe and the page scrolls normally, the footer is untouched. */}
+      {!isImmersive && <Footer className={cx(isFullBleed && 'lg:hidden')} />}
     </div>
   );
 }

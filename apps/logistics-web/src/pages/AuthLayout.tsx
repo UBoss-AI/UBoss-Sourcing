@@ -42,7 +42,21 @@ export function AuthLayout({
   const { t } = useI18n();
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-surface-sunken">
+    /*
+     * `min-h-screen` below `lg`, an exact window height from `lg` up.
+     *
+     * The exact height is what stops the turning earth beside the card
+     * scrolling away with it. A `sticky` panel can only hold its place while
+     * its container has room left underneath, and a one-viewport globe in a
+     * one-viewport frame has none — so the header above this and any slack
+     * below were enough to drag it up the screen. A frame that IS the window
+     * has nothing under it to scroll to, and the card column inside takes on
+     * the scrolling that a ten-recovery-code screen actually needs.
+     *
+     * Nothing changes below `lg`: there is no globe there, and a driver's
+     * phone gets the page it has always had.
+     */
+    <div className="relative flex min-h-screen flex-col bg-surface-sunken lg:h-[100dvh] lg:overflow-hidden">
       {/*
         The wash. `aria-hidden` and `pointer-events-none`: it is a light
         source, not content, and it must never sit between a finger and a
@@ -84,7 +98,11 @@ export function AuthLayout({
         split inside supplies its own gutters, so `main` keeps only the bottom
         padding that stops the card sitting on the edge of a short window.
       */}
-      <main className="relative flex flex-1 flex-col justify-center pb-16 sm:pb-0">
+      {/* `lg:min-h-0` is the load-bearing half of the note on the frame above:
+          without it a flex child refuses to shrink below its content, the
+          split pushes the column past the window, and the document scrolls
+          again with the globe on board. */}
+      <main className="relative flex flex-1 flex-col justify-center pb-16 sm:pb-0 lg:min-h-0">
         <AuthSplit contentClassName={wide ? 'max-w-2xl' : 'max-w-md'}>
           <div className="rounded-2xl border border-border bg-surface p-6 shadow-lg sm:p-8">
             <h1 className="text-xl font-semibold tracking-tight text-ink">{heading}</h1>

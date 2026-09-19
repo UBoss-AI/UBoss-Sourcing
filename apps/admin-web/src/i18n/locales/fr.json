@@ -2844,5 +2844,6 @@
   "variantMatrix.couldNotSaveAxes": "Ces dimensions n’ont pas pu être enregistrées.",
   "variantMatrix.couldNotPreview": "Le tableau n’a pas pu être calculé.",
   "variantMatrix.couldNotGenerate": "Les variantes n’ont pas pu être créées.",
-  "variantMatrix.created": "{{created}} créées, {{skipped}} existaient déjà."
+  "variantMatrix.created": "{{created}} créées, {{skipped}} existaient déjà.",
+  "orderDetail.lineInstructions": "Instructions :"
 }

@@ -723,6 +723,19 @@ export interface CartLine {
     orderIncrement?: number;
     maximumOrderQuantity?: number | null;
   } | null;
+  /**
+   * The buyer's special instruction for this line, or null where none was
+   * given.
+   *
+   * Per line rather than per order, because "the 316 grade, not 304" is about
+   * one product and an order note is read by everybody. Editable from the
+   * basket right up until the order is placed, at which point it is frozen
+   * onto the order line.
+   *
+   * Optional on the type, because a response cached from before the field
+   * existed does not carry it and a basket must still render.
+   */
+  note?: string | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
 }
@@ -987,6 +1000,17 @@ export interface OrderItem {
   tax: Money;
   lineTotal: Money;
   taxRatePercent: string;
+  /**
+   * The special instruction the buyer gave for this line, frozen at checkout.
+   *
+   * A snapshot like the name and the price beside it: the basket it was typed
+   * into is emptied when the order is placed, so these are the words as they
+   * were agreed rather than as they might be edited later.
+   *
+   * Optional, because an order served by a server that predates the field
+   * legitimately lacks it.
+   */
+  note?: string | null;
 }
 
 export interface OrderTimelineEntry {

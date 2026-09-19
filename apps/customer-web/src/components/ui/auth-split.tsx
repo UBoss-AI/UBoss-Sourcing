@@ -36,6 +36,42 @@
  * `hidden` rather than `opacity-0` or a zero height: a hidden element is not
  * laid out, the lazy chunk behind it is never asked for, and no WebGL context
  * is ever created. A panel faded to nothing would still cost all three.
+ *
+ * ## Why the earth stays put, and why `sticky` alone could never do it
+ *
+ * The complaint was that the globe scrolled away with the page, and `sticky
+ * top-0` was already on it. It was not a typo — `sticky` was doing exactly what
+ * `sticky` does, and the arithmetic simply had nowhere to go.
+ *
+ * A sticky item can hold its position for as long as its CONTAINER has room
+ * left underneath it, and no longer: the travel it gets is the container's
+ * height minus its own. The globe was `h-[100dvh]` inside a grid whose height
+ * was also, in the common case, one viewport — so the travel was zero, and the
+ * first pixel of scroll moved it. What made the page scroll at all was the
+ * chrome around the split: a header above, a footer below. The earth slid up by
+ * exactly their height, which is precisely what somebody on the sign-in screen
+ * reported seeing.
+ *
+ * So the fix is not a better `position`. It is to stop the frame scrolling:
+ *
+ *   - **The host gives this frame a definite height** — one viewport minus its
+ *     own chrome — and stops the document scrolling. Each of the three apps
+ *     does that for its signed-out routes, because each one's chrome differs
+ *     and only the host knows its own.
+ *   - **The right column scrolls inside itself** instead. A nine-field
+ *     create-account form still scrolls; what it no longer does is take the
+ *     picture with it.
+ *   - **The globe simply fills the frame.** Nothing to travel, nothing to
+ *     stick, nothing that can slide.
+ *
+ * And there is a fourth thing, which is invisible and was the last to be
+ * found: **the form column has to be `relative`.** `overflow` only clips a
+ * descendant whose containing block is inside the clipper, and every `.sr-only`
+ * span on these forms is `position: absolute` with no positioned ancestor — so
+ * each one was laid out against the document, sailed through every clip
+ * between, and stretched the page to reach it. Nine invisible one-pixel spans
+ * were putting the scrollbar back on a frame that measured exactly right. The
+ * note beside that column has the detail.
  */
 import type { ReactNode } from 'react';
 import { AuthGlobe } from '@/components/ui/auth-globe';
@@ -47,7 +83,20 @@ export function AuthSplit({
   contentClassName = 'max-w-md',
 }: {
   children: ReactNode;
-  /** The height the frame should fill. Each app's chrome differs. */
+  /**
+   * The height the frame should fill. Each app's chrome differs.
+   *
+   * Pass a DEFINITE height at `lg` — `lg:h-[100dvh]`, or that minus whatever
+   * sits above the frame — and the earth stops moving, because the frame stops
+   * scrolling and the form column takes the scrolling on instead. Pass
+   * `lg:overflow-hidden` with it: the split caps itself at one viewport, so
+   * nothing reachable is ever clipped, and a single stray pixel of overflow
+   * anywhere in the subtree is otherwise enough to put the document's
+   * scrollbar back.
+   *
+   * Pass nothing and the frame is content-height, capped at a viewport. That
+   * still works; the picture simply moves with a page that scrolls.
+   */
   className?: string;
   /**
    * The measure of the right column, and it **replaces** the default rather
@@ -63,27 +112,48 @@ export function AuthSplit({
   contentClassName?: string;
 }): React.JSX.Element {
   return (
-    <div className={cx('grid w-full lg:min-h-[40rem] lg:grid-cols-2', className)}>
+    /*
+     * THE FRAME IS WHAT IS BOUNDED, not the picture inside it. That swap is
+     * the whole fix, and it took two goes to get right.
+     *
+     * The first attempt bounded the picture: `h-[100dvh]` with `max-h-full` to
+     * cap it inside a host that had given the frame a height. It does not
+     * work. A percentage `max-height` on a grid item resolves against the grid
+     * AREA, and a browser is entitled to treat that as indefinite — Chrome
+     * does — so the cap is dropped and a 100dvh panel sits inside a frame that
+     * is one viewport minus a header. It overflows by exactly the header's
+     * height, the document scrolls by that much, and the earth moves by that
+     * much. Which was the original complaint, smaller.
+     *
+     * So the two lengths swap places:
+     *
+     *   - `lg:h-full` takes the height the host gave this frame — one window
+     *     minus that app's chrome — and hands it to both columns.
+     *   - `lg:max-h-[100dvh]` is a LENGTH, not a percentage, so it always
+     *     applies. In a host that has given no definite height, `h-full`
+     *     computes to `auto` and this is what stops a nine-field
+     *     create-account form making the panel 1,250px tall — which is the
+     *     crop the old `h-[100dvh]` was there to prevent, still prevented.
+     *
+     * Both columns then simply fill the row. No `self-start`, because there is
+     * no longer a tall row to avoid being stretched to; no `sticky`, because a
+     * frame that does not scroll has nothing to stick to, and leaving it there
+     * would only suggest the mechanism is something it is not.
+     *
+     * There is no `min-h` either. There used to be a `lg:min-h-[40rem]` floor
+     * from when the panel had no height of its own, and on a wide but SHORT
+     * window — 1280x600, a projector, a split screen — that floor overrode
+     * `h-full`, pushed the split past the frame and put the scrollbar back.
+     */
+    <div className={cx('grid w-full lg:h-full lg:max-h-[100dvh] lg:grid-cols-2', className)}>
       {/*
-        The picture, and it does NOT stretch with the form beside it.
-
-        A grid item fills its row by default, which on the create-account page
-        made the panel as tall as a nine-field form — around 1250px — and the
-        globe fits itself to the canvas it is given, so it came out 860px
-        across inside a 630px column and was cropped on both sides. Pinned to
-        the top of the window at exactly the window's height instead, it is
-        always a shape the earth fits in, and it stays in view while a long
-        form scrolls past it rather than scrolling away at the first field.
-
-        `self-start` is what makes `sticky` mean anything here: without it the
-        item is stretched to the row, there is no free space to travel
-        through, and `top-0` does nothing at all.
+        The picture, filling its half of the frame.
 
         A right border rather than a shadow: the two columns meet on a hairline
         in both themes, and a shadow cast from a panel that is sometimes absent
         is a shadow that sometimes appears from nowhere.
       */}
-      <AuthGlobe className="hidden border-r border-border bg-surface-sunken lg:sticky lg:top-0 lg:block lg:h-[100dvh] lg:self-start" />
+      <AuthGlobe className="hidden border-r border-border bg-surface-sunken lg:block lg:h-full" />
 
       {/*
         The form, centred on its own half and held at the measure it has always
@@ -99,9 +169,48 @@ export function AuthSplit({
         `min-w-0` is the load-bearing half: without it a grid column refuses to
         shrink below its content, and one long unbroken error message would
         push the whole split wider than the window.
+
+        `lg:h-full lg:overflow-y-auto` is what takes the scrolling off the
+        document and puts it here, so a long form still reaches its last field
+        with the earth beside it holding still. Both are percentage-derived and
+        therefore inert in a frame with no definite height — which is exactly
+        what makes this safe to change in one file for three apps.
+
+        `lg:items-start` rather than centred once the column scrolls: a form
+        taller than the window that is also vertically centred has its heading
+        cut off above the scroll origin, and no amount of scrolling up reaches
+        it. Short forms are still centred, because `justify-center` on the
+        inner wrapper's own margin does that job — see `my-auto`.
+
+        `relative` IS THE ONE THAT TOOK LONGEST TO FIND, and without it none of
+        the rest works.
+
+        `overflow` only clips a descendant whose CONTAINING BLOCK is inside the
+        clipper. An absolutely positioned element with no positioned ancestor
+        is laid out against the initial containing block — the document — so it
+        sails straight through every `overflow: hidden` and `overflow: auto`
+        between it and the page, and extends the document's scroll height from
+        wherever it happens to sit.
+
+        This form is full of them. `.sr-only` is the standard clip pattern, and
+        it is `position: absolute`: every "(required)" a `Field` renders for a
+        screen reader is one. On the create-account form the last of them sat
+        988px down a 529px window, the document grew to match, and the page
+        scrolled 427px — taking the earth with it — while every box on screen
+        measured exactly right. Nine `<span>`s of one pixel each, invisible,
+        unreadable in a screenshot, and the entire remaining cause.
+
+        One word makes this column their containing block, and the
+        `overflow-y: auto` above finally means what it says.
       */}
-      <div className="flex min-w-0 items-center justify-center px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
-        <div className={cx('w-full', contentClassName)}>{children}</div>
+      <div className="relative flex min-w-0 items-center justify-center px-4 py-8 sm:px-6 lg:h-full lg:items-start lg:overflow-y-auto lg:px-10 lg:py-12">
+        {/* `lg:my-auto` is what keeps a short sign-in form centred on its half
+            now that the column is `items-start`. Auto margins on a flex item
+            absorb the free space when there is any, and collapse to nothing
+            when the form is taller than the column — the one behaviour that is
+            right for both, and the one `items-center` gets wrong for the
+            second. */}
+        <div className={cx('w-full lg:my-auto', contentClassName)}>{children}</div>
       </div>
     </div>
   );

@@ -89,6 +89,17 @@ export interface OrderItem {
   lineTotal: Money;
   taxRatePercent: string;
   taxClassCode: string;
+  /**
+   * The customer's special instruction for this line, frozen at checkout.
+   *
+   * Per line rather than per order: `customerNote` on the order is about the
+   * delivery, and this is about one product. Staff answering a query are
+   * reading exactly what the customer wrote, beside the line it was about.
+   *
+   * Optional, because an order served by a server that predates the field
+   * legitimately lacks it.
+   */
+  note?: string | null;
 }
 
 export interface TimelineEntry {

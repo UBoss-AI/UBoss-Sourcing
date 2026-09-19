@@ -258,6 +258,12 @@ describe('ProductPage', () => {
     // Cartons, and the pieces they come to. The quantity boxes count the
     // thing that is for sale, and the piece count travels beside it for the
     // warehouse — the server recomputes it from its own setting either way.
+    //
+    // `note: null` on both, and null rather than an absent key or `''`: the
+    // page sends the special-instructions box with every line it adds, and an
+    // untouched box means "say nothing" rather than "clear whatever is
+    // there". An empty string would be a value, and a value overwrites an
+    // instruction already on the line.
     expect(sent.items).toEqual([
       {
         productId: 'product-1',
@@ -265,6 +271,7 @@ describe('ProductPage', () => {
         quantity: 5000,
         orderingUnit: 'OUTER_CARTON',
         unitQuantity: 10,
+        note: null,
       },
       {
         productId: 'product-1',
@@ -272,6 +279,7 @@ describe('ProductPage', () => {
         quantity: 7500,
         orderingUnit: 'OUTER_CARTON',
         unitQuantity: 15,
+        note: null,
       },
     ]);
   });

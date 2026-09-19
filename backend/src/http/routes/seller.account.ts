@@ -74,11 +74,35 @@ const businessProfileSchema = z.object({
   eudamedSrn: z.string().trim().max(64).nullable().optional(),
   websiteUrl: z.string().trim().url().max(512).nullable().optional(),
   yearsInBusiness: z.number().int().min(0).max(500).nullable().optional(),
+  /*
+   * The registered address, as six fields rather than one.
+   *
+   * These columns have existed since this table did; until the Seller Hub's
+   * Business Identity step learned to ask for the parts, only line 1 was ever
+   * written and it held whatever prose somebody typed into a single box.
+   *
+   * The limits below are the ones the brief names (200/200/100/100/20/2) where
+   * they are TIGHTER than the column, and the column's own where they are not:
+   * line 1 and 2 are `VARCHAR(255)` and there is no reason to refuse a genuine
+   * 220-character Indian industrial-estate address that the database would
+   * store perfectly well. The postcode is the one that moves - 20, matching
+   * the brief, inside a `VARCHAR(24)` column, so the cap a seller meets is the
+   * one the form told them about.
+   *
+   * `.trim()` on every one of them, so whitespace never reaches the database
+   * and " " is not a city.
+   *
+   * The postcode is deliberately NOT pattern-checked here. It cannot be: which
+   * pattern applies depends on the country, and the country arrives in the same
+   * body and may not have been sent at all on a patch that changes only the
+   * postcode. That check runs in `assertRegisteredAddress` below, against the
+   * country the profile will actually have once this patch lands.
+   */
   registeredAddressLine1: z.string().trim().max(255).nullable().optional(),
   registeredAddressLine2: z.string().trim().max(255).nullable().optional(),
   registeredCity: z.string().trim().max(120).nullable().optional(),
   registeredRegion: z.string().trim().max(120).nullable().optional(),
-  registeredPostcode: z.string().trim().max(24).nullable().optional(),
+  registeredPostcode: z.string().trim().max(20).nullable().optional(),
   registeredCountry: z.string().trim().length(2).toUpperCase().nullable().optional(),
   billingAddressLine1: z.string().trim().max(255).nullable().optional(),
   billingAddressLine2: z.string().trim().max(255).nullable().optional(),

@@ -50,6 +50,7 @@ export type CartItemMinAggregateOutputType = {
   orderingUnit: $Enums.OrderingUnit | null
   unitQuantity: number | null
   piecesPerUnitSnapshot: number | null
+  note: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +67,7 @@ export type CartItemMaxAggregateOutputType = {
   orderingUnit: $Enums.OrderingUnit | null
   unitQuantity: number | null
   piecesPerUnitSnapshot: number | null
+  note: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -82,6 +84,7 @@ export type CartItemCountAggregateOutputType = {
   orderingUnit: number
   unitQuantity: number
   piecesPerUnitSnapshot: number
+  note: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -112,6 +115,7 @@ export type CartItemMinAggregateInputType = {
   orderingUnit?: true
   unitQuantity?: true
   piecesPerUnitSnapshot?: true
+  note?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,6 +132,7 @@ export type CartItemMaxAggregateInputType = {
   orderingUnit?: true
   unitQuantity?: true
   piecesPerUnitSnapshot?: true
+  note?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -144,6 +149,7 @@ export type CartItemCountAggregateInputType = {
   orderingUnit?: true
   unitQuantity?: true
   piecesPerUnitSnapshot?: true
+  note?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -247,6 +253,7 @@ export type CartItemGroupByOutputType = {
   orderingUnit: $Enums.OrderingUnit
   unitQuantity: number
   piecesPerUnitSnapshot: number
+  note: string | null
   createdAt: Date
   updatedAt: Date
   _count: CartItemCountAggregateOutputType | null
@@ -286,6 +293,7 @@ export type CartItemWhereInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFilter<"CartItem"> | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFilter<"CartItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"CartItem"> | number
+  note?: Prisma.StringNullableFilter<"CartItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
   cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.CartWhereInput>
@@ -306,6 +314,7 @@ export type CartItemOrderByWithRelationInput = {
   orderingUnit?: Prisma.SortOrder
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
+  note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   cart?: Prisma.CartOrderByWithRelationInput
@@ -331,6 +340,7 @@ export type CartItemWhereUniqueInput = Prisma.AtLeast<{
   orderingUnit?: Prisma.EnumOrderingUnitFilter<"CartItem"> | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFilter<"CartItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"CartItem"> | number
+  note?: Prisma.StringNullableFilter<"CartItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
   cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.CartWhereInput>
@@ -351,6 +361,7 @@ export type CartItemOrderByWithAggregationInput = {
   orderingUnit?: Prisma.SortOrder
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
+  note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CartItemCountOrderByAggregateInput
@@ -375,6 +386,7 @@ export type CartItemScalarWhereWithAggregatesInput = {
   orderingUnit?: Prisma.EnumOrderingUnitWithAggregatesFilter<"CartItem"> | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntWithAggregatesFilter<"CartItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntWithAggregatesFilter<"CartItem"> | number
+  note?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CartItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CartItem"> | Date | string
 }
@@ -387,6 +399,7 @@ export type CartItemCreateInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   cart: Prisma.CartCreateNestedOneWithoutItemsInput
@@ -407,6 +420,7 @@ export type CartItemUncheckedCreateInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -419,6 +433,7 @@ export type CartItemUpdateInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
@@ -439,6 +454,7 @@ export type CartItemUncheckedUpdateInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -455,6 +471,7 @@ export type CartItemCreateManyInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -467,6 +484,7 @@ export type CartItemUpdateManyMutationInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,6 +501,7 @@ export type CartItemUncheckedUpdateManyInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -522,6 +541,7 @@ export type CartItemCountOrderByAggregateInput = {
   orderingUnit?: Prisma.SortOrder
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
+  note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -544,6 +564,7 @@ export type CartItemMaxOrderByAggregateInput = {
   orderingUnit?: Prisma.SortOrder
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
+  note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -560,6 +581,7 @@ export type CartItemMinOrderByAggregateInput = {
   orderingUnit?: Prisma.SortOrder
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
+  note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -750,6 +772,7 @@ export type CartItemCreateWithoutProductInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   cart: Prisma.CartCreateNestedOneWithoutItemsInput
@@ -768,6 +791,7 @@ export type CartItemUncheckedCreateWithoutProductInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -813,6 +837,7 @@ export type CartItemScalarWhereInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFilter<"CartItem"> | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFilter<"CartItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"CartItem"> | number
+  note?: Prisma.StringNullableFilter<"CartItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
 }
@@ -825,6 +850,7 @@ export type CartItemCreateWithoutVariantInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   cart: Prisma.CartCreateNestedOneWithoutItemsInput
@@ -843,6 +869,7 @@ export type CartItemUncheckedCreateWithoutVariantInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -881,6 +908,7 @@ export type CartItemCreateWithoutCartInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutCartItemsInput
@@ -899,6 +927,7 @@ export type CartItemUncheckedCreateWithoutCartInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -937,6 +966,7 @@ export type CartItemCreateWithoutSellerOfferInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   cart: Prisma.CartCreateNestedOneWithoutItemsInput
@@ -955,6 +985,7 @@ export type CartItemUncheckedCreateWithoutSellerOfferInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -996,6 +1027,7 @@ export type CartItemCreateManyProductInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1008,6 +1040,7 @@ export type CartItemUpdateWithoutProductInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
@@ -1026,6 +1059,7 @@ export type CartItemUncheckedUpdateWithoutProductInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1041,6 +1075,7 @@ export type CartItemUncheckedUpdateManyWithoutProductInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1056,6 +1091,7 @@ export type CartItemCreateManyVariantInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1068,6 +1104,7 @@ export type CartItemUpdateWithoutVariantInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
@@ -1086,6 +1123,7 @@ export type CartItemUncheckedUpdateWithoutVariantInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1101,6 +1139,7 @@ export type CartItemUncheckedUpdateManyWithoutVariantInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1116,6 +1155,7 @@ export type CartItemCreateManyCartInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1128,6 +1168,7 @@ export type CartItemUpdateWithoutCartInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutCartItemsNestedInput
@@ -1146,6 +1187,7 @@ export type CartItemUncheckedUpdateWithoutCartInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1161,6 +1203,7 @@ export type CartItemUncheckedUpdateManyWithoutCartInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1176,6 +1219,7 @@ export type CartItemCreateManySellerOfferInput = {
   orderingUnit?: $Enums.OrderingUnit
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
+  note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1188,6 +1232,7 @@ export type CartItemUpdateWithoutSellerOfferInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
@@ -1206,6 +1251,7 @@ export type CartItemUncheckedUpdateWithoutSellerOfferInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1221,6 +1267,7 @@ export type CartItemUncheckedUpdateManyWithoutSellerOfferInput = {
   orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1239,6 +1286,7 @@ export type CartItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   orderingUnit?: boolean
   unitQuantity?: boolean
   piecesPerUnitSnapshot?: boolean
+  note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   cart?: boolean | Prisma.CartDefaultArgs<ExtArgs>
@@ -1261,11 +1309,12 @@ export type CartItemSelectScalar = {
   orderingUnit?: boolean
   unitQuantity?: boolean
   piecesPerUnitSnapshot?: boolean
+  note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CartItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartId" | "productId" | "variantId" | "variantKey" | "sellerOfferId" | "sellerOfferKey" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "createdAt" | "updatedAt", ExtArgs["result"]["cartItem"]>
+export type CartItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartId" | "productId" | "variantId" | "variantKey" | "sellerOfferId" | "sellerOfferKey" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["cartItem"]>
 export type CartItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cart?: boolean | Prisma.CartDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -1330,6 +1379,22 @@ export type $CartItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * Pieces in one `orderingUnit` at the moment it was chosen.
      */
     piecesPerUnitSnapshot: number
+    /**
+     * What the buyer needs done to THIS product, in their own words.
+     * 
+     * Per line and not per order, because `Order.customerNote` answers a
+     * different question. That one is about the delivery - a gate code, a time
+     * window - and reaches everybody. This one is about one product, and on a
+     * basket holding nine lines from four sellers an order note saying "the
+     * blue one" identifies nothing and is read by three sellers it does not
+     * concern.
+     * 
+     * NULL means no instruction was given, which is what every line placed
+     * before this column existed says. Never an empty string: the API turns a
+     * cleared box into NULL, so "" and "nothing" are not two ways of saying the
+     * same thing.
+     */
+    note: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["cartItem"]>
@@ -1716,6 +1781,7 @@ export interface CartItemFieldRefs {
   readonly orderingUnit: Prisma.FieldRef<"CartItem", 'OrderingUnit'>
   readonly unitQuantity: Prisma.FieldRef<"CartItem", 'Int'>
   readonly piecesPerUnitSnapshot: Prisma.FieldRef<"CartItem", 'Int'>
+  readonly note: Prisma.FieldRef<"CartItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"CartItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CartItem", 'DateTime'>
 }

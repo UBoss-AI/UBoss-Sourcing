@@ -338,6 +338,24 @@ export function OrderDetailPage(): React.JSX.Element {
                         <p className="text-xs text-ink-muted">{item.variantName}</p>
                       )}
                       <p className="mt-0.5 font-mono text-xxs text-ink-subtle">{item.sku}</p>
+
+                      {/* What they asked for on this line, shown back to them.
+                          An instruction somebody cannot re-read on their own
+                          order is one they cannot check was received — and
+                          this is the screen they open when they ring up to
+                          ask whether it was. */}
+                      {item.note != null && item.note !== '' && (
+                        <div className="mt-1.5 rounded-md border border-border-subtle bg-surface-sunken px-2.5 py-1.5">
+                          <p className="text-xxs font-medium uppercase tracking-wide text-ink-subtle">
+                            {t('order.lineInstructions')}
+                          </p>
+                          {/* `whitespace-pre-line`: three lines typed are
+                              three lines meant. */}
+                          <p className="mt-0.5 whitespace-pre-line text-xs leading-relaxed text-ink">
+                            {item.note}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-right">

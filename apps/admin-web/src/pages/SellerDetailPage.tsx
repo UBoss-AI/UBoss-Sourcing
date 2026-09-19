@@ -261,22 +261,23 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
               label="Years in business"
               value={profile?.yearsInBusiness === null || profile?.yearsInBusiness === undefined ? null : String(profile.yearsInBusiness)}
             />
-            <Detail
-              label="Registered address"
-              value={
-                profile === null || profile.registeredAddressLine1 === null
-                  ? null
-                  : [
-                      profile.registeredAddressLine1,
-                      profile.registeredAddressLine2,
-                      profile.registeredCity,
-                      profile.registeredPostcode,
-                      profile.registeredCountry,
-                    ]
-                      .filter((part) => part !== null && part.length > 0)
-                      .join(', ')
-              }
-            />
+            {/*
+              The registered address, on the lines an address is written on.
+
+              It was one comma-joined string, and it dropped the region
+              entirely — so an Indian seller's state, which is what a GSTIN's
+              first two digits encode and what a reviewer checks the
+              registration certificate against, was on the screen of nobody
+              who had to approve them.
+
+              `RegisteredAddress` below owns the layout and, more importantly,
+              owns the rule that an absent part takes nothing with it: no
+              stray comma, no blank line, no "null". That rule is the whole
+              reason it is a component rather than another `.join(', ')` —
+              line 2 is optional by design and every seller onboarded before
+              the structured fields existed has only line 1.
+            */}
+            <RegisteredAddress profile={profile} />
             <Detail label="What they sell" value={seller.description} />
           </dl>
 
@@ -863,6 +864,115 @@ function DocumentsCard({
         </div>
       </Modal>
     </>
+  );
+}
+
+/**
+ * The seller's registered address, laid out the way an address is written.
+ *
+ * ## The rule this exists to enforce
+ *
+ * **A part that is absent takes nothing with it.** No stray comma, no blank
+ * line, no "null", no ", , ". That is the specific failure this replaces: the
+ * old version was `[line1, line2, city, postcode, country].join(', ')` over
+ * five nullable fields, which produces "42 Industrial Estate, , Noida, ,
+ * 201301" the moment one is missing — and one is always missing, because line
+ * 2 is optional by design and every seller onboarded before the structured
+ * fields existed has nothing but line 1.
+ *
+ * It also dropped `registeredRegion` altogether. That is the field a reviewer
+ * most needs on an Indian application: GST registration is per state and a
+ * GSTIN's first two digits ARE the state, so approving a seller without seeing
+ * it means checking a certificate against an address that does not mention the
+ * jurisdiction it was issued in.
+ *
+ * ## Both shapes, deliberately
+ *
+ * The block is what a reviewer reads. The one-line version underneath is what
+ * gets copied into an email, a spreadsheet or a search box — which is a thing
+ * people do constantly with an address on a screen, and which a four-line
+ * block makes annoying. Same parts, same rule, one of them selectable on a
+ * single line.
+ *
+ * The country is shown as its code because that is what is stored, and this
+ * panel has no country list to look a name up in. A line reading "IN" is not
+ * wrong; inventing "India" from a lookup this page does not have would be.
+ */
+function RegisteredAddress({
+  profile,
+}: {
+  profile: SellerApplicationDetail['businessProfile'];
+}): React.JSX.Element {
+  const clean = (value: string | null | undefined): string | null => {
+    if (value === null || value === undefined) return null;
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
+  };
+
+  const line1 = clean(profile?.registeredAddressLine1);
+  const line2 = clean(profile?.registeredAddressLine2);
+  const city = clean(profile?.registeredCity);
+  const region = clean(profile?.registeredRegion);
+  const postcode = clean(profile?.registeredPostcode);
+  const country = clean(profile?.registeredCountry);
+
+  const lines: string[] = [];
+  if (line1 !== null) lines.push(line1);
+  if (line2 !== null) lines.push(line2);
+
+  // City and region are separated by a comma; the postcode follows the region
+  // after a space, which is how "Noida, Uttar Pradesh 201301" is written.
+  const place = [city, region].filter((part): part is string => part !== null).join(', ');
+  const middle = [place, postcode]
+    .filter((part): part is string => part !== null && part.length > 0)
+    .join(' ');
+  if (middle.length > 0) lines.push(middle);
+
+  if (country !== null) lines.push(country);
+
+  return (
+    <div>
+      <dt className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
+        Registered address
+      </dt>
+      <dd className="mt-1 break-words text-sm text-ink">
+        {lines.length === 0 ? (
+          <span className="text-ink-subtle">Not given</span>
+        ) : (
+          <>
+            <span className="block whitespace-pre-line">{lines.join('\n')}</span>
+
+            {/* The same thing on one line, for copying. Only where it says
+                more than the block already did — on a legacy row holding
+                nothing but line 1 the two are identical, and printing an
+                address twice is noise. */}
+            {lines.length > 1 && (
+              <span className="mt-1.5 block select-all font-mono text-xxs text-ink-subtle">
+                {lines.join(', ')}
+              </span>
+            )}
+          </>
+        )}
+      </dd>
+
+      {/*
+        An address entered before the Seller Hub asked for its parts.
+
+        Said plainly rather than left for a reviewer to notice, because what it
+        means for them is specific: there is no country, no region and no
+        postcode to check a registration certificate against, and the seller
+        has not been asked for them since. Nothing is parsed out of the prose —
+        guessing which word is the state is how a business ends up approved
+        against the wrong jurisdiction.
+      */}
+      {line1 !== null && country === null && region === null && postcode === null && (
+        <p className="mt-1.5 text-xxs leading-relaxed text-warning">
+          Entered as one line, before this application asked for the parts. The seller is
+          prompted to fill in the country, region and postal code the next time they open
+          Business Identity.
+        </p>
+      )}
+    </div>
   );
 }
 

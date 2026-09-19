@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { DocumentIcon, MailIcon, PhoneIcon } from '@/components/icons';
+import { cx } from '@/lib/cx';
 
 /** A footer column heading. One style, so the columns read as a set. */
 function ColumnHeading({ children }: { children: React.ReactNode }): React.JSX.Element {
@@ -69,14 +70,29 @@ function ContactRow({
   );
 }
 
-export function Footer(): React.JSX.Element {
+export function Footer({
+  /**
+   * Extra classes for the `<footer>` element itself, used only to take it off
+   * the screen at a breakpoint.
+   *
+   * The signed-out screens are the one caller. From `lg` up those are exactly
+   * one window tall, so that the turning earth beside the form cannot scroll
+   * away, and a footer below the fold is the one thing that would put the
+   * document's scrollbar back and undo it. Narrower than that there is no
+   * globe, the page scrolls as it always has, and the footer is rendered
+   * unchanged.
+   */
+  className,
+}: {
+  className?: string;
+} = {}): React.JSX.Element {
   const { business } = useStorefront();
   const { t } = useI18n();
   const policies = Object.entries(business.policyLinks ?? {});
   const hasSupport = business.supportEmail !== null || business.supportPhone !== null;
 
   return (
-    <footer className="mt-12 border-t border-border bg-surface">
+    <footer className={cx('mt-12 border-t border-border bg-surface', className)}>
       {/*
        * Identity on the left, the link columns clustered on the right.
        *

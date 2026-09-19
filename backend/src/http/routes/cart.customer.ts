@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
 import {
+  MAX_LINE_NOTE_CHARS,
   addItem,
   addItems,
   applyCoupon,
@@ -19,6 +20,7 @@ import {
   removeItem,
   resolveCart,
   toCartView,
+  updateItemNote,
   updateItemPackQuantity,
   updateItemQuantity,
 } from '../../modules/cart/cart.service.js';
@@ -78,6 +80,20 @@ const addItemSchema = z.object({
    */
   orderingUnit: z.enum(['PIECE', 'OUTER_CARTON']).optional(),
   unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
+  /**
+   * What the buyer needs done to THIS product, in their own words.
+   *
+   * Optional, and absent on every caller written before it existed. 500 to
+   * match the column, so an over-long instruction is refused with a message
+   * naming the field rather than silently truncated on the way in - somebody
+   * who wrote four hundred words should be told, not have the last three
+   * hundred disappear into a picking list nobody can correct.
+   *
+   * Not `.trim()` here: the service normalises it, because the ERP and the
+   * schedule worker reach the same code without passing through this schema
+   * and the rule has to hold for all three.
+   */
+  note: z.string().max(MAX_LINE_NOTE_CHARS).nullable().optional(),
 });
 
 /**
@@ -109,6 +125,18 @@ const updateQuantitySchema = z.object({
  */
 const updatePackQuantitySchema = z.object({
   unitQuantity: z.number().int().min(0).max(1_000_000),
+});
+
+/**
+ * The special instruction on one line, changed or cleared.
+ *
+ * `null` means "I have cleared the box", and the field is required rather than
+ * optional precisely so that it can mean that. An optional field would have
+ * two ways of saying nothing - absent and null - and only one of them could be
+ * "clear it", which is the ambiguity that keeps this off the quantity route.
+ */
+const updateNoteSchema = z.object({
+  note: z.string().max(MAX_LINE_NOTE_CHARS).nullable(),
 });
 
 const checkoutSchema = z.object({
@@ -272,6 +300,27 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     const body = updatePackQuantitySchema.parse(request.body);
 
     await updateItemPackQuantity(auth.customerProfileId ?? '', itemId, body.unitQuantity);
+
+    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    return reply.status(200).send({ cart: toCartView(resolved) });
+  });
+
+  /**
+   * Change or clear the special instruction on a line.
+   *
+   * Answers with the whole repriced cart like every other mutation in this
+   * file, even though an instruction changes no figure on it. The shape is the
+   * contract: the storefront writes a cart response straight into the cache
+   * the basket and the header badge both read from, and one route answering
+   * something else is the one that leaves a page rendering `undefined`. See
+   * the note on `DELETE /` for the time that actually happened.
+   */
+  app.patch('/items/:itemId/note', async (request, reply) => {
+    const auth = currentUser(request);
+    const { itemId } = itemParam.parse(request.params);
+    const body = updateNoteSchema.parse(request.body);
+
+    await updateItemNote(auth.customerProfileId ?? '', itemId, body.note);
 
     const resolved = await resolveCart(auth.customerProfileId ?? '');
     return reply.status(200).send({ cart: toCartView(resolved) });

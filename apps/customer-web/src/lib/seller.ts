@@ -1485,6 +1485,16 @@ export interface SellerOrderDetail {
     unitPriceMinor: string;
     lineTotalMinor: string;
     sellerNetMinor: string;
+    /**
+     * What the buyer asked to be done to this product, in their own words.
+     *
+     * The seller is the one who has to do it, so this is the screen it has to
+     * reach — not the operator's, and not only the packing slip.
+     *
+     * Optional, because a response from a server that predates the field
+     * legitimately lacks it.
+     */
+    note?: string | null;
   }[];
   shipments: {
     id: string;

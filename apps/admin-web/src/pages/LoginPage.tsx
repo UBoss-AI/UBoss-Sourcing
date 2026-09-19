@@ -170,7 +170,17 @@ export function LoginPage(): React.JSX.Element {
   };
 
   return (
-    <AuthSplit className="min-h-screen">
+    /*
+     * `min-h-screen` below `lg`, an exact window height from `lg` up.
+     *
+     * The exact height is what stops the turning earth on the left scrolling
+     * away with the form: a frame that is precisely the window has nothing
+     * below it to scroll to, and the form column inside takes the scrolling on
+     * instead. This page is the whole document when it renders — there is no
+     * admin chrome around a signed-out screen — so the window's height is the
+     * frame's height with nothing to subtract.
+     */
+    <AuthSplit className="min-h-screen lg:h-[100dvh] lg:overflow-hidden">
       {/* On the first screen, not buried in a settings page inside the panel.
           A warehouse or finance user who cannot read English cannot navigate
           to a setting written in it, and this is the one screen they are

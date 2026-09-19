@@ -68,6 +68,7 @@ import { useSession } from '@/auth/session-context';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { useStorefront } from '@/app/storefront-context';
 import { ImageSearchDialog } from '@/components/hero-search/ImageSearchDialog';
+import { Modal } from '@/components/Modal';
 import { Button, ButtonLink, Spinner } from '@/components/ui';
 import { SidebarIcon, SparkIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
@@ -257,6 +258,33 @@ export function AiModePage(): React.JSX.Element {
   const [retryable, setRetryable] = useState<string | null>(null);
   /** Index of a reply the stream cut off part-way. */
   const [truncatedAt, setTruncatedAt] = useState<number | null>(null);
+
+  /**
+   * How many free questions a visitor with no account has left.
+   *
+   * `null` means "say nothing about an allowance", which is the answer for a
+   * signed-in customer and for a deployment that has set no cap. It is not
+   * "none left": a counter on a screen where the number is unlimited is a
+   * limit the interface invented.
+   *
+   * Set from `/assistant/start` before the first question and from the `done`
+   * frame after each one, always from the server. Never decremented here — a
+   * browser counting down on its own disagrees with the server the first time
+   * a send is retried, and the disagreement shows up as the wall arriving one
+   * question early or one question late.
+   */
+  const [guestRemaining, setGuestRemaining] = useState<number | null>(null);
+
+  /**
+   * Whether the "you have used your free questions" prompt is up.
+   *
+   * Its own state rather than `guestRemaining === 0`, because the two are
+   * genuinely different: the counter says how many are left and stays on
+   * screen; the prompt is a modal somebody can dismiss and then carry on
+   * reading what they already got. Tying the dialog to the number would make
+   * it impossible to close.
+   */
+  const [isGuestLimitOpen, setIsGuestLimitOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(true);
   const [isAttachOpen, setIsAttachOpen] = useState(false);
@@ -320,15 +348,20 @@ export function AiModePage(): React.JSX.Element {
     ): Promise<{ id: string; token: string | null }> => {
       if (existing !== null) return existing;
 
-      const started = await api.post<{ conversationId: string; conversationToken?: string }>(
-        '/assistant/start',
-        {},
-      );
+      const started = await api.post<{
+        conversationId: string;
+        conversationToken?: string;
+        guestMessagesRemaining?: number | null;
+      }>('/assistant/start', {});
 
       const token = started.conversationToken ?? null;
 
       setActiveId(started.conversationId);
       setGuestToken(token);
+      // Before the first question rather than after the last. A wall somebody
+      // hits with no warning reads as the thing having broken; a line saying
+      // "5 free questions" from the start reads as an offer.
+      setGuestRemaining(started.guestMessagesRemaining ?? null);
 
       return { id: started.conversationId, token };
     },
@@ -443,6 +476,44 @@ export function AiModePage(): React.JSX.Element {
             return;
           }
 
+          /*
+           * The free questions are used up.
+           *
+           * Read out of the body rather than inferred from the 400, because a
+           * 400 on this route is also "that conversation is too long" and the
+           * two need opposite answers: one says start a new conversation, this
+           * one says starting a new conversation will not help.
+           *
+           * The body is parsed defensively — this is the one path in `send`
+           * that reads a failed response's payload, and a deployment answering
+           * with something unexpected must fall through to the ordinary error
+           * rather than throw inside the handler.
+           *
+           * Three things happen, in this order and for a reason:
+           *
+           *   - The counter goes to zero, so the line under the composer stops
+           *     promising questions that no longer exist.
+           *   - The question goes back into the composer. They spent time on
+           *     it; it is still theirs after signing in.
+           *   - The prompt comes up. The transcript stays on screen behind it
+           *     — what they already got is theirs to read, and taking it away
+           *     at the moment of asking for an account is the worst possible
+           *     trade.
+           */
+          if (response.status === 400) {
+            const code = await response
+              .json()
+              .then((body: unknown) => (body as { error?: { code?: unknown } }).error?.code)
+              .catch(() => null);
+
+            if (code === 'ASSISTANT_GUEST_LIMIT_REACHED') {
+              setGuestRemaining(0);
+              setDraft(question);
+              setIsGuestLimitOpen(true);
+              return;
+            }
+          }
+
           setError(
             response.status === 429
               ? t('chat.thatIsALotOfQuestions')
@@ -482,6 +553,24 @@ export function AiModePage(): React.JSX.Element {
               }
               return current;
             });
+          },
+          onDone: ({ guestMessagesRemaining }) => {
+            // The server's figure, every turn. Not `previous - 1`: see the
+            // note on the state itself for why the browser never counts.
+            setGuestRemaining(guestMessagesRemaining);
+
+            /*
+             * The prompt comes up when the LAST free question has been
+             * answered, not when the next one is refused.
+             *
+             * The refusal path above still exists and still works — it is the
+             * backstop for a browser whose counter is stale, and for the
+             * second tab. But asking somebody to open an account at the moment
+             * their answer finishes is the moment they have just got something
+             * out of it, and asking after they have typed a question that is
+             * then thrown away is the moment they have not.
+             */
+            if (guestMessagesRemaining === 0) setIsGuestLimitOpen(true);
           },
         });
 
@@ -980,11 +1069,72 @@ export function AiModePage(): React.JSX.Element {
                 : undefined
             }
             isStreaming={isStreaming}
-            isDisabled={isFull}
-            disabledNote={isFull ? t('aiMode.turnLimit') : undefined}
+            isDisabled={isFull || guestRemaining === 0}
+            /*
+             * One note, and the order the three cases are tested in is the
+             * order of how final they are.
+             *
+             * The turn limit is about this conversation and a new one fixes
+             * it. The guest allowance is about the visitor and a new
+             * conversation does not fix it — so where both are true, the one
+             * that cannot be worked around is the one worth saying. The
+             * countdown is last, because it is the only one of the three that
+             * is not a refusal.
+             */
+            disabledNote={
+              isFull
+                ? t('aiMode.turnLimit')
+                : guestRemaining === 0
+                  ? t('aiMode.guestLimitNote')
+                  : guestRemaining === null
+                    ? undefined
+                    : t('aiMode.guestRemaining', { count: guestRemaining })
+            }
           />
         )}
       </section>
+
+      {/*
+       * The free questions are used up, and the way on is an account.
+       *
+       * Mounted only while open, which is the rule this app's `Modal` states
+       * in its own header: a closed `<dialog>` carrying `display: flex` renders
+       * in the page flow as a bordered card in the middle of whatever mounted
+       * it, and every caller here avoids that by not mounting it.
+       *
+       * Two ways out and both are real. Sign in and Create an account both
+       * carry `from` so the visitor lands back on this page afterwards with
+       * the question they typed still in the composer. Dismissing it leaves
+       * the transcript on screen — what they already got is theirs to read,
+       * and taking it away at the moment of asking them to register is the
+       * worst possible trade.
+       */}
+      {isGuestLimitOpen && (
+        <Modal
+          isOpen
+          onClose={() => {
+            setIsGuestLimitOpen(false);
+          }}
+          title={t('aiMode.guestLimitHeading')}
+          description={t('aiMode.guestLimitBody')}
+          footer={
+            <>
+              <ButtonLink to="/register" state={{ from: AI_MODE_PATH }} variant="primary">
+                {t('aiMode.guestLimitRegister')}
+              </ButtonLink>
+              <ButtonLink to="/login" state={{ from: AI_MODE_PATH }}>
+                {t('aiMode.guestLimitSignIn')}
+              </ButtonLink>
+            </>
+          }
+        >
+          <ul className="space-y-2 text-sm leading-relaxed text-ink-muted">
+            <li>{t('aiMode.guestLimitBenefitHistory')}</li>
+            <li>{t('aiMode.guestLimitBenefitUnlimited')}</li>
+            <li>{t('aiMode.guestLimitBenefitOrders')}</li>
+          </ul>
+        </Modal>
+      )}
 
       {/* Mounted only while open — see the note on the same dialog in
           `HeroSearch`. */}

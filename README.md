@@ -351,6 +351,26 @@ pressed: "500 g · Pack of 10", "each pack contains 5000 g", and, at a
 quantity of 2, "2 packs is 20 units, 10000 g in total". Pack count is part of
 the product; how many packs somebody wants is not.
 
+Every product page states **the price of one piece** in the same words whichever
+unit the thing is sold in, and shows **what the chosen quantity comes to** as it
+is typed — goods only, labelled as such, with the basket still the one place a
+final figure is worked out. A buyer typing 40 cartons was otherwise doing that
+multiplication on a calculator beside the screen.
+
+It also carries a **Special instructions** box per product — "the 316 grade, not
+304", "match the batch on our PO 4471" — which travels on the basket line, is
+frozen onto the order line at checkout, and is shown to whoever packs it: the
+warehouse on the admin order, or the seller on theirs. An order-wide note
+reaches everybody and identifies nothing, which is why this one is per line.
+
+**Pressing a product photograph opens it full screen**, with a zoom on the
+buttons, the wheel, a double-click and the keyboard, and dragging to move once
+it is magnified. The source is the original file and the zoom is a composited
+transform rather than a re-rasterise, so what is on screen is the resolution you
+uploaded. The backdrop is a pale translucent grey rather than near-black,
+because most product photography is shot on white and a white subject on a dark
+ground is a silhouette.
+
 Two ordering patterns beyond the one-off cart:
 
 - **Recurring orders** — a schedule that places a real order on a cadence.
@@ -382,6 +402,18 @@ the shop password. Entering it is remembered per browser rather than per
 account, so a new machine is asked again; changing it shuts the Hub everywhere
 else and leaves those shop sign-ins alone. It is not a second factor and nothing
 calls it one.
+
+**The registered address is asked for as six fields**, not as one box: address
+line 1, an optional line 2, city, state/province/region, PIN/ZIP/postal code and
+country. The country is a searchable picker over your own `countries` table and
+stores an ISO code; the region is a picker where the country has a list a
+business actually writes down (India's 36 states and union territories, and the
+US, Canadian and Australian equivalents) and a text box everywhere else; the
+postal code is checked against **its own country's** format — six digits for
+India, five or ZIP+4 for the United States, and a permissive shape check for
+the many countries no fixed rule fits. It is stored as a string, so a leading
+zero survives. A seller whose address was entered before this existed keeps it
+exactly as written, is asked to fill in the parts, and is never guessed at.
 
 A **product** is the thing itself — its name, specifications, photographs. An
 **offer** is what one seller will supply it for. Ten sellers offering the same
@@ -799,6 +831,17 @@ search reads the same catalogue. So a deployment that sells fasteners and a
 deployment that sells surgical gloves get an assistant that describes what it
 actually has, with no prompt to edit and nothing to configure.
 
+**It also answers the questions that are not about a product**, from the same
+tables and with the same freshness: who the buyer is dealing with (your legal
+name, registered address, VAT number, GSTIN and support contacts, as your
+Settings page holds them), your published policy links, the delivery options
+offered at checkout with their prices and free-above thresholds, the countries
+you serve and what a buyer in each is quoted in, and every currency you hold
+prices in. There is no FAQ file to keep current — switch a country off in the
+admin panel and the assistant stops offering it, because the row it was reading
+is gone. **A field you have not filled in is absent from the prompt rather than
+printed empty**, so the model has nothing to be helpfully wrong about.
+
 **And it is never a minute behind.** That snapshot is cached against a stamp
 taken from the catalogue itself, not against a clock: publish a product, approve
 a seller's listing, change a price, and the next question already knows. There
@@ -810,6 +853,29 @@ is nothing to restart and no cache to clear.
 | `ASSISTANT_PROVIDER` | `gemini`, `anthropic`, or blank to use whichever key is set |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | Key from [Google AI Studio](https://aistudio.google.com/apikey). Model defaults to `gemini-2.5-flash` |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | Key from the Anthropic Console. Model defaults to `claude-opus-5` |
+| `ASSISTANT_ALLOW_GUESTS` | Whether somebody with no account may chat at all. Default `false` |
+| `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` | Replies one address may request per five minutes. Default `10` |
+| `ASSISTANT_GUEST_MESSAGE_LIMIT` | Questions a guest gets **in total** before the storefront asks them to sign in or register. Default `5`; `0` removes the cap |
+
+**Guests, if you let them in.** `ASSISTANT_ALLOW_GUESTS` ships off, because an
+anonymous caller spends your provider budget on a page anybody on the internet
+can open. Turn it on where a buyer should be able to ask what is in the
+catalogue before opening an account, and they get a fixed number of questions —
+five by default, about the length of a real evaluation — with a quiet counter
+under the composer from the first answer onwards, so the end is in view well
+before it arrives. When the
+last free answer finishes, a dialog offers **Create an account** and **Sign in**,
+and the transcript stays on screen behind it.
+
+The two guest settings answer different questions and you want both.
+`ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` is a tap: it bounds how fast one address
+can spend your money, waiting opens it again, and it is your defence against a
+script. `ASSISTANT_GUEST_MESSAGE_LIMIT` is a taste: it bounds how much somebody
+gets before being asked for an account, and waiting does not give them more.
+Be clear-eyed about the second — it is counted per guest conversation, a
+conversation lives in one browser tab, and somebody who clears it gets a fresh
+one, exactly like every free-preview wall on the web. The rate limit is the one
+that actually bounds the bill.
 
 **Set no key and nothing breaks**, which is the point and also the problem. The
 insights panel builds its summary from your own figures and says on screen that

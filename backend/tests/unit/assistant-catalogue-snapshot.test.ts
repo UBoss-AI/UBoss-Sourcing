@@ -64,7 +64,18 @@ function snapshot(overrides: Partial<SnapshotInput> = {}): string {
       supportEmail: 'help@example.test',
       supportPhone: null,
       currency: 'INR',
+      // The identity and policy fields default to "the operator has stated
+      // nothing", which is the case worth having as the default: the renderer
+      // must omit each line entirely rather than print an empty one, and a
+      // fixture that filled them all in would never exercise that.
+      legalName: null,
+      vatNumber: null,
+      gstin: null,
+      timezone: null,
+      address: null,
+      policies: [],
     },
+    howItWorks: { delivery: [], markets: [], currencies: [] },
     categories: [{ name: 'Fasteners & Fixings', productCount: 3 }],
     products: [product()],
     ...overrides,
@@ -225,5 +236,101 @@ describe('the catalogue snapshot', () => {
       ],
     });
     expect(seller).toContain('V1: M6 × 30 — INR 42.50 per piece');
+  });
+
+  /*
+   * What the assistant knows BESIDES the catalogue.
+   *
+   * A buyer asks "who am I actually buying from", "what is your VAT number",
+   * "do you ship to Rotterdam" and "what does delivery cost" at least as often
+   * as anything about a SKU. Every one of those is a question of fact, and a
+   * model with no grounding for it either declines or answers from general
+   * knowledge about shops — which on a question of fact is the same thing as
+   * inventing an answer.
+   *
+   * The thing worth testing is not that each field appears. It is the rule
+   * that decides whether it appears at all: a field the operator has not
+   * filled in must be ABSENT, never printed empty. A model that reads "VAT
+   * NUMBER: not set" has been told there is one to find and will helpfully
+   * offer to find it.
+   */
+  describe('what it knows besides the catalogue', () => {
+    it('states the trading entity, where the operator has stated it', () => {
+      const text = snapshot({
+        store: {
+          displayName: 'Test Supplies',
+          supportEmail: 'help@example.test',
+          supportPhone: null,
+          currency: 'INR',
+          legalName: 'Test Supplies Trading BV',
+          vatNumber: 'NL123456789B01',
+          gstin: null,
+          timezone: 'Europe/Amsterdam',
+          address: '42 Havenstraat, Rotterdam, 3011 AA, NL',
+          policies: [{ label: 'Returns', url: '/policies/returns' }],
+        },
+      });
+
+      expect(text).toContain('LEGAL ENTITY: Test Supplies Trading BV');
+      expect(text).toContain('VAT NUMBER: NL123456789B01');
+      expect(text).toContain('STORE TIME ZONE: Europe/Amsterdam');
+      expect(text).toContain('REGISTERED ADDRESS: 42 Havenstraat, Rotterdam, 3011 AA, NL');
+      expect(text).toContain('- Returns: /policies/returns');
+    });
+
+    it('says nothing at all about a detail the operator has not given', () => {
+      // The default fixture has none of them. Absent, not blank: the whole
+      // point of the rule.
+      const text = snapshot();
+
+      expect(text).not.toContain('LEGAL ENTITY');
+      expect(text).not.toContain('VAT NUMBER');
+      expect(text).not.toContain('GSTIN');
+      expect(text).not.toContain('REGISTERED ADDRESS');
+      expect(text).not.toContain('PUBLISHED POLICIES');
+      // And the whole "how buying works" heading goes with it, rather than
+      // standing over three empty lists.
+      expect(text).not.toContain('BUYING FROM THIS STORE');
+    });
+
+    it('answers delivery, markets and currencies from the live rows', () => {
+      const text = snapshot({
+        howItWorks: {
+          delivery: [
+            {
+              name: 'Standard',
+              description: 'Kerbside',
+              price: 'INR 125.00',
+              freeAbove: 'INR 5000.00',
+              estimatedDays: 'about 2-4 days',
+            },
+            {
+              name: 'Collection',
+              description: null,
+              // Free, which is a null price rather than a zero — a delivery
+              // option quoted as "INR 0.00" reads as a missing figure.
+              price: null,
+              freeAbove: null,
+              estimatedDays: null,
+            },
+          ],
+          markets: [
+            { name: 'India', currencyCode: 'INR' },
+            { name: 'Netherlands', currencyCode: 'EUR' },
+          ],
+          currencies: ['EUR', 'INR'],
+        },
+      });
+
+      expect(text).toContain('- Standard: INR 125.00; free on orders over INR 5000.00');
+      expect(text).toContain('- Collection: free');
+      expect(text).toContain('- India (INR)');
+      expect(text).toContain('- Netherlands (EUR)');
+      expect(text).toContain('Currencies prices are held in: EUR, INR.');
+
+      // The instruction that makes the country list usable as an answer. A
+      // list with no rule attached is one the model reads as examples.
+      expect(text).toContain('A country not on that list is one this store does not serve');
+    });
   });
 });

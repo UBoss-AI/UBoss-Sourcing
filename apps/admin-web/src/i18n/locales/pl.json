@@ -2868,5 +2868,6 @@
   "variantMatrix.couldNotSaveAxes": "Nie udało się zapisać tych cech.",
   "variantMatrix.couldNotPreview": "Nie udało się obliczyć tabeli.",
   "variantMatrix.couldNotGenerate": "Nie udało się utworzyć wariantów.",
-  "variantMatrix.created": "Utworzono: {{created}}, już istniało: {{skipped}}."
+  "variantMatrix.created": "Utworzono: {{created}}, już istniało: {{skipped}}.",
+  "orderDetail.lineInstructions": "Instrukcje:"
 }

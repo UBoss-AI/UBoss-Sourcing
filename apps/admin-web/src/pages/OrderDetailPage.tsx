@@ -484,6 +484,24 @@ export function OrderDetailPage(): React.JSX.Element {
                           <span className="text-ink-muted"> — {item.variantName}</span>
                         )}
                         <p className="font-mono text-xxs text-ink-subtle">{item.sku}</p>
+
+                        {/* The customer's own words about THIS product, in the
+                            cell for that product rather than in the order note
+                            at the bottom of the page.
+
+                            Somewhere a picker will actually read it is the
+                            whole point: an instruction filed against the order
+                            reaches everybody and identifies nothing, and the
+                            person packing line three has no reason to scroll
+                            to a note written about line one. */}
+                        {item.note != null && item.note !== '' && (
+                          <p className="mt-1.5 whitespace-pre-line rounded-md border border-warning/30 bg-warning-soft px-2.5 py-1.5 text-xs leading-relaxed text-ink">
+                            <span className="mr-1 font-semibold uppercase tracking-wide text-warning">
+                              {t('orderDetail.lineInstructions')}
+                            </span>
+                            {item.note}
+                          </p>
+                        )}
                       </td>
                       {/* Both numbers, because they answer two questions.
                           "How many did they order?" is cartons; "how many do

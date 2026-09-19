@@ -420,6 +420,29 @@ export async function appendMessage(
   ]);
 }
 
+/**
+ * How many questions have been ASKED in this conversation.
+ *
+ * Visitor messages only, and that is the point rather than an implementation
+ * detail. `AssistantConversation.messageCount` counts both sides, and halving
+ * it would be wrong in exactly the case that matters: a question the provider
+ * failed on, or one whose answer was abandoned when the tab closed, leaves a
+ * visitor row and no assistant row. Those still cost a question to ask, and a
+ * cap that let them through would be a cap somebody could walk past by closing
+ * the tab mid-answer.
+ *
+ * A `count` rather than a column, because this is asked once per guest message
+ * and never for a signed-in customer - `(conversationId, role)` is the index
+ * the transcript read already uses, so it is one indexed count, and a
+ * denormalised counter would be a second thing to keep in step with the rows
+ * for no measurable gain.
+ */
+export async function visitorMessageCount(conversationId: string): Promise<number> {
+  return prisma.assistantMessage.count({
+    where: { conversationId, role: AssistantMessageRole.VISITOR },
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Admin reads
 // ---------------------------------------------------------------------------

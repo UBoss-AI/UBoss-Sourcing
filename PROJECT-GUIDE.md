@@ -435,6 +435,25 @@ the form on the right at the measure it has always had, and a turning earth on
 the left. Below `lg` the picture is not there at all and the screens are
 exactly what they were.
 
+**From `lg` up the earth does not move, and that took more than `position:
+sticky`.** It was sticky from the start and it still scrolled away, because a
+sticky item holds its place only for as long as its container has room left
+underneath it — the travel it gets is the container's height minus its own. A
+one-viewport globe inside a one-viewport grid has none, so the first pixel of
+scroll moved it. What was making the page scroll at all was the chrome around
+the split: the storefront's header above and its footer below.
+
+So the fix is not a better `position`; it is that the frame stops scrolling.
+Each host pins its signed-out route to exactly one window height, the form
+column takes the scrolling on inside itself — a nine-field create-account form
+still reaches its last field — and the picture simply fills the frame with
+nowhere to travel to. The storefront's footer is rendered and hidden from `lg`
+up on those two routes, because a footer below the fold is the one thing that
+would put the document's scrollbar back.
+
+Below `lg` none of that applies: there is no globe, the page scrolls as it
+always has, and the footer is where it was.
+
 | | Screens that use it |
 |---|---|
 | Storefront | `/login`, `/register` — including the "check your email" screen after a sign-up and the invitation-only page, so posting the form does not change the layout under the reader |
@@ -2325,6 +2344,7 @@ allowed, this is what differs between the two:
 | Conversation history | Listed, renameable, deletable | None — the rail invites them to sign in |
 | Survives a reload | Yes | No, and deliberately |
 | Chat allowance | `ASSISTANT_RATE_LIMIT_PER_5MIN` | `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN`, which is lower |
+| Questions in total | `ASSISTANT_MAX_TURNS` per conversation, and a new one is always available | `ASSISTANT_GUEST_MESSAGE_LIMIT`, five by default, and then a prompt to open an account |
 
 **A guest's token is never persisted, and that is a decision rather than an
 oversight.** Storing it would let a reload resume the conversation — but a
@@ -2344,6 +2364,54 @@ provider budget on a page anybody on the internet can open; the guest rate limit
 bounds that spend rather than removing it, and a default that costs money on
 software somebody else pays to run is the wrong default. An operator who would
 rather let a buyer evaluate the catalogue before opening an account turns it on.
+
+**With guests on, a visitor gets a fixed number of questions and is then asked
+to open an account.** `ASSISTANT_GUEST_MESSAGE_LIMIT` sets it, and it ships at
+five — about the length of a real evaluation: what do you sell, do you have it
+in 316, what is the lead time, can you ship to Rotterdam. It ends where somebody
+has learned enough to want an account rather than before they have learned
+anything, and an operator who would rather be more or less generous moves the
+number or sets `0` to remove the cap.
+
+**It is a different setting from the rate limit, and both are wanted.**
+`ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` is a tap: it bounds how fast one address
+can spend the provider budget, waiting five minutes opens it again, and it is a
+defence against a script. This one is a taste: it bounds how much of the
+assistant somebody gets before being asked for an account, and waiting does not
+give them more. It is a product decision, not a defence.
+
+**And it is honestly a soft gate.** The allowance is counted per guest
+conversation, a conversation lives in one browser tab's `sessionStorage`, and
+somebody who clears it gets a fresh one — exactly like every free-preview wall
+on the web. What actually bounds the operator's bill is the rate limit, which
+is per address and cannot be cleared from a browser. Tying the allowance to the
+address instead was considered and rejected: a procurement office of forty
+people behind one NAT address would get five questions between them, which
+punishes precisely the customer the feature exists to win.
+
+**What the visitor sees.** From the first answer onwards the composer carries
+a quiet line counting down how many free questions are left, so the end is in
+view well before it arrives — a wall somebody hits with no warning reads as the
+thing having broken. When the last
+free answer finishes, a dialog offers **Create an account** and **Sign in**,
+both carrying `state.from` so they land back on `/ai` with the question they
+typed still in the composer. The transcript stays on screen behind it: what
+they already got is theirs to read, and taking it away at the moment of asking
+them to register is the worst possible trade. Dismissing the dialog leaves them
+reading.
+
+The count is the server's on every turn, never decremented in the browser — a
+client counting down on its own disagrees with the server the first time a send
+is retried, and the disagreement always shows up as the wall arriving a question
+early or a question late. The refusal has its own error code,
+`ASSISTANT_GUEST_LIMIT_REACHED`, because the storefront has to tell three cases
+apart: "guests are not allowed here at all" (a 401), "too fast, wait a minute"
+(a 429), and "you have had the free ones" — and only the third is answered by
+opening an account.
+
+A signed-in customer is never subject to it. They are bounded by
+`ASSISTANT_MAX_TURNS` per conversation and by their own rate limit, exactly as
+before, and a new conversation is always available to them.
 
 With it off, a signed-out visitor never reaches a composer at all. The setting
 is published in `/config`, so the page knows before it draws: where the composer
@@ -2641,6 +2709,77 @@ deactivated variant, or not priced in the currency now being browsed, the row
 stays with `isAvailable` false and no price. A saved item that silently
 vanishes is indistinguishable from a bug, and the customer is owed the chance
 to see that the thing they were waiting for has gone.
+
+## What a product card carries, and what it stopped carrying
+
+A card in a grid says what the thing is (name, product code, brand/model/
+sterility), what it costs, and what the rules are — a minimum, an increment,
+whether it is reduced — with the last group fenced off behind a hairline so it
+can be found without being read.
+
+**It no longer carries the prose description.** It used to: two clamped lines of
+`shortDescription` under the product code. On a catalogue whose copy runs to a
+paragraph that made every card in the grid tall enough that four of them filled
+a laptop screen, and a grid is for comparing — comparing needs more cards in
+view, not more prose in each.
+
+Nothing is lost. The name, the code, the brand line and the price are what a
+buyer scans a grid by, and the description in full is one click away on the
+product page, unclamped, where there is room to read it. `ProductRow` — the
+list view — keeps its line, because a row is wide and has the space a card does
+not. The loading skeleton lost the matching bar with it, or the grid would
+settle upwards every time data arrived.
+
+**The photograph on a card is not a separate control.** Pressing it goes to the
+product page like every other part of the card. A full-screen viewer was tried
+there and taken out again: on a grid the picture is the biggest target on the
+card, and pressing it means "show me this product" to everybody who has ever
+used a shop. Intercepting that gesture leaves somebody looking at a photograph
+they cannot buy from, with the one thing they wanted a press away behind a
+dialog. The viewer lives on the product page instead — see below.
+
+## The product page: the photograph, full screen
+
+The gallery has always magnified on hover: the same file again at 2.5x, slid so
+the point under the cursor stays under the cursor. That is the right tool for
+glancing at part of a photograph while the page stays where it is, and the
+wrong tool for what a trade buyer actually does, which is to make a picture as
+large as the screen allows and read a thread size or a moulded part number off
+it.
+
+**So pressing the picture opens it full screen.** A native `<dialog>`, the
+photograph at whatever size fits, and a zoom the viewer controls: buttons,
+the wheel, a double-click, and `+` / `-` / `0` from the keyboard. Dragging
+moves it once it is magnified; the arrow keys pan while zoomed and step between
+the product's photographs while not. Escape closes it, and so does a press
+anywhere outside the picture.
+
+**On quality, which is the thing this was asked for.** Two decisions, and
+neither is a filter. The source is the **original file** — the same URL the page
+shows, with no smaller derivative being blown up — and the zoom is a
+`transform: scale()` on the element rather than a change of width, so the
+picture is resampled once by the GPU at the layer's own resolution instead of
+re-rasterised a little softer at every step. Past the file's own pixel count no
+technique invents detail and this one does not pretend to: it stops at 6x, far
+enough to read a moulded marking off a decent photograph and short of the point
+where somebody concludes the picture is broken. `image-rendering: pixelated` is
+deliberately **not** set — it is what people reach for when they hear "do not
+lose quality" and it does the opposite on photography.
+
+**The backdrop is a pale, translucent grey rather than the near-black a
+lightbox usually gets.** Most of this catalogue is product photography shot on
+white, and a white subject on a near-black ground is a silhouette with a halo:
+the eye reads the edge of the photograph rather than the thing in it, and
+judging a finish or a shade against it is impossible. It is the page's own
+`surface-sunken` token, so it is light grey in the light theme and the dark
+equivalent in the dark one, and every control drawn on top of it is `ink`
+rather than white.
+
+`<dialog>` with `showModal()` is what supplies the focus trap, the top layer,
+the inert page behind and Escape — the four things everybody hand-rolling a
+lightbox gets wrong. No dependency: the behaviour is a scale, a translation and
+four event handlers, and a lightbox package is upwards of 30 kB of somebody
+else's focus management layered over the browser's own.
 
 ## The product page: choosing more than one option
 
@@ -3343,6 +3482,100 @@ changed. The server resolves the fallback the same way on every cart mutation,
 so honouring it in the browser is a courtesy rather than a rule the client gets
 to decide.
 
+## The product page: what one costs, what the lot costs, and what to do with it
+
+Three things sit between the quantity boxes and Add to Basket, and each one
+answers a question buyers ask out loud in front of this panel.
+
+**"What does ONE cost?"** The headline figure is the price of a carton of five
+hundred on the operator's own goods, and a buyer comparing two suppliers is
+comparing the price of a piece. So **Price per piece** is stated in the same
+words on every product, whichever unit it is sold in, and the comparison is
+possible without arithmetic.
+
+**"How many pieces is that?"** Shown only where it is not simply the number
+already in the box above — under a quantity of 1 on something sold one at a
+time it would restate the box, ungrammatically.
+
+**"What is that going to cost me?"** A **Total cost** that moves as the quantity
+does, announced politely so a screen-reader user learns it changed.
+
+That last one needs care, because this page has a standing rule that it holds
+no pricing logic. The rule still holds, and the figure is labelled in a way
+that keeps it true. What the page must never print is something somebody could
+mistake for what they will be **charged**: that needs tax, the coupon, the
+delivery fee, the account's own terms and the order of operations between them,
+there is exactly one implementation of it in this codebase, and a second one
+here would eventually disagree with it. So the line under the figure says, in
+words, that it is **goods only, before tax, delivery and any discount on the
+account, and that the basket works out the final figure.** What it is is the
+catalogue's own per-piece price — which came off the server — multiplied by the
+number of pieces on screen, on `BigInt` minor units like every money path here.
+That is the same arithmetic the "per carton of 500 · ₹12.50 per piece" line
+above it already does, done once more; a buyer typing 40 cartons is doing it on
+a calculator beside the screen and sometimes getting it wrong.
+
+A product priced per account has none of the three. There is no figure to
+multiply, and inventing one would quote something nobody agreed to charge.
+
+### Special instructions, per product rather than per order
+
+Under the quantity boxes there is a **Special instructions** field, optional and
+said so in its label rather than only by the absence of an asterisk.
+
+An order already carries `customerNote`, and that is the right home for
+something about the whole delivery: a gate code, a time window, "call before
+the van arrives". It is the wrong home for something about one product, which is
+what a trade buyer most often needs to say — "the 316 grade, not 304", "match
+the batch on our PO 4471", "engrave both ends", "pack these separately". Written
+into the order note those instructions arrive attached to nothing: on a basket
+of nine lines from four sellers, a note saying "the blue one" reaches every
+seller and identifies none of them, and the person picking line three has no
+reason to read something filed against line one.
+
+So it travels on the **line**:
+
+| Where | What holds it |
+|---|---|
+| Basket | `cart_items.note`, editable until the order is placed |
+| Order | `order_items.noteSnapshot`, frozen at checkout |
+
+**A snapshot, like everything else on an order line.** The basket is emptied the
+moment the order commits, so words that were not copied across would be gone —
+and the words on an order are the ones that were agreed to, not the ones that
+might be edited later.
+
+**One box for the whole add, even when several options are being added at
+once.** A hospital buying 3 ml and 5 ml of the same syringe is placing one
+instruction about one product; asking them to type it twice into two identical
+boxes is how one of the two ends up blank. The server puts the same words on
+each line the add writes.
+
+**Re-adding a SKU with no instruction does not wipe one that is there.** That is
+what a reorder, a saved list and the assistant all look like, and last-one-wins
+would erase what the buyer typed a minute earlier. Re-adding it **with** one
+does replace it, or typing something on the product page and pressing Add would
+silently do nothing.
+
+**In the basket it is collapsed until it is wanted.** A line with nothing on it
+offers a quiet "Add instructions"; a line with something on it shows the words,
+because an instruction the buyer cannot see on the basket is one they cannot
+check before agreeing to the order. Editing opens a box holding a draft —
+nothing is sent while somebody is typing, nothing is saved by wandering off, and
+a failed save leaves the words exactly where they are. `null` clears it, and an
+empty or blank string means the same thing, so "no instruction" has exactly one
+representation in the database.
+
+It is then shown at the checkout review, on the customer's own order, on the
+admin order detail beside the line it is about, and on the seller's "what to
+send" panel — drawn there as a warning rather than as quiet grey, because it is
+the one thing on that screen that changes what goes in the box.
+
+It never changes a figure. An instruction is something to be done, not something
+that alters what is charged, and `PATCH /cart/items/:id/note` answers with the
+whole repriced cart only because every mutation in that file does — the shape is
+the contract the storefront's cache is written from.
+
 ## The cart: Instant Buy and Schedule Cart
 
 The cart opens with two tabs above the heading, and they are the only two
@@ -3675,6 +3908,90 @@ a single number, and a required field a Spanish seller cannot fill in is a
 seller who can never finish the application. An answer in the wrong format is
 reported as a step still outstanding, naming the field — it is never refused at
 save, so nobody loses what they typed while they go and find the right number.
+
+### The registered address is six fields, not one box
+
+Business identity used to ask for a "Registered address" in a single text box
+and write whatever was typed into `registeredAddressLine1`. The columns for the
+rest — line 2, city, region, postcode, country — have existed in
+`seller_business_profiles` since the table did, and every one of them was null
+on every row, because nothing ever asked.
+
+That was not cosmetic. A registered address is the address on an invoice and on
+a tax registration, and three things downstream need its **parts** rather than
+its prose: the country decides which registrations the seller is asked for at
+all (`SellerOnboardingRequirement` is keyed by it), the postcode is what a
+reviewer checks a certificate against, and the region is what several tax
+authorities key a rate on. A single string cannot be split back into those
+reliably — that is the whole lesson of address parsing — so the parts are asked
+for separately and the one-line version is composed **from** them rather than
+the other way round.
+
+| Field | Required | Control |
+|---|---|---|
+| Address line 1 | Yes | Text, full width |
+| Address line 2 | **No** | Text, full width |
+| City / district | Yes | Text |
+| State / province / region | Yes | Picker or text — see below |
+| PIN / ZIP / postal code | Yes | Text, country-aware |
+| Country | Yes | Searchable combobox |
+
+**The country stores a code and shows a name.** "India" on screen, `IN` in the
+column — never a position in the list, which would point at a different country
+the first time an operator reordered the table. The list itself is the
+deployment's own `countries` table, arriving through `LocaleProvider`, the same
+list the storefront's market picker and the seller application already use;
+bundling 249 countries into the page would be a second list that could only ever
+disagree with the one the rest of the system enforces against. It is a real
+combobox: type to search by name, arrow keys to move, Enter to choose, Escape to
+cancel the search without clearing the answer.
+
+**The region is a picker where the country has a list people actually write
+down, and a text box everywhere else.** India (28 states and 8 union
+territories), the United States, Canada and Australia have one. Most of Europe
+does not, and that is correct rather than a gap: a Dutch business address
+carries a postcode and a city and no province anybody writes on an invoice, so a
+picker would force an answer to a question nobody asked. Where there is a list,
+both the name and the code are kept — stored as `"Gujarat (GJ)"`, which is
+readable on its own in an admin screen, a CSV export or a database session, and
+from which the code is recoverable exactly. A code is stable where a name is
+not: Orissa became Odisha without the place moving.
+
+**Changing the country never silently submits an incompatible region.** The old
+value stays on screen — wiping it is how somebody loses what they typed and only
+notices after saving — and a message under the field says in words that it does
+not belong to the country now chosen, with a one-press way to clear it. It
+cannot be saved as it stands either, because the validation objects.
+
+**The postal code is a string, and the validation is country-aware.** It is
+stored trimmed and otherwise exactly as typed: never upper-cased, never stripped
+of its spaces or hyphens, and above all never turned into a number — `01234` is
+a real ZIP in Massachusetts and `1234` is somewhere else entirely. India is held
+to six digits and told so with an example; the United States to five or ZIP+4;
+around two dozen other countries to their own formats. **A country with no rule
+is checked for shape only** — letters, digits, spaces and hyphens — and that is
+the honest answer rather than a gap. There are around 200 postal systems,
+several countries have no postal code at all, and applying India's six digits or
+America's five globally makes the field unfillable for most of the world, with
+the seller it blocks having no way to find out why.
+
+**Everything above is enforced again on the server**, because a form that asks
+six questions is a form somebody will bypass — with curl, with a stale bundle,
+or with an integration that predates the change. The country has to be one this
+deployment's `countries` table knows (`.length(2)` is not a check: "XX" passes
+it), the postcode is checked against the country the profile will have **after**
+the patch rather than the one in it, and a refusal happens before the write so a
+bad address leaves the stored one untouched.
+
+**An address entered before any of this existed is never destroyed.** A row with
+line 1 filled in and the other five null is the shape the old single box wrote.
+Nothing is parsed out of it — guessing which word is the state is how a business
+ends up approved against the wrong jurisdiction — so the prose is shown back
+exactly as it was stored, the seller is asked to fill in the parts, and what
+they type is what is kept. The admin panel says the same thing on its side, so a
+reviewer knows why there is no country to check a certificate against. A save
+that does not mention the address leaves it alone, so entering a tax number
+cannot blank it.
 
 **Payout is deliberately not required to submit**, because a seller must never
 be blocked on the operator not having configured a payment provider.
@@ -6704,6 +7021,15 @@ configuration that means nothing once its warehouse is gone.
 `order_approvals`, `idempotency_records`, `coupons`, `coupon_redemptions`,
 `customer_limits`
 
+`cart_items.note` and `order_items.noteSnapshot` are the buyer's special
+instruction for **one product** — 500 characters, nullable, null meaning "no
+instruction was given", which is true of every line placed before the columns
+existed. They are a pair for the same reason every other field on an order line
+is: the basket is emptied the moment the order commits, so the words have to be
+frozen or they are gone. `orders.customerNote` stays where it was and stays
+`TEXT`; it is about the whole delivery and sometimes runs to a paragraph. See
+*The product page* in section 4 for why one is not a substitute for the other.
+
 **Money**
 `payment_provider_connections`, `payment_transactions`, `payment_events`,
 `payment_links`, `refunds`, `invoices`, `vat_rates`, `vat_number_checks`
@@ -7063,6 +7389,7 @@ bounds that; it does not remove it. Three things bound it:
 |---|---|
 | `ASSISTANT_ALLOW_GUESTS` | Off, and the two open routes answer a guest 401 again |
 | `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` | The guest allowance per IP. Lower than the signed-in one |
+| `ASSISTANT_GUEST_MESSAGE_LIMIT` | How many questions a guest gets in total before the storefront asks for an account. A product decision, not a defence — see *AI Mode* in section 4 for why both settings exist |
 | The fixed parameters | The control that matters most. The body cannot name a model, a system prompt or a token budget, which is what stops the endpoint being driven as a relay to somebody else's AI bill |
 
 The rate-limit hook runs before the route's guard, so the allowance is chosen
@@ -7128,7 +7455,7 @@ read uses. The prompt says, in as many words, that anything absent from the
 snapshot does not exist here — so a product code the model has never seen is
 one it must decline rather than invent.
 
-Three things the snapshot says that a list of products on its own does not:
+Four things the snapshot says that a list of products on its own does not:
 
   - **What kind of shop this is.** It opens with an index of every category
     that has something on sale in it, with a count. That index is the only
@@ -7145,6 +7472,35 @@ Three things the snapshot says that a list of products on its own does not:
   - **What is not for sale.** A product priced on request quotes no price and
     points at the support contact. A marketplace product whose sellers have all
     paused says so, instead of quoting a price nobody will honour.
+  - **How buying here actually works.** "Who am I buying from?", "what is your
+    VAT number for our accounts payable?", "do you ship to Rotterdam?", "what
+    does delivery cost?" and "can I be invoiced in euros?" are asked at least as
+    often as anything about a SKU, and until this block existed the assistant
+    had no grounding for any of them — so it either declined, or answered from
+    general knowledge about shops, which on a question of fact is the same thing
+    as inventing an answer. It now carries the trading entity's own details
+    (legal name, registered address, VAT number, GSTIN, time zone, support
+    contacts and the published policy links), the delivery options offered at
+    checkout with their prices and free-above thresholds, the countries this
+    deployment serves and what a buyer in each is quoted in, and every currency
+    a price can be held in.
+
+    All of it is assembled from **the tables that already decide those
+    answers** — `business_profile`, `shipping_methods`, `countries`,
+    `currencies` — rather than from a page somebody has to remember to keep
+    current. That is the difference between a grounded answer and a stale one:
+    switch the Netherlands off in the admin panel and the assistant stops
+    offering it within the snapshot's lifetime, because the row it was reading
+    is gone. A hand-written FAQ saying "we deliver to the Netherlands" outlives
+    the day somebody switches the Netherlands off, and an assistant quoting it
+    is confidently wrong.
+
+    **A detail the operator has not filled in is absent from the prompt, not
+    printed empty.** No "VAT NUMBER: not set". A model that reads that line has
+    been told there is one to find, and will helpfully offer to find it, guess
+    at its format, or reassure a buyer that one exists. A model that never sees
+    the line answers the question it was asked: the store has not published one,
+    here is the support address.
 
 **The snapshot is held against the catalogue, not against a clock.** It is
 cached, and the cache is keyed on a *stamp* — counts and `MAX(updatedAt)` over
@@ -7173,6 +7529,16 @@ for every customer.
 degradation rather than a missing feature: a visitor with no account has no
 name, organisation or account number for it to be right about, and putting a
 box on screen to type one into is the capture form all over again.
+
+The prompt's own instruction about this was written when everybody was signed
+in and said so — "everybody you talk to is signed in". It now says what is true
+for both: never ask who they are, never ask for a name, an email address, a
+phone number, an organisation or an account number; where the person is signed
+in everything that could change an answer is already given, and where they are
+not, nothing about them changes the answer to a question about this catalogue.
+Where somebody has to open an account to do the thing they are asking about, the
+assistant says so in a few words and lets them decide rather than taking the
+details itself.
 
 **Nothing sensitive is logged.** The conversation id, the model and the token
 counts go to the log. The question, the reply and the customer's details do

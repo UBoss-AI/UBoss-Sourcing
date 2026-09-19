@@ -2820,5 +2820,6 @@
   "variantMatrix.couldNotSaveAxes": "Deze kenmerken konden niet worden opgeslagen.",
   "variantMatrix.couldNotPreview": "De tabel kon niet worden berekend.",
   "variantMatrix.couldNotGenerate": "De varianten konden niet worden aangemaakt.",
-  "variantMatrix.created": "{{created}} aangemaakt, {{skipped}} bestonden al."
+  "variantMatrix.created": "{{created}} aangemaakt, {{skipped}} bestonden al.",
+  "orderDetail.lineInstructions": "Instructies:"
 }

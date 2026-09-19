@@ -934,6 +934,7 @@ export const CartItemScalarFieldEnum = {
   orderingUnit: 'orderingUnit',
   unitQuantity: 'unitQuantity',
   piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
+  note: 'note',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1006,6 +1007,7 @@ export const OrderItemScalarFieldEnum = {
   orderingUnit: 'orderingUnit',
   unitQuantity: 'unitQuantity',
   piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
+  noteSnapshot: 'noteSnapshot',
   lineSubtotalMinor: 'lineSubtotalMinor',
   taxRatePercent: 'taxRatePercent',
   taxInclusive: 'taxInclusive',
@@ -4506,7 +4508,8 @@ export const CartItemOrderByRelevanceFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   sellerOfferId: 'sellerOfferId',
-  sellerOfferKey: 'sellerOfferKey'
+  sellerOfferKey: 'sellerOfferKey',
+  note: 'note'
 } as const
 
 export type CartItemOrderByRelevanceFieldEnum = (typeof CartItemOrderByRelevanceFieldEnum)[keyof typeof CartItemOrderByRelevanceFieldEnum]
@@ -4547,7 +4550,8 @@ export const OrderItemOrderByRelevanceFieldEnum = {
   skuSnapshot: 'skuSnapshot',
   variantNameSnapshot: 'variantNameSnapshot',
   taxClassCodeSnapshot: 'taxClassCodeSnapshot',
-  imageUrlSnapshot: 'imageUrlSnapshot'
+  imageUrlSnapshot: 'imageUrlSnapshot',
+  noteSnapshot: 'noteSnapshot'
 } as const
 
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]

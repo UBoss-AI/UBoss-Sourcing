@@ -177,6 +177,28 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-ink">{line.productName}</p>
                   <p className="mt-0.5 text-xxs text-ink-subtle">{line.sellerSku}</p>
+
+                  {/* The buyer's own words about this line, on the panel
+                      headed "what to send".
+
+                      It is drawn as a warning rather than as quiet grey, and
+                      that is deliberate: this is the one thing on the screen
+                      that changes what goes in the box, and a seller who packs
+                      an order without reading it has shipped the wrong thing.
+                      Grey is for context; this is an instruction. */}
+                  {line.note != null && line.note !== '' && (
+                    <div className="mt-2 rounded-md border border-warning/30 bg-warning-soft px-3 py-2">
+                      <p className="text-xxs font-semibold uppercase tracking-wide text-warning">
+                        {t('seller.orderDetail.buyerInstructions')}
+                      </p>
+                      {/* Three lines typed are three lines meant, and an
+                          instruction run together into one paragraph is one a
+                          packer misreads. */}
+                      <p className="mt-0.5 whitespace-pre-line text-xs leading-relaxed text-ink">
+                        {line.note}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-ink">
