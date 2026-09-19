@@ -60,7 +60,7 @@
 # ride along. A `301` would send the browser to the other host and lose them.
 [[redirects]]
   from = "/api/*"
-  to = "https://refold-barley-playing.ngrok-free.dev/api/:splat"
+  to = "https://ireland-limitation-completing-news.trycloudflare.com/api/:splat"
   status = 200
   force = true
 

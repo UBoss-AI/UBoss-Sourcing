@@ -41,7 +41,7 @@
 # them.
 [[redirects]]
   from = "/api/*"
-  to = "https://refold-barley-playing.ngrok-free.dev/api/:splat"
+  to = "https://ireland-limitation-completing-news.trycloudflare.com/api/:splat"
   status = 200
   force = true
 
@@ -49,7 +49,7 @@
 # (STORAGE_DRIVER=local serves them from /media).
 [[redirects]]
   from = "/media/*"
-  to = "https://refold-barley-playing.ngrok-free.dev/media/:splat"
+  to = "https://ireland-limitation-completing-news.trycloudflare.com/media/:splat"
   status = 200
   force = true
 
