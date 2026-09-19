@@ -45,11 +45,25 @@ export default defineConfig(({ mode }) => {
   // check exactly at its default.
   const tunnelHost = loadEnv(mode, process.cwd(), '').TUNNEL_HOST?.trim();
 
+  // The path this build is served under, when something other than "/".
+  //
+  // A demonstration deployment puts all three applications on ONE hostname -
+  // the storefront at the root, the console under /admin/, the carrier portal
+  // under /logistics/ - because a free static host gives out one site per
+  // deploy, and three addresses is three things for somebody evaluating the
+  // software to keep hold of. `scripts/build-netlify-combined.mjs` sets this
+  // for each application in turn and merges the three builds into one folder.
+  //
+  // Unset in every other build, which is why the expression below falls back
+  // to exactly what it did before. A trailing slash matters: Vite joins this
+  // to every asset path as written.
+  const basePath = process.env.VITE_BASE_PATH?.trim();
+
   return {
     // Under a tunnel the storefront owns the hostname root and proxies
     // /logistics here, so every asset URL this app emits has to carry that
     // prefix. The router reads the same value back as its basename.
-    base: throughTunnel ? '/logistics/' : '/',
+    base: basePath === undefined || basePath.length === 0 ? (throughTunnel ? '/logistics/' : '/') : basePath,
     plugins: [react()],
 
     resolve: {

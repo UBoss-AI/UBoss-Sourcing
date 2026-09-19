@@ -50,7 +50,23 @@ export default defineConfig(({ mode }) => {
   // check exactly at its default.
   const tunnelHost = loadEnv(mode, process.cwd(), '').TUNNEL_HOST?.trim();
 
+  // The path this build is served under, when something other than "/".
+  //
+  // A demonstration deployment puts all three applications on ONE hostname -
+  // the storefront at the root, the console under /admin/, the carrier portal
+  // under /logistics/ - because a free static host gives out one site per
+  // deploy, and three addresses is three things for somebody evaluating the
+  // software to keep hold of. `scripts/build-netlify-combined.mjs` sets this
+  // for each application in turn and merges the three builds into one folder.
+  //
+  // Unset in every other build, which is why the expression below falls back
+  // to exactly what it did before. A trailing slash matters: Vite joins this
+  // to every asset path as written.
+  const basePath = process.env.VITE_BASE_PATH?.trim();
+
   return {
+    // The storefront owns the root, so this is "/" unless told otherwise.
+    base: basePath === undefined || basePath.length === 0 ? '/' : basePath,
     plugins: [react()],
     /*
      * MapLibre is served from its own package, never pre-bundled.

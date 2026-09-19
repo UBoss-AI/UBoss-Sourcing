@@ -1,0 +1,132 @@
+# =============================================================================
+# Netlify - all three front ends on ONE site
+#
+# Copied to the root of `output/netlify-site` by
+# `scripts/build-netlify-combined.mjs`. It is NOT one of the three netlify.toml
+# files the applications own: those describe the arrangement a real
+# installation uses, where each application is a site with a hostname of its
+# own. This describes the demonstration arrangement, where all three share one.
+#
+# There is deliberately no [build] section. The site is published from a folder
+# of already-built files; a build command here would make Netlify try to build
+# the publish directory, which holds no source, and fail the deploy with
+# `exit code 254`.
+#
+# ONE THING TO CHANGE: the API's URL, in the two [[redirects]] blocks below.
+#
+# WHAT THIS IS NOT
+#
+# It is not how the console or the carrier portal should be served to real
+# users. The console is the screen where prices, orders and refunds are
+# changed, and the portal is signed into by people outside the operator's
+# company; both being a path on the shop's own hostname is a convenience for
+# showing the system to somebody, and nothing more. See the header of
+# apps/admin-web/netlify.toml.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Redirects. ORDER MATTERS: Netlify takes the FIRST rule that matches.
+#
+# The reading order here is the whole design. The API proxies come first
+# because /api must never be answered by a single-page-application fallback.
+# Then one fallback per application, most specific first, because /admin/orders
+# is a client-side route of the console and must reach the CONSOLE's index.html
+# - reaching the storefront's would render the shop under the console's
+# address. The storefront's catch-all is last, as the least specific.
+# -----------------------------------------------------------------------------
+
+# The API. `200` is a proxy rather than a redirect: the browser never learns the
+# API's hostname, so the request stays same-origin and the session and CSRF
+# cookies ride along. A `301` would send the browser to the other host and lose
+# them.
+[[redirects]]
+  from = "/api/*"
+  to = "https://refold-barley-playing.ngrok-free.dev/api/:splat"
+  status = 200
+  force = true
+
+# Uploaded product images, when the API stores files itself
+# (STORAGE_DRIVER=local serves them from /media).
+[[redirects]]
+  from = "/media/*"
+  to = "https://refold-barley-playing.ngrok-free.dev/media/:splat"
+  status = 200
+  force = true
+
+# The console's client-side routes. Without this, a reload on /admin/orders is
+# Netlify's 404 - the page only ever worked because you navigated to it.
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+# The carrier portal's, the same way.
+[[redirects]]
+  from = "/logistics/*"
+  to = "/logistics/index.html"
+  status = 200
+
+# The storefront, last, catching everything else.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# -----------------------------------------------------------------------------
+# Headers. These mirror deploy/nginx/snippets/uboss-security-headers.conf, which
+# is what an installation on its own server gets.
+# -----------------------------------------------------------------------------
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # camera and microphone are `self`, not denied: image search and voice
+    # search ask the browser for exactly those two.
+    Permissions-Policy = "geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
+
+    # REPORT-ONLY, exactly as the nginx snippet ships it. A CSP one directive
+    # short does not degrade - it blanks the page, in production only. This one
+    # is the union of what the three applications need, because they now share
+    # an origin and therefore share a policy: the storefront's payment origins
+    # and the console's map hosts are both here.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob: https://*.stripe.com https://tiles.openfreemap.org https://tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://api.stripe.com https://*.js.stripe.com https://tiles.openfreemap.org; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.razorpay.com https://api.razorpay.com; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+
+# Vite fingerprints everything in an assets folder, so a file at a given URL
+# never changes its contents. Each application has its own.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/admin/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/logistics/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The three index.html files are NOT fingerprinted - each names which
+# fingerprinted bundle to load. Cached, they keep pointing at the previous
+# deploy's files, which no longer exist: a blank page after a release that
+# clears itself only when somebody hard-refreshes.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/admin/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/logistics/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

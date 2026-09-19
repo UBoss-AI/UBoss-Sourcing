@@ -184,6 +184,57 @@ cd backend ; npm run db:rotate-seed-passwords
 
 ---
 
+## Route C — all three on ONE site, under three paths
+
+For showing the whole system to somebody who is evaluating it, where three
+addresses is three things for them to keep hold of and one link is one.
+
+| Path | Application |
+|---|---|
+| `/` | Storefront |
+| `/admin/` | Admin console |
+| `/logistics/` | Logistics portal |
+
+```powershell
+node scripts/build-netlify-combined.mjs
+```
+
+It builds each application with `VITE_BASE_PATH` set to its path — Vite bakes
+the base into every asset URL, so an application served under `/admin/` has to
+be **built** knowing that; a build made for `/` and copied into an `admin`
+folder loads its HTML and then fetches its JavaScript from the storefront —
+then merges the three into `output/netlify-site` with
+`deploy/netlify-combined.toml` as the site's `netlify.toml`.
+
+On a repository-connected site:
+
+| Setting | Value |
+|---|---|
+| Base directory | *(empty — the repository root)* |
+| Build command | `node scripts/build-netlify-combined.mjs` |
+| Publish directory | `output/netlify-site` |
+
+Demo sign-ins are **three** variables here rather than one, because the three
+applications now share a site and therefore share its environment. The build
+hands each one its own list:
+
+```
+VITE_DEMO_LOGINS_CUSTOMER
+VITE_DEMO_LOGINS_ADMIN
+VITE_DEMO_LOGINS_LOGISTICS
+```
+
+Each holds the same JSON array `VITE_DEMO_LOGINS` takes. List only the
+accounts that site can sign in: the API scopes a session to an audience, so a
+console account typed into the storefront is refused.
+
+**This is a demonstration arrangement and nothing else.** The console is the
+screen where prices, orders and refunds are changed, and the carrier portal is
+signed into by people outside the operator's company. A real installation
+gives each of the three a hostname of its own — Route A — and the netlify.toml
+inside each application is what describes that.
+
+---
 ## Route B — drag a zip in (what to use to show somebody today)
 
 No repository access needed, nothing to connect, and it deploys in about a
