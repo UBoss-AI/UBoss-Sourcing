@@ -347,6 +347,38 @@ describe('orders and fulfilment', () => {
 });
 
 describe('payments report', () => {
+  /**
+   * A moment comfortably inside the default window, and comfortably behind it.
+   *
+   * ## Why this is pinned rather than left to the database
+   *
+   * `paymentsReport` filters `createdAt: { gte: window.from, lt: window.to }`,
+   * and `WINDOW()` resolves `to` to `new Date()` — read from NODE's clock, in
+   * this process, after the rows have already been written with a `createdAt`
+   * that came from MARIADB's clock, in another container.
+   *
+   * Two clocks, an exclusive upper bound, and no gap between the write and the
+   * read. If the database is level with the runner or a millisecond ahead, the
+   * rows land at or after `window.to`, `lt` excludes them, and the report sums
+   * to zero. That is exactly what CI hit: `expected '0' to be '100000'`, on a
+   * commit that changed two markdown files and nothing else.
+   *
+   * It passes on a development machine almost every time, which is the worst
+   * property a test like this can have — the failure is real, it is a race,
+   * and it surfaces on the fast machine rather than the slow one.
+   *
+   * A minute is far more than any plausible skew between two containers on one
+   * host, and far inside the 30-day window `resolveWindow` defaults to. The
+   * rest of this file already pins timestamps this way where the assertion
+   * depends on them; this test was the one that did not.
+   *
+   * The service is deliberately NOT changed. A half-open interval up to "now"
+   * is the right shape for a report, and a payment captured in the current
+   * millisecond being counted in the next refresh instead of this one is not a
+   * defect worth redefining the window for.
+   */
+  const INSIDE_WINDOW = new Date(Date.now() - 60_000);
+
   it('separates captured from failed', async () => {
     const orderId = await makeOrder({ status: 'CONFIRMED', grandTotalMinor: 100_000n });
     const connectionId = newId();
@@ -375,6 +407,7 @@ describe('payments report', () => {
           capturedMinor: 100_000n,
           currency: 'INR',
           idempotencyKey: newId(),
+          createdAt: INSIDE_WINDOW,
         },
         {
           id: newId(),
@@ -386,6 +419,7 @@ describe('payments report', () => {
           amountMinor: 40_000n,
           currency: 'INR',
           idempotencyKey: newId(),
+          createdAt: INSIDE_WINDOW,
         },
       ],
     });
@@ -407,6 +441,11 @@ describe('payments report', () => {
         rawPayload: '{}',
         processingStatus: 'REJECTED',
         processingError: 'amount mismatch',
+        // Pinned for the same reason as above, against `receivedAt` — which is
+        // the column `paymentsReport` puts this row's window filter on. This
+        // one had not flaked yet; it is the same race, one column along, and
+        // leaving it would be leaving a landmine with a longer fuse.
+        receivedAt: INSIDE_WINDOW,
       },
     });
 
