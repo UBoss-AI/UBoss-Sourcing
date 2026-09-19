@@ -35,6 +35,8 @@
   "auth.signIn": "Inloggen",
   "auth.email": "Zakelijk e-mailadres",
   "auth.password": "Wachtwoord",
+  "auth.demo.title": "Demo-accounts",
+  "auth.demo.intro": "Dit is een demosite. Meld u aan met een van de onderstaande accounts.",
   "auth.signingIn": "Bezig met inloggen",
   "auth.heading": "Log in op het logistiekportaal",
   "auth.subheading": "Gebruik het account waarmee de marktplaats u heeft uitgenodigd.",

@@ -8,6 +8,8 @@
   "common.search": "Search",
   "common.emailAddress": "Email address",
   "common.password": "Password",
+  "auth.demo.title": "Demo sign-ins",
+  "auth.demo.intro": "This is a demonstration site. Sign in with any of the accounts below.",
   "common.problem": "There is a problem",
   "common.somethingWentWrong": "Something went wrong",
   "addressSuggest.hint": "Start typing and choose the address from the list — that is what puts it on the map.",

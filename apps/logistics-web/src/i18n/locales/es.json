@@ -35,6 +35,8 @@
   "auth.signIn": "Iniciar sesión",
   "auth.email": "Correo electrónico de trabajo",
   "auth.password": "Contraseña",
+  "auth.demo.title": "Accesos de demostración",
+  "auth.demo.intro": "Este es un sitio de demostración. Inicie sesión con cualquiera de las cuentas siguientes.",
   "auth.signingIn": "Iniciando sesión",
   "auth.heading": "Inicie sesión en el portal de logística",
   "auth.subheading": "Use la cuenta con la que el marketplace le invitó.",

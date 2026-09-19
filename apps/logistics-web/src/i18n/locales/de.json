@@ -35,6 +35,8 @@
   "auth.signIn": "Anmelden",
   "auth.email": "Geschäftliche E-Mail-Adresse",
   "auth.password": "Passwort",
+  "auth.demo.title": "Demo-Zugänge",
+  "auth.demo.intro": "Dies ist eine Demo-Website. Melden Sie sich mit einem der unten stehenden Konten an.",
   "auth.signingIn": "Anmeldung läuft",
   "auth.heading": "Beim Logistikportal anmelden",
   "auth.subheading": "Verwenden Sie das Konto, mit dem der Marktplatz Sie eingeladen hat.",

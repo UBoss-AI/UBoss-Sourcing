@@ -34,6 +34,7 @@ import { ApiError, NetworkError } from '@/lib/api';
 import { useFocusOnMount } from '@/lib/use-focus-on-mount';
 import { Button, Callout, Field, Spinner } from '@/components/ui';
 import { AuthDivider, BottomGradient, GRADIENT_CTA, GlowInput } from '@/components/ui/auth-form';
+import { DemoLoginPanel } from '@/components/DemoLoginPanel';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import { useSession } from '@/auth/session-context';
@@ -238,6 +239,10 @@ export function LoginPage(): React.JSX.Element {
       <AuthDivider className="my-6" />
 
       <p className="text-center text-xs text-ink-subtle">{t('auth.noSelfSignup')}</p>
+
+      {/* Renders nothing unless this build was given demo accounts, which is
+          every build except a demonstration one. */}
+      <DemoLoginPanel emailLabel={t('auth.email')} passwordLabel={t('auth.password')} />
     </AuthLayout>
   );
 }

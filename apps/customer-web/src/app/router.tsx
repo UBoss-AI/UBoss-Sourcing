@@ -475,6 +475,26 @@ export const router = createBrowserRouter([
         ),
       },
       /*
+       * Editing one listing.
+       *
+       * Declared BEFORE `listings/:id` for the same reason `listings/new`
+       * comes before both: React Router matches in order, and a screen whose
+       * path is a suffix of another's has to be stated first or it is never
+       * reached.
+       *
+       * Its own route rather than a mode on the detail screen because the two
+       * are different errands and one of them can be left half-finished: a
+       * seller re-pricing forty rows has unsaved work, and unsaved work needs
+       * a URL of its own so that leaving it can be a navigation the page is
+       * allowed to interrupt.
+       */
+      {
+        path: 'listings/:id/edit',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerListingEditPage').then((m) => m.SellerListingEditPage),
+        ),
+      },
+      /*
        * One listing, and the versions it sells in.
        *
        * Used to render the listings table again, so "Edit" on a live listing

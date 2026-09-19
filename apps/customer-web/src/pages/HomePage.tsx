@@ -46,6 +46,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
+import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { FlipWords } from '@/components/ui/flip-words';
@@ -426,6 +427,22 @@ export function HomePage(): React.JSX.Element {
       <Greeting />
 
       <CategoryStrip />
+
+      {/*
+        Curated shelves, between the department rail and the full catalogue.
+
+        The rail above is a table of contents and the list below is a list;
+        neither shows a first-time visitor what this catalogue actually sells.
+        These do: four groups of departments and the newest lines, six cards
+        each, so somebody landing here sees office supplies, industrial
+        tooling, technology and consumer goods in one screenful.
+
+        Every shelf is a real category read and disappears entirely when it has
+        nothing to show, so a deployment with one department published looks
+        deliberate rather than broken. See `components/home/collections.ts` for
+        why none of these headings claims popularity.
+      */}
+      <CollectionShelves />
 
       <InlineProducts />
     </>

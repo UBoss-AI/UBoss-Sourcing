@@ -48,6 +48,14 @@ import {
   updateOfferPrice,
 } from '../../modules/seller/offer.service.js';
 import {
+  addListingPhoto,
+  pauseForEdit,
+  readListingForEdit,
+  removeListingPhoto,
+  saveListingEdit,
+  setPrimaryListingPhoto,
+} from '../../modules/seller/offer-edit.service.js';
+import {
   addOfferVariants,
   previewOfferVariants,
   readOfferVariants,
@@ -160,6 +168,23 @@ const variantRowsSchema = z
         .max(50)
         .default([]),
       mediaId: z.string().length(26).nullable().optional(),
+    }),
+  )
+  .max(500);
+
+/**
+ * The same rows, coming back from the EDIT form rather than the wizard.
+ *
+ * The one addition is `offerId`, and it is a hint rather than an instruction:
+ * the server matches combinations by their option signature, and the id only
+ * settles the case where a seller corrected a spelling and the signature
+ * therefore moved. An id belonging to another seller resolves to nothing and
+ * the row is treated as new, which is the safe reading.
+ */
+const editRowsSchema = z
+  .array(
+    variantRowsSchema.element.extend({
+      offerId: z.string().length(26).nullable().optional(),
     }),
   )
   .max(500);
@@ -353,6 +378,175 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
       });
 
       return reply.status(201).send(result);
+    },
+  );
+
+  /*
+   * Editing a listing that already exists.
+   *
+   * Three routes rather than one, because they are three different decisions
+   * and two of them change what a buyer can see:
+   *
+   *   - GET  .../edit            fills the form in. Read-only.
+   *   - POST .../pause-for-edit  takes it off sale so the structure can move.
+   *   - PATCH .../edit           applies the change, and says how it ends.
+   *
+   * The seller can reach the form without pausing - prices, stock and terms
+   * are routine changes a live listing absorbs - and the PATCH refuses the
+   * structural half of the payload if the listing is still on sale. That
+   * refusal lives in the service, beside the rule, rather than being
+   * approximated here by a guard on the route.
+   */
+  app.get('/listings/:id/edit', async (request, reply) => {
+    const params = idParam.parse(request.params);
+    const view = await readListingForEdit(currentSeller(request), params.id);
+    return reply.header('cache-control', 'no-store').status(200).send(view);
+  });
+
+  app.post(
+    '/listings/:id/pause-for-edit',
+    { preHandler: requireSeller(SellerPermission.OFFER_PUBLISH) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+
+      const result = await pauseForEdit(
+        currentSeller(request),
+        params.id,
+        request.correlationId,
+      );
+
+      return reply.status(200).send(result);
+    },
+  );
+
+  app.patch(
+    '/listings/:id/edit',
+    {
+      preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE),
+      config: { rateLimit: { max: 120, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          /** The version the form was built from. Required - see the service. */
+          expectedVersion: z.number().int().min(0),
+          terms: draftOfferSchema
+            .omit({ currency: true, orderingUnit: true })
+            .nullable()
+            .optional(),
+          axes: variantAxesSchema.nullable().optional(),
+          rows: editRowsSchema.nullable().optional(),
+          /** Save and leave it off sale, or save and put it back on. */
+          finish: z.enum(['PAUSED', 'ACTIVE']),
+        })
+        .parse(request.body);
+
+      const result = await saveListingEdit({
+        membership: currentSeller(request),
+        offerId: params.id,
+        expectedVersion: body.expectedVersion,
+        terms: body.terms ?? null,
+        axes: body.axes ?? null,
+        rows: body.rows ?? null,
+        finish: body.finish,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send(result);
+    },
+  );
+
+  /*
+   * The photographs on a listing the seller is editing.
+   *
+   * Against the PRODUCT rather than the offer, because that is where a
+   * photograph lives - a picture of a pump is a picture of a pump whoever is
+   * selling it. Which is exactly why the service refuses a seller who merely
+   * matched their stock to somebody else's catalogue entry: they would be
+   * changing what two other sellers are showing.
+   *
+   * Rate-limited by attempt rather than by byte. A seller uploading eight
+   * angles of one instrument is doing the right thing; a stuck retry loop is
+   * what the ceiling is for.
+   */
+  app.post(
+    '/listings/:id/photos',
+    {
+      preHandler: requireTradingSeller(SellerPermission.MEDIA_UPLOAD),
+      config: { rateLimit: { max: 120, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const upload = await request.file({ limits: { fileSize: env.UPLOAD_MAX_BYTES } });
+
+      if (upload === undefined) {
+        return reply.status(400).send({
+          error: { code: 'VALIDATION_FAILED', message: 'No file was attached.' },
+        });
+      }
+
+      // Read once, into memory. A product photograph is bounded by the limit
+      // above, and streaming to disk first would buy nothing but a temporary
+      // file to clean up.
+      const buffer = await upload.toBuffer();
+
+      const fields = upload.fields as Record<string, { value?: unknown } | undefined>;
+      const altText = typeof fields['altText']?.value === 'string' ? fields['altText'].value : null;
+
+      const photo = await addListingPhoto({
+        membership: currentSeller(request),
+        offerId: params.id,
+        buffer,
+        originalFileName: upload.filename,
+        altText,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send(photo);
+    },
+  );
+
+  app.patch(
+    '/listings/:id/photos/:mediaId',
+    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), mediaId: z.string().length(26) })
+        .parse(request.params);
+
+      // One thing this can say, for now: "show this one first". A PATCH rather
+      // than a POST to a `/primary` sub-path so that alt text and sort order
+      // can join it without another route.
+      z.object({ isPrimary: z.literal(true) }).parse(request.body);
+
+      await setPrimaryListingPhoto(
+        currentSeller(request),
+        params.id,
+        params.mediaId,
+        request.correlationId,
+      );
+
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    '/listings/:id/photos/:mediaId',
+    { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), mediaId: z.string().length(26) })
+        .parse(request.params);
+
+      await removeListingPhoto(
+        currentSeller(request),
+        params.id,
+        params.mediaId,
+        request.correlationId,
+      );
+
+      return reply.status(204).send();
     },
   );
 

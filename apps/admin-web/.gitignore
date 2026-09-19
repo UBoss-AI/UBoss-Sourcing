@@ -1,6 +1,8 @@
 node_modules
 dist
 .env.local
+# Demo credentials for a demonstration build live in .env.netlify.local.
+.env.*.local
 
 # Output of `npm run i18n:extract`. A diffing aid, never shipped.
 .extracted

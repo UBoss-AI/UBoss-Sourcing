@@ -5,15 +5,25 @@
  * it is how it arrives — because that is the unit they order in, the unit their
  * store room counts in, and the unit their own purchase order is written in.
  *
- * The answer is the same for everything in this shop: **one carton, and one
- * carton has 500 pieces.** There is no inner box to get confused with, no
- * per-product carton size to check, and no arithmetic for the buyer to do on a
- * calculator beside the screen. The price above is the price of one of these.
+ * The answer is not the same for everything, and it used to be assumed that it
+ * was. A box of cannulas really does ship five hundred to a carton; a cordless
+ * drill, a laptop and a pair of boots are bought one at a time. This panel
+ * applied the first answer to all of them, which put the drill on the page at
+ * five hundred times its price with "one carton has 500 pieces" underneath it.
  *
- * Two rules shape what is below.
+ * So the carton is a fact about the PRODUCT - `products.piecesPerCarton`,
+ * reaching here as `sellUnit.piecesPerUnit` on the same response that carried
+ * the price, and computed on the same server path the basket uses.
+ *
+ * Three rules shape what is below.
  *
  *   **The carton is stated, not implied.** Every screen that shows a price
  *   says what the price is the price of, in pieces, in words.
+ *
+ *   **A product with no carton and nothing recorded about its packing renders
+ *   NOTHING.** Not an empty heading, and not a row that says "sold by the
+ *   piece" twice. The panel exists to answer "how does this arrive", and on a
+ *   drill there is no answer worth a heading.
  *
  *   **Nothing here is a piece count from the supplier's sheet.** The server
  *   stopped sending them — see `packaging.service.ts`. A supplier's "2,000 to
@@ -21,7 +31,6 @@
  *   which of the two their order was priced at, and one answer is always wrong.
  */
 import { formatNumber } from '@/lib/format';
-import { usePiecesPerCarton } from '@/lib/packaging';
 import type { ProductPackaging } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -57,15 +66,35 @@ function Row({ term, detail }: { term: string; detail: string }): React.JSX.Elem
 export function PackagingSection({
   packaging,
   soldByThePiece = false,
+  piecesPerCarton,
 }: {
   packaging: ProductPackaging | null;
-  /** True for a third-party seller's product. See above. */
+  /** True for anything bought one at a time - a seller's line, or the
+      operator's own product that has no carton. See above. */
   soldByThePiece?: boolean;
+  /**
+   * Pieces in one carton of THIS product.
+   *
+   * From `sellUnit.piecesPerUnit` on the product the page is showing, never
+   * from the deployment-wide setting: the setting is one number for a shop
+   * that sells a hundred different things, and using it here is what made
+   * every product claim the same carton.
+   */
+  piecesPerCarton: number;
 }): React.JSX.Element | null {
   const { t } = useI18n();
-  const piecesPerCarton = usePiecesPerCarton();
 
   if (soldByThePiece) {
+    /*
+     * Nothing to say, so nothing is said.
+     *
+     * A product sold one at a time with no packing description recorded has
+     * no packaging answer at all, and a heading over "Sold by the piece"
+     * repeated twice is a panel that costs a screenful to tell somebody
+     * something the buy panel already told them.
+     */
+    if (packaging?.packingType == null) return null;
+
     return (
       <section aria-labelledby="packaging-heading" className="min-w-0">
         <h2 id="packaging-heading" className="text-title-sm text-ink">
@@ -74,9 +103,10 @@ export function PackagingSection({
 
         <dl className="mt-3">
           <Row term={t('packaging.soldIn')} detail={t('packaging.soldByThePiece')} />
-          {packaging?.packingType != null && (
-            <Row term={t('packaging.packedAs')} detail={packaging.packingType} />
-          )}
+          {/* Unconditional now: the guard above already returned for a product
+              with nothing recorded, so reaching here means there is a packing
+              description to show. */}
+          <Row term={t('packaging.packedAs')} detail={packaging.packingType} />
         </dl>
 
         {/* The same prominence the carton rule gets on the operator's own
@@ -139,7 +169,11 @@ export function PackagingSection({
             {LADDER.map((count) => (
               <tr key={count} className="border-b border-border-subtle last:border-0">
                 <th scope="row" className="px-3 py-1.5 text-left font-normal text-ink-muted">
-                  {t('packaging.nCartons', { n: formatNumber(count) })}
+                  {/* `count` as well as `n`: the key is pluralised, and
+                      i18next picks the form from `count` and from nothing
+                      else. Passing only `n` rendered the key itself -
+                      "packaging.nCartons" - in the table. */}
+                  {t('packaging.nCartons', { count, n: formatNumber(count) })}
                 </th>
                 <td className="px-3 py-1.5 text-right font-medium tabular text-ink">
                   {t('packaging.nPieces', { n: formatNumber(count * piecesPerCarton) })}

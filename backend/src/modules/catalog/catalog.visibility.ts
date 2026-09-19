@@ -10,19 +10,22 @@
  * how a draft product eventually leaks: one endpoint forgets one condition, and
  * nothing fails loudly.
  */
+import { env } from '../../config/env.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { PUBLIC_PACKAGING_SELECT } from './packaging.service.js';
 
 /**
  * The only `where` fragment permitted on a public product read.
  *
- * Four conditions, each load-bearing:
+ * Five conditions, each load-bearing:
  *   status ACTIVE     - not draft, not deactivated
  *   isPublished       - explicitly published by an authorised admin
  *   archivedAt null   - not soft-deleted
  *   category active   - an archived category takes its products with it, so
  *                       retiring a range does not leave orphans reachable by
  *                       direct URL
+ *   demoEntry is null - unless this deployment has asked for the
+ *                       demonstration catalogue; see below
  */
 export function publicProductWhere(): Prisma.ProductWhereInput {
   return {
@@ -30,7 +33,33 @@ export function publicProductWhere(): Prisma.ProductWhereInput {
     isPublished: true,
     archivedAt: null,
     category: { isActive: true, archivedAt: null },
+    ...demoCatalogWhere(),
   };
+}
+
+/**
+ * Whether the demonstration catalogue is on the shelf.
+ *
+ * `ENABLE_DEMO_CATALOG=false` does not delete anything and does not unpublish
+ * anything. It adds one condition to the single filter every public catalogue
+ * read already goes through, and every product the demonstration seed planted
+ * leaves the storefront together - out of the grid, out of search, out of the
+ * facet counts and out of its own URL, which 404s like any other product that
+ * is not for sale here.
+ *
+ * Done here rather than by unpublishing, because unpublishing is the
+ * operator's decision about their own catalogue and this is a deployment
+ * setting. An operator who has switched the demonstration catalogue off and
+ * then publishes a product by hand in the admin panel must not find it
+ * invisible; an operator who switches it back on must not have to re-publish
+ * four hundred rows.
+ *
+ * The empty object when it is ON is deliberate: a deployment that wants the
+ * demonstration catalogue adds NO condition at all, so the query planner sees
+ * exactly the query it saw before this existed.
+ */
+function demoCatalogWhere(): Prisma.ProductWhereInput {
+  return env.ENABLE_DEMO_CATALOG ? {} : { demoEntry: null };
 }
 
 /** Public category visibility. */
@@ -86,6 +115,22 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
    * times too big.
    */
   isMarketplaceProduct: true,
+
+  /**
+   * Public because it decides what the figure beside it is a price FOR.
+   *
+   * Null is a piece, which is what most of a general catalogue is sold as. A
+   * number is a carton of that many, and the card multiplies by it - which is
+   * right for a box of five hundred cannulas and was catastrophically wrong
+   * for the cordless drill it used to be applied to as well, because the
+   * carton used to be a property of the whole shop rather than of the product.
+   *
+   * The storefront never reads this to do its own arithmetic; `sellUnit` on
+   * the same response is the answer, computed from this on the same code path
+   * the basket uses. It travels so the product page can say "one carton has
+   * 500 pieces" only where that sentence is true.
+   */
+  piecesPerCarton: true,
   hasVariants: true,
   publishedAt: true,
   metaTitle: true,

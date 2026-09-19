@@ -8,6 +8,8 @@
   "common.search": "Zoeken",
   "common.emailAddress": "E-mailadres",
   "common.password": "Wachtwoord",
+  "auth.demo.title": "Demo-accounts",
+  "auth.demo.intro": "Dit is een demosite. Meld u aan met een van de onderstaande accounts.",
   "common.problem": "Er is een probleem",
   "common.somethingWentWrong": "Er is iets misgegaan",
   "addressSuggest.hint": "Begin met typen en kies het adres uit de lijst — daarmee komt het op de kaart.",

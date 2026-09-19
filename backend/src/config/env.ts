@@ -879,6 +879,52 @@ const envSchema = z
     /// fact the system holds about one person in one archive.
     DATA_REQUEST_DOWNLOAD_TTL_HOURS: intFromString(1, 720).default(72),
 
+    // --- Demonstration catalogue ---------------------------------------
+    //
+    // A broad, plainly fictional catalogue - every department, every
+    // sub-category - planted by `npm run seed:demo-catalog` so that a freshly
+    // installed deployment can be reviewed, demonstrated and tested end to
+    // end instead of presenting a search box with nothing behind it.
+    //
+    // Whether those products are VISIBLE to a shopper. Off does not delete
+    // anything: the rows stay exactly where they are and every one of them
+    // disappears from `publicProductWhere()`, which is the single filter every
+    // public catalogue read goes through. That is the switch an operator
+    // throws on the day they go live with their own range.
+    //
+    // ON in development and OFF in production, which is the only pair of
+    // defaults that is safe in both directions. A developer who has just run
+    // the seed should see the catalogue without configuring anything, and a
+    // production deployment must never show a fictional product because
+    // somebody restored a development database into it. An operator who
+    // genuinely wants a demonstration storefront in production sets it to
+    // true, deliberately.
+    //
+    // `process.env` directly, because this default has to be known while the
+    // schema is being built and `env.NODE_ENV` does not exist until it has
+    // been parsed. Anything other than a literal "production" is treated as
+    // not production, which errs towards showing the catalogue on a machine
+    // whose NODE_ENV is unset - the safe direction for a default that decides
+    // whether a developer sees anything at all.
+    ENABLE_DEMO_CATALOG: booleanFromString.default(process.env.NODE_ENV !== 'production'),
+
+    /// How many product families the seed plants per sub-category.
+    ///
+    /// Three is the floor the coverage test asserts and the figure the
+    /// blueprint registry is written to. Raising it does not invent products:
+    /// a sub-category with four blueprints yields four and no more, so this is
+    /// a ceiling for a quick run rather than a target to pad out to.
+    DEMO_CATALOG_PRODUCT_COUNT: intFromString(1, 12).default(6),
+
+    /// Unsplash access key, for resolving product photographs at seed time.
+    ///
+    /// Empty is a supported state and the ordinary one: the seed then draws on
+    /// the verified image library the storefront already ships with, marks
+    /// what it could not answer for review, and says so in its report. The key
+    /// is read by the seed process only - it is never sent to a browser, never
+    /// logged, and no runtime route reads it.
+    UNSPLASH_ACCESS_KEY: z.string().default(''),
+
     // --- Logistics partner portal -------------------------------------
     //
     // Third-party carriers who collect from a warehouse and deliver to the

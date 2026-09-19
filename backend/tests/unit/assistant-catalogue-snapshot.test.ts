@@ -42,6 +42,9 @@ function product(overrides: Partial<SnapshotProduct> = {}): SnapshotProduct {
     isOrderable: true,
     unavailabilityReason: null,
     isMarketplaceProduct: false,
+    // The fixture is the cartoned consumable this snapshot was written for;
+    // a product sold one at a time passes null and is quoted per piece.
+    piecesPerCarton: 500,
     minOrderQty: 1,
     qtyIncrement: 1,
     isRecurringEligible: false,
@@ -64,7 +67,6 @@ function snapshot(overrides: Partial<SnapshotInput> = {}): string {
     },
     categories: [{ name: 'Fasteners & Fixings', productCount: 3 }],
     products: [product()],
-    piecesPerCarton: 500,
     ...overrides,
   });
 }
@@ -74,6 +76,21 @@ describe('the catalogue snapshot', () => {
     // 4250 minor per piece, 500 to a carton: INR 21,250.00.
     expect(snapshot()).toContain('- price: INR 21250.00 per carton');
     expect(snapshot()).toContain('- sold by: this store itself, by the carton of 500 pieces');
+  });
+
+  it('quotes an operator product sold one at a time by the piece', () => {
+    // The catalogue holds both. A drill has no carton, and quoting it as one
+    // put it on the page at five hundred times its price.
+    const single = snapshot({ products: [product({ piecesPerCarton: null })] });
+
+    expect(single).toContain('- price: INR 42.50 per piece');
+    expect(single).toContain('- sold by: this store itself, by the piece');
+
+    // Scoped to the price and selling lines rather than the whole snapshot:
+    // the preamble explains what "per carton" means where it appears, and is
+    // supposed to, because the same catalogue holds products that are.
+    expect(single).not.toContain('- price: INR 21250.00 per carton');
+    expect(single).not.toContain('by the carton of');
   });
 
   it("quotes a seller's product by the piece, at the offer's own price", () => {

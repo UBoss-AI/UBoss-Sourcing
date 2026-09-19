@@ -121,7 +121,8 @@ database too.
 | `DATABASE_URL is not set` | `backend\.env` is missing | Copy `.env.example` to `.env` inside `backend` |
 | A Prisma table or column error | New migrations have not been applied | `cd backend`, then `npm run db:migrate:deploy` |
 | Sign-in says the credentials are wrong | Sample data is missing, it is the wrong site, or the passwords were rotated | `cd backend`, then `npm run db:restore-seed-passwords` — it puts the passwords in this file back and says how many were wrong. If nothing was found, `npm run db:seed` first. Admin logins only work on 5173, customer logins only on 5174 |
-| The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed` |
+| The storefront opens but has no products | Sample data is missing | `cd backend`, then `npm run db:seed`. For a full catalogue to browse, also `npm run seed:demo-catalog` |
+| The storefront has products but they are all medical consumables | The demonstration catalogue has not been planted, or is switched off | `cd backend`, then `npm run seed:demo-catalog`. If it was already planted, check `ENABLE_DEMO_CATALOG` in `backend\.env` |
 | No emails appear anywhere | The worker is not running | `.\scripts\dev-stack.ps1 -Restart` |
 | The site is reaching a public ngrok address | The project is in tunnel mode | `.\scripts\dev-stack.ps1 -Restart -Local` |
 
@@ -321,6 +322,19 @@ npm run db:seed
 
 This builds every table and adds development users, roles, products, prices and
 warehouses.
+
+Optionally, fill the shop front:
+
+```powershell
+npm run seed:demo-catalog
+```
+
+That plants a demonstration catalogue across every department and every shelf —
+four hundred-odd products, each with its own options, prices and stock — so
+there is something to browse, filter, search and put in a basket. It is
+idempotent, it can only ever touch its own rows, and
+`ENABLE_DEMO_CATALOG=false` takes all of it off the storefront without
+deleting anything. See the README for the flags.
 
 ### 5. Install the frontends
 
@@ -575,6 +589,7 @@ npm run db:studio           # Browse the database in a web page
 npm run db:migrate:deploy   # Apply existing migrations safely
 npm run db:migrate          # Create a new migration (asks questions)
 npm run db:seed             # Restore or update the sample data
+npm run seed:demo-catalog   # A demonstration catalogue across every department
 npm run db:rotate-seed-passwords   # Fresh random passwords for the nine seeded accounts
 npm run db:restore-seed-passwords  # Put the passwords printed above back, and unlock the accounts
 ```

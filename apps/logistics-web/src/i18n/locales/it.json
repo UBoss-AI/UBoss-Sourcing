@@ -35,6 +35,8 @@
   "auth.signIn": "Accedi",
   "auth.email": "E-mail di lavoro",
   "auth.password": "Password",
+  "auth.demo.title": "Accessi dimostrativi",
+  "auth.demo.intro": "Questo è un sito dimostrativo. Acceda con uno degli account elencati di seguito.",
   "auth.signingIn": "Accesso in corso",
   "auth.heading": "Acceda al portale logistica",
   "auth.subheading": "Usi l'account con cui il marketplace l'ha invitata.",

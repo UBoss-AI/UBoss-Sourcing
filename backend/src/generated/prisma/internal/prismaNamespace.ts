@@ -567,7 +567,8 @@ export const ModelName = {
   CarrierStatusMapping: 'CarrierStatusMapping',
   CarrierWebhookEvent: 'CarrierWebhookEvent',
   LogisticsNotification: 'LogisticsNotification',
-  LogisticsAuditLog: 'LogisticsAuditLog'
+  LogisticsAuditLog: 'LogisticsAuditLog',
+  DemoCatalogEntry: 'DemoCatalogEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -583,7 +584,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -11873,6 +11874,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DemoCatalogEntry: {
+      payload: Prisma.$DemoCatalogEntryPayload<ExtArgs>
+      fields: Prisma.DemoCatalogEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DemoCatalogEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DemoCatalogEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.DemoCatalogEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DemoCatalogEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        findMany: {
+          args: Prisma.DemoCatalogEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>[]
+        }
+        create: {
+          args: Prisma.DemoCatalogEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        createMany: {
+          args: Prisma.DemoCatalogEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DemoCatalogEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        update: {
+          args: Prisma.DemoCatalogEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.DemoCatalogEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DemoCatalogEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DemoCatalogEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DemoCatalogEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.DemoCatalogEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDemoCatalogEntry>
+        }
+        groupBy: {
+          args: Prisma.DemoCatalogEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DemoCatalogEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DemoCatalogEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DemoCatalogEntryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -12228,6 +12295,7 @@ export const ProductScalarFieldEnum = {
   reorderThreshold: 'reorderThreshold',
   isOrderable: 'isOrderable',
   unavailabilityReason: 'unavailabilityReason',
+  piecesPerCarton: 'piecesPerCarton',
   minOrderQty: 'minOrderQty',
   maxOrderQty: 'maxOrderQty',
   qtyIncrement: 'qtyIncrement',
@@ -14701,6 +14769,8 @@ export const SellerOfferScalarFieldEnum = {
   reservedQuantity: 'reservedQuantity',
   qualityScore: 'qualityScore',
   statusReason: 'statusReason',
+  pausedAt: 'pausedAt',
+  pausedByProfileId: 'pausedByProfileId',
   sourceDraftId: 'sourceDraftId',
   publishedAt: 'publishedAt',
   version: 'version',
@@ -15634,6 +15704,27 @@ export const LogisticsAuditLogScalarFieldEnum = {
 } as const
 
 export type LogisticsAuditLogScalarFieldEnum = (typeof LogisticsAuditLogScalarFieldEnum)[keyof typeof LogisticsAuditLogScalarFieldEnum]
+
+
+export const DemoCatalogEntryScalarFieldEnum = {
+  id: 'id',
+  seedKey: 'seedKey',
+  productId: 'productId',
+  seedSource: 'seedSource',
+  seedVersion: 'seedVersion',
+  subcategorySlug: 'subcategorySlug',
+  imageSource: 'imageSource',
+  imagePhotoId: 'imagePhotoId',
+  imagePhotographer: 'imagePhotographer',
+  imageProfileUrl: 'imageProfileUrl',
+  imagePhotoPageUrl: 'imagePhotoPageUrl',
+  imageNeedsReview: 'imageNeedsReview',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DemoCatalogEntryScalarFieldEnum = (typeof DemoCatalogEntryScalarFieldEnum)[keyof typeof DemoCatalogEntryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -17509,6 +17600,7 @@ export const SellerOfferOrderByRelevanceFieldEnum = {
   currency: 'currency',
   taxClassId: 'taxClassId',
   statusReason: 'statusReason',
+  pausedByProfileId: 'pausedByProfileId',
   sourceDraftId: 'sourceDraftId'
 } as const
 
@@ -18084,6 +18176,22 @@ export const LogisticsAuditLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type LogisticsAuditLogOrderByRelevanceFieldEnum = (typeof LogisticsAuditLogOrderByRelevanceFieldEnum)[keyof typeof LogisticsAuditLogOrderByRelevanceFieldEnum]
+
+
+export const DemoCatalogEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  seedKey: 'seedKey',
+  productId: 'productId',
+  seedSource: 'seedSource',
+  subcategorySlug: 'subcategorySlug',
+  imageSource: 'imageSource',
+  imagePhotoId: 'imagePhotoId',
+  imagePhotographer: 'imagePhotographer',
+  imageProfileUrl: 'imageProfileUrl',
+  imagePhotoPageUrl: 'imagePhotoPageUrl'
+} as const
+
+export type DemoCatalogEntryOrderByRelevanceFieldEnum = (typeof DemoCatalogEntryOrderByRelevanceFieldEnum)[keyof typeof DemoCatalogEntryOrderByRelevanceFieldEnum]
 
 
 
@@ -19456,6 +19564,7 @@ export type GlobalOmitConfig = {
   carrierWebhookEvent?: Prisma.CarrierWebhookEventOmit
   logisticsNotification?: Prisma.LogisticsNotificationOmit
   logisticsAuditLog?: Prisma.LogisticsAuditLogOmit
+  demoCatalogEntry?: Prisma.DemoCatalogEntryOmit
 }
 
 /* Types for Logging */

@@ -42,6 +42,7 @@
  *   - The snapshot is rebuilt at most once a minute, not per request.
  */
 import { env } from '../../config/env.js';
+import { piecesPerUnitFor } from '../../domain/ordering-unit.js';
 import { logger } from '../../infra/logger.js';
 import { formatMinorToMajor } from '../../domain/money.js';
 import { prisma } from '../../infra/prisma.js';
@@ -266,6 +267,16 @@ export interface SnapshotProduct {
   unavailabilityReason: string | null;
   /** Listed by a third-party seller rather than stocked by the operator. */
   isMarketplaceProduct: boolean;
+  /**
+   * Pieces in one carton of this product, or null for one sold singly.
+   *
+   * Per product rather than per deployment, because the catalogue holds both:
+   * a box of cannulas ships five hundred to a carton and a cordless drill does
+   * not ship in cartons at all. The snapshot used to apply one figure to every
+   * operator product, so the assistant confidently quoted a drill at five
+   * hundred times its price.
+   */
+  piecesPerCarton: number | null;
   minOrderQty: number;
   qtyIncrement: number;
   isRecurringEligible: boolean;
@@ -293,8 +304,6 @@ export interface SnapshotInput {
   /** Every visible category with something published in it, in shelf order. */
   categories: { name: string; productCount: number }[];
   products: SnapshotProduct[];
-  /** This deployment's carton size, for the operator's own products. */
-  piecesPerCarton: number;
 }
 
 /**
@@ -325,14 +334,28 @@ export interface SnapshotInput {
  * Pure, and exported, so a test can hold it to all three without a database.
  */
 export function renderCatalogueSnapshot(input: SnapshotInput): string {
-  const { store, piecesPerCarton } = input;
+  const { store } = input;
 
   const money = (minor: bigint, currency: string): string =>
     `${currency} ${formatMinorToMajor(minor, currency)}`;
 
-  /** The operator's own figure. Stored per piece, sold and quoted per carton. */
-  const perCarton = (minor: bigint, currency: string): string =>
-    `${money(minor * BigInt(piecesPerCarton), currency)} per carton`;
+  /**
+   * The operator's own figure, quoted in whatever this product is sold in.
+   *
+   * Stored per piece, always. A product with a carton is multiplied by it and
+   * said to be per carton; one without is quoted as it stands, because it is
+   * sold one at a time.
+   */
+  const operatorPrice = (
+    minor: bigint,
+    currency: string,
+    product: { piecesPerCarton: number | null },
+  ): string => {
+    const per = piecesPerUnitFor(product);
+    return per > 1
+      ? `${money(minor * BigInt(per), currency)} per carton of ${String(per)} pieces`
+      : `${money(minor, currency)} per piece`;
+  };
 
   const lines: string[] = [];
 
@@ -355,7 +378,11 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
     "- Two kinds of product are on sale side by side: this store's own stock, and listings from independent sellers on its marketplace. Both are real, both are below, and a customer buys either one the same way.",
   );
   lines.push(
-    `- The store's OWN products are sold by the carton. One carton holds ${String(piecesPerCarton)} pieces, and the price given is the price of one whole carton.`,
+    // Which unit applies is now a fact about each product rather than about
+    // the store, so the rule is stated generally and every line below says
+    // which one it is. A single sentence claiming everything is cartoned is
+    // what had the assistant quoting a cordless drill by the five hundred.
+    "- The store's OWN products are sold either by the carton or one at a time, and every product below says which. Where a price says 'per carton', that is the price of one whole carton.",
   );
   lines.push(
     "- An INDEPENDENT SELLER's products are sold by the piece. The price given is the price of one piece. Never multiply it by the carton size.",
@@ -406,7 +433,12 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
             }`,
       );
     } else {
-      lines.push(`- sold by: this store itself, by the carton of ${String(piecesPerCarton)} pieces`);
+      const per = piecesPerUnitFor(product);
+      lines.push(
+        per > 1
+          ? `- sold by: this store itself, by the carton of ${String(per)} pieces`
+          : '- sold by: this store itself, by the piece',
+      );
     }
 
     /*
@@ -425,7 +457,7 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
     } else if (best !== null) {
       lines.push(`- price: ${money(best.priceMinor, currency)} per piece`);
     } else {
-      lines.push(`- price: ${perCarton(product.basePriceMinor, currency)}`);
+      lines.push(`- price: ${operatorPrice(product.basePriceMinor, currency, product)}`);
     }
 
     lines.push(
@@ -478,7 +510,7 @@ export function renderCatalogueSnapshot(input: SnapshotInput): string {
             : ` — ${
                 product.isMarketplaceProduct
                   ? `${money(variant.priceMinor, currency)} per piece`
-                  : perCarton(variant.priceMinor, currency)
+                  : operatorPrice(variant.priceMinor, currency, product)
               }`;
         lines.push(`  · ${variant.sku}: ${variant.name}${price}`);
       }
@@ -526,6 +558,7 @@ async function buildCatalogueSnapshot(): Promise<SnapshotInput> {
         isOrderable: true,
         unavailabilityReason: true,
         isMarketplaceProduct: true,
+        piecesPerCarton: true,
         minOrderQty: true,
         qtyIncrement: true,
         isRecurringEligible: true,
@@ -569,7 +602,6 @@ async function buildCatalogueSnapshot(): Promise<SnapshotInput> {
       productCount: category._count.products,
     })),
     products,
-    piecesPerCarton: env.PIECES_PER_CARTON,
   };
 }
 

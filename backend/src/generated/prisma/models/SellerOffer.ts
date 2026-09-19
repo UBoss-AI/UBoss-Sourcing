@@ -86,6 +86,8 @@ export type SellerOfferMinAggregateOutputType = {
   reservedQuantity: number | null
   qualityScore: number | null
   statusReason: string | null
+  pausedAt: Date | null
+  pausedByProfileId: string | null
   sourceDraftId: string | null
   publishedAt: Date | null
   version: number | null
@@ -118,6 +120,8 @@ export type SellerOfferMaxAggregateOutputType = {
   reservedQuantity: number | null
   qualityScore: number | null
   statusReason: string | null
+  pausedAt: Date | null
+  pausedByProfileId: string | null
   sourceDraftId: string | null
   publishedAt: Date | null
   version: number | null
@@ -151,6 +155,8 @@ export type SellerOfferCountAggregateOutputType = {
   reservedQuantity: number
   qualityScore: number
   statusReason: number
+  pausedAt: number
+  pausedByProfileId: number
   sourceDraftId: number
   publishedAt: number
   version: number
@@ -215,6 +221,8 @@ export type SellerOfferMinAggregateInputType = {
   reservedQuantity?: true
   qualityScore?: true
   statusReason?: true
+  pausedAt?: true
+  pausedByProfileId?: true
   sourceDraftId?: true
   publishedAt?: true
   version?: true
@@ -247,6 +255,8 @@ export type SellerOfferMaxAggregateInputType = {
   reservedQuantity?: true
   qualityScore?: true
   statusReason?: true
+  pausedAt?: true
+  pausedByProfileId?: true
   sourceDraftId?: true
   publishedAt?: true
   version?: true
@@ -280,6 +290,8 @@ export type SellerOfferCountAggregateInputType = {
   reservedQuantity?: true
   qualityScore?: true
   statusReason?: true
+  pausedAt?: true
+  pausedByProfileId?: true
   sourceDraftId?: true
   publishedAt?: true
   version?: true
@@ -400,6 +412,8 @@ export type SellerOfferGroupByOutputType = {
   reservedQuantity: number
   qualityScore: number | null
   statusReason: string | null
+  pausedAt: Date | null
+  pausedByProfileId: string | null
   sourceDraftId: string | null
   publishedAt: Date | null
   version: number
@@ -456,6 +470,8 @@ export type SellerOfferWhereInput = {
   reservedQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   qualityScore?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   statusReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  pausedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  pausedByProfileId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   sourceDraftId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   version?: Prisma.IntFilter<"SellerOffer"> | number
@@ -498,6 +514,8 @@ export type SellerOfferOrderByWithRelationInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  pausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  pausedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDraftId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -546,6 +564,8 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   reservedQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   qualityScore?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   statusReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  pausedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  pausedByProfileId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   sourceDraftId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   version?: Prisma.IntFilter<"SellerOffer"> | number
@@ -588,6 +608,8 @@ export type SellerOfferOrderByWithAggregationInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  pausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  pausedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDraftId?: Prisma.SortOrderInput | Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -629,6 +651,8 @@ export type SellerOfferScalarWhereWithAggregatesInput = {
   reservedQuantity?: Prisma.IntWithAggregatesFilter<"SellerOffer"> | number
   qualityScore?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
   statusReason?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  pausedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
+  pausedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
   sourceDraftId?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"SellerOffer"> | number
@@ -658,6 +682,8 @@ export type SellerOfferCreateInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -700,6 +726,8 @@ export type SellerOfferUncheckedCreateInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -734,6 +762,8 @@ export type SellerOfferUpdateInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -776,6 +806,8 @@ export type SellerOfferUncheckedUpdateInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -814,6 +846,8 @@ export type SellerOfferCreateManyInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -843,6 +877,8 @@ export type SellerOfferUpdateManyMutationInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -876,6 +912,8 @@ export type SellerOfferUncheckedUpdateManyInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -941,6 +979,8 @@ export type SellerOfferCountOrderByAggregateInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
+  pausedAt?: Prisma.SortOrder
+  pausedByProfileId?: Prisma.SortOrder
   sourceDraftId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -988,6 +1028,8 @@ export type SellerOfferMaxOrderByAggregateInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
+  pausedAt?: Prisma.SortOrder
+  pausedByProfileId?: Prisma.SortOrder
   sourceDraftId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -1020,6 +1062,8 @@ export type SellerOfferMinOrderByAggregateInput = {
   reservedQuantity?: Prisma.SortOrder
   qualityScore?: Prisma.SortOrder
   statusReason?: Prisma.SortOrder
+  pausedAt?: Prisma.SortOrder
+  pausedByProfileId?: Prisma.SortOrder
   sourceDraftId?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -1315,6 +1359,8 @@ export type SellerOfferCreateWithoutProductInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1355,6 +1401,8 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1422,6 +1470,8 @@ export type SellerOfferScalarWhereInput = {
   reservedQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   qualityScore?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   statusReason?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  pausedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  pausedByProfileId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   sourceDraftId?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
   version?: Prisma.IntFilter<"SellerOffer"> | number
@@ -1451,6 +1501,8 @@ export type SellerOfferCreateWithoutVariantInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1491,6 +1543,8 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1551,6 +1605,8 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1592,6 +1648,8 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1641,6 +1699,8 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1682,6 +1742,8 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1715,6 +1777,8 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1756,6 +1820,8 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1805,6 +1871,8 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1846,6 +1914,8 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1879,6 +1949,8 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1919,6 +1991,8 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -1979,6 +2053,8 @@ export type SellerOfferCreateWithoutBrandInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2019,6 +2095,8 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2079,6 +2157,8 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2120,6 +2200,8 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2169,6 +2251,8 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2210,6 +2294,8 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2243,6 +2329,8 @@ export type SellerOfferCreateWithoutInventoryInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2284,6 +2372,8 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2333,6 +2423,8 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2374,6 +2466,8 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2407,6 +2501,8 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2448,6 +2544,8 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2497,6 +2595,8 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2538,6 +2638,8 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2574,6 +2676,8 @@ export type SellerOfferCreateManyProductInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2603,6 +2707,8 @@ export type SellerOfferUpdateWithoutProductInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2643,6 +2749,8 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2680,6 +2788,8 @@ export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2712,6 +2822,8 @@ export type SellerOfferCreateManyVariantInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2741,6 +2853,8 @@ export type SellerOfferUpdateWithoutVariantInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2781,6 +2895,8 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2818,6 +2934,8 @@ export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2850,6 +2968,8 @@ export type SellerOfferCreateManySellerAccountInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -2879,6 +2999,8 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2919,6 +3041,8 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2956,6 +3080,8 @@ export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2988,6 +3114,8 @@ export type SellerOfferCreateManyBrandInput = {
   reservedQuantity?: number
   qualityScore?: number | null
   statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
   sourceDraftId?: string | null
   publishedAt?: Date | string | null
   version?: number
@@ -3017,6 +3145,8 @@ export type SellerOfferUpdateWithoutBrandInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3057,6 +3187,8 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3094,6 +3226,8 @@ export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
   reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3194,6 +3328,8 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   reservedQuantity?: boolean
   qualityScore?: boolean
   statusReason?: boolean
+  pausedAt?: boolean
+  pausedByProfileId?: boolean
   sourceDraftId?: boolean
   publishedAt?: boolean
   version?: boolean
@@ -3239,6 +3375,8 @@ export type SellerOfferSelectScalar = {
   reservedQuantity?: boolean
   qualityScore?: boolean
   statusReason?: boolean
+  pausedAt?: boolean
+  pausedByProfileId?: boolean
   sourceDraftId?: boolean
   publishedAt?: boolean
   version?: boolean
@@ -3247,7 +3385,7 @@ export type SellerOfferSelectScalar = {
   archivedAt?: boolean
 }
 
-export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerOffer"]>
+export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerOffer"]>
 export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -3357,6 +3495,25 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      * Why it is NEEDS_CHANGES, seller-visible.
      */
     statusReason: string | null
+    /**
+     * When this was last taken off sale, and by whom.
+     * 
+     * The trail beside the status, rather than an audit query per row: the
+     * listings table draws forty rows and "who paused this, and when" is asked
+     * of most of them. It matters because pausing is no longer only a way to
+     * hide something - "Pause & Edit" takes a live listing off sale so its
+     * structure can be changed without a buyer watching the page rearrange
+     * itself, and a colleague finding it paused needs to know that is what
+     * happened.
+     * 
+     * Null on every row that has never been paused, and on every row paused
+     * before these columns existed. Nothing reads them to decide whether
+     * something can be sold; `status` alone still does that.
+     * 
+     * Deliberately not a foreign key - see the migration.
+     */
+    pausedAt: Date | null
+    pausedByProfileId: string | null
     /**
      * The draft this came from, kept so "what exactly was approved" has an
      * answer.
@@ -3769,6 +3926,8 @@ export interface SellerOfferFieldRefs {
   readonly reservedQuantity: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly qualityScore: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly statusReason: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly pausedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
+  readonly pausedByProfileId: Prisma.FieldRef<"SellerOffer", 'String'>
   readonly sourceDraftId: Prisma.FieldRef<"SellerOffer", 'String'>
   readonly publishedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
   readonly version: Prisma.FieldRef<"SellerOffer", 'Int'>

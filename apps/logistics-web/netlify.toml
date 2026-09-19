@@ -7,8 +7,9 @@
 #
 # ONE THING TO CHANGE: API_ORIGIN, in the [[redirects]] block below.
 #
-# Replace `https://uboss-api.example.com` with the public base URL of the API
-# for this installation. No trailing slash.
+# The [[redirects]] block below points at this installation's API. Replace
+# that hostname, scheme included and no trailing slash, to point this site at
+# a different one.
 #
 # A SITE OF ITS OWN IS THE POINT, NOT AN INCONVENIENCE.
 #
@@ -59,7 +60,7 @@
 # ride along. A `301` would send the browser to the other host and lose them.
 [[redirects]]
   from = "/api/*"
-  to = "https://uboss-api.example.com/api/:splat"
+  to = "https://refold-barley-playing.ngrok-free.dev/api/:splat"
   status = 200
   force = true
 

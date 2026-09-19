@@ -8,6 +8,8 @@
   "common.search": "Rechercher",
   "common.emailAddress": "Adresse e-mail",
   "common.password": "Mot de passe",
+  "auth.demo.title": "Comptes de démonstration",
+  "auth.demo.intro": "Ceci est un site de démonstration. Connectez-vous avec l’un des comptes ci-dessous.",
   "common.problem": "Un problème est survenu",
   "common.somethingWentWrong": "Une erreur est survenue",
   "addressSuggest.hint": "Commencez à saisir l'adresse puis choisissez-la dans la liste : c'est ce qui la place sur la carte.",

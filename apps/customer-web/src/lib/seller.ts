@@ -111,11 +111,7 @@ export function applyToSell(input: ApplyInput): Promise<{ sellerAccountId: strin
 // ---------------------------------------------------------------------------
 
 export type OnboardingStepState =
-  | 'NOT_STARTED'
-  | 'IN_PROGRESS'
-  | 'COMPLETE'
-  | 'ERROR'
-  | 'UNDER_REVIEW';
+  'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR' | 'UNDER_REVIEW';
 
 export interface OnboardingRequirement {
   fieldKey: string;
@@ -485,12 +481,7 @@ export type ListingSection =
   | 'MEDICAL_COMPLIANCE';
 
 export type SectionState =
-  | 'NOT_STARTED'
-  | 'IN_PROGRESS'
-  | 'COMPLETE'
-  | 'ERROR'
-  | 'OPTIONAL'
-  | 'UNDER_REVIEW';
+  'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR' | 'OPTIONAL' | 'UNDER_REVIEW';
 
 export interface SchemaAttribute {
   attributeKey: string;
@@ -653,10 +644,7 @@ export function updateListingMedia(
   mediaId: string,
   patch: { slot?: string | null; altText?: string | null; isPrimary?: boolean; sortOrder?: number },
 ): Promise<ListingMedia> {
-  return api.patch<ListingMedia>(
-    `/seller/listing-drafts/${draftId}/media/${mediaId}`,
-    patch,
-  );
+  return api.patch<ListingMedia>(`/seller/listing-drafts/${draftId}/media/${mediaId}`, patch);
 }
 
 export function deleteListingMedia(draftId: string, mediaId: string): Promise<never> {
@@ -857,6 +845,210 @@ export function previewOfferVariants(
   exceedsMaximum: boolean;
 }> {
   return api.post(`/seller/listings/${offerId}/variants/preview`, { axes });
+}
+
+// ---------------------------------------------------------------------------
+// Editing a listing that already exists
+// ---------------------------------------------------------------------------
+
+/** The commercial terms of one listing, as the edit form holds them. */
+export interface ListingTermsPatch {
+  priceMinor?: string | null;
+  compareAtPriceMinor?: string | null;
+  minimumOrderQuantity?: number | null;
+  orderIncrement?: number | null;
+  maximumOrderQuantity?: number | null;
+  handlingTimeDays?: number | null;
+  guaranteedShelfLifeMonths?: number | null;
+  warrantyMonths?: number | null;
+  sellingRegions?: string[] | null;
+  taxClassId?: string | null;
+  priceTiers?: { minQuantity: number; priceMinor: string }[] | null;
+}
+
+/** One combination the seller already sells, as the edit form loads it. */
+export interface ListingEditVariantRow {
+  offerId: string;
+  variantId: string | null;
+  optionSignature: string;
+  options: Record<string, string>;
+  name: string;
+  sku: string;
+  barcode: string | null;
+  status: OfferStatus;
+  isActive: boolean;
+  isBaseListing: boolean;
+  priceMinor: string;
+  compareAtPriceMinor: string | null;
+  minOrderQty: number;
+  qtyIncrement: number;
+  maxOrderQty: number | null;
+  leadTimeDays: number | null;
+  shippingWeightGrams: number | null;
+  shippingLengthMm: number | null;
+  shippingWidthMm: number | null;
+  shippingHeightMm: number | null;
+  imageMediaId: string | null;
+  availableQuantity: number;
+  reservedQuantity: number;
+  stock: { locationId: string; availableQuantity: number }[];
+  /** Somebody has bought this. Removing it archives rather than deletes. */
+  isOrderLinked: boolean;
+}
+
+/** Everything the edit form needs, in one request. */
+export interface ListingEditView {
+  offerId: string;
+  version: number;
+  status: OfferStatus;
+  statusReason: string | null;
+  sellerSku: string;
+  currency: string;
+  updatedAt: string;
+  pausedAt: string | null;
+  pausedBy: string | null;
+  /** False while the listing is on sale: structural changes need a pause. */
+  isStructuralEditAllowed: boolean;
+  structuralBlockedReason: string | null;
+  terms: {
+    priceMinor: string;
+    compareAtPriceMinor: string | null;
+    orderingUnit: string;
+    minimumOrderQuantity: number;
+    orderIncrement: number;
+    maximumOrderQuantity: number | null;
+    handlingTimeDays: number | null;
+    guaranteedShelfLifeMonths: number | null;
+    warrantyMonths: number | null;
+    taxClassId: string | null;
+    sellingRegions: string[];
+    priceTiers: { minQuantity: number; priceMinor: string }[];
+  };
+  brand: { id: string; name: string; status: string } | null;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    categoryId: string;
+    categoryName: string;
+    shortDescription: string | null;
+    description: string | null;
+    gtin: string | null;
+    modelIdentifier: string | null;
+    weightGrams: number | null;
+    hasVariants: boolean;
+    axes: string[];
+    specifications: { name: string; value: string }[];
+    images: {
+      mediaId: string;
+      storageKey: string;
+      url: string;
+      altText: string | null;
+      isPrimary: boolean;
+    }[];
+    /**
+     * Whether this seller may add or remove the pictures.
+     *
+     * True for the seller who described the product, false for one who matched
+     * their stock to a page somebody else wrote — several sellers show the
+     * same photographs, so one of them replacing a picture would change what
+     * the others are selling.
+     */
+    canEditPhotos: boolean;
+    packaging: {
+      packingType: string | null;
+      packingRawText: string | null;
+      innerPackType: string | null;
+      outerPackType: string | null;
+      piecesPerInnerPack: number | null;
+      innerPacksPerOuterCarton: number | null;
+      piecesPerOuterCarton: number | null;
+    } | null;
+  };
+  template: VariantTemplateView | null;
+  variants: ListingEditVariantRow[];
+}
+
+/** One combination on its way back to the server. */
+export interface ListingEditRowPatch extends DraftVariantRow {
+  offerId?: string | null;
+}
+
+export interface SaveListingEditResult {
+  created: number;
+  updated: number;
+  withdrawn: number;
+  archived: number;
+  status: OfferStatus;
+  version: number;
+}
+
+/** The listing as it is now, filled in ready to be changed. */
+export function fetchListingForEdit(offerId: string): Promise<ListingEditView> {
+  return api.get<ListingEditView>(`/seller/listings/${offerId}/edit`);
+}
+
+/**
+ * Take a live listing off sale so its structure can be changed.
+ *
+ * Idempotent: pressing it on something already paused answers with the status
+ * it already has, because "let me edit this" is already true.
+ */
+export function pauseListingForEdit(
+  offerId: string,
+): Promise<{ status: OfferStatus; version: number }> {
+  return api.post(`/seller/listings/${offerId}/pause-for-edit`, {});
+}
+
+/**
+ * Save the edit, and say how it ends.
+ *
+ * `finish: 'ACTIVE'` runs the resume checks server-side and refuses the save
+ * if the listing is not fit to be seen; `'PAUSED'` always saves.
+ */
+export function saveListingEdit(
+  offerId: string,
+  payload: {
+    expectedVersion: number;
+    terms?: ListingTermsPatch | null;
+    axes?: DraftVariantAxis[] | null;
+    rows?: ListingEditRowPatch[] | null;
+    finish: 'PAUSED' | 'ACTIVE';
+  },
+): Promise<SaveListingEditResult> {
+  return api.patch<SaveListingEditResult>(`/seller/listings/${offerId}/edit`, payload);
+}
+
+/**
+ * Add one photograph to a listing being edited.
+ *
+ * Saved immediately rather than with the rest of the form. A photograph is
+ * bytes, not a field: holding it until Save would mean keeping megabytes in
+ * memory while a seller re-prices forty rows, and losing it if they close the
+ * tab.
+ */
+export function addListingPhoto(
+  offerId: string,
+  file: File,
+  altText?: string | null,
+): Promise<{ mediaId: string; url: string; isPrimary: boolean }> {
+  const form = new FormData();
+  // The file LAST, so the server has already parsed the fields by the time the
+  // bytes arrive - multipart is ordered.
+  if (altText != null) form.append('altText', altText);
+  form.append('file', file, file.name);
+
+  return postFile(`/seller/listings/${offerId}/photos`, form);
+}
+
+/** Take a photograph off a listing. The last one cannot be removed. */
+export function removeListingPhoto(offerId: string, mediaId: string): Promise<never> {
+  return api.delete(`/seller/listings/${offerId}/photos/${mediaId}`);
+}
+
+/** Which picture a buyer sees first. */
+export function setPrimaryListingPhoto(offerId: string, mediaId: string): Promise<never> {
+  return api.patch(`/seller/listings/${offerId}/photos/${mediaId}`, { isPrimary: true });
 }
 
 /** Create the versions the seller approved. Existing combinations are skipped. */
@@ -1107,9 +1299,7 @@ export interface InventoryRow {
 export function fetchInventory(
   params: URLSearchParams,
 ): Promise<{ rows: InventoryRow[]; total: number }> {
-  return api.get<{ rows: InventoryRow[]; total: number }>(
-    `/seller/inventory?${params.toString()}`,
-  );
+  return api.get<{ rows: InventoryRow[]; total: number }>(`/seller/inventory?${params.toString()}`);
 }
 
 export function recordStockMovement(input: {
@@ -1394,7 +1584,10 @@ export function markNotificationRead(id: string): Promise<never> {
   return api.post<never>(`/seller/notifications/${id}/read`, {});
 }
 
-export function updateLocation(id: string, input: Record<string, unknown>): Promise<SellerLocation> {
+export function updateLocation(
+  id: string,
+  input: Record<string, unknown>,
+): Promise<SellerLocation> {
   return api.patch<SellerLocation>(`/seller/locations/${id}`, input);
 }
 
@@ -1442,7 +1635,11 @@ export function formatMinor(amountMinor: string, currency: string, locale = 'en'
 
   try {
     const symbol =
-      new Intl.NumberFormat(locale, { style: 'currency', currency, currencyDisplay: 'narrowSymbol' })
+      new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        currencyDisplay: 'narrowSymbol',
+      })
         .formatToParts(0)
         .find((part) => part.type === 'currency')?.value ?? currency;
 

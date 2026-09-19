@@ -35,6 +35,8 @@
   "auth.signIn": "Se connecter",
   "auth.email": "E-mail professionnel",
   "auth.password": "Mot de passe",
+  "auth.demo.title": "Comptes de démonstration",
+  "auth.demo.intro": "Ceci est un site de démonstration. Connectez-vous avec l’un des comptes ci-dessous.",
   "auth.signingIn": "Connexion en cours",
   "auth.heading": "Connectez-vous au portail logistique",
   "auth.subheading": "Utilisez le compte avec lequel la marketplace vous a invité.",

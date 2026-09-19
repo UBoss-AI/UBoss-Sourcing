@@ -166,6 +166,7 @@ cd backend
 npm run db:studio        # browse the database
 npm run db:seed          # restore or update the sample data
 npm run db:reference     # currencies and countries; idempotent
+npm run seed:demo-catalog # a demonstration catalogue: every department, every shelf
 npm run db:reset         # wipe and re-migrate (development only)
 npm run openapi:export   # regenerate openapi.json from the live route table
 npm run test:watch       # tests in watch mode
@@ -409,14 +410,34 @@ order history; they are created off sale, and pressing Save twice adds nothing
 the second time. Because it changes what a buyer is choosing between, the
 listing has to be paused first, and the page offers the pause.
 
+**Edit changes anything the seller owns, on a listing that is already live.**
+*Edit* opens the listing filled in — its photographs, its price and order
+rules, and every version it sells with that version's own code, price, stock,
+minimum order, lead time and picture. Routine changes (price, stock, order
+rules) go through while the listing is on sale, because stock changes many
+times a day and a catalogue that has to be taken off sale to correct a count is
+a catalogue whose counts are wrong. Structural changes — adding or removing an
+option, adding or withdrawing a combination — are refused while it is live, and
+*Edit* offers **Pause & Edit** instead, saying in the seller's own terms what
+that does and what it does not: orders already placed are not affected. Who
+paused it and when are recorded, so a colleague finding it paused is told it
+was an edit rather than a compliance hold. Combinations are matched by option
+signature, so adding size 10 to a run of 7–9 keeps the three ids, the three
+piles of stock and the three sets of order history and creates one row.
+Withdrawing a combination somebody has bought archives it instead of deleting
+it. Photographs save as they are uploaded rather than with the form, and only
+the seller who described the product may change them — several sellers can
+share one catalogue entry.
+
 **Pausing is how a live listing is edited.** Pause takes it out of search and
 out of baskets, keeps every order already placed moving through fulfilment
 untouched, and leaves everything editable; an optional reason is kept for the
-seller's own team and never shown to a buyer. Resume re-checks the listing
-rather than trusting the state it was paused in — code, price, recommended
-price, stock, and that the product and version are still active — and each
-refusal names the one thing to fix. Archiving is separate and never
-hard-deletes something an order references.
+seller's own team and never shown to a buyer. The editor finishes with either
+**Save as paused** or **Save & resume sale**. Resume re-checks the listing
+rather than trusting the state it was paused in — name, code, price,
+recommended price, stock, a photograph, a tax class, and that something is
+actually switched on — and each refusal names the one thing to fix. Archiving
+is separate and never hard-deletes something an order references.
 
 **A seller's listing appears in the shop the moment they put it on sale**, in
 its category, in search and in the facet counts, at their own price. The
@@ -436,6 +457,60 @@ every existing route into a cart works without knowing marketplaces exist.
 An installation that approved listings before this existed has products that are
 published, offered and invisible; `cd backend; npm run marketplace:sync` builds
 their rows once and is safe to re-run.
+
+### The demonstration catalogue
+
+A freshly installed deployment has an empty shop front, and an empty shop front
+cannot be reviewed, demonstrated or tested end to end. `npm run
+seed:demo-catalog` plants a broad one — **every department and every
+sub-category the deployment has**, at least three product families each, each
+with its own options, SKUs, prices and stock.
+
+```powershell
+cd backend
+npm run seed:demo-catalog                            # plant or re-plant
+npm run seed:demo-catalog -- --validate              # check the blueprints, write nothing
+npm run seed:demo-catalog -- --dry-run               # work it all out, write nothing
+npm run seed:demo-catalog -- --category=computers-it # one department
+npm run seed:demo-catalog -- --subcategory=footwear  # one shelf
+npm run seed:demo-catalog -- --per-subcategory=3     # fewer per shelf
+npm run seed:demo-catalog -- --images-only           # re-resolve photographs only
+```
+
+**It cannot touch a product a person created.** Every write is addressed through
+`demo_catalog_entries`; a product with no row there cannot be named by the seed,
+let alone overwritten. Removing the demonstration catalogue is deleting those
+rows and the products they name — there is no SKU prefix being trusted and no
+"everything created that afternoon". There is deliberately no delete flag on the
+seed.
+
+**Re-running it converges, and converges on the same figures.** Every price,
+stock level and SKU is derived from the blueprint's own key rather than drawn at
+random, so a second run changes nothing and a run after editing one blueprint
+changes one product. A seed whose diff is four hundred changed prices is a seed
+nobody reviews.
+
+**Nothing in it claims anything it cannot support.** No certification, no
+approval, no clinical outcome, no "best seller" — a unit test refuses the
+registry if any appears. The brands are invented and consistent. No GTIN, no
+ISBN and no hazard class is written, because those are issued by somebody and a
+fabricated one belongs to them.
+
+**`ENABLE_DEMO_CATALOG=false` takes all of it off the storefront** — out of the
+grid, out of search, out of the facet counts and out of its own URL — in one
+place, `publicProductWhere()`. It deletes nothing and unpublishes nothing, so
+switching it back on needs no second seed. It defaults to on outside production
+and off in production, and the seed refuses to run in production unless it is
+explicitly set to true.
+
+**Photographs.** With `UNSPLASH_ACCESS_KEY` set, the seed resolves one per
+product through the official Search API, stores the photographer, the profile,
+the photo page and the download-location ping the terms require, and hotlinks
+the URL the API returned. Without a key it falls back to the image library the
+storefront already ships with — which is keyed on a SHELF, not a product — and
+reports every one of those as needing review, because "a photograph of this
+trade" is the strongest true thing that can be said about them. No photo ID is
+ever invented and the deprecated `source.unsplash.com` endpoint is never used.
 
 Give a seller a shop front of its own with `SELLER_STOREFRONT_DOMAIN`:
 `northwind.localhost:5174` serves the shop of the seller whose slug is
@@ -697,6 +772,7 @@ The ones that must match:
 | `LOGISTICS_WEB_ORIGIN` | The carrier portal's exact origin. Default `http://localhost:5175` |
 | `CUSTOMER_WEB_PUBLIC_URL` | Where activation and password-reset links point |
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL. Default `http://localhost:4000/api/v1` |
+| `apps/*/.env.netlify.local` → `VITE_DEMO_LOGINS` | Demo sign-ins printed on that app's login page, as JSON. Unset in every ordinary build, and gitignored so a repository build never carries one. Demonstration deployments only — see [docs/NETLIFY.md](docs/NETLIFY.md) |
 
 The CORS allowlist is exact — a mismatch blocks every request from the browser
 — and all three frontends use `strictPort`, so a clash fails loudly rather than
@@ -1495,6 +1571,17 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **Nothing is published by accident.** A product reaches customers only when it
   is both Active *and* Published. Bulk import can activate; it can never
   publish.
+- **What a price is a price FOR is a property of the product.** A box of
+  cannulas is bought by the carton and a cordless drill is bought one at a time,
+  and `products.piecesPerCarton` says which — null for a piece. The storefront,
+  the basket, the wishlist and the schedule quote all read it through one
+  function, so the figure on the card and the figure in the basket cannot drift
+  apart. `PIECES_PER_CARTON` survives as the default for a product the import
+  knew was cartoned without knowing by how many; it is no longer applied to
+  everything the operator owns.
+- **The demonstration catalogue can only touch its own rows.** A blueprint
+  resolves to a product by reading `demo_catalog_entries`, so a product a person
+  created cannot be named by the seed at all.
 - **One seller cannot read another seller's data.** Every owned row carries its
   `sellerAccountId`, no route takes one from the caller, and no service accepts
   a seller id without having been handed a membership first.

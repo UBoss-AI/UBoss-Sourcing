@@ -18,7 +18,7 @@
  * phone - what it is, what it costs, how many are left - are the first three.
  */
 import { useState } from 'react';
-import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import {
@@ -231,14 +231,22 @@ function TabStrip({
     // Two draft states read as one tab to the seller: a listing that failed
     // validation and one nobody has finished are both "a draft".
     if (tab.key === 'DRAFT') {
-      return (counts['DRAFT'] ?? 0) + (counts['VALIDATION_FAILED'] ?? 0) + (counts['READY_FOR_SUBMISSION'] ?? 0);
+      return (
+        (counts['DRAFT'] ?? 0) +
+        (counts['VALIDATION_FAILED'] ?? 0) +
+        (counts['READY_FOR_SUBMISSION'] ?? 0)
+      );
     }
     return counts[tab.key] ?? 0;
   };
 
   return (
     <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <div role="tablist" aria-label="Listing status" className="flex min-w-max gap-1 border-b border-border">
+      <div
+        role="tablist"
+        aria-label="Listing status"
+        className="flex min-w-max gap-1 border-b border-border"
+      >
         {TABS.map((tab) => {
           const count = countFor(tab);
           const isActive = tab.key === active;
@@ -382,7 +390,10 @@ function OfferTable({
             </thead>
             <tbody>
               {query.data.rows.map((row) => (
-                <tr key={row.id} className="border-b border-border-subtle last:border-b-0 hover:bg-surface-hover">
+                <tr
+                  key={row.id}
+                  className="border-b border-border-subtle last:border-b-0 hover:bg-surface-hover"
+                >
                   <td className="px-4 py-3">
                     <ProductCell row={row} />
                   </td>
@@ -390,9 +401,7 @@ function OfferTable({
                     <p className="tabular font-medium text-ink">
                       {formatMinor(row.priceMinor, row.currency)}
                     </p>
-                    <p className="text-xxs text-ink-subtle">
-                      Minimum {row.minimumOrderQuantity}
-                    </p>
+                    <p className="text-xxs text-ink-subtle">Minimum {row.minimumOrderQuantity}</p>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <StockCell row={row} />
@@ -678,6 +687,92 @@ function PauseButton({
   );
 }
 
+/**
+ * "Edit", and the question a live listing has to be asked first.
+ *
+ * A listing that is not on sale opens straight into the editor - there is
+ * nobody looking at it and nothing to warn about. One that IS on sale is asked
+ * before anything happens, because the seller is about to take it off sale and
+ * the two things they will worry about - "do I lose my orders" and "do I lose
+ * my stock" - are answered in the dialog rather than discovered afterwards.
+ *
+ * The pause itself is the editor's job, not this button's. Pressing "Pause &
+ * Edit" navigates with the intent carried in the URL, and the editor pauses on
+ * arrival: a pause that happened here would leave a listing off sale if the
+ * navigation failed, or if the seller closed the tab in between.
+ */
+function EditButton({ row, isBusy }: { row: OfferRow; isBusy: boolean }): React.JSX.Element {
+  const navigate = useNavigate();
+  const [isAsking, setIsAsking] = useState(false);
+
+  const open = (pause: boolean): void => {
+    void navigate(`/seller/listings/${row.id}/edit${pause ? '?pause=1' : ''}`);
+  };
+
+  return (
+    <>
+      <Button
+        size="sm"
+        variant="primary"
+        disabled={isBusy}
+        onClick={() => {
+          if (row.status === 'ACTIVE') {
+            setIsAsking(true);
+            return;
+          }
+          open(false);
+        }}
+      >
+        Edit
+      </Button>
+
+      <Modal
+        isOpen={isAsking}
+        title="Pause this product to edit?"
+        onClose={() => {
+          setIsAsking(false);
+        }}
+        footer={
+          <>
+            <Button
+              onClick={() => {
+                setIsAsking(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setIsAsking(false);
+                open(true);
+              }}
+            >
+              Pause &amp; Edit
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-ink">
+            This product is currently on sale. Structural changes require the listing to be paused
+            temporarily. Existing orders will not be affected.
+          </p>
+          <ul className="list-disc space-y-1 pl-5 text-sm text-ink-subtle">
+            <li>It disappears from search and cannot be added to a basket.</li>
+            <li>
+              <strong className="text-ink">Orders already placed are not affected.</strong> You
+              still pack and send them as normal.
+            </li>
+            <li>Your stock, product codes and sales history are all kept.</li>
+            <li>Put it back on sale yourself with “Save &amp; resume sale”.</li>
+          </ul>
+        </div>
+      </Modal>
+    </>
+  );
+}
+
 function RowActions({
   row,
   isBusy,
@@ -691,8 +786,12 @@ function RowActions({
 }): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
+      <EditButton row={row} isBusy={isBusy} />
+
       <Link to={`/seller/listings/${row.id}`}>
-        <Button size="sm">Edit</Button>
+        <Button size="sm" variant="ghost">
+          Versions
+        </Button>
       </Link>
 
       {row.status === 'ACTIVE' && <PauseButton row={row} isBusy={isBusy} onPause={onPause} />}
@@ -804,9 +903,7 @@ function DuplicateButton({ row }: { row: OfferRow }): React.JSX.Element {
               <Button
                 variant="primary"
                 isLoading={mutation.isPending}
-                disabled={
-                  sellerSku.trim().length === 0 || sellerSku.trim() === row.sellerSku
-                }
+                disabled={sellerSku.trim().length === 0 || sellerSku.trim() === row.sellerSku}
                 onClick={() => {
                   mutation.mutate();
                 }}

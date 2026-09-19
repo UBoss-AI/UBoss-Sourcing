@@ -18,7 +18,6 @@ import {
   notFound,
   type ErrorCodeValue,
 } from '../../domain/errors.js';
-import { env } from '../../config/env.js';
 import { serialiseMoney, type Minor } from '../../domain/money.js';
 import {
   priceLines,
@@ -1114,6 +1113,17 @@ async function addLines(
        * nobody, and never reach the seller who has to pack it.
        */
       isMarketplaceProduct: true,
+
+      /**
+       * How many pieces one unit of this line holds, or null for a piece.
+       *
+       * Selected here so the basket reads the same column the storefront put
+       * on the page. Working it out from a deployment setting instead is how a
+       * shopper is quoted one figure and charged another - which is precisely
+       * what happened while the carton was a property of the shop rather than
+       * of the product.
+       */
+      piecesPerCarton: true,
     },
   });
   const productById = new Map(products.map((product) => [product.id, product]));
@@ -1273,7 +1283,11 @@ async function addLines(
      */
     const spec =
       offerTerms === null
-        ? operatorSellUnit(env.PIECES_PER_CARTON)
+        ? // The PRODUCT's carton, which is the same figure the storefront put
+          // on the page - one column, read by both, so the quote and the
+          // charge cannot drift apart. Null there means a piece, which is what
+          // most of a general catalogue is.
+          operatorSellUnit(product)
         : sellerSellUnit(offerTerms);
 
     /*

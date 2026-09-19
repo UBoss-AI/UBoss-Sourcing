@@ -201,6 +201,20 @@ beforeAll(async () => {
       isStockTracked: false,
       minOrderQty: 1,
       qtyIncrement: 1,
+      /*
+       * A CARTONED product, stated rather than assumed.
+       *
+       * It used to be enough to be the operator's: every product the operator
+       * owned was sold by the deployment's carton, and this fixture inherited
+       * that without saying so. The carton is a property of the product now -
+       * the same catalogue sells a box of five hundred syringes and a cordless
+       * drill, and one of those is not bought by the carton - so a fixture
+       * whose whole subject is the carton has to name it.
+       *
+       * 500 to match `PIECES_PER_CARTON` at the top of this file, which is
+       * what every figure below is calculated from.
+       */
+      piecesPerCarton: 500,
     },
   });
   operatorProductId = operatorProduct.id;

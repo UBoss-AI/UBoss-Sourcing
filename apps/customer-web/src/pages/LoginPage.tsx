@@ -28,6 +28,7 @@ import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
+import { DemoLoginPanel } from '@/components/DemoLoginPanel';
 import { Button, Field, Spinner } from '@/components/ui';
 import {
   AuthCard,
@@ -362,6 +363,13 @@ export function LoginPage(): React.JSX.Element {
           )}
         </div>
       </AuthCard>
+
+      {/* Renders nothing unless this build was given demo accounts, which is
+          every build except a demonstration one. */}
+      <DemoLoginPanel
+        emailLabel={t('common.emailAddress')}
+        passwordLabel={t('common.password')}
+      />
 
       {/* Sits at the bottom of the first screen a customer sees, which is
           where a wording complaint is most likely to be worth acting on.

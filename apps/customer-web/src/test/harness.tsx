@@ -12,7 +12,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import type { RenderResult } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import type { ReactElement } from 'react';
 import { vi } from 'vitest';
 import { StorefrontContext, FALLBACK_CONFIG } from '@/app/storefront-context';
@@ -79,6 +79,18 @@ export function renderWithProviders(
     config?: StorefrontConfig;
     locale?: LocaleState;
     route?: string;
+    /**
+     * Render inside a DATA router rather than `MemoryRouter`.
+     *
+     * `useBlocker` — which is how a form with unsaved work interrupts a
+     * navigation — throws outside one, and `MemoryRouter` is not one. The app
+     * itself is built on `createBrowserRouter`, so a screen using the hook is
+     * perfectly fine in production and impossible to render here without this.
+     *
+     * Off by default so the sixty files that do not need it keep the cheaper
+     * wrapper and their existing behaviour exactly.
+     */
+    dataRouter?: boolean;
   } = {},
 ): RenderResult {
   const queryClient = new QueryClient({
@@ -90,31 +102,44 @@ export function renderWithProviders(
     },
   });
 
+  const providers = (
+    /* The real theme provider, not a stub. It reads `localStorage` and
+       `matchMedia` through guards that already tolerate jsdom having neither,
+       and stubbing it here would make the appearance control the one component
+       in the app whose tests never touch what ships. */
+    <ThemeProvider>
+      {/* Real English copy, not raw keys. Without this a test asserting on
+          "Your cart is empty" fails against the key name, which reads as a
+          broken component rather than a missing provider. */}
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>
+          <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
+            <ToastProvider>
+              <SessionContext.Provider value={options.session ?? makeSession()}>
+                <LocaleContext.Provider value={options.locale ?? makeLocale()}>
+                  {ui}
+                </LocaleContext.Provider>
+              </SessionContext.Provider>
+            </ToastProvider>
+          </StorefrontContext.Provider>
+        </QueryClientProvider>
+      </I18nextProvider>
+    </ThemeProvider>
+  );
+
+  if (options.dataRouter === true) {
+    // One catch-all route holding the providers, so whatever `ui` is - a
+    // `<Routes>` tree, a bare component - keeps matching the way it does under
+    // `MemoryRouter`, and the data-router hooks have their context.
+    const router = createMemoryRouter([{ path: '*', element: providers }], {
+      initialEntries: [options.route ?? '/'],
+    });
+
+    return render(<RouterProvider router={router} />);
+  }
+
   return render(
-    <MemoryRouter initialEntries={[options.route ?? '/']}>
-      {/* The real theme provider, not a stub. It reads `localStorage` and
-          `matchMedia` through guards that already tolerate jsdom having
-          neither, and stubbing it here would make the appearance control the
-          one component in the app whose tests never touch what ships. */}
-      <ThemeProvider>
-        {/* Real English copy, not raw keys. Without this a test asserting on
-            "Your cart is empty" fails against the key name, which reads as a
-            broken component rather than a missing provider. */}
-        <I18nextProvider i18n={i18n}>
-          <QueryClientProvider client={queryClient}>
-            <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
-              <ToastProvider>
-                <SessionContext.Provider value={options.session ?? makeSession()}>
-                  <LocaleContext.Provider value={options.locale ?? makeLocale()}>
-                    {ui}
-                  </LocaleContext.Provider>
-                </SessionContext.Provider>
-              </ToastProvider>
-            </StorefrontContext.Provider>
-          </QueryClientProvider>
-        </I18nextProvider>
-      </ThemeProvider>
-    </MemoryRouter>,
+    <MemoryRouter initialEntries={[options.route ?? '/']}>{providers}</MemoryRouter>,
   );
 }
 

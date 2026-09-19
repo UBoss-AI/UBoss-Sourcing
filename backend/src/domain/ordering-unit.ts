@@ -80,6 +80,47 @@ export const SELLER_SELLING_UNIT = 'PIECE' as const;
  */
 export const DEFAULT_PIECES_PER_CARTON = 500;
 
+/** As much of a product as the unit question needs. */
+export interface ProductUnitTerms {
+  /**
+   * Pieces in one carton of this product, or null for something sold singly.
+   * `products.piecesPerCarton` - see the column's own note.
+   */
+  piecesPerCarton: number | null;
+}
+
+/**
+ * How many pieces one purchasable unit of this product holds.
+ *
+ * THE ONE PLACE THIS IS DECIDED, and every caller on the money path goes
+ * through it: the storefront grid, the product page, the basket, the wishlist
+ * and the schedule quote. That is not a style preference. A storefront that
+ * worked this out for itself would eventually work it out differently from the
+ * basket, and the shopper would be quoted one figure and charged another.
+ *
+ * Null means the product is sold as a piece, and that is the ordinary answer
+ * for most of a general catalogue - a drill, a laptop, a pair of boots. A
+ * number means one unit holds that many pieces, which is the consumables range
+ * this shop began as: a box of cannulas really does ship five hundred to a
+ * carton, and a buyer choosing "2" means two cartons.
+ *
+ * The deployment-wide `PIECES_PER_CARTON` is NOT consulted here. It used to be
+ * the whole answer, and the result was a cordless drill priced at five hundred
+ * times its value with "one carton has 500 pieces" printed underneath. It
+ * survives as the default the import writes into a product that genuinely is
+ * cartoned and whose sheet did not say by how many.
+ */
+export function piecesPerUnitFor(product: ProductUnitTerms): number {
+  const stated = product.piecesPerCarton;
+  if (stated === null || stated <= 1) return 1;
+  return Math.trunc(stated);
+}
+
+/** Whether this product is bought by the carton at all. */
+export function isCartoned(product: ProductUnitTerms): boolean {
+  return piecesPerUnitFor(product) > 1;
+}
+
 /** The quantity as it is stored, plus what the buyer actually chose. */
 export interface ResolvedOrderingQuantity {
   /** Pieces. The only number anything downstream reads. */
@@ -118,17 +159,25 @@ export interface SellUnitSpec {
 }
 
 /**
- * The operator's own line: cartons, at this deployment's carton size.
+ * The operator's own line, counted in whatever this product is sold in.
  *
- * The minimum and the step stay at one carton. The operator's per-product
+ * Cartons for a product that has a carton size, pieces for everything else.
+ * The unit follows the factor rather than being set beside it: a `piecesPerUnit`
+ * of one described as an `OUTER_CARTON` is a page that says "carton" over a
+ * figure that is a piece, which is the half-migration this function exists to
+ * make impossible.
+ *
+ * The minimum and the step stay at one unit. The operator's per-product
  * minimum is written in PIECES and is applied further down by the cart, which
  * is where it has always been applied - moving it here would change a rule
  * this work has no business changing.
  */
-export function operatorSellUnit(piecesPerCarton: number): SellUnitSpec {
+export function operatorSellUnit(product: ProductUnitTerms): SellUnitSpec {
+  const piecesPerUnit = piecesPerUnitFor(product);
+
   return {
-    unit: SELLING_UNIT,
-    piecesPerUnit: Math.max(1, Math.trunc(piecesPerCarton)),
+    unit: piecesPerUnit > 1 ? SELLING_UNIT : 'PIECE',
+    piecesPerUnit,
     minimumOrderQuantity: 1,
     orderIncrement: 1,
     maximumOrderQuantity: null,
@@ -210,10 +259,20 @@ function requestedUnits(input: {
 }): number {
   const named = input.unit ?? null;
 
-  if (named !== null && named !== input.spec.unit && input.spec.unit === SELLER_SELLING_UNIT) {
+  /*
+   * Keyed on the FACTOR rather than on which constant the unit happens to be.
+   *
+   * It used to test `spec.unit === SELLER_SELLING_UNIT`, which was the same
+   * question while a piece could only ever be a seller's. It cannot any more:
+   * the operator's own catalogue sells a drill one at a time, and that line is
+   * a piece with nobody else's offer behind it. Asking about the factor is
+   * asking the question the refusal is actually about - whether reading the
+   * request generously would multiply the basket.
+   */
+  if (named !== null && named !== input.spec.unit && input.spec.piecesPerUnit === 1) {
     throw badRequest(
       ErrorCode.SELLER_OFFER_UNIT_MISMATCH,
-      'This seller sells this by the piece. Choose a number of pieces.',
+      'This is sold by the piece. Choose a number of pieces.',
       [
         {
           field: input.field,
@@ -353,7 +412,7 @@ export function resolveOrderingQuantity(input: {
   field: string;
 }): ResolvedOrderingQuantity {
   return resolveSellUnitQuantity({
-    spec: operatorSellUnit(input.piecesPerCarton),
+    spec: operatorSellUnit({ piecesPerCarton: input.piecesPerCarton }),
     unit: input.unit,
     unitQuantity: input.unitQuantity,
     pieces: input.pieces,

@@ -1638,3 +1638,8 @@ export type LogisticsNotification = Prisma.LogisticsNotificationModel
  * own trail is complete without the carrier reading it.
  */
 export type LogisticsAuditLog = Prisma.LogisticsAuditLogModel
+/**
+ * Model DemoCatalogEntry
+ * 
+ */
+export type DemoCatalogEntry = Prisma.DemoCatalogEntryModel

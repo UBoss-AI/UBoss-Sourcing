@@ -297,7 +297,7 @@ describe('the unit factor is the server’s to decide', () => {
      * of one.
      */
     const resolved = resolveSellUnitQuantity({
-      spec: operatorSellUnit(500),
+      spec: operatorSellUnit({ piecesPerCarton: 500 }),
       unit: 'PIECE',
       unitQuantity: null,
       pieces: 600,

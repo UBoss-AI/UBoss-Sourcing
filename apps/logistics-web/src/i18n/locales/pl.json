@@ -35,6 +35,8 @@
   "auth.signIn": "Zaloguj się",
   "auth.email": "Służbowy adres e-mail",
   "auth.password": "Hasło",
+  "auth.demo.title": "Konta demonstracyjne",
+  "auth.demo.intro": "To jest witryna demonstracyjna. Zaloguj się za pomocą jednego z poniższych kont.",
   "auth.signingIn": "Logowanie",
   "auth.heading": "Zaloguj się do portalu logistycznego",
   "auth.subheading": "Użyj konta, na które zaprosił Cię marketplace.",

@@ -604,17 +604,29 @@ function Show-Endpoints {
     if ($Tunnel) {
         Write-Host '  ngrok         http://localhost:4040   (inspector)'
 
-        # The public addresses, spelled out. One free tunnel serves all three
-        # apps: the storefront owns the root and proxies the other two under a
-        # path, so the difference between them is the path and nothing else.
-        # Printing only the inspector left people guessing at the two paths.
+        # The public addresses, spelled out - but only the ones this tunnel
+        # actually serves.
+        #
+        # The reserved domain is shared by two alternative ngrok entries, and
+        # they point at different things: `shop` at the storefront, which
+        # proxies /admin and /logistics behind it, and `api` at port 4000 for
+        # when the front ends are on Netlify instead. Printing the three app
+        # paths under `api` was worse than printing nothing - the same URLs,
+        # all three 404, and nothing on screen saying why.
         $tunnelHost = Get-TunnelHost
         if ($tunnelHost) {
             Write-Host ''
-            Write-Host "  Public        https://$tunnelHost/            storefront"
-            Write-Host "                https://$tunnelHost/admin/      admin panel"
-            if (Test-LogisticsPortalEnabled) {
-                Write-Host "                https://$tunnelHost/logistics/  logistics portal"
+            if ($NgrokTunnelName -eq 'shop') {
+                Write-Host "  Public        https://$tunnelHost/            storefront"
+                Write-Host "                https://$tunnelHost/admin/      admin panel"
+                if (Test-LogisticsPortalEnabled) {
+                    Write-Host "                https://$tunnelHost/logistics/  logistics portal"
+                }
+            }
+            else {
+                Write-Host "  Public        https://$tunnelHost   <- the API ('$NgrokTunnelName' tunnel)"
+                Write-Host '                The front ends are NOT on this hostname. It is the API for' -ForegroundColor DarkGray
+                Write-Host '                sites hosted elsewhere - see docs/NETLIFY.md.' -ForegroundColor DarkGray
             }
         }
     }

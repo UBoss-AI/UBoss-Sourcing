@@ -1098,6 +1098,43 @@ attribute filters and category tree stay on `/products`, one link away —
 reimplementing any of them here would be a second answer to "what is in this
 catalogue" that could disagree with the first.
 
+### Curated shelves, between the rail and the catalogue
+
+The rail above is a table of contents and the list below is a list. Neither
+shows a first-time visitor what the shop actually *sells* — a hospital buyer
+and a site foreman both landed on the same twelve cards and neither saw
+anything from their trade unless it happened to be published that week.
+
+So five shelves sit between them, six cards each:
+
+| Shelf | Drawn from |
+|---|---|
+| New arrivals | The whole catalogue, newest first |
+| Business essentials | Office & Stationery, Packaging & Shipping, Cleaning & Hygiene, Furniture & Fixtures |
+| Industrial and professional supplies | Industrial Supplies, Tools & Hardware, Electrical & Lighting, Safety & Protective Equipment, Building & Construction |
+| Technology and electronics | Computers & IT, Phones & Communication, Electronics & Components |
+| Home, lifestyle and personal care | Home & Kitchen, Clothing & Textiles, Beauty & Personal Care, Sports & Outdoors, Toys, Hobbies & Crafts |
+
+Each shelf is **one** read of `/catalog/products`, carrying all of its
+departments as a comma-separated `category`, rather than one request per
+department interleaved in the browser. Its "See all" opens the catalogue
+narrowed to exactly those departments, so a shopper who presses it sees all of
+what they were shown a sample of.
+
+**No shelf claims popularity.** Not "trending", not "best sellers", not
+"recommended". This storefront has no sales figures and no view counts, so
+every one of those would be a sentence made up to fill a heading — and a
+shopper who works out that one heading is arbitrary stops believing the prices
+too. "New arrivals" is the single claim made, and it is `sort=newest`, which is
+publication date.
+
+**A shelf with nothing in it renders nothing** — no heading, no empty grid, no
+error box. An operator who has retired a department has done something
+legitimate; the API drops a slug it cannot resolve, so the shelf narrows, and a
+shelf that comes back empty simply is not there. A fresh deployment with
+nothing published therefore shows no shelves at all and still looks finished,
+which is the constraint the whole landing page is designed under.
+
 `home-products.test.tsx` guards the two things that rot. It counts the
 catalogue reads and asserts there is exactly **one** — a section that mounts
 twice, or a stale second query key, shows up here and nowhere else. And it
@@ -3072,6 +3109,103 @@ Unlike the wizard, this refuses rather than reports. A draft is allowed to be
 half-finished, because nobody can buy it; every row accepted here becomes
 something a buyer can put in a basket within the minute, so a version with no
 price cannot be stored and fixed later.
+
+### Editing a listing that is already in the catalogue
+
+Adding versions was the first thing `listings/:id` had to do. It was not the
+last: everything else a seller had typed into the wizard was still frozen the
+moment a moderator approved it — the price, the minimum order, the lead time,
+the photographs, the stock against one colour. "Edit" opened a screen that
+could add sizes and nothing more, which is not what the word means.
+
+`listings/:id/edit` is the screen it was promising. It arrives filled in, and a
+seller changes what they own on it.
+
+**Two kinds of change, and only one needs the listing off sale.** This is the
+distinction the whole screen is arranged around.
+
+| | Examples | While it is on sale |
+|---|---|---|
+| **Routine** | Price, recommended price, stock, minimum order, order steps, dispatch days, warranty | Allowed |
+| **Structural** | Adding or removing an option, adding or withdrawing a combination, changing the category | Refused — pause first |
+
+Stock changes many times a day. A system that demanded a listing be taken off
+sale to correct a count would be a system whose counts are wrong, because
+nobody would use it. A structural change is different in kind: it rearranges
+what the buyer is choosing between, and doing that under somebody mid-purchase
+means they pick a size that stops existing between the click and the basket.
+
+**"Pause & Edit" is the door.** Pressing *Edit* on a live listing asks first,
+in the seller's own terms — it disappears from search, orders already placed
+are not affected, the stock and the codes and the history are all kept. The
+pause happens when the editor opens rather than when the button is pressed, so
+a navigation that never arrives cannot leave a listing off sale with nobody on
+the screen that took it off. `seller_offers.pausedAt` and `pausedByProfileId`
+record who did it, so a colleague finding it paused on Monday is told it was an
+edit rather than a compliance hold.
+
+**Two ways to finish.** *Save as paused* and *Save & resume sale* are different
+decisions, and a seller halfway through re-pricing forty rows has to be able to
+put the work down without putting it in front of buyers. Resuming re-checks the
+listing from scratch rather than trusting whatever was true when it was paused
+— pausing is what a seller does in *order* to change things, so the state they
+paused in is not the state they are resuming from. A listing with no name, no
+code, no photograph, no tax class or nothing switched on is refused, and the
+refusal names the one thing to fix.
+
+**Ids survive.** Combinations are matched by option signature, never by
+position and never by code. A seller adding size 10 to a run of 7–9 keeps three
+variant ids, three offer ids, three piles of stock and three sets of order
+history, and gains one row. Regenerating the matrix and writing it over the top
+would lose all of that while looking, from the outside, as though it had
+worked.
+
+**Nothing is deleted, ever.** Withdrawing a combination deactivates its offer
+and archives its variant. One that appears on an order keeps its rows, because
+the order detail page reads through them to say what was in the box — and
+`order_items` is `ON DELETE RESTRICT` in any case, so a hard delete would fail
+rather than corrupt anything. A failed save on the last row of a matrix is not
+a message a seller can act on.
+
+**"Not offered" and "out of stock" are different answers.** Unticking a version
+says the seller does not sell that combination; a stock of zero says they sell
+it and have none. The table shows the two differently and buyers are told the
+two differently. A newly generated combination arrives unticked, because a
+generated row is a suggestion and the seller says which are real.
+
+**What the seller owns, and what they share.** The facts panel — the product's
+name, department, model, packing — is read-only, and it is the part of the
+screen most likely to look like a bug. A marketplace product is *one* catalogue
+entry that several sellers offer, so one of them renaming it would change what
+the other two are selling. Photographs are the exception, and the rule is
+narrower than it looks: the seller who *described* the product may change them,
+because it is their listing the pictures came from; one who matched their stock
+to an existing page may not, and is told why.
+
+**Photographs save immediately, not with the form.** A picture is bytes, not a
+field: holding it until Save would mean keeping megabytes in memory while a
+seller re-prices forty rows, and losing it if they close the tab. Identical
+bytes are matched by checksum and the existing asset reused, so pressing upload
+twice after a slow response does not store the file twice. The last photograph
+cannot be removed — a published product with none is a grey box in every search
+result.
+
+**Unsaved work is defended.** The version the form was built from goes back
+with the save, and a stale one is refused with "reload" rather than merged.
+Leaving the page with changes asks first, from the browser's own dialog as well
+as the app's. The Save buttons disable while a save is in flight.
+
+The endpoints, all under the seller's own session and all checking ownership on
+the row rather than trusting the URL:
+
+| Endpoint | What it does |
+|---|---|
+| `GET /seller/listings/:id/edit` | Everything the form needs, in one request |
+| `POST /seller/listings/:id/pause-for-edit` | Off sale, with the trail. Idempotent |
+| `PATCH /seller/listings/:id/edit` | Terms, options, combinations and stock, in one transaction, ending paused or on sale |
+| `POST /seller/listings/:id/photos` | One picture. The bytes decide the type |
+| `PATCH /seller/listings/:id/photos/:mediaId` | Which one a buyer sees first |
+| `DELETE /seller/listings/:id/photos/:mediaId` | Take one off. Never the last |
 
 ### How a seller's versions reach a shopper
 
@@ -10290,15 +10424,31 @@ A wholesale buyer's first question about a consumable is not what it costs, it
 is how it arrives — that is the unit they order in, the unit their store room
 counts in, and the unit their own purchase order is written in.
 
-There are two answers, and **which one applies is decided by who is selling**:
+There are two answers, and **which one applies is decided by who is selling and
+by what is being sold**:
 
-- **The operator sells cartons.** One carton, and one carton has 500 pieces.
-  There is no piece to buy, no inner box to buy, and no per-product carton size
-  to check. A buyer types a number of cartons and every price they have been
-  shown is the price of one of those.
+- **The operator sells some things by the carton and some one at a time.** A box
+  of cannulas really does ship five hundred to a carton; a cordless drill, a
+  laptop and a pair of boots do not ship in cartons at all. Which applies is a
+  property of the product — `products.piecesPerCarton`, null for a piece — and
+  where there is a carton, a buyer types a number of cartons and every price
+  they have been shown is the price of one of those.
 - **A third-party seller sells pieces.** A marketplace listing is an ordinary
   one: a price per piece, stock in pieces, and a minimum and a step the seller
   chose. The operator's carton is the operator's.
+
+**The carton used to be a property of the SHOP, and that was the bug.** One
+number was applied to everything the operator owned, which was right while the
+catalogue was a consumables range and became badly wrong the moment it was not:
+a ₹3,277 drill appeared at ₹16,38,500 with "one carton has 500 pieces" printed
+underneath it, and the product page offered a ready-reckoner converting cartons
+of drills into pieces of drill. The column fixed all of it at once, because the
+storefront, the basket, the wishlist, the schedule quote and the assistant all
+read it through one function.
+
+`PIECES_PER_CARTON` survives, narrowed: it is the default the importer writes
+into a product whose supplier sheet said it was cartoned without saying by how
+many. It is no longer consulted for anything else.
 
 That second answer is newer than the first, and it exists because the first was
 being applied to both. A seller listing a ten-rupee item priced it per piece, a
@@ -11127,6 +11277,7 @@ Everything lives in `backend/.env`, validated at boot by `src/config/env.ts`.
 | `LOGISTICS_WEB_PUBLIC_URL` | Where an invited carrier's activation link points. **Required when `FEATURE_LOGISTICS_PORTAL` is on** — `env.ts` refuses to start without it, because an invitation email with no address in it is a person who cannot get in |
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL |
 | `apps/*/.env.local` → `TUNNEL_HOST` | The hostname of the development tunnel, if one is in use |
+| `apps/*/.env.netlify.local` → `VITE_DEMO_LOGINS` | Demo sign-ins printed on that app's login page, as JSON. Gitignored, and absent from every ordinary build |
 
 The CORS allowlist is exact, and all three frontends use `strictPort`, so a port
 clash fails loudly rather than silently moving to a port CORS will reject.
@@ -11888,3 +12039,93 @@ section is added to the other.
 > repository. It exists for reading, not for shipping. Keeping it out of git is
 > deliberate: the committed documentation of a product sold to other companies
 > stays in one language.
+
+---
+
+## The demonstration catalogue
+
+A freshly installed deployment has an empty shop front, and an empty shop front
+cannot be reviewed, demonstrated or tested end to end. There is nothing to
+click, nothing to filter, nothing to put in a basket and nothing to show
+anybody. So one command plants a broad catalogue:
+
+```powershell
+cd backend ; npm run seed:demo-catalog
+```
+
+It writes **every department and every sub-category the deployment has** — 25
+and 138 on a standard install — with at least three product families on each
+shelf, and every family carrying its own options, SKUs, prices and stock. Four
+hundred and fourteen families, a little under three thousand sellable
+combinations.
+
+### What one product looks like
+
+An 18 V cordless drill is not "Demo Product 7". It has a name a trade supplier
+would print, a short description for the card and a longer one for the page, a
+specification table, a brand, an image, a weight, and three dimensions a buyer
+chooses along — voltage, battery capacity and kit contents. Every combination
+of those is a separate row with its own SKU, its own price and its own pile of
+stock, because Black/Size 8 and Brown/Size 9 are two things on two shelves and
+a catalogue that stores stock against "Black" is describing a warehouse that
+cannot exist.
+
+The dimensions are not invented per product either. They come from the variant
+template registry the seller's matrix builder and the buyer's selector already
+share, so a demonstration product behaves on the storefront exactly like a
+seller's own — same selector, same facets, same signatures. A unit test refuses
+a blueprint that names an axis its sub-category's template does not offer.
+
+### The three rules it is written under
+
+**It cannot touch a product a person created.** Every write is addressed
+through `demo_catalog_entries`: a blueprint resolves to a product by reading
+its own row there, so a product with no row cannot be named by the seed, let
+alone overwritten. That is structural rather than careful — there is no SKU
+prefix being trusted and no "everything created that afternoon". Removing the
+demonstration catalogue means deleting those rows and the products they name,
+and there is deliberately no delete flag on the seed.
+
+**Re-running it converges, and converges on the same figures.** Every price,
+stock level and SKU is derived from the blueprint's own key rather than drawn
+at random, so a second run changes nothing and a run after editing one
+blueprint changes exactly one product. A seed whose diff is four hundred
+changed prices is a seed nobody reviews.
+
+**Nothing in it claims anything it cannot support.** No certification, no
+approval, no clinical outcome, no "best seller", no "number one" — a unit test
+refuses the whole registry if any of them appears in a title, a description or
+a specification. The brands are invented and used consistently. No GTIN, no
+ISBN and no hazard class is written anywhere, because each of those is issued
+by somebody and a fabricated one belongs to them. The medical shelves are the
+strictest of all: a gauge and a length are dimensions, and a dose is not.
+
+### Switching it off
+
+`ENABLE_DEMO_CATALOG=false` takes every one of them off the storefront — out
+of the grid, out of search, out of the facet counts and out of its own URL — by
+adding one condition to `publicProductWhere()`, the single filter every public
+catalogue read already goes through. It deletes nothing and unpublishes
+nothing, so switching it back on needs no second seed. It defaults to on
+outside production and off in production, and the seed itself refuses to run in
+production unless it is explicitly set to true.
+
+### Photographs, and what is claimed about them
+
+With `UNSPLASH_ACCESS_KEY` set, the seed resolves one photograph per **product**
+through the official Search API, with a query written for the product rather
+than its department — "cordless electric drill isolated", never "tools". It
+stores the photographer, their profile, the photo page and pings the
+download-location endpoint the terms require of anything selecting a photo for
+use, and it hotlinks the URL the API returned.
+
+Without a key it falls back to the image library the storefront already ships
+with for its category rails. That library is keyed on a **shelf**, not a
+product, so the strongest true statement about one of its entries is "a
+photograph of the trade this product is in" — and spot-checking found even that
+is sometimes generous. So every image resolved that way is reported as needing
+review. Claiming four hundred verified product photographs would be the easy
+report to print and the wrong one.
+
+No photo ID is ever invented, and the deprecated `source.unsplash.com` endpoint
+is never used.

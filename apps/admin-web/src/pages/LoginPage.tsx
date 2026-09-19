@@ -26,6 +26,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { Button, Checkbox, Field, Spinner } from '@/components/ui';
+import { DemoLoginPanel } from '@/components/DemoLoginPanel';
 import {
   AuthCard,
   AuthDivider,
@@ -296,6 +297,13 @@ export function LoginPage(): React.JSX.Element {
           </Link>
         </p>
       </AuthCard>
+
+      {/* Renders nothing unless this build was given demo accounts, which is
+          every build except a demonstration one. */}
+      <DemoLoginPanel
+        emailLabel={t('common.emailAddress')}
+        passwordLabel={t('common.password')}
+      />
 
       {/* Renders nothing in English. */}
       <TranslationQualityNotice className="mt-5 text-center" />

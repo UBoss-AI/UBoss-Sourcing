@@ -1502,8 +1502,13 @@ export function ProductPage(): React.JSX.Element {
 
                   This is the figure the basket, the warehouse and the invoice
                   will all use, so seeing it here is what stops "2" meaning two
-                  syringes to the customer and a thousand to everybody else. */}
-              {totalPieces > 0 && (
+                  syringes to the customer and a thousand to everybody else.
+
+                  Only where there is a conversion to show. On a product sold
+                  one at a time the sentence restates the number in the box
+                  directly above it - "That comes to 1 pieces" under a quantity
+                  of 1 - which is noise, and ungrammatical noise at that. */}
+              {!soldByThePiece && totalPieces > 0 && (
                 <p className="rounded-md bg-surface-sunken px-3 py-2 text-sm tabular text-ink-muted">
                   {t('packaging.comesTo', { n: formatNumber(totalPieces) })}
                 </p>
@@ -1729,7 +1734,11 @@ export function ProductPage(): React.JSX.Element {
               specification is a fact about the product, and this is how it
               arrives on a pallet - a different question, asked by a different
               person, in a different part of the buying decision. */}
-          <PackagingSection packaging={shownPackaging} soldByThePiece={soldByThePiece} />
+          <PackagingSection
+            packaging={shownPackaging}
+            soldByThePiece={soldByThePiece}
+            piecesPerCarton={sellUnit.piecesPerUnit}
+          />
           <DimensionsSection packaging={shownPackaging} />
 
           {/* GPSR Art. 19. Below the specifications because it is reference

@@ -11,7 +11,11 @@ import { z } from 'zod';
 import { ErrorCode, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { Permission } from '../../domain/permissions.js';
-import { resolveOrderingQuantity } from '../../domain/ordering-unit.js';
+import {
+  operatorSellUnit,
+  resolveSellUnitQuantity,
+  type OrderingUnit,
+} from '../../domain/ordering-unit.js';
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
 import {
@@ -54,14 +58,18 @@ const itemSchema = z.object({
   /** Pieces. The figure `quoteSchedule` prices, and the only one it prices. */
   quantity: z.number().int().min(1).max(1_000_000),
   /**
-   * The unit the customer agreed the plan in, for showing back. Cartons, and
-   * only cartons - see `domain/ordering-unit.ts`.
+   * The unit the customer agreed the plan in, for showing back.
+   *
+   * Both units, because the operator's catalogue holds both: a box of cannulas
+   * is bought by the carton and a cordless drill is bought one at a time. Which
+   * one applies is a fact about the PRODUCT - `products.piecesPerCarton` - and
+   * is checked against it in `normaliseItems` below rather than taken on trust.
    *
    * Accepted but never priced from - see `QuoteItemInput`. A client that sent
    * a flattering conversion here would change what the plan screen says and
    * nothing about what is charged.
    */
-  orderingUnit: z.enum(['OUTER_CARTON']).optional(),
+  orderingUnit: z.enum(['OUTER_CARTON', 'PIECE']).optional(),
   unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
   piecesPerUnitSnapshot: z.number().int().min(1).max(1_000_000).optional(),
   /**
@@ -73,35 +81,73 @@ const itemSchema = z.object({
    */
   substituteProductId: z.string().length(26).nullable().optional(),
   substituteVariantId: z.string().length(26).nullable().optional(),
-}).transform((item) => {
-  /**
-   * Whole cartons, decided here and nowhere else.
-   *
-   * At the edge rather than in the service because two things downstream read
-   * the same item: the review screen the customer confirms, and the row the
-   * worker charges them from weeks later. Rounding in one and not the other is
-   * how somebody is charged a figure nobody showed them.
-   *
-   * The client's own `piecesPerUnitSnapshot` is discarded rather than trusted.
-   * It only ever decided what the plan screen says, but a screen that says
-   * "2 cartons (4 pieces)" is a screen the customer stops believing.
-   */
-  const ordering = resolveOrderingQuantity({
-    unit: item.orderingUnit,
-    unitQuantity: item.unitQuantity,
-    pieces: item.quantity,
-    piecesPerCarton: env.PIECES_PER_CARTON,
-    field: 'items',
+});
+
+/**
+ * Whole units, decided once and against the product that is being bought.
+ *
+ * WHY THIS IS NOT A ZOD TRANSFORM ANY MORE
+ *
+ * It used to be, and it had to stop being one. The conversion needs to know
+ * how many pieces are in one unit of THIS product, and that lives in the
+ * database - a zod transform is synchronous and cannot ask. So it did the only
+ * thing it could and applied the deployment-wide carton to everything, which
+ * was right for the consumables range and multiplied a cordless drill by five
+ * hundred.
+ *
+ * It is still decided ONCE, which was the point of doing it at the edge: two
+ * things downstream read the same item - the review screen the customer
+ * confirms, and the row the worker charges them from weeks later - and
+ * rounding in one and not the other is how somebody is charged a figure nobody
+ * showed them.
+ *
+ * The client's own `piecesPerUnitSnapshot` is discarded rather than trusted.
+ * It only ever decided what the plan screen says, but a screen that says
+ * "2 cartons (4 pieces)" is a screen the customer stops believing.
+ */
+async function normaliseItems<T extends ScheduleItemInput>(items: readonly T[]): Promise<T[]> {
+  const products = await prisma.product.findMany({
+    where: { id: { in: [...new Set(items.map((item) => item.productId))] } },
+    select: { id: true, piecesPerCarton: true },
   });
 
-  return {
-    ...item,
-    quantity: ordering.quantity,
-    orderingUnit: ordering.orderingUnit,
-    unitQuantity: ordering.unitQuantity,
-    piecesPerUnitSnapshot: ordering.piecesPerUnitSnapshot,
-  };
-});
+  const cartonById = new Map(products.map((product) => [product.id, product.piecesPerCarton]));
+
+  return items.map((item) => {
+    /*
+     * A product this request names but the catalogue does not have is left to
+     * the service, which refuses it with a message about the product rather
+     * than one about arithmetic. Treated as a piece here so the conversion has
+     * something to do; nothing it produces will be used.
+     */
+    const spec = operatorSellUnit({ piecesPerCarton: cartonById.get(item.productId) ?? null });
+
+    const ordering = resolveSellUnitQuantity({
+      spec,
+      unit: item.orderingUnit,
+      unitQuantity: item.unitQuantity,
+      pieces: item.quantity,
+      field: 'items',
+    });
+
+    return {
+      ...item,
+      quantity: ordering.quantity,
+      orderingUnit: ordering.orderingUnit,
+      unitQuantity: ordering.unitQuantity,
+      piecesPerUnitSnapshot: ordering.piecesPerUnitSnapshot,
+    };
+  });
+}
+
+/** As much of a requested line as `normaliseItems` reads. */
+interface ScheduleItemInput {
+  productId: string;
+  quantity: number;
+  orderingUnit?: OrderingUnit | undefined;
+  unitQuantity?: number | undefined;
+  piecesPerUnitSnapshot?: number | undefined;
+}
 
 /**
  * Every frequency the API accepts.
@@ -625,7 +671,8 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
       }
 
       const auth = currentUser(request);
-      const body = createSchema.parse(request.body);
+      const parsed = createSchema.parse(request.body);
+      const body = { ...parsed, items: await normaliseItems(parsed.items) };
 
       const created = await createSchedule(
         { ...body, customerProfileId: auth.customerProfileId ?? '' },
@@ -648,7 +695,11 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
   app.patch('/:id', async (request, reply) => {
     const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
-    const body = updateSchema.parse(request.body);
+    const parsed = updateSchema.parse(request.body);
+    const body =
+      parsed.items === undefined
+        ? parsed
+        : { ...parsed, items: await normaliseItems(parsed.items) };
 
     const result = await updateSchedule(
       id,

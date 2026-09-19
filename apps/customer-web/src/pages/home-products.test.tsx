@@ -119,11 +119,31 @@ function heroRow(): HTMLElement {
   return screen.getByRole('navigation', { name: HERO_ROW_LABEL });
 }
 
-/** Which catalogue reads have been made. The point of most of these tests. */
+/**
+ * `InlineProducts` PAGE_SIZE. Twelve: three full rows at `lg`.
+ *
+ * Duplicated here rather than exported, because the point of the constant in
+ * the test is to be an independent statement of what the request should look
+ * like - importing it would make a changed page size invisible to this file.
+ */
+const INLINE_PAGE_SIZE = 12;
+
+/**
+ * Which catalogue reads THIS SECTION has made. The point of most of these tests.
+ *
+ * Narrowed to the section's own page size, because the greeting page now also
+ * carries the curated shelves above it, and those are five more reads of the
+ * same endpoint. They ask for six products; this asks for twelve, which is the
+ * one thing in the request that tells them apart without this file having to
+ * know what the shelves are called.
+ */
 function productReads(): string[] {
   return fetchMock.mock.calls
     .map((call) => String(call[0]))
-    .filter((url) => url.includes('/catalog/products'));
+    .filter(
+      (url) =>
+        url.includes('/catalog/products') && url.includes(`limit=${String(INLINE_PAGE_SIZE)}`),
+    );
 }
 
 beforeEach(() => {

@@ -30,6 +30,7 @@ export type ProductAvgAggregateOutputType = {
   basePriceMinor: number | null
   compareAtPriceMinor: number | null
   reorderThreshold: number | null
+  piecesPerCarton: number | null
   minOrderQty: number | null
   maxOrderQty: number | null
   qtyIncrement: number | null
@@ -40,6 +41,7 @@ export type ProductSumAggregateOutputType = {
   basePriceMinor: bigint | null
   compareAtPriceMinor: bigint | null
   reorderThreshold: number | null
+  piecesPerCarton: number | null
   minOrderQty: number | null
   maxOrderQty: number | null
   qtyIncrement: number | null
@@ -69,6 +71,7 @@ export type ProductMinAggregateOutputType = {
   reorderThreshold: number | null
   isOrderable: boolean | null
   unavailabilityReason: string | null
+  piecesPerCarton: number | null
   minOrderQty: number | null
   maxOrderQty: number | null
   qtyIncrement: number | null
@@ -117,6 +120,7 @@ export type ProductMaxAggregateOutputType = {
   reorderThreshold: number | null
   isOrderable: boolean | null
   unavailabilityReason: string | null
+  piecesPerCarton: number | null
   minOrderQty: number | null
   maxOrderQty: number | null
   qtyIncrement: number | null
@@ -165,6 +169,7 @@ export type ProductCountAggregateOutputType = {
   reorderThreshold: number
   isOrderable: number
   unavailabilityReason: number
+  piecesPerCarton: number
   minOrderQty: number
   maxOrderQty: number
   qtyIncrement: number
@@ -197,6 +202,7 @@ export type ProductAvgAggregateInputType = {
   basePriceMinor?: true
   compareAtPriceMinor?: true
   reorderThreshold?: true
+  piecesPerCarton?: true
   minOrderQty?: true
   maxOrderQty?: true
   qtyIncrement?: true
@@ -207,6 +213,7 @@ export type ProductSumAggregateInputType = {
   basePriceMinor?: true
   compareAtPriceMinor?: true
   reorderThreshold?: true
+  piecesPerCarton?: true
   minOrderQty?: true
   maxOrderQty?: true
   qtyIncrement?: true
@@ -236,6 +243,7 @@ export type ProductMinAggregateInputType = {
   reorderThreshold?: true
   isOrderable?: true
   unavailabilityReason?: true
+  piecesPerCarton?: true
   minOrderQty?: true
   maxOrderQty?: true
   qtyIncrement?: true
@@ -284,6 +292,7 @@ export type ProductMaxAggregateInputType = {
   reorderThreshold?: true
   isOrderable?: true
   unavailabilityReason?: true
+  piecesPerCarton?: true
   minOrderQty?: true
   maxOrderQty?: true
   qtyIncrement?: true
@@ -332,6 +341,7 @@ export type ProductCountAggregateInputType = {
   reorderThreshold?: true
   isOrderable?: true
   unavailabilityReason?: true
+  piecesPerCarton?: true
   minOrderQty?: true
   maxOrderQty?: true
   qtyIncrement?: true
@@ -468,6 +478,7 @@ export type ProductGroupByOutputType = {
   reorderThreshold: number
   isOrderable: boolean
   unavailabilityReason: string | null
+  piecesPerCarton: number | null
   minOrderQty: number
   maxOrderQty: number | null
   qtyIncrement: number
@@ -540,6 +551,7 @@ export type ProductWhereInput = {
   reorderThreshold?: Prisma.IntFilter<"Product"> | number
   isOrderable?: Prisma.BoolFilter<"Product"> | boolean
   unavailabilityReason?: Prisma.StringNullableFilter<"Product"> | string | null
+  piecesPerCarton?: Prisma.IntNullableFilter<"Product"> | number | null
   minOrderQty?: Prisma.IntFilter<"Product"> | number
   maxOrderQty?: Prisma.IntNullableFilter<"Product"> | number | null
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
@@ -587,6 +599,7 @@ export type ProductWhereInput = {
   importRecords?: Prisma.ProductImportRecordListRelationFilter
   sellerOffers?: Prisma.SellerOfferListRelationFilter
   createdBySellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  demoEntry?: Prisma.XOR<Prisma.DemoCatalogEntryNullableScalarRelationFilter, Prisma.DemoCatalogEntryWhereInput> | null
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -612,6 +625,7 @@ export type ProductOrderByWithRelationInput = {
   reorderThreshold?: Prisma.SortOrder
   isOrderable?: Prisma.SortOrder
   unavailabilityReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrderInput | Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrderInput | Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -659,6 +673,7 @@ export type ProductOrderByWithRelationInput = {
   importRecords?: Prisma.ProductImportRecordOrderByRelationAggregateInput
   sellerOffers?: Prisma.SellerOfferOrderByRelationAggregateInput
   createdBySellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
+  demoEntry?: Prisma.DemoCatalogEntryOrderByWithRelationInput
   _relevance?: Prisma.ProductOrderByRelevanceInput
 }
 
@@ -689,6 +704,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   reorderThreshold?: Prisma.IntFilter<"Product"> | number
   isOrderable?: Prisma.BoolFilter<"Product"> | boolean
   unavailabilityReason?: Prisma.StringNullableFilter<"Product"> | string | null
+  piecesPerCarton?: Prisma.IntNullableFilter<"Product"> | number | null
   minOrderQty?: Prisma.IntFilter<"Product"> | number
   maxOrderQty?: Prisma.IntNullableFilter<"Product"> | number | null
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
@@ -735,6 +751,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   importRecords?: Prisma.ProductImportRecordListRelationFilter
   sellerOffers?: Prisma.SellerOfferListRelationFilter
   createdBySellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  demoEntry?: Prisma.XOR<Prisma.DemoCatalogEntryNullableScalarRelationFilter, Prisma.DemoCatalogEntryWhereInput> | null
 }, "id" | "slug" | "sku" | "importFingerprint">
 
 export type ProductOrderByWithAggregationInput = {
@@ -760,6 +777,7 @@ export type ProductOrderByWithAggregationInput = {
   reorderThreshold?: Prisma.SortOrder
   isOrderable?: Prisma.SortOrder
   unavailabilityReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrderInput | Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrderInput | Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -817,6 +835,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   reorderThreshold?: Prisma.IntWithAggregatesFilter<"Product"> | number
   isOrderable?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   unavailabilityReason?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  piecesPerCarton?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   minOrderQty?: Prisma.IntWithAggregatesFilter<"Product"> | number
   maxOrderQty?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   qtyIncrement?: Prisma.IntWithAggregatesFilter<"Product"> | number
@@ -864,6 +883,7 @@ export type ProductCreateInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -908,6 +928,7 @@ export type ProductCreateInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -933,6 +954,7 @@ export type ProductUncheckedCreateInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -975,6 +997,7 @@ export type ProductUncheckedCreateInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -998,6 +1021,7 @@ export type ProductUpdateInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1042,6 +1066,7 @@ export type ProductUpdateInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -1067,6 +1092,7 @@ export type ProductUncheckedUpdateInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1109,6 +1135,7 @@ export type ProductUncheckedUpdateInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -1134,6 +1161,7 @@ export type ProductCreateManyInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -1181,6 +1209,7 @@ export type ProductUpdateManyMutationInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1227,6 +1256,7 @@ export type ProductUncheckedUpdateManyInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1292,6 +1322,7 @@ export type ProductCountOrderByAggregateInput = {
   reorderThreshold?: Prisma.SortOrder
   isOrderable?: Prisma.SortOrder
   unavailabilityReason?: Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -1322,6 +1353,7 @@ export type ProductAvgOrderByAggregateInput = {
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
   reorderThreshold?: Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -1351,6 +1383,7 @@ export type ProductMaxOrderByAggregateInput = {
   reorderThreshold?: Prisma.SortOrder
   isOrderable?: Prisma.SortOrder
   unavailabilityReason?: Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -1399,6 +1432,7 @@ export type ProductMinOrderByAggregateInput = {
   reorderThreshold?: Prisma.SortOrder
   isOrderable?: Prisma.SortOrder
   unavailabilityReason?: Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -1428,6 +1462,7 @@ export type ProductSumOrderByAggregateInput = {
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
   reorderThreshold?: Prisma.SortOrder
+  piecesPerCarton?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   maxOrderQty?: Prisma.SortOrder
   qtyIncrement?: Prisma.SortOrder
@@ -1912,6 +1947,20 @@ export type ProductUpdateOneRequiredWithoutSellerOffersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutSellerOffersInput, Prisma.ProductUpdateWithoutSellerOffersInput>, Prisma.ProductUncheckedUpdateWithoutSellerOffersInput>
 }
 
+export type ProductCreateNestedOneWithoutDemoEntryInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutDemoEntryInput, Prisma.ProductUncheckedCreateWithoutDemoEntryInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutDemoEntryInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutDemoEntryNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutDemoEntryInput, Prisma.ProductUncheckedCreateWithoutDemoEntryInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutDemoEntryInput
+  upsert?: Prisma.ProductUpsertWithoutDemoEntryInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutDemoEntryInput, Prisma.ProductUpdateWithoutDemoEntryInput>, Prisma.ProductUncheckedUpdateWithoutDemoEntryInput>
+}
+
 export type ProductCreateWithoutTaxClassInput = {
   id: string
   name: string
@@ -1933,6 +1982,7 @@ export type ProductCreateWithoutTaxClassInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -1976,6 +2026,7 @@ export type ProductCreateWithoutTaxClassInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTaxClassInput = {
@@ -2000,6 +2051,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2042,6 +2094,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTaxClassInput = {
@@ -2096,6 +2149,7 @@ export type ProductScalarWhereInput = {
   reorderThreshold?: Prisma.IntFilter<"Product"> | number
   isOrderable?: Prisma.BoolFilter<"Product"> | boolean
   unavailabilityReason?: Prisma.StringNullableFilter<"Product"> | string | null
+  piecesPerCarton?: Prisma.IntNullableFilter<"Product"> | number | null
   minOrderQty?: Prisma.IntFilter<"Product"> | number
   maxOrderQty?: Prisma.IntNullableFilter<"Product"> | number | null
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
@@ -2143,6 +2197,7 @@ export type ProductCreateWithoutCategoryInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2186,6 +2241,7 @@ export type ProductCreateWithoutCategoryInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -2210,6 +2266,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2252,6 +2309,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -2301,6 +2359,7 @@ export type ProductCreateWithoutVariantsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2344,6 +2403,7 @@ export type ProductCreateWithoutVariantsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutVariantsInput = {
@@ -2369,6 +2429,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2410,6 +2471,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutVariantsInput = {
@@ -2449,6 +2511,7 @@ export type ProductUpdateWithoutVariantsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2492,6 +2555,7 @@ export type ProductUpdateWithoutVariantsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutVariantsInput = {
@@ -2517,6 +2581,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2558,6 +2623,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutMediaInput = {
@@ -2581,6 +2647,7 @@ export type ProductCreateWithoutMediaInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2624,6 +2691,7 @@ export type ProductCreateWithoutMediaInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutMediaInput = {
@@ -2649,6 +2717,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2690,6 +2759,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutMediaInput = {
@@ -2729,6 +2799,7 @@ export type ProductUpdateWithoutMediaInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2772,6 +2843,7 @@ export type ProductUpdateWithoutMediaInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutMediaInput = {
@@ -2797,6 +2869,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2838,6 +2911,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutAttributesInput = {
@@ -2861,6 +2935,7 @@ export type ProductCreateWithoutAttributesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2904,6 +2979,7 @@ export type ProductCreateWithoutAttributesInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAttributesInput = {
@@ -2929,6 +3005,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -2970,6 +3047,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAttributesInput = {
@@ -3009,6 +3087,7 @@ export type ProductUpdateWithoutAttributesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3052,6 +3131,7 @@ export type ProductUpdateWithoutAttributesInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAttributesInput = {
@@ -3077,6 +3157,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3118,6 +3199,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPackagingsInput = {
@@ -3141,6 +3223,7 @@ export type ProductCreateWithoutPackagingsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3184,6 +3267,7 @@ export type ProductCreateWithoutPackagingsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPackagingsInput = {
@@ -3209,6 +3293,7 @@ export type ProductUncheckedCreateWithoutPackagingsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3250,6 +3335,7 @@ export type ProductUncheckedCreateWithoutPackagingsInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPackagingsInput = {
@@ -3289,6 +3375,7 @@ export type ProductUpdateWithoutPackagingsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3332,6 +3419,7 @@ export type ProductUpdateWithoutPackagingsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPackagingsInput = {
@@ -3357,6 +3445,7 @@ export type ProductUncheckedUpdateWithoutPackagingsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3398,6 +3487,7 @@ export type ProductUncheckedUpdateWithoutPackagingsInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutImportRecordsInput = {
@@ -3421,6 +3511,7 @@ export type ProductCreateWithoutImportRecordsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3464,6 +3555,7 @@ export type ProductCreateWithoutImportRecordsInput = {
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutImportRecordsInput = {
@@ -3489,6 +3581,7 @@ export type ProductUncheckedCreateWithoutImportRecordsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3530,6 +3623,7 @@ export type ProductUncheckedCreateWithoutImportRecordsInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutImportRecordsInput = {
@@ -3569,6 +3663,7 @@ export type ProductUpdateWithoutImportRecordsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3612,6 +3707,7 @@ export type ProductUpdateWithoutImportRecordsInput = {
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutImportRecordsInput = {
@@ -3637,6 +3733,7 @@ export type ProductUncheckedUpdateWithoutImportRecordsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3678,6 +3775,7 @@ export type ProductUncheckedUpdateWithoutImportRecordsInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryBalancesInput = {
@@ -3701,6 +3799,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3744,6 +3843,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
@@ -3769,6 +3869,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -3810,6 +3911,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryBalancesInput = {
@@ -3849,6 +3951,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3892,6 +3995,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
@@ -3917,6 +4021,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3958,6 +4063,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryMovementsInput = {
@@ -3981,6 +4087,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4024,6 +4131,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
@@ -4049,6 +4157,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4090,6 +4199,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryMovementsInput = {
@@ -4129,6 +4239,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4172,6 +4283,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -4197,6 +4309,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4238,6 +4351,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutStockReservationsInput = {
@@ -4261,6 +4375,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4304,6 +4419,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutStockReservationsInput = {
@@ -4329,6 +4445,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4370,6 +4487,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutStockReservationsInput = {
@@ -4409,6 +4527,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4452,6 +4571,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutStockReservationsInput = {
@@ -4477,6 +4597,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4518,6 +4639,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutCartItemsInput = {
@@ -4541,6 +4663,7 @@ export type ProductCreateWithoutCartItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4584,6 +4707,7 @@ export type ProductCreateWithoutCartItemsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCartItemsInput = {
@@ -4609,6 +4733,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4650,6 +4775,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCartItemsInput = {
@@ -4689,6 +4815,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4732,6 +4859,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCartItemsInput = {
@@ -4757,6 +4885,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4798,6 +4927,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutOrderItemsInput = {
@@ -4821,6 +4951,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4864,6 +4995,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutOrderItemsInput = {
@@ -4889,6 +5021,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -4930,6 +5063,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutOrderItemsInput = {
@@ -4969,6 +5103,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5012,6 +5147,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutOrderItemsInput = {
@@ -5037,6 +5173,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5078,6 +5215,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutScheduleItemsInput = {
@@ -5101,6 +5239,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5144,6 +5283,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutScheduleItemsInput = {
@@ -5169,6 +5309,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5210,6 +5351,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutScheduleItemsInput = {
@@ -5238,6 +5380,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5281,6 +5424,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
@@ -5306,6 +5450,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5347,6 +5492,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutSubstituteForItemsInput = {
@@ -5386,6 +5532,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5429,6 +5576,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
@@ -5454,6 +5602,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5495,6 +5644,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUpsertWithoutSubstituteForItemsInput = {
@@ -5529,6 +5679,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5572,6 +5723,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
@@ -5597,6 +5749,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5638,6 +5791,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPricesInput = {
@@ -5661,6 +5815,7 @@ export type ProductCreateWithoutPricesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5704,6 +5859,7 @@ export type ProductCreateWithoutPricesInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPricesInput = {
@@ -5729,6 +5885,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5770,6 +5927,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPricesInput = {
@@ -5809,6 +5967,7 @@ export type ProductUpdateWithoutPricesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5852,6 +6011,7 @@ export type ProductUpdateWithoutPricesInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPricesInput = {
@@ -5877,6 +6037,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5918,6 +6079,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTranslationsInput = {
@@ -5941,6 +6103,7 @@ export type ProductCreateWithoutTranslationsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -5984,6 +6147,7 @@ export type ProductCreateWithoutTranslationsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTranslationsInput = {
@@ -6009,6 +6173,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6050,6 +6215,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTranslationsInput = {
@@ -6089,6 +6255,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6132,6 +6299,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTranslationsInput = {
@@ -6157,6 +6325,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6198,6 +6367,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutManufacturerInput = {
@@ -6221,6 +6391,7 @@ export type ProductCreateWithoutManufacturerInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6264,6 +6435,7 @@ export type ProductCreateWithoutManufacturerInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutManufacturerInput = {
@@ -6289,6 +6461,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6330,6 +6503,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutManufacturerInput = {
@@ -6363,6 +6537,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6406,6 +6581,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutEuResponsibleInput = {
@@ -6431,6 +6607,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6472,6 +6649,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutEuResponsibleInput = {
@@ -6537,6 +6715,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6580,6 +6759,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutDeviceInfoInput = {
@@ -6605,6 +6785,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6646,6 +6827,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutDeviceInfoInput = {
@@ -6685,6 +6867,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6728,6 +6911,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
@@ -6753,6 +6937,7 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6794,6 +6979,7 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutCountryRestrictionsInput = {
@@ -6817,6 +7003,7 @@ export type ProductCreateWithoutCountryRestrictionsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6860,6 +7047,7 @@ export type ProductCreateWithoutCountryRestrictionsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
@@ -6885,6 +7073,7 @@ export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -6926,6 +7115,7 @@ export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCountryRestrictionsInput = {
@@ -6965,6 +7155,7 @@ export type ProductUpdateWithoutCountryRestrictionsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7008,6 +7199,7 @@ export type ProductUpdateWithoutCountryRestrictionsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
@@ -7033,6 +7225,7 @@ export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7074,6 +7267,7 @@ export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutWishlistItemsInput = {
@@ -7097,6 +7291,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7140,6 +7335,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutWishlistItemsInput = {
@@ -7165,6 +7361,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7206,6 +7403,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutWishlistItemsInput = {
@@ -7245,6 +7443,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7288,6 +7487,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
@@ -7313,6 +7513,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7354,6 +7555,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutCreatedBySellerAccountInput = {
@@ -7377,6 +7579,7 @@ export type ProductCreateWithoutCreatedBySellerAccountInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7420,6 +7623,7 @@ export type ProductCreateWithoutCreatedBySellerAccountInput = {
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCreatedBySellerAccountInput = {
@@ -7445,6 +7649,7 @@ export type ProductUncheckedCreateWithoutCreatedBySellerAccountInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7486,6 +7691,7 @@ export type ProductUncheckedCreateWithoutCreatedBySellerAccountInput = {
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
   sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCreatedBySellerAccountInput = {
@@ -7535,6 +7741,7 @@ export type ProductCreateWithoutSellerOffersInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7578,6 +7785,7 @@ export type ProductCreateWithoutSellerOffersInput = {
   packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
   createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+  demoEntry?: Prisma.DemoCatalogEntryCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutSellerOffersInput = {
@@ -7603,6 +7811,7 @@ export type ProductUncheckedCreateWithoutSellerOffersInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7644,6 +7853,7 @@ export type ProductUncheckedCreateWithoutSellerOffersInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
   packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
   importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutSellerOffersInput = {
@@ -7683,6 +7893,7 @@ export type ProductUpdateWithoutSellerOffersInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7726,6 +7937,7 @@ export type ProductUpdateWithoutSellerOffersInput = {
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutSellerOffersInput = {
@@ -7751,6 +7963,7 @@ export type ProductUncheckedUpdateWithoutSellerOffersInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7792,6 +8005,295 @@ export type ProductUncheckedUpdateWithoutSellerOffersInput = {
   countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutDemoEntryInput = {
+  id: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  taxClass: Prisma.TaxClassCreateNestedOneWithoutProductsInput
+  deviceInfo?: Prisma.ProductDeviceInfoCreateNestedOneWithoutProductInput
+  manufacturer?: Prisma.EconomicOperatorCreateNestedOneWithoutManufacturedProductsInput
+  euResponsible?: Prisma.EconomicOperatorCreateNestedOneWithoutRepresentedProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferCreateNestedManyWithoutProductInput
+  createdBySellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutCreatedProductsInput
+}
+
+export type ProductUncheckedCreateWithoutDemoEntryInput = {
+  id: string
+  categoryId: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  taxClassId: string
+  basePriceMinor: bigint | number
+  currency: string
+  hasProvisionalPrice?: boolean
+  isPriceOnRequest?: boolean
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  isOrderable?: boolean
+  unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: boolean
+  createdBySellerAccountId?: string | null
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  importFingerprint?: string | null
+  manufacturerId?: string | null
+  euResponsibleId?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedCreateNestedOneWithoutProductInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeUncheckedCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
+  packagings?: Prisma.ProductPackagingUncheckedCreateNestedManyWithoutProductInput
+  importRecords?: Prisma.ProductImportRecordUncheckedCreateNestedManyWithoutProductInput
+  sellerOffers?: Prisma.SellerOfferUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutDemoEntryInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutDemoEntryInput, Prisma.ProductUncheckedCreateWithoutDemoEntryInput>
+}
+
+export type ProductUpsertWithoutDemoEntryInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutDemoEntryInput, Prisma.ProductUncheckedUpdateWithoutDemoEntryInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutDemoEntryInput, Prisma.ProductUncheckedCreateWithoutDemoEntryInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutDemoEntryInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutDemoEntryInput, Prisma.ProductUncheckedUpdateWithoutDemoEntryInput>
+}
+
+export type ProductUpdateWithoutDemoEntryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  taxClass?: Prisma.TaxClassUpdateOneRequiredWithoutProductsNestedInput
+  deviceInfo?: Prisma.ProductDeviceInfoUpdateOneWithoutProductNestedInput
+  manufacturer?: Prisma.EconomicOperatorUpdateOneWithoutManufacturedProductsNestedInput
+  euResponsible?: Prisma.EconomicOperatorUpdateOneWithoutRepresentedProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
+  createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutDemoEntryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  variantAxesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isMarketplaceProduct?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdBySellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manufacturerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  euResponsibleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedUpdateOneWithoutProductNestedInput
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+  packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
+  importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
+  sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyTaxClassInput = {
@@ -7816,6 +8318,7 @@ export type ProductCreateManyTaxClassInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -7863,6 +8366,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7906,6 +8410,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTaxClassInput = {
@@ -7930,6 +8435,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7972,6 +8478,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
@@ -7996,6 +8503,7 @@ export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8044,6 +8552,7 @@ export type ProductCreateManyCategoryInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -8091,6 +8600,7 @@ export type ProductUpdateWithoutCategoryInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8134,6 +8644,7 @@ export type ProductUpdateWithoutCategoryInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -8158,6 +8669,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8200,6 +8712,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -8224,6 +8737,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8273,6 +8787,7 @@ export type ProductCreateManyManufacturerInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -8321,6 +8836,7 @@ export type ProductCreateManyEuResponsibleInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -8367,6 +8883,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8410,6 +8927,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutManufacturerInput = {
@@ -8435,6 +8953,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8476,6 +8995,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
@@ -8501,6 +9021,7 @@ export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8547,6 +9068,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8590,6 +9112,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
   createdBySellerAccount?: Prisma.SellerAccountUpdateOneWithoutCreatedProductsNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
@@ -8615,6 +9138,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8656,6 +9180,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
@@ -8681,6 +9206,7 @@ export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8729,6 +9255,7 @@ export type ProductCreateManyCreatedBySellerAccountInput = {
   reorderThreshold?: number
   isOrderable?: boolean
   unavailabilityReason?: string | null
+  piecesPerCarton?: number | null
   minOrderQty?: number
   maxOrderQty?: number | null
   qtyIncrement?: number
@@ -8775,6 +9302,7 @@ export type ProductUpdateWithoutCreatedBySellerAccountInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8818,6 +9346,7 @@ export type ProductUpdateWithoutCreatedBySellerAccountInput = {
   packagings?: Prisma.ProductPackagingUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCreatedBySellerAccountInput = {
@@ -8843,6 +9372,7 @@ export type ProductUncheckedUpdateWithoutCreatedBySellerAccountInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8884,6 +9414,7 @@ export type ProductUncheckedUpdateWithoutCreatedBySellerAccountInput = {
   packagings?: Prisma.ProductPackagingUncheckedUpdateManyWithoutProductNestedInput
   importRecords?: Prisma.ProductImportRecordUncheckedUpdateManyWithoutProductNestedInput
   sellerOffers?: Prisma.SellerOfferUncheckedUpdateManyWithoutProductNestedInput
+  demoEntry?: Prisma.DemoCatalogEntryUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCreatedBySellerAccountInput = {
@@ -8909,6 +9440,7 @@ export type ProductUncheckedUpdateManyWithoutCreatedBySellerAccountInput = {
   reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   isOrderable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   unavailabilityReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  piecesPerCarton?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
   maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
@@ -9132,6 +9664,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   reorderThreshold?: boolean
   isOrderable?: boolean
   unavailabilityReason?: boolean
+  piecesPerCarton?: boolean
   minOrderQty?: boolean
   maxOrderQty?: boolean
   qtyIncrement?: boolean
@@ -9179,6 +9712,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   importRecords?: boolean | Prisma.Product$importRecordsArgs<ExtArgs>
   sellerOffers?: boolean | Prisma.Product$sellerOffersArgs<ExtArgs>
   createdBySellerAccount?: boolean | Prisma.Product$createdBySellerAccountArgs<ExtArgs>
+  demoEntry?: boolean | Prisma.Product$demoEntryArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -9207,6 +9741,7 @@ export type ProductSelectScalar = {
   reorderThreshold?: boolean
   isOrderable?: boolean
   unavailabilityReason?: boolean
+  piecesPerCarton?: boolean
   minOrderQty?: boolean
   maxOrderQty?: boolean
   qtyIncrement?: boolean
@@ -9233,7 +9768,7 @@ export type ProductSelectScalar = {
   updatedById?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "hasProvisionalPrice" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "variantAxesJson" | "isMarketplaceProduct" | "createdBySellerAccountId" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "hasProvisionalPrice" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "piecesPerCarton" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "variantAxesJson" | "isMarketplaceProduct" | "createdBySellerAccountId" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   taxClass?: boolean | Prisma.TaxClassDefaultArgs<ExtArgs>
@@ -9258,6 +9793,7 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   importRecords?: boolean | Prisma.Product$importRecordsArgs<ExtArgs>
   sellerOffers?: boolean | Prisma.Product$sellerOffersArgs<ExtArgs>
   createdBySellerAccount?: boolean | Prisma.Product$createdBySellerAccountArgs<ExtArgs>
+  demoEntry?: boolean | Prisma.Product$demoEntryArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -9302,6 +9838,12 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     sellerOffers: Prisma.$SellerOfferPayload<ExtArgs>[]
     createdBySellerAccount: Prisma.$SellerAccountPayload<ExtArgs> | null
+    /**
+     * Present only on a product planted by the demonstration catalogue seed.
+     * Its absence is what makes a genuine product genuine - see the DEMO
+     * CATALOGUE block at the end of this file.
+     */
+    demoEntry: Prisma.$DemoCatalogEntryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -9385,6 +9927,32 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * notice on its own rather than an empty sentence.
      */
     unavailabilityReason: string | null
+    /**
+     * How many pieces are in one carton of THIS product, or null for an item
+     * sold one at a time.
+     * 
+     * The operator's shop has always sold by the carton, at one size set for
+     * the whole deployment - see `PIECES_PER_CARTON`. That is right for a
+     * consumables range that genuinely ships that way and wrong for everything
+     * else: a catalogue that also sells a cordless drill, a laptop and a pair
+     * of boots was quoting all three at five hundred times their price and
+     * telling the buyer "one carton has 500 pieces" underneath.
+     * 
+     * So the carton became a fact about the PRODUCT. Null means this is sold
+     * as a piece, which is the default and what every new product gets. A
+     * figure means one purchasable unit contains that many pieces, and the
+     * storefront, the basket, the wishlist and the schedule quote all read the
+     * same column - there is no second answer for any of them to disagree with.
+     * 
+     * It does NOT rewrite history. Every basket line, plan line and order line
+     * keeps the carton size it was agreed at, so a quantity on last year's
+     * invoice still means what it meant then.
+     * 
+     * The backfill in the migration set it from each product's own
+     * `product_packaging.piecesPerOuterCarton`, so the range that was already
+     * described as cartoned behaves exactly as it did.
+     */
+    piecesPerCarton: number | null
     /**
      * Purchasing rules enforced server-side on every cart mutation and at checkout.
      */
@@ -9862,6 +10430,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   importRecords<T extends Prisma.Product$importRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$importRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductImportRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sellerOffers<T extends Prisma.Product$sellerOffersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$sellerOffersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOfferPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdBySellerAccount<T extends Prisma.Product$createdBySellerAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$createdBySellerAccountArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  demoEntry<T extends Prisma.Product$demoEntryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$demoEntryArgs<ExtArgs>>): Prisma.Prisma__DemoCatalogEntryClient<runtime.Types.Result.GetResult<Prisma.$DemoCatalogEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9913,6 +10482,7 @@ export interface ProductFieldRefs {
   readonly reorderThreshold: Prisma.FieldRef<"Product", 'Int'>
   readonly isOrderable: Prisma.FieldRef<"Product", 'Boolean'>
   readonly unavailabilityReason: Prisma.FieldRef<"Product", 'String'>
+  readonly piecesPerCarton: Prisma.FieldRef<"Product", 'Int'>
   readonly minOrderQty: Prisma.FieldRef<"Product", 'Int'>
   readonly maxOrderQty: Prisma.FieldRef<"Product", 'Int'>
   readonly qtyIncrement: Prisma.FieldRef<"Product", 'Int'>
@@ -10766,6 +11336,25 @@ export type Product$createdBySellerAccountArgs<ExtArgs extends runtime.Types.Ext
    */
   include?: Prisma.SellerAccountInclude<ExtArgs> | null
   where?: Prisma.SellerAccountWhereInput
+}
+
+/**
+ * Product.demoEntry
+ */
+export type Product$demoEntryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DemoCatalogEntry
+   */
+  select?: Prisma.DemoCatalogEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DemoCatalogEntry
+   */
+  omit?: Prisma.DemoCatalogEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DemoCatalogEntryInclude<ExtArgs> | null
+  where?: Prisma.DemoCatalogEntryWhereInput
 }
 
 /**

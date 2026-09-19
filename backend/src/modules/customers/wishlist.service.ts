@@ -30,8 +30,8 @@
  * `product_prices` row would show a figure with the wrong country's VAT in it,
  * which is the specific discrepancy that whole module exists to prevent.
  */
-import { env } from '../../config/env.js';
 import { notFound } from '../../domain/errors.js';
+import { operatorSellUnit } from '../../domain/ordering-unit.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
@@ -190,9 +190,21 @@ export async function listWishlist(
       imageUrl: product.media[0]?.media.url ?? null,
       priceMinor: quoted === null ? null : quoted.unitPriceMinor.toString(),
       currency: options.currency,
+      /*
+       * What the figure above is a price FOR, taken from the same place the
+       * grid and the basket take it. A saved line that says "carton" over a
+       * product sold one at a time is a saved line whose price is wrong by
+       * whatever the carton happens to be.
+       */
       sellUnit: product.isMarketplaceProduct
         ? { unit: 'PIECE' as const, piecesPerUnit: 1 }
-        : { unit: 'OUTER_CARTON' as const, piecesPerUnit: env.PIECES_PER_CARTON },
+        : {
+            // `INNER_PACK` is a legacy value no live product carries, so the
+            // narrowing is a statement about what this function returns rather
+            // than a case being handled.
+            unit: operatorSellUnit(product).unit === 'OUTER_CARTON' ? ('OUTER_CARTON' as const) : ('PIECE' as const),
+            piecesPerUnit: operatorSellUnit(product).piecesPerUnit,
+          },
       isAvailable,
       savedAt: row.createdAt.toISOString(),
     };

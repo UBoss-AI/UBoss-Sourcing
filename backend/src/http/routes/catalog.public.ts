@@ -47,7 +47,6 @@ import {
   ImageSearchUnreadableError,
   analyseProductImage,
 } from '../../modules/assistant/image-search.service.js';
-import { env } from '../../config/env.js';
 import {
   SELLER_SELLING_UNIT,
   operatorSellUnit,
@@ -102,7 +101,14 @@ import {
  * promise twelve results that the grid then does not show.
  */
 const filterQuerySchema = z.object({
-  category: z.string().trim().max(255).optional(),
+  /**
+   * A category slug, or several separated by commas.
+   *
+   * Widened from 255 to 512 characters when the second form was added: a
+   * curated shelf naming four departments is comfortably over 255, and a
+   * silently truncated list is a shelf that quietly loses its last department.
+   */
+  category: z.string().trim().max(512).optional(),
   q: z.string().trim().max(120).optional(),
   /** A model or size - "14G", "3 ml" - matched against the variants. */
   model: z.string().trim().max(120).optional(),
@@ -326,7 +332,7 @@ function serialiseOperator(
  * because the server applies the real terms on every basket write regardless.
  */
 function sellUnitFor(
-  product: { isMarketplaceProduct: boolean },
+  product: { isMarketplaceProduct: boolean; piecesPerCarton: number | null },
   offer?: {
     minimumOrderQuantity: number;
     orderIncrement: number;
@@ -344,7 +350,11 @@ function sellUnitFor(
         orderIncrement: offer?.orderIncrement ?? 1,
         maximumOrderQuantity: offer?.maximumOrderQuantity ?? null,
       })
-    : operatorSellUnit(env.PIECES_PER_CARTON);
+    : // The product's own carton, not the deployment's. A catalogue that sells
+      // both a box of cannulas and a cordless drill has one of each, and the
+      // deployment-wide figure was quoting the drill at five hundred times its
+      // price. See `piecesPerUnitFor`.
+      operatorSellUnit(product);
 
   return {
     unit: spec.unit,
@@ -813,11 +823,37 @@ async function resolveFilters(
   const conditions: Prisma.ProductWhereInput[] = [];
 
   if (query.category !== undefined) {
-    const category = await findCategoryBySlug(query.category);
-    if (category === null) return { productWhere, attributes, unknownCategory: true };
+    /*
+     * One slug, or several separated by commas.
+     *
+     * The single-slug case is what a category page sends and is unchanged. The
+     * several-slug case is what a curated shelf on the landing page sends -
+     * "Technology & electronics" is three departments, and the alternative is
+     * three requests whose results then have to be interleaved in the browser,
+     * with three loading states and three ways to be half-empty.
+     *
+     * A slug that does not resolve is DROPPED rather than failing the query.
+     * A curated shelf names departments the operator is free to rename or
+     * retire, and one of them going away should narrow the shelf, not empty
+     * it. Only a request where NOTHING resolved is an unknown category, which
+     * keeps a stale single-category link behaving exactly as it did.
+     */
+    const slugs = [...new Set(query.category.split(',').map((part) => part.trim()))].filter(
+      (part) => part.length > 0,
+    );
+
+    const resolved = (await Promise.all(slugs.map((slug) => findCategoryBySlug(slug)))).filter(
+      (category): category is NonNullable<typeof category> => category !== null,
+    );
+
+    if (resolved.length === 0) return { productWhere, attributes, unknownCategory: true };
 
     // Include descendants, so browsing a parent shows everything beneath it.
-    productWhere.categoryId = { in: await subtreeCategoryIds(category.id) };
+    const subtrees = await Promise.all(
+      resolved.map((category) => subtreeCategoryIds(category.id)),
+    );
+
+    productWhere.categoryId = { in: [...new Set(subtrees.flat())] };
   }
 
   if (query.q !== undefined && query.q.length > 0) {

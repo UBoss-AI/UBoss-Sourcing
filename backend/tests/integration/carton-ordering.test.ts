@@ -127,6 +127,20 @@ beforeAll(async () => {
       isStockTracked: false,
       minOrderQty: 1,
       qtyIncrement: 1,
+      /*
+       * A CARTONED product, stated rather than assumed.
+       *
+       * It used to be enough to be the operator's: every product the operator
+       * owned was sold by the deployment's carton. The carton is a property of
+       * the product now - the same catalogue sells a box of five hundred
+       * syringes and a cordless drill, and only one of those is bought by the
+       * carton - so a file whose whole subject is the conversion has to say
+       * which of the two it is testing.
+       *
+       * 500 to match `PIECES_PER_CARTON` at the top of this file, which every
+       * figure below is calculated from.
+       */
+      piecesPerCarton: 500,
     },
   });
   productId = product.id;

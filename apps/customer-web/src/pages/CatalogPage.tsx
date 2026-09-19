@@ -804,9 +804,31 @@ export function CatalogPage(): React.JSX.Element {
   const addedWithin = searchParams.get('added');
   const attrTokens = searchParams.getAll('attr');
 
-  // The category comes from the path on /category/:slug and is absent
-  // elsewhere. One source, so the two cannot disagree.
-  const category = slug ?? null;
+  /*
+   * Which category, or categories, this listing is narrowed to.
+   *
+   * The path is the primary source: `/category/:slug` is the canonical URL for
+   * a department and always wins. `?category=` is the second, and it exists for
+   * the curated shelves on the landing page, whose "See all" opens the
+   * catalogue narrowed to the several departments that shelf was sampled from.
+   * The API takes either shape - one slug, or several separated by commas -
+   * so nothing downstream has to know which one it got.
+   *
+   * Path first rather than merged, because a URL that carried both would have
+   * two answers to "what am I looking at" and the breadcrumb could only show
+   * one of them.
+   */
+  const category = slug ?? searchParams.get('category');
+
+  /*
+   * A multi-department listing has no single category record to describe.
+   *
+   * `/catalog/categories/:slug` would 404 on `a,b,c`, and the "where am I"
+   * panel has nothing sensible to draw for four departments at once - so both
+   * are simply switched off and the page falls back to the plain catalogue
+   * heading it shows for `/products`.
+   */
+  const singleCategory = category !== null && !category.includes(',') ? category : null;
 
   const setParam = (updates: Record<string, string | string[] | null>): void => {
     setSearchParams((current) => {
@@ -859,9 +881,10 @@ export function CatalogPage(): React.JSX.Element {
   });
 
   const categoryDetail = useQuery({
-    queryKey: ['category', category],
-    queryFn: () => api.get<{ category: CategoryNode }>(`/catalog/categories/${String(category)}`),
-    enabled: category !== null,
+    queryKey: ['category', singleCategory],
+    queryFn: () =>
+      api.get<{ category: CategoryNode }>(`/catalog/categories/${String(singleCategory)}`),
+    enabled: singleCategory !== null,
     // A missing category is an empty list, not an error page.
     retry: false,
   });
@@ -1008,7 +1031,7 @@ export function CatalogPage(): React.JSX.Element {
   const subCategories =
     q !== ''
       ? []
-      : (findCategoryInTree(categoryTree.data?.categories, category)?.node.children ?? []);
+      : (findCategoryInTree(categoryTree.data?.categories, singleCategory)?.node.children ?? []);
 
   /*
    * The department strip: the whole top level, and which of it is lit.
@@ -1030,7 +1053,7 @@ export function CatalogPage(): React.JSX.Element {
    * what is in each one.
    */
   const departments = categoryTree.data?.categories ?? [];
-  const activeDepartment = rootCategorySlug(categoryTree.data?.categories, category);
+  const activeDepartment = rootCategorySlug(categoryTree.data?.categories, singleCategory);
 
   const heading =
     q !== ''
@@ -1422,7 +1445,7 @@ export function CatalogPage(): React.JSX.Element {
             currency={currency}
             facets={facets.data}
             tree={categoryTree.data?.categories}
-            currentSlug={category}
+            currentSlug={singleCategory}
           />
         </Modal>
       )}
@@ -1458,7 +1481,7 @@ export function CatalogPage(): React.JSX.Element {
                 currency={currency}
                 facets={facets.data}
                 tree={categoryTree.data?.categories}
-                currentSlug={category}
+                currentSlug={singleCategory}
               />
             </div>
           </div>

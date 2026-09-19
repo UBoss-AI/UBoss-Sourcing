@@ -144,13 +144,43 @@ Do this **three times**, once per application:
    left at the repository root builds the wrong thing or nothing at all.
 3. Leave the build command and publish directory alone. `netlify.toml` in each
    app already says `npm run build:netlify` and `dist`, and pins Node 24.
-4. **Edit `netlify.toml`** in that app and replace
-   `https://uboss-api.example.com` with your API's URL, in every `[[redirects]]`
-   block. Commit it.
+4. **Check the API's URL in `netlify.toml`.** Every `[[redirects]]` block names
+   it. It shipped as `https://uboss-api.example.com` — an obviously-fake
+   placeholder rather than a working default, because a wrong-but-plausible URL
+   fails at runtime, in a browser, on the one screen nobody opened, while a
+   placeholder fails at the first request. Replace it with your API's URL and
+   commit. **A build only ever uses what is committed**, so an edit left in the
+   working tree changes nothing on the deployed site.
 
-It is a placeholder rather than a working default because a wrong-but-plausible
-URL fails at runtime, in a browser, on the one screen nobody opened — and a
-placeholder fails at the first request.
+### Demo sign-ins on the login page
+
+Only where the deployment is a demonstration. Each app's login screen prints a
+list of accounts when it is built with `VITE_DEMO_LOGINS` set, and prints
+nothing at all when it is not — which is every ordinary build.
+
+The value is a JSON array, one line:
+
+```json
+[{ "email": "...", "password": "...", "note": "optional, shown as written" }]
+```
+
+Set it **in the Netlify site**, under *Site configuration → Environment
+variables*, once per site, listing only the accounts that site can sign in —
+the API scopes a session to an audience, so an admin account typed into the
+storefront is refused and a panel offering one looks like a broken site.
+
+It is a Netlify variable rather than a committed file on purpose. Locally the
+same value lives in `apps/<app>/.env.netlify.local`, which is gitignored, so
+**a repository build never picks it up** — that is the point. Credentials in
+git are credentials in every customer's build.
+
+Everyone who can open the site can then sign in as whatever is listed. So the
+database behind a deployment with this switched on must hold nothing that
+matters, and its passwords must be demo-only:
+
+```powershell
+cd backend ; npm run db:rotate-seed-passwords
+```
 
 ---
 
@@ -279,6 +309,8 @@ shipment data, and the same reasoning about seeded accounts applies.
 
 | What you see | What it is |
 |---|---|
+| Netlify's **"Page not found"** on the site's front page, on a repository-connected site | The **Base directory** was not set. Netlify reads `netlify.toml` from it, there is none at the repository root, so nothing is built and nothing is published. Set it to `apps/customer-web`, `apps/admin-web` or `apps/logistics-web` and redeploy — this is step 2 of Route A and the one that is easy to skip |
+| The site deploys, but the login page shows no demo accounts | `VITE_DEMO_LOGINS` is not set on that Netlify site. `apps/<app>/.env.netlify.local` is gitignored, so a repository build never sees it — set it as a site environment variable instead |
 | Blank page, console shows 404s for `/assets/…` | The zip was built by something that wrote Windows path separators into it. `pack-netlify.ps1` writes forward slashes deliberately; `Compress-Archive` does not. Re-pack with the script |
 | A reload on `/account/orders/123` gives Netlify's 404 | The single-page-application fallback is missing. `netlify.toml` has to be at the root of the deploy, beside `index.html` — check the site's file browser in Netlify |
 | A manual zip deploy runs a **build** and fails with `exit code 254: npm run build:netlify` | The zip's netlify.toml still has a `[build]` section. Netlify honours it on manual deploys too, and there is no source in a zip to build. Re-pack with `pack-netlify.ps1`, which cuts it out — do not hand-zip a `dist/` with the repo's netlify.toml copied in |

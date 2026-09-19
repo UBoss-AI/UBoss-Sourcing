@@ -820,6 +820,31 @@ model Product {
   /// notice on its own rather than an empty sentence.
   unavailabilityReason String? @db.VarChar(255)
 
+  /// How many pieces are in one carton of THIS product, or null for an item
+  /// sold one at a time.
+  ///
+  /// The operator's shop has always sold by the carton, at one size set for
+  /// the whole deployment - see `PIECES_PER_CARTON`. That is right for a
+  /// consumables range that genuinely ships that way and wrong for everything
+  /// else: a catalogue that also sells a cordless drill, a laptop and a pair
+  /// of boots was quoting all three at five hundred times their price and
+  /// telling the buyer "one carton has 500 pieces" underneath.
+  ///
+  /// So the carton became a fact about the PRODUCT. Null means this is sold
+  /// as a piece, which is the default and what every new product gets. A
+  /// figure means one purchasable unit contains that many pieces, and the
+  /// storefront, the basket, the wishlist and the schedule quote all read the
+  /// same column - there is no second answer for any of them to disagree with.
+  ///
+  /// It does NOT rewrite history. Every basket line, plan line and order line
+  /// keeps the carton size it was agreed at, so a quantity on last year's
+  /// invoice still means what it meant then.
+  ///
+  /// The backfill in the migration set it from each product's own
+  /// `product_packaging.piecesPerOuterCarton`, so the range that was already
+  /// described as cartoned behaves exactly as it did.
+  piecesPerCarton Int?
+
   /// Purchasing rules enforced server-side on every cart mutation and at checkout.
   minOrderQty  Int  @default(1)
   maxOrderQty  Int?
@@ -973,6 +998,11 @@ model Product {
   sellerOffers SellerOffer[]
 
   createdBySellerAccount SellerAccount? @relation(fields: [createdBySellerAccountId], references: [id], onDelete: SetNull)
+
+  /// Present only on a product planted by the demonstration catalogue seed.
+  /// Its absence is what makes a genuine product genuine - see the DEMO
+  /// CATALOGUE block at the end of this file.
+  demoEntry DemoCatalogEntry?
 
   @@index([isMarketplaceProduct, status], map: "ix_product_marketplace")
   @@index([createdBySellerAccountId], map: "ix_product_created_by_seller")
@@ -9095,6 +9125,24 @@ model SellerOffer {
   /// Why it is NEEDS_CHANGES, seller-visible.
   statusReason String? @db.Text
 
+  /// When this was last taken off sale, and by whom.
+  ///
+  /// The trail beside the status, rather than an audit query per row: the
+  /// listings table draws forty rows and "who paused this, and when" is asked
+  /// of most of them. It matters because pausing is no longer only a way to
+  /// hide something - "Pause & Edit" takes a live listing off sale so its
+  /// structure can be changed without a buyer watching the page rearrange
+  /// itself, and a colleague finding it paused needs to know that is what
+  /// happened.
+  ///
+  /// Null on every row that has never been paused, and on every row paused
+  /// before these columns existed. Nothing reads them to decide whether
+  /// something can be sold; `status` alone still does that.
+  ///
+  /// Deliberately not a foreign key - see the migration.
+  pausedAt          DateTime? @db.DateTime(3)
+  pausedByProfileId String?   @db.Char(26)
+
   /// The draft this came from, kept so "what exactly was approved" has an
   /// answer.
   sourceDraftId String? @db.Char(26)
@@ -11969,4 +12017,86 @@ model LogisticsAuditLog {
   @@index([logisticsPartnerId, isContactReveal, createdAt], map: "ix_logistics_audit_reveal")
   @@index([resourceType, resourceId], map: "ix_logistics_audit_resource")
   @@map("logistics_audit_logs")
+}
+
+// ===========================================================================
+// DEMO CATALOGUE
+//
+// A deployment that has just been installed has an empty shop front, and an
+// empty shop front cannot be reviewed, demonstrated or tested end to end. The
+// demonstration seed plants a broad catalogue - every department, every
+// sub-category - so that somebody evaluating this software sees a marketplace
+// rather than a search box with nothing behind it.
+//
+// The whole safety of that rests on ONE table. A product the seed created has
+// a row here; a product a person created does not, and nothing else
+// distinguishes them. That is deliberate and it is the point:
+//
+//   - **The seed only ever writes products named in this table.** It cannot
+//     overwrite a genuine product by accident, because it has no way to name
+//     one. A re-run reads `seedKey`, finds the product it made last time and
+//     updates that row.
+//   - **Removing the demonstration catalogue is removing these rows and the
+//     products they name.** There is no heuristic, no SKU prefix to trust and
+//     no "everything created on the day we ran the seed".
+//   - **`ENABLE_DEMO_CATALOG=false` hides every one of them** from the public
+//     catalogue in one place - `publicProductWhere()` - rather than in each
+//     route that reads products.
+//
+// It carries no personal data of any kind and is therefore out of scope for
+// the Art. 15 export; see `tests/unit/export-bundle-completeness.test.ts`.
+// ===========================================================================
+
+model DemoCatalogEntry {
+  id String @id @db.Char(26)
+
+  /// The blueprint this product was generated from, and the identity a re-run
+  /// matches on. Stable across runs, which is what makes the seed idempotent:
+  /// the same blueprint always converges on the same product row rather than
+  /// creating a second one beside it.
+  seedKey String @unique(map: "uq_demo_catalog_seed_key") @db.VarChar(128)
+
+  /// One product per entry, and one entry per product.
+  productId String @unique(map: "uq_demo_catalog_product") @db.Char(26)
+
+  /// Which generator wrote it - `demo-catalog` today. A second generator (a
+  /// trade-show set, a load-test set) would use its own value, so one can be
+  /// re-run or removed without touching the other.
+  seedSource String @default("demo-catalog") @db.VarChar(64)
+
+  /// Bumped when the blueprint registry changes shape in a way that should
+  /// rewrite existing rows rather than leave them as they are.
+  seedVersion Int @default(1)
+
+  /// The sub-category slug this was generated for, kept so coverage can be
+  /// reported without walking the category tree.
+  subcategorySlug String @db.VarChar(255)
+
+  /// Where the photograph came from: `unsplash-api`, `verified-library`,
+  /// `local-upload` or `placeholder`. A report reads this rather than trying
+  /// to infer a provenance from a URL.
+  imageSource String @default("placeholder") @db.VarChar(32)
+
+  /// Attribution, in the form the Unsplash API terms require it to be
+  /// displayable. Null for an image that did not come from Unsplash.
+  imagePhotoId      String? @db.VarChar(64)
+  imagePhotographer String? @db.VarChar(255)
+  imageProfileUrl   String? @db.VarChar(512)
+  imagePhotoPageUrl String? @db.VarChar(512)
+
+  /// True when no genuinely relevant photograph could be found and a neutral
+  /// stand-in was used instead. An honest placeholder beats a misleading
+  /// photograph, and this is what puts the product on the review report.
+  imageNeedsReview Boolean @default(false)
+
+  generatedAt DateTime @default(now()) @db.DateTime(3)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([seedSource, seedVersion], map: "ix_demo_catalog_source")
+  @@index([subcategorySlug], map: "ix_demo_catalog_subcategory")
+  @@index([imageNeedsReview], map: "ix_demo_catalog_image_review")
+  @@map("demo_catalog_entries")
 }

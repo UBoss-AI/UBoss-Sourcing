@@ -221,7 +221,8 @@ export const ModelName = {
   CarrierStatusMapping: 'CarrierStatusMapping',
   CarrierWebhookEvent: 'CarrierWebhookEvent',
   LogisticsNotification: 'LogisticsNotification',
-  LogisticsAuditLog: 'LogisticsAuditLog'
+  LogisticsAuditLog: 'LogisticsAuditLog',
+  DemoCatalogEntry: 'DemoCatalogEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -556,6 +557,7 @@ export const ProductScalarFieldEnum = {
   reorderThreshold: 'reorderThreshold',
   isOrderable: 'isOrderable',
   unavailabilityReason: 'unavailabilityReason',
+  piecesPerCarton: 'piecesPerCarton',
   minOrderQty: 'minOrderQty',
   maxOrderQty: 'maxOrderQty',
   qtyIncrement: 'qtyIncrement',
@@ -3029,6 +3031,8 @@ export const SellerOfferScalarFieldEnum = {
   reservedQuantity: 'reservedQuantity',
   qualityScore: 'qualityScore',
   statusReason: 'statusReason',
+  pausedAt: 'pausedAt',
+  pausedByProfileId: 'pausedByProfileId',
   sourceDraftId: 'sourceDraftId',
   publishedAt: 'publishedAt',
   version: 'version',
@@ -3962,6 +3966,27 @@ export const LogisticsAuditLogScalarFieldEnum = {
 } as const
 
 export type LogisticsAuditLogScalarFieldEnum = (typeof LogisticsAuditLogScalarFieldEnum)[keyof typeof LogisticsAuditLogScalarFieldEnum]
+
+
+export const DemoCatalogEntryScalarFieldEnum = {
+  id: 'id',
+  seedKey: 'seedKey',
+  productId: 'productId',
+  seedSource: 'seedSource',
+  seedVersion: 'seedVersion',
+  subcategorySlug: 'subcategorySlug',
+  imageSource: 'imageSource',
+  imagePhotoId: 'imagePhotoId',
+  imagePhotographer: 'imagePhotographer',
+  imageProfileUrl: 'imageProfileUrl',
+  imagePhotoPageUrl: 'imagePhotoPageUrl',
+  imageNeedsReview: 'imageNeedsReview',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DemoCatalogEntryScalarFieldEnum = (typeof DemoCatalogEntryScalarFieldEnum)[keyof typeof DemoCatalogEntryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -5837,6 +5862,7 @@ export const SellerOfferOrderByRelevanceFieldEnum = {
   currency: 'currency',
   taxClassId: 'taxClassId',
   statusReason: 'statusReason',
+  pausedByProfileId: 'pausedByProfileId',
   sourceDraftId: 'sourceDraftId'
 } as const
 
@@ -6412,4 +6438,20 @@ export const LogisticsAuditLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type LogisticsAuditLogOrderByRelevanceFieldEnum = (typeof LogisticsAuditLogOrderByRelevanceFieldEnum)[keyof typeof LogisticsAuditLogOrderByRelevanceFieldEnum]
+
+
+export const DemoCatalogEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  seedKey: 'seedKey',
+  productId: 'productId',
+  seedSource: 'seedSource',
+  subcategorySlug: 'subcategorySlug',
+  imageSource: 'imageSource',
+  imagePhotoId: 'imagePhotoId',
+  imagePhotographer: 'imagePhotographer',
+  imageProfileUrl: 'imageProfileUrl',
+  imagePhotoPageUrl: 'imagePhotoPageUrl'
+} as const
+
+export type DemoCatalogEntryOrderByRelevanceFieldEnum = (typeof DemoCatalogEntryOrderByRelevanceFieldEnum)[keyof typeof DemoCatalogEntryOrderByRelevanceFieldEnum]
 

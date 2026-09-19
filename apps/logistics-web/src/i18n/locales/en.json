@@ -35,6 +35,8 @@
   "auth.signIn": "Sign in",
   "auth.email": "Work email",
   "auth.password": "Password",
+  "auth.demo.title": "Demo sign-ins",
+  "auth.demo.intro": "This is a demonstration site. Sign in with any of the accounts below.",
   "auth.signingIn": "Signing in",
   "auth.heading": "Sign in to the logistics portal",
   "auth.subheading": "Use the account the marketplace invited you with.",

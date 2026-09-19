@@ -11,10 +11,11 @@
 #
 # ONE THING TO CHANGE: API_ORIGIN, in the two [[redirects]] blocks below.
 #
-# Replace `https://uboss-api.example.com` with the public base URL of the API
-# for this installation. No trailing slash. It is a placeholder rather than a
-# default because a wrong-but-plausible URL fails at runtime, in the browser,
-# on the one screen nobody opened - and a placeholder fails immediately.
+# The two [[redirects]] blocks below point at this installation's API.
+# Replace that hostname, scheme included and no trailing slash, to point this
+# site at a different one. It shipped as an obviously-fake placeholder rather
+# than a plausible default, because a wrong-but-plausible URL fails at
+# runtime, in the browser, on the one screen nobody opened.
 #
 # WHY A PROXY RATHER THAN AN ABSOLUTE API URL IN THE BUNDLE
 #
@@ -88,7 +89,7 @@
 # along. A `301` here would send the browser to the other host and lose them.
 [[redirects]]
   from = "/api/*"
-  to = "https://uboss-api.example.com/api/:splat"
+  to = "https://refold-barley-playing.ngrok-free.dev/api/:splat"
   status = 200
   force = true
 
@@ -98,7 +99,7 @@
 # rule, so leaving it in place costs nothing.
 [[redirects]]
   from = "/media/*"
-  to = "https://uboss-api.example.com/media/:splat"
+  to = "https://refold-barley-playing.ngrok-free.dev/media/:splat"
   status = 200
   force = true
 
