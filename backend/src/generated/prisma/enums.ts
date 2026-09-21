@@ -1247,6 +1247,26 @@ export const SellerNotificationKind = {
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
 
 
+export const SellerLogisticsRelationshipType = {
+  DIRECT_CONTRACT: 'DIRECT_CONTRACT',
+  MARKETPLACE_BROKERED: 'MARKETPLACE_BROKERED',
+  PREFERRED: 'PREFERRED'
+} as const
+
+export type SellerLogisticsRelationshipType = (typeof SellerLogisticsRelationshipType)[keyof typeof SellerLogisticsRelationshipType]
+
+
+export const SellerLogisticsRelationshipStatus = {
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED',
+  ENDED: 'ENDED'
+} as const
+
+export type SellerLogisticsRelationshipStatus = (typeof SellerLogisticsRelationshipStatus)[keyof typeof SellerLogisticsRelationshipStatus]
+
+
 export const LogisticsPartnerStatus = {
   PENDING_ACTIVATION: 'PENDING_ACTIVATION',
   ACTIVE: 'ACTIVE',

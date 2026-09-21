@@ -39,6 +39,12 @@ import {
   refreshPayoutStep,
   startPayoutOnboarding,
 } from '../../modules/seller/payout.service.js';
+import {
+  carrierChoicesForShipment,
+  listSellerCarriers,
+  requestSellerCarrier,
+  sellerAssignCarrier,
+} from '../../modules/seller/logistics-partner.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -647,6 +653,116 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
     return reply.status(204).send();
   });
+
+  // -------------------------------------------------------------------------
+  // Carriers
+  //
+  // The seller half of the fulfilment split: a seller picks a CARRIER for
+  // their own consignment, and the carrier picks a DRIVER for the ones it has
+  // accepted. Note what is absent from this file and will stay absent - there
+  // is no route here that touches a driver, a vehicle or another seller's
+  // consignment, and the service these call has no function that would let one
+  // be written.
+  //
+  // Every handler passes `currentSeller(request).sellerAccountId`. None of
+  // them reads a seller id from a body or a path, which is the difference
+  // between an authorisation check and a suggestion.
+  // -------------------------------------------------------------------------
+
+  app.get(
+    '/carriers',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const carriers = await listSellerCarriers(currentSeller(request).sellerAccountId);
+      return reply.header('cache-control', 'no-store').status(200).send({ carriers });
+    },
+  );
+
+  app.post(
+    '/carriers',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          logisticsPartnerId: z.string().length(26),
+          /** The seller's own account number with the carrier, if they have one. */
+          sellerReference: z.string().trim().max(64).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const result = await requestSellerCarrier({
+        sellerAccountId: seller.sellerAccountId,
+        logisticsPartnerId: body.logisticsPartnerId,
+        sellerMemberId: seller.memberId,
+        actorEmail: seller.displayName,
+        sellerReference: body.sellerReference ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send(result);
+    },
+  );
+
+  /**
+   * Which of this seller's carriers may take this consignment.
+   *
+   * Returns the ineligible ones with their reasons too. A seller staring at an
+   * empty dropdown cannot tell whether they have no carriers, their one
+   * carrier is suspended, or it does not reach the destination - and those are
+   * three different next actions.
+   */
+  app.get(
+    '/consignments/:id/carrier-options',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+
+      const options = await carrierChoicesForShipment(
+        currentSeller(request).sellerAccountId,
+        params.id,
+      );
+
+      return reply.header('cache-control', 'no-store').status(200).send({ options });
+    },
+  );
+
+  /**
+   * Hand the consignment to one of them.
+   *
+   * `requireTradingSeller` rather than `requireSeller`: offering work creates
+   * an obligation on a third party, and a seller who is suspended or still in
+   * onboarding should not be able to create one.
+   */
+  app.post(
+    '/consignments/:id/carrier',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          logisticsPartnerId: z.string().length(26),
+          /** Required by the service when this displaces a carrier already chosen. */
+          reason: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const result = await sellerAssignCarrier({
+        sellerAccountId: seller.sellerAccountId,
+        shipmentId: params.id,
+        logisticsPartnerId: body.logisticsPartnerId,
+        sellerMemberId: seller.memberId,
+        actorEmail: seller.displayName,
+        reason: body.reason ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send(result);
+    },
+  );
 
   return Promise.resolve();
 }

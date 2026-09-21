@@ -159,10 +159,22 @@ beforeEach(async () => {
   // and PLN the derived one. INR is present and deliberately NOT given a
   // price row, so "manual wins" and "derived fills the gap" are both testable
   // against the same product.
+  // `isBase` is written EXPLICITLY on every row, including the false ones.
+  //
+  // It has to be. `isBase` is global reference data that the seed sets to INR,
+  // and `getBaseCurrency()` reads it. Upserting EUR with `isBase: true` and
+  // leaving INR alone puts TWO base currencies in the table, and since files
+  // run sequentially against one database, every later file that assumes INR
+  // then prices against whichever row the query happened to return first.
+  //
+  // That is not hypothetical - it is what this block did on its first
+  // outing, and it cost nineteen failures in five unrelated files, none of
+  // which had anything to do with exchange rates. `restoreBaseCurrency` in
+  // `afterAll` puts it back.
   for (const currency of [
     { code: 'EUR', name: 'Euro', symbol: '€', exponent: 2, isBase: true, sortOrder: 1 },
-    { code: 'PLN', name: 'Polish Zloty', symbol: 'zl', exponent: 2, sortOrder: 2 },
-    { code: 'INR', name: 'Indian Rupee', symbol: '₹', exponent: 2, sortOrder: 3 },
+    { code: 'PLN', name: 'Polish Zloty', symbol: 'zl', exponent: 2, isBase: false, sortOrder: 2 },
+    { code: 'INR', name: 'Indian Rupee', symbol: '₹', exponent: 2, isBase: false, sortOrder: 3 },
   ]) {
     await prisma.currency.upsert({
       where: { code: currency.code },
@@ -324,8 +336,22 @@ beforeEach(async () => {
   await receiveStock({ productId: glueProductId, quantity: 500 }, adminActor);
 });
 
+/**
+ * Put the shared reference data back the way the seed left it.
+ *
+ * `currencies.isBase` is global and every other file in this suite assumes the
+ * seeded answer, INR. This file has to move it to run at all - a euro-pivoted
+ * feed against a rupee base is not the case under test here - so it has to
+ * move it back, and `resetAll` deliberately does not touch currencies at all.
+ */
+async function restoreBaseCurrency(): Promise<void> {
+  await prisma.currency.updateMany({ where: { isBase: true }, data: { isBase: false } });
+  await prisma.currency.updateMany({ where: { code: 'INR' }, data: { isBase: true } });
+}
+
 afterAll(async () => {
   await resetAll();
+  await restoreBaseCurrency();
   await prisma.$disconnect();
 });
 

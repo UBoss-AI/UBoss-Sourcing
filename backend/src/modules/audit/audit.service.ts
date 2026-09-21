@@ -283,6 +283,15 @@ export const AuditAction = {
   /// complaint about how it was handled.
   SELLER_DOCUMENT_VIEWED: 'seller_document.viewed',
 
+  /// Which carriers a seller may hand a parcel to.
+  ///
+  /// On the OPERATOR's trail as well as the seller's, and for the same reason
+  /// the document decisions above are: approving an arrangement is what lets
+  /// one business create an obligation on another, and "who allowed this
+  /// seller to book that carrier, and when" is asked from outside - by the
+  /// carrier, after an invoice they did not expect.
+  SELLER_CARRIER_DECIDED: 'seller_carrier.decided',
+
   // Data protection
   //
   // These rows are the Art. 5(2) accountability record. "We honour erasure

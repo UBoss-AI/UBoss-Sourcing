@@ -199,6 +199,7 @@ export const ModelName = {
   SellerPayout: 'SellerPayout',
   SellerNotification: 'SellerNotification',
   SellerAuditLog: 'SellerAuditLog',
+  SellerLogisticsPartner: 'SellerLogisticsPartner',
   LogisticsPartner: 'LogisticsPartner',
   LogisticsPartnerUser: 'LogisticsPartnerUser',
   LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
@@ -3409,6 +3410,30 @@ export const SellerAuditLogScalarFieldEnum = {
 export type SellerAuditLogScalarFieldEnum = (typeof SellerAuditLogScalarFieldEnum)[keyof typeof SellerAuditLogScalarFieldEnum]
 
 
+export const SellerLogisticsPartnerScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  relationshipType: 'relationshipType',
+  status: 'status',
+  requestedBySellerMemberId: 'requestedBySellerMemberId',
+  decidedByUserId: 'decidedByUserId',
+  requestedAt: 'requestedAt',
+  decidedAt: 'decidedAt',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  serviceCountriesJson: 'serviceCountriesJson',
+  approvedCapabilitiesJson: 'approvedCapabilitiesJson',
+  sellerReference: 'sellerReference',
+  statusReason: 'statusReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type SellerLogisticsPartnerScalarFieldEnum = (typeof SellerLogisticsPartnerScalarFieldEnum)[keyof typeof SellerLogisticsPartnerScalarFieldEnum]
+
+
 export const LogisticsPartnerScalarFieldEnum = {
   id: 'id',
   partnerCode: 'partnerCode',
@@ -6171,6 +6196,19 @@ export const SellerAuditLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type SellerAuditLogOrderByRelevanceFieldEnum = (typeof SellerAuditLogOrderByRelevanceFieldEnum)[keyof typeof SellerAuditLogOrderByRelevanceFieldEnum]
+
+
+export const SellerLogisticsPartnerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  requestedBySellerMemberId: 'requestedBySellerMemberId',
+  decidedByUserId: 'decidedByUserId',
+  sellerReference: 'sellerReference',
+  statusReason: 'statusReason'
+} as const
+
+export type SellerLogisticsPartnerOrderByRelevanceFieldEnum = (typeof SellerLogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof SellerLogisticsPartnerOrderByRelevanceFieldEnum]
 
 
 export const LogisticsPartnerOrderByRelevanceFieldEnum = {

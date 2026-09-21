@@ -797,6 +797,25 @@ export const ErrorCode = {
   SHIPMENT_OTP_INVALID: 'SHIPMENT_OTP_INVALID',
 
   /// A pickup cannot be scheduled or completed in its current state.
+  /// A SELLER asked to hand a consignment to a carrier they are not entitled
+  /// to use: no arrangement, one that is not approved, one that is suspended
+  /// or out of its dates, or one that does not cover this route or this
+  /// handling.
+  ///
+  /// Distinct from `LOGISTICS_PARTNER_NOT_ACTIVE`, which is about the carrier
+  /// itself and applies to everybody, and from `LOGISTICS_DRIVER_NOT_ELIGIBLE`,
+  /// which is the carrier's own half of the same split. The remedy differs for
+  /// each: reinstate the carrier, request the arrangement, or pick another
+  /// driver. The message carries the specific reason.
+  ///
+  /// Deliberately also returned for a carrier that does not exist at all, so
+  /// this endpoint cannot be used to enumerate the marketplace's carriers.
+  LOGISTICS_PARTNER_NOT_ELIGIBLE: 'LOGISTICS_PARTNER_NOT_ELIGIBLE',
+
+  /// The consignment has finished - delivered, cancelled, returned, lost or
+  /// destroyed - and cannot be assigned, reassigned or moved on.
+  LOGISTICS_SHIPMENT_TERMINAL: 'LOGISTICS_SHIPMENT_TERMINAL',
+
   LOGISTICS_PICKUP_NOT_ACTIONABLE: 'LOGISTICS_PICKUP_NOT_ACTIONABLE',
   /// A manifest cannot take this shipment - wrong partner, wrong status, or
   /// the manifest is already closed.

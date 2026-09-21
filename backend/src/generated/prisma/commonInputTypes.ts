@@ -2499,6 +2499,40 @@ export type EnumSellerNotificationKindWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumSellerNotificationKindFilter<$PrismaModel>
 }
 
+export type EnumSellerLogisticsRelationshipTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipType | Prisma.EnumSellerLogisticsRelationshipTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipType[]
+  notIn?: $Enums.SellerLogisticsRelationshipType[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipType
+}
+
+export type EnumSellerLogisticsRelationshipStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipStatus | Prisma.EnumSellerLogisticsRelationshipStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipStatus[]
+  notIn?: $Enums.SellerLogisticsRelationshipStatus[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipStatus
+}
+
+export type EnumSellerLogisticsRelationshipTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipType | Prisma.EnumSellerLogisticsRelationshipTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipType[]
+  notIn?: $Enums.SellerLogisticsRelationshipType[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipTypeWithAggregatesFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel>
+}
+
+export type EnumSellerLogisticsRelationshipStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipStatus | Prisma.EnumSellerLogisticsRelationshipStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipStatus[]
+  notIn?: $Enums.SellerLogisticsRelationshipStatus[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipStatusWithAggregatesFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel>
+}
+
 export type EnumLogisticsPartnerStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsPartnerStatus | Prisma.EnumLogisticsPartnerStatusFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsPartnerStatus[]
@@ -5438,6 +5472,40 @@ export type NestedEnumSellerNotificationKindWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSellerNotificationKindFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSellerNotificationKindFilter<$PrismaModel>
+}
+
+export type NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipType | Prisma.EnumSellerLogisticsRelationshipTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipType[]
+  notIn?: $Enums.SellerLogisticsRelationshipType[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipType
+}
+
+export type NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipStatus | Prisma.EnumSellerLogisticsRelationshipStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipStatus[]
+  notIn?: $Enums.SellerLogisticsRelationshipStatus[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipStatus
+}
+
+export type NestedEnumSellerLogisticsRelationshipTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipType | Prisma.EnumSellerLogisticsRelationshipTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipType[]
+  notIn?: $Enums.SellerLogisticsRelationshipType[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipTypeWithAggregatesFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLogisticsRelationshipTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumSellerLogisticsRelationshipStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SellerLogisticsRelationshipStatus | Prisma.EnumSellerLogisticsRelationshipStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SellerLogisticsRelationshipStatus[]
+  notIn?: $Enums.SellerLogisticsRelationshipStatus[]
+  not?: Prisma.NestedEnumSellerLogisticsRelationshipStatusWithAggregatesFilter<$PrismaModel> | $Enums.SellerLogisticsRelationshipStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSellerLogisticsRelationshipStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumLogisticsPartnerStatusFilter<$PrismaModel = never> = {

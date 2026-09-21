@@ -545,6 +545,7 @@ export const ModelName = {
   SellerPayout: 'SellerPayout',
   SellerNotification: 'SellerNotification',
   SellerAuditLog: 'SellerAuditLog',
+  SellerLogisticsPartner: 'SellerLogisticsPartner',
   LogisticsPartner: 'LogisticsPartner',
   LogisticsPartnerUser: 'LogisticsPartnerUser',
   LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
@@ -587,7 +588,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -10359,6 +10360,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SellerLogisticsPartner: {
+      payload: Prisma.$SellerLogisticsPartnerPayload<ExtArgs>
+      fields: Prisma.SellerLogisticsPartnerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerLogisticsPartnerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerLogisticsPartnerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerLogisticsPartnerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerLogisticsPartnerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        findMany: {
+          args: Prisma.SellerLogisticsPartnerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>[]
+        }
+        create: {
+          args: Prisma.SellerLogisticsPartnerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        createMany: {
+          args: Prisma.SellerLogisticsPartnerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerLogisticsPartnerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        update: {
+          args: Prisma.SellerLogisticsPartnerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerLogisticsPartnerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerLogisticsPartnerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerLogisticsPartnerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPartnerPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerLogisticsPartnerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerLogisticsPartner>
+        }
+        groupBy: {
+          args: Prisma.SellerLogisticsPartnerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPartnerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerLogisticsPartnerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPartnerCountAggregateOutputType> | number
+        }
+      }
+    }
     LogisticsPartner: {
       payload: Prisma.$LogisticsPartnerPayload<ExtArgs>
       fields: Prisma.LogisticsPartnerFieldRefs
@@ -15345,6 +15412,30 @@ export const SellerAuditLogScalarFieldEnum = {
 export type SellerAuditLogScalarFieldEnum = (typeof SellerAuditLogScalarFieldEnum)[keyof typeof SellerAuditLogScalarFieldEnum]
 
 
+export const SellerLogisticsPartnerScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  relationshipType: 'relationshipType',
+  status: 'status',
+  requestedBySellerMemberId: 'requestedBySellerMemberId',
+  decidedByUserId: 'decidedByUserId',
+  requestedAt: 'requestedAt',
+  decidedAt: 'decidedAt',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  serviceCountriesJson: 'serviceCountriesJson',
+  approvedCapabilitiesJson: 'approvedCapabilitiesJson',
+  sellerReference: 'sellerReference',
+  statusReason: 'statusReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type SellerLogisticsPartnerScalarFieldEnum = (typeof SellerLogisticsPartnerScalarFieldEnum)[keyof typeof SellerLogisticsPartnerScalarFieldEnum]
+
+
 export const LogisticsPartnerScalarFieldEnum = {
   id: 'id',
   partnerCode: 'partnerCode',
@@ -18109,6 +18200,19 @@ export const SellerAuditLogOrderByRelevanceFieldEnum = {
 export type SellerAuditLogOrderByRelevanceFieldEnum = (typeof SellerAuditLogOrderByRelevanceFieldEnum)[keyof typeof SellerAuditLogOrderByRelevanceFieldEnum]
 
 
+export const SellerLogisticsPartnerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  requestedBySellerMemberId: 'requestedBySellerMemberId',
+  decidedByUserId: 'decidedByUserId',
+  sellerReference: 'sellerReference',
+  statusReason: 'statusReason'
+} as const
+
+export type SellerLogisticsPartnerOrderByRelevanceFieldEnum = (typeof SellerLogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof SellerLogisticsPartnerOrderByRelevanceFieldEnum]
+
+
 export const LogisticsPartnerOrderByRelevanceFieldEnum = {
   id: 'id',
   partnerCode: 'partnerCode',
@@ -19384,6 +19488,20 @@ export type EnumSellerNotificationKindFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'SellerLogisticsRelationshipType'
+ */
+export type EnumSellerLogisticsRelationshipTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerLogisticsRelationshipType'>
+    
+
+
+/**
+ * Reference to a field of type 'SellerLogisticsRelationshipStatus'
+ */
+export type EnumSellerLogisticsRelationshipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerLogisticsRelationshipStatus'>
+    
+
+
+/**
  * Reference to a field of type 'LogisticsPartnerStatus'
  */
 export type EnumLogisticsPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPartnerStatus'>
@@ -19877,6 +19995,7 @@ export type GlobalOmitConfig = {
   sellerPayout?: Prisma.SellerPayoutOmit
   sellerNotification?: Prisma.SellerNotificationOmit
   sellerAuditLog?: Prisma.SellerAuditLogOmit
+  sellerLogisticsPartner?: Prisma.SellerLogisticsPartnerOmit
   logisticsPartner?: Prisma.LogisticsPartnerOmit
   logisticsPartnerUser?: Prisma.LogisticsPartnerUserOmit
   logisticsPartnerInvitation?: Prisma.LogisticsPartnerInvitationOmit

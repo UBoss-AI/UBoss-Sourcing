@@ -15,6 +15,8 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
+import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
+import { prisma } from '../../infra/prisma.js';
 import {
   createAdminDocumentLink,
   decideSellerDocument,
@@ -33,6 +35,7 @@ import {
   readListingForReview,
   setSellerCommission,
 } from '../../modules/seller/moderation.service.js';
+import { decideSellerCarrier } from '../../modules/seller/logistics-partner.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -438,6 +441,133 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
       });
 
       return reply.status(204).send();
+    },
+  );
+
+  // -------------------------------------------------------------------------
+  // Seller-to-carrier arrangements
+  //
+  // The approvals queue for the seller half of the fulfilment split. A seller
+  // may ASK to use a carrier; only the marketplace may say yes, and only
+  // through here.
+  //
+  // `CUSTOMER_STATUS_WRITE` rather than a read permission, because approving
+  // an arrangement is what lets a seller create an obligation on a third
+  // party. Every decision writes `decidedByUserId` and a reason, and the
+  // service refuses an adverse decision that has no reason attached.
+  // -------------------------------------------------------------------------
+
+  app.get(
+    '/seller-carriers',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          status: z
+            .enum(['REQUESTED', 'APPROVED', 'REJECTED', 'SUSPENDED', 'ENDED'])
+            .optional(),
+          sellerAccountId: z.string().length(26).optional(),
+          logisticsPartnerId: z.string().length(26).optional(),
+          limit: z.coerce.number().int().min(1).max(200).default(50),
+        })
+        .parse(request.query);
+
+      const rows = await prisma.sellerLogisticsPartner.findMany({
+        where: {
+          archivedAt: null,
+          ...(query.status === undefined ? {} : { status: query.status }),
+          ...(query.sellerAccountId === undefined
+            ? {}
+            : { sellerAccountId: query.sellerAccountId }),
+          ...(query.logisticsPartnerId === undefined
+            ? {}
+            : { logisticsPartnerId: query.logisticsPartnerId }),
+        },
+        include: {
+          sellerAccount: { select: { id: true, displayName: true, legalName: true } },
+          logisticsPartner: { select: { id: true, displayName: true, partnerCode: true, status: true } },
+        },
+        orderBy: [{ status: 'asc' }, { requestedAt: 'desc' }],
+        take: query.limit,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({
+        arrangements: rows.map((row: (typeof rows)[number]) => ({
+          linkId: row.id,
+          status: row.status,
+          relationshipType: row.relationshipType,
+          seller: row.sellerAccount,
+          carrier: row.logisticsPartner,
+          serviceCountries: row.serviceCountriesJson,
+          approvedCapabilities: row.approvedCapabilitiesJson,
+          sellerReference: row.sellerReference,
+          statusReason: row.statusReason,
+          requestedAt: row.requestedAt.toISOString(),
+          decidedAt: row.decidedAt?.toISOString() ?? null,
+          effectiveFrom: row.effectiveFrom.toISOString(),
+          effectiveTo: row.effectiveTo?.toISOString() ?? null,
+        })),
+      });
+    },
+  );
+
+  app.patch(
+    '/seller-carriers/:id',
+    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          status: z.enum(['APPROVED', 'REJECTED', 'SUSPENDED', 'ENDED']),
+          reason: z.string().trim().max(512).nullable().optional(),
+          relationshipType: z
+            .enum(['DIRECT_CONTRACT', 'MARKETPLACE_BROKERED', 'PREFERRED'])
+            .optional(),
+          /**
+           * Narrows the arrangement. It can never widen what the carrier
+           * itself covers - a seller cannot grant a carrier reach the carrier
+           * does not have - which the eligibility check enforces separately.
+           */
+          serviceCountries: z.array(z.string().length(2)).nullable().optional(),
+          approvedCapabilities: z.array(z.string().max(48)).nullable().optional(),
+          effectiveFrom: z.coerce.date().optional(),
+          effectiveTo: z.coerce.date().nullable().optional(),
+        })
+        .parse(request.body);
+
+      const auth = currentUser(request);
+
+      const result = await decideSellerCarrier({
+        linkId: params.id,
+        to: body.status,
+        decidedByUserId: auth.id,
+        reason: body.reason ?? null,
+        ...(body.relationshipType === undefined
+          ? {}
+          : { relationshipType: body.relationshipType }),
+        ...(body.serviceCountries === undefined
+          ? {}
+          : { serviceCountries: body.serviceCountries }),
+        ...(body.approvedCapabilities === undefined
+          ? {}
+          : { approvedCapabilities: body.approvedCapabilities }),
+        ...(body.effectiveFrom === undefined ? {} : { effectiveFrom: body.effectiveFrom }),
+        ...(body.effectiveTo === undefined ? {} : { effectiveTo: body.effectiveTo }),
+      });
+
+      await recordAudit({
+        actorType: 'ADMIN',
+        actorUserId: auth.id,
+        actorEmail: auth.email,
+        ipAddress: request.ip,
+        correlationId: request.correlationId,
+        action: AuditAction.SELLER_CARRIER_DECIDED,
+        resourceType: 'seller_logistics_partner',
+        resourceId: params.id,
+        after: { status: body.status, reason: body.reason ?? null },
+      });
+
+      return reply.status(200).send(result);
     },
   );
 

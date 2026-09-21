@@ -1372,6 +1372,11 @@ export type SellerNotification = Prisma.SellerNotificationModel
  */
 export type SellerAuditLog = Prisma.SellerAuditLogModel
 /**
+ * Model SellerLogisticsPartner
+ * One seller's entitlement to use one carrier.
+ */
+export type SellerLogisticsPartner = Prisma.SellerLogisticsPartnerModel
+/**
  * Model LogisticsPartner
  * One logistics company.
  * 

@@ -8303,6 +8303,7 @@ model SellerAccount {
   notifications      SellerNotification[]
   auditLogs          SellerAuditLog[]
   createdProducts    Product[]
+  logisticsPartners  SellerLogisticsPartner[]
 
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
@@ -10361,6 +10362,137 @@ model SellerAuditLog {
 }
 
 // ===========================================================================
+// WHICH CARRIERS A SELLER MAY USE
+//
+// The missing link between two features that were each complete on their own.
+// A seller could dispatch; a carrier could be assigned work and could put a
+// driver on it. Nothing said WHICH carriers a given seller was entitled to
+// hand a parcel to, so the only answer available was "any of them", which is
+// not an answer a marketplace can give: a carrier's rates, liability cover and
+// service agreement are negotiated per seller, and a seller who could offer
+// work to a carrier that has never heard of them is a seller who can create an
+// obligation nobody agreed to.
+//
+// THE RESPONSIBILITY SPLIT THIS TABLE ENFORCES
+//
+//   The seller chooses a CARRIER for their own paid shipment.
+//   The carrier chooses a DRIVER for the shipments it has accepted.
+//
+// and neither reaches into the other. A seller has no business knowing who is
+// on a carrier's payroll, and a carrier has no business seeing a seller's
+// other consignments. This table is the whole of the first half; the second
+// half already existed in `LogisticsDriverAssignment`.
+// ===========================================================================
+
+/// How a seller came to be able to use a carrier.
+///
+/// Stored because it decides who may end the relationship and on what notice,
+/// which is a question that gets asked exactly once - during a dispute.
+enum SellerLogisticsRelationshipType {
+  /// The seller has their own contract with the carrier. The marketplace
+  /// records it; it is not a party to it.
+  DIRECT_CONTRACT
+  /// The marketplace's own carrier agreement, extended to this seller.
+  MARKETPLACE_BROKERED
+  /// No contract, but the seller may offer work ad hoc.
+  PREFERRED
+}
+
+/// Where a relationship stands.
+///
+/// SUSPENDED and ENDED are deliberately different. A suspended relationship
+/// may still finish the consignments it is holding and may not be given new
+/// ones - exactly the rule `LogisticsPartnerStatus.SUSPENDED` applies to a
+/// carrier as a whole - where an ended one is over. Collapsing them would mean
+/// suspending a carrier stranded every parcel already on their van.
+enum SellerLogisticsRelationshipStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  SUSPENDED
+  ENDED
+}
+
+/// One seller's entitlement to use one carrier.
+model SellerLogisticsPartner {
+  id                 String @id @db.Char(26)
+  sellerAccountId    String @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  relationshipType SellerLogisticsRelationshipType   @default(MARKETPLACE_BROKERED)
+  status           SellerLogisticsRelationshipStatus @default(REQUESTED)
+
+  /// Who asked and who decided.
+  ///
+  /// Two separate ids because they are two separate people in two separate
+  /// organisations, and the audit question is always "did anybody on our side
+  /// agree to this?". `requestedBySellerMemberId` names somebody in the
+  /// seller's team; `decidedByUserId` names a member of the marketplace's
+  /// staff. Either can be null - the marketplace can create a relationship
+  /// outright, and a seed can create one with nobody behind it.
+  requestedBySellerMemberId String? @db.Char(26)
+  decidedByUserId           String? @db.Char(26)
+  requestedAt               DateTime  @default(now()) @db.DateTime(3)
+  decidedAt                 DateTime? @db.DateTime(3)
+
+  /// When the entitlement starts and stops.
+  ///
+  /// `effectiveTo` in the future is an ordinary fixed-term contract, not a
+  /// deactivation - the eligibility check reads both against the clock, so a
+  /// contract that lapses at midnight stops being offerable at midnight
+  /// without anybody running a job.
+  effectiveFrom DateTime  @default(now()) @db.DateTime(3)
+  effectiveTo   DateTime? @db.DateTime(3)
+
+  /// Where this seller may use this carrier, as ISO-3166-1 alpha-2 codes.
+  ///
+  /// JSON and nullable, and null means "wherever the carrier itself serves".
+  /// That is the common case and the right default: the carrier already
+  /// declares its own coverage in `LogisticsServiceRegion`, and duplicating it
+  /// per seller would be a second copy to keep in step. A list here NARROWS
+  /// that coverage and can never widen it - a seller cannot grant a carrier
+  /// reach the carrier does not have.
+  serviceCountriesJson Json?
+
+  /// Which handling capabilities this seller may ask of this carrier, by
+  /// `LogisticsCapabilityKind` name. Null means all of the carrier's own.
+  /// Narrows, never widens, on the same reasoning as the countries above.
+  approvedCapabilitiesJson Json?
+
+  /// The seller's own account number with the carrier, where they have one.
+  /// Shown on the carrier's copy of a consignment so their billing can match
+  /// it up. Never used for authorisation.
+  sellerReference String? @db.VarChar(64)
+
+  /// Why, on a rejection, a suspension or an ending. Required by the service
+  /// for each of those - a refusal with no reason is one the seller cannot act
+  /// on, and it is the first thing read during a dispute.
+  statusReason String? @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  /// Soft delete. Shipments already offered keep working.
+  archivedAt DateTime? @db.DateTime(3)
+
+  sellerAccount    SellerAccount    @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  logisticsPartner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  /// One row per pair. A seller re-requesting a carrier they once used moves
+  /// this row back to REQUESTED rather than creating a second one, so "may
+  /// this seller use this carrier" is always answered by exactly one row and
+  /// can never be answered twice with different answers. The trail of how it
+  /// got here lives in `seller_audit_logs` and `logistics_audit_logs`.
+  @@unique([sellerAccountId, logisticsPartnerId], map: "uq_seller_logistics_pair")
+  /// The seller's picker: which carriers can I offer this to.
+  @@index([sellerAccountId, status], map: "ix_seller_logistics_by_seller")
+  /// The carrier's own view, and the admin filter.
+  @@index([logisticsPartnerId, status], map: "ix_seller_logistics_by_partner")
+  /// The approvals queue.
+  @@index([status, requestedAt], map: "ix_seller_logistics_pending")
+  @@map("seller_logistics_partners")
+}
+
+// ===========================================================================
 // LOGISTICS PARTNER PORTAL
 //
 // Third-party carriers who collect consignments from a warehouse and deliver
@@ -10878,6 +11010,7 @@ model LogisticsPartner {
   exceptions   LogisticsShipmentException[]
   notifications LogisticsNotification[]
   auditLogs    LogisticsAuditLog[]
+  sellerLinks  SellerLogisticsPartner[]
 
   @@index([status, createdAt], map: "ix_logistics_partner_status")
   @@index([registrationCountry], map: "ix_logistics_partner_country")
