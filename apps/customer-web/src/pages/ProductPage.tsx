@@ -1868,6 +1868,37 @@ export function ProductPage(): React.JSX.Element {
                         {t('product.setUpARepeatPurchase')}
                       </ButtonLink>
                     )}
+
+                    {/*
+                     * The third thing you can do with a product, beside the
+                     * two ways of buying it rather than below them.
+                     *
+                     * It belongs in this row because it is an alternative to
+                     * pressing Add to Cart, not an afterthought once you
+                     * have: the shopper reading this panel has the
+                     * specification in front of them and the thing stopping
+                     * them is a question — "do you do this in 8 mm?" — which
+                     * they will only ask if asking is offered where the
+                     * decision is being made.
+                     *
+                     * `secondary`, not `action` or `operational`. Those two
+                     * hues are the two commitments and a third filled button
+                     * beside them would read as a third way to buy this. This
+                     * is the quiet option in the same row, at the same height,
+                     * so it is plainly available without competing.
+                     *
+                     * `w-full sm:w-auto` matches its neighbours: the row is a
+                     * column on a phone, and a half-width button under two
+                     * full-width ones reads as unfinished.
+                     */}
+                    <ProductInstructionsButton
+                      productId={product.id}
+                      productName={product.name}
+                      variantId={scheduleLine?.variantId ?? null}
+                      size="lg"
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                    />
                   </div>
 
                   {!isReady && (
@@ -1908,31 +1939,10 @@ export function ProductPage(): React.JSX.Element {
                    * line per option and picking one of two arbitrarily would
                    * be a guess.
                    */}
-                  {/*
-                   * Neither of these is a commitment, so they share the quiet
-                   * strip under the two that are. `flex-wrap` because at 320px
-                   * they do not fit side by side and the second must drop
-                   * rather than be cut off by the panel's edge.
-                   *
-                   * "Add instructions" is here as well as on the card because
-                   * this is where somebody is actually deciding: they have the
-                   * specification in front of them, and the question that
-                   * stops them buying — "do you do this in 8mm?" — is one they
-                   * think of on this page. It writes to the PRODUCT, not to a
-                   * basket line, so it reaches the seller whether or not this
-                   * visit ends in an order. The box further up the panel is the
-                   * other thing and stays: that one rides on the line being
-                   * added and is read by whoever picks it.
-                   */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border-subtle pt-2.5">
+                  <div className="border-t border-border-subtle pt-2.5">
                     <SaveForLaterButton
                       productId={product.id}
                       productSlug={product.slug}
-                      variantId={scheduleLine?.variantId ?? null}
-                    />
-                    <ProductInstructionsButton
-                      productId={product.id}
-                      productName={product.name}
                       variantId={scheduleLine?.variantId ?? null}
                     />
                   </div>

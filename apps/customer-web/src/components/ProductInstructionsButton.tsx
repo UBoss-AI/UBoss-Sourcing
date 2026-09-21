@@ -9,18 +9,27 @@
  * stock?" Each of those decides whether there is an order at all, and until
  * this control there was nowhere on the product to put them.
  *
- * ## Why it is a real button and not part of the card's link
+ * ## Where it lives, and where it does not
  *
- * `ProductCard` is a stretched link: an `::after` overlay on the product name
- * makes the whole card follow one anchor, which is the pattern that keeps a
- * grid navigable without turning each card into one unreadable blob for a
- * screen reader. Anything on the card that is NOT that link has to be lifted
- * above the overlay or it is unreachable — the SKU is raised for exactly this
- * reason, and this button is raised the same way.
+ * On the **product page**, in the row with Add to Cart and Set up a repeat
+ * purchase. It belongs with those two because it is an alternative to pressing
+ * them rather than something you do afterwards: the shopper reading that panel
+ * has the specification in front of them, and the thing stopping them is a
+ * question they will only ask if asking is offered where the decision is being
+ * made. It takes `variant="secondary"` there — the orange and the teal are the
+ * two commitments, and a third filled button beside them would read as a third
+ * way to buy.
  *
- * So it is `relative z-[1]`, and it stops the click from bubbling. Without the
- * second half, pressing it would open this dialog AND navigate to the product
- * page behind it.
+ * **Not on `ProductCard`.** It was there briefly and came off again. A card is
+ * a stretched link — an `::after` overlay on the product name makes the whole
+ * tile follow one anchor — so a real control on it has to be lifted above that
+ * overlay and stop the click bubbling. That works, and it still puts a second
+ * thing to press on a tile whose entire design is that there is exactly one.
+ * On a grid the card's job is to be compared and then opened.
+ *
+ * The click handler keeps `preventDefault` and `stopPropagation` anyway. They
+ * cost nothing, and they are what makes this safe to drop into a row, a list
+ * item or anything else that is itself clickable.
  *
  * ## Why a guest is sent to sign in rather than shown the box
  *
@@ -61,16 +70,16 @@ export interface ProductInstructionsButtonProps {
   productName: string;
   /** The version chosen, where one is. Null means the product in general. */
   variantId?: string | null;
-  /** `sm` on a card, `md` on the product page. */
-  size?: 'sm' | 'md';
+  /** `lg` beside the buy buttons, so the row sits on one baseline. */
+  size?: 'sm' | 'md' | 'lg';
   /**
-   * Lift above a stretched link's overlay.
+   * How loud it is.
    *
-   * True on a card, where the whole tile follows one anchor. False on the
-   * product page, where there is no overlay to get above and the extra
-   * stacking context is needless.
+   * `secondary` beside Add to Cart, where it is a real third option and has to
+   * look like one without competing with the two commitments. `ghost` is the
+   * default for anywhere quieter.
    */
-  isOverStretchedLink?: boolean;
+  variant?: 'secondary' | 'ghost';
   fullWidth?: boolean;
   className?: string;
 }
@@ -79,8 +88,8 @@ export function ProductInstructionsButton({
   productId,
   productName,
   variantId = null,
-  size = 'sm',
-  isOverStretchedLink = false,
+  size = 'md',
+  variant = 'ghost',
   fullWidth = false,
   className,
 }: ProductInstructionsButtonProps): React.JSX.Element {
@@ -94,9 +103,10 @@ export function ProductInstructionsButton({
   /*
    * Only asked for once somebody is signed in.
    *
-   * A guest has no instruction by definition, and asking would be a 401 per
-   * card in the grid. The button still renders — the point is that the offer
-   * is visible before the account is, or nobody finds out the feature exists.
+   * A guest has no instruction by definition, so asking would be a 401 for an
+   * answer that is knowable without the request. The button still renders —
+   * the point is that the offer is visible before the account is, or nobody
+   * finds out the feature exists.
    */
   const existing = useQuery({
     queryKey: instructionQueryKey(productId, variantId),
@@ -104,8 +114,7 @@ export function ProductInstructionsButton({
     enabled: isCustomer,
     // These change only when this shopper changes them, from a dialog that
     // writes the result straight back into this cache. Re-asking on every
-    // window focus would be a request per card in the grid for an answer that
-    // cannot have moved.
+    // window focus would be a request for an answer that cannot have moved.
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -117,18 +126,13 @@ export function ProductInstructionsButton({
     <>
       <Button
         size={size}
-        variant="ghost"
+        variant={variant}
         fullWidth={fullWidth}
-        className={cx(
-          // Above the card's stretched-link overlay, or the press navigates
-          // instead of opening this. See the header.
-          isOverStretchedLink && 'relative z-[1]',
-          className,
-        )}
+        className={className}
         onClick={(event) => {
-          // Both halves matter on a card: `preventDefault` for the anchor the
-          // overlay belongs to, `stopPropagation` so the press does not reach
-          // the card behind this button.
+          // Neither is needed where this sits today, and both are kept: they
+          // are what makes the control safe to drop into a row, a list item or
+          // anything else that is itself clickable. See the header.
           event.preventDefault();
           event.stopPropagation();
 
@@ -136,9 +140,12 @@ export function ProductInstructionsButton({
             /*
              * Sign in, then come back to exactly this page.
              *
-             * `next` is the path this shopper is standing on, not the product
-             * page — they pressed this from a grid and expect to return to the
-             * grid, with their place in it.
+             * `next` is the path this shopper is standing on, read at the
+             * moment of the press rather than derived from the product. That
+             * is the same URL wherever this button is used, and it is the one
+             * thing a shopper signing in mid-thought expects to get back —
+             * including the query string, which on a product page carries the
+             * colour and size they had already chosen.
              */
             void navigate(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
             return;

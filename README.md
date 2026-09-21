@@ -380,8 +380,9 @@ frozen onto the order line at checkout, and is shown to whoever packs it: the
 warehouse on the admin order, or the seller on theirs. An order-wide note
 reaches everybody and identifies nothing, which is why this one is per line.
 
-It also carries **Add instructions**, which is the same idea standing free of a
-basket — and on every product card in the grid as well as on the page. A signed-
+It also carries **Add instructions**, in the row with Add to Cart and Set up a
+repeat purchase — the same idea standing free of a basket, and a third thing to
+do with a product rather than a second way to buy it. A signed-
 in shopper can say what they need without buying anything ("do you do this in
 8 mm?", "can you supply a calibration certificate?", "we need four hundred a
 month — would you hold stock?") and every seller listing that product reads it

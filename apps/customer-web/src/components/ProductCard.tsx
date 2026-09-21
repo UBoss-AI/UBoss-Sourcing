@@ -51,7 +51,6 @@
  */
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
-import { ProductInstructionsButton } from './ProductInstructionsButton';
 import { BackgroundGradient } from './ui/background-gradient';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
 import {
@@ -407,50 +406,33 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
               </div>
             )}
 
-            {/* The bottom row: the affordance, and the one real control.
+            {/* The affordance, not a second link.
 
-                `flex-wrap` with the affordance first and the button pushed to
-                the end. At 320px in a two-column grid they stack, which is
-                correct — a button clipped by the card's own edge is a button
-                nobody can press. */}
-            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              {/* The affordance, not a second link.
+                The whole card already follows the anchor on the name — see the
+                header. A real button here would be a second tab stop and a
+                second accessible name for one destination, which is exactly the
+                blob that design avoids. This is inert text that inherits the
+                card's hover state, so the card looks like what it is: one
+                clickable thing.
 
-                  The whole card already follows the anchor on the name — see
-                  the header. A real *link* here would be a second tab stop and
-                  a second accessible name for one destination, which is exactly
-                  the blob that design avoids. This is inert text that inherits
-                  the card's hover state, so the card looks like what it is: one
-                  clickable thing. */}
-              <p
-                aria-hidden="true"
-                className="flex items-center gap-1 text-xxs font-medium text-ink-subtle
-                           transition-colors group-hover:text-brand"
-              >
-                {t('productCard.viewDetails')}
-                <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </p>
-
-              {/* The exception to "no second control on a card", and it earns
-                  it by not being a second way to do the same thing. Every other
-                  candidate — Add to Cart, a lightbox, a wishlist heart — is
-                  either the card's own destination wearing a different label or
-                  a decision that cannot be made without the product page. This
-                  is the one thing a shopper can finish from the grid, and the
-                  whole point of it is that they have not decided to buy yet.
-
-                  It is raised above the stretched link's overlay and stops the
-                  click bubbling; see the component's header. */}
-              <ProductInstructionsButton
-                productId={product.id}
-                productName={product.name}
-                size="sm"
-                isOverStretchedLink
-                className="-mr-1.5 px-1.5"
-              />
-            </div>
+                "Add instructions" was briefly here and was taken out again. It
+                is a real control, so it had to be lifted above the stretched
+                link and stop the click bubbling — which works, and still put a
+                second thing to press on a tile whose whole design is that
+                there is exactly one. On a grid the card's job is to be
+                compared and then opened; the instruction is written on the
+                product page, next to the two buttons that are the other things
+                you can do with the product. See `ProductPage.tsx`. */}
+            <p
+              aria-hidden="true"
+              className="mt-2.5 flex items-center gap-1 text-xxs font-medium text-ink-subtle
+                         transition-colors group-hover:text-brand"
+            >
+              {t('productCard.viewDetails')}
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </p>
           </div>
         </div>
       </article>

@@ -3637,8 +3637,22 @@ became an email nobody could tie back to a product, or they became nothing and
 the sale did not happen.
 
 So there is a second instruction, standing free of a basket: **Add
-instructions**, on every product card in the grid and on the product page
-beside "Save for later".
+instructions**, on the product page, in the row with Add to Cart and Set up a
+repeat purchase.
+
+It sits with those two rather than under them because it is an alternative to
+pressing them, not something you do afterwards. A shopper reading that panel
+has the specification in front of them, and the thing stopping them is a
+question they will only ask if asking is offered where the decision is being
+made. It is drawn as the quiet button of the three: the orange and the teal
+are the two commitments, and a third filled button beside them would read as a
+third way to buy.
+
+It is deliberately **not** on the product card. It was there briefly and came
+off again — a card is a stretched link, so a real control on it has to be
+lifted above the overlay and stop the click bubbling, which works and still
+puts a second thing to press on a tile whose whole design is that there is
+exactly one. On a grid a card's job is to be compared and then opened.
 
 | | Basket instruction | Product instruction |
 |---|---|---|
