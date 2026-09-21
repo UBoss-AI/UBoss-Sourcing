@@ -123,6 +123,29 @@ function BrandsIcon({ className }: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * Buyer requests. A speech bubble with a line in it.
+ *
+ * Deliberately NOT the bell next door and deliberately not an envelope. A bell
+ * is the marketplace telling the seller something; an envelope is a message
+ * thread they are expected to answer. This is neither: it is somebody else's
+ * requirement sitting against a product, which a speech bubble says and the
+ * other two do not.
+ */
+function RequestsIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M20 12a7 7 0 0 1-7 7H8.8L5 21.5V17.9A7 7 0 0 1 4 12a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path d="M8.5 10.5h7M8.5 13.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Notifications. A bell, because everything else reads as something else. */
 function BellIcon({ className }: IconProps): React.JSX.Element {
   return (
@@ -225,6 +248,22 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // Directly under Listings, because that is where a request is made and this
   // is the only place its answer can be read.
   { to: '/seller/brands', labelKey: 'seller.nav.brands', icon: BrandsIcon, needsApproval: true },
+  /*
+   * What buyers have asked for, across everything this seller sells.
+   *
+   * Beside Listings rather than beside Notifications, which is where it looks
+   * like it belongs. A notification is the marketplace telling the seller
+   * something and is read once; this is a standing list of requirements
+   * against their catalogue, and it is read the way a listings table is read —
+   * to decide what to change about a product. `needsApproval`, because there
+   * is nothing to show a seller with no listings yet.
+   */
+  {
+    to: '/seller/instructions',
+    labelKey: 'seller.nav.instructions',
+    icon: RequestsIcon,
+    needsApproval: true,
+  },
   {
     to: '/seller/inventory',
     labelKey: 'seller.nav.inventory',

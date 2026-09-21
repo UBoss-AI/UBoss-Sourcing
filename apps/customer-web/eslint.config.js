@@ -33,6 +33,26 @@ export default tseslint.config(
       // inside nested spans for layout. That is valid and accessible; the
       // rule's default only looks two elements deep.
       'jsx-a11y/label-has-associated-control': ['error', { depth: 4 }],
+      /*
+       * A scroll container is allowed to be focusable.
+       *
+       * A wide data table lives inside `overflow-x-auto`, which scrolls with a
+       * wheel, a trackpad and a finger — and not at all with a keyboard,
+       * because the element never receives the arrow keys. `tabIndex={0}` is
+       * the fix WCAG names for it (technique G202, success criterion 2.1.1),
+       * and the rule's default allows it only on `tabpanel`.
+       *
+       * `region` and nothing else, so this stays a statement about labelled
+       * scroll containers rather than a licence to make any div focusable. A
+       * `role="region"` needs an accessible name to be a landmark at all, so
+       * the rule still refuses a bare focusable div.
+       *
+       * Set identically in all three apps, for the reason `ui.tsx` gives about
+       * the button variants: a component is meant to be liftable between them
+       * unchanged, and a rule that holds in one and not the others is how that
+       * stops being true.
+       */
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'] }],
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       // A promise dropped in a click handler swallows its error.
       '@typescript-eslint/no-floating-promises': 'error',

@@ -294,6 +294,23 @@ export async function executeErasure(input: {
         await tx.wishlistItem.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
+      /*
+       * Instructions left on products without buying them.
+       *
+       * Deleted outright rather than anonymised, and the line is the same one
+       * the saved lines above sit on: nothing legally requires a record of a
+       * question somebody asked about a product they did not buy, and every
+       * row names the subject directly.
+       *
+       * The instruction on an ORDER line is a different fact and is not
+       * touched here. `order_items.noteSnapshot` is part of what was agreed
+       * at checkout, it is retained with the order under Art. 17(3)(b), and
+       * the order itself is anonymised rather than removed.
+       */
+      deleted.productInstructions = (
+        await tx.productInstruction.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
       /**
        * Their place in a buyer organisation.
        *

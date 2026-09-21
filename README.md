@@ -299,6 +299,14 @@ cart, which is where the backend puts it. On the admin sign-in page, tick the
 Terms checkbox — and allow the browser's location prompt, or the session will
 not finish (see [Configuration](#configuration)).
 
+**Then every staff account meets the second factor.** The first time one
+reaches it the console shows a **QR code** — scan it with any authenticator
+app, or type the setup key printed beside it — together with ten recovery
+codes shown once. Every session after that is asked for the current six-digit
+code. Reloading that page issues a new code and the one already scanned stops
+working, so finish it in one go. `FEATURE_ADMIN_MFA` is the switch, and
+production refuses to start with it off.
+
 **All three apps sign in through the same screen.** Storefront, admin console
 and logistics portal read top to bottom in the same order — language switcher,
 one card holding the heading, the introduction and the form, a divider, then
@@ -372,6 +380,16 @@ frozen onto the order line at checkout, and is shown to whoever packs it: the
 warehouse on the admin order, or the seller on theirs. An order-wide note
 reaches everybody and identifies nothing, which is why this one is per line.
 
+It also carries **Add instructions**, which is the same idea standing free of a
+basket — and on every product card in the grid as well as on the page. A signed-
+in shopper can say what they need without buying anything ("do you do this in
+8 mm?", "can you supply a calibration certificate?", "we need four hundred a
+month — would you hold stock?") and every seller listing that product reads it
+in their Hub. One standing instruction per shopper per product: saving again
+replaces it, clearing the box takes it back, and it is never shown to other
+shoppers. No purchase is required; an account is, so a seller can tell three
+buyers from one.
+
 **Pressing a product photograph opens it full screen**, with a zoom on the
 buttons, the wheel, a double-click and the keyboard, and dragging to move once
 it is magnified. The source is the original file and the zoom is a composited
@@ -404,6 +422,12 @@ Off unless enabled. A business applies, is reviewed and approved, and then has
 its own console inside the storefront: listings, offers, stock, orders to pack,
 shipments, returns and settlements.
 
+**Buyer requests** is the only signal in the Hub from somebody who did not buy.
+Instructions shoppers left on products this seller sells, without ordering them,
+grouped by product at `/seller/instructions` and repeated on each listing.
+Read-only — they are the buyer's own words — and scoped to products the seller
+actually lists.
+
 **Selling shares the account somebody buys with, and the Hub has its own
 password.** One email, one identity, one order history — and a second secret in
 front of the Hub, chosen the first time it is opened and required to differ from
@@ -423,6 +447,27 @@ India, five or ZIP+4 for the United States, and a permissive shape check for
 the many countries no fixed rule fits. It is stored as a string, so a leading
 zero survives. A seller whose address was entered before this existed keeps it
 exactly as written, is asked to fill in the parts, and is never guessed at.
+
+**The application saves itself.** An application is filled in out of a folder —
+a certificate in a drawer, a director to ask, a VAT number on an invoice
+somebody has to find — so every keystroke is written to the seller's own browser
+as it is typed, and the whole step is sent up a couple of seconds after typing
+stops. A session that expires mid-form, a closed tab and a refused request all
+leave the answers intact: the step reopens holding them, says where they came
+from and when, and offers one button to throw them away and see what is stored
+instead. Drafts are per seller account, are dropped once the server has the
+answers or the application is sent for review, and expire after a fortnight. A
+browser that refuses to store anything is told so on screen rather than left to
+imply a promise nothing is keeping.
+
+**How long a session lasts is a setting, and there are two of them.**
+`ACCESS_TOKEN_TTL_SECONDS` (default `3600`, one hour) covers the storefront,
+the Seller Hub and the driver app; `ADMIN_ACCESS_TOKEN_TTL_SECONDS` (default
+`900`, fifteen minutes) covers the console on its own, so lengthening a
+seller's session never lengthens the session that can refund an order. Both are
+in seconds and both are clamped to between a minute and a day. The refresh
+cookie behind them, `REFRESH_TOKEN_TTL_SECONDS`, is unchanged at thirty days and
+is what keeps a browser in use signed in without anybody noticing.
 
 A **product** is the thing itself — its name, specifications, photographs. An
 **offer** is what one seller will supply it for. Ten sellers offering the same
@@ -813,6 +858,7 @@ The ones that must match:
 | `LOGISTICS_WEB_ORIGIN` | The carrier portal's exact origin. Default `http://localhost:5175` |
 | `CUSTOMER_WEB_PUBLIC_URL` | Where activation and password-reset links point |
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL. Default `http://localhost:4000/api/v1` |
+| `STORAGE_PUBLIC_BASE_URL` | Where an uploaded picture is served from. `/media` in development — the dev servers proxy it to the API, so the picture loads on whatever origin the page was opened from, including a tunnel. An absolute URL is for a CDN or bucket in front of an object store; an absolute `http://localhost:4000/media` is only ever correct in a browser on this machine |
 | `apps/*/.env.netlify.local` → `VITE_DEMO_LOGINS` | Demo sign-ins printed on that app's login page, as JSON. Unset in every ordinary build, and gitignored so a repository build never carries one. Demonstration deployments only — see [docs/NETLIFY.md](docs/NETLIFY.md) |
 
 The CORS allowlist is exact — a mismatch blocks every request from the browser
@@ -1058,16 +1104,14 @@ as a download with `nosniff`, never rendered in the page.
 
 | Variable | What it does |
 |---|---|
-| `SELLER_ALLOW_UNSCANNED_DOCUMENTS` | Whether a file no malware scanner has seen may be opened. Default `true` |
+| `SELLER_ALLOW_UNSCANNED_DOCUMENTS` | Whether a file no malware scanner has seen may be opened. Default `false` |
 | `LOGISTICS_DOCUMENT_URL_TTL_SECONDS` | How long a signed document link lives, for these and for carrier documents. Default `300` |
 
-No malware scanner ships with this software, so an upload records
-`SCANNER_UNCONFIGURED` rather than "clean" — and the state is shown beside every
-document on both the seller's screen and the operator's. The default is `true`
-because a reviewer who cannot open the evidence cannot decide the application at
-all, and the alternative is certificates going back to arriving by email where
-nobody can find them again. Set it `false` once a scanner is wired in, or where
-policy forbids opening unscanned files.
+Uploads are scanned with ClamAV before storage. Production refuses to start
+without ClamAV, and an infected or failed scan is not treated as clean. The scan
+state is shown beside every document, and unscanned seller documents cannot be
+opened by default. The live host still needs ClamAV installed and an operational
+scan test.
 
 Uploading is not approving. A document sits at *Being checked* until somebody
 accepts it from the Documents card on that seller's screen in the console; a
@@ -1657,6 +1701,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **The demonstration catalogue can only touch its own rows.** A blueprint
   resolves to a product by reading `demo_catalog_entries`, so a product a person
   created cannot be named by the seed at all.
+- **The console's session is never lengthened by lengthening anybody else's.**
+  `ACCESS_TOKEN_TTL_SECONDS` and `ADMIN_ACCESS_TOKEN_TTL_SECONDS` are two
+  settings rather than one, and `accessTokenTtlFor` picks between them by the
+  surface the token is minted for. The storefront and the Seller Hub are filled
+  in from paperwork and are given an hour; the account that can refund an order
+  and read a customer's address is the one left open on a shared desk, and it
+  keeps its own, shorter number.
 - **One seller cannot read another seller's data.** Every owned row carries its
   `sellerAccountId`, no route takes one from the caller, and no service accepts
   a seller id without having been handed a membership first.
@@ -1704,10 +1755,9 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   carries `submittedVersion` back with their decision, and it is refused if the
   seller has resubmitted or a colleague has already decided. Approval makes a
   listing *eligible*; the seller still has to put it on sale.
-- **A file is never called clean because nothing looked at it.** No malware
-  scanner ships here, so an upload records `SCANNER_UNCONFIGURED`, the state is
-  shown wherever the document is, and whether an unscanned file may be opened is
-  a setting somebody decides rather than an assumption the code makes.
+- **A file is never called clean because nothing looked at it.** Uploads are
+  scanned with ClamAV before storage; production refuses to start without it,
+  and failed or infected scans are refused rather than treated as clean.
 - **The audit log is append-only.** Every state change records who, when, from
   where and why. No screen offers a way to edit or delete an entry.
 - **One order per checkout.** The idempotency key is generated once per attempt

@@ -145,6 +145,7 @@ export const ModelName = {
   ErpWebhookReceipt: 'ErpWebhookReceipt',
   CustomerAutoPaySetting: 'CustomerAutoPaySetting',
   WishlistItem: 'WishlistItem',
+  ProductInstruction: 'ProductInstruction',
   BuyerOrganization: 'BuyerOrganization',
   BuyerOrganizationMember: 'BuyerOrganizationMember',
   BuyerOrganizationInvite: 'BuyerOrganizationInvite',
@@ -2184,6 +2185,19 @@ export const WishlistItemScalarFieldEnum = {
 } as const
 
 export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
+export const ProductInstructionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  customerProfileId: 'customerProfileId',
+  variantKey: 'variantKey',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductInstructionScalarFieldEnum = (typeof ProductInstructionScalarFieldEnum)[keyof typeof ProductInstructionScalarFieldEnum]
 
 
 export const BuyerOrganizationScalarFieldEnum = {
@@ -5305,6 +5319,17 @@ export const WishlistItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
+
+
+export const ProductInstructionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  customerProfileId: 'customerProfileId',
+  variantKey: 'variantKey',
+  body: 'body'
+} as const
+
+export type ProductInstructionOrderByRelevanceFieldEnum = (typeof ProductInstructionOrderByRelevanceFieldEnum)[keyof typeof ProductInstructionOrderByRelevanceFieldEnum]
 
 
 export const BuyerOrganizationOrderByRelevanceFieldEnum = {

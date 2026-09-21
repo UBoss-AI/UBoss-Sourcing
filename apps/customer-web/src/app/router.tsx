@@ -524,6 +524,21 @@ export const router = createBrowserRouter([
           import('@/pages/seller/SellerBrandsPage').then((m) => m.SellerBrandsPage),
         ),
       },
+      /*
+       * What buyers have asked for, across the whole catalogue this seller
+       * sells.
+       *
+       * Its own route rather than a tab on Listings: the errand is its own. A
+       * seller opens Listings to change a product and opens this to find out
+       * WHICH product to change, and folding the second into the first would
+       * bury it behind a tab nobody presses.
+       */
+      {
+        path: 'instructions',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerInstructionsPage').then((m) => m.SellerInstructionsPage),
+        ),
+      },
       {
         path: 'inventory',
         ...accountPage(() =>

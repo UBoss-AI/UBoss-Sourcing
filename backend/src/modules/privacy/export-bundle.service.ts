@@ -59,6 +59,10 @@ export const SECTIONS = Object.freeze({
     // Lines saved without buying them. A record of what somebody was thinking
     // of ordering, which is plainly theirs, and short enough to disclose whole.
     'wishlist',
+    // What they asked a seller for, on products they did not buy. Their own
+    // words about their own requirements, held indefinitely until they take
+    // them back, so plainly theirs and disclosed whole.
+    'productInstructions',
     'couponRedemptions',
     // Delivery options this person was shown at checkout, with the price and
     // the dates each one promised. Short-lived and mostly unaccepted, and
@@ -280,6 +284,7 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
     enquiries,
     sessions,
     wishlist,
+    productInstructions,
   ] = await Promise.all([
       prisma.address.findMany({
         where: { customerProfileId: profile.id },
@@ -539,6 +544,30 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           product: { select: { name: true, sku: true } },
         },
       }),
+
+      /*
+       * What they asked a seller for, on products they did not buy.
+       *
+       * Short, indefinitely held, and unambiguously the subject's own words
+       * about their own requirements, so it is disclosed whole and in the
+       * original text rather than summarised. The product is named as well as
+       * identified, for the reason the wishlist gives: an id tells the subject
+       * nothing about what they wrote it against.
+       *
+       * The instruction attached to an ORDER line is a different record and
+       * already travels with `orders` above, frozen as it was at checkout.
+       */
+      prisma.productInstruction.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          variantKey: true,
+          body: true,
+          createdAt: true,
+          updatedAt: true,
+          product: { select: { name: true, sku: true } },
+        },
+      }),
     ]);
 
   return envelope(subject, {
@@ -661,6 +690,19 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
       // null so the subject reads an absence rather than a sentinel.
       variantId: item.variantKey === '' ? null : item.variantKey,
       savedAt: iso(item.createdAt),
+    })),
+
+    productInstructions: productInstructions.map((instruction) => ({
+      productName: instruction.product.name,
+      sku: instruction.product.sku,
+      // As above: the sentinel becomes an absence on the way out, so the
+      // subject reads "about the product" rather than an empty string.
+      variantId: instruction.variantKey === '' ? null : instruction.variantKey,
+      instruction: instruction.body,
+      writtenAt: iso(instruction.createdAt),
+      // There is one row per product and editing replaces it, so this is when
+      // they last changed their mind — which is part of the record.
+      lastChangedAt: iso(instruction.updatedAt),
     })),
 
     couponRedemptions: redemptions.map((redemption) => ({

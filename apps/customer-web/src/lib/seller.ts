@@ -833,6 +833,59 @@ export function fetchOfferVariants(offerId: string): Promise<OfferVariantsView> 
   return api.get<OfferVariantsView>(`/seller/listings/${offerId}/variants`);
 }
 
+// ---------------------------------------------------------------------------
+// What buyers have asked for
+// ---------------------------------------------------------------------------
+
+/**
+ * One instruction a shopper left on a product, as the seller reads it.
+ *
+ * Written from the storefront without buying anything — see
+ * `lib/product-instructions.ts` on the other side. Read-only here, and there
+ * is deliberately no write: these are the buyer's own words, and a seller who
+ * could edit one could rewrite the evidence of what was asked for.
+ *
+ * `customerName` is a name and nothing else. It is here because a seller needs
+ * to know whether three sentences came from three buyers or from one, not so
+ * that anybody can harvest an email address.
+ */
+export interface SellerProductInstruction {
+  id: string;
+  productId: string;
+  productName: string;
+  productSku: string;
+  /** The version it is about, or null for the product in general. */
+  variantId: string | null;
+  variantName: string | null;
+  body: string;
+  customerName: string;
+  customerOrganization: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** What buyers have asked about the product behind this listing. */
+export async function fetchListingInstructions(
+  offerId: string,
+): Promise<SellerProductInstruction[]> {
+  const response = await api.get<{ instructions: SellerProductInstruction[] }>(
+    `/seller/listings/${offerId}/instructions`,
+  );
+
+  return response.instructions;
+}
+
+/** The same, across everything this seller sells. Newest first. */
+export async function fetchSellerInstructions(
+  limit = 100,
+): Promise<SellerProductInstruction[]> {
+  const response = await api.get<{ instructions: SellerProductInstruction[] }>(
+    `/seller/instructions?limit=${String(limit)}`,
+  );
+
+  return response.instructions;
+}
+
 /** What these axes would produce, with the ones already listed marked. */
 export function previewOfferVariants(
   offerId: string,

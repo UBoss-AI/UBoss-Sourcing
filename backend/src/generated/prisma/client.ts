@@ -760,6 +760,62 @@ export type CustomerAutoPaySetting = Prisma.CustomerAutoPaySettingModel
  */
 export type WishlistItem = Prisma.WishlistItemModel
 /**
+ * Model ProductInstruction
+ * *
+ *  * What a shopper needs done to a product, said before there is an order.
+ *  *
+ *  * `cart_items.note` already lets a buyer say "the 316 grade, not 304" or
+ *  * "engrave both ends" — but only once the thing is in their basket, and only
+ *  * where it survives to checkout. That is the wrong moment for most of what a
+ *  * trade buyer actually wants to say. The questions that decide whether there
+ *  * will be an order at all — "do you do this in 8mm?", "can you supply with a
+ *  * calibration certificate?", "we need 400 a month, can you hold stock?" —
+ *  * arrive while somebody is still looking, and until now there was nowhere to
+ *  * put them. They went into an email nobody could tie back to a product, or
+ *  * they went nowhere and the sale did not happen.
+ *  *
+ *  * So this is the same fact as the cart line's note, standing free of a basket:
+ *  * one shopper, one product, in their own words, readable by whoever sells it.
+ *  *
+ *  * ONE STANDING INSTRUCTION PER SHOPPER PER PRODUCT, NOT A THREAD
+ *  *
+ *  * The unique index is the whole design decision. This is deliberately NOT a
+ *  * comment section: a public thread under a product is a different feature with
+ *  * different problems (ranking, moderation at volume, brigading), and it is not
+ *  * what was asked for. A shopper has one standing instruction about a product,
+ *  * and editing it replaces what they said rather than appending to it — exactly
+ *  * how the basket's note behaves, which is where this shape comes from.
+ *  *
+ *  * It also settles the abuse question without a moderation queue. A signed-in
+ *  * shopper can hold at most one row per product, so there is no flood to
+ *  * moderate; the worst case is one sentence from one identified account, which
+ *  * the seller can read and ignore.
+ *  *
+ *  * `variantKey` is the same device the cart, the schedule and the wishlist use,
+ *  * for the MariaDB reason in this file's header: a UNIQUE index treats every
+ *  * NULL as distinct, so a nullable `variantId` in the composite would not stop
+ *  * the same shopper filing two rows against the same version. It is the variant
+ *  * ULID, or `''` for "this product in general", and is never null. There is no
+ *  * `variant` relation, for the reason WishlistItem states: a variant must stay
+ *  * deletable, and the reader resolves the key only if it still resolves.
+ *  *
+ *  * WHY 500 AND NOT `TEXT`
+ *  *
+ *  * The same ceiling `cart_items.note` carries, and the same reasoning. This is
+ *  * a few sentences about one product, read by a seller working through a list
+ *  * of them. The API enforces the same number, so going over is a message rather
+ *  * than a silent truncation — which matters more here than almost anywhere,
+ *  * because MariaDB 10.4 is not strict and WOULD truncate.
+ *  *
+ *  * WHO CAN READ IT
+ *  *
+ *  * The shopper who wrote it, and any seller with a live, unarchived offer on
+ *  * that product. Not the public: a storefront that printed these under the
+ *  * product would be publishing one buyer's requirements to their competitors,
+ *  * and a buyer who knew that would stop writing anything worth reading.
+ */
+export type ProductInstruction = Prisma.ProductInstructionModel
+/**
  * Model BuyerOrganization
  * A buyer business, as a tenant.
  * 

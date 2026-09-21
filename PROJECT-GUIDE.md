@@ -586,10 +586,27 @@ Backend checks the password (Argon2id — see Security)
         │
         ▼
 Sets three cookies:
-   uboss_shop_access    — proves who you are, short-lived (15 minutes)
+   uboss_shop_access    — proves who you are, short-lived (1 hour)
    uboss_shop_refresh   — used to get a fresh access cookie (30 days)
    uboss_shop_csrf      — anti-forgery token (explained below)
 ```
+
+**How long the first one lasts is a setting, and there are two of them.** The
+storefront, the Seller Hub and the driver app get an hour
+(`ACCESS_TOKEN_TTL_SECONDS`); the admin console gets fifteen minutes
+(`ADMIN_ACCESS_TOKEN_TTL_SECONDS`), and `accessTokenTtlFor` in
+`session.service.ts` is the one place that chooses between them.
+
+Two settings rather than one, because the two surfaces are used differently. A
+seller works through an application out of a folder of certificates, and a
+fifteen-minute token used to expire while somebody was reading a registration
+number off a printout. The console is the account that can refund an order and
+read a customer's address, and it is the one left open on a shared desk — so
+lengthening the seller's session must not lengthen that one as a side effect.
+
+Note what the access cookie is *not*. It is not how long somebody stays signed
+in: a browser in use refreshes silently against the 30-day refresh cookie and
+notices nothing. It is the ceiling on a tab that has been sitting idle.
 
 The first two are **HttpOnly**: JavaScript in the page cannot read them. If an
 attacker managed to inject a script into the page, it still could not steal the
@@ -3606,6 +3623,84 @@ that alters what is charged, and `PATCH /cart/items/:id/note` answers with the
 whole repriced cart only because every mutation in that file does — the shape is
 the contract the storefront's cache is written from.
 
+### Instructions without buying anything
+
+The box above is the right box and it arrives too late.
+
+`cart_items.note` only exists once the product is in a basket, and it only
+reaches a seller if that basket becomes an order. The things a trade buyer most
+wants to say are said before either of those. *Do you do this in 8 mm? Can you
+supply it with a calibration certificate? We need four hundred a month — would
+you hold stock?* Every one of those decides whether there will be an order at
+all, and until this feature there was nowhere on the product to put them. They
+became an email nobody could tie back to a product, or they became nothing and
+the sale did not happen.
+
+So there is a second instruction, standing free of a basket: **Add
+instructions**, on every product card in the grid and on the product page
+beside "Save for later".
+
+| | Basket instruction | Product instruction |
+|---|---|---|
+| Table | `cart_items.note` → `order_items.noteSnapshot` | `product_instructions.body` |
+| Exists when | The product is in a basket | Any time |
+| Reaches the seller | Only if the basket becomes an order | Immediately |
+| About | One basket line | The product |
+| Read by | Whoever picks the order | Every seller listing that product |
+| Lives until | The order is placed, then frozen | The shopper takes it back |
+
+**One standing instruction per shopper per product, not a thread.** This is the
+design decision the whole feature turns on, and it is enforced by a UNIQUE
+index on `(customerProfileId, productId, variantKey)`. Saving again replaces
+what was said rather than appending to it — exactly how the basket's note
+behaves, which is where the shape comes from. A public comment section under a
+product is a different feature with different problems (ranking, moderation at
+volume, brigading) and is not what this is.
+
+It also settles the abuse question without a moderation queue. A signed-in
+shopper can hold at most one row per product, so there is no flood to moderate:
+the worst case is one sentence from one identified account, which the seller can
+read and ignore.
+
+**Signing in is the gate; buying is not.** A shopper pressing the button
+without an account is sent to sign-in and returned to the page they were on,
+with the grid where they left it. The purchase is never required — that is the
+entire point — but the account is, because a seller reading these needs to know
+whether three sentences came from three buyers or from one, and an anonymous
+line answers neither question while opening a flood nobody can stop.
+
+**It is never public.** A storefront printing these under the product would be
+publishing one buyer's requirements to their competitors, and a buyer who knew
+that would stop writing anything worth reading. The readers are the shopper who
+wrote it and any seller with an unarchived offer on that product — of any
+status, deliberately, because the seller whose listing is paused is exactly the
+one who needs to know why nobody was buying it.
+
+**It is plain text, end to end.** 500 characters, the same ceiling the basket's
+note carries and for the same reason: MariaDB 10.4 is not strict and would
+truncate, so the column, the API's schema and the box the shopper types into all
+stop at the same number. Nothing stores HTML and nothing renders it as HTML.
+
+**Clearing the box takes it back.** An emptied instruction deletes the row
+rather than storing `''` — a blank line in a seller's list means "somebody
+changed their mind" and reads as a bug.
+
+| What | Endpoint |
+|---|---|
+| What I have already said | `GET /account/product-instructions?productId=…` |
+| Say it, or replace it | `POST /account/product-instructions` |
+| Take it back | `DELETE /account/product-instructions/:id` |
+| What buyers asked about this listing | `GET /seller/listings/:id/instructions` |
+| What buyers asked about anything I sell | `GET /seller/instructions` |
+
+There is no seller write. These are the buyer's own words, and a seller who
+could edit one could rewrite the evidence of what was asked for.
+
+It is part of the Art. 15 export, as `productInstructions`, and an Art. 17
+erasure deletes the rows outright. The instruction on an *order* line is a
+different fact: it is part of what was agreed at checkout, and is retained with
+the order.
+
 ## The cart: Instant Buy and Schedule Cart
 
 The cart opens with two tabs above the heading, and they are the only two
@@ -3909,6 +4004,43 @@ on screen rather than a null for every box the seller did not touch this
 visit — a null means "clear this", so entering the second thing used to wipe the
 first and the step could never be finished at all.
 
+**Nothing typed is ever lost, and there are two saves rather than one.** The
+distinction is the whole design, and the two promise different things:
+
+1. **Every keystroke is written to the seller's own browser, at once.** That is
+   `lib/onboarding-draft.ts`, one `localStorage` entry per seller account per
+   step. It is the copy that survives a session ending, a closed tab and a
+   refused request — because none of those are moments when the server can be
+   reached at all.
+2. **The whole step is sent to the API a couple of seconds after typing stops.**
+   That is `lib/form-autosave.ts`, and it is the save that makes a step go
+   green. It is best-effort by nature: a half-typed website address is not a
+   URL and an address without a postcode is not an address, so while the form
+   holds something the API would refuse, nothing is sent and the browser copy
+   is the entire safety net. A refused auto-save is deliberately silent — a
+   toast per pause in typing teaches people to dismiss toasts — and the Save
+   button still reports its own failures in full.
+
+A step reopened with an unsent draft behind it **says so** rather than
+restoring it quietly: a strip at the top names when it was typed and offers one
+button to throw it away and see what is actually stored. Boxes that silently
+disagree with the server is how somebody submits an address they thought they
+had changed back.
+
+The line under Save says which of the two holds the work, and the wordings are
+not interchangeable: *Saved at 14:05* means the marketplace has it, *Kept on
+this device* means it does not yet, and *This browser is not keeping a copy*
+means neither is — which a browser in private mode or with a full quota really
+does do, and saying it is the point. Drafts are dropped as soon as the server
+has the answers, are cleared for every step when the application is sent for
+review, and expire after a fortnight.
+
+This is also what makes an expiring session survivable rather than merely
+shorter. `onSessionEnded` — the same announcement the service banner listens
+to — stops the pending send and tells the seller where their work is, so the
+sign-in screen is not the first thing they meet with no explanation of what
+became of the form behind it.
+
 **What each step asks for is a database row, not code.** A German seller is
 asked for a VAT number matching `^DE[0-9]{9}$`; an Indian one for a GSTIN with
 its own fifteen-character format; a manufacturer for a Declaration of
@@ -4070,12 +4202,11 @@ What is accepted, and what is done with it:
   mounted over. They come back only through a link that is minted per press,
   lives minutes and works once, and they are served as a download with
   `nosniff` — never rendered in the page.
-- **No scanner is configured**, so an upload records `SCANNER_UNCONFIGURED`
-  rather than "clean". Whether an unscanned file may then be opened is
-  `SELLER_ALLOW_UNSCANNED_DOCUMENTS`, which defaults to true: a reviewer who
-  cannot open the evidence cannot review the application, and the alternative is
-  certificates going back to arriving by email where nobody can find them. The
-  scan state is shown beside every document on both screens.
+- **Uploads are scanned before storage when ClamAV is configured**, and a
+  production process refuses to start without that scanner. A clean result is
+  required before a document can be opened; infected or unavailable scans are
+  quarantined or refused. `SELLER_ALLOW_UNSCANNED_DOCUMENTS` defaults to false,
+  and the scan state is shown beside every document on both screens.
 - **A second upload supersedes the first rather than replacing it.** The old row
   is kept, because the document an approval was granted against has to stay
   readable — "we accepted their CE certificate in March" is only an answer if
@@ -4244,6 +4375,53 @@ written for the seller and neither is hidden behind a click.
 on the list with its reason, because "we refused it, and here is why" is
 information to keep rather than a row to tidy away.
 
+### Buyer requests: what people asked for and did not buy
+
+`/seller/instructions`, and a panel at the foot of every listing.
+
+This is the other end of the storefront's **Add instructions** button — see
+"Instructions without buying anything" in section 4. A shopper can say what
+they need on a product without putting it in a basket, and this is where those
+arrive: *do you do this in 8 mm, can you supply a calibration certificate, we
+need four hundred a month.*
+
+It is the only signal in the hub that comes from somebody who did **not** buy.
+Orders say what sold; stock says what is left; this says why the rest of them
+went away, which is the one question the other screens cannot answer.
+
+**Two places, because they answer two different questions.** The panel on a
+listing answers "why is nobody buying *this*?". The page answers "what are
+people asking me for?", which is the one that changes what a seller stocks —
+and reading it product by product would mean opening forty listings to notice
+that six buyers have asked for the same size. So the page groups by product,
+newest request first within each, and the products themselves are ordered by
+their most recent request.
+
+**Scoped to the product, not to the offer**, even though three distributors can
+sell the same shirt. A shopper asking "do you do this in 8 mm?" is asking the
+marketplace, not a company whose name they have never seen; routing the question
+to whichever offer happened to be on screen would send most of these to somebody
+who cannot answer them and hide them from the one who can.
+
+**A paused listing still shows them.** The gate is an unarchived offer of any
+status, not an active one — the seller whose listing is off sale is exactly the
+seller who needs to read why nobody was buying it, and one fixing a listing the
+marketplace asked them to change should see what buyers wanted while it was
+down.
+
+**Read-only, with no reply.** These are the buyer's own words and only the buyer
+can change them; a seller who could edit one could rewrite the evidence of what
+was asked for. The row carries a name and an organisation and no email address,
+because the seller's question is "did three buyers ask this or one, and is the
+one asking for four hundred a month somebody we already supply" — which a name
+answers and an address does not. A seller who wants to reply does it through the
+order path, where there is a relationship.
+
+A seller who sells nothing sees nothing, and a seller reading a listing that is
+not theirs gets "not found" before any instruction is loaded. Without that, the
+endpoint would be a way to read every buyer requirement in the catalogue by
+posting ids.
+
 ### The listing wizard
 
 Three steps: **category**, **brand**, **product details**. That order is forced
@@ -4272,6 +4450,18 @@ through the database: the row records a storage key, and the URL is built from
 it on read — so moving a deployment from local disk to S3 does not leave every
 listing pointing at nothing.
 
+**Where that URL points is a setting, and it is the one that decides whether a
+seller can see the photograph they just added.** `STORAGE_PUBLIC_BASE_URL` is
+either an absolute URL — the CDN or bucket in front of an object store, which
+is the production shape — or a root-relative path such as `/media`, which is
+what development uses: all the dev servers proxy `/media` to the API, so the
+picture is fetched from whatever origin the page was opened from. An absolute
+`http://localhost:4000` looks correct on the machine that made the upload and
+is broken on every other one: a phone on the same network, or anybody looking
+through a tunnel, resolves `localhost` to their own device, and an HTTPS page
+refuses an `http://` image outright. Nothing reports it — the upload succeeds,
+the row is written, and the seller is looking at an empty box.
+
 **The magic bytes decide the type, never the Content-Type header and never the
 file extension.** A client can claim anything. An SVG renamed `product.png` and
 declared `image/png` is refused, because an SVG is a script-capable document
@@ -4298,8 +4488,9 @@ Four rules the upload path enforces:
 - **Exactly one primary image, always** — and it can never be a video. It renders
   in a search result and on an order confirmation, and neither can play one.
   Deleting the primary promotes the next picture rather than leaving none.
-- **Nothing is claimed to have been scanned.** No malware scanner is configured,
-  so uploads are marked `SCANNER_UNCONFIGURED` rather than `CLEAN`.
+- **Malware scanning is fail-closed.** User uploads are scanned before storage;
+  production requires ClamAV, and a scanner error does not produce a `CLEAN`
+  result.
 
 A video cannot carry a caption track — the file comes from a seller and nothing
 here can produce subtitles for it. So the seller is asked for a **written
@@ -5915,6 +6106,46 @@ also hides buttons a role cannot use, but that is only politeness — hiding a
 button is not security, and the server never trusts the client about what it is
 allowed to do.
 
+## The second factor at sign-in
+
+Every administrator signs in twice: once with a password, and once with a
+six-digit code from an authenticator app on their phone. It is not something a
+member of staff can decline — the panel renders the gate instead of the console
+until the session has been challenged. `FEATURE_ADMIN_MFA` exists so that
+integration tests about unrelated business flows do not each have to
+manufacture a code; production validation refuses to start with it off.
+
+**Setting it up is a scan.** The first time an administrator reaches the gate
+the server issues a fresh secret, and the screen draws it as a **QR code**:
+open the authenticator app, choose to add an account, point the camera. The
+setup key is printed beside the code in plain text for a phone that cannot
+scan, and under both are ten recovery codes, shown once and each good for one
+use.
+
+The QR code is drawn **in the browser tab**, by
+`apps/admin-web/src/lib/qr.ts`, from the `otpauth://` URI the setup call
+returned. It is never fetched as an image, and that is the whole point of the
+control: the URI carries the TOTP secret, so an image URL would hand the entire
+second factor to whoever serves the image and to every cache between there and
+the screen. The logistics portal draws its own for the same reason. The two
+encoders are copies, because the three apps share no package, and each copy
+carries the unit test that decodes what it draws.
+
+Typing the key by hand used to be the only way in, and it was the wrong
+default: thirty-two characters typed into a phone is slow and mistyped, and
+every mistyped attempt spends a request against the rate limit in front of the
+endpoint — so the screen that exists to let somebody in was the screen most
+likely to lock them out.
+
+**One enrolment per visit.** `/admin/auth/mfa/setup` issues a new secret every
+time it is called, so reloading the gate replaces the secret behind a code that
+has already been scanned, and the phone then shows six digits for an account
+the server has forgotten. The screen holds the enrolment for as long as it is
+open and says on the page that leaving invalidates it.
+
+After enrolment, every new session is challenged for the current code — or for
+one recovery code, which is spent when it is used.
+
 ## The location check at sign-in
 
 This is unusual, so it is worth understanding.
@@ -6811,9 +7042,10 @@ Everything in section 12 applies, plus:
 - Live GPS, as above: the shape is there and the tracking is not.
 - DHL, FedEx and UPS adapters refuse rather than call. The interface they will
   implement is written and tested; the calls are not.
-- Malware scanning is a hook, not a scanner. With
+- Malware scanning is wired to ClamAV. With
   `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS` off — which is the default — an
-  unscanned upload is refused rather than quietly accepted.
+  unscanned or failed scan is refused rather than quietly accepted. The live
+  host still needs ClamAV installation and an operational scan test.
 
 ---
 

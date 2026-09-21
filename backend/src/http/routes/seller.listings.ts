@@ -60,6 +60,10 @@ import {
   previewOfferVariants,
   readOfferVariants,
 } from '../../modules/seller/offer-variants.service.js';
+import {
+  listInstructionsForOffer,
+  listInstructionsForSellerAccount,
+} from '../../modules/catalog/product-instruction.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -333,6 +337,55 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     const params = idParam.parse(request.params);
     const view = await readOfferVariants(currentSeller(request), params.id);
     return reply.header('cache-control', 'no-store').status(200).send(view);
+  });
+
+  // --- What buyers have asked about this product ---------------------------
+
+  /**
+   * Instructions shoppers have left on the product behind this listing.
+   *
+   * Read-only, and there is deliberately no write here. These are the
+   * shopper's own words and only they can change them — a seller who could
+   * edit a buyer's requirement is a seller who can rewrite the evidence of
+   * what was asked for.
+   *
+   * Scoped to this seller's own listing inside the service: a listing
+   * belonging to somebody else is "not found" before any instruction is
+   * loaded, so this cannot be used to read the catalogue's buyer
+   * requirements by posting offer ids.
+   *
+   * `no-store`. A seller opens this to find out what came in this morning.
+   */
+  app.get('/listings/:id/instructions', async (request, reply) => {
+    const params = idParam.parse(request.params);
+
+    const instructions = await listInstructionsForOffer(
+      currentSeller(request).sellerAccountId,
+      params.id,
+    );
+
+    return reply.header('cache-control', 'no-store').status(200).send({ instructions });
+  });
+
+  /**
+   * The same thing across everything this seller sells.
+   *
+   * The hub's own page: "what are people asking me about?". Bounded rather
+   * than paged — the question is answered by the recent ones, and a seller
+   * looking for the hundredth is looking for a product and should open that
+   * listing.
+   */
+  app.get('/instructions', async (request, reply) => {
+    const query = z
+      .object({ limit: z.coerce.number().int().min(1).max(200).default(100) })
+      .parse(request.query);
+
+    const instructions = await listInstructionsForSellerAccount(
+      currentSeller(request).sellerAccountId,
+      query.limit,
+    );
+
+    return reply.header('cache-control', 'no-store').status(200).send({ instructions });
   });
 
   app.post(

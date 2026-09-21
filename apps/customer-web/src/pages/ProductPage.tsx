@@ -39,6 +39,7 @@ import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
+import { ProductInstructionsButton } from '@/components/ProductInstructionsButton';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import { MAX_LINE_NOTE_CHARS, noteForWire } from '@/lib/line-note';
@@ -1907,10 +1908,31 @@ export function ProductPage(): React.JSX.Element {
                    * line per option and picking one of two arbitrarily would
                    * be a guess.
                    */}
-                  <div className="border-t border-border-subtle pt-2.5">
+                  {/*
+                   * Neither of these is a commitment, so they share the quiet
+                   * strip under the two that are. `flex-wrap` because at 320px
+                   * they do not fit side by side and the second must drop
+                   * rather than be cut off by the panel's edge.
+                   *
+                   * "Add instructions" is here as well as on the card because
+                   * this is where somebody is actually deciding: they have the
+                   * specification in front of them, and the question that
+                   * stops them buying — "do you do this in 8mm?" — is one they
+                   * think of on this page. It writes to the PRODUCT, not to a
+                   * basket line, so it reaches the seller whether or not this
+                   * visit ends in an order. The box further up the panel is the
+                   * other thing and stays: that one rides on the line being
+                   * added and is read by whoever picks it.
+                   */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border-subtle pt-2.5">
                     <SaveForLaterButton
                       productId={product.id}
                       productSlug={product.slug}
+                      variantId={scheduleLine?.variantId ?? null}
+                    />
+                    <ProductInstructionsButton
+                      productId={product.id}
+                      productName={product.name}
                       variantId={scheduleLine?.variantId ?? null}
                     />
                   </div>
@@ -1935,6 +1957,15 @@ export function ProductPage(): React.JSX.Element {
                         and the control explains what signing in buys them
                         rather than being absent. */}
                     <SaveForLaterButton productId={product.id} productSlug={product.slug} />
+
+                    {/* Same reasoning again, and it applies harder here: the
+                        shopper who has not signed in is the one most likely to
+                        have a question rather than an order. Pressing it takes
+                        them to sign-in and back to this product. */}
+                    <ProductInstructionsButton
+                      productId={product.id}
+                      productName={product.name}
+                    />
                   </div>
                 </div>
               )}

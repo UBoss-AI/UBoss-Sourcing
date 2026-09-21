@@ -202,6 +202,7 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
           name: true,
           slug: true,
           categoryId: true,
+          taxClassId: true,
           shortDescription: true,
           description: true,
           gtin: true,
@@ -416,6 +417,21 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
       slug: offer.product.slug,
       categoryId: offer.product.categoryId,
       categoryName: offer.product.category.name,
+
+      /**
+       * The tax class the GST on this product is actually worked out from.
+       *
+       * REQUIRED on `products`, so it is never null, and it is what every
+       * pricing path in the codebase reads — the cart, the public catalogue
+       * and the assistant all go through `product.taxClass`. The offer-level
+       * `terms.taxClassId` next to it is an optional OVERRIDE that nothing
+       * reads at pricing time.
+       *
+       * Surfaced here because `assertReadyToResume` used to check the
+       * override, which no screen in the seller hub can set. See the note on
+       * that function.
+       */
+      taxClassId: offer.product.taxClassId,
       shortDescription: offer.product.shortDescription,
       description: offer.product.description,
       gtin: offer.product.gtin,
@@ -1377,7 +1393,34 @@ function assertReadyToResume(
     problems.push('it has no photograph');
   }
 
-  if (current.terms.taxClassId === null) {
+  /*
+   * A tax class, so the GST on it can be worked out.
+   *
+   * Checked against the PRODUCT and not against `terms.taxClassId`, and the
+   * difference is the whole of this block.
+   *
+   * `seller_offers.taxClassId` is an optional OVERRIDE. It is nullable, no
+   * screen in the seller hub sets it, the listing wizard never populates the
+   * draft slot that would carry it, and no pricing path reads it: the cart,
+   * the public catalogue and the assistant all take the rate from
+   * `product.taxClass`, which is NOT NULL on the table.
+   *
+   * So the old check here refused every resume in the product. A seller who
+   * paused a listing to change something - which is the entire purpose of the
+   * button - was told "it has no tax class, so the GST on it cannot be worked
+   * out" and given nothing to do about it, over a column they could not set
+   * and nobody reads. The GST could always be worked out; the check was
+   * looking at the wrong column.
+   *
+   * It is kept rather than deleted, and reads the override first, so that a
+   * deployment which one day lets sellers choose their own tax class gets the
+   * guard it was written for. `?? current.product.taxClassId` is the live
+   * answer today and can only be empty if a product were somehow saved
+   * without one, which the schema forbids.
+   */
+  const effectiveTaxClassId = current.terms.taxClassId ?? current.product.taxClassId;
+
+  if (effectiveTaxClassId === null || effectiveTaxClassId.trim() === '') {
     problems.push('it has no tax class, so the GST on it cannot be worked out');
   }
 

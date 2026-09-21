@@ -660,6 +660,59 @@ describe('putting it back on sale', () => {
     expect(offer.pausedAt).toBeNull();
   });
 
+  /**
+   * The bug this catches, and why the suite did not catch it before.
+   *
+   * `seller_offers.taxClassId` is nullable, and it is an OVERRIDE: the rate a
+   * buyer is actually charged comes from `products.taxClassId`, which is NOT
+   * NULL. Nothing in the seller hub sets the override, the listing wizard
+   * never populates the draft slot that would carry it, and the approval path
+   * writes whatever the draft held — which is nothing. So every offer in a
+   * real catalogue has it null.
+   *
+   * `assertReadyToResume` used to read that column. The result was that every
+   * paused listing in the product refused to go back on sale with "it has no
+   * tax class, so the GST on it cannot be worked out", over a field the seller
+   * could not set and no pricing path reads.
+   *
+   * Every existing case above passed straight through it, because
+   * `makeLiveListing` sets `taxClassId` on the offer — a fixture more generous
+   * than production, which is the specific way a test suite can be green over
+   * a screen nobody can use. So this one builds the listing the way the
+   * product actually does, with the override null, and requires the resume to
+   * work.
+   */
+  it('goes back on sale when only the product carries the tax class', async () => {
+    const live = await makeLiveListing({
+      sellerAccountId: sellerId,
+      code: 'NOTAXOVERRIDE',
+      sizes: ['7'],
+      status: 'PAUSED',
+    });
+
+    // Exactly what the approval path leaves behind. The product keeps its own
+    // tax class, which is where the rate has always come from.
+    await prisma.sellerOffer.updateMany({
+      where: { id: { in: Object.values(live.offerIds) } },
+      data: { taxClassId: null },
+    });
+
+    const view = await readListingForEdit(membership, live.offerIds['7'] ?? '');
+
+    expect(view.terms.taxClassId).toBeNull();
+    expect(view.product.taxClassId).not.toBe('');
+
+    const result = await saveListingEdit({
+      membership,
+      offerId: live.offerIds['7'] ?? '',
+      expectedVersion: view.version,
+      rows: view.variants,
+      finish: 'ACTIVE',
+    });
+
+    expect(result.status).toBe('ACTIVE');
+  });
+
   it('writes what happened to the seller own audit trail', async () => {
     const live = await makeLiveListing({
       sellerAccountId: sellerId,

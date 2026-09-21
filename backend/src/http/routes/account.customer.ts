@@ -35,6 +35,12 @@ import {
   listWishlist,
   removeFromWishlist,
 } from '../../modules/customers/wishlist.service.js';
+import {
+  INSTRUCTION_MAX_LENGTH,
+  deleteOwnInstruction,
+  readOwnInstruction,
+  saveOwnInstruction,
+} from '../../modules/catalog/product-instruction.service.js';
 import { listPublicCoupons } from '../../modules/coupons/coupon.service.js';
 import {
   createDataRequest,
@@ -211,6 +217,31 @@ const wishlistQuerySchema = z.object({
 const wishlistAddSchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
+});
+
+/**
+ * Which instruction is being read.
+ *
+ * `variantId` absent means the product in general, which is what the button on
+ * a card sends — a card has no version chosen on it.
+ */
+const instructionQuerySchema = z.object({
+  productId: z.string().length(26),
+  variantId: z.string().length(26).nullable().optional(),
+});
+
+/**
+ * An instruction on the way in.
+ *
+ * `INSTRUCTION_MAX_LENGTH` rather than a literal 500, so this schema, the
+ * service and the column cannot drift apart. The empty string is deliberately
+ * ALLOWED: it is how the storefront says "I have cleared the box", and the
+ * service turns it into a delete rather than a blank row.
+ */
+const instructionBodySchema = z.object({
+  productId: z.string().length(26),
+  variantId: z.string().length(26).nullable().optional(),
+  body: z.string().max(INSTRUCTION_MAX_LENGTH),
 });
 
 export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<void> {
@@ -928,6 +959,79 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     await removeFromWishlist(auth.customerProfileId ?? '', itemId);
     return reply.status(200).send({ removed: true });
   });
+
+  // --- Instructions left on a product, without buying it -------------------
+
+  /**
+   * What this shopper has already said about a product.
+   *
+   * Their own words and nobody else's — the service keys on the session's
+   * profile, so there is no way to read another shopper's instruction from
+   * here even knowing its id. `null` is the ordinary answer: most shoppers
+   * have said nothing about most products.
+   *
+   * `no-store`, because the one thing this must never do is show somebody the
+   * cached answer for the shopper who used the browser before them.
+   */
+  app.get('/product-instructions', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    const query = instructionQuerySchema.parse(request.query);
+
+    const instruction = await readOwnInstruction(
+      auth.customerProfileId ?? '',
+      query.productId,
+      query.variantId ?? null,
+    );
+
+    return reply.header('Cache-Control', 'no-store').status(200).send({ instruction });
+  });
+
+  /**
+   * Leave one, or replace the one already there.
+   *
+   * A PUT in everything but the verb: there is at most one instruction per
+   * shopper per product, and sending a second one replaces the first rather
+   * than adding to it. POST because the client does not know the row's id and
+   * should not have to.
+   *
+   * 200 and never 201, for the reason the wishlist gives next door: a 201
+   * would be a claim that a row was created, and most of these are edits.
+   * `instruction: null` in the response means the shopper cleared the box and
+   * the row is gone, which the storefront renders as an empty form rather than
+   * as an error.
+   */
+  app.post('/product-instructions', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    const body = instructionBodySchema.parse(request.body);
+
+    const instruction = await saveOwnInstruction(auth.customerProfileId ?? '', {
+      productId: body.productId,
+      variantId: body.variantId ?? null,
+      body: body.body,
+    });
+
+    return reply.status(200).send({ instruction });
+  });
+
+  /**
+   * Take it back.
+   *
+   * Scoped to the session's profile inside the service, so another shopper's
+   * instruction is "not found" rather than deletable.
+   */
+  app.delete(
+    '/product-instructions/:instructionId',
+    { preHandler: requireCustomer },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { instructionId } = z
+        .object({ instructionId: z.string().length(26) })
+        .parse(request.params);
+
+      await deleteOwnInstruction(auth.customerProfileId ?? '', instructionId);
+      return reply.status(200).send({ removed: true });
+    },
+  );
 
   app.get('/config', (_request, reply) =>
     reply.status(200).send({ selfRegistrationEnabled: selfRegistrationEnabled() }),

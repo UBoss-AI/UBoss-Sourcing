@@ -456,16 +456,39 @@ export function Card({
   actions,
   children,
   className,
+  bodyClassName,
 }: {
   title?: string;
   description?: string;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  /**
+   * Padding for the body, which this component does NOT apply by default.
+   *
+   * The default has to stay flush, because a table is supposed to run to the
+   * card's edges and every caller that renders one relies on it. But "the
+   * caller supplies its own padding" was an unwritten rule, and the seller's
+   * listing screen is what it cost: the heading sat at `px-6` and the table
+   * beneath it started hard against the border, so the column titles were
+   * inset from the card by nothing at all and lined up with nothing above
+   * them.
+   *
+   * So: pass `bodyClassName="px-6 py-5"` for an ordinary body, omit it for a
+   * table, and give that table's cells `px-6` so its first column lines up
+   * with the heading. The admin panel's `Card` has carried exactly this prop
+   * for the same reason — the two are meant to be interchangeable, and a prop
+   * that exists in one and not the other is how that stops being true.
+   */
+  bodyClassName?: string;
 }): React.JSX.Element {
   return (
     <section className={cx('rounded-lg border border-border bg-surface shadow-card', className)}>
       {(title !== undefined || actions !== undefined) && (
+        // `px-6` and deliberately not `px-4 sm:px-6`. Narrowing it on a phone
+        // would read better on its own and would put the header out of line
+        // with the two hundred call sites that pad their own body at `px-6`,
+        // which is a worse fault than 24px of gutter.
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b border-border-subtle px-6 py-5">
           <div className="min-w-0">
             {title !== undefined && <h2 className="text-title-sm text-ink">{title}</h2>}
@@ -476,7 +499,7 @@ export function Card({
           {actions !== undefined && <div className="flex shrink-0 gap-2">{actions}</div>}
         </header>
       )}
-      {children}
+      {bodyClassName === undefined ? children : <div className={bodyClassName}>{children}</div>}
     </section>
   );
 }

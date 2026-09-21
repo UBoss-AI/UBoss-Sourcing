@@ -1,5 +1,6 @@
 /**
- * One published listing, and the versions it sells in.
+ * One published listing: the versions it sells in, and what buyers have asked
+ * about it.
  *
  * `listings/:id` used to render the listings table again, so "Edit" on a live
  * listing went nowhere. This is that page — and the first thing it has to do
@@ -16,12 +17,29 @@
  * reasons:
  *
  *   - **Nothing is ticked on the seller's behalf.** The category suggests
- *     axes and values; the seller says which are real. A suit is not assumed
- *     to come in 38 to 44 because suits usually do.
+ *     axes; the seller says which are real. A suit is not assumed to come in
+ *     38 to 44 because suits usually do.
  *   - **The count comes before the table.** A seller is told how many rows
  *     they are about to have to price.
  *   - **New versions arrive off sale.** Adding six sizes must not put six
  *     things in front of buyers the instant Save is pressed.
+ *
+ * ## What buyers have asked
+ *
+ * The panel at the foot is the other half of the "Add instructions" button on
+ * the storefront. A shopper can now say what they need on a product without
+ * buying it — "do you do this in 8mm?", "can you supply a calibration
+ * certificate?", "we need four hundred a month" — and this is where those
+ * arrive. It is read-only: they are the buyer's own words, and a seller who
+ * could edit one could rewrite the evidence of what was asked for.
+ *
+ * ## Layout
+ *
+ * Every table here runs flush to its card and pads its own cells at `px-6`,
+ * so the first column lines up with the card's heading rather than with the
+ * card's border. Each is inside a focusable scroll region: they are wider than
+ * a phone, and a scroll container with no tab stop cannot be scrolled by a
+ * keyboard at all.
  */
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -31,9 +49,10 @@ import { Badge, Button, Card, ErrorState, Input, LoadingState } from '@/componen
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
-import { formatMoneyMinor, majorToMinor, minorToMajor } from '@/lib/format';
+import { formatMoneyMinor, formatRelative, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   addOfferVariants,
+  fetchListingInstructions,
   fetchLocations,
   fetchOfferVariants,
   setOfferStatus,
@@ -41,6 +60,7 @@ import {
   type DraftVariantRow,
   type OfferVariantsView,
   type SellerLocation,
+  type SellerProductInstruction,
   type VariantTemplateAxis,
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder, ProjectionBar } from './VariantStepPanel';
@@ -56,6 +76,7 @@ function priceInput(minor: string | null | undefined): string {
 }
 
 export function SellerListingDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const offerId = id ?? '';
 
@@ -65,7 +86,7 @@ export function SellerListingDetailPage(): React.JSX.Element {
     enabled: offerId !== '',
   });
 
-  if (query.isPending) return <LoadingState label="Loading this listing" />;
+  if (query.isPending) return <LoadingState label={t('seller.listing.loading')} />;
 
   if (query.isError) {
     return (
@@ -78,10 +99,16 @@ export function SellerListingDetailPage(): React.JSX.Element {
     );
   }
 
-  return <ListingBody view={query.data} />;
+  return <ListingBody view={query.data} offerId={offerId} />;
 }
 
-function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
+function ListingBody({
+  view,
+  offerId,
+}: {
+  view: OfferVariantsView;
+  offerId: string;
+}): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
@@ -106,10 +133,10 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
     mutationFn: () => setOfferStatus(view.offerId, 'PAUSED', 'Adding versions'),
     onSuccess: async () => {
       await refresh();
-      toast.success('Paused. You can add versions now.');
+      toast.success(t('seller.listing.paused'));
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That listing could not be paused.'));
+      toast.error(errorMessage(t, error, t('seller.listing.pauseFailed')));
     },
   });
 
@@ -122,12 +149,12 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
       setAxes([]);
       toast.success(
         result.created === 0
-          ? 'Those versions were already listed.'
-          : `${result.created} versions added. They start off sale — switch each on when you are ready.`,
+          ? t('seller.listing.alreadyListed')
+          : t('seller.listing.versionsAdded', { count: result.created }),
       );
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'Those versions could not be added.'));
+      toast.error(errorMessage(t, error, t('seller.listing.addFailed')));
     },
   });
 
@@ -181,40 +208,46 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
   return (
     <div className="space-y-6">
       <header>
-        <nav aria-label="Breadcrumb" className="text-xxs text-ink-subtle">
+        <nav aria-label={t('seller.listing.breadcrumb')} className="text-xxs text-ink-subtle">
           <Link to="/seller/listings" className="hover:text-ink">
-            Listings
+            {t('seller.nav.listings')}
           </Link>
           <span aria-hidden="true"> / </span>
           <span>{view.sellerSku}</span>
         </nav>
-        <h1 className="mt-1 text-title-xl text-ink">{view.productName}</h1>
-        <p className="mt-1 text-sm text-ink-subtle">
-          Product code {view.sellerSku} · <StatusBadge status={view.status} />
+        {/* `break-words`: a product name on this marketplace routinely runs to
+            eighty characters with no spaces in the code at the end of it, and
+            at 320px an unbroken one pushed the whole hub sideways. */}
+        <h1 className="mt-1 break-words text-title-lg text-ink sm:text-title-xl">
+          {view.productName}
+        </h1>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-subtle">
+          <span>{t('seller.listing.productCode', { code: view.sellerSku })}</span>
+          <span aria-hidden="true">·</span>
+          <StatusBadge status={view.status} />
         </p>
       </header>
 
       <Card
-        title={view.hasVariants ? 'Versions' : 'This listing has no versions yet'}
+        title={
+          view.hasVariants ? t('seller.listing.versions') : t('seller.listing.noVersionsYet')
+        }
         description={
           view.hasVariants
-            ? 'Every version you sell of this product, each with its own code, price and stock.'
-            : 'It sells as one thing. If you stock it in sizes, colours or pack sizes, add them here.'
+            ? t('seller.listing.versionsIntro')
+            : t('seller.listing.noVersionsIntro')
         }
       >
         <ExistingTable rows={view.existing} currency={view.currency} />
       </Card>
 
       {!view.isEditable && (
-        <Card title="Pause before adding versions">
+        <Card title={t('seller.listing.pauseFirst')} bodyClassName="px-6 py-5">
           <div className="space-y-3">
             <p className="text-sm text-ink-subtle">
-              {view.blockedReason ??
-                'This listing is on sale. Pause it first so buyers are not choosing between versions that are appearing as they look.'}
+              {view.blockedReason ?? t('seller.listing.pauseFirstBody')}
             </p>
-            <p className="text-sm text-ink-subtle">
-              Orders already placed are not affected — you still pack and send them as normal.
-            </p>
+            <p className="text-sm text-ink-subtle">{t('seller.listing.ordersUnaffected')}</p>
             <Button
               variant="primary"
               isLoading={pauseMutation.isPending}
@@ -222,7 +255,7 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
                 pauseMutation.mutate();
               }}
             >
-              Pause this listing
+              {t('seller.listing.pauseThisListing')}
             </Button>
           </div>
         </Card>
@@ -230,12 +263,13 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
 
       {view.isEditable && (
         <Card
-          title="Add versions"
+          title={t('seller.listing.addVersions')}
           description={
             view.template === null
-              ? 'This category has no suggested options, so name your own.'
-              : `Suggestions for ${view.template.label}. Switch on only what changes the product code.`
+              ? t('seller.listing.noSuggestions')
+              : t('seller.listing.suggestionsFor', { label: view.template.label })
           }
+          bodyClassName="px-6 py-5"
         >
           <div className="space-y-5">
             {offered.length > 0 && (
@@ -267,7 +301,9 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
                       <span aria-hidden="true">{isOn ? '✓ ' : '+ '}</span>
                       {axis.label}
                       {axis.importance === 'RECOMMENDED' && !isOn && (
-                        <span className="ml-1 text-xxs text-ink-subtle">· usual</span>
+                        <span className="ml-1 text-xxs text-ink-subtle">
+                          {t('seller.listing.usualSuffix')}
+                        </span>
                       )}
                     </button>
                   );
@@ -346,6 +382,8 @@ function ListingBody({ view }: { view: OfferVariantsView }): React.JSX.Element {
           </div>
         </Card>
       )}
+
+      <InstructionsPanel offerId={offerId} />
     </div>
   );
 }
@@ -363,7 +401,109 @@ function StatusBadge({ status }: { status: OfferVariantsView['status'] }): React
   return <Badge tone={tone}>{status.replace(/_/g, ' ').toLowerCase()}</Badge>;
 }
 
-/** What this seller already sells of this product. */
+/**
+ * What shoppers have asked about this product, without buying it.
+ *
+ * The other end of the storefront's "Add instructions" button. Read-only on
+ * purpose: these are the buyer's own words and only they can change them.
+ *
+ * Scoped to the PRODUCT rather than to this seller's offer, which is the
+ * correct line even though three distributors can sell the same shirt. A
+ * shopper asking "do you do this in 8mm?" is asking the marketplace, not a
+ * company whose name they have never seen — routing the question to whichever
+ * offer happened to be on screen would send most of these to somebody who
+ * cannot answer them.
+ *
+ * A failure here is shown and not thrown. The seller came to this page to add
+ * sizes; a panel at the foot that cannot load must not take the rest of the
+ * screen down with it.
+ */
+function InstructionsPanel({ offerId }: { offerId: string }): React.JSX.Element {
+  const { t } = useI18n();
+
+  const query = useQuery({
+    queryKey: ['seller', 'listing-instructions', offerId],
+    queryFn: () => fetchListingInstructions(offerId),
+    enabled: offerId !== '',
+  });
+
+  const instructions: SellerProductInstruction[] = query.data ?? [];
+
+  return (
+    <Card
+      title={t('seller.listing.buyerInstructions')}
+      description={t('seller.listing.buyerInstructionsIntro')}
+      bodyClassName="px-6 py-5"
+    >
+      {query.isPending ? (
+        <p className="text-sm text-ink-subtle">{t('common.loading')}</p>
+      ) : query.isError ? (
+        <div className="space-y-3">
+          <p className="text-sm text-ink-subtle">{t('seller.listing.instructionsFailed')}</p>
+          <Button
+            size="sm"
+            onClick={() => {
+              void query.refetch();
+            }}
+          >
+            {t('common.retry')}
+          </Button>
+        </div>
+      ) : instructions.length === 0 ? (
+        <p className="text-sm text-ink-subtle">{t('seller.listing.noInstructionsYet')}</p>
+      ) : (
+        <ul className="space-y-3">
+          {instructions.map((instruction) => (
+            <li
+              key={instruction.id}
+              className="rounded-lg border border-border-subtle bg-surface-sunken p-4"
+            >
+              {/* `flex-wrap` and `min-w-0`: an organisation name plus a
+                  timestamp does not fit on one line at 320px, and a name with
+                  no spaces in it would otherwise widen the whole hub. */}
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <p className="min-w-0 break-words text-sm font-semibold text-ink">
+                  {instruction.customerName}
+                  {instruction.customerOrganization !== null && (
+                    <span className="font-normal text-ink-muted">
+                      {' · '}
+                      {instruction.customerOrganization}
+                    </span>
+                  )}
+                </p>
+                <time
+                  dateTime={instruction.createdAt}
+                  className="shrink-0 text-xxs text-ink-subtle"
+                >
+                  {formatRelative(instruction.createdAt)}
+                </time>
+              </div>
+
+              {instruction.variantName !== null && (
+                <p className="mt-1 text-xxs uppercase tracking-wide text-ink-subtle">
+                  {t('seller.listing.aboutVersion', { version: instruction.variantName })}
+                </p>
+              )}
+
+              {/* `whitespace-pre-line`: somebody who typed three lines meant
+                  three lines. `break-words` because this is free text and a
+                  buyer can paste a part number eighty characters long.
+
+                  Rendered as TEXT. Nothing on this path touches
+                  `dangerouslySetInnerHTML`, and the column holds plain text
+                  precisely so that it cannot. */}
+              <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-ink">
+                {instruction.body}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+/** What this seller already sells of this product. See the file header. */
 function ExistingTable({
   rows,
   currency,
@@ -371,42 +511,63 @@ function ExistingTable({
   rows: OfferVariantsView['existing'];
   currency: string;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[40rem] border-collapse text-sm">
-        <caption className="sr-only">Versions of this product you already sell</caption>
-        <thead>
-          <tr className="border-b border-line text-left text-xxs uppercase tracking-wide text-ink-subtle">
-            <th scope="col" className="py-2 pr-3">Version</th>
-            <th scope="col" className="py-2 pr-3">Code</th>
-            <th scope="col" className="py-2 pr-3">Price</th>
-            <th scope="col" className="py-2 pr-3">Stock</th>
-            <th scope="col" className="py-2 pr-3">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.offerId} className="border-b border-line/60">
-              <td className="py-2 pr-3 font-medium text-ink">
-                {row.isBaseListing ? (
-                  <span className="text-ink-subtle">No particular version</span>
-                ) : (
-                  (row.name ?? Object.values(row.options).join(' / '))
-                )}
-              </td>
-              <td className="py-2 pr-3 tabular">{row.sellerSku}</td>
-              <td className="py-2 pr-3 tabular">
-                {formatMoneyMinor(row.priceMinor, currency)}
-              </td>
-              <td className="py-2 pr-3 tabular">{row.availableQuantity}</td>
-              <td className="py-2 pr-3">
-                <StatusBadge status={row.status} />
-              </td>
+    <>
+      <div
+        className="overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label={t('seller.listing.versionsTableLabel')}
+      >
+        <table className="w-full min-w-[40rem] border-collapse text-sm">
+          <caption className="sr-only">{t('seller.listing.versionsTableLabel')}</caption>
+          <thead>
+            <tr className="border-b border-line text-left text-xxs uppercase tracking-wide text-ink-subtle">
+              <th scope="col" className="px-6 py-2.5">{t('seller.listing.columnVersion')}</th>
+              <th scope="col" className="px-6 py-2.5">{t('seller.listing.columnCode')}</th>
+              <th scope="col" className="px-6 py-2.5 text-right">{t('seller.listing.columnPrice')}</th>
+              <th scope="col" className="px-6 py-2.5 text-right">{t('seller.listing.columnStock')}</th>
+              <th scope="col" className="px-6 py-2.5">{t('seller.listing.columnStatus')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.offerId} className="border-b border-line/60 last:border-b-0">
+                <td className="px-6 py-2.5 font-medium text-ink">
+                  {row.isBaseListing ? (
+                    <span className="text-ink-subtle">
+                      {t('seller.listing.noParticularVersion')}
+                    </span>
+                  ) : (
+                    (row.name ?? Object.values(row.options).join(' / '))
+                  )}
+                </td>
+                <td className="px-6 py-2.5 tabular">{row.sellerSku}</td>
+                {/* Right-aligned, like every other money and count column in
+                    the product: figures compare down a column only when their
+                    units line up, which they do not when a four-digit price
+                    sits under a two-digit one that is left-aligned. */}
+                <td className="px-6 py-2.5 text-right tabular">
+                  {formatMoneyMinor(row.priceMinor, currency)}
+                </td>
+                <td className="px-6 py-2.5 text-right tabular">{row.availableQuantity}</td>
+                <td className="px-6 py-2.5">
+                  <StatusBadge status={row.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* `sm:hidden`: on a screen wide enough for the whole table this would
+          be a note about something that is not happening. */}
+      <p className="px-6 pb-4 pt-3 text-xxs text-ink-subtle sm:hidden">
+        {t('seller.listing.scrollForMore')}
+      </p>
+    </>
   );
 }
 
@@ -432,6 +593,8 @@ function NewRowsTable({
   onChange: (rows: DraftVariantRow[]) => void;
   onSave: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const patch = (signature: string, next: Partial<DraftVariantRow>): void => {
     onChange(rows.map((row) => (row.optionSignature === signature ? { ...row, ...next } : row)));
   };
@@ -440,16 +603,27 @@ function NewRowsTable({
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto">
+      {/* This one sits inside a padded card body rather than flush to a card,
+          so the cells carry no `px-6` of their own — `-mx-4 px-4` lets it use
+          the full width of the card on a phone while the rest of the body
+          stays inset. */}
+      <div
+        className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+        tabIndex={0}
+        role="region"
+        aria-label={t('seller.listing.newVersionsTableLabel')}
+      >
         <table className="w-full min-w-[44rem] border-collapse text-sm">
-          <caption className="sr-only">Versions to add, with their codes, prices and stock</caption>
+          <caption className="sr-only">{t('seller.listing.newVersionsTableLabel')}</caption>
           <thead>
             <tr className="border-b border-line text-left text-xxs uppercase tracking-wide text-ink-subtle">
-              <th scope="col" className="py-2 pr-3">Add</th>
-              <th scope="col" className="py-2 pr-3">Version</th>
-              <th scope="col" className="py-2 pr-3">Code</th>
-              <th scope="col" className="py-2 pr-3">Price ({currency})</th>
-              <th scope="col" className="py-2 pr-3">Stock</th>
+              <th scope="col" className="py-2 pr-3">{t('seller.listing.columnAdd')}</th>
+              <th scope="col" className="py-2 pr-3">{t('seller.listing.columnVersion')}</th>
+              <th scope="col" className="py-2 pr-3">{t('seller.listing.columnCode')}</th>
+              <th scope="col" className="py-2 pr-3">
+                {t('seller.listing.columnPriceIn', { currency })}
+              </th>
+              <th scope="col" className="py-2 pr-3">{t('seller.listing.columnStock')}</th>
             </tr>
           </thead>
           <tbody>
@@ -462,7 +636,7 @@ function NewRowsTable({
                   <input
                     type="checkbox"
                     checked={row.isActive}
-                    aria-label={`Add ${row.name}`}
+                    aria-label={t('seller.listing.addRow', { name: row.name })}
                     disabled={isBusy}
                     onChange={(event) => {
                       patch(row.optionSignature, { isActive: event.target.checked });
@@ -473,7 +647,7 @@ function NewRowsTable({
                 <td className="py-2 pr-3">
                   <Input
                     value={row.sku}
-                    aria-label={`Code for ${row.name}`}
+                    aria-label={t('seller.listing.codeForRow', { name: row.name })}
                     disabled={isBusy || !row.isActive}
                     onChange={(event) => {
                       patch(row.optionSignature, { sku: event.target.value });
@@ -483,7 +657,7 @@ function NewRowsTable({
                 <td className="py-2 pr-3">
                   <Input
                     inputMode="decimal"
-                    aria-label={`Price for ${row.name}`}
+                    aria-label={t('seller.listing.priceForRow', { name: row.name })}
                     defaultValue={priceInput(row.priceMinor)}
                     disabled={isBusy || !row.isActive}
                     onBlur={(event) => {
@@ -496,7 +670,7 @@ function NewRowsTable({
                 <td className="py-2 pr-3">
                   <Input
                     inputMode="numeric"
-                    aria-label={`Stock for ${row.name}`}
+                    aria-label={t('seller.listing.stockForRow', { name: row.name })}
                     defaultValue="0"
                     disabled={isBusy || !row.isActive || primaryLocation === ''}
                     onBlur={(event) => {
@@ -518,17 +692,15 @@ function NewRowsTable({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xxs text-ink-subtle">
-          New versions are created off sale. Switch each one on from your listings when it is
-          ready.
-        </p>
+        <p className="text-xxs text-ink-subtle">{t('seller.listing.newVersionsStartOffSale')}</p>
         <Button
           variant="primary"
           isLoading={isBusy}
           disabled={chosen.length === 0}
           onClick={onSave}
+          className="w-full sm:w-auto"
         >
-          Add {chosen.length} {chosen.length === 1 ? 'version' : 'versions'}
+          {t('seller.listing.addCount', { count: chosen.length })}
         </Button>
       </div>
     </div>
