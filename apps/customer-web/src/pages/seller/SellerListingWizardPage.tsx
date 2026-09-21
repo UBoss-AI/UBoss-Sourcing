@@ -43,6 +43,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
+import { currencyExponent, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   createDraft,
   fetchBrands,
@@ -1694,12 +1695,15 @@ function OfferFields({
   onSave: (patch: Parameters<typeof saveDraft>[1]) => void;
   isSaving: boolean;
 }): React.JSX.Element {
+  const [currency, setCurrency] = useState(draft.offer.currency ?? 'EUR');
+  // Digit shifting, never `Number(minor) / 100` - see the save handler below
+  // for why the hundred was wrong and what it cost.
   const [price, setPrice] = useState(
     draft.offer.priceMinor === null || draft.offer.priceMinor === undefined
       ? ''
-      : (Number(draft.offer.priceMinor) / 100).toFixed(2),
+      : minorToMajor(draft.offer.priceMinor, currencyExponent(draft.offer.currency ?? 'EUR')),
   );
-  const [currency, setCurrency] = useState(draft.offer.currency ?? 'EUR');
+  const [priceError, setPriceError] = useState<string | null>(null);
   const [moq, setMoq] = useState(String(draft.offer.minimumOrderQuantity ?? 1));
   const [increment, setIncrement] = useState(String(draft.offer.orderIncrement ?? 1));
   const [maximum, setMaximum] = useState(
@@ -1784,6 +1788,7 @@ function OfferFields({
         <Field
           label="Price per piece"
           hint="What one piece costs. Buyers see this figure, not a carton price."
+          error={priceError ?? undefined}
           required
         >
           {({ inputId, describedBy }) => (
@@ -1796,6 +1801,9 @@ function OfferFields({
               value={price}
               onChange={(event) => {
                 setPrice(event.currentTarget.value);
+                // Clear on edit rather than re-validating per keystroke: a
+                // half-typed "4." is not a mistake yet.
+                setPriceError(null);
               }}
             />
           )}
@@ -1899,11 +1907,38 @@ function OfferFields({
         size="sm"
         isLoading={isSaving}
         onClick={() => {
-          // Major units to minor, as a STRING. Rounded rather than truncated,
-          // because 19.99 is not exactly representable and `Math.trunc` on the
-          // product would charge 19.98.
-          const minor =
-            price.trim().length === 0 ? null : String(Math.round(Number(price) * 100));
+          /*
+           * Major units to minor, as a STRING, by digit shifting.
+           *
+           * `majorToMinor` rather than `Math.round(Number(price) * 100)`, for
+           * two reasons the arithmetic version got wrong.
+           *
+           * The hundred was hard-coded. Every currency this select offers has
+           * two decimal places, so it produced the right answer - but JPY and
+           * KRW have none, and adding either to the list above is one line
+           * that would silently have priced every offer at a hundred times
+           * what the seller typed. The helper reads the currency's exponent.
+           *
+           * And `Number('12.3.4')` is `NaN`, which `String(Math.round(NaN))`
+           * turns into the literal `"NaN"` and posts as a price. The helper
+           * returns null for anything that is not an exact amount - including
+           * one with more decimal places than the currency has - so a bad
+           * price is left alone rather than sent.
+           */
+          const typed = price.trim();
+          const minor = typed.length === 0 ? null : majorToMinor(typed, currencyExponent(currency));
+
+          if (typed.length > 0 && minor === null) {
+            const places = currencyExponent(currency);
+            setPriceError(
+              places === 0
+                ? `Enter a whole ${currency} amount, with no decimal places.`
+                : `Enter an amount with at most ${String(places)} decimal places.`,
+            );
+            return;
+          }
+
+          setPriceError(null);
 
           onSave({
             sellerSku: sku.trim().length === 0 ? null : sku.trim(),

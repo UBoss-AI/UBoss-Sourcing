@@ -36,7 +36,13 @@ import {
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { cx } from '@/lib/cx';
-import { formatDateTime, humanise, majorToMinor, minorToMajor } from '@/lib/format';
+import {
+  currencyExponent,
+  formatDateTime,
+  humanise,
+  majorToMinor,
+  minorToMajor,
+} from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerLimits } from '@/lib/customers';
@@ -138,7 +144,21 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
     () => customer.limits.perCurrency[0]?.currencyCode ?? '',
   );
 
-  const toMajor = (minor: string | null): string => (minor === null ? '' : minorToMajor(minor));
+  /*
+   * Minor units to what the operator types, in THAT currency's decimal places.
+   *
+   * The currency has to be passed. This whole panel is "one set of terms per
+   * currency", and both conversions used to take the default two places - so a
+   * customer trading in yen had every limit read and written a hundred times
+   * out. A ¥50,000 minimum order stored as ¥5,000,000 blocks every order they
+   * could ever place, and nothing on the screen says why.
+   *
+   * The local table is safe to rely on: `assertCurrencyTableMatchesMoneyModule`
+   * refuses to start the API if the currencies table and `domain/money.ts`
+   * disagree about an exponent, so these two cannot drift apart silently.
+   */
+  const toMajor = (minor: string | null, currencyCode: string): string =>
+    minor === null ? '' : minorToMajor(minor, currencyExponent(currencyCode));
 
   /** Everything typed so far, keyed by currency, in major units. */
   const [draft, setDraft] = useState<Record<string, CurrencyTermsDraft>>(() =>
@@ -146,10 +166,10 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
       customer.limits.perCurrency.map((row) => [
         row.currencyCode,
         {
-          perOrderMin: toMajor(row.perOrderMinMinor),
-          perOrderMax: toMajor(row.perOrderMaxMinor),
-          monthlyCap: toMajor(row.monthlySpendCapMinor),
-          approvalThreshold: toMajor(row.approvalThresholdMinor),
+          perOrderMin: toMajor(row.perOrderMinMinor, row.currencyCode),
+          perOrderMax: toMajor(row.perOrderMaxMinor, row.currencyCode),
+          monthlyCap: toMajor(row.monthlySpendCapMinor, row.currencyCode),
+          approvalThreshold: toMajor(row.approvalThresholdMinor, row.currencyCode),
         },
       ]),
     ),
@@ -198,8 +218,10 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
       const perCurrency: Record<string, unknown>[] = [];
 
       for (const [code, terms] of Object.entries(draft)) {
+        // `code` is this row's currency - see `toMajor` above for why taking
+        // the default two decimal places was wrong in both directions.
         const amount = (value: string): string | null =>
-          value.trim() === '' ? null : majorToMinor(value.trim());
+          value.trim() === '' ? null : majorToMinor(value.trim(), currencyExponent(code));
 
         const min = amount(terms.perOrderMin);
         const max = amount(terms.perOrderMax);

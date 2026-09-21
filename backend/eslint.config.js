@@ -12,6 +12,20 @@ export default tseslint.config(
       'src/generated/**',
       // This config file itself is outside the TS project service.
       'eslint.config.js',
+      /*
+       * Throwaway scripts somebody ran once against their own database.
+       *
+       * They are gitignored (see `.gitignore`), so they never reach CI and
+       * never reach a release - but `eslint .` still found them on the
+       * developer's machine and failed `npm run verify` on `no-console`, in a
+       * file that is nothing to do with whatever change was being verified. A
+       * verify that fails for a reason unrelated to the work is a verify people
+       * learn to skip.
+       *
+       * The `.dev.ts` suffix is the contract: name a scratch script that way
+       * and it is ignored by both git and the linter.
+       */
+      '**/*.dev.ts',
     ],
   },
   js.configs.recommended,

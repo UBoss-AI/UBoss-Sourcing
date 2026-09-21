@@ -26,6 +26,33 @@ export function currencySymbol(currency: string): string {
   return CURRENCY_SYMBOLS[currency] ?? `${currency} `;
 }
 
+/**
+ * Currencies with no minor unit.
+ *
+ * Kept in step with the backend's `domain/money.ts`, which is the authority,
+ * and with the same set in the storefront. Both are seeded reference
+ * currencies with a seeded country pointing at them - Japan and South Korea -
+ * so this is a configuration an operator can actually choose, not a
+ * hypothetical.
+ */
+const ZERO_DECIMAL_CURRENCIES = new Set(['JPY', 'KRW']);
+
+/**
+ * How many decimal places this currency has.
+ *
+ * `minorToMajor` and `majorToMinor` below both default to two, which is right
+ * for every currency this product sells in except these, and wrong by a factor
+ * of a hundred for those. Anywhere the currency is known, pass it through here
+ * rather than taking the default.
+ *
+ * A screen that already has the server's currency list should prefer that -
+ * it carries an `exponent` per row, and it is the authority. This is the
+ * answer for the screens that do not.
+ */
+export function currencyExponent(currency: string): number {
+  return ZERO_DECIMAL_CURRENCIES.has(currency) ? 0 : 2;
+}
+
 /** Display a money object. `formatted` already has the right decimal places. */
 export function formatMoney(money: Money | null | undefined): string {
   if (money === null || money === undefined) return '—';

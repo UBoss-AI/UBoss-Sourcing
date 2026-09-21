@@ -581,7 +581,16 @@ describe('order lifecycle', () => {
     await transitionOrder({
       orderId,
       to: 'CANCELLED',
-      actor: { userId: adminActor.userId, email: adminActor.email, type: 'ADMIN' },
+      // `order.cancel`, like the confirmed-order cancellation below. This used
+      // to pass no permissions at all and succeed, because the
+      // PENDING_PAYMENT rule asked for none - which meant anyone holding
+      // `order.read` could cancel an unpaid order.
+      actor: {
+        userId: adminActor.userId,
+        email: adminActor.email,
+        type: 'ADMIN',
+        permissions: ['order.cancel'],
+      },
       reason: 'Customer changed their mind',
     });
 
@@ -669,9 +678,48 @@ describe('order lifecycle', () => {
       transitionOrder({
         orderId,
         to: 'CANCELLED',
-        actor: { userId: adminActor.userId, email: adminActor.email, type: 'ADMIN' },
+        // Permission granted, so the refusal below is about the missing reason
+        // and nothing else. Without it this passed for the wrong reason once
+        // the permission was enforced.
+        actor: {
+          userId: adminActor.userId,
+          email: adminActor.email,
+          type: 'ADMIN',
+          permissions: ['order.cancel'],
+        },
       }),
     ).rejects.toMatchObject({ code: 'ORDER_TRANSITION_NOT_ALLOWED' });
+  });
+
+  /**
+   * The companion to the test above, and the reason it had to be split out.
+   *
+   * An unpaid order is a real order with stock held against it. Cancelling one
+   * used to ask for no permission at all, so every member of staff who could
+   * read an order could cancel it - the Inventory Manager included, who holds
+   * `order.read` to see what stock is committed and does not hold
+   * `order.cancel`.
+   */
+  it('refuses to cancel an unpaid order without order.cancel', async () => {
+    const orderId = await placedOrder();
+
+    await expect(
+      transitionOrder({
+        orderId,
+        to: 'CANCELLED',
+        actor: {
+          userId: adminActor.userId,
+          email: adminActor.email,
+          type: 'ADMIN',
+          // What an Inventory Manager actually holds for orders.
+          permissions: ['order.read'],
+        },
+        reason: 'Customer changed their mind',
+      }),
+    ).rejects.toMatchObject({ code: 'PERMISSION_DENIED' });
+
+    // And the stock is still held, because nothing moved.
+    expect((await getAvailability({ productId })).reservedQty).toBeGreaterThan(0);
   });
 });
 

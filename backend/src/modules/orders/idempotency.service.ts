@@ -194,10 +194,32 @@ export async function runIdempotent<T>(input: RunIdempotentInput<T>): Promise<Id
   );
 }
 
-/** Housekeeping: drop expired records. Run periodically by the worker. */
+/**
+ * Housekeeping: drop expired records.
+ *
+ * Run by `infra/housekeeping.ts` on the maintenance beat - which it genuinely
+ * is now. This said "run periodically by the worker" for a long time while
+ * nothing called it at all, and every checkout leaves a row here carrying the
+ * whole order response, so the table only ever grew.
+ *
+ * Bounded per pass for the same reason the session purge is: the first run on
+ * an installation that has been trading for months has a backlog, and one
+ * statement deleting all of it holds a lock across every checkout in flight.
+ */
+const PURGE_BATCH = 500;
+
 export async function purgeExpiredIdempotencyRecords(): Promise<number> {
-  const result = await prisma.idempotencyRecord.deleteMany({
+  const stale = await prisma.idempotencyRecord.findMany({
     where: { expiresAt: { lt: new Date() } },
+    select: { id: true },
+    take: PURGE_BATCH,
   });
+
+  if (stale.length === 0) return 0;
+
+  const result = await prisma.idempotencyRecord.deleteMany({
+    where: { id: { in: stale.map((record) => record.id) } },
+  });
+
   return result.count;
 }

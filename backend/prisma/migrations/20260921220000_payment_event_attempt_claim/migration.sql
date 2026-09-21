@@ -1,0 +1,26 @@
+-- One attempt at a time on a payment event, and a retry that can take it on.
+--
+-- A verified webhook was recorded with `providerEventId` unique, applied, and
+-- then marked PROCESSED or REJECTED. What had no answer was an attempt that
+-- THREW - a deadlock, a dropped connection, a bug. The row stayed FAILED, and
+-- the provider's retry collided with the unique index and was answered
+-- "duplicate, accepted", so the event was never applied and never sent again:
+-- a charged customer whose order sat in PENDING_PAYMENT, produced by the very
+-- retry mechanism that exists to prevent it.
+--
+-- A FAILED row is now claimable again. That needs a marker for "somebody is
+-- working on this right now", because two simultaneous retries reclaiming one
+-- event would both apply it - and applying a capture twice is the failure this
+-- table was built to make impossible. `receivedAt` cannot serve: it records
+-- when the event first arrived and must not move, or the row stops answering
+-- when the money was taken.
+--
+-- Additive and nullable. Rows written before this column read as NULL, which
+-- means "claimable" - correct, because nothing is working on them. Nothing is
+-- rewritten, nothing is dropped, and the old code goes on ignoring a column it
+-- does not select, so a rolling restart is safe in either order.
+--
+-- No index: the claim is a conditional UPDATE on the primary key, reached only
+-- after the unique lookup on `providerEventId` has already found the row.
+ALTER TABLE `payment_events`
+  ADD COLUMN `attemptStartedAt` DATETIME(3) NULL AFTER `processedAt`;

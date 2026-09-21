@@ -33,6 +33,7 @@ import {
   purgeExpiredBundles,
 } from '../modules/privacy/data-request.service.js';
 import { runRetentionSweeps } from '../modules/privacy/retention.service.js';
+import { runHousekeeping } from '../infra/housekeeping.js';
 import {
   getFxRateSettings,
   refreshConvertedPrices,
@@ -486,6 +487,23 @@ const retentionSweep: JobHandler = async () => {
 };
 
 /**
+ * Operational rows that have outlived their usefulness.
+ *
+ * Its own job rather than a step inside `retentionSweep`, because the two
+ * answer different questions - see the header of `infra/housekeeping.ts`. It
+ * shares the batching and the "continues next beat" behaviour because the
+ * first pass on an installation that has been running a while has a very large
+ * backlog: nothing swept here has ever been swept before.
+ */
+const housekeepingSweep: JobHandler = async () => {
+  const result = await runHousekeeping();
+
+  if (result.moreToDo) {
+    logger.info({ removed: result.removed }, 'housekeeping backlog remains; continuing next beat');
+  }
+};
+
+/**
  * Send what is queued for BUYERS' own ERPs.
  *
  * The outbox sweep. Every row it touches carries its own idempotency key, so
@@ -707,6 +725,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,
   [JobType.DATA_REQUEST_FULFIL]: fulfilDataRequest,
   [JobType.RETENTION_SWEEP]: retentionSweep,
+  [JobType.HOUSEKEEPING_SWEEP]: housekeepingSweep,
   [JobType.CUSTOMER_ERP_DISPATCH]: customerErpDispatch,
   [JobType.CUSTOMER_ERP_POLL]: customerErpPoll,
   [JobType.CUSTOMER_ERP_MAINTENANCE]: customerErpMaintenance,

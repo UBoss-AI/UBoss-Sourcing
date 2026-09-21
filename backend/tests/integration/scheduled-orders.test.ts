@@ -1470,10 +1470,10 @@ describe('duplicate protection', () => {
       payment_method_types: ['card'],
     });
 
-    const first = await processWebhook(event.raw, event.headers);
+    const first = await processWebhook(event.raw, event.headers, undefined, 'STRIPE');
     expect(first.accepted).toBe(true);
 
-    const replay = await processWebhook(event.raw, event.headers);
+    const replay = await processWebhook(event.raw, event.headers, undefined, 'STRIPE');
     expect(replay.duplicate).toBe(true);
 
     // The capture arrived by two routes - the charge's own response and this
@@ -1489,9 +1489,12 @@ describe('duplicate protection', () => {
   it('rejects a webhook whose signature does not verify', async () => {
     const event = stripeWebhook('payment_intent.succeeded', { id: 'pi_forged', amount: 1 });
 
-    const result = await processWebhook(event.raw, {
-      'stripe-signature': 't=1,v1=deadbeef',
-    });
+    const result = await processWebhook(
+      event.raw,
+      { 'stripe-signature': 't=1,v1=deadbeef' },
+      undefined,
+      'STRIPE',
+    );
 
     expect(result.accepted).toBe(false);
 

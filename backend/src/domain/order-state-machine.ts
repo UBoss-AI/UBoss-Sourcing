@@ -48,10 +48,32 @@ interface TransitionRule {
  *   - Anything out of REFUNDED: it is terminal by design.
  */
 const TRANSITIONS: Readonly<Record<OrderStatusName, readonly TransitionRule[]>> = Object.freeze({
+  /*
+   * EVERY ADMIN CANCELLATION NAMES `order.cancel`, INCLUDING THE TWO BELOW
+   * THAT USED TO NAME NOTHING.
+   *
+   * A rule with no `permission` is not "any admin who can get here"; it is
+   * every member of staff holding `order.read`, because that is all
+   * `POST /admin/orders/:id/transition` asks for before handing the decision
+   * to this table. The Inventory Manager holds `order.read` and not
+   * `order.cancel` - they need to see what stock is committed to - and so an
+   * inventory clerk could cancel a DRAFT or a PENDING_PAYMENT order while
+   * being refused a CONFIRMED one, which is the same act on a more valuable
+   * row.
+   *
+   * The permission is only ever consulted for an ADMIN actor, so naming it
+   * changes nothing for a customer cancelling their own order or for the
+   * SYSTEM cancelling one after a failed charge.
+   */
   DRAFT: [
     { to: 'PENDING_APPROVAL', actors: ['SYSTEM'] },
     { to: 'PENDING_PAYMENT', actors: ['SYSTEM'] },
-    { to: 'CANCELLED', actors: ['CUSTOMER', 'ADMIN', 'SYSTEM'], requiresReason: true },
+    {
+      to: 'CANCELLED',
+      actors: ['CUSTOMER', 'ADMIN', 'SYSTEM'],
+      permission: 'order.cancel',
+      requiresReason: true,
+    },
   ],
 
   PENDING_APPROVAL: [
@@ -61,7 +83,28 @@ const TRANSITIONS: Readonly<Record<OrderStatusName, readonly TransitionRule[]>> 
     {
       to: 'CANCELLED',
       actors: ['ADMIN', 'CUSTOMER', 'SYSTEM'],
-      permission: 'order.approve',
+      /*
+       * `order.cancel`, like every other cancellation here, and NOT
+       * `order.approve`.
+       *
+       * Approving and cancelling are different acts with different
+       * permissions, and this rule used to demand the wrong one. The effect
+       * was precise and invisible: the Order Manager - whose role description
+       * reads "Orders, fulfilment, cancellation and return handling" - holds
+       * `order.cancel` and not `order.approve`, so the one status where an
+       * order is most likely to need cancelling was the one status they could
+       * not cancel from. `allowedTransitions` filters on the same rule, so the
+       * button did not appear either; there was nothing on screen to explain
+       * it.
+       *
+       * Rejecting an approval is a separate act and keeps its own guard:
+       * `POST /admin/orders/:id/approval` requires `order.approve`, and
+       * `decideApproval` reaches CANCELLED through here. Every role that can
+       * approve also holds `order.cancel` - checked against the catalogue
+       * below, and asserted in `tests/unit/order-state-machine.test.ts` - so
+       * this narrows nobody's authority while restoring the Order Manager's.
+       */
+      permission: 'order.cancel',
       requiresReason: true,
     },
   ],
@@ -70,7 +113,15 @@ const TRANSITIONS: Readonly<Record<OrderStatusName, readonly TransitionRule[]>> 
     // Reached ONLY from a signature-verified provider event, never from a
     // client redirect. See the payments module.
     { to: 'CONFIRMED', actors: ['SYSTEM'] },
-    { to: 'CANCELLED', actors: ['ADMIN', 'CUSTOMER', 'SYSTEM'], requiresReason: true },
+    // `order.cancel` for the reason given above DRAFT. This is the one that
+    // mattered in practice: a PENDING_PAYMENT order is a real order with stock
+    // held against it, waiting on a customer to pay.
+    {
+      to: 'CANCELLED',
+      actors: ['ADMIN', 'CUSTOMER', 'SYSTEM'],
+      permission: 'order.cancel',
+      requiresReason: true,
+    },
   ],
 
   /*

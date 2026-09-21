@@ -11,6 +11,7 @@
  * without being reprocessed. Razorpay retries webhooks; without that index a
  * retry would confirm the order twice and commit the stock twice.
  */
+import type { PaymentProviderConnection } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import {
@@ -82,32 +83,13 @@ export interface LoadedProvider {
  */
 export async function loadActiveProvider(preferred?: ProviderKind): Promise<LoadedProvider> {
   const connection =
-    (preferred === undefined
-      ? null
-      : await prisma.paymentProviderConnection.findFirst({
-          where: { isActive: true, provider: preferred },
-          orderBy: { updatedAt: 'desc' },
-        })) ??
+    (preferred === undefined ? null : await activeConnectionFor(preferred)) ??
     (await prisma.paymentProviderConnection.findFirst({
       where: { isActive: true },
       orderBy: { updatedAt: 'desc' },
     }));
 
-  if (connection !== null) {
-    const decrypted = decryptSecret(connection.credentialsEnc, credentialAad(connection.id));
-    const credentials = JSON.parse(decrypted) as ProviderCredentials;
-
-    const webhookSecret =
-      connection.webhookSecretEnc === null
-        ? ''
-        : decryptSecret(connection.webhookSecretEnc, credentialAad(connection.id));
-
-    return {
-      provider: buildProvider(connection.provider, { ...credentials, webhookSecret }),
-      connectionId: connection.id,
-      kind: connection.provider,
-    };
-  }
+  if (connection !== null) return loadedFromConnection(connection);
 
   // Development fallback. The env guard in config/env.ts already refuses a
   // live key outside production, so this path cannot silently go live.
@@ -126,6 +108,81 @@ export async function loadActiveProvider(preferred?: ProviderKind): Promise<Load
     ErrorCode.PAYMENT_PROVIDER_NOT_CONFIGURED,
     'No payment provider is configured. An administrator must connect one in Settings > Payments.',
   );
+}
+
+/**
+ * The provider a WEBHOOK must be verified with, named by the URL it arrived on.
+ *
+ * THIS MUST NEVER FALL BACK, AND THAT IS THE WHOLE POINT OF IT EXISTING.
+ *
+ * `loadActiveProvider` treats its argument as a preference, because at
+ * checkout it is one: a shopper asking for a gateway the operator has not
+ * connected should be taken through the one that is connected rather than
+ * refused. A webhook is the opposite situation. The caller is Stripe or
+ * Razorpay, the signature was computed with that gateway's secret, and the
+ * only question is whether it verifies.
+ *
+ * Calling `loadActiveProvider()` here - with no argument at all - is what this
+ * replaces, and it was wrong in a way that only appears once a deployment
+ * connects BOTH gateways. The fallback picks whichever connection was saved
+ * last, so every event from the other one is checked against the wrong
+ * secret, fails, is recorded REJECTED, and is answered 200 so the provider
+ * stops retrying. The customer's card is charged and their order never leaves
+ * PENDING_PAYMENT, because an order is confirmed only by a signature-verified
+ * webhook. One connected gateway hides it completely.
+ *
+ * So a gateway with nothing configured raises PAYMENT_PROVIDER_NOT_CONFIGURED
+ * rather than borrowing the other one's credentials. The route turns that into
+ * a 5xx, which is a retry the provider will make and an operator can see -
+ * the two things a silent 200 denies them.
+ */
+export async function loadProviderForWebhook(kind: ProviderKind): Promise<LoadedProvider> {
+  const connection = await activeConnectionFor(kind);
+
+  if (connection !== null) return loadedFromConnection(connection);
+
+  // Same development fallback as above, narrowed to the one gateway. The
+  // `For` spelling matters: `envCredentials` hands back the other gateway when
+  // the one asked for has no keys, which is the very substitution this exists
+  // to prevent.
+  const credentials = envCredentialsFor(kind);
+
+  if (credentials !== null) {
+    const bootstrapped = await ensureBootstrapConnection(kind, credentials);
+    return { provider: buildProvider(kind, credentials), connectionId: bootstrapped, kind };
+  }
+
+  throw badRequest(
+    ErrorCode.PAYMENT_PROVIDER_NOT_CONFIGURED,
+    `No ${kind} connection is configured, so a ${kind} webhook cannot be verified.`,
+  );
+}
+
+/** The newest active connection for one named gateway, or null. */
+function activeConnectionFor(
+  kind: ProviderKind,
+): Promise<PaymentProviderConnection | null> {
+  return prisma.paymentProviderConnection.findFirst({
+    where: { isActive: true, provider: kind },
+    orderBy: { updatedAt: 'desc' },
+  });
+}
+
+/** Decrypt a stored connection into a usable provider. */
+function loadedFromConnection(connection: PaymentProviderConnection): LoadedProvider {
+  const decrypted = decryptSecret(connection.credentialsEnc, credentialAad(connection.id));
+  const credentials = JSON.parse(decrypted) as ProviderCredentials;
+
+  const webhookSecret =
+    connection.webhookSecretEnc === null
+      ? ''
+      : decryptSecret(connection.webhookSecretEnc, credentialAad(connection.id));
+
+  return {
+    provider: buildProvider(connection.provider, { ...credentials, webhookSecret }),
+    connectionId: connection.id,
+    kind: connection.provider,
+  };
 }
 
 function buildProvider(kind: ProviderKind, credentials: ProviderCredentials): PaymentProvider {
@@ -1611,13 +1668,22 @@ const REJECTED_WEBHOOK_PREFIX_BYTES = 512;
  * Returns 200 even for a rejected event: the provider must stop retrying
  * something we have deliberately refused. The rejection is recorded and
  * alerted instead.
+ *
+ * A step 4 that THROWS is different from one that rejects, and the difference
+ * is the whole of `claimEvent` below: a deadlock or a dropped connection is
+ * not a decision, so the event stays claimable and the next delivery applies
+ * it. Only a deliberate refusal is final.
+ *
+ * `expectedProvider` is the gateway named in the URL the event arrived on, and
+ * it is required rather than optional - see `loadProviderForWebhook`.
  */
 export async function processWebhook(
   rawBody: Buffer,
   headers: Record<string, string | undefined>,
-  correlationId?: string,
+  correlationId: string | undefined,
+  expectedProvider: ProviderKind,
 ): Promise<WebhookResult> {
-  const { provider, connectionId } = await loadActiveProvider();
+  const { provider, connectionId } = await loadProviderForWebhook(expectedProvider);
 
   // --- 1. Verify --------------------------------------------------------
   const event: VerifiedEvent = provider.verifyWebhook(rawBody, headers);
@@ -1682,35 +1748,58 @@ export async function processWebhook(
   }
 
   // --- 2. Duplicate guard ------------------------------------------------
-  const eventRowId = newId();
+  const claim = await claimEvent(event, provider.kind, connectionId, rawBody);
 
-  const inserted = await prisma.paymentEvent.createMany({
-    data: [
-      {
-        id: eventRowId,
-        provider: provider.kind,
-        connectionId,
-        providerEventId: event.eventId,
-        eventType: event.eventType,
-        signatureVerified: true,
-        rawPayload: rawBody.toString('utf8').slice(0, 60_000),
-        processingStatus: 'RECEIVED',
-      },
-    ],
-    skipDuplicates: true,
-  });
-
-  if (inserted.count === 0) {
-    // Already seen. Acknowledge so the provider stops retrying, and change
-    // nothing - this is what makes redelivery harmless.
-    logger.info({ eventId: event.eventId, correlationId }, 'duplicate webhook acknowledged');
+  if (claim.kind === 'SETTLED') {
+    // Already decided, one way or the other. Acknowledge so the provider stops
+    // retrying and change nothing - this is what makes redelivery harmless.
+    logger.info(
+      { eventId: event.eventId, status: claim.status, correlationId },
+      'duplicate webhook acknowledged',
+    );
     return { accepted: true, duplicate: true };
   }
+
+  if (claim.kind === 'IN_FLIGHT') {
+    /*
+     * Another process is applying this event right now.
+     *
+     * Answered as a conflict rather than a cheerful 200, because those are
+     * different facts and only one of them is true. The other attempt may yet
+     * fail, and a 200 here would be this installation promising the provider
+     * that an event nobody has finished with has been dealt with - after
+     * which it is never sent again.
+     *
+     * Every provider retries a non-2xx, so the next delivery finds the row
+     * either settled (acknowledged above) or reclaimable (below).
+     */
+    throw conflict(
+      ErrorCode.CONFLICT,
+      'This event is already being processed. It will be retried.',
+    );
+  }
+
+  const eventRowId = claim.eventRowId;
 
   try {
     const outcome = await applyEvent(event, eventRowId, correlationId);
     return outcome;
   } catch (error) {
+    /*
+     * Left FAILED, and therefore CLAIMABLE AGAIN.
+     *
+     * This is the branch a deadlock, a lost connection or a bug lands in, and
+     * what it must not do is look settled. The row previously stayed at
+     * FAILED forever while the provider's retry collided with the unique index
+     * and was answered "duplicate, accepted" - so one transient database error
+     * during a capture left a charged customer with an order stuck in
+     * PENDING_PAYMENT, and the retry mechanism that exists to fix exactly that
+     * hid it instead. Nothing reconciles FAILED events; nothing should need to.
+     *
+     * `claimEvent` reclaims a FAILED row, so the rethrow below becomes a 5xx,
+     * the provider retries, and the event is applied. `applyEvent` is
+     * idempotent for the same reason a redelivery is safe.
+     */
     await prisma.paymentEvent.update({
       where: { id: eventRowId },
       data: {
@@ -1720,6 +1809,109 @@ export async function processWebhook(
     });
     throw error;
   }
+}
+
+/**
+ * How long an attempt may be in flight before another delivery may take it on.
+ *
+ * Covers the case `FAILED` cannot: a process killed between claiming the row
+ * and writing an outcome leaves it RECEIVED with nobody working on it, and
+ * without a ceiling every later delivery would be told "in flight" by a
+ * machine that no longer exists. Comfortably longer than any real attempt -
+ * the apply path is a handful of indexed writes in one transaction - and far
+ * inside the three days a provider goes on retrying for.
+ */
+const WEBHOOK_ATTEMPT_STALE_MINUTES = 10;
+
+type EventClaim =
+  | { kind: 'CLAIMED'; eventRowId: string }
+  | { kind: 'SETTLED'; status: string }
+  | { kind: 'IN_FLIGHT' };
+
+/**
+ * Take exclusive ownership of one provider event, or say why not.
+ *
+ * The unique index on `providerEventId` is what makes this safe: the insert
+ * either wins or collides, and there is no read-then-write for two deliveries
+ * to race through. A collision is then one of three situations, and they are
+ * genuinely different:
+ *
+ *   - **Settled** (PROCESSED, REJECTED, DUPLICATE). A decision was reached.
+ *     Acknowledge and change nothing.
+ *   - **Retryable** (FAILED, or an attempt abandoned long enough ago to be
+ *     stale). No decision was reached. Claimed again, with a conditional
+ *     UPDATE so that two simultaneous retries cannot both win it.
+ *   - **In flight**. Somebody has it. Leave it alone.
+ */
+async function claimEvent(
+  event: VerifiedEvent,
+  providerKind: ProviderKind,
+  connectionId: string,
+  rawBody: Buffer,
+): Promise<EventClaim> {
+  const freshId = newId();
+  const now = new Date();
+
+  const inserted = await prisma.paymentEvent.createMany({
+    data: [
+      {
+        id: freshId,
+        provider: providerKind,
+        connectionId,
+        providerEventId: event.eventId,
+        eventType: event.eventType,
+        signatureVerified: true,
+        rawPayload: rawBody.toString('utf8').slice(0, 60_000),
+        processingStatus: 'RECEIVED',
+        attemptStartedAt: now,
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  if (inserted.count === 1) return { kind: 'CLAIMED', eventRowId: freshId };
+
+  const existing = await prisma.paymentEvent.findUnique({
+    where: { providerEventId: event.eventId },
+    select: { id: true, processingStatus: true },
+  });
+
+  if (existing === null) {
+    // Deleted between the insert and this read - housekeeping trimming an old
+    // row under us, at worst. Treat it as in flight: the retry re-inserts.
+    return { kind: 'IN_FLIGHT' };
+  }
+
+  if (existing.processingStatus !== 'RECEIVED' && existing.processingStatus !== 'FAILED') {
+    return { kind: 'SETTLED', status: existing.processingStatus };
+  }
+
+  /*
+   * The conditional claim, and it has to be conditional.
+   *
+   * `updateMany` takes the row lock on this statement, so a second delivery
+   * racing the same event blocks here and then matches nothing, because
+   * `attemptStartedAt` is no longer stale. Reading the row and then writing it
+   * would let both through - the same shape of mistake that let one refresh
+   * token be spent twice, and the same fix.
+   */
+  const staleBefore = new Date(now.getTime() - WEBHOOK_ATTEMPT_STALE_MINUTES * 60_000);
+
+  const reclaimed = await prisma.paymentEvent.updateMany({
+    where: {
+      id: existing.id,
+      OR: [
+        { processingStatus: 'FAILED' },
+        { processingStatus: 'RECEIVED', attemptStartedAt: { lt: staleBefore } },
+        { processingStatus: 'RECEIVED', attemptStartedAt: null },
+      ],
+    },
+    data: { processingStatus: 'RECEIVED', attemptStartedAt: now, processingError: null },
+  });
+
+  return reclaimed.count === 1
+    ? { kind: 'CLAIMED', eventRowId: existing.id }
+    : { kind: 'IN_FLIGHT' };
 }
 
 async function applyEvent(

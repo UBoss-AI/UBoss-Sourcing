@@ -591,10 +591,36 @@ export async function revokeAllUserSessions(userId: string, reason: string): Pro
   return result.count;
 }
 
-/** Housekeeping: drop sessions that expired long ago. */
+/**
+ * Housekeeping: drop sessions that expired long ago.
+ *
+ * Called by `infra/housekeeping.ts` on the maintenance beat. It was written
+ * long before anything called it, and in the meantime this table gained a row
+ * per refresh ROTATION rather than per sign-in - so on an installation that
+ * has been running a while, the first pass has a great deal to get through.
+ *
+ * Hence the ceiling. One `deleteMany` over a million expired rows locks the
+ * table for every request trying to authenticate against it; a bounded pass on
+ * a frequent beat drains the same backlog without anyone noticing. The caller
+ * repeats while the count comes back full.
+ */
+const SESSION_PURGE_BATCH = 500;
+
 export async function purgeExpiredSessions(olderThanDays = 30): Promise<number> {
   const cutoff = new Date(Date.now() - olderThanDays * 86_400_000);
-  const result = await prisma.session.deleteMany({ where: { expiresAt: { lt: cutoff } } });
+
+  const stale = await prisma.session.findMany({
+    where: { expiresAt: { lt: cutoff } },
+    select: { id: true },
+    take: SESSION_PURGE_BATCH,
+  });
+
+  if (stale.length === 0) return 0;
+
+  const result = await prisma.session.deleteMany({
+    where: { id: { in: stale.map((session) => session.id) } },
+  });
+
   return result.count;
 }
 

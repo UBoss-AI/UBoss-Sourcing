@@ -12936,7 +12936,8 @@ export const PaymentEventScalarFieldEnum = {
   orderId: 'orderId',
   paymentTransactionId: 'paymentTransactionId',
   receivedAt: 'receivedAt',
-  processedAt: 'processedAt'
+  processedAt: 'processedAt',
+  attemptStartedAt: 'attemptStartedAt'
 } as const
 
 export type PaymentEventScalarFieldEnum = (typeof PaymentEventScalarFieldEnum)[keyof typeof PaymentEventScalarFieldEnum]

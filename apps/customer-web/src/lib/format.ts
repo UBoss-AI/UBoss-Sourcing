@@ -51,6 +51,20 @@ export function formatMoney(money: Money | null | undefined): string {
 const ZERO_DECIMAL_CURRENCIES = new Set(['JPY', 'KRW']);
 
 /**
+ * How many decimal places this currency has.
+ *
+ * Exported so a form converting between major and minor units asks this rather
+ * than writing `100`, which is the wrong number for two of the currencies the
+ * backend supports. Screens that have the server's own currency list - it
+ * carries an `exponent` per row - should prefer that; this is the answer for
+ * everywhere else, and it is kept in step with `domain/money.ts` the same way
+ * the set above is.
+ */
+export function currencyExponent(currency: string): number {
+  return ZERO_DECIMAL_CURRENCIES.has(currency) ? 0 : 2;
+}
+
+/**
  * Display a bare minor-unit amount.
  *
  * `formatMoney` above is the one to reach for: the backend's `Money` object
@@ -68,8 +82,7 @@ export function formatMoneyMinor(
 ): string {
   if (minor === null || minor === undefined) return '—';
 
-  const exponent = ZERO_DECIMAL_CURRENCIES.has(currency) ? 0 : 2;
-  return `${currencySymbol(currency)}${minorToMajor(minor, exponent)}`;
+  return `${currencySymbol(currency)}${minorToMajor(minor, currencyExponent(currency))}`;
 }
 
 /**

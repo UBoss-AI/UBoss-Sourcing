@@ -286,6 +286,19 @@ async function maintenance(): Promise<void> {
     // nothing expired costs four indexed queries and writes nothing.
     await queue.enqueue(JobType.RETENTION_SWEEP, {}, { dedupeKey: `retention_sweep:${slot}` });
 
+    // The same beat, for the rows nobody has a right to and a disk cares about
+    // very much: finished jobs, spent rate-limit counters, expired sessions
+    // and idempotency claims, old provider webhooks. Every one of those tables
+    // grew without limit until this existed - the queue alone gains about
+    // twenty thousand rows a day from this very loop. Batched like the sweep
+    // above, so the first pass on an installation that has been running a
+    // while drains its backlog over hours rather than in one lock.
+    await queue.enqueue(
+      JobType.HOUSEKEEPING_SWEEP,
+      {},
+      { dedupeKey: `housekeeping_sweep:${slot}` },
+    );
+
     // The logistics portal's heartbeat: unanswered assignment offers, the SLA
     // column the dashboard counts, abandoned driver trips, position pings past
     // their retention window, and carrier webhooks that need another go. The

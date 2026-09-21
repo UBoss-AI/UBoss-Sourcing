@@ -50,6 +50,7 @@ import {
 import { ApiError, api } from '@/lib/api';
 import { newIdempotencyKey } from '@/lib/forms';
 import {
+  currencyExponent,
   formatDateTime,
   formatMoney,
   formatNumber,
@@ -120,8 +121,20 @@ const STATUS_GROUPS = [
   { labelKey: 'payments.endedWithoutPayment', statuses: ['FAILED', 'CANCELLED', 'EXPIRED'] },
 ] as const satisfies readonly { labelKey: TranslationKey; statuses: readonly string[] }[];
 
+/**
+ * A bare minor-unit amount, displayed in its own currency.
+ *
+ * The exponent is passed rather than defaulted. `minorToMajor` assumes two
+ * decimal places, which is right for every currency this product sells in
+ * except JPY and KRW - both seeded, both with a seeded country pointing at
+ * them - and for those it printed a hundredth of the real figure.
+ */
 function money(minor: string, currency: string): string {
-  return formatMoney({ minor, formatted: minorToMajor(minor), currency });
+  return formatMoney({
+    minor,
+    formatted: minorToMajor(minor, currencyExponent(currency)),
+    currency,
+  });
 }
 
 function RefundDialog({
@@ -150,7 +163,10 @@ function RefundDialog({
 
   const refund = useMutation({
     mutationFn: () => {
-      const minor = majorToMinor(amount);
+      // The payment's own currency, never the default two decimal places: a
+      // yen refund typed as 5000 became 500000 minor units, which is a refund
+      // of a hundred times what the operator entered.
+      const minor = majorToMinor(amount, currencyExponent(payment.currency));
 
       if (minor === null) {
         throw new ApiError(400, {
@@ -177,7 +193,8 @@ function RefundDialog({
   });
 
   const maxMinor = quote.data?.maxRefundableMinor ?? '0';
-  const typedMinor = amount.trim() === '' ? null : majorToMinor(amount);
+  const typedMinor =
+    amount.trim() === '' ? null : majorToMinor(amount, currencyExponent(payment.currency));
   const isOverMax = typedMinor !== null && BigInt(typedMinor) > BigInt(maxMinor);
   const isValid =
     typedMinor !== null && BigInt(typedMinor) > 0n && !isOverMax && reason.trim().length > 0;
@@ -256,7 +273,7 @@ function RefundDialog({
             size="sm"
             variant="ghost"
             onClick={() => {
-              setAmount(minorToMajor(maxMinor));
+              setAmount(minorToMajor(maxMinor, currencyExponent(payment.currency)));
             }}
           >
             {t('payments.useTheFullRefundableAmount')}

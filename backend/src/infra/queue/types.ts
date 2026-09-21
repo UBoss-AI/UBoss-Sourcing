@@ -82,6 +82,15 @@ export const JobType = {
   /// Delete personal data that has outlived its retention window. Runs on the
   /// maintenance beat, like the reservation sweep.
   RETENTION_SWEEP: 'retention.sweep',
+  /// Delete operational rows that have outlived their usefulness - finished
+  /// jobs, spent rate-limit counters, expired sessions and idempotency claims,
+  /// old provider webhooks.
+  ///
+  /// Deliberately NOT part of RETENTION_SWEEP, which answers to a regulator.
+  /// This one answers to a disk: nothing it removes is somebody's personal
+  /// data held under a lawful basis, and mixing the two would make each
+  /// harder to reason about. See `infra/housekeeping.ts`.
+  HOUSEKEEPING_SWEEP: 'housekeeping.sweep',
   /// Send what is queued for BUYERS' own ERPs.
   ///
   /// The outbox sweep for `customer_erp_sync_events`. Kept apart from every

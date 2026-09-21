@@ -810,7 +810,9 @@ only to the people who need it, and never recorded outside working hours.
 <summary><b>Worker</b> — everything nobody is waiting for</summary>
 
 Emails, recurring and scheduled orders, autopay charges, payment-link expiry,
-exports, exchange-rate refreshes, webhook delivery and retries.
+exports, exchange-rate refreshes, webhook delivery and retries, and the two
+sweeps that keep the database from growing for ever — one for personal data
+past its retention window, one for operational rows past their usefulness.
 
 It claims jobs under a lease rather than `FOR UPDATE SKIP LOCKED`, which
 MariaDB 10.4 does not have: a conditional `UPDATE` plus an `affectedRows`
@@ -1522,6 +1524,14 @@ one are a Vite cache, not a code bug.
    confirmed only by a signature-verified event, so a connection with no secret
    would charge customers and confirm nothing.
 
+   **Running both gateways at once is supported, and each needs its own secret
+   on its own connection.** The `:provider` in the URL decides which one an
+   event is checked against, so Stripe's secret belongs on the Stripe
+   connection and Razorpay's on Razorpay's. Pasting one gateway's secret onto
+   the other's connection rejects every event it receives — and a rejected
+   event is answered `200`, so the provider stops resending and the order is
+   never confirmed.
+
    On Stripe, subscribe to `payment_intent.succeeded`,
    `payment_intent.payment_failed`, `charge.refunded`, `refund.updated` and
    `refund.failed`. Leave `charge.succeeded` off: it reports the same capture as
@@ -1717,6 +1727,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **Money is never a float.** Every amount is an integer of minor units,
   carried as a *string* on the wire because a paisa-precise total can exceed
   `2^53`. `Number(minor) / 100` is the bug the string exists to prevent.
+- **A hundred is not the conversion.** Where a form does have to move between
+  minor and major units, it shifts digits and it asks the *currency* how many
+  places to shift. JPY and KRW have none — both are seeded, both have a seeded
+  country pointing at them — so a hard-coded hundred reads and writes every
+  yen figure a hundredfold out. The API refuses to start if the currencies
+  table and `domain/money.ts` disagree about an exponent, which is what makes
+  the browser's copy of that answer safe to rely on.
 - **An amount is never read in a currency it was not entered in.** Catalogue
   prices, coupon thresholds and purchasing limits are held per currency, and
   there is no exchange rate anywhere in the ordering path. A rate would make
@@ -1730,6 +1747,12 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   `schedule-state.ts` for the same reason, and it matters more there: an
   occurrence changes status inside a worker with nobody watching, and the states
   it moves between decide whether a card is charged.
+- **Every admin cancellation asks for `order.cancel`, from every status.** The
+  transition table is also what the panel renders its buttons from, so a rule
+  naming the wrong permission hides the button rather than refusing the click,
+  and a rule naming none lets anyone holding `order.read` — the Inventory
+  Manager, say — cancel an order. Rejecting an approval is a separate act with
+  its own guard, `order.approve`.
 - **A scheduled cart is priced by `quoteSchedule` and nothing else.** The
   review screen the customer confirms and the worker that charges them weeks
   later both call it, so the number agreed and the number charged come from one
@@ -1745,7 +1768,14 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   exactly three succeed.
 - **Duplicate protection is structural.** Unique indexes, not procedural checks
   — a redelivered webhook collides on insert, a double-clicked import confirm
-  collides on the SKU index.
+  collides on the SKU index. A collision means *already decided*, not *already
+  seen*: an attempt that threw partway leaves the event claimable, so the
+  provider's next retry applies it instead of being told the matter is closed.
+- **A webhook is verified with the gateway it arrived from.** The `:provider` in
+  the URL decides which signing secret is used, and a gateway with nothing
+  configured is refused rather than checked against the other one's. This is
+  only visible once both gateways are connected, and then it decides whether
+  half the payments ever confirm.
 - **Nothing is published by accident.** A product reaches customers only when it
   is both Active *and* Published. Bulk import can activate; it can never
   publish.

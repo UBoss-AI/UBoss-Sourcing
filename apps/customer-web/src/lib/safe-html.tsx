@@ -31,8 +31,32 @@ const ALLOWED_TAGS = new Set([
   'TR', 'TH', 'TD', 'SPAN', 'CODE', 'PRE', 'HR',
 ]);
 
-/** Removed entirely, children and all — nothing inside them is content. */
-const DROP_ENTIRELY = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'FORM', 'INPUT', 'LINK', 'META', 'SVG']);
+/**
+ * Removed entirely, children and all — nothing inside them is content.
+ *
+ * Compared against an UPPERCASED tag name, which is not a detail. `tagName` is
+ * uppercase only for HTML-namespace elements; for foreign content — SVG and
+ * MathML — it is the lowercase local name. So `SVG` in this list matched
+ * nothing at all, and `<svg>` fell through to the unwrap below instead.
+ *
+ * Nothing escaped through it: an unwrapped element is deleted and its children
+ * have already been scrubbed, so an `<svg>` subtree collapsed to its text. But
+ * a guard that reads as active and is not is worth more than the bug it did
+ * not cause, and MathML was never listed at all.
+ */
+const DROP_ENTIRELY = new Set([
+  'SCRIPT',
+  'STYLE',
+  'IFRAME',
+  'OBJECT',
+  'EMBED',
+  'FORM',
+  'INPUT',
+  'LINK',
+  'META',
+  'SVG',
+  'MATH',
+]);
 
 /** Attributes allowed on a surviving element. Everything else is stripped. */
 const ALLOWED_ATTRIBUTES: Record<string, Set<string>> = {
@@ -53,20 +77,25 @@ function isSafeHref(value: string): boolean {
 function scrub(element: Element): void {
   // Iterate over a copy: the loop mutates the child list.
   for (const child of [...element.children]) {
-    if (DROP_ENTIRELY.has(child.tagName)) {
+    // Uppercased once, here, and used for all three lookups below. See the
+    // note on DROP_ENTIRELY: a foreign-content element reports a lowercase
+    // tagName, so comparing the raw value silently misses every one of them.
+    const tag = child.tagName.toUpperCase();
+
+    if (DROP_ENTIRELY.has(tag)) {
       child.remove();
       continue;
     }
 
     scrub(child);
 
-    if (!ALLOWED_TAGS.has(child.tagName)) {
+    if (!ALLOWED_TAGS.has(tag)) {
       // Unwrap rather than delete, so the text inside survives.
       child.replaceWith(...child.childNodes);
       continue;
     }
 
-    const allowed = ALLOWED_ATTRIBUTES[child.tagName] ?? new Set<string>();
+    const allowed = ALLOWED_ATTRIBUTES[tag] ?? new Set<string>();
 
     for (const attribute of [...child.attributes]) {
       const name = attribute.name.toLowerCase();
@@ -82,7 +111,7 @@ function scrub(element: Element): void {
       }
     }
 
-    if (child.tagName === 'A' && child.hasAttribute('href')) {
+    if (tag === 'A' && child.hasAttribute('href')) {
       // An outbound link must not be able to reach back through opener.
       child.setAttribute('rel', 'noopener noreferrer nofollow');
       child.setAttribute('target', '_blank');

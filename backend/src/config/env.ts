@@ -1008,6 +1008,43 @@ const envSchema = z
     /// fact the system holds about one person in one archive.
     DATA_REQUEST_DOWNLOAD_TTL_HOURS: intFromString(1, 720).default(72),
 
+    // --- Housekeeping ----------------------------------------------------
+    //
+    // The three windows above answer to a regulator. These answer to a disk.
+    //
+    // They are here rather than beside them because the question is a
+    // different one: nothing below is kept because somebody has a right to it,
+    // and nothing below is deleted because somebody has a right to have it
+    // deleted. These are operational tables that grow with TRAFFIC rather than
+    // with business volume, and every one of them had no sweep at all - the
+    // job queue gains about twenty thousand rows a day from the maintenance
+    // beat alone, the session table gains one row per refresh rotation, and
+    // the rate-limit table takes a write on every single request. Left alone
+    // they are the thing that slows an installation down six months in, with
+    // nothing in the application to explain why.
+    //
+    // `0` switches a sweep off, the same as above. See
+    // `infra/housekeeping.ts`.
+
+    /// Finished background jobs - SUCCEEDED and DEAD. Long enough to answer
+    /// "did last night's run happen, and what did it say?" and no longer: the
+    /// work itself is recorded by whatever the job did, not by the queue row.
+    /// Jobs still PENDING or RUNNING are never touched whatever this says.
+    RETENTION_JOB_HISTORY_DAYS: intFromString(0, 3650).default(7),
+
+    /// Verified provider webhooks, with up to 60 KB of raw payload each. Two
+    /// years, matching the audit trail: this is the evidence behind a captured
+    /// payment, so it outlives any chargeback window by a wide margin. The row
+    /// is not the payment - the order and the transaction are - which is why
+    /// it may eventually go at all.
+    RETENTION_PAYMENT_EVENT_DAYS: intFromString(0, 3650).default(730),
+
+    /// Session rows past their own expiry. A refresh ROTATES rather than
+    /// updates, so a browser in daily use leaves a trail of revoked rows
+    /// behind it; a month after one has expired there is nothing left to learn
+    /// from it that the audit trail does not hold.
+    RETENTION_EXPIRED_SESSION_DAYS: intFromString(0, 3650).default(30),
+
     // --- Demonstration catalogue ---------------------------------------
     //
     // A broad, plainly fictional catalogue - every department, every

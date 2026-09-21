@@ -645,11 +645,20 @@ export function buyerInsightMetrics(dashboard: BuyerDashboard): InsightMetric[] 
      *
      * Rounded to whole units on the way in, so no fraction of a cent can be
      * misread as a precise total by something that is not precise.
+     *
+     * Converted through `formatted` rather than by dividing the minor units by
+     * a hundred. That divisor was hard-coded, and a hundred is not the right
+     * number for every currency this product supports: `domain/money.ts` lists
+     * JPY and KRW at zero decimals precisely so the rounding helpers stay
+     * correct if a business prices in them. A deployment doing so would have
+     * had the assistant telling its buyer they had spent a hundredth of what
+     * they actually spent. `formatted` comes from `formatMinorToMajor`, which
+     * reads the currency's own exponent, so this cannot drift from it again.
      */
     {
       key: 'spend.paid',
       label: `Money paid in this period, in ${dashboard.spend.currency}`,
-      value: Math.round(Number(dashboard.spend.paid.minor) / 100),
+      value: Math.round(Number(dashboard.spend.paid.formatted)),
       unit: dashboard.spend.currency,
       severity: 'info',
       href: '/account/billing',
@@ -657,7 +666,7 @@ export function buyerInsightMetrics(dashboard: BuyerDashboard): InsightMetric[] 
     {
       key: 'spend.previousPaid',
       label: `Money paid in the period immediately before this one, in ${dashboard.spend.currency}`,
-      value: Math.round(Number(dashboard.spend.previousPaid.minor) / 100),
+      value: Math.round(Number(dashboard.spend.previousPaid.formatted)),
       unit: dashboard.spend.currency,
       severity: 'info',
       href: '/account/billing',

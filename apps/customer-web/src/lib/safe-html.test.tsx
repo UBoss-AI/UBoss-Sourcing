@@ -110,6 +110,47 @@ describe('SafeHtml', () => {
     expect(container.textContent).toContain('Unclosed');
   });
 
+  /**
+   * Foreign content — SVG and MathML — reports a LOWERCASE `tagName`, unlike
+   * every HTML element. `DROP_ENTIRELY` held `'SVG'` and therefore matched
+   * nothing: an `<svg>` fell through to the unwrap path instead of being
+   * removed outright. Nothing escaped, because unwrapping deletes the element
+   * and its children were already scrubbed — but the guard was not doing the
+   * job it was written to do, and MathML was never listed at all.
+   */
+  it('removes an SVG and everything inside it', () => {
+    const container = renderHtml(
+      '<p>Before</p><svg><script>steal()</script><text>caption</text></svg><p>After</p>',
+    );
+
+    expect(container.querySelector('svg')).toBeNull();
+    expect(container.querySelector('script')).toBeNull();
+    expect(container.textContent).not.toContain('steal');
+    expect(container.textContent).not.toContain('caption');
+    // The real content on either side is untouched.
+    expect(container.textContent).toContain('Before');
+    expect(container.textContent).toContain('After');
+  });
+
+  it('removes MathML too', () => {
+    const container = renderHtml('<p>Before</p><math><mi>x</mi></math>');
+
+    expect(container.querySelector('math')).toBeNull();
+    expect(container.textContent).not.toContain('x');
+    expect(container.textContent).toContain('Before');
+  });
+
+  /**
+   * The same normalisation seen from the other side: an allowed tag written in
+   * capitals is still that tag, and must keep working rather than being
+   * unwrapped. Pasted markup from a supplier's catalogue does this constantly.
+   */
+  it('treats an uppercase tag as the tag it is', () => {
+    const container = renderHtml('<P>Grade <STRONG>8.8</STRONG></P>');
+
+    expect(container.querySelector('strong')?.textContent).toBe('8.8');
+  });
+
   it('keeps a specification table intact', () => {
     const container = renderHtml(
       '<table><thead><tr><th scope="col">Spec</th></tr></thead><tbody><tr><td colspan="2">M12</td></tr></tbody></table>',

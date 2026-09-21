@@ -2815,6 +2815,19 @@ model PaymentEvent {
   receivedAt  DateTime  @default(now()) @db.DateTime(3)
   processedAt DateTime? @db.DateTime(3)
 
+  /// When the attempt currently holding this row began.
+  ///
+  /// Separate from `receivedAt`, which records when the event first arrived
+  /// and must not move. This is the claim: a row is applied by exactly one
+  /// attempt at a time, and a later delivery of the same event may take it on
+  /// only once this is either absent or older than the staleness ceiling in
+  /// `payment.service.ts`. Without it two simultaneous retries of an event
+  /// left FAILED would both reclaim it and both apply it.
+  ///
+  /// Null on rows written before this column existed, which reads as
+  /// "claimable" - correct, because nothing is working on them.
+  attemptStartedAt DateTime? @db.DateTime(3)
+
   connection         PaymentProviderConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
   order              Order?                     @relation(fields: [orderId], references: [id], onDelete: SetNull)
   paymentTransaction PaymentTransaction?        @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)

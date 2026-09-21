@@ -39,7 +39,13 @@ import {
 } from '@/components/ui';
 import { api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
-import { formatDateTime, formatNumber, humanise, minorToMajor } from '@/lib/format';
+import {
+  currencyExponent,
+  formatDateTime,
+  formatNumber,
+  humanise,
+  minorToMajor,
+} from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerListItem } from '@/lib/customers';
@@ -342,7 +348,10 @@ export function CustomersPage(): React.JSX.Element {
                   .filter((entry) => entry.approvalThresholdMinor !== null)
                   .map(
                     (entry) =>
-                      `Over ${entry.currencyCode} ${minorToMajor(entry.approvalThresholdMinor ?? '0')}`,
+                      `Over ${entry.currencyCode} ${minorToMajor(
+                        entry.approvalThresholdMinor ?? '0',
+                        currencyExponent(entry.currencyCode),
+                      )}`,
                   )
                   .join(', ')}
           </Badge>

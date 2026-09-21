@@ -21,6 +21,7 @@ import {
   availableGateways,
   createOrderPayment,
   loadActiveProvider,
+  loadProviderForWebhook,
   processWebhook,
 } from '../../src/modules/payments/payment.service.js';
 import { assertChargeable } from '../../src/modules/payments/payment-method.service.js';
@@ -445,7 +446,7 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.accepted).toBe(true);
 
     const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
@@ -468,8 +469,8 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    const first = await processWebhook(rawBody, headers);
-    const second = await processWebhook(rawBody, headers);
+    const first = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
+    const second = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
 
     expect(first.duplicate).toBe(false);
     expect(second.duplicate).toBe(true);
@@ -483,6 +484,123 @@ describe('webhook processing', () => {
     ).toBe(1);
   });
 
+  /**
+   * A first attempt that THREW is not a decision, and must not be treated as
+   * one.
+   *
+   * The row was inserted before the event was applied - that is what makes a
+   * redelivery harmless - so an attempt that died partway through left it
+   * FAILED while the unique index went on answering every retry "duplicate,
+   * accepted". The provider stopped resending, nothing reconciles a FAILED
+   * event, and the result was a charged customer whose order never left
+   * PENDING_PAYMENT: produced by the very retry mechanism that exists to
+   * prevent exactly that.
+   *
+   * The FAILED row here stands in for a deadlock or a dropped connection
+   * mid-apply, which is the only honest way to write this: any real failure
+   * would have to be injected into the transaction itself.
+   */
+  it('applies an event whose previous attempt failed', async () => {
+    const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
+    const { rawBody, headers } = signedWebhook(
+      capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    await prisma.paymentEvent.create({
+      data: {
+        id: newId(),
+        provider: 'RAZORPAY',
+        providerEventId: headers['x-razorpay-event-id'] ?? '',
+        eventType: 'payment.captured',
+        signatureVerified: true,
+        rawPayload: rawBody.toString('utf8'),
+        processingStatus: 'FAILED',
+        processingError: 'Deadlock found when trying to get lock',
+        attemptStartedAt: new Date(Date.now() - 60_000),
+      },
+    });
+
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
+
+    // NOT a duplicate: nothing was ever applied.
+    expect(result.duplicate).toBe(false);
+    expect(result.accepted).toBe(true);
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('CONFIRMED');
+    expect(order.paidMinor).toBe(amountMinor);
+  });
+
+  /**
+   * The other half of the claim, and the reason it is a conditional UPDATE.
+   *
+   * Reclaiming a FAILED row is only safe if two deliveries cannot both do it.
+   * An attempt that is genuinely in flight is left alone and the caller is
+   * refused, so the provider retries rather than being told the matter is
+   * closed by a process that has not finished with it.
+   */
+  it('refuses a delivery while another attempt is still in flight', async () => {
+    const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
+    const { rawBody, headers } = signedWebhook(
+      capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    await prisma.paymentEvent.create({
+      data: {
+        id: newId(),
+        provider: 'RAZORPAY',
+        providerEventId: headers['x-razorpay-event-id'] ?? '',
+        eventType: 'payment.captured',
+        signatureVerified: true,
+        rawPayload: rawBody.toString('utf8'),
+        processingStatus: 'RECEIVED',
+        attemptStartedAt: new Date(),
+      },
+    });
+
+    await expect(processWebhook(rawBody, headers, undefined, 'RAZORPAY')).rejects.toThrow(
+      /already being processed/i,
+    );
+
+    // Emphatically not confirmed by the refused delivery.
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('PENDING_PAYMENT');
+  });
+
+  /**
+   * An attempt whose process died leaves the row RECEIVED with nobody working
+   * on it. Without a ceiling, every later delivery would be told "in flight"
+   * by a machine that no longer exists - and the event would be lost just as
+   * surely as before, only more slowly.
+   */
+  it('takes on an attempt abandoned long enough to be stale', async () => {
+    const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
+    const { rawBody, headers } = signedWebhook(
+      capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    await prisma.paymentEvent.create({
+      data: {
+        id: newId(),
+        provider: 'RAZORPAY',
+        providerEventId: headers['x-razorpay-event-id'] ?? '',
+        eventType: 'payment.captured',
+        signatureVerified: true,
+        rawPayload: rawBody.toString('utf8'),
+        processingStatus: 'RECEIVED',
+        // Well past WEBHOOK_ATTEMPT_STALE_MINUTES.
+        attemptStartedAt: new Date(Date.now() - 3_600_000),
+      },
+    });
+
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
+
+    expect(result.accepted).toBe(true);
+    expect(
+      (await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).status,
+    ).toBe('CONFIRMED');
+  });
+
   it('survives two concurrent deliveries of the same event', async () => {
     const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
     const { rawBody, headers } = signedWebhook(
@@ -490,8 +608,8 @@ describe('webhook processing', () => {
     );
 
     await Promise.allSettled([
-      processWebhook(rawBody, headers),
-      processWebhook(rawBody, headers),
+      processWebhook(rawBody, headers, undefined, 'RAZORPAY'),
+      processWebhook(rawBody, headers, undefined, 'RAZORPAY'),
     ]);
 
     const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
@@ -507,7 +625,7 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId, amountMinor: 1 }),
     );
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.accepted).toBe(false);
     expect(result.reason).toBe('amount mismatch');
 
@@ -526,7 +644,7 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor), currency: 'USD' }),
     );
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.reason).toBe('currency mismatch');
 
     const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
@@ -540,7 +658,12 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    const result = await processWebhook(rawBody, { 'x-razorpay-signature': 'c'.repeat(64) });
+    const result = await processWebhook(
+      rawBody,
+      { 'x-razorpay-signature': 'c'.repeat(64) },
+      undefined,
+      'RAZORPAY',
+    );
 
     expect(result.accepted).toBe(false);
 
@@ -572,7 +695,12 @@ describe('webhook processing', () => {
     const payload = capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) });
     const { rawBody } = signedWebhook({ ...payload, padding: bloat });
 
-    await processWebhook(rawBody, { 'x-razorpay-signature': 'c'.repeat(64) });
+    await processWebhook(
+      rawBody,
+      { 'x-razorpay-signature': 'c'.repeat(64) },
+      undefined,
+      'RAZORPAY',
+    );
 
     const event = await prisma.paymentEvent.findFirstOrThrow();
     expect(event.processingStatus).toBe('REJECTED');
@@ -608,7 +736,7 @@ describe('webhook processing', () => {
     const payload = capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) });
     const { rawBody, headers } = signedWebhook(payload);
 
-    await processWebhook(rawBody, headers);
+    await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
 
     const event = await prisma.paymentEvent.findFirstOrThrow({
       where: { signatureVerified: true },
@@ -623,7 +751,7 @@ describe('webhook processing', () => {
       capturedPayload({ providerOrderId: 'order_doesnotexist', amountMinor: 100 }),
     );
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.accepted).toBe(false);
     expect(result.reason).toBe('no matching payment transaction');
   });
@@ -652,7 +780,7 @@ describe('webhook processing', () => {
       },
     });
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.accepted).toBe(true);
 
     const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
@@ -685,7 +813,7 @@ describe('webhook processing', () => {
       },
     });
 
-    const result = await processWebhook(rawBody, headers);
+    const result = await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
     expect(result.accepted).toBe(true);
 
     const event = await prisma.paymentEvent.findFirstOrThrow();
@@ -710,7 +838,7 @@ describe('stored credentials', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    await processWebhook(rawBody, headers);
+    await processWebhook(rawBody, headers, undefined, 'RAZORPAY');
 
     const event = await prisma.paymentEvent.findFirstOrThrow();
     // The raw payload is retained for dispute handling, but the signature
@@ -886,6 +1014,57 @@ describe('gateway selection', () => {
     });
 
     await expect(loadActiveProvider('STRIPE')).resolves.toMatchObject({ kind: 'RAZORPAY' });
+  });
+
+  /**
+   * A WEBHOOK is not a preference, and the fallback that serves a checkout is
+   * the wrong answer here.
+   *
+   * With both gateways connected, `processWebhook` used to resolve "the active
+   * provider" with no preference at all - whichever connection had been saved
+   * last. Every event from the other gateway was then checked against the
+   * wrong secret, failed, was recorded REJECTED, and was answered 200 so the
+   * provider never sent it again. The customer's card was charged and their
+   * order stayed in PENDING_PAYMENT, because an order is confirmed only by a
+   * signature-verified webhook. One connected gateway hides it entirely,
+   * which is why these two tests connect both and put the WRONG one last.
+   */
+  it('verifies a webhook with the gateway it arrived from, not the newest one', async () => {
+    await connect('STRIPE');
+    // Connected second, so it is what the no-preference resolver takes.
+    await connect('RAZORPAY');
+
+    // The call the webhook path used to make, kept here as the demonstration:
+    // a Stripe event would have been checked against Razorpay's secret.
+    await expect(loadActiveProvider()).resolves.toMatchObject({ kind: 'RAZORPAY' });
+
+    // The call it makes now.
+    await expect(loadProviderForWebhook('STRIPE')).resolves.toMatchObject({ kind: 'STRIPE' });
+    await expect(loadProviderForWebhook('RAZORPAY')).resolves.toMatchObject({ kind: 'RAZORPAY' });
+  });
+
+  /**
+   * The mirror of "falls back rather than failing" above, and deliberately the
+   * opposite behaviour.
+   *
+   * Borrowing the other gateway's credentials to check a signature cannot
+   * succeed - it can only produce a rejection that looks like a forgery - so
+   * the substitution the checkout path makes on purpose must never happen
+   * here. The asked-for gateway or nothing.
+   *
+   * Written as "never the other one" rather than "always throws" because both
+   * outcomes are correct and which one occurs depends on the deployment: this
+   * suite pins environment credentials for both gateways (see tests/setup.ts),
+   * so the development fallback answers. An installation with neither a
+   * connection nor keys gets PAYMENT_PROVIDER_NOT_CONFIGURED, which the route
+   * turns into a 5xx the provider retries and an operator can see.
+   */
+  it('never substitutes another gateway when verifying a webhook', async () => {
+    await connect('RAZORPAY');
+
+    const resolved = await loadProviderForWebhook('STRIPE').catch(() => null);
+
+    expect(resolved?.kind ?? 'STRIPE').toBe('STRIPE');
   });
 });
 
@@ -1244,7 +1423,9 @@ describe('a card saved while paying', () => {
       capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    expect((await processWebhook(event.rawBody, event.headers)).accepted).toBe(true);
+    expect(
+      (await processWebhook(event.rawBody, event.headers, undefined, 'RAZORPAY')).accepted,
+    ).toBe(true);
 
     const cards = await prisma.customerPaymentMethod.findMany({ where: { customerProfileId } });
 
@@ -1277,7 +1458,7 @@ describe('a card saved while paying', () => {
     const event = signedWebhook(
       capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
-    await processWebhook(event.rawBody, event.headers);
+    await processWebhook(event.rawBody, event.headers, undefined, 'RAZORPAY');
 
     const card = await prisma.customerPaymentMethod.findFirstOrThrow({
       where: { customerProfileId },
@@ -1302,8 +1483,8 @@ describe('a card saved while paying', () => {
     // days, and `x-razorpay-event-id` is what makes the second a duplicate.
     const delivery = signedWebhook(payload);
 
-    await processWebhook(delivery.rawBody, delivery.headers);
-    await processWebhook(delivery.rawBody, { ...delivery.headers });
+    await processWebhook(delivery.rawBody, delivery.headers, undefined, 'RAZORPAY');
+    await processWebhook(delivery.rawBody, { ...delivery.headers }, undefined, 'RAZORPAY');
 
     expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(1);
   });
@@ -1319,7 +1500,9 @@ describe('a card saved while paying', () => {
       capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    expect((await processWebhook(event.rawBody, event.headers)).accepted).toBe(true);
+    expect(
+      (await processWebhook(event.rawBody, event.headers, undefined, 'RAZORPAY')).accepted,
+    ).toBe(true);
 
     expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(0);
 
@@ -1339,7 +1522,7 @@ describe('a card saved while paying', () => {
       capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
     );
 
-    await processWebhook(event.rawBody, event.headers);
+    await processWebhook(event.rawBody, event.headers, undefined, 'RAZORPAY');
 
     expect(probe.calls()).toBe(0);
     expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(0);

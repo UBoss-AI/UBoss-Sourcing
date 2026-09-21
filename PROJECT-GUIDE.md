@@ -8010,6 +8010,49 @@ re-serialised object fails for every honest sender, because key order and
 whitespace change on a JSON round trip — and the usual "fix" for that is to stop
 verifying.
 
+### Which gateway checks the signature
+
+The `:provider` in the URL decides, and only that. A Stripe event is checked
+against the Stripe connection's secret and a Razorpay event against Razorpay's,
+whichever connection was saved most recently and whichever one the storefront is
+currently offering at checkout.
+
+This matters only once a deployment connects **both** gateways, and then it
+matters completely. The webhook used to resolve "the active provider" the same
+way a checkout does — take whatever is connected, preferring what was asked for
+— which for a webhook is the wrong question entirely. Every event from the other
+gateway was then checked against the wrong secret, failed, was recorded
+`REJECTED`, and was answered `200` so the provider never sent it again. Because
+an order is confirmed only by a signature-verified event, the customer's card
+was charged and the order stayed in `PENDING_PAYMENT`.
+
+A gateway named in a webhook URL with nothing configured for it is refused
+outright rather than checked against the other one's secret. Borrowing a secret
+cannot produce a pass, only a rejection that looks like a forgery.
+
+### What happens when applying an event fails
+
+Three outcomes, and the distinction is what stops a payment going missing:
+
+| Outcome | Answer | What the provider does |
+|---|---|---|
+| Applied, or deliberately refused | `200` | Stops. The matter is closed |
+| Already applied (redelivery) | `200` | Stops. Nothing changes |
+| Another attempt is in flight | `409` | Retries shortly |
+| Applying it threw | `5xx` | Retries, and the next delivery applies it |
+
+The last row is the one that was wrong. The event row is written **before** the
+event is applied — that is what makes redelivery harmless — so an attempt that
+died partway through left the row `FAILED` while the unique index went on
+answering every retry "duplicate, accepted". One transient database error during
+a capture therefore lost the event permanently, and nothing reconciles a
+`FAILED` event afterwards.
+
+A `FAILED` row, and one abandoned long enough to be stale, is now **claimable
+again**: the next delivery takes it on and applies it. The claim is a
+conditional update against `payment_events.attemptStartedAt`, so two
+simultaneous retries cannot both win it and apply a capture twice.
+
 ---
 
 # 9. Complete flows, end to end
@@ -8652,8 +8695,36 @@ directly.
                           REFUNDED   (terminal)
 
 CANCELLED is reachable from DRAFT, PENDING_APPROVAL, PENDING_PAYMENT,
-CONFIRMED and PROCESSING — always with a written reason.
+CONFIRMED and PROCESSING — always with a written reason, and for an
+administrator always under `order.cancel`.
 ```
+
+**Every admin cancellation asks for `order.cancel`, and only for that.** It is
+worth stating plainly because two of the five used to ask for something else,
+and both failures were invisible from any single screen:
+
+- **From PENDING_APPROVAL** the rule asked for `order.approve`. The Order
+  Manager — "Orders, fulfilment, cancellation and returns" — holds
+  `order.cancel` and not `order.approve`, so the status where an order most
+  often needs cancelling was the one they could not cancel from. Because the
+  panel renders its buttons from this same table, the button was simply absent;
+  nothing on screen explained it.
+- **From DRAFT and PENDING_PAYMENT** the rule asked for *nothing*. A rule with
+  no permission is not "any admin who got this far": `POST
+  /admin/orders/:id/transition` is guarded by `order.read` alone and hands the
+  decision to this table, so it meant every member of staff who can look at an
+  order could cancel one. The Inventory Manager holds `order.read` — they need
+  to see what stock is committed — and so an inventory clerk could cancel a
+  DRAFT or an unpaid order while being correctly refused a CONFIRMED one.
+
+Rejecting an approval is a different act and keeps its own guard:
+`POST /admin/orders/:id/approval` requires `order.approve`. It reaches
+CANCELLED through the rule above, and every role that can approve also holds
+`order.cancel`, so nobody lost anything when this was corrected.
+
+Neither change touches a customer cancelling their own order or the system
+cancelling one after a failed charge: the permission is consulted only for an
+`ADMIN` actor.
 
 Three transitions are **deliberately missing**, and the reasons are the
 interesting part:
@@ -11526,6 +11597,43 @@ The rules, enforced in several places at once:
 Tax rates are the exception: `Decimal(9,6)` percent, because a rate like
 7.5% is not money and needs fractional precision.
 
+## The second trap: a hundred is not the conversion
+
+Everything above is about *not* using a float. This is the mistake that
+survives doing that correctly, and it caught six screens across the two
+frontends before anybody noticed.
+
+A form has to move between minor units and what a person types. Done properly
+that is digit shifting — `minorToMajor` and `majorToMinor` in each app's
+`lib/format.ts` — but both take an **exponent**, and both default to two. Two is
+right for every currency this product is likely to sell in and wrong for the
+two it also supports: **JPY and KRW have no minor unit at all.** Both are seeded
+reference currencies, and Japan and South Korea are seeded countries pointing at
+them, so this is a configuration an operator can choose rather than a
+hypothetical.
+
+Taking the default meant a yen figure was read and written a hundredfold out.
+The places it mattered, all now fixed:
+
+| Where | What it did |
+|---|---|
+| Refund dialog | A ¥5,000 refund became a ¥500,000 one, and the refundable maximum displayed at a hundredth |
+| Customer ordering limits | Every per-currency limit read and written a hundred times out — a ¥50,000 minimum order stored as ¥5,000,000 blocks every order that customer could place |
+| Seller listing wizard | An offer price multiplied by a hundred, and a malformed price posted as the literal string `"NaN"` |
+| Buyer dashboard insight | The spend figure handed to the assistant was a hundredth of the real one |
+| Company directory, customer list | Gross sales, seller net and approval thresholds displayed at a hundredth |
+
+So: **wherever a screen converts, it passes the currency.** `currencyExponent`
+in each app's `lib/format.ts` answers it, and a screen holding the server's own
+currency list should prefer that — it carries an `exponent` per row and is the
+authority.
+
+Relying on the browser's copy is safe for one specific reason:
+`assertCurrencyTableMatchesMoneyModule` runs at boot and **refuses to start the
+API** if the `currencies` table and `domain/money.ts` disagree about any
+exponent. The two cannot drift apart silently, so a third copy in the frontend
+cannot drift either without the server having already refused to come up.
+
 ---
 
 # 11. The background worker
@@ -11558,6 +11666,51 @@ server.
 | `fx_rate.refresh` | Refreshes auto-converted prices, once a day |
 | `data_request.fulfil` | Builds a GDPR export, or carries out an approved erasure |
 | `retention.sweep` | Deletes personal data past its retention window |
+| `housekeeping.sweep` | Deletes operational rows past their usefulness — finished jobs, spent rate-limit counters, expired sessions and idempotency claims, old provider webhooks |
+
+## Housekeeping is not retention
+
+The two sweeps above look alike and answer to different things, which is why
+they are two jobs rather than one.
+
+`retention.sweep` deletes **personal data**, because somebody has a right to
+have it deleted. Its windows are a controller's policy and its defaults are
+deliberately conservative: an audit trail erased too eagerly breaks a different
+law from the one it satisfies.
+
+`housekeeping.sweep` deletes **bookkeeping**, because a database is not
+infinite. Nothing it removes is held under a lawful basis and nothing it removes
+is anybody's to ask about. It exists because five tables here grow with
+*traffic* rather than with business volume, and none of them had a sweep at all:
+
+| Table | How it grows |
+|---|---|
+| `job_queue` | About twenty thousand rows a day from the maintenance beat alone, before a single order is placed |
+| `rate_limit_buckets` | A write on every request that reaches the API, and a row per address per route scope |
+| `sessions` | A row per refresh **rotation**, not per sign-in — so a browser in daily use leaves a trail behind it |
+| `idempotency_records` | One per checkout, each carrying the whole order response |
+| `payment_events` | Up to 60 KB of raw payload each |
+
+Three rules it shares with the retention sweep, because they were right there:
+
+- **Bounded per pass.** At most five hundred rows per table per beat, so an
+  installation turning this on with a year of backlog drains it over hours
+  instead of locking a table for everybody in one statement.
+- **Zero means off.** An operator who wants to keep the lot sets the window
+  to `0`.
+- **Nothing outstanding is touched.** A `PENDING` or `RUNNING` job, a live
+  session, an unexpired idempotency claim and a rate-limit window still counting
+  all survive whatever the window says. So does a provider webhook still
+  awaiting an attempt — deleting one would let the provider's retry apply the
+  same capture a second time.
+
+The settings:
+
+| Setting | Default | What it decides |
+|---|---|---|
+| `RETENTION_JOB_HISTORY_DAYS` | `7` | How long finished jobs — `SUCCEEDED` and `DEAD` — are kept. Long enough to answer "did last night's run happen, and what did it say?" |
+| `RETENTION_PAYMENT_EVENT_DAYS` | `730` | How long a verified provider webhook is kept. Two years, matching the audit trail: this is the evidence behind a captured payment |
+| `RETENTION_EXPIRED_SESSION_DAYS` | `30` | How long a session row is kept after its own expiry |
 
 ## The transactional outbox
 

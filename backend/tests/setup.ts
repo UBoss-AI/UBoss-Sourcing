@@ -140,6 +140,27 @@ process.env.STRIPE_WEBHOOK_SECRET = 'whsec_suite_not_a_real_secret';
 // unverified number is charged VAT rather than zero-rated.
 process.env.VIES_CHECK_URL = '';
 
+/*
+ * And no AI provider, for the same reason as the two above - which is a reason
+ * this file already gives and had simply never applied here.
+ *
+ * `activeProvider()` picks a provider from whichever key is present, so a
+ * developer with a real GEMINI_API_KEY in their `.env` had the suite calling
+ * Google for real: spending quota, and timing out when the answer was slow.
+ * It did exactly that - `assistant-conversations.test.ts` "never applies the
+ * guest allowance to a signed-in customer" is the one assistant case that
+ * reaches the provider rather than being refused before it, and it failed on
+ * `Test timed out in 30000ms` while every other machine passed.
+ *
+ * Empty keys mean no provider, which is a supported deployment state and the
+ * one CI has always run in: the routes exist, the guest allowance, the turn
+ * cap and the ownership checks are all still exercised, and nothing leaves the
+ * machine. Testing the providers themselves belongs in a unit test that fakes
+ * the transport, not in an integration suite that reaches the internet.
+ */
+process.env.GEMINI_API_KEY = '';
+process.env.ANTHROPIC_API_KEY = '';
+
 // Test files close the shared Prisma singleton in their teardown. Reconnect it
 // before clearing the database-backed limiter so each test starts clean without
 // weakening or bypassing production rate limits.

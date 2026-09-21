@@ -59,6 +59,14 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
    *
    * Registered before the customer routes so no `preHandler` auth hook applies
    * to it.
+   *
+   * THE `:provider` SEGMENT DECIDES WHICH SECRET THE SIGNATURE IS CHECKED
+   * AGAINST, and it is passed on rather than merely validated. It used to be
+   * parsed here and then dropped, which left `processWebhook` resolving "the
+   * active provider" for itself - whichever connection had been saved most
+   * recently. A deployment with both gateways connected therefore checked
+   * every Stripe event against Razorpay's secret or the reverse, rejected it,
+   * and answered 200 so it was never resent.
    */
   app.post(
     '/webhooks/:provider',
@@ -97,10 +105,21 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
         headers[key.toLowerCase()] = Array.isArray(value) ? value[0] : value;
       }
 
-      const result = await processWebhook(rawBody, headers, request.correlationId);
+      const result = await processWebhook(
+        rawBody,
+        headers,
+        request.correlationId,
+        provider === 'stripe' ? 'STRIPE' : 'RAZORPAY',
+      );
 
-      // 200 in every case. A rejected event has been recorded and alerted;
-      // making the provider retry it forever would achieve nothing.
+      // 200 for a DECISION, whichever way it went. A rejected event has been
+      // recorded and alerted, and making the provider retry something we
+      // deliberately refused would achieve nothing.
+      //
+      // Not for an absence of one: `processWebhook` throws when the event is
+      // already being applied elsewhere or when applying it failed, and those
+      // reach the error handler as a 4xx/5xx the provider will retry. Ending
+      // up here is what says the matter is closed.
       return reply.status(200).send({
         received: true,
         accepted: result.accepted,

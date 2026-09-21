@@ -12,3 +12,14 @@ openapi.json
 
 # Local DB dumps taken before destructive one-off scripts. Never committed.
 .backups/
+
+# Throwaway scripts somebody ran once against their own database - seeding a
+# demo seller, linking offers, switching the active gateway. They import from
+# `src/`, so they live here rather than in `scripts/`, and they are nobody
+# else's business: one of them creates an ACTIVE account with a password
+# written into the file, which is a backdoor the moment it meets the wrong
+# DATABASE_URL.
+#
+# `eslint.config.js` ignores the same suffix, so a scratch script cannot fail
+# `npm run verify` for a reason unrelated to the change being verified.
+*.dev.ts

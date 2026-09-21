@@ -48,7 +48,13 @@ import {
   ToolbarField,
 } from '@/components/ui';
 import { cx } from '@/lib/cx';
-import { currencySymbol, formatDate, formatNumber, minorToMajor } from '@/lib/format';
+import {
+  currencyExponent,
+  currencySymbol,
+  formatDate,
+  formatNumber,
+  minorToMajor,
+} from '@/lib/format';
 import { isPlaced } from '@/lib/warehouses';
 import { WarehouseMap } from './warehouse/WarehouseMap';
 import {
@@ -199,7 +205,7 @@ function SellerInsightPanel({ sellerAccountId }: { sellerAccountId: string }): R
               {insight.trade.grossSales.map((row) => (
                 <li key={row.currency} className="text-sm font-semibold text-ink">
                   {currencySymbol(row.currency)}
-                  {minorToMajor(row.amountMinor)}
+                  {minorToMajor(row.amountMinor, currencyExponent(row.currency))}
                 </li>
               ))}
             </ul>
@@ -222,7 +228,7 @@ function SellerInsightPanel({ sellerAccountId }: { sellerAccountId: string }): R
               {insight.trade.sellerNet.map((row) => (
                 <li key={row.currency} className="text-sm font-semibold text-ink">
                   {currencySymbol(row.currency)}
-                  {minorToMajor(row.amountMinor)}
+                  {minorToMajor(row.amountMinor, currencyExponent(row.currency))}
                 </li>
               ))}
             </ul>
