@@ -15,7 +15,8 @@
     "dev:status": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Status",
     "dev:restart": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Restart",
     "dev:stop": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Stop",
-    "images": "node prepare-product-images.mjs"
+    "images": "node prepare-product-images.mjs",
+    "check:i18n": "node check-i18n.mjs"
   },
   "devDependencies": {
     "deepl-node": "^1.19.0"

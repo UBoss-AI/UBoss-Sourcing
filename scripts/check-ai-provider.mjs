@@ -167,21 +167,50 @@ async function checkGemini(key, model) {
   }
 
   // --- Does it answer? ---------------------------------------------------
+  //
+  // RETRIED, BECAUSE 503 IS NOT A VERDICT.
+  //
+  // Google's free tier answers "This model is currently experiencing high
+  // demand" fairly often, and it clears in seconds. Reporting that as "the AI
+  // is NOT working" sends somebody to check their key, their model name and
+  // their billing - none of which is the problem - and the next run succeeds
+  // with no change, which teaches them not to trust this script.
+  //
+  // Only 503 and 429 are retried. A 400, a 403 or a 404 is a real
+  // configuration fault and will fail identically in four seconds.
   const started = Date.now();
 
   try {
-    const response = await withTimeout(`${GEMINI_BASE}/models/${model}:generateContent`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: 'Reply with the single word: ready' }] }],
-        // Generous, because a reasoning model spends tokens before it writes a
-        // word and a tight cap here would report a working provider as broken.
-        generationConfig: { maxOutputTokens: 512, temperature: 0 },
-      }),
-    });
+    let response;
+
+    for (let attempt = 1; ; attempt += 1) {
+      response = await withTimeout(`${GEMINI_BASE}/models/${model}:generateContent`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Reply with the single word: ready' }] }],
+          // Generous, because a reasoning model spends tokens before it writes
+          // a word and a tight cap here would report a working provider as
+          // broken.
+          generationConfig: { maxOutputTokens: 512, temperature: 0 },
+        }),
+      });
+
+      if (response.status !== 503 || attempt >= 3) break;
+
+      note(`"${model}" is busy (HTTP 503). Waiting ${String(attempt * 3)}s and trying again…`);
+      await new Promise((resolve) => setTimeout(resolve, attempt * 3000));
+    }
 
     const took = Date.now() - started;
+
+    if (response.status === 503) {
+      fail(`"${model}" was busy on every attempt (HTTP 503, ${String(took)}ms).`);
+      note('This is Google load-shedding the free tier, not a fault in this');
+      note('deployment: the key and the model name are both fine. Try again in');
+      note('a few minutes, or enable billing on the Google Cloud project.');
+      return 1;
+    }
 
     if (response.status === 429) {
       fail(`"${model}" is out of quota (HTTP 429, after ${String(took)}ms).`);

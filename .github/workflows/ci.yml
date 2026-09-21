@@ -365,6 +365,39 @@ jobs:
         run: du -sh dist && find dist -name '*.map' | wc -l
 
   # ---------------------------------------------------------------------------
+  # Translations
+  #
+  # Its own job, and deliberately not folded into the three frontend runs: it
+  # compares the eight catalogues of an application AGAINST EACH OTHER, so it
+  # belongs to no single one of them, and a missing Greek key is a fact about
+  # the release rather than a failure of the Greek build.
+  #
+  # It needs no install. The check reads JSON with the standard library, which
+  # is the whole reason it is a plain script rather than a test inside an app.
+  #
+  # What it fails on: a key missing from a language (renders as a raw key on
+  # screen), an interpolation dropped in translation (renders "You have items"
+  # where a number belonged), an empty value, invalid JSON, or a plural form
+  # a language's own CLDR rules require and the catalogue does not have.
+  # Untranslated English is reported as a warning rather than an error - it is
+  # a judgement call often enough that failing on it would train people to
+  # ignore the job.
+  # ---------------------------------------------------------------------------
+  translations:
+    name: Translation completeness
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Every language has every key, with its placeholders intact
+        run: node scripts/check-i18n.mjs
+
+  # ---------------------------------------------------------------------------
   # Supply chain
   #
   # Separate from the build so that a new advisory published overnight shows as

@@ -347,10 +347,132 @@ export interface AssistantCustomerContext {
   customerCode: string | null;
   preferredCurrency: string | null;
   preferredCountry: string | null;
+
+  /**
+   * The language this person is reading the shop in, as a BCP-47 primary
+   * subtag. The reply is written in it.
+   *
+   * Separate from the currency on purpose, and the pair is the reason this is
+   * a field rather than an assumption: a French-speaking buyer paying in
+   * zloty is an ordinary customer of a European marketplace, and a model that
+   * inferred one from the other would greet them in Polish.
+   */
+  language: string | null;
+
+  /**
+   * Roughly what time it is where they are: "morning", "afternoon",
+   * "evening" or "night". Null when their country is unknown.
+   *
+   * A COARSE BUCKET RATHER THAN A CLOCK, DELIBERATELY. The model needs to
+   * pick between four greetings; it does not need to know that it is 14:37,
+   * and sending a precise local timestamp to a third-party provider on every
+   * turn would be a piece of personal context bought for nothing.
+   */
+  localTimeOfDay: string | null;
+
+  /**
+   * Whether this person has talked to the assistant before.
+   *
+   * A boolean, not a history. "Great to have you back" is warm and true;
+   * "last time you asked about nitrile gloves" is a claim that needs evidence
+   * this deliberately does not carry, and a model given a count will invent
+   * the detail to go with it.
+   */
+  isReturning: boolean;
+}
+
+/**
+ * Which part of the day it is in a country.
+ *
+ * Derived from the country rather than from anything the browser sent, for
+ * the same reason every other field here is: it comes from the authenticated
+ * account. A country is not a timezone - India has one, France has twelve
+ * counting its territories - so this is an approximation, and it is used for
+ * nothing more consequential than choosing between "good morning" and "good
+ * evening".
+ *
+ * `Intl.DateTimeFormat` is asked rather than a table being kept, because the
+ * runtime already ships the IANA database and a hand-written offset table is
+ * wrong twice a year.
+ */
+export function timeOfDayIn(country: string | null, now: Date = new Date()): string | null {
+  if (country === null || country.trim().length === 0) return null;
+
+  // A representative zone for the country. `Intl.supportedValuesOf` would give
+  // every zone but not which belongs to which country, so this leans on the
+  // locale machinery: a region-tagged locale resolves to that region's most
+  // common zone.
+  let hour: number;
+
+  try {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: representativeZone(country),
+      hour: 'numeric',
+      hour12: false,
+    });
+
+    hour = Number(formatter.format(now));
+    if (!Number.isFinite(hour)) return null;
+  } catch {
+    // An unknown country or a runtime without that zone. No greeting bucket is
+    // better than a wrong one.
+    return null;
+  }
+
+  if (hour < 5) return 'night';
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  if (hour < 22) return 'evening';
+  return 'night';
+}
+
+/**
+ * One IANA zone per country this deployment is likely to sell into.
+ *
+ * Deliberately small and deliberately approximate. It exists only to pick a
+ * greeting, so a country whose zones span six hours is represented by its
+ * largest population centre and a country that is not listed simply gets no
+ * greeting bucket - which the prompt handles by greeting without a time of
+ * day. Widening this into a real timezone lookup would be work spent on a
+ * choice between four words.
+ */
+function representativeZone(country: string): string {
+  const ZONES: Readonly<Record<string, string>> = {
+    IN: 'Asia/Kolkata',
+    PL: 'Europe/Warsaw',
+    DE: 'Europe/Berlin',
+    FR: 'Europe/Paris',
+    ES: 'Europe/Madrid',
+    IT: 'Europe/Rome',
+    NL: 'Europe/Amsterdam',
+    GR: 'Europe/Athens',
+    GB: 'Europe/London',
+    IE: 'Europe/Dublin',
+    BE: 'Europe/Brussels',
+    AT: 'Europe/Vienna',
+    PT: 'Europe/Lisbon',
+    CZ: 'Europe/Prague',
+    SE: 'Europe/Stockholm',
+    DK: 'Europe/Copenhagen',
+    RO: 'Europe/Bucharest',
+    HU: 'Europe/Budapest',
+    BG: 'Europe/Sofia',
+    AE: 'Asia/Dubai',
+    SG: 'Asia/Singapore',
+    US: 'America/New_York',
+    JP: 'Asia/Tokyo',
+    KR: 'Asia/Seoul',
+  };
+
+  const zone = ZONES[country.trim().toUpperCase()];
+  if (zone === undefined) throw new Error(`No representative zone for ${country}`);
+
+  return zone;
 }
 
 export async function customerContext(
   customerProfileId: string,
+  now: Date = new Date(),
 ): Promise<AssistantCustomerContext | null> {
   const profile = await prisma.customerProfile.findUnique({
     where: { id: customerProfileId },
@@ -361,10 +483,34 @@ export async function customerContext(
       customerCode: true,
       preferredCurrency: true,
       preferredCountry: true,
+      // The language lives on the USER, not the profile: it is an
+      // interface preference rather than a commercial one, and staff
+      // accounts have it too.
+      user: { select: { preferredLanguage: true } },
     },
   });
 
-  return profile;
+  if (profile === null) return null;
+
+  // "Have they been here before?" as one indexed count, capped at two: the
+  // answer is a boolean and counting every conversation a long-standing
+  // customer has ever had would be a table scan for a word.
+  const priorConversations = await prisma.assistantConversation.count({
+    where: { customerProfileId },
+    take: 2,
+  });
+
+  return {
+    fullName: profile.fullName,
+    organization: profile.organization,
+    department: profile.department,
+    customerCode: profile.customerCode,
+    preferredCurrency: profile.preferredCurrency,
+    preferredCountry: profile.preferredCountry,
+    language: profile.user.preferredLanguage,
+    localTimeOfDay: timeOfDayIn(profile.preferredCountry, now),
+    isReturning: priorConversations > 1,
+  };
 }
 
 /** The tail of the transcript, oldest first, in the shape the provider takes. */

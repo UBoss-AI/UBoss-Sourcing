@@ -896,10 +896,25 @@ const envSchema = z
 
     // Google AI Studio -> https://aistudio.google.com/apikey
     GEMINI_API_KEY: z.string().default(''),
-    // Stable, generally available, 1M-token input window, and the cheapest
-    // tier that answers this workload well. Reasoning is switched off in the
-    // provider — see provider.gemini.ts for why that matters here.
-    GEMINI_MODEL: z.string().min(1).default('gemini-2.5-flash'),
+    // Stable, generally available, and the cheapest tier that answers this
+    // workload well. Reasoning is switched off in the provider — see
+    // provider.gemini.ts for why that matters here.
+    //
+    // PINNED, NEVER AN ALIAS. `gemini-flash-latest` exists and is the wrong
+    // choice: the model behind it changes without warning, and the thing that
+    // changes with it is the tone and length of every reply a customer reads.
+    // A model id is a deployment decision, so it moves when somebody moves it.
+    //
+    // This default was `gemini-2.5-flash` and had to change. That model now
+    // answers 404 - "no longer available to new users" - so a fresh
+    // deployment that never set `GEMINI_MODEL` got an assistant that failed on
+    // every request, with nothing in the configuration to suggest why. A
+    // default that points at a withdrawn model is worse than no default,
+    // because it looks configured.
+    //
+    // Verified against the live models list for this deployment's key on
+    // 2026-09-22. `npm run check:ai` in `scripts/` re-checks it.
+    GEMINI_MODEL: z.string().min(1).default('gemini-3.8-flash'),
 
     // Anthropic Console -> https://console.anthropic.com/ -> API keys
     ANTHROPIC_API_KEY: z.string().default(''),
