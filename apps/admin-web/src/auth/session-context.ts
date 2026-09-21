@@ -15,6 +15,10 @@ export interface AdminUser {
   roles: string[];
   permissions: string[];
   mfaEnabled: boolean;
+  /** Administrators must enrol and challenge MFA for every new session. */
+  mfaRequired: boolean;
+  /** True only after this browser session passed its MFA challenge. */
+  mfaSessionVerified: boolean;
   /**
    * Signed in on the temporary password that was emailed when the account was
    * created. The backend refuses every admin route while this is true, so the

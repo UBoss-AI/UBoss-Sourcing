@@ -7,11 +7,19 @@
  * token must cost the attacker the whole session family.
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { env } from '../../src/config/env.js';
 import { Permission, ROLE_DEFINITIONS, Role } from '../../src/domain/permissions.js';
+import { ErrorCode } from '../../src/domain/errors.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { login, loadAuthenticatedUser } from '../../src/modules/identity/auth.service.js';
+import {
+  beginAdminMfaEnrolment,
+  confirmAdminMfaEnrolment,
+  verifyAdminMfaChallenge,
+} from '../../src/modules/identity/admin-mfa.service.js';
+import { totpCodeAt } from '../../src/infra/totp.js';
 import {
   isSessionActive,
   issueSession,
@@ -247,6 +255,57 @@ describe('login', () => {
   });
 });
 
+describe('mandatory administrator MFA', () => {
+  it('enrols TOTP, verifies the session, blocks replay, and spends recovery codes', async () => {
+    const firstLogin = await login({
+      email: 'admin@test.local',
+      password: ADMIN_PASSWORD,
+      kind: 'ADMIN',
+    });
+    const enrolment = await beginAdminMfaEnrolment(adminUserId);
+    const code = totpCodeAt(enrolment.secret, Date.now());
+    await confirmAdminMfaEnrolment({
+      userId: adminUserId,
+      sessionId: firstLogin.session.sessionId,
+      code,
+    });
+
+    await expect(
+      prisma.session.findUniqueOrThrow({ where: { id: firstLogin.session.sessionId } }),
+    ).resolves.toMatchObject({ mfaVerifiedAt: expect.any(Date) });
+
+    const secondLogin = await login({
+      email: 'admin@test.local',
+      password: ADMIN_PASSWORD,
+      kind: 'ADMIN',
+    });
+    await expect(
+      verifyAdminMfaChallenge({
+        userId: adminUserId,
+        sessionId: secondLogin.session.sessionId,
+        code,
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.MFA_INVALID });
+
+    const recovery = enrolment.recoveryCodes[0] ?? '';
+    await expect(
+      verifyAdminMfaChallenge({
+        userId: adminUserId,
+        sessionId: secondLogin.session.sessionId,
+        code: recovery,
+      }),
+    ).resolves.toMatchObject({ usedRecoveryCode: true, recoveryCodesRemaining: 9 });
+
+    await expect(
+      verifyAdminMfaChallenge({
+        userId: adminUserId,
+        sessionId: secondLogin.session.sessionId,
+        code: recovery,
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.MFA_INVALID });
+  });
+});
+
 describe('access tokens', () => {
   it('carries the surface in the claims, and verifies', async () => {
     const session = await issueSession(adminUserId, 'ADMIN');
@@ -255,6 +314,42 @@ describe('access tokens', () => {
     expect(claims?.sub).toBe(adminUserId);
     expect(claims?.typ).toBe('ADMIN');
     expect(claims?.sid).toBe(session.sessionId);
+  });
+
+  /**
+   * How long each surface's session lasts, and why the two are not the same.
+   *
+   * The Seller Hub is where the number is felt: an application is filled in
+   * out of a folder of certificates, and a fifteen-minute token used to die
+   * while somebody was reading a registration number off a printout. So the
+   * storefront and the Hub get an hour.
+   *
+   * The console does not, and that is the half of this worth a test. Raising a
+   * seller's session must not quietly raise the session that can refund an
+   * order and read a customer's address - it is the one left open on a shared
+   * desk, and one setting for both is how that happens without anybody
+   * deciding it.
+   */
+  it('gives the storefront an hour and leaves the console where it was', async () => {
+    const before = Date.now();
+
+    const shop = await issueSession(customerUserId, 'CUSTOMER');
+    const console_ = await issueSession(adminUserId, 'ADMIN');
+
+    const shopSeconds = Math.round((shop.accessTokenExpiresAt.getTime() - before) / 1000);
+    const consoleSeconds = Math.round((console_.accessTokenExpiresAt.getTime() - before) / 1000);
+
+    // A second of slack for the clock between the two calls above.
+    expect(shopSeconds).toBeGreaterThanOrEqual(env.ACCESS_TOKEN_TTL_SECONDS - 1);
+    expect(shopSeconds).toBeLessThanOrEqual(env.ACCESS_TOKEN_TTL_SECONDS);
+    expect(consoleSeconds).toBeGreaterThanOrEqual(env.ADMIN_ACCESS_TOKEN_TTL_SECONDS - 1);
+    expect(consoleSeconds).toBeLessThanOrEqual(env.ADMIN_ACCESS_TOKEN_TTL_SECONDS);
+
+    // The claim inside the token says the same thing the row does. A cookie
+    // that outlives its own contents is a session that ends without warning.
+    expect(verifyAccessToken(shop.accessToken)?.exp).toBe(
+      Math.floor(shop.accessTokenExpiresAt.getTime() / 1000),
+    );
   });
 
   it('rejects a tampered token', async () => {

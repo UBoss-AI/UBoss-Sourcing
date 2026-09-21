@@ -1,16 +1,9 @@
 # =============================================================================
 # Static analysis.
 #
-# Kept in its own file rather than as a job in ci.yml for one practical reason:
-# on a PRIVATE repository CodeQL needs GitHub Advanced Security, and without it
-# this workflow fails at the `init` step with a licensing error. That is a red
-# mark on a setting, not on the code, and it should not be mixed in with the red
-# mark that means a test failed.
-#
-# If this repository is private and does not have Advanced Security, disable
-# this workflow in the Actions settings rather than deleting it - the day the
-# repository becomes public, or the licence is bought, is the day you want it
-# back.
+# This is mandatory. For a private repository, enable GitHub Advanced Security
+# before the first protected-branch merge; a licensing/configuration failure is
+# intentionally visible instead of silently skipping static analysis.
 #
 # The schedule matters as much as the pull-request trigger: most findings here
 # arrive because a new query was published, not because somebody wrote new code.
@@ -39,25 +32,10 @@ jobs:
     name: Analyze
     runs-on: ubuntu-24.04
 
-    # OFF UNTIL SOMEBODY TURNS IT ON, and the switch is one repository variable:
-    #
-    #   Settings -> Secrets and variables -> Actions -> Variables
-    #   ENABLE_CODEQL = true
-    #
-    # Because on a PRIVATE repository CodeQL needs GitHub Advanced Security, and
-    # without it `init` fails with a licensing error on every push. That is a red
-    # mark about a billing setting, sitting next to the red marks that mean a
-    # test broke - and the fastest way to make people stop reading CI results is
-    # to leave one there that nobody can fix by changing code.
-    #
-    # A skipped job says "not run", which is true. `continue-on-error` would say
-    # "passed", which would not be.
-    if: vars.ENABLE_CODEQL == 'true'
-
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@ed1a0fa18ac745d017ca370dd4ef08bba3b4f504 # v3
         with:
           languages: javascript-typescript
           # security-extended over the default: this application takes card
@@ -66,6 +44,6 @@ jobs:
           # - are the ones worth the extra minutes.
           queries: security-extended
 
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@ed1a0fa18ac745d017ca370dd4ef08bba3b4f504 # v3
         with:
           category: /language:javascript-typescript

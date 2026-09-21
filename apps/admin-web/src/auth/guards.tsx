@@ -12,6 +12,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useSession } from './session-context';
 import { LocationGate } from './LocationGate';
+import { AdminMfaGate } from './AdminMfaGate';
 import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { Spinner } from '@/components/ui';
 import type { PermissionKey } from '@/lib/permissions';
@@ -49,6 +50,10 @@ export function RequireAuth({ children }: { children: ReactNode }): React.JSX.El
    */
   if (user.mustChangePassword) {
     return <ChangePasswordPage />;
+  }
+
+  if (user.mfaRequired && (!user.mfaEnabled || !user.mfaSessionVerified)) {
+    return <AdminMfaGate />;
   }
 
   /**

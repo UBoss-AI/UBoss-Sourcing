@@ -81,6 +81,22 @@ updates:
       - dependency-name: '*'
         update-types: [version-update:semver-major]
 
+  - package-ecosystem: npm
+    directory: /scripts
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 3
+    groups:
+      scripts:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
   # The workflows in .github/workflows pin actions by major tag. This is what
   # notices when one of those tags stops being maintained.
   - package-ecosystem: github-actions

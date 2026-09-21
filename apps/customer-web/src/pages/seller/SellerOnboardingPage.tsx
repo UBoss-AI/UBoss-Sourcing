@@ -9,10 +9,13 @@
  * Three behaviours the reference workflows make a point of, and the reasons
  * they matter:
  *
- *   - **Save and come back.** Every step saves on its own. Onboarding takes
- *     days, not minutes: documents have to be found and a director has to be
- *     asked. A form that loses everything on a closed tab does not get
- *     finished.
+ *   - **Save and come back, without pressing Save.** Every step saves on its
+ *     own, and every keystroke is kept before that: written to this device at
+ *     once, and sent up a couple of seconds after typing stops. Onboarding
+ *     takes days, not minutes — documents have to be found and a director has
+ *     to be asked — so a form that loses everything to a closed tab, an
+ *     expired session or a refused request does not get finished. See
+ *     `form-autosave.ts` for which of the two saves promises what.
  *   - **The progress is out of what is REQUIRED.** A seller who has done
  *     everything they must do sees 100%, not 87% because the marketplace has
  *     not set up payouts.
@@ -44,6 +47,8 @@ import {
 import type { BusinessAddress } from '@/lib/business-address';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
+import { useFormAutoSave, type FormAutoSave } from '@/lib/form-autosave';
+import { clearAllDrafts, clearDraft, readDraft } from '@/lib/onboarding-draft';
 import {
   SELLER_DOCUMENT_KINDS,
   acceptAgreement,
@@ -120,6 +125,15 @@ export function SellerOnboardingPage(): React.JSX.Element {
   const submitMutation = useMutation({
     mutationFn: submitApplication,
     onSuccess: async () => {
+      /*
+       * The device copies go, and they go here rather than per step.
+       *
+       * Once an application is with a reviewer the server holds all of it and
+       * the forms turn read-only. A draft offered back at that point would be
+       * offering to restore answers nobody can change - so the safety net is
+       * taken down at exactly the moment it stops being a safety net.
+       */
+      clearAllDrafts(seller.sellerAccountId);
       await client.invalidateQueries({ queryKey: ['seller'] });
       toast.success('Your application has been sent. We will be in touch.');
     },
@@ -402,7 +416,13 @@ function StepPanel({
 
   switch (step.key) {
     case 'business_identity':
-      return <RequirementForm step={step} isEditable={isEditable} />;
+      return (
+        <RequirementForm
+          step={step}
+          isEditable={isEditable}
+          sellerAccountId={seller.sellerAccountId}
+        />
+      );
     /*
      * Identity and documents asks for both, so it draws both: the typed fields
      * above and the evidence panel below. Splitting them across two steps was
@@ -412,14 +432,24 @@ function StepPanel({
     case 'kyb_kyc':
       return (
         <div className="space-y-5">
-          <RequirementForm step={step} isEditable={isEditable} />
+          <RequirementForm
+            step={step}
+            isEditable={isEditable}
+            sellerAccountId={seller.sellerAccountId}
+          />
           <DocumentsStep step={step} isEditable={canUpload} />
         </div>
       );
     case 'compliance':
       return <DocumentsStep step={step} isEditable={canUpload} />;
     case 'store_profile':
-      return <StoreProfileForm step={step} isEditable={isEditable} />;
+      return (
+        <StoreProfileForm
+          step={step}
+          isEditable={isEditable}
+          sellerAccountId={seller.sellerAccountId}
+        />
+      );
     case 'locations':
       return <LocationsSummary step={step} />;
     case 'payout':
@@ -500,6 +530,185 @@ const COLUMN_NAMES: Record<string, keyof BusinessProfile> = {
 const ADDRESS_FIELD_KEY = 'registered_address';
 
 /**
+ * A step's unsent answers, as they sit on the device.
+ *
+ * `fields` is only what has been TYPED on this visit, which is the same thing
+ * the form itself holds: an untouched box falls back to what is stored, and
+ * restoring a draft must not turn "not answered here" into "answered with what
+ * the server already had".
+ */
+interface RequirementDraft {
+  fields: Record<string, string>;
+  address: BusinessAddress | null;
+}
+
+/** The store details step's unsent answers. Null means "not touched". */
+interface StoreProfileDraft {
+  description: string | null;
+  supportEmail: string | null;
+  supportPhone: string | null;
+}
+
+/**
+ * Two fields the API validates as a SHAPE rather than as free text, and the
+ * one reason this screen has to know about it.
+ *
+ * Nothing here is a second copy of the server's rules — the server is still
+ * the only thing that decides what is stored. It is a gate on the AUTO-save:
+ * `representativeEmail` and `websiteUrl` are checked by the API as an email
+ * and a URL, so "jane@" and "example" are refused, and halfway through typing
+ * either of them is the normal state of the box rather than a mistake.
+ *
+ * Without this, every pause in typing an email address would fire a request
+ * that comes back 400. Nothing would be lost — the device copy holds it, and a
+ * refused auto-save is deliberately silent — but it would be a request per
+ * pause for no possible benefit. So the send waits until what is in the box
+ * could be accepted, and the Save button remains the way to find out what the
+ * server thinks of it.
+ */
+const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Empty, or something the API would take as an address. */
+function looksLikeEmail(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed.length === 0 || EMAIL_SHAPE.test(trimmed);
+}
+
+function looksLikeUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function isSendable(fieldKey: string, value: string): boolean {
+  const trimmed = value.trim();
+
+  // Emptying a box is always send-able: it means "clear this", and the API
+  // takes a null for every one of these.
+  if (trimmed.length === 0) return true;
+
+  // The tightest cap any of these columns has, and the cap on an entry in
+  // `extraIdentifiers`. Past it the whole patch is refused, not just the field.
+  if (trimmed.length > 255) return false;
+
+  if (fieldKey === 'representative_email') return looksLikeEmail(trimmed);
+  if (fieldKey === 'website_url') return looksLikeUrl(trimmed);
+
+  return true;
+}
+
+/** A clock time for "saved at 14:05". The seller's own locale and format. */
+const CLOCK = new Intl.DateTimeFormat(undefined, { timeStyle: 'short' });
+
+/** A date and time for "you typed this on…", which may be days ago. */
+const WHEN = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+
+/**
+ * Where the work is, in one line under the Save button.
+ *
+ * Every state says something different about who is holding the answers, and
+ * the difference is the point: "kept on this device" and "saved" are not the
+ * same promise, and a screen that showed one wording for both would be lying
+ * for half of the time it was on screen.
+ */
+function SaveStatus({
+  autoSave,
+  isDirty,
+}: {
+  autoSave: FormAutoSave;
+  isDirty: boolean;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  const at = autoSave.changedAt;
+
+  switch (autoSave.status) {
+    case 'noStorage':
+      return (
+        <span className="text-xxs font-medium text-danger">
+          {t('sellerOnboarding.autosave.noStorage')}
+        </span>
+      );
+    case 'sessionEnded':
+      return (
+        <span className="text-xxs font-medium text-warning">
+          {t('sellerOnboarding.autosave.sessionEnded')}
+        </span>
+      );
+    case 'saving':
+      return (
+        <span className="text-xxs text-ink-subtle">{t('sellerOnboarding.autosave.saving')}</span>
+      );
+    case 'saved':
+      return (
+        <span className="text-xxs text-success">
+          {t('sellerOnboarding.autosave.saved', {
+            time: at === null ? CLOCK.format(new Date()) : CLOCK.format(new Date(at)),
+          })}
+        </span>
+      );
+    case 'keptLocally':
+      return (
+        <span className="text-xxs text-ink-subtle">
+          {t('sellerOnboarding.autosave.keptLocally')}
+        </span>
+      );
+    case 'pending':
+      return (
+        <span className="text-xxs text-ink-subtle">{t('sellerOnboarding.autosave.pending')}</span>
+      );
+    default:
+      // Nothing typed since the form opened, or since the last save. The
+      // unsaved-changes note is kept for the case the auto-save has not run
+      // yet - a form that is dirty and silent is the one people distrust.
+      return isDirty ? (
+        <span className="text-xxs text-ink-subtle">{t('sellerOnboarding.autosave.unsaved')}</span>
+      ) : null;
+  }
+}
+
+/**
+ * The strip that appears when a step opens holding answers nobody sent.
+ *
+ * Shown rather than restored silently, and that is the whole decision: boxes
+ * that quietly disagree with what the marketplace has on file is how somebody
+ * submits an address they thought they had changed back. The seller is told
+ * where the text came from, when they typed it, and is given one button to
+ * throw it away and see what is actually stored.
+ */
+function RestoredNotice({
+  savedAt,
+  onDiscard,
+}: {
+  savedAt: number;
+  onDiscard: () => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+
+  return (
+    <div className="rounded-lg border border-brand/30 bg-brand-soft px-4 py-3">
+      <p className="text-sm font-medium text-ink">
+        {t('sellerOnboarding.autosave.restoredTitle')}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+        {t('sellerOnboarding.autosave.restoredBody', { when: WHEN.format(new Date(savedAt)) })}
+      </p>
+      <button
+        type="button"
+        onClick={() => {
+          onDiscard();
+        }}
+        className="mt-2 text-xs font-medium text-brand hover:text-brand-hover"
+      >
+        {t('sellerOnboarding.autosave.discard')}
+      </button>
+    </div>
+  );
+}
+
+/**
  * The stored address, read back into the shape the form holds it in.
  *
  * Nulls become empty strings, because a controlled input cannot take null and
@@ -543,9 +752,11 @@ function addressToPatch(address: BusinessAddress): Record<string, string | null>
 function RequirementForm({
   step,
   isEditable,
+  sellerAccountId,
 }: {
   step: OnboardingStep;
   isEditable: boolean;
+  sellerAccountId: string;
 }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
@@ -556,8 +767,27 @@ function RequirementForm({
     queryFn: fetchBusinessProfile,
   });
 
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [isDirty, setIsDirty] = useState(false);
+  /**
+   * What was in these boxes the last time this step was open, unsent.
+   *
+   * Read once, in a lazy initialiser, and never re-read. A draft is a snapshot
+   * of a moment, not a live store: re-reading it on a later render would let a
+   * write this very form had just made race the state it made it from.
+   *
+   * Held in state rather than in a ref so that discarding it re-renders. The
+   * notice at the top of the step is drawn from this and has to go when the
+   * seller presses discard.
+   */
+  const [restored, setRestored] = useState(() =>
+    readDraft<RequirementDraft>(sellerAccountId, step.key),
+  );
+
+  const [values, setValues] = useState<Record<string, string>>(
+    () => restored?.values.fields ?? {},
+  );
+  // Restored work is unsaved work by definition, so the form opens dirty and
+  // the auto-save has something to send as soon as it is send-able.
+  const [isDirty, setIsDirty] = useState(restored !== null);
 
   /**
    * The address being edited, or null while nothing has been touched.
@@ -572,7 +802,9 @@ function RequirementForm({
    * what stops a save of the GSTIN field from writing six nulls over an
    * address somebody entered a minute earlier.
    */
-  const [address, setAddress] = useState<BusinessAddress | null>(null);
+  const [address, setAddress] = useState<BusinessAddress | null>(
+    () => restored?.values.address ?? null,
+  );
 
   /**
    * Whether the address has been submitted once.
@@ -588,43 +820,62 @@ function RequirementForm({
   /** The block the address fields live in, for moving focus into it. */
   const addressRef = useRef<HTMLDivElement>(null);
 
-  const mutation = useMutation({
-    mutationFn: () => {
-      const patch: Record<string, unknown> = {};
-      const extras: Record<string, string> = {};
+  /**
+   * What this form would send, built once and used by both saves.
+   *
+   * The Save button and the auto-save must send the same patch — a second
+   * answer to "what does this form mean" is how the two end up disagreeing,
+   * and the one that runs unattended is the one that would be wrong quietly.
+   */
+  const buildPatch = (): Record<string, unknown> => {
+    const patch: Record<string, unknown> = {};
+    const extras: Record<string, string> = {};
 
-      for (const requirement of step.requirements) {
-        if (requirement.isDocument) continue;
+    for (const requirement of step.requirements) {
+      if (requirement.isDocument) continue;
 
-        // The address is six columns and is assembled below, not here. Falling
-        // through would write the whole structured address into
-        // `registeredAddressLine1` as one string, which is precisely the
-        // behaviour this change replaced.
-        if (requirement.fieldKey === ADDRESS_FIELD_KEY) continue;
+      // The address is six columns and is assembled below, not here. Falling
+      // through would write the whole structured address into
+      // `registeredAddressLine1` as one string, which is precisely the
+      // behaviour this change replaced.
+      if (requirement.fieldKey === ADDRESS_FIELD_KEY) continue;
 
-        const value = values[requirement.fieldKey];
-        if (value === undefined) continue;
+      const value = values[requirement.fieldKey];
+      if (value === undefined) continue;
 
-        if (COLUMN_FIELDS.has(requirement.fieldKey)) {
-          patch[COLUMN_NAMES[requirement.fieldKey] ?? requirement.fieldKey] =
-            value.trim().length === 0 ? null : value.trim();
-        } else {
-          extras[requirement.fieldKey] = value.trim();
-        }
+      if (COLUMN_FIELDS.has(requirement.fieldKey)) {
+        patch[COLUMN_NAMES[requirement.fieldKey] ?? requirement.fieldKey] =
+          value.trim().length === 0 ? null : value.trim();
+      } else {
+        extras[requirement.fieldKey] = value.trim();
       }
+    }
 
-      // Only when it has been edited on this visit. An untouched address is
-      // absent from the patch, and an absent field is one the server leaves
-      // alone - so saving the tax number cannot blank the address.
-      if (address !== null) Object.assign(patch, addressToPatch(address));
+    // Only when it has been edited on this visit. An untouched address is
+    // absent from the patch, and an absent field is one the server leaves
+    // alone - so saving the tax number cannot blank the address.
+    if (address !== null) Object.assign(patch, addressToPatch(address));
 
-      if (Object.keys(extras).length > 0) patch['extraIdentifiers'] = extras;
+    if (Object.keys(extras).length > 0) patch['extraIdentifiers'] = extras;
 
-      return saveBusinessProfile(patch);
-    },
+    return patch;
+  };
+
+  const mutation = useMutation({
+    mutationFn: () => saveBusinessProfile(buildPatch()),
     onSuccess: async (result) => {
       setIsDirty(false);
       setWasSubmitted(false);
+      /*
+       * The device copy goes, and the notice with it.
+       *
+       * The server now holds these answers, so a draft offered back on the
+       * next visit would be offering to restore the very thing that is already
+       * stored - and the boxes below are about to re-read from the server
+       * anyway, so the two would agree while the notice claimed they did not.
+       */
+      clearDraft(sellerAccountId, step.key);
+      setRestored(null);
       /*
        * The local edit is dropped so the form falls back to what is STORED.
        *
@@ -704,10 +955,80 @@ function RequirementForm({
 
   const typed = step.requirements.filter((requirement) => !requirement.isDocument);
 
+  /**
+   * The auto-save.
+   *
+   * `canSend` is the interesting argument. It is false for exactly as long as
+   * the form holds something the API would refuse — an address without its
+   * postcode, an email address halfway through being typed — and while it is
+   * false the device copy is the only save. That is not a gap in the promise:
+   * a request that comes back 400 has saved nothing either, and the difference
+   * between the two is one wasted round trip per pause in typing.
+   *
+   * It does NOT go through `mutation`. The mutation resets the form to what
+   * the server gave back and raises a toast, both of which are right for a
+   * button somebody pressed and wrong for something that happens by itself
+   * every few seconds: the reset would drop characters typed while the request
+   * was in the air, and the toast would appear over and over.
+   */
+  const autoSave = useFormAutoSave<RequirementDraft>({
+    sellerAccountId,
+    section: step.key,
+    values: { fields: values, address },
+    isDirty,
+    canSend:
+      !hasAddressProblem &&
+      typed.every((requirement) => {
+        const value = values[requirement.fieldKey];
+        return value === undefined || isSendable(requirement.fieldKey, value);
+      }),
+    enabled: isEditable,
+    save: async () => {
+      await saveBusinessProfile(buildPatch());
+
+      /*
+       * Both queries, and the second one is not optional.
+       *
+       * The step's tick and the progress bar come from the onboarding query;
+       * what the BOXES fall back to comes from the business profile. Leaving
+       * the profile stale was a real defect found on screen: an answer the
+       * auto-save had sent, whose draft had therefore been dropped, was gone
+       * from the box the moment the step was reopened - because the reopened
+       * form has no local edit and falls back to a profile the page fetched
+       * before the save. The step said "Done" and the field was empty, which
+       * is the exact disagreement this feature exists to prevent.
+       *
+       * It cannot disturb typing. Every box here shows its local edit in
+       * preference to the stored value and only falls back when there is no
+       * edit, so a fresher profile changes nothing that is being typed into.
+       */
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['seller', 'onboarding'] }),
+        client.invalidateQueries({ queryKey: ['seller', 'business-profile'] }),
+      ]);
+    },
+  });
+
   return (
     <Card>
       <div className="space-y-5 px-6 py-5">
         <StepHeader step={step} />
+
+        {restored !== null && (
+          <RestoredNotice
+            savedAt={restored.savedAt}
+            onDiscard={() => {
+              // Back to what is stored: the typed overrides go, the address
+              // edit goes, and the device copy goes with them.
+              setValues({});
+              setAddress(null);
+              setIsDirty(false);
+              setWasSubmitted(false);
+              setRestored(null);
+              autoSave.forgetDraft();
+            }}
+          />
+        )}
 
         {step.message !== null && (
           <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
@@ -891,7 +1212,7 @@ function RequirementForm({
             >
               Save
             </Button>
-            {isDirty && <span className="text-xxs text-ink-subtle">You have unsaved changes</span>}
+            <SaveStatus autoSave={autoSave} isDirty={isDirty} />
           </div>
         )}
       </div>
@@ -902,15 +1223,22 @@ function RequirementForm({
 function StoreProfileForm({
   step,
   isEditable,
+  sellerAccountId,
 }: {
   step: OnboardingStep;
   isEditable: boolean;
+  sellerAccountId: string;
 }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
 
   const query = useQuery({ queryKey: ['seller', 'business-profile'], queryFn: fetchBusinessProfile });
+
+  /** What was typed here last time and never sent. See `RequirementForm`. */
+  const [restored, setRestored] = useState(() =>
+    readDraft<StoreProfileDraft>(sellerAccountId, step.key),
+  );
 
   /*
    * `null` means "not touched on this visit", and the box falls back to what is
@@ -923,9 +1251,24 @@ function StoreProfileForm({
    * The step needs both, so it could never be finished from this form, and
    * nothing on the screen said why the tick had not appeared.
    */
-  const [description, setDescription] = useState<string | null>(null);
-  const [supportEmail, setSupportEmail] = useState<string | null>(null);
-  const [supportPhone, setSupportPhone] = useState<string | null>(null);
+  const [description, setDescription] = useState<string | null>(
+    () => restored?.values.description ?? null,
+  );
+  const [supportEmail, setSupportEmail] = useState<string | null>(
+    () => restored?.values.supportEmail ?? null,
+  );
+  const [supportPhone, setSupportPhone] = useState<string | null>(
+    () => restored?.values.supportPhone ?? null,
+  );
+
+  /*
+   * Whether anything has been typed on this visit.
+   *
+   * The three above cannot answer it between them: null means "not touched",
+   * but a restored draft arrives already holding values that were never sent,
+   * and that is the state the auto-save most needs to know about.
+   */
+  const [isDirty, setIsDirty] = useState(restored !== null);
 
   const account = query.data?.account ?? null;
   const profile = query.data?.profile ?? null;
@@ -939,14 +1282,25 @@ function StoreProfileForm({
   const orNull = (value: string): string | null =>
     value.trim().length === 0 ? null : value.trim();
 
+  /** What this form would send. One answer, used by the button and the clock. */
+  const buildPatch = (): {
+    description: string | null;
+    supportEmail: string | null;
+    supportPhone: string | null;
+  } => ({
+    description: orNull(edited(description, account?.description)),
+    supportEmail: orNull(edited(supportEmail, profile?.supportEmail)),
+    supportPhone: orNull(edited(supportPhone, profile?.supportPhone)),
+  });
+
   const mutation = useMutation({
-    mutationFn: () =>
-      saveStoreProfile({
-        description: orNull(edited(description, account?.description)),
-        supportEmail: orNull(edited(supportEmail, profile?.supportEmail)),
-        supportPhone: orNull(edited(supportPhone, profile?.supportPhone)),
-      }),
+    mutationFn: () => saveStoreProfile(buildPatch()),
     onSuccess: async (result) => {
+      setIsDirty(false);
+      // The server has it, so the device copy and the notice offering it back
+      // both go. See the same line in `RequirementForm`.
+      clearDraft(sellerAccountId, step.key);
+      setRestored(null);
       await client.invalidateQueries({ queryKey: ['seller'] });
 
       toast.success(
@@ -960,6 +1314,31 @@ function StoreProfileForm({
     },
   });
 
+  /**
+   * The auto-save. Same two saves as `RequirementForm`, one field to gate on.
+   *
+   * The support email is the only thing here the API checks the shape of, and
+   * an address halfway through being typed is not an address — so the send
+   * waits for it rather than firing a request per pause that can only come
+   * back refused. The description and the phone are free text and gate nothing.
+   */
+  const autoSave = useFormAutoSave<StoreProfileDraft>({
+    sellerAccountId,
+    section: step.key,
+    values: { description, supportEmail, supportPhone },
+    isDirty,
+    canSend: looksLikeEmail(edited(supportEmail, profile?.supportEmail)),
+    enabled: isEditable,
+    save: async () => {
+      await saveStoreProfile(buildPatch());
+      // Both, for the reason set out on the same line in `RequirementForm`.
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['seller', 'onboarding'] }),
+        client.invalidateQueries({ queryKey: ['seller', 'business-profile'] }),
+      ]);
+    },
+  });
+
   return (
     <Card>
       <form
@@ -970,6 +1349,20 @@ function StoreProfileForm({
         }}
       >
         <StepHeader step={step} />
+
+        {restored !== null && (
+          <RestoredNotice
+            savedAt={restored.savedAt}
+            onDiscard={() => {
+              setDescription(null);
+              setSupportEmail(null);
+              setSupportPhone(null);
+              setIsDirty(false);
+              setRestored(null);
+              autoSave.forgetDraft();
+            }}
+          />
+        )}
 
         {step.message !== null && (
           <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
@@ -997,6 +1390,7 @@ function StoreProfileForm({
               value={edited(description, account?.description)}
               onChange={(event) => {
                 setDescription(event.currentTarget.value);
+                setIsDirty(true);
               }}
             />
           )}
@@ -1013,6 +1407,7 @@ function StoreProfileForm({
                 value={edited(supportEmail, profile?.supportEmail)}
                 onChange={(event) => {
                   setSupportEmail(event.currentTarget.value);
+                  setIsDirty(true);
                 }}
               />
             )}
@@ -1027,6 +1422,7 @@ function StoreProfileForm({
                 value={edited(supportPhone, profile?.supportPhone)}
                 onChange={(event) => {
                   setSupportPhone(event.currentTarget.value);
+                  setIsDirty(true);
                 }}
               />
             )}
@@ -1034,9 +1430,12 @@ function StoreProfileForm({
         </div>
 
         {isEditable && (
-          <Button type="submit" variant="primary" isLoading={mutation.isPending}>
-            Save
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button type="submit" variant="primary" isLoading={mutation.isPending}>
+              Save
+            </Button>
+            <SaveStatus autoSave={autoSave} isDirty={isDirty} />
+          </div>
         )}
       </form>
     </Card>

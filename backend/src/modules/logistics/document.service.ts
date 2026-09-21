@@ -28,10 +28,22 @@ import type {
   LogisticsDocumentScanState,
 } from '../../generated/prisma/enums.js';
 import { env } from '../../config/env.js';
-import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
+import {
+  ErrorCode,
+  badRequest,
+  conflict,
+  forbidden,
+  notFound,
+  serviceUnavailable,
+} from '../../domain/errors.js';
 import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import { generateToken, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
+import {
+  MalwareDetectedError,
+  MalwareScannerUnavailableError,
+  scanForMalware,
+} from '../../infra/malware-scan.js';
 import { prisma } from '../../infra/prisma.js';
 import { sniffMediaType, storage } from '../../infra/storage/index.js';
 import { recordLogisticsAudit } from './audit.service.js';
@@ -100,12 +112,22 @@ export interface StoredDocument {
  * control downstream would be reading a value it had no reason to trust.
  */
 async function scanDocument(
-  _bytes: Buffer,
+  bytes: Buffer,
 ): Promise<{ state: LogisticsDocumentScanState; detail: string | null }> {
-  return Promise.resolve({
-    state: 'SKIPPED',
-    detail: 'No malware scanner is configured on this installation.',
-  });
+  try {
+    const result = await scanForMalware(bytes);
+    return result.status === 'CLEAN'
+      ? { state: 'CLEAN', detail: null }
+      : { state: 'SKIPPED', detail: 'Malware scanning is disabled in this environment.' };
+  } catch (error) {
+    if (error instanceof MalwareDetectedError) {
+      throw badRequest(ErrorCode.MALWARE_DETECTED, 'The uploaded file failed the security scan.');
+    }
+    if (error instanceof MalwareScannerUnavailableError) {
+      throw serviceUnavailable('The file security scanner is temporarily unavailable.', error);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -164,9 +186,9 @@ export async function uploadShipmentDocument(
    * URL is never the only thing between a signature image and the open
    * internet.
    */
-  const stored = await storage.put(input.bytes, sniffed.mimeType, sniffed.extension, 'private');
-
+  // Scan before storage so malicious bytes never enter the object store.
   const scan = await scanDocument(input.bytes);
+  const stored = await storage.put(input.bytes, sniffed.mimeType, sniffed.extension, 'private');
 
   await prisma.logisticsShipmentDocument.create({
     data: {

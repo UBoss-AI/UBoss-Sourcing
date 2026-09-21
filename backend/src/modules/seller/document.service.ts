@@ -36,11 +36,23 @@
  */
 import type { SellerDocumentKind, SellerDocumentScanState } from '../../generated/prisma/enums.js';
 import { env } from '../../config/env.js';
-import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
+import {
+  ErrorCode,
+  badRequest,
+  conflict,
+  forbidden,
+  notFound,
+  serviceUnavailable,
+} from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { createHash } from 'node:crypto';
 import { generateToken, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
+import {
+  MalwareDetectedError,
+  MalwareScannerUnavailableError,
+  scanForMalware,
+} from '../../infra/malware-scan.js';
 import { prisma } from '../../infra/prisma.js';
 import { sniffDocumentType, storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -116,8 +128,23 @@ const UPLOADABLE = new Set<string>(SELLER_UPLOADABLE_KINDS);
  * this file could contain, because every control downstream would be reading a
  * value it had no reason to trust.
  */
-function scanDocument(_bytes: Buffer): { state: SellerDocumentScanState; scannedAt: Date | null } {
-  return { state: 'SCANNER_UNCONFIGURED', scannedAt: null };
+async function scanDocument(
+  bytes: Buffer,
+): Promise<{ state: SellerDocumentScanState; scannedAt: Date | null }> {
+  try {
+    const result = await scanForMalware(bytes);
+    return result.status === 'CLEAN'
+      ? { state: 'CLEAN', scannedAt: new Date() }
+      : { state: 'SCANNER_UNCONFIGURED', scannedAt: null };
+  } catch (error) {
+    if (error instanceof MalwareDetectedError) {
+      throw badRequest(ErrorCode.MALWARE_DETECTED, 'The uploaded file failed the security scan.');
+    }
+    if (error instanceof MalwareScannerUnavailableError) {
+      throw serviceUnavailable('The file security scanner is temporarily unavailable.', error);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -311,8 +338,10 @@ export async function uploadSellerDocument(
   // The BYTES decide the type. A client can claim anything.
   const sniffed = sniffDocumentType(input.bytes);
 
+  // Scan before storage: malicious bytes never enter the object store, and a
+  // scanner outage fails the upload closed.
+  const scan = await scanDocument(input.bytes);
   const stored = await storage.put(input.bytes, sniffed.mimeType, sniffed.extension, 'private');
-  const scan = scanDocument(input.bytes);
 
   const id = newId();
   const requirementFieldKey = input.requirementFieldKey ?? null;

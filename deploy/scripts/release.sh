@@ -49,6 +49,21 @@ trap 'die "failed at line $LINENO"' ERR
 
 [[ -f "$SHARED/.env" ]] || die "no $SHARED/.env - copy backend/.env.example and fill it in first"
 
+# Production uploads fail closed unless ClamAV is both selected and reachable.
+# Check before spending minutes building and, more importantly, before moving
+# the release symlink.
+read_env_value() {
+  sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$SHARED/.env" \
+    | tail -n 1 \
+    | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/"
+}
+
+[[ "$(read_env_value MALWARE_SCANNER_DRIVER)" == "clamav" ]] \
+  || die "MALWARE_SCANNER_DRIVER must be clamav in $SHARED/.env"
+CLAM_SOCKET="$(read_env_value MALWARE_SCANNER_SOCKET)"
+CLAM_SOCKET="${CLAM_SOCKET:-/run/clamav/clamd.ctl}"
+[[ -S "$CLAM_SOCKET" ]] || die "ClamAV socket is not ready at $CLAM_SOCKET"
+
 # -----------------------------------------------------------------------------
 # One release at a time
 #

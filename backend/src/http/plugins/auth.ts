@@ -263,6 +263,16 @@ export function requireAdmin(...permissions: PermissionKey[]) {
       );
     }
 
+    /** Every administrator must enrol and challenge MFA for every session. */
+    if (env.FEATURE_ADMIN_MFA && (!auth.mfaEnabled || auth.sessionMfaVerifiedAt === null)) {
+      throw forbidden(
+        ErrorCode.MFA_REQUIRED,
+        auth.mfaEnabled
+          ? 'Confirm your two-step code to continue.'
+          : 'Set up two-step sign-in to continue.',
+      );
+    }
+
     /**
      * Signed in, but the browser has not yet said where from.
      *

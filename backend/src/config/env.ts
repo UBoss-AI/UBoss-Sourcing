@@ -52,7 +52,7 @@ const envSchema = z
     // --- Runtime ---
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     API_PORT: intFromString(1, 65535).default(4000),
-    API_HOST: z.string().min(1).default('0.0.0.0'),
+    API_HOST: z.string().min(1).default('127.0.0.1'),
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),
@@ -92,7 +92,35 @@ const envSchema = z
     SESSION_COOKIE_SECRET: z.string().min(32),
     ACCESS_TOKEN_SECRET: z.string().min(32),
     REFRESH_TOKEN_SECRET: z.string().min(32),
-    ACCESS_TOKEN_TTL_SECONDS: intFromString(60, 86_400).default(900),
+    /**
+     * How long one access cookie lasts for the storefront, the Seller Hub and
+     * the driver app.
+     *
+     * An hour, not the quarter of an hour it used to be. The number is felt in
+     * the Seller Hub more than anywhere else: a seller application is filled in
+     * from paperwork that has to be fetched from a drawer, and a token that
+     * died while somebody was reading a certificate off a printout took a
+     * half-typed step down with it. The refresh cookie below already keeps a
+     * used browser signed in silently; this is the ceiling on a browser that is
+     * sitting open and idle, and the two are not the same thing.
+     *
+     * The floor and ceiling stay where they were: an operator who wants the
+     * old fifteen minutes back sets it, and nobody can set a day and a half.
+     */
+    ACCESS_TOKEN_TTL_SECONDS: intFromString(60, 86_400).default(3600),
+    /**
+     * The same thing for the admin console, kept separate and kept short.
+     *
+     * Raising the seller's session must not quietly raise the session that can
+     * refund an order, read a customer's address and change what every buyer
+     * pays. The console is a staff tool used at a desk, where signing in again
+     * costs a few seconds; the ceiling that suits a seller filling in a form
+     * from a folder is the wrong one here, so it is its own setting with its
+     * own default.
+     *
+     * A deployment that wants one number for everything sets both to it.
+     */
+    ADMIN_ACCESS_TOKEN_TTL_SECONDS: intFromString(60, 86_400).default(900),
     REFRESH_TOKEN_TTL_SECONDS: intFromString(3600, 31_536_000).default(2_592_000),
     COOKIE_DOMAIN: z.string().default(''),
     COOKIE_SECURE: booleanFromString.default(false),
@@ -140,7 +168,39 @@ const envSchema = z
     // --- Object storage ---
     STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
     STORAGE_LOCAL_DIR: z.string().default('.storage'),
-    STORAGE_PUBLIC_BASE_URL: z.string().url(),
+    /**
+     * Where a stored PUBLIC object is served from.
+     *
+     * Two shapes are legal, and the difference is which browsers can see a
+     * picture:
+     *
+     *   - An **absolute URL** — `https://cdn.example.com` — when an object
+     *     store or a CDN serves the bytes. That is the production shape, and
+     *     the only one that makes sense when the files do not live next to the
+     *     API.
+     *   - A **root-relative path** — `/media` — when the bytes are served on
+     *     the same origin as the page, by a proxy in front of the API. Every
+     *     picture's URL is then correct on whatever origin the page was
+     *     opened from.
+     *
+     * The second is what development wants, and getting it wrong is invisible
+     * on the machine that made the upload. An absolute `http://localhost:4000`
+     * is baked into the URL the API hands back; a browser anywhere else — a
+     * phone on the same network, anyone looking through a tunnel — resolves
+     * `localhost` to their OWN device, and an HTTPS page refuses an `http://`
+     * image outright. The upload succeeds, the row is written, and the seller
+     * who just added a photograph sees an empty box.
+     *
+     * A protocol-relative `//host/...` is refused: it points at another origin
+     * while looking like a path, which is not something a configuration file
+     * should be able to say by accident.
+     */
+    STORAGE_PUBLIC_BASE_URL: z
+      .string()
+      .refine(
+        (value) => /^https?:\/\//i.test(value) || /^\/(?!\/)/.test(value),
+        'Must be an absolute http(s) URL, or a root-relative path such as /media.',
+      ),
     S3_ENDPOINT: z.string().default(''),
     S3_REGION: z.string().default(''),
     S3_BUCKET: z.string().default(''),
@@ -158,6 +218,14 @@ const envSchema = z
      * nowhere near enough for a feature film.
      */
     UPLOAD_VIDEO_MAX_BYTES: intFromString(1024, 536_870_912).default(67_108_864),
+    /**
+     * User-supplied documents are scanned synchronously before storage.
+     * `disabled` is for local development only; production refuses to boot
+     * without ClamAV so a deployment cannot silently accept unscanned files.
+     */
+    MALWARE_SCANNER_DRIVER: z.enum(['disabled', 'clamav']).default('disabled'),
+    MALWARE_SCANNER_SOCKET: z.string().min(1).default('/run/clamav/clamd.ctl'),
+    MALWARE_SCANNER_TIMEOUT_MS: intFromString(1000, 120_000).default(30_000),
 
     // --- Email ---
     EMAIL_DRIVER: z.enum(['log', 'smtp']).default('log'),
@@ -581,7 +649,11 @@ const envSchema = z
     /// pricing bug turning into a five-figure charge nobody authorised.
     AUTOPAY_PLATFORM_MAX_MINOR: intFromString(0, 100_000_000_000).default(0),
 
-    // --- Admin sign-in location ---
+    // --- Admin second factor and sign-in location ---
+    // On by default and impossible to disable in production. The switch exists
+    // only so integration tests that are about unrelated business flows do not
+    // all have to manufacture a fresh TOTP code for each session.
+    FEATURE_ADMIN_MFA: booleanFromString.default(true),
     //
     // Off by default: precise employee location is not necessary for ordinary
     // authentication and enabling it can trigger a DPIA, employment-law
@@ -1070,21 +1142,10 @@ const envSchema = z
 
     /// Whether a seller's unscanned certificate may be served.
     ///
-    /// TRUE, which is the opposite of the carrier setting above, and the reason
-    /// is who is on each end. A carrier document is handed to a third party's
-    /// staff; a seller document is handed back to the seller who uploaded it,
-    /// or to the operator who must read it in order to decide the application
-    /// at all. With this false and no scanner configured, nobody could ever
-    /// open a CE certificate, which does not make the deployment safer - it
-    /// makes evidence go back to arriving by email, unrecorded.
-    ///
-    /// The protections that do not depend on it stay either way: the bytes are
-    /// sniffed, only PDFs and pictures are accepted, the file is served as an
-    /// attachment with `X-Content-Type-Options: nosniff` and never rendered in
-    /// the page, and the scan state is shown beside every document so a
-    /// reviewer knows what they are opening. Set it false once a scanner is
-    /// wired in, or where policy forbids opening unscanned files at all.
-    SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(true),
+    /// False by default. Production also requires ClamAV, so this switch is a
+    /// development escape hatch only and must never make an unscanned file
+    /// downloadable on a live installation.
+    SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
 
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
@@ -1444,6 +1505,13 @@ const envSchema = z
     // Production-only guards. These are the settings that look harmless in dev
     // and are outright dangerous once real customers and money are involved.
     if (value.NODE_ENV === 'production') {
+      if (!value.FEATURE_ADMIN_MFA) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['FEATURE_ADMIN_MFA'],
+          message: 'must be true in production for every privileged staff session',
+        });
+      }
       if (!value.COOKIE_SECURE) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -1463,6 +1531,20 @@ const envSchema = z
           code: z.ZodIssueCode.custom,
           path: ['STORAGE_DRIVER'],
           message: 'local disk storage is not durable; configure s3 in production',
+        });
+      }
+      if (value.MALWARE_SCANNER_DRIVER !== 'clamav') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['MALWARE_SCANNER_DRIVER'],
+          message: 'must be clamav in production so uploaded documents are scanned before storage',
+        });
+      }
+      if (value.SELLER_ALLOW_UNSCANNED_DOCUMENTS || value.LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SELLER_ALLOW_UNSCANNED_DOCUMENTS'],
+          message: 'unscanned document downloads cannot be enabled in production',
         });
       }
       for (const key of [

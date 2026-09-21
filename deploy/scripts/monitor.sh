@@ -79,6 +79,22 @@ fail() {
 # is usually the one that explains the first.
 
 # -----------------------------------------------------------------------------
+# The upload malware scanner
+# -----------------------------------------------------------------------------
+CLAM_SOCKET=/run/clamav/clamd.ctl
+if [[ -f "$SHARED/.env" ]]; then
+  configured_socket="$(sed -n 's/^[[:space:]]*MALWARE_SCANNER_SOCKET[[:space:]]*=[[:space:]]*//p' "$SHARED/.env" \
+    | tail -n 1 | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/")"
+  [[ -z "$configured_socket" ]] || CLAM_SOCKET="$configured_socket"
+fi
+
+if systemctl is-active --quiet clamav-daemon && [[ -S "$CLAM_SOCKET" ]]; then
+  ok "ClamAV scanner ready"
+else
+  fail "ClamAV is not ready at $CLAM_SOCKET - document uploads will fail closed"
+fi
+
+# -----------------------------------------------------------------------------
 # The API instances
 #
 # /health/ready rather than /health/live: alive means the process exists, ready

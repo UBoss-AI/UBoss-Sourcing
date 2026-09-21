@@ -238,7 +238,9 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
     '/start',
     {
       preHandler: optionalCustomer,
-      config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
+      config: {
+        rateLimit: { max: 30, timeWindow: '15 minutes' },
+      },
     },
     async (request, reply) => {
       if (!isAssistantConfigured()) throw notFound('Assistant');

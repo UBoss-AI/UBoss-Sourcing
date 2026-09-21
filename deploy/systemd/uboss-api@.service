@@ -34,13 +34,14 @@ Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
 # fails fast on a bad connection and `Restart=always` brings it back - which is
 # more reliable than any ordering directive, because a database can also
 # disappear at three in the morning long after boot.
-After=network-online.target mariadb.service
-Wants=network-online.target
+After=network-online.target mariadb.service clamav-daemon.service
+Wants=network-online.target clamav-daemon.service
 
 [Service]
 Type=simple
 User=uboss
 Group=uboss
+SupplementaryGroups=clamav
 
 WorkingDirectory=/srv/uboss/current/backend
 

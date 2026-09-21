@@ -67,9 +67,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
 
@@ -128,7 +128,7 @@ jobs:
           sha256sum "uboss-${GITHUB_SHA}.tgz" > "uboss-${GITHUB_SHA}.tgz.sha256"
           cat "uboss-${GITHUB_SHA}.tgz.sha256"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-${{ github.sha }}
           path: uboss-*.tgz*
@@ -144,7 +144,7 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: release-${{ github.sha }}
 
@@ -193,8 +193,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$SMOKE_URL" ]; then
-            echo "::warning::SMOKE_URL is not set - skipping the post-deploy check. Set it."
-            exit 0
+            echo "::error::SMOKE_URL is required for every deployment."
+            exit 1
           fi
           curl -fsS --max-time 10 "$SMOKE_URL/health/live"  >/dev/null
           curl -fsS --max-time 20 "$SMOKE_URL/health/ready" >/dev/null

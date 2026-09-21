@@ -85,7 +85,7 @@ const REDACTED_PATHS = [
 ] as const;
 
 const baseOptions: LoggerOptions = {
-  level: isTest ? 'silent' : env.LOG_LEVEL,
+  level: isTest ? (process.env.TEST_LOG_LEVEL ?? 'silent') : env.LOG_LEVEL,
   redact: { paths: [...REDACTED_PATHS], censor: '[REDACTED]' },
   base: { service: 'uboss-api', env: env.NODE_ENV },
   timestamp: pino.stdTimeFunctions.isoTime,

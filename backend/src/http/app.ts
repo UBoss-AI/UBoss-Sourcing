@@ -31,6 +31,7 @@ import {
 import { newId } from '../infra/ids.js';
 import { logger } from '../infra/logger.js';
 import { httpErrorsTotal, httpRequestDuration, httpRequestsTotal } from '../infra/metrics.js';
+import { DatabaseRateLimitStore } from '../infra/database-rate-limit-store.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { localStorageRoot } from '../infra/storage/index.js';
@@ -301,6 +302,9 @@ export async function buildApp() {
   // --- 5. Rate limiting ----------------------------------------------------
   await app.register(rateLimit, {
     global: true,
+    store: DatabaseRateLimitStore,
+    // A database failure must not silently remove brute-force protection.
+    skipOnError: false,
     max: env.RATE_LIMIT_GLOBAL_PER_MINUTE,
     timeWindow: '1 minute',
     // Health checks come from orchestrators on a fixed interval; counting them

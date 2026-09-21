@@ -433,6 +433,16 @@ class LocalStorageDriver implements StorageDriver {
     }
   }
 
+  /**
+   * The URL a browser fetches this object from.
+   *
+   * Whatever shape `STORAGE_PUBLIC_BASE_URL` has, which is the point: a
+   * root-relative base gives back `/media/products/...`, correct on every
+   * origin the page is ever served from, and an absolute one gives back an
+   * absolute URL for a CDN. See the note on the setting itself - an absolute
+   * `localhost` base is the difference between a photograph a seller can see
+   * and an empty box, and only on somebody else's machine.
+   */
   urlFor(storageKey: string): string {
     return `${env.STORAGE_PUBLIC_BASE_URL.replace(/\/$/, '')}/${storageKey}`;
   }

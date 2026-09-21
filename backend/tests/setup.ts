@@ -5,13 +5,23 @@
  * reach the development database: `DATABASE_URL` is rewritten to
  * `TEST_DATABASE_URL` here, before any module that reads env is imported.
  */
+import { beforeEach, expect } from 'vitest';
 import { config as loadDotenv } from 'dotenv';
 
 loadDotenv();
 
 process.env.NODE_ENV = 'test';
-// Silence pino; a failing assertion is the signal, not the log stream.
-process.env.LOG_LEVEL = 'silent';
+// Silence pino normally; TEST_LOG_LEVEL lets a diagnostic run expose the
+// server-side cause of an intentionally generic 500 response.
+process.env.LOG_LEVEL = process.env.TEST_LOG_LEVEL ?? 'silent';
+
+// Never let a developer's SMTP credentials turn an integration test into a
+// real outbound email (or a two-minute network timeout in a sandbox). The log
+// driver records the same outbox transition without leaving the process.
+process.env.EMAIL_DRIVER = 'log';
+process.env.SMTP_HOST = '';
+process.env.SMTP_USER = '';
+process.env.SMTP_PASSWORD = '';
 
 const testUrl = process.env.TEST_DATABASE_URL;
 
@@ -43,6 +53,11 @@ process.env.GEOCODE_REVERSE_URL = '';
 // receiving full end-to-end coverage without making employee tracking the
 // product default.
 process.env.FEATURE_ADMIN_LOGIN_LOCATION = 'true';
+
+// Production refuses to disable admin MFA. Existing integration suites focus
+// on their own permission/business rule and would otherwise need to generate a
+// different TOTP for every helper login; dedicated MFA tests cover that gate.
+process.env.FEATURE_ADMIN_MFA = 'false';
 
 // The same for the forward direction, which the warehouse form's "look up this
 // address" button calls. Empty means "no geocoder", a supported setting: the
@@ -124,3 +139,14 @@ process.env.STRIPE_WEBHOOK_SECRET = 'whsec_suite_not_a_real_secret';
 // supported deployment setting - every number is then unverified, and an
 // unverified number is charged VAT rather than zero-rated.
 process.env.VIES_CHECK_URL = '';
+
+// Test files close the shared Prisma singleton in their teardown. Reconnect it
+// before clearing the database-backed limiter so each test starts clean without
+// weakening or bypassing production rate limits.
+beforeEach(async () => {
+  if (expect.getState().testPath?.endsWith('tests/unit/s3-storage.test.ts')) return;
+
+  const { prisma } = await import('../src/infra/prisma.js');
+  await prisma.$connect();
+  await prisma.rateLimitBucket.deleteMany({});
+});

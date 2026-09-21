@@ -14,9 +14,15 @@ import { randomBytes } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
-import { ErrorCode, badRequest, unauthorized } from '../../domain/errors.js';
+import { ErrorCode, badRequest, forbidden, unauthorized } from '../../domain/errors.js';
 import { changePassword, login, type UserKind } from '../../modules/identity/auth.service.js';
 import {
+  beginAdminMfaEnrolment,
+  confirmAdminMfaEnrolment,
+  verifyAdminMfaChallenge,
+} from '../../modules/identity/admin-mfa.service.js';
+import {
+  accessTokenTtlFor,
   revokeAllUserSessions,
   revokeSession,
   rotateSession,
@@ -173,7 +179,10 @@ function setSessionCookies(reply: FastifyReply, session: SessionCookies, kind: U
   const names = cookieNamesFor(kind);
 
   void reply
-    .setCookie(names.access, session.accessToken, authCookieOptions(env.ACCESS_TOKEN_TTL_SECONDS))
+    // The cookie's life matches the token inside it, and the token's life
+    // depends on the surface - an hour for the storefront and the Seller Hub,
+    // a quarter of an hour for the console. See `accessTokenTtlFor`.
+    .setCookie(names.access, session.accessToken, authCookieOptions(accessTokenTtlFor(kind)))
     .setCookie(
       names.refresh,
       session.refreshToken,
@@ -269,6 +278,8 @@ export function authRoutes(kind: UserKind) {
           permissions: result.user.permissions,
           customerProfileId: result.user.customerProfileId,
           mfaEnabled: result.user.mfaEnabled,
+          mfaRequired: kind === 'ADMIN' && env.FEATURE_ADMIN_MFA,
+          mfaSessionVerified: false,
           // The Admin Panel reads this to send a first-time signer-in straight
           // to the change-password screen instead of the dashboard.
           mustChangePassword: result.user.mustChangePassword,
@@ -321,6 +332,58 @@ export function authRoutes(kind: UserKind) {
       });
     });
 
+    if (kind === 'ADMIN' && env.FEATURE_ADMIN_MFA) {
+      app.post('/mfa/setup', { preHandler: requireAuthenticated('ADMIN') }, async (request, reply) => {
+        const auth = currentUser(request);
+        if (auth.mustChangePassword) {
+          throw forbidden(
+            ErrorCode.PASSWORD_CHANGE_REQUIRED,
+            'Set your own password before setting up two-step sign-in.',
+          );
+        }
+        // Replacing an existing factor is a privileged act: the existing
+        // factor must have challenged this session first.
+        if (auth.mfaEnabled && auth.sessionMfaVerifiedAt === null) {
+          throw forbidden(ErrorCode.MFA_REQUIRED, 'Confirm your existing two-step code first.');
+        }
+        const enrolment = await beginAdminMfaEnrolment(auth.id);
+        return reply.header('cache-control', 'no-store').status(200).send(enrolment);
+      });
+
+      app.post('/mfa/verify', { preHandler: requireAuthenticated('ADMIN') }, async (request, reply) => {
+        const body = z
+          .object({
+            code: z.string().trim().min(6).max(16),
+            mode: z.enum(['ENROL', 'CHALLENGE']).default('CHALLENGE'),
+          })
+          .parse(request.body);
+        const auth = currentUser(request);
+
+        if (body.mode === 'ENROL') {
+          await confirmAdminMfaEnrolment({
+            userId: auth.id,
+            sessionId: auth.sessionId,
+            code: body.code,
+            ipAddress: request.ip,
+            correlationId: request.correlationId,
+          });
+          return reply.header('cache-control', 'no-store').status(200).send({ verified: true });
+        }
+
+        const result = await verifyAdminMfaChallenge({
+          userId: auth.id,
+          sessionId: auth.sessionId,
+          code: body.code,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+        });
+        return reply
+          .header('cache-control', 'no-store')
+          .status(200)
+          .send({ verified: true, ...result });
+      });
+    }
+
     app.post('/logout', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       await revokeSession(currentUser(request).sessionId, 'logout');
       clearSessionCookies(reply, kind);
@@ -370,6 +433,9 @@ export function authRoutes(kind: UserKind) {
           permissions: auth.permissions,
           customerProfileId: auth.customerProfileId,
           mfaEnabled: auth.mfaEnabled,
+          mfaRequired: kind === 'ADMIN' && env.FEATURE_ADMIN_MFA,
+          mfaSessionVerified:
+            kind === 'ADMIN' && env.FEATURE_ADMIN_MFA && auth.sessionMfaVerifiedAt !== null,
           mustChangePassword: auth.mustChangePassword,
           locationRequired: locationRequiredFor(kind),
           locationGranted: auth.sessionHasLocation,

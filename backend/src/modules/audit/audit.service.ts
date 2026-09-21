@@ -24,6 +24,8 @@ export const AuditAction = {
   USER_PASSWORD_RESET_REQUESTED: 'user.password_reset_requested',
   USER_PASSWORD_CHANGED: 'user.password_changed',
   USER_SESSIONS_REVOKED: 'user.sessions_revoked',
+  USER_MFA_ENABLED: 'user.mfa_enabled',
+  USER_MFA_RECOVERY_USED: 'user.mfa_recovery_used',
   /// Where an admin session said it was opened from. Recorded separately from
   /// `user.login` because it arrives on a later request - the position is only
   /// asked for once the password has been accepted.

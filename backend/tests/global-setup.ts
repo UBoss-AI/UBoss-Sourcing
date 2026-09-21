@@ -133,6 +133,7 @@ export async function setup(): Promise<void> {
      */
     await prisma.category.deleteMany({ where: { parentId: { not: null } } });
     await prisma.category.deleteMany({});
+    await prisma.rateLimitBucket.deleteMany({});
   } finally {
     // The test files open their own client. Leaving this one connected holds a
     // pool open for the length of the run for no reason.

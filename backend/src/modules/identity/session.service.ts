@@ -123,6 +123,26 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
   }
 }
 
+/**
+ * How long an access token minted for this surface is good for.
+ *
+ * Two numbers rather than one, because the two surfaces are used differently.
+ * The storefront and the Seller Hub get an hour: a seller works through their
+ * application out of a folder of certificates, and a token that expired while
+ * they were reading a registration number off a printout used to take the step
+ * they were filling in with it. The admin console keeps the old quarter of an
+ * hour, because the account that can refund an order and read a customer's
+ * address is the one left unattended on a shared desk, and signing in again
+ * there costs a member of staff seconds.
+ *
+ * The driver app follows the storefront. A trip already has its own, longer
+ * token - see `LOGISTICS_TRIP_TOKEN_TTL_HOURS` - and this is only the session
+ * behind it.
+ */
+export function accessTokenTtlFor(userType: UserKind): number {
+  return userType === 'ADMIN' ? env.ADMIN_ACCESS_TOKEN_TTL_SECONDS : env.ACCESS_TOKEN_TTL_SECONDS;
+}
+
 // --- Session lifecycle -----------------------------------------------------
 
 /**
@@ -194,7 +214,7 @@ async function createSessionRow(
 
   const now = Date.now();
   const refreshTokenExpiresAt = new Date(now + env.REFRESH_TOKEN_TTL_SECONDS * 1000);
-  const accessTokenExpiresAt = new Date(now + env.ACCESS_TOKEN_TTL_SECONDS * 1000);
+  const accessTokenExpiresAt = new Date(now + accessTokenTtlFor(userType) * 1000);
 
   await prisma.session.create({
     data: {

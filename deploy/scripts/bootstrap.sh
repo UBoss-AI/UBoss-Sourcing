@@ -49,6 +49,7 @@ apt-get install -y -qq \
   ufw fail2ban \
   unattended-upgrades apt-listchanges \
   gzip tar gpg coreutils \
+  clamav clamav-daemon \
   rclone
 
 # -----------------------------------------------------------------------------
@@ -124,6 +125,13 @@ if ! id "$SERVICE_USER" >/dev/null 2>&1; then
   log "creating the $SERVICE_USER user"
   useradd --system --home-dir "$ROOT" --shell /usr/sbin/nologin "$SERVICE_USER"
 fi
+
+# clamd exposes a local Unix socket owned by the clamav group. The application
+# receives only access to that socket; the scanner itself remains a separate,
+# unprivileged service and malicious bytes are scanned before application
+# storage is touched.
+usermod -aG clamav "$SERVICE_USER"
+systemctl enable --now clamav-freshclam.service clamav-daemon.service
 
 # -----------------------------------------------------------------------------
 # The layout
