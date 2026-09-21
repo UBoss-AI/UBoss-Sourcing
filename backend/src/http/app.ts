@@ -67,6 +67,7 @@ import { registerAssistantRoutes } from './routes/assistant.public.js';
 import { registerAdminAssistantRoutes } from './routes/assistant.admin.js';
 import { registerAdminCouponRoutes } from './routes/coupons.admin.js';
 import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
+import { registerSitemapRoutes } from './routes/sitemap.public.js';
 import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
 import { registerCustomerFulfilmentRoutes } from './routes/fulfilment.customer.js';
 import { registerHealthRoutes } from './routes/health.js';
@@ -507,6 +508,10 @@ export async function buildApp() {
   // before anybody signs in.
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // The sitemap. Unauthenticated because a sitemap has to be, and it discloses
+  // nothing a visitor could not find by browsing: the same products, at the
+  // same addresses, under the same visibility rules the catalogue uses.
+  await app.register(registerSitemapRoutes, { prefix: API_PREFIX });
   // Where we deliver. Public for the same reason the catalogue is: a buyer
   // asks "can you get this to Belgium, and when" before they have an account,
   // and an answer that waits for a sign-in is an answer given too late.

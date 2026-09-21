@@ -48,7 +48,8 @@ import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
+import { canonicalUrl, productJsonLd } from '@/lib/seo';
 import { NotFoundPage } from './NotFoundPage';
 import type {
   Product,
@@ -970,8 +971,51 @@ export function ProductPage(): React.JSX.Element {
     {
       title: product?.name ?? t('product.productLabel'),
       ...(description === null ? {} : { description }),
+      // The primary photograph is what a pasted link previews with, and
+      // `product` is the Open Graph type that gets a product card rather than
+      // a plain summary.
+      imageUrl: product?.primaryImage?.url ?? null,
+      type: 'product',
     },
     business.displayName,
+  );
+
+  /*
+   * The rich result: a Product with an Offer.
+   *
+   * Built from the same figures the page renders, never from a second fetch,
+   * so a price in a search result cannot disagree with the price on the page -
+   * which Google treats as a commitment and penalises a mismatch on.
+   *
+   * `price` is passed as the exact decimal STRING the API sent. schema.org
+   * permits a number and Google accepts one, but putting it through `Number`
+   * here would reintroduce, in the last hundred lines of the stack, the float
+   * error the whole money design exists to avoid.
+   */
+  useJsonLd(
+    'product',
+    product === undefined
+      ? null
+      : productJsonLd({
+          name: product.name,
+          description: product.shortDescription,
+          sku: product.sku,
+          // GPSR Art. 19 carries the manufacturer where the catalogue has it.
+          // Absent for most of a catalogue, and a Brand with no name is worse
+          // than no Brand at all.
+          brand:
+            product.safety?.manufacturer?.tradeName ??
+            product.safety?.manufacturer?.legalName ??
+            null,
+          imageUrls: product.images.map((image) => image.url).slice(0, 6),
+          url: canonicalUrl(`/product/${product.slug}`),
+          price: product.price.formatted,
+          currency: product.price.currency,
+          // Null means "the question has no answer", and the page treats that
+          // as purchasable: stock is confirmed when the item reaches the
+          // basket. Publishing OutOfStock for it would be a claim nobody made.
+          inStock: product.isInStock !== false,
+        }),
   );
 
   /**

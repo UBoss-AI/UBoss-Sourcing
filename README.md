@@ -927,7 +927,7 @@ is nothing to restart and no cache to clear.
 |---|---|
 | `ASSISTANT_ENABLED` | The master switch. Default `true` |
 | `ASSISTANT_PROVIDER` | `gemini`, `anthropic`, or blank to use whichever key is set |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | Key from [Google AI Studio](https://aistudio.google.com/apikey). Model defaults to `gemini-2.5-flash` |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | Key from [Google AI Studio](https://aistudio.google.com/apikey). Model defaults to `gemini-3.8-flash`, pinned rather than an alias. `npm run check:ai` in `scripts/` proves the key and the model answer |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | Key from the Anthropic Console. Model defaults to `claude-opus-5` |
 | `ASSISTANT_ALLOW_GUESTS` | Whether somebody with no account may chat at all. Default `false` |
 | `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` | Replies one address may request per five minutes. Default `10` |
@@ -1148,11 +1148,15 @@ where the marketplace appears as a role rather than as a named member of staff.
 ## Markets, currencies and prices
 
 A currency being active is not the same as a market existing. The catalogue
-holds a real, staff-entered figure per currency and the storefront never
-converts at read time — a converted number drifts with the rate, and the buyer
-would be charged something other than what the page showed. So a currency
-nobody has priced anything in is invisible: dropped from the switcher, and the
-language signal will not send anybody to it.
+holds a real, staff-entered figure per currency and, **by default**, the
+storefront never converts at read time — a converted number drifts with the
+rate, and the buyer would be charged something other than what the page
+showed. So a currency nobody has priced anything in is invisible: dropped from
+the switcher, and the language signal will not send anybody to it.
+
+That default is what a fresh install does, and nothing about an upgrade
+changes it. An operator who wants the other behaviour switches on **automatic
+conversion** — see below.
 
 Two ways to fill one in:
 
@@ -1193,12 +1197,65 @@ Four things bound what an unattended job can do:
 `marginPercent` is added on top of the mid-market rate, as a buffer against it
 moving between runs and against the spread the business pays to settle.
 
-Rates come from `FX_RATE_URL`, which defaults to a free, keyless feed
-(`https://open.er-api.com/v6/latest/{base}`). It lives in the environment
-rather than the console so a deployment behind a firewall can point at its own
-mirror, and so no administrator can aim the server at an arbitrary URL. The
-pricing dialog uses the same feed to pre-fill today's rate, which staff may
-overwrite.
+Rates come from a **provider**, chosen in Settings → Exchange rates:
+
+| Provider | What it is |
+|---|---|
+| `json` | Whatever feed `FX_RATE_URL` names, defaulting to a free keyless one (`https://open.er-api.com/v6/latest/{base}`). **The default**, so upgrading never silently changes where a running shop's prices come from. |
+| `ecb` | European Central Bank daily euro reference rates (`FX_ECB_URL`). Published once each working day, **for information only** — they are not transaction rates and not what a bank or payment provider will settle at. |
+
+The URLs live in the environment rather than the console so a deployment
+behind a firewall can point at its own mirror, and so no administrator can aim
+the server at an arbitrary address. The provider is a closed list for the same
+reason. The pricing dialog uses the same rates to pre-fill today's figure,
+which staff may overwrite.
+
+The ECB quotes against the euro and nothing else, so a pair like PLN → INR is
+not a rate anybody publishes — it is `EUR→INR` divided by `EUR→PLN`, computed
+once, in exact integer arithmetic. No figure in this path is ever a JavaScript
+`number`.
+
+**Every fetch is stored, including the refusals.** A rate set is written,
+validated against the currencies the shop actually prices in and against the
+set it would replace, and only then activated. Exactly one set is live per
+provider, enforced by a database constraint rather than by a rule in a
+service. `Settings → Exchange rates` shows the history, the age of the live
+set, and why any refused set was refused.
+
+</details>
+
+<details>
+<summary><b>Automatic conversion, and how old a rate may be</b></summary>
+
+**Settings → Exchange rates → automatic conversion** (`deriveMissingPrices`).
+**Off by default.** With it on, a SKU with no price row in the chosen currency
+is priced by converting the base-currency figure, and that figure is marked
+**approximate** everywhere it is shown.
+
+A price somebody typed always wins — derivation runs only after both manual
+lookups have already failed, so that is true by construction rather than by a
+rule anybody has to remember.
+
+Three freshness windows, and the arithmetic is not the obvious one. A snapshot
+is dated from the provider's own document, and the ECB dates by the day, read
+as midnight UTC — so Friday's rates are **81 hours** old by Monday morning and
+**90** by Monday evening. Seventy-two hours, the number that looks right,
+would blank every derived price every Monday.
+
+| Setting | Default | Past it |
+|---|---|---|
+| `alertMaxAgeHours` | 72 | An operational alert. Nothing customer-facing yet |
+| `checkoutMaxAgeHours` | 96 | Checkout in a derived currency fails safely, with its own error code |
+| `displayMaxAgeHours` | 168 | Derived prices stop being shown |
+
+They must stay in that order, and the screen refuses a set that is not:
+somebody is warned, then sales stop, then the catalogue stops.
+
+**An order never moves again.** Every order records the rate, the mid-market
+rate behind it, any spread, the provider, the provider's own date and the
+rounding-policy version. A refund reads those columns, never today's rates.
+They are `NULL` on an order that involved no conversion, which is a more
+honest statement than a fabricated rate of 1.0.
 
 Reference data — the currencies and countries themselves — is installed by
 `npm run db:reference`. It is idempotent: an existing deployment picks up newly
@@ -1251,6 +1308,24 @@ words.
 All three front ends ship in eight languages: English (the default and the
 fallback), Dutch, French, German, Greek, Italian, Polish and Spanish, on
 **i18next / react-i18next**, one instance per app.
+
+**Completeness is checked, not assumed.** `npm run check:i18n` in `scripts/`
+compares the eight catalogues of each application against its English one —
+about 67,000 strings — and **fails CI** on a key missing from a language
+(which renders as a raw key on screen), an interpolation dropped in
+translation (`"You have items"` where a number belonged), an empty value,
+invalid JSON, or a plural form a language's own CLDR rules require. Leftover
+English is reported as a warning, with an allowlist for brands, units and
+worked examples, because it is a judgement call often enough that failing on
+it would train people to ignore the job.
+
+**Language is not currency, and the money formatter knows it.** Amounts are
+rendered with `Intl.NumberFormat` against the reader's language and the
+amount's own ISO 4217 currency, so a French-speaking buyer paying in złoty
+gets French grouping around a złoty symbol. Six of the eight languages use a
+decimal comma and Polish writes the symbol after the number. The exact decimal
+string is handed to `Intl` — never a JavaScript `number` — so an amount past
+2^53 minor units still renders digit for digit.
 
 A visitor's language is resolved most-specific-first — the signed-in account's
 saved `preferredLanguage`, then a choice made in this browser, then whatever
@@ -1468,6 +1543,78 @@ one are a Vite cache, not a code bug.
 
 ---
 
+## Who carries a seller's parcel
+
+Two responsibilities, and they do not overlap:
+
+> **A seller chooses a carrier for their own paid consignment.**
+> **A carrier chooses a driver for the consignments it has accepted.**
+
+A seller has no business knowing who is on a carrier's payroll, and a carrier
+has no business seeing a seller's other consignments. The Seller Hub has no
+screen, route or API that touches a driver.
+
+`seller_logistics_partners` holds one row per seller-and-carrier pair. **An
+empty table means nobody can offer anything**, which is the right state for a
+deployment that has not set this up — operator-side assignment is unaffected
+and works as it always has.
+
+A seller may **request** a carrier from *Seller Hub → Carriers*; only the
+marketplace may approve one, from *Sellers → Carrier arrangements*. An
+approved arrangement is re-checked on every offer: it must be approved, in
+date, not suspended, with a carrier that is itself active, covering both ends
+of the route and the handling the consignment needs. The seller is told which
+of those failed, because "no carriers", "your carrier is suspended" and "your
+carrier does not reach Portugal" need three different responses.
+
+An arrangement **narrows, never widens** — a seller cannot grant a carrier
+reach it does not have. **Suspended is not ended**: a suspended arrangement
+finishes the parcels already on a van and takes no new ones.
+
+Reassignment withdraws the incumbent explicitly, with a required reason, and
+both assignment rows survive — "why did two carriers have this parcel?" is
+asked after a late delivery.
+
+---
+
+## Search engines
+
+The storefront ships the tags a crawler and a link preview read, and one
+honest limitation.
+
+- **Canonical and `hreflang`.** Eight languages are served from the same URL,
+  which to a crawler reads as one page whose content changes unpredictably.
+  Every page declares a canonical pointing at itself and eight `hreflang`
+  alternates plus `x-default`, so the eight are understood as translations
+  rather than duplicates.
+- **Open Graph and Twitter cards**, so a pasted link previews with the
+  product's own photograph.
+- **Structured data.** A product page publishes `Product` with an `Offer`,
+  which is what puts a price and an availability line under a search result.
+  The price is the exact decimal string the API sent, never a JavaScript
+  number. A **converted** price publishes no offer at all: an approximate
+  figure is honest on a page that captions it as one and dishonest in a rich
+  result that cannot, and Google treats a price there as a commitment.
+- **`robots.txt`**, which keeps crawlers out of `/account`, `/cart`,
+  `/checkout`, `/orders` and the faceted search URLs. Its `Sitemap:` line is
+  rewritten to an absolute URL at build time from `VITE_PUBLIC_SITE_URL` — a
+  relative one is silently ignored by every crawler.
+- **`GET /api/v1/sitemap.xml`**, generated from the live catalogue under the
+  same visibility rules the shop uses, with language alternates per entry. A
+  product that is unpublished or archived leaves the sitemap in the same
+  moment it leaves the shop. It needs `CUSTOMER_WEB_PUBLIC_URL` to know the
+  storefront's own hostname.
+
+**The limitation, stated plainly:** this is a single-page application, so all
+of the above is written into the head after the app boots. Google and Bing
+render JavaScript and will see it. Most chat clients do not — Slack, WhatsApp
+and LinkedIn fetch raw HTML, so a shared link previews with the fallback tags
+in `index.html`. Raising that ceiling means server rendering or a prerender
+step for the catalogue routes; `useDocumentMeta` is deliberately the single
+seam that would have to change.
+
+---
+
 ## Going live
 
 <details open>
@@ -1646,6 +1793,8 @@ cd backend            ; npm run verify   # typecheck, lint, tests against a real
 cd apps/admin-web     ; npm run verify   # typecheck, lint, contrast audit, build
 cd apps/customer-web  ; npm run verify   # typecheck, lint, contrast audit, tests, build
 cd apps/logistics-web ; npm run verify   # typecheck, lint, contrast audit, tests, build
+cd scripts            ; npm run check:i18n   # every language has every key
+cd scripts            ; npm run check:ai     # the AI provider actually answers
 ```
 
 **Run the backend suite on its own.** It truncates tables in `uboss_test`, and

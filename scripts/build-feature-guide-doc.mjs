@@ -147,10 +147,28 @@ bullets([
   'The storefront supports English, Dutch, French, German, Greek, Italian, Polish and Spanish.',
   'The buyer can choose language, country and currency in one simple market control and in Account → Region.',
   'Language changes words; currency changes prices. They are related on screen but are not the same thing.',
-  'The system shows only markets that have real stored prices. It does not silently convert product prices at browse time.',
+  'The system shows only markets that have real stored prices. It does not silently convert product prices at browse time, unless the business has deliberately turned that on.',
   'Changing market refreshes quoted prices and updates the current cart context so the buyer knows which market is being used.',
+  'Prices are written the way the buyer’s own language writes them. A Polish reader sees “12 345,67 zł”, a German reader “1.234,50 €”. The language decides the way the number is written; the market decides which currency it is in, and the two stay separate.',
 ]);
 note('Why real prices matter', 'A customer is shown a stored price for the selected market. This avoids showing one exchange-rate amount and charging another amount later.', C.blue);
+
+h2('2.3a Prices in a currency nobody has typed one in');
+p('A business can, if it chooses, let the shop work out a price in a currency it has not filled in by hand. It is switched off to begin with, because opening a new market is a business decision rather than something that should happen by itself.');
+p('When it is switched on, the order is always the same:');
+bullets([
+  'A price somebody typed in for that currency is used. Always. Turning this on can never change a price a person set.',
+  'Failing that, the price is worked out from the business’s own main currency at the exchange rate of the day — and it is labelled as approximate wherever the buyer sees it.',
+  'Failing that, the product still is not sold in that currency, exactly as before.',
+]);
+p('The rates come from a published daily rate list — the European Central Bank’s, if the business chooses it. That list is published once each working day for information. It is not a bank’s rate and not what a card company will settle at, and the shop never pretends otherwise: a worked-out price is always marked as approximate, and a search engine is shown no price at all for it rather than one the shop has not committed to.');
+table(['Situation', 'What the buyer sees'], [
+  ['The rates are up to date', 'An approximate price, and they can buy at it.'],
+  ['The rates are a few days old', 'An approximate price to look at, but the purchase is refused with a short message asking them to try again shortly or change currency. This is deliberate: a card should not be charged against a rate nobody can reconcile afterwards.'],
+  ['The rate list has stopped arriving altogether', 'The product goes back to not being sold in that currency, and the business is warned well before that happens.'],
+  ['The rate moves after an order is placed', 'Nothing at all. The order keeps the price, the rate and the date it was placed with, for ever. A refund is worked out from those, never from today’s rate.'],
+], [3400, 6600]);
+note('An order can always be explained', 'Every order that involved a conversion records the rate used, the published rate it came from, any adjustment the business applies, who published it and on what date. Months later, the arithmetic behind the total can still be shown to whoever asks.', C.blue);
 page();
 
 // 3
@@ -1110,7 +1128,32 @@ table(['Situation', 'What the system does'], [
   ['An outside seller with several places', 'Waits. The seller says which of their places it leaves from when they accept the order, and the delivery is raised at that moment. Nobody else’s delivery waits with it.'],
   ['The same payment confirmed twice', 'Nothing new. A delivery already raised is not raised again.'],
 ], [3400, 6600]);
-note('A delivery is never given to a haulage company automatically', 'It is raised with nobody carrying it, and somebody at the business chooses who takes it. A delivery that arrived already allocated would carry no record of who chose the company, and that is the first question asked when something goes wrong.', C.orange);
+note('A delivery is never given to a haulage company automatically', 'It is raised with nobody carrying it, and somebody chooses who takes it. A delivery that arrived already allocated would carry no record of who chose the company, and that is the first question asked when something goes wrong.', C.orange);
+
+h2('12a.0a A seller choosing who carries their own goods');
+p('A seller who sends goods from their own place can choose the haulage company that collects them, instead of waiting for the marketplace to choose one. They choose from their own list, and only from their own list.');
+p('The two jobs are kept apart, and this is the whole idea of it:');
+bullets([
+  'The SELLER chooses the haulage COMPANY for their own paid delivery.',
+  'The haulage company chooses the DRIVER for the deliveries it has accepted.',
+]);
+p('A seller never sees, adds, edits or chooses a driver. Who drives for a haulage company is that company’s own business — their staff, their rota, their problem when somebody calls in sick — and a seller who could put a name on a van could leave one stranded. Equally, a haulage company never sees a seller’s other deliveries.');
+table(['What the seller does', 'What the system does'], [
+  ['Asks to use a haulage company', 'The request goes to the marketplace. A seller cannot approve their own, so nothing happens until somebody at the business agrees to it.'],
+  ['Waits for an answer', 'The seller can see, on their own carriers page, whether the request was agreed, refused, paused or ended, and the reason. Somebody who cannot see that their request was refused three weeks ago simply asks again.'],
+  ['Opens a paid delivery', 'The seller sees which of their haulage companies can take this particular delivery, and which cannot with the reason why.'],
+  ['Chooses one', 'The delivery is offered to that company, exactly as it would be if the business had chosen them. They accept or refuse it in the usual way.'],
+  ['Changes their mind', 'The first company is told they no longer have it, and a written reason is required. Both are kept in the record.'],
+], [3400, 6600]);
+note('Until somebody sets this up, nobody can do it', 'A business that has never agreed any of these arrangements has none, and no seller can offer work to anybody. That is the intended starting point, not something missing: the business’s own way of allocating deliveries carries on exactly as before.', C.blue);
+p('An arrangement is checked again every single time it is used, not only when it is agreed. It has to still be agreed, still be inside its dates, not be paused, belong to a haulage company that is itself still working, cover both the place the goods leave from and the place they are going, and cover any special handling the goods need — refrigeration, for instance. The seller is told which one of those failed, because “you have no haulage companies”, “yours is paused” and “yours does not go to Portugal” need three completely different responses.');
+bullets([
+  'An arrangement can only narrow what a haulage company already does. A seller cannot give one the ability to reach a country it does not serve, or to carry something it is not approved to carry.',
+  'Where the goods leave from is checked as well as where they are going. A company agreed for Poland has not agreed to carry from Poland to Portugal.',
+  'Paused and ended are different. A paused arrangement finishes the parcels already on a van and takes no new ones; ending it the other way would strand them.',
+  'A seller asking about somebody else’s delivery is told it does not exist. They are not told that it exists and is not theirs.',
+  'Naming a haulage company the seller has no arrangement with is refused in exactly the same words as naming one that does not exist, so the list of who the marketplace works with cannot be discovered a guess at a time.',
+]);
 note('If it cannot be raised yet', 'Nothing is lost and the order is never affected — it is paid for and confirmed either way. The Consignments screen has a button to raise it by hand, and the system says what it is waiting for, such as a seller who has not yet said which of their places the goods leave from.', C.blue);
 
 h2('12a.1 How a carrier gets an account');

@@ -1,0 +1,38 @@
+# What a crawler may read, and what it must not.
+#
+# Everything under /account, /cart and /checkout is per-customer. Those pages
+# already send `noindex` at runtime, but a crawler that does not execute
+# JavaScript never sees that tag - so the rule is stated here as well, in a
+# file every crawler reads before it fetches anything.
+#
+# The sitemap line points at the API, because the sitemap has to be generated
+# from the live catalogue and this storefront is a static bundle. A deployment
+# that serves the API on another host edits that one line.
+
+User-agent: *
+
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment
+Disallow: /orders
+Disallow: /schedules
+Disallow: /seller
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /verify-email
+Disallow: /activate
+Disallow: /confirm-contact
+
+# The search and filter pages. Not secret, but every combination of facets is
+# a distinct URL for the same products, and letting a crawler walk them spends
+# a site's crawl budget on near-duplicates instead of on the catalogue.
+Disallow: /*?q=
+Disallow: /*?page=
+Disallow: /*?sort=
+
+Allow: /
+
+Sitemap: /api/v1/sitemap.xml

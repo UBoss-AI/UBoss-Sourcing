@@ -12,6 +12,7 @@
  * the call sites would not change.
  */
 import { useEffect } from 'react';
+import { applyJsonLd, applySeoTags } from './seo';
 
 interface DocumentMeta {
   /** The page-specific part. The business name is appended automatically. */
@@ -22,6 +23,10 @@ interface DocumentMeta {
    * per-customer and often carry an order number in the URL.
    */
   noIndex?: boolean;
+  /** The image a shared link previews with. A product's primary photograph. */
+  imageUrl?: string | null;
+  /** `product` on a product page, `website` everywhere else. */
+  type?: 'website' | 'product';
 }
 
 /**
@@ -53,12 +58,13 @@ function setNamedMeta(name: string, content: string): () => void {
 }
 
 export function useDocumentMeta(
-  { title, description, noIndex }: DocumentMeta,
+  { title, description, noIndex, imageUrl, type }: DocumentMeta,
   siteName: string,
 ): void {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = title.length > 0 ? `${title} · ${siteName}` : siteName;
+    const composed = title.length > 0 ? `${title} · ${siteName}` : siteName;
+    document.title = composed;
 
     const cleanups: (() => void)[] = [];
 
@@ -70,9 +76,47 @@ export function useDocumentMeta(
       cleanups.push(setNamedMeta('robots', 'noindex, nofollow'));
     }
 
+    // The canonical, the eight language alternates and the sharing tags.
+    //
+    // Driven from this hook rather than added page by page, so a route that
+    // declares its title gets its canonical for free and cannot be forgotten.
+    // `applySeoTags` writes nothing at all for a `noIndex` page - an account
+    // page or a checkout must not be canonicalised or previewable.
+    cleanups.push(
+      applySeoTags({
+        pathname: window.location.pathname,
+        title: composed,
+        description: description ?? '',
+        siteName,
+        imageUrl: imageUrl ?? null,
+        ...(type === undefined ? {} : { type }),
+        ...(noIndex === undefined ? {} : { noIndex }),
+      }),
+    );
+
     return () => {
       document.title = previousTitle;
       for (const cleanup of cleanups) cleanup();
     };
-  }, [title, description, noIndex, siteName]);
+  }, [title, description, noIndex, siteName, imageUrl, type]);
+}
+
+/**
+ * Attach a JSON-LD block for as long as the component is mounted.
+ *
+ * Separate from `useDocumentMeta` because only a few pages have structured
+ * data worth publishing - a product, a category trail, the home page - and
+ * making every page pass `null` for it would be noise on eighty call sites.
+ *
+ * `data` is serialised into the dependency list rather than compared by
+ * reference: callers build the object inline, so a reference comparison would
+ * rewrite the tag on every single render.
+ */
+export function useJsonLd(id: string, data: unknown): void {
+  const serialised = data === null ? null : JSON.stringify(data);
+
+  useEffect(() => {
+    if (serialised === null) return;
+    return applyJsonLd(id, JSON.parse(serialised));
+  }, [id, serialised]);
 }

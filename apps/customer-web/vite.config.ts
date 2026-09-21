@@ -1,4 +1,6 @@
 /// <reference types="vitest/config" />
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
@@ -20,6 +22,48 @@ import { defineConfig, loadEnv } from 'vite';
  * Nothing reads `import.meta.env.MODE`, and `.env.local` loads in every mode,
  * so the mode name costs nothing beyond being the flag.
  */
+/**
+ * Make the `Sitemap:` line in robots.txt an absolute URL at build time.
+ *
+ * The robots.txt specification requires a fully qualified URL there, and
+ * crawlers silently ignore a relative one - so the committed file, which
+ * cannot know the deployment's hostname, ships a relative path that works for
+ * nobody until this rewrites it.
+ *
+ * `public/` is copied verbatim and never processed, which is why this is a
+ * plugin rather than a `%VITE_*%` placeholder the way `index.html` would do
+ * it. It runs only on a build; the dev server keeps serving the file as it is,
+ * where a relative path is fine because nothing is crawling localhost.
+ *
+ * Silent when `VITE_PUBLIC_SITE_URL` is unset. A deployment that never set it
+ * has no hostname to write, and inventing one would point every crawler at an
+ * address that does not serve this shop.
+ */
+function absoluteSitemapInRobots(mode: string) {
+  return {
+    name: 'uboss-absolute-sitemap-in-robots',
+    apply: 'build' as const,
+
+    closeBundle(): void {
+      const siteUrl = loadEnv(mode, process.cwd(), '').VITE_PUBLIC_SITE_URL?.trim();
+      if (siteUrl === undefined || siteUrl.length === 0) return;
+
+      const origin = siteUrl.replace(/\/+$/, '');
+      const outDir = process.env['VITE_OUT_DIR'] ?? 'dist';
+      const robots = resolve(process.cwd(), outDir, 'robots.txt');
+
+      if (!existsSync(robots)) return;
+
+      const rewritten = readFileSync(robots, 'utf8').replace(
+        /^Sitemap:\s*\/.*$/m,
+        `Sitemap: ${origin}/api/v1/sitemap.xml`,
+      );
+
+      writeFileSync(robots, rewritten, 'utf8');
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const throughTunnel = mode === 'tunnel' || process.env.TUNNEL === '1';
 
@@ -67,7 +111,7 @@ export default defineConfig(({ mode }) => {
   return {
     // The storefront owns the root, so this is "/" unless told otherwise.
     base: basePath === undefined || basePath.length === 0 ? '/' : basePath,
-    plugins: [react()],
+    plugins: [react(), absoluteSitemapInRobots(mode)],
     /*
      * MapLibre is served from its own package, never pre-bundled.
      *

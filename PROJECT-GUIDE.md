@@ -12050,6 +12050,64 @@ The contact address is deliberately not shipped filled in. **This product is
 sold to other companies to run themselves**, so the person to tell is whoever
 runs that installation, not whoever wrote it.
 
+## Who may hand which parcel to whom
+
+Two responsibilities, and they do not overlap:
+
+> **A seller chooses a CARRIER for their own paid consignment.**
+> **A carrier chooses a DRIVER for the consignments it has accepted.**
+
+A seller has no business knowing who is on a carrier's payroll — the drivers
+are the carrier's staff, their availability is the carrier's operational
+problem, and a seller who could assign one could strand a van. A carrier has
+no business seeing a seller's other consignments.
+
+The seller half is `seller_logistics_partners`: one row per seller-and-carrier
+pair, saying whether that seller may offer work to that carrier at all. **An
+empty table means nobody can offer anything**, which is the correct state for
+a deployment that has not set any of this up yet.
+
+A seller may **request** a carrier; only the marketplace may approve one. A
+request sits in `REQUESTED` until a member of staff decides it, and a seller
+cannot approve their own.
+
+An approved arrangement is checked on every offer, against seven things:
+
+| Refusal | Means |
+|---|---|
+| `NOT_LINKED` | No arrangement at all |
+| `LINK_NOT_APPROVED` | Requested, refused, or ended |
+| `LINK_SUSPENDED` | Approved, then suspended |
+| `LINK_NOT_IN_EFFECT` | Outside its effective dates |
+| `PARTNER_NOT_ACTIVE` | The carrier itself is suspended or archived |
+| `OUTSIDE_AGREED_COUNTRIES` | This route is outside what was agreed |
+| `CAPABILITY_NOT_AGREED` | This consignment needs handling the arrangement does not cover |
+
+The seller is told which, because "no carriers", "your carrier is suspended"
+and "your carrier does not reach Portugal" lead to three different next
+actions. The reason shown is the most general true one, and it never discloses
+*why* a carrier is suspended — that is between the carrier and the
+marketplace.
+
+**An arrangement narrows, never widens.** A seller cannot grant a carrier
+reach or handling approval the carrier does not itself hold. Countries are
+checked at **both** ends of a route: a carrier agreed for Poland has not
+agreed to carry from Poland to Portugal.
+
+**Suspended is not ended.** A suspended arrangement may finish the parcels
+already on a van and may not be given new ones. Ending it the other way would
+strand live consignments.
+
+Ownership is separate from eligibility and comes from the session, never from
+the request body. Asking about another seller's consignment is a `404` that
+confirms nothing — and a carrier that does not exist is refused identically to
+one the seller simply is not linked to, so the endpoint cannot be used to
+enumerate the marketplace's carriers.
+
+Reassignment withdraws the incumbent explicitly, with a required reason, and
+the carrier that loses the work is told. Both assignment rows survive, because
+"why did two carriers have this parcel?" is asked after a late delivery.
+
 ---
 
 # 13. Languages and markets
@@ -12213,9 +12271,89 @@ grid — it states which currency they will keep being quoted in, before Apply.
 ## A market exists only when someone has priced it
 
 A currency being switched on is **not** a market. The catalogue holds a real,
-staff-entered figure per currency, and nothing is converted at read time. So a
-currency nobody has priced anything in is **invisible**: dropped from the
-switcher entirely, rather than opening an empty shop that explains nothing.
+staff-entered figure per currency, and **by default** nothing is converted at
+read time. So a currency nobody has priced anything in is **invisible**:
+dropped from the switcher entirely, rather than opening an empty shop that
+explains nothing.
+
+That default has not changed and is still what a fresh install does. What is
+new is that an operator may now choose otherwise — see below.
+
+## Converting at read time, when an operator asks for it
+
+`Settings → Exchange rates` carries a switch called **automatic conversion**
+(`deriveMissingPrices`). It is **off** until somebody turns it on, because
+opening a market is a pricing decision and running a migration is not the
+thing that should make one.
+
+With it on, the rule becomes:
+
+1. A price row somebody typed for that currency — **always wins**.
+2. Failing that, the base-currency price converted at the live rate, **marked
+   approximate** everywhere it is shown.
+3. Failing that, the SKU is still not sellable in that currency.
+
+Step 1 is true by construction rather than by a rule anybody has to remember:
+derivation runs only after both manual lookups have already failed.
+
+A derived figure is never presented as a firm one. The storefront captions it,
+and the structured data a search engine reads **omits the offer entirely**
+rather than publishing a price the shop has not committed to.
+
+## Where the rates come from, and what they are not
+
+Rates are fetched by a background job, stored, and only then used.
+`Settings → Exchange rates` picks the provider:
+
+| Provider | What it is |
+|---|---|
+| `ecb` | European Central Bank daily reference rates. Published once each working day, **for information only** — not transaction rates, and not what a bank or payment provider will settle at. |
+| `json` | Whatever feed `FX_RATE_URL` names. The default, so an upgrade never silently changes where a running shop's prices come from. |
+
+The ECB quotes against the euro and nothing else, so a pair like PLN → INR is
+not a rate anybody publishes: it is `EUR→INR` divided by `EUR→PLN`, computed
+once in `domain/fx.ts` in exact integer arithmetic. No figure in this path is
+ever a JavaScript `number`.
+
+**Every fetch is kept**, including the ones that were refused. A rate set is
+written first, then validated against the currencies the shop actually prices
+in and against the set it would replace, and only then activated. A feed that
+answers promptly with a decimal shifted one place is an instant
+catalogue-wide mispricing, and the correct outcome — the previous list staying
+in place — is what happens. Exactly one set is live per provider at a time,
+enforced by a database constraint rather than by a rule in a service.
+
+## How old a rate may be
+
+Three windows, and the arithmetic behind them is not the obvious one. A
+snapshot is dated from the provider's own document, and the ECB dates by the
+day, read here as midnight UTC. So Friday's rates are **81 hours** old by
+Monday morning and **90** by Monday evening — which means 72 hours, the number
+that looks right, would blank every derived price every Monday.
+
+| Setting | Default | What happens past it |
+|---|---|---|
+| `alertMaxAgeHours` | 72 | An operational alert. Nothing customer-facing yet. |
+| `checkoutMaxAgeHours` | 96 | Checkout in a derived currency **fails safely**, with its own error code. |
+| `displayMaxAgeHours` | 168 | Derived prices stop being shown at all. |
+
+They must stay in that order, and the settings screen refuses a set that is
+not: somebody is warned, then sales stop, then the catalogue stops.
+
+## An order never moves again
+
+Every order records how it arrived at its currency: the rate, the mid-market
+rate it was derived from, any configured spread, the provider, the provider's
+own date, and the version of the rounding rules in force. Nothing recomputes
+them.
+
+When a rate moves tomorrow, an order placed today keeps today's total, today's
+rate and today's rounding rule. **A refund reads those columns, never today's
+rates.** It is the difference between a total somebody can be shown the
+arithmetic for and a total nobody can explain.
+
+Those columns are `NULL` on an order that involved no conversion at all —
+which is a different and more honest statement than a fabricated rate of 1.0.
 
 ---
 
