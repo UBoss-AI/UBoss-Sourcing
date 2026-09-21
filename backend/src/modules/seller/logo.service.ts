@@ -42,6 +42,7 @@ import {
   type SellerMembership,
 } from './account.service.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
+import { assertNotMalware } from '../../infra/malware-scan.js';
 
 export interface SellerLogoView {
   /** Built on read from the key, so moving the store does not break it. */
@@ -73,6 +74,18 @@ export async function uploadSellerLogo(input: {
 
   // The bytes decide. A claimed content type is a claim.
   const sniffed = sniffImageType(buffer);
+
+  /*
+   * And then the scanner, before anything is written.
+   *
+   * The magic-byte check above answers "is this a picture", which is a
+   * different question from "is this safe". A valid JPEG can carry a payload
+   * aimed at a decoder, and this one is served to every shopper who opens the
+   * seller's shop front. In production ClamAV is mandatory and the process
+   * refuses to start without it, so this is a real check rather than a
+   * gesture; in development the driver is disabled and the call is a no-op.
+   */
+  await assertNotMalware(buffer);
 
   const account = await prisma.sellerAccount.findUniqueOrThrow({
     where: { id: membership.sellerAccountId },

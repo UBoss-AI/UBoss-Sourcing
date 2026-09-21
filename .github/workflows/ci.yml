@@ -135,6 +135,13 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
+      # Cheap, and it catches a schema that parses but does not make sense -
+      # a relation with no opposite side, a `@db` type the connector does not
+      # have - before any of the slower steps below run against it.
+      - name: The schema is valid
+        working-directory: backend
+        run: npx prisma validate
+
       # `migrate deploy`, never `migrate dev`. `dev` rewrites migration files and
       # offers to reset the database; in this repository it also renames eighteen
       # foreign keys and drops defaults, which would then show up as a diff
@@ -287,6 +294,19 @@ jobs:
       - name: Tests
         working-directory: backend
         run: npm test -- --reporter=default --reporter=json --outputFile.json=vitest-report.json
+
+      # The thing that is actually deployed.
+      #
+      # `verify` runs `tsc --noEmit`, which type-checks and produces nothing.
+      # `npm run build` uses tsconfig.build.json and WRITES dist/, and the two
+      # do not have the same inputs - the build config excludes the tests, so
+      # a file that only the build sees can be broken while every other step
+      # here is green. Both release paths (`release.sh` and the deploy
+      # workflow) run this, and until now the first time it ran was during a
+      # deployment.
+      - name: Build the API
+        working-directory: backend
+        run: npm run build
 
       # The failing test names, readable without admin rights.
       #

@@ -37,6 +37,19 @@ Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
 After=network-online.target mariadb.service clamav-daemon.service
 Wants=network-online.target clamav-daemon.service
 
+# Five failures in a minute means the problem is not transient - a bad
+# migration, a missing secret, a schema mismatch. Restarting for ever would
+# hammer the database and bury the real error in a scrolling log.
+#
+# IN [Unit], NOT [Service]. These two keys moved to [Unit] in systemd 229 and
+# they sat in [Service] here, where systemd parses them, says
+# "Unknown key 'StartLimitIntervalSec' in section [Service], ignoring" in the
+# journal, and carries on with NO rate limit at all. Found by
+# `systemd-analyze verify`, which is now part of the deployment checklist for
+# exactly this reason: the unit looked correct and the control was absent.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
 [Service]
 Type=simple
 User=uboss
@@ -78,12 +91,6 @@ TimeoutStopSec=30
 Restart=always
 RestartSec=2
 
-# Five failures in a minute means the problem is not transient - a bad
-# migration, a missing secret, a schema mismatch. Restarting forever would
-# hammer the database and bury the real error in a scrolling log.
-StartLimitIntervalSec=60
-StartLimitBurst=5
-
 # --- Logging ---------------------------------------------------------------
 # The application writes structured JSON to stdout (pino). journald keeps it,
 # rotates it, and `journalctl -u uboss-api@4000 -f` reads it. No log file to
@@ -122,6 +129,44 @@ MemoryHigh=768M
 # File descriptors. The default 1024 is not enough for an event-loop server
 # holding keepalive connections to nginx and a pool to MariaDB at the same time.
 LimitNOFILE=65535
+
+
+# --- Sandbox, measured -------------------------------------------------------
+#
+# These were added after `systemd-analyze security` scored this unit 6.7
+# MEDIUM. Run it again after any change here:
+#
+#   systemd-analyze security uboss-api@4001.service
+#
+# Each line below is chosen for what THIS process actually does, which is:
+# listen on a loopback TCP port above 1024, talk to MariaDB, talk to clamd
+# over a Unix socket, and write uploaded media. It needs no capabilities, no
+# new namespaces, no raw sockets and no kernel tuning, so it is denied all of
+# them.
+#
+# Two deliberate omissions, both because they BREAK Node rather than because
+# they were forgotten:
+#   ProcSubset=pid   hides /proc/meminfo, which Node reads to size its heap.
+#   UMask=0077       makes uploaded media unreadable by nginx, which serves it
+#                    directly in the MinIO-on-the-same-host arrangement.
+#
+# AF_NETLINK is in the address-family list because glibc's getaddrinfo() and
+# os.networkInterfaces() both use it; without it DNS resolution fails in ways
+# that look like the network being down.
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+RestrictNamespaces=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelLogs=yes
+ProtectProc=invisible
+PrivateMounts=yes
+RemoveIPC=yes
+DevicePolicy=closed
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target

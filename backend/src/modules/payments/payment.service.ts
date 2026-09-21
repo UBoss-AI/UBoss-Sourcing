@@ -21,7 +21,7 @@ import {
   type GatewayOffer,
   type PaymentInstrument,
 } from '../../domain/payment-instrument.js';
-import { decryptSecret, encryptSecret, maskSecret } from '../../infra/crypto.js';
+import { decryptSecret, encryptSecret, maskSecret, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
@@ -1587,6 +1587,16 @@ export interface WebhookResult {
 }
 
 /**
+ * How much of an UNSIGNED webhook body is kept for diagnosis.
+ *
+ * Enough to recognise an honest sender that has been pointed at the wrong URL
+ * or configured with the wrong secret - the opening of a Stripe or Razorpay
+ * envelope is distinctive well inside this - and far too little to be worth
+ * sending as a way of filling the disk. See the branch that uses it.
+ */
+const REJECTED_WEBHOOK_PREFIX_BYTES = 512;
+
+/**
  * Process a provider webhook.
  *
  * The order of operations is the security design:
@@ -1628,7 +1638,33 @@ export async function processWebhook(
         providerEventId: `unverified:${newId()}`,
         eventType: 'unverified',
         signatureVerified: false,
-        rawPayload: rawBody.toString('utf8').slice(0, 60_000),
+        /*
+         * A FINGERPRINT, NOT THE BODY.
+         *
+         * The verified branch below keeps 60 KB, and that is right: those
+         * bytes came from the payment provider, they are the evidence behind a
+         * captured payment, and nobody else can produce them.
+         *
+         * These did not. This branch is reached by anybody on the internet who
+         * can POST to the webhook URL - no signature, no session - and at the
+         * route's 300 requests a minute, storing 60 KB each is an
+         * unauthenticated way to write roughly a gigabyte an hour into the
+         * database, from one address, until the disk fills and every service
+         * on the box stops. Nothing here needs the attacker's own bytes to be
+         * kept.
+         *
+         * So the row records what a forensic reader actually uses - how big it
+         * was, what it hashes to, and a short prefix that identifies a
+         * misconfigured-but-honest sender - and the rest is discarded. The
+         * hash is what lets somebody say "this is the same payload as the
+         * other four thousand" without holding four thousand copies.
+         */
+        rawPayload: JSON.stringify({
+          rejected: true,
+          bytes: rawBody.byteLength,
+          sha256: sha256Hex(rawBody.toString('utf8')),
+          prefix: rawBody.toString('utf8').slice(0, REJECTED_WEBHOOK_PREFIX_BYTES),
+        }),
         processingStatus: 'REJECTED',
         processingError: event.rejectionReason ?? 'signature verification failed',
       },

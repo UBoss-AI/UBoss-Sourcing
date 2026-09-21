@@ -178,6 +178,16 @@ interface SessionCarriedColumns {
    */
   locationCountry: string | null;
   locationCapturedAt: Date | null;
+  /**
+   * When the sign-in behind this family happened.
+   *
+   * Carried like everything else above, and it is the one that must NOT be
+   * refreshed: it is the fixed point `SESSION_ABSOLUTE_TTL_SECONDS` is
+   * measured from, so a rotation that reset it would give a family an
+   * unlimited life one refresh at a time - which is precisely what the ceiling
+   * exists to stop.
+   */
+  familyStartedAt: Date | null;
 }
 
 /** Create a fresh session family after a successful sign-in. */
@@ -209,6 +219,16 @@ async function createSessionRow(
    * family.
    */
   carried: SessionCarriedColumns | null,
+  /**
+   * The transaction the replacement row is written in.
+   *
+   * `rotateSession` claims the old token and writes the new row in ONE
+   * transaction, so it passes its handle here. A rollback then takes the
+   * replacement with it and leaves the caller's existing token working, which
+   * is the behaviour the old two-step version was reaching for and did not
+   * quite get.
+   */
+  client: Pick<typeof prisma, 'session'> = prisma,
 ): Promise<IssuedSession> {
   const { token: refreshToken, tokenHash } = generateToken(32);
 
@@ -216,7 +236,7 @@ async function createSessionRow(
   const refreshTokenExpiresAt = new Date(now + env.REFRESH_TOKEN_TTL_SECONDS * 1000);
   const accessTokenExpiresAt = new Date(now + accessTokenTtlFor(userType) * 1000);
 
-  await prisma.session.create({
+  await client.session.create({
     data: {
       id: sessionId,
       userId,
@@ -225,6 +245,9 @@ async function createSessionRow(
       userAgent: context.userAgent?.slice(0, 512) ?? null,
       ipAddress: context.ipAddress ?? null,
       expiresAt: refreshTokenExpiresAt,
+      // A brand-new family starts its clock here; a rotation carries the
+      // original value in through `carried` and overwrites this.
+      familyStartedAt: new Date(now),
       ...(carried ?? {}),
     },
   });
@@ -241,10 +264,39 @@ async function createSessionRow(
 }
 
 /**
+ * Thrown inside the rotation transaction when another request claimed the same
+ * refresh token first.
+ *
+ * Its only job is to get the transaction rolled back and tell the `catch`
+ * which failure this was, so that a lost race is reported as reuse rather than
+ * as an unexplained 500. Never leaves this module.
+ */
+class RefreshTokenAlreadyClaimedError extends Error {
+  constructor() {
+    super('refresh token claimed by a concurrent rotation');
+    this.name = 'RefreshTokenAlreadyClaimedError';
+  }
+}
+
+/**
  * Exchange a refresh token for a new session in the same family.
  *
  * The reuse branch is the security-critical one: a token that exists but is
  * already revoked means the secret leaked, so the entire family is destroyed.
+ *
+ * THE CLAIM IS A CONDITIONAL UPDATE, AND IT HAS TO BE.
+ *
+ * Reading `revokedAt` and then writing it is a read-then-write across two
+ * statements, and two requests presenting the SAME token can both pass the
+ * read before either writes. That is exactly the shape of a stolen token being
+ * replayed alongside the real browser, and under the old ordering both callers
+ * were handed a working session and the reuse alarm never fired - the one
+ * situation the whole family mechanism exists to catch.
+ *
+ * So the old row is claimed with `updateMany ... WHERE revokedAt IS NULL`
+ * inside a transaction: MariaDB takes the row lock on that statement, the
+ * second caller blocks until the first commits, and then matches nothing. The
+ * loser gets `count === 0`, which is reuse, and the family is revoked.
  */
 export async function rotateSession(
   refreshToken: string,
@@ -294,35 +346,101 @@ export async function rotateSession(
     throw unauthorized(ErrorCode.ACCOUNT_DEACTIVATED, 'This account is no longer active.');
   }
 
+  /*
+   * The ceiling on the whole family.
+   *
+   * Everything above this line is about ONE token. This is about the sign-in:
+   * however diligently the refresh token has been rotated, a family may not
+   * outlive `SESSION_ABSOLUTE_TTL_SECONDS` measured from when somebody last
+   * typed the password. Without it a thirty-day sliding window used every
+   * twenty-ninth day is an unlimited one.
+   *
+   * `familyStartedAt` is null only for sessions that predate the column, and
+   * those are left to run out their own refresh token - a deployment must not
+   * sign everybody out at the moment it upgrades.
+   */
+  if (
+    session.familyStartedAt !== null &&
+    Date.now() - session.familyStartedAt.getTime() >= env.SESSION_ABSOLUTE_TTL_SECONDS * 1000
+  ) {
+    await revokeFamily(session.familyId, 'absolute_lifetime_reached');
+    throw unauthorized(
+      ErrorCode.SESSION_EXPIRED,
+      'This sign-in has reached its maximum age. Please sign in again.',
+    );
+  }
+
   const nextSessionId = newId();
 
-  const issued = await createSessionRow(
-    nextSessionId,
-    session.familyId,
-    session.userId,
-    session.user.type,
-    context,
-    {
-      mfaVerifiedAt: session.mfaVerifiedAt,
-      locationLatitude: session.locationLatitude,
-      locationLongitude: session.locationLongitude,
-      locationAccuracyM: session.locationAccuracyM,
-      locationLabel: session.locationLabel,
-      locationCountry: session.locationCountry,
-      locationCapturedAt: session.locationCapturedAt,
-    },
-  );
+  /*
+   * Claim first, create second, both in one transaction.
+   *
+   * The order matters: the conditional UPDATE takes the row lock, so a
+   * concurrent rotation of the same token waits here rather than racing past.
+   * The create then happens under that lock, and any failure rolls the whole
+   * thing back - which leaves the caller holding a token that still works,
+   * the property the previous create-then-revoke ordering was written for.
+   */
+  let issued: IssuedSession;
 
-  // Revoke the consumed token only after the replacement exists, so a crash in
-  // between leaves the client with a still-working token rather than none.
-  await prisma.session.update({
-    where: { id: session.id },
-    data: {
-      revokedAt: new Date(),
-      revokedReason: 'rotated',
-      replacedBySessionId: nextSessionId,
-    },
-  });
+  try {
+    issued = await prisma.$transaction(async (tx) => {
+      const claimed = await tx.session.updateMany({
+        where: { id: session.id, revokedAt: null },
+        data: {
+          revokedAt: new Date(),
+          revokedReason: 'rotated',
+          replacedBySessionId: nextSessionId,
+        },
+      });
+
+      if (claimed.count !== 1) {
+        throw new RefreshTokenAlreadyClaimedError();
+      }
+
+      return createSessionRow(
+        nextSessionId,
+        session.familyId,
+        session.userId,
+        session.user.type,
+        context,
+        {
+          mfaVerifiedAt: session.mfaVerifiedAt,
+          locationLatitude: session.locationLatitude,
+          locationLongitude: session.locationLongitude,
+          locationAccuracyM: session.locationAccuracyM,
+          locationLabel: session.locationLabel,
+          locationCountry: session.locationCountry,
+          locationCapturedAt: session.locationCapturedAt,
+          familyStartedAt: session.familyStartedAt,
+        },
+        tx,
+      );
+    });
+  } catch (error) {
+    if (!(error instanceof RefreshTokenAlreadyClaimedError)) throw error;
+
+    // Two live presentations of one token. Same conclusion as the revoked-row
+    // branch above, reached a few milliseconds earlier.
+    await revokeFamily(session.familyId, 'refresh_token_reuse_detected');
+
+    await recordAudit({
+      action: AuditAction.USER_REFRESH_REUSE_DETECTED,
+      resourceType: 'session',
+      resourceId: session.id,
+      actorType: session.user.type === 'ADMIN' ? 'ADMIN' : 'CUSTOMER',
+      actorUserId: session.userId,
+      after: { familyId: session.familyId, revokedSessions: 'all', detectedBy: 'concurrent_claim' },
+      ipAddress: context.ipAddress ?? null,
+      userAgent: context.userAgent ?? null,
+      correlationId: context.correlationId ?? null,
+    });
+
+    throw unauthorized(
+      ErrorCode.REFRESH_TOKEN_REUSED,
+      'This session was ended for security reasons. Please sign in again.',
+    );
+  }
 
   return issued;
 }

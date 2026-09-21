@@ -1,0 +1,49 @@
+# -----------------------------------------------------------------------------
+# security.txt - RFC 9116
+#
+# A machine-readable "how to report a vulnerability to this installation". It
+# is the first place a researcher or an automated scanner looks, and its
+# absence is read as "there is nobody to tell", which is how a finding ends up
+# on a mailing list instead of in your inbox.
+#
+# WHERE IT GOES
+#
+#   /srv/uboss/current/customer-web/.well-known/security.txt
+#
+# The nginx site file already serves that path - see `location =
+# /.well-known/security.txt` in deploy/nginx/uboss.conf. Serve it from the
+# storefront host; that is the hostname somebody who found something will be
+# looking at.
+#
+# THREE THINGS TO CHANGE, AND ALL THREE MATTER
+#
+#   1. Contact:  your own monitored address. A group, not a person - somebody
+#      is always on holiday. A bounce means the finding gets published instead.
+#   2. Expires:  a real date, LESS THAN A YEAR from now. An expired file is
+#      treated as no policy at all by every tool that reads it, so put the
+#      renewal in the same calendar as the TLS certificate.
+#   3. Policy:   where your written policy lives. SECURITY.md in this
+#      repository is the starting text; publish it somewhere a stranger can
+#      read without a login.
+#
+# OPTIONAL BUT WORTH IT
+#
+#   Encryption:  a URL to your PGP public key, so a report containing a
+#                working exploit does not travel as plain email.
+#   Acknowledgments: a page naming the people who have reported things. It
+#                costs nothing and it is most of why people report to you
+#                rather than about you.
+#
+# SIGN IT, IF YOU CAN. RFC 9116 allows a detached PGP signature over this
+# file, which stops somebody who can write to your web root from redirecting
+# reports to themselves. `gpg --clearsign security.txt` and serve the result.
+# -----------------------------------------------------------------------------
+
+Contact: mailto:security@your-company.example
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://shop.your-company.example/.well-known/security.txt
+Policy: https://your-company.example/security-policy
+
+# Encryption: https://your-company.example/pgp-key.txt
+# Acknowledgments: https://your-company.example/security-thanks

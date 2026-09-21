@@ -15,7 +15,7 @@
  */
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { env, isProduction } from '../../config/env.js';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import { newId } from '../ids.js';
@@ -390,7 +390,17 @@ class LocalStorageDriver implements StorageDriver {
    */
   private pathFor(storageKey: string): string {
     const target = resolve(this.root, storageKey);
-    if (!target.startsWith(this.root)) {
+    /*
+     * `startsWith(root)` alone is the classic near-miss: with a root of
+     * `/srv/uboss/media`, the path `/srv/uboss/media-public/x` starts with it
+     * and is a different directory. The separator is what makes the test mean
+     * "inside", and the equality case covers the root itself.
+     *
+     * Keys are generated internally today, so nothing reaches this with a
+     * traversal in it. That is exactly why the check has to be right: it is
+     * here for the caller who has not been written yet.
+     */
+    if (target !== this.root && !target.startsWith(this.root + sep)) {
       throw badRequest(ErrorCode.VALIDATION_FAILED, 'Invalid storage key.');
     }
     return target;

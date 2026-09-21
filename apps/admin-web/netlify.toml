@@ -100,21 +100,32 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
 
-    # REPORT-ONLY, deliberately, exactly as the nginx snippet ships it. A CSP
-    # one directive short blanks the page rather than degrading. Watch the
-    # reports for a day - including the warehouse map and a product image
-    # upload - before renaming this to `Content-Security-Policy`.
+    # ENFORCING. The same policy the shipped nginx configuration enforces, on
+    # the same built files, so a site put on Netlify is not the weak copy of a
+    # site put on a server of your own. It was report-only here while the
+    # nginx one was; nginx was switched to enforcing and these were not, which
+    # left every Netlify deployment with a header that blocks nothing.
     #
-    # THE WAREHOUSE MAP IS THE ONE THAT WILL BE REPORTED HERE.
+    # A CSP one directive short does not degrade - it blanks the page, in
+    # production only, usually on a screen nobody opened during the deploy. So
+    # if you add a provider - a map, an error tracker, an AI endpoint the
+    # browser calls directly - stage it against this policy BEFORE deploying,
+    # and add the origin here rather than loosening a directive.
     #
-    # It is off until MAP_STYLE_URL, MAP_TILE_URL or MAP_GOOGLE_API_KEY is set,
-    # and what those point at is the operator's choice, so no list shipped here
-    # could be right for everybody. Add the hosts you configured to script-src,
-    # connect-src and img-src together - a vector style is fetched, a raster
-    # tile is an image, and the Google map is a script that does both. For
-    # example: https://tiles.openfreemap.org, https://tile.openstreetmap.org,
-    # or https://maps.googleapis.com https://maps.gstatic.com.
-    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+    # The Stripe and Razorpay origins are here even for an installation that
+    # uses neither: allowing an origin never breaks a page, omitting one does,
+    # and Stripe draws the card fields in a cross-origin iframe - a policy
+    # without them gives the customer an empty box where the card number goes.
+    # The Razorpay checkout has NOT been walked through against this policy,
+    # so an installation that uses it should watch a test payment closely the
+    # first time.
+    #
+    # `style-src` still carries 'unsafe-inline'. React style={{...}} props
+    # become inline style ATTRIBUTES and the component libraries here inject
+    # <style> elements at runtime, so removing it blanks pages. It is recorded
+    # as an accepted residual risk in SECURITY-AUDIT-REPORT.md rather than
+    # quietly tolerated.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
 
 # Vite fingerprints everything in /assets, so a file at a given URL never
 # changes. Cache it for a year and let the filename do the invalidating.

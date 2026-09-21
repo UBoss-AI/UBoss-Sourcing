@@ -248,12 +248,44 @@ export async function buildApp() {
 
   // --- 2. Security headers -------------------------------------------------
   await app.register(helmet, {
-    // The API serves JSON and locally-stored media, never HTML that runs script.
+    /*
+     * The API serves JSON and locally-stored media, never HTML that runs
+     * script.
+     *
+     * EVERY DIRECTIVE IS NAMED, INCLUDING THE ONES SET TO 'none'.
+     *
+     * Helmet MERGES what it is given with its own defaults, which are written
+     * for a web page rather than for an API. Naming only `default-src`,
+     * `img-src` and `frame-ancestors` left the real header carrying
+     * `style-src 'self' https: 'unsafe-inline'`, `font-src 'self' https:
+     * data:` and `script-src 'self'` — helmet's defaults, none of them
+     * intended here, and none of them visible in this file. The header that
+     * went out was materially broader than the one the code read as, which
+     * is the whole failure mode: `default-src 'none'` looks absolute and is
+     * overridden by every more specific default sitting underneath it.
+     *
+     * So the four a browser could otherwise be told to fetch are pinned to
+     * 'none' explicitly. `useDefaults` stays on, because what it contributes
+     * beyond these — `base-uri 'self'`, `form-action 'self'`,
+     * `object-src 'none'`, `script-src-attr 'none'`,
+     * `upgrade-insecure-requests` — is all wanted, and turning it off would
+     * mean re-listing them here and losing whatever helmet adds next.
+     *
+     * `tests/integration/api-security-headers.test.ts` asserts the header on
+     * a real response rather than trusting this comment, for exactly the
+     * reason above.
+     */
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'none'"],
+        // Uploaded product media, served from this origin under
+        // /media/products/ when STORAGE_DRIVER=local.
         imgSrc: ["'self'", 'data:'],
         frameAncestors: ["'none'"],
+        scriptSrc: ["'none'"],
+        styleSrc: ["'none'"],
+        fontSrc: ["'none'"],
+        connectSrc: ["'none'"],
       },
     },
     crossOriginResourcePolicy: { policy: 'cross-origin' },

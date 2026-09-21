@@ -28,6 +28,7 @@ import { describe, expect, it } from 'vitest';
 import {
   assertSafeErpUrl,
   isPubliclyRoutable,
+  headersForRedirect,
   resolveSafeTarget,
   safeFetch,
 } from '../../src/infra/outbound-http.js';
@@ -245,6 +246,129 @@ describe('safeFetch against a real socket', () => {
       expect(result.bodyText).toBe('{"ok":true}');
     } finally {
       await new Promise<void>((resolve) => { server.close(() => { resolve(); }); });
+    }
+  });
+});
+
+/**
+ * A redirect is somebody else's instruction, and the credential must not obey
+ * it across an origin.
+ *
+ * The finding this guards (SEC-06 in SECURITY-AUDIT-REPORT.md): `safeFetch`
+ * carried the caller's headers unchanged onto every redirect hop. The stored
+ * ERP token therefore travelled to whatever address the ERP's own
+ * `Location` named - and that address passes every check in this module,
+ * because a collector on a public host is a perfectly ordinary public host.
+ * Anyone who could answer for the ERP's hostname could ask for the token and
+ * be given it.
+ *
+ * Same-origin redirects keep the headers, because `/v2/` to `/v2` is ordinary
+ * routing and a guard that broke it would be turned off.
+ */
+describe('credentials do not follow a redirect off the origin', () => {
+  const secret = 'Bearer erp-token-value-not-a-real-one';
+
+  it('drops authorization, cookies and api-key headers when the host changes', () => {
+    const kept = headersForRedirect(
+      {
+        Authorization: secret,
+        Cookie: 'session=abc',
+        'X-API-Key': 'k',
+        'X-Monday-Api-Key': 'm',
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      new URL('https://erp.example.com/a'),
+      new URL('https://collector.attacker.example/b'),
+    );
+
+    expect(kept).toEqual({ 'Content-Type': 'application/json', Accept: 'application/json' });
+  });
+
+  it('matches the header name whatever case it was written in', () => {
+    const kept = headersForRedirect(
+      { authorization: secret, AUTHORIZATION: secret, Accept: 'application/json' },
+      new URL('https://erp.example.com/a'),
+      new URL('https://elsewhere.example/b'),
+    );
+
+    expect(Object.keys(kept)).toEqual(['Accept']);
+  });
+
+  it('treats a port change and a scheme change as a different origin', () => {
+    const from = new URL('https://erp.example.com/a');
+
+    for (const to of [
+      new URL('https://erp.example.com:8443/a'),
+      new URL('http://erp.example.com/a'),
+    ]) {
+      expect(headersForRedirect({ Authorization: secret }, from, to)).toEqual({});
+    }
+  });
+
+  it('keeps everything on a same-origin redirect', () => {
+    const headers = { Authorization: secret, Accept: 'application/json' };
+
+    expect(
+      headersForRedirect(
+        headers,
+        new URL('https://erp.example.com/v2/'),
+        new URL('https://erp.example.com/v2'),
+      ),
+    ).toEqual(headers);
+  });
+
+  /**
+   * End to end, over a real socket: an ERP that 302s to a second server must
+   * not hand that second server the token. Two local listeners, because the
+   * property is about what arrives on the wire rather than about what a
+   * helper returns.
+   */
+  it('does not send the credential to the server a redirect points at', async () => {
+    const received: (string | undefined)[] = [];
+
+    const collector = createServer((request, response) => {
+      received.push(request.headers.authorization);
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end('{"collected":true}');
+    });
+    await new Promise<void>((resolve) => { collector.listen(0, '127.0.0.1', resolve); });
+    const collectorAddress = collector.address();
+    const collectorPort =
+      typeof collectorAddress === 'object' && collectorAddress !== null
+        ? collectorAddress.port
+        : 0;
+
+    // A different PORT is a different origin, which is what makes this two
+    // origins on one machine rather than a test that needs the internet.
+    const erp = createServer((request, response) => {
+      received.push(request.headers.authorization);
+      response.writeHead(302, {
+        location: `http://127.0.0.1:${String(collectorPort)}/collect`,
+      });
+      response.end();
+    });
+    await new Promise<void>((resolve) => { erp.listen(0, '127.0.0.1', resolve); });
+    const erpAddress = erp.address();
+    const erpPort = typeof erpAddress === 'object' && erpAddress !== null ? erpAddress.port : 0;
+
+    try {
+      const result = await safeFetch(`http://127.0.0.1:${String(erpPort)}/stock`, {
+        method: 'GET',
+        headers: { Authorization: secret },
+        timeoutMs: 5000,
+        // Loopback, so the developer exemption is needed to reach it at all.
+        // `env.ts` refuses to start production with this on.
+        allowPrivate: true,
+      });
+
+      expect(result.status).toBe(200);
+      // The ERP itself was entitled to it; the address it chose was not.
+      expect(received[0]).toBe(secret);
+      expect(received[1]).toBeUndefined();
+    } finally {
+      await new Promise<void>((resolve) => { collector.close(() => { resolve(); }); });
+      await new Promise<void>((resolve) => { erp.close(() => { resolve(); }); });
     }
   });
 });

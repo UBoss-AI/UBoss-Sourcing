@@ -552,6 +552,70 @@ describe('webhook processing', () => {
     expect(event.processingStatus).toBe('REJECTED');
   });
 
+  /**
+   * SEC-07. An unsigned webhook is anonymous internet traffic, and this
+   * endpoint used to store 60 KB of it per request.
+   *
+   * At the route's 300 requests a minute that is roughly a gigabyte an hour of
+   * attacker-chosen bytes written into the database by somebody with no
+   * credential at all, until the disk fills and every service on the machine
+   * stops. A verified event still keeps its full body - those bytes came from
+   * the provider and are the evidence behind a captured payment - but a
+   * rejected one keeps only a fingerprint.
+   */
+  it('keeps a fingerprint of a rejected webhook rather than the whole body', async () => {
+    const { providerOrderId, amountMinor } = await orderAwaitingPayment();
+
+    // A megabyte of filler in a field the payload schema does not care about,
+    // which is exactly what a disk-filling request looks like.
+    const bloat = 'A'.repeat(1_000_000);
+    const payload = capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) });
+    const { rawBody } = signedWebhook({ ...payload, padding: bloat });
+
+    await processWebhook(rawBody, { 'x-razorpay-signature': 'c'.repeat(64) });
+
+    const event = await prisma.paymentEvent.findFirstOrThrow();
+    expect(event.processingStatus).toBe('REJECTED');
+
+    const stored = event.rawPayload ?? '';
+
+    // The decisive number. Anything that grows with the request is a lever.
+    expect(stored.length).toBeLessThan(2_000);
+    expect(stored).not.toContain(bloat);
+
+    // And it is still useful: size, digest and an opening fragment are what
+    // tell a misconfigured-but-honest sender apart from a flood.
+    const fingerprint = JSON.parse(stored) as {
+      rejected: boolean;
+      bytes: number;
+      sha256: string;
+      prefix: string;
+    };
+    expect(fingerprint.rejected).toBe(true);
+    expect(fingerprint.bytes).toBe(rawBody.byteLength);
+    expect(fingerprint.sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(fingerprint.prefix.length).toBeLessThanOrEqual(512);
+  });
+
+  /**
+   * The other half of the same rule: a GENUINE event must still be kept in
+   * full, or the fix would have removed the payment evidence along with the
+   * amplification.
+   */
+  it('still stores the whole body of a signature-verified event', async () => {
+    const { providerOrderId, amountMinor } = await orderAwaitingPayment();
+
+    const payload = capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) });
+    const { rawBody, headers } = signedWebhook(payload);
+
+    await processWebhook(rawBody, headers);
+
+    const event = await prisma.paymentEvent.findFirstOrThrow({
+      where: { signatureVerified: true },
+    });
+    expect(event.rawPayload).toBe(rawBody.toString('utf8'));
+  });
+
   it('ignores an event for an unknown provider order', async () => {
     await orderAwaitingPayment();
 

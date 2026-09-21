@@ -470,6 +470,24 @@ in seconds and both are clamped to between a minute and a day. The refresh
 cookie behind them, `REFRESH_TOKEN_TTL_SECONDS`, is unchanged at thirty days and
 is what keeps a browser in use signed in without anybody noticing.
 
+**And a third, which is the ceiling rather than the window.** The refresh
+cookie *slides*: every rotation issues another thirty days, so a browser used
+once a month stays signed in for ever — and so does a refresh token somebody
+copied off an old machine, because the reuse alarm only fires when both copies
+are presented. `SESSION_ABSOLUTE_TTL_SECONDS` (default `7776000`, ninety days)
+is measured from the moment the password was typed and is not reset by a
+rotation. Reaching it ends the whole token family and asks for the password
+again. It has to be longer than `REFRESH_TOKEN_TTL_SECONDS`; the process
+refuses to start otherwise, because a ceiling below the window would end every
+session early and make the window mean nothing.
+
+`COOKIE_SAME_SITE` stays at `lax`. `none` is refused in production: it attaches
+the session cookie to requests from any site and removes the browser-level
+protection underneath the double-submit CSRF token. A deployment whose API is
+on another hostname proxies `/api/v1` under the site's own origin instead —
+both the shipped nginx configuration and the shipped `netlify.toml` files
+already do.
+
 A **product** is the thing itself — its name, specifications, photographs. An
 **offer** is what one seller will supply it for. Ten sellers offering the same
 item produce one product row and ten offers, because "the same product" must
@@ -1459,6 +1477,18 @@ one are a Vite cache, not a code bug.
 2. **Generate fresh secrets** — `SESSION_COOKIE_SECRET`, `ACCESS_TOKEN_SECRET`,
    `REFRESH_TOKEN_SECRET`, `SECRETS_ENCRYPTION_KEY`. Never reuse development
    values.
+
+   **Four different values, one per setting.** Production refuses to start if
+   any two of them match. They protect different things — the cookie
+   signature, the access token, the refresh token and the credential vault —
+   and pasting one generated string into all four means a single leak forges
+   sessions, mints tokens and decrypts every stored integration credential at
+   once.
+
+   ```powershell
+   node -e "console.log(require('crypto').randomBytes(36).toString('base64url'))"  # the three signing secrets
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"     # SECRETS_ENCRYPTION_KEY, exactly 32 bytes
+   ```
 3. **Migrate, tighten the grants, then install the reference data.**
    ```powershell
    cd backend
@@ -1564,6 +1594,34 @@ one are a Vite cache, not a code bug.
 14. **Point an external uptime check at `/health/live`,** from outside the
     network. Everything above runs *on* the machine, so none of it can report
     the one failure that matters most.
+
+    `/health/ready` is the other one, and it answers only *whether* each
+    dependency responded and how quickly — never *why* one did not. Both are
+    reachable without a session, so the reason goes to the journal instead:
+    `journalctl -u uboss-api@4000 -g 'readiness check failed'`.
+15. **Publish `security.txt` and name a security contact.** Copy
+    `deploy/nginx/security.txt.example` to
+    `/srv/uboss/current/customer-web/.well-known/security.txt`, fill in your
+    monitored address, and set `Expires` to a date under a year away. The
+    nginx site file already serves that path. [`SECURITY.md`](SECURITY.md) is
+    the written policy it points at — read it before you publish it, because
+    the response times in it are promises.
+
+    An absent file reads to a researcher as "there is nobody to tell", which
+    is how a finding reaches a mailing list instead of your inbox. For an EU
+    seller it is also part of the Cyber Resilience Act's vulnerability-handling
+    obligation — `docs/DEPLOYMENT.md` §26.
+16. **Check the sandbox scores after installing the units.**
+
+    ```bash
+    systemd-analyze security uboss-api@4000.service   # expect ~1.6 OK
+    systemd-analyze security uboss-worker.service
+    systemd-analyze security uboss-backup.service
+    ```
+
+    Then start each service and confirm it actually comes up. A sandbox
+    directive can score well and still stop a process from running, and the
+    score is not evidence that it did.
 
 </details>
 
@@ -1709,6 +1767,28 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   in from paperwork and are given an hour; the account that can refund an order
   and read a customer's address is the one left open on a shared desk, and it
   keeps its own, shorter number.
+- **A sign-in has a maximum age, not only a maximum idle time.**
+  `REFRESH_TOKEN_TTL_SECONDS` slides forward on every rotation, so on its own
+  it would let a session used once a month live for ever — and a refresh token
+  somebody stole lives exactly as long as they keep using it, because reuse
+  detection only fires when both copies are presented.
+  `SESSION_ABSOLUTE_TTL_SECONDS` is the ceiling, measured from when the
+  password was typed, and reaching it ends the whole token family.
+- **One refresh token is spent once, even by two requests at the same
+  instant.** The old token is claimed with a conditional `UPDATE` inside the
+  same transaction that writes its replacement, so the second caller matches
+  no row and is treated as reuse. A read-then-write would let a stolen token
+  and the real browser both succeed, which is the one case the family
+  mechanism exists to catch.
+- **The sign-in form is not a directory.** The password is compared before any
+  account status is named, so "deactivated", "awaiting approval" and "confirm
+  your email" reach the person who knows the password and nobody else. An
+  unknown address and a wrong password against a closed account give the same
+  code and the same message.
+- **A credential never follows a redirect off its origin.** An ERP that
+  answers `302 Location: https://somewhere-else/` gets the redirect followed
+  and the `Authorization` header dropped, because the address was that
+  server's choice rather than the operator's.
 - **One seller cannot read another seller's data.** Every owned row carries its
   `sellerAccountId`, no route takes one from the caller, and no service accepts
   a seller id without having been handed a membership first.
@@ -1815,6 +1895,8 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | `backend/docs/ACCESSIBILITY.md` | The accessibility commitments and how they are tested |
 | `backend/docs/PRODUCT-SAFETY.md` | Product-safety and compliance fields |
 | `backend/docs/FRONTEND-INTEGRATION.md` | Contract notes for a client talking to this API |
+| **[`SECURITY.md`](SECURITY.md)** | How to report a vulnerability, what happens next, how quickly it is fixed, and what is in and out of scope. Publish a filled-in copy before going live |
+| **[`SECURITY-AUDIT-REPORT.md`](SECURITY-AUDIT-REPORT.md)** | The last security audit: every control, its status, the evidence behind it, what was fixed, and what still needs a live system or an independent tester to prove |
 | `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
 | `CLAUDE.md` | The rules for working in this repository |
 

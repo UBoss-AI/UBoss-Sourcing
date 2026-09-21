@@ -8,6 +8,20 @@
  *   /health/ready - "should traffic be routed here?" Checks the database and
  *                   the queue, and returns 503 when either is down so the load
  *                   balancer drains this instance instead.
+ *
+ * WHAT THESE MAY SAY, AND WHAT THEY MAY NOT
+ *
+ * Both are reachable without a session - nginx proxies `/health/` to every
+ * caller, because an uptime check has no credential to offer. So the response
+ * body is held to what an anonymous stranger may know: up or down, and how
+ * long it took.
+ *
+ * It used to carry the driver's own failure text as well, and that text is
+ * written for an operator: MariaDB and Prisma name the host, the port and the
+ * database user in it. An outage was therefore the moment this endpoint handed
+ * out the shape of the infrastructure, to anybody, unauthenticated. The reason
+ * is logged at error level with the correlation id instead - the operator reads
+ * it in the journal, which is where they were already looking.
  */
 import type { FastifyInstance } from 'fastify';
 import { metricsContentType, renderMetrics } from '../../infra/metrics.js';
@@ -16,10 +30,10 @@ import { checkDatabase } from '../../infra/prisma.js';
 
 const startedAt = Date.now();
 
-interface DependencyResult {
+/** What a caller is told: whether it answered, and how quickly. Never why not. */
+interface PublicDependencyResult {
   ok: boolean;
   latencyMs: number;
-  error?: string;
 }
 
 export function registerHealthRoutes(app: FastifyInstance): Promise<void> {
@@ -30,11 +44,28 @@ export function registerHealthRoutes(app: FastifyInstance): Promise<void> {
     }),
   );
 
-  app.get('/health/ready', async (_request, reply) => {
+  app.get('/health/ready', async (request, reply) => {
     const [database, queue] = await Promise.all([checkDatabase(), checkQueue()]);
 
-    const dependencies: Record<string, DependencyResult> = { database, queue };
-    const ready = Object.values(dependencies).every((dependency) => dependency.ok);
+    const ready = database.ok && queue.ok;
+
+    if (!ready) {
+      // The whole reason, once, where an operator can read it. Never in the
+      // response - see this file's header.
+      request.log.error(
+        {
+          correlationId: request.correlationId,
+          database: { ok: database.ok, error: database.error },
+          queue: { ok: queue.ok, error: queue.error },
+        },
+        'readiness check failed',
+      );
+    }
+
+    const dependencies: Record<string, PublicDependencyResult> = {
+      database: { ok: database.ok, latencyMs: database.latencyMs },
+      queue: { ok: queue.ok, latencyMs: queue.latencyMs },
+    };
 
     return reply.status(ready ? 200 : 503).send({
       status: ready ? 'ready' : 'not_ready',

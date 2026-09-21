@@ -46,6 +46,48 @@ ExecStart=/srv/uboss/repo/deploy/scripts/backup.sh
 IOSchedulingClass=idle
 Nice=19
 
+# --- Sandbox, measured -------------------------------------------------------
+#
+# Added after `systemd-analyze security` scored these units. Re-run it after
+# any change:
+#
+#   systemd-analyze security uboss-backup.service
+#
+# A short-lived shell script is not a reason to run unconfined. This one holds
+# the backup encryption passphrase and read access to the whole database, which
+# makes it the most valuable environment file on the box. What it actually runs
+# - mariadb-dump, gpg, tar, rclone, curl - is ordinary userspace: no
+# capabilities, no new namespaces, no kernel tuning.
+#
+# AF_NETLINK is in the address-family list because glibc's getaddrinfo() uses
+# it; without it every hostname lookup fails and the off-site copy silently
+# stops working.
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectProc=invisible
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=yes
+PrivateMounts=yes
+RemoveIPC=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+ReadWritePaths=/srv/uboss/backups
+
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=uboss-backup

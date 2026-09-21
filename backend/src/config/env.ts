@@ -122,6 +122,27 @@ const envSchema = z
      */
     ADMIN_ACCESS_TOKEN_TTL_SECONDS: intFromString(60, 86_400).default(900),
     REFRESH_TOKEN_TTL_SECONDS: intFromString(3600, 31_536_000).default(2_592_000),
+    /**
+     * The ceiling on one sign-in, however often it is refreshed.
+     *
+     * `REFRESH_TOKEN_TTL_SECONDS` is a SLIDING window: every rotation issues a
+     * token good for another thirty days, so a session used at least once a
+     * month never expires. That is comfortable for the person holding it and
+     * it is also true of whoever stole the token - a refresh token lifted from
+     * a backup, a proxy log or an old machine keeps working for as long as the
+     * thief keeps using it, and reuse detection never fires because the
+     * legitimate browser has stopped presenting the old one.
+     *
+     * So the family gets an absolute age as well, measured from the sign-in
+     * rather than from the last rotation. Reaching it revokes the family and
+     * asks for the password again. Ninety days by default: long enough that a
+     * buyer who orders monthly is never interrupted, short enough that a
+     * credential cannot outlive the job of the person who held it.
+     *
+     * Must exceed `REFRESH_TOKEN_TTL_SECONDS`, or the cap would end sessions
+     * before their own refresh token expired - checked below.
+     */
+    SESSION_ABSOLUTE_TTL_SECONDS: intFromString(3600, 31_536_000).default(7_776_000),
     COOKIE_DOMAIN: z.string().default(''),
     COOKIE_SECURE: booleanFromString.default(false),
     COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
@@ -1165,6 +1186,28 @@ const envSchema = z
     }
 
     /*
+     * A ceiling below the sliding window it is meant to cap.
+     *
+     * With SESSION_ABSOLUTE_TTL_SECONDS under REFRESH_TOKEN_TTL_SECONDS, every
+     * family would be revoked by age before its own refresh token expired -
+     * so the refresh setting would silently mean nothing and people would be
+     * signed out on a schedule nobody configured. Caught at startup, where the
+     * two numbers are side by side.
+     */
+    if (value.SESSION_ABSOLUTE_TTL_SECONDS <= value.REFRESH_TOKEN_TTL_SECONDS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SESSION_ABSOLUTE_TTL_SECONDS'],
+        message:
+          `SESSION_ABSOLUTE_TTL_SECONDS (${String(value.SESSION_ABSOLUTE_TTL_SECONDS)}s) must be ` +
+          `longer than REFRESH_TOKEN_TTL_SECONDS (${String(value.REFRESH_TOKEN_TTL_SECONDS)}s). ` +
+          'The first is the ceiling on a whole sign-in; the second is how long one refresh ' +
+          'token lives. A ceiling below it ends every session early and makes the refresh ' +
+          'setting meaningless.',
+      });
+    }
+
+    /*
      * The logistics portal, switched on with nowhere to send anybody.
      *
      * An invitation email carries an activation link, and the link is built
@@ -1560,10 +1603,100 @@ const envSchema = z
           });
         }
       }
+
+      /*
+       * One secret doing four jobs.
+       *
+       * The four keys below sign and encrypt different things - the cookie
+       * signature, the access token, the refresh token and the credential
+       * vault - and the whole reason they are four settings is that a
+       * compromise of one must not be a compromise of the others. A
+       * deployment that pastes the same generated string into all of them
+       * gets none of that, and nothing about the running system says so: it
+       * boots, it works, and the separation exists only in the names.
+       *
+       * Checked in production only. A developer sharing one string across a
+       * throwaway `.env` is not interesting, and refusing it would add a
+       * setup step for no gain.
+       */
+      const purposeKeys = [
+        'SESSION_COOKIE_SECRET',
+        'ACCESS_TOKEN_SECRET',
+        'REFRESH_TOKEN_SECRET',
+        'SECRETS_ENCRYPTION_KEY',
+      ] as const;
+
+      for (let i = 0; i < purposeKeys.length; i += 1) {
+        for (let j = i + 1; j < purposeKeys.length; j += 1) {
+          const first = purposeKeys[i];
+          const second = purposeKeys[j];
+          if (first === undefined || second === undefined) continue;
+          if (value[first].length > 0 && value[first] === value[second]) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [second],
+              message:
+                `${second} is the same string as ${first}. Each of these protects a different ` +
+                'thing and they must not be shared: one leaked value would otherwise forge ' +
+                'sessions, mint tokens and decrypt every stored integration credential at ' +
+                'once. Generate a separate value for each.',
+            });
+          }
+        }
+      }
+
+      /*
+       * SameSite=None without Secure is a cookie the browser throws away, and
+       * SameSite=None at all means the session cookie is attached to requests
+       * from any site. The double-submit CSRF token is still there, but this
+       * removes the browser-level layer underneath it, so it is refused
+       * outright rather than warned about.
+       *
+       * A deployment that genuinely needs it - the storefront and the API on
+       * unrelated registrable domains - should proxy the API under the site's
+       * own origin instead, which is what every shipped deployment does.
+       */
+      if (value.COOKIE_SAME_SITE === 'none') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['COOKIE_SAME_SITE'],
+          message:
+            'COOKIE_SAME_SITE=none cannot be used in production: it attaches the session cookie ' +
+            'to cross-site requests and removes the browser-level CSRF protection underneath ' +
+            'the double-submit token. Serve the API under the same registrable domain as the ' +
+            'site - the shipped nginx and Netlify configurations both proxy /api/v1 - and ' +
+            'leave this at lax.',
+        });
+      }
     }
   });
 
 export type Env = z.infer<typeof envSchema>;
+
+/**
+ * Check a candidate environment without starting anything.
+ *
+ * `loadEnv` below reads `process.env` and calls `process.exit(1)` when it does
+ * not like what it finds, which is exactly right for a server and impossible
+ * to test: importing this module a second time with a different environment
+ * would take the test runner down with it.
+ *
+ * So the rules live behind this, which returns the verdict instead of acting
+ * on it. `tests/unit/production-config.test.ts` uses it to prove that a
+ * production configuration with insecure cookies, a shared secret, a test
+ * payment key or the malware scanner switched off is actually refused -
+ * rather than trusting that the code reads as though it would be.
+ *
+ * Returns the list of `PATH: message` strings, empty when the configuration is
+ * acceptable.
+ */
+export function validationIssuesFor(candidate: Record<string, string | undefined>): string[] {
+  const parsed = envSchema.safeParse(candidate);
+  if (parsed.success) return [];
+  return parsed.error.issues.map(
+    (issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`,
+  );
+}
 
 function loadEnv(): Env {
   const parsed = envSchema.safeParse(process.env);

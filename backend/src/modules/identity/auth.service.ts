@@ -6,10 +6,24 @@
  * before the password is even compared, so the two surfaces cannot be used to
  * probe each other's account list.
  *
- * Failure responses are deliberately uniform: unknown email, wrong password and
- * unverified account all return INVALID_CREDENTIALS with the same shape and a
- * comparable timing profile. Only a locked account is disclosed, because the
- * user genuinely needs to know why waiting will help.
+ * Failure responses are deliberately uniform for anybody who does not know the
+ * password: unknown email, wrong surface, wrong password, deactivated account
+ * and unapproved account all return INVALID_CREDENTIALS with the same shape and
+ * a comparable timing profile, because the password is compared FIRST and the
+ * account's own state is named only afterwards. Somebody holding the right
+ * password still gets the specific reason and the specific remedy.
+ *
+ * Two disclosures survive that rule, both on purpose:
+ *
+ *   - A LOCKED account is named before the comparison. The holder genuinely
+ *     needs to know that waiting will help, and the lockout is only reachable
+ *     after eight failures against that one address anyway.
+ *   - An account still on an emailed INVITATION is named after a failed
+ *     comparison, because it has no password hash for the comparison to test
+ *     and no reset path either - see the branch in `login`.
+ *
+ * Both are recorded as accepted risks in SECURITY-AUDIT-REPORT.md rather than
+ * left as something a reader has to rediscover here.
  */
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, unauthorized } from '../../domain/errors.js';
@@ -114,17 +128,76 @@ export async function login(input: LoginInput): Promise<LoginResult> {
     );
   }
 
+  /*
+   * THE PASSWORD IS COMPARED BEFORE ANY ACCOUNT STATUS IS DISCLOSED.
+   *
+   * This ordering is the control, and it used to be the other way round.
+   *
+   * "Deactivated", "not activated yet", "waiting to be approved" and "confirm
+   * your email address" are four different, specific, useful answers - and
+   * every one of them was reachable by posting an address and any password at
+   * all. That turns the sign-in form into a directory: an attacker learns
+   * which addresses hold accounts here, and which of those are sitting on an
+   * unopened invitation, which is a ready-made phishing list of people already
+   * expecting a "click here to set your password" email from this store.
+   *
+   * Comparing the password first costs the legitimate holder nothing - they
+   * know it, so they still get the exact reason and the exact remedy - and
+   * costs somebody who does not know it everything, because every wrong
+   * password now produces the one generic refusal whatever state the account
+   * is in.
+   *
+   * `dummyHash()` keeps the timing flat for an account with no hash at all,
+   * exactly as it already did for an unknown address.
+   *
+   * PENDING_INVITATION is the one status that cannot be moved behind this,
+   * and it is handled below rather than here: an invited account has no
+   * password to compare, so there is no "knows the password" test to put in
+   * front of it. See the branch after the comparison.
+   */
+  const passwordMatches =
+    user.passwordHash === null
+      ? // Still one Argon2 verification, so this branch costs what the others
+        // cost. The result is discarded; an account with no hash has no
+        // password that can match.
+        ((await verifyPassword(await dummyHash(), input.password)), false)
+      : await verifyPassword(user.passwordHash, input.password);
+
+  if (!passwordMatches) {
+    /*
+     * The one exception, and it is deliberate.
+     *
+     * An account still on its emailed invitation has no password hash, so no
+     * password can ever match and the generic refusal would leave the invited
+     * person with a sign-in that says "incorrect" for ever and no way to work
+     * out that the fix is in their inbox. They also cannot use the reset
+     * form: that refuses anything that is not ACTIVE.
+     *
+     * The disclosure is real and it is recorded as an accepted risk in
+     * SECURITY-AUDIT-REPORT.md rather than hidden here. What it is NOT is the
+     * open door it used to be beside the other four: those all had passwords
+     * and are now behind one.
+     */
+    if (user.status === 'PENDING_INVITATION') {
+      await recordFailedAttempt(emailNormalized, input, 'not_activated');
+      throw unauthorized(
+        ErrorCode.ACCOUNT_NOT_ACTIVATED,
+        'This account has not been activated yet. Please use the invitation link that was emailed to you.',
+      );
+    }
+
+    // `registerFailure` counts towards the lockout; an account with no hash is
+    // still worth counting, so that grinding at one is not free.
+    await registerFailure(user.id, user.failedLoginCount);
+    await recordFailedAttempt(emailNormalized, input, 'wrong_password');
+    throw unauthorized(ErrorCode.INVALID_CREDENTIALS, 'Email or password is incorrect.');
+  }
+
+  // --- Right password. Now the account's own state may be named. -----------
+
   if (user.archivedAt !== null || user.status === 'DEACTIVATED') {
     await recordFailedAttempt(emailNormalized, input, 'deactivated');
     throw unauthorized(ErrorCode.ACCOUNT_DEACTIVATED, 'This account has been deactivated.');
-  }
-
-  if (user.status === 'PENDING_INVITATION') {
-    await recordFailedAttempt(emailNormalized, input, 'not_activated');
-    throw unauthorized(
-      ErrorCode.ACCOUNT_NOT_ACTIVATED,
-      'This account has not been activated yet. Please use the invitation link that was emailed to you.',
-    );
   }
 
   if (user.status === 'PENDING_APPROVAL') {
@@ -148,19 +221,15 @@ export async function login(input: LoginInput): Promise<LoginResult> {
     );
   }
 
-  // An active account always has a password hash; the null branch means the
-  // row is inconsistent, and it must not be treated as "no password required".
+  /*
+   * An ACTIVE account with no password hash is an inconsistent row, and it
+   * must never be treated as "no password required". The comparison above
+   * already refused it - `passwordMatches` is false whenever the hash is null
+   * - so reaching here with one means something wrote a state this code does
+   * not model, and the safe answer is the generic refusal.
+   */
   if (user.passwordHash === null) {
-    await verifyPassword(await dummyHash(), input.password);
     await recordFailedAttempt(emailNormalized, input, 'no_credential');
-    throw unauthorized(ErrorCode.INVALID_CREDENTIALS, 'Email or password is incorrect.');
-  }
-
-  const passwordMatches = await verifyPassword(user.passwordHash, input.password);
-
-  if (!passwordMatches) {
-    await registerFailure(user.id, user.failedLoginCount);
-    await recordFailedAttempt(emailNormalized, input, 'wrong_password');
     throw unauthorized(ErrorCode.INVALID_CREDENTIALS, 'Email or password is incorrect.');
   }
 

@@ -121,14 +121,36 @@ export function csrfCookieOptions(maxAgeSeconds: number): ReturnType<typeof auth
   return { ...authCookieOptions(maxAgeSeconds), httpOnly: false };
 }
 
-function extractAccessToken(request: FastifyRequest, kind: UserKind): string | null {
+/**
+ * Where an access token came from.
+ *
+ * The SOURCE decides whether the CSRF check runs, so it is returned beside the
+ * token rather than inferred afterwards. Inferring it from "is there an
+ * Authorization header at all" was wrong in one specific way: a request
+ * carrying `Authorization: Basic ...` - or any scheme that is not `Bearer` -
+ * falls through to the cookie for authentication while looking header-shaped
+ * to the CSRF decision, and the double-submit check is then skipped on a
+ * cookie-authenticated state change. A browser cannot set that header
+ * cross-site without a preflight the CORS allowlist refuses, so this was not
+ * reachable from a page; it was one forgotten `allowedHeaders` entry, one
+ * permissive proxy or one new client away from being reachable, and the fix
+ * costs a field.
+ */
+interface ExtractedToken {
+  token: string;
+  source: 'cookie' | 'header';
+}
+
+function extractAccessToken(request: FastifyRequest, kind: UserKind): ExtractedToken | null {
   const header = request.headers.authorization;
   if (typeof header === 'string' && header.startsWith('Bearer ')) {
-    return header.slice(7);
+    return { token: header.slice(7), source: 'header' };
   }
 
   const cookie = request.cookies[cookieNamesFor(kind).access];
-  return typeof cookie === 'string' && cookie.length > 0 ? cookie : null;
+  return typeof cookie === 'string' && cookie.length > 0
+    ? { token: cookie, source: 'cookie' }
+    : null;
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -177,14 +199,14 @@ async function authenticate(
     sessionSellerUnlockedForId: string | null;
   }
 > {
-  const token = extractAccessToken(request, expectedKind);
-  if (token === null) {
+  const presented = extractAccessToken(request, expectedKind);
+  if (presented === null) {
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');
   }
 
-  const usedCookie = request.headers.authorization === undefined;
+  const usedCookie = presented.source === 'cookie';
 
-  const claims = verifyAccessToken(token);
+  const claims = verifyAccessToken(presented.token);
   if (claims === null) {
     throw unauthorized(ErrorCode.SESSION_EXPIRED, 'Your session has expired. Please sign in again.');
   }

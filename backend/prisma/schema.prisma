@@ -323,6 +323,21 @@ model Session {
   revokedReason       String?   @db.VarChar(128)
   replacedBySessionId String?   @db.Char(26)
 
+  /// When the SIGN-IN behind this family happened.
+  ///
+  /// `createdAt` is when this particular row was written, which a rotation
+  /// resets every few minutes; this is set once at sign-in and carried into
+  /// every replacement, exactly like `mfaVerifiedAt` above. It is what
+  /// `SESSION_ABSOLUTE_TTL_SECONDS` is measured against, and it cannot be
+  /// derived from the family's oldest row because housekeeping deletes rows
+  /// that expired long ago - which on a long-lived family would quietly move
+  /// the start of the clock forward and make the ceiling unreachable.
+  ///
+  /// Nullable only so that the migration adding it does not have to invent a
+  /// value for sessions that already exist; those are treated as having no
+  /// recorded start and are allowed to run out their refresh token normally.
+  familyStartedAt DateTime? @db.DateTime(3)
+
   createdAt  DateTime @default(now()) @db.DateTime(3)
   lastUsedAt DateTime @default(now()) @db.DateTime(3)
 

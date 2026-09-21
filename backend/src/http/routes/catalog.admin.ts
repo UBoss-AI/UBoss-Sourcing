@@ -74,6 +74,7 @@ import {
 } from '../../modules/catalog/variant-matrix.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 import type { FastifyRequest } from 'fastify';
+import { assertNotMalware } from '../../infra/malware-scan.js';
 
 /** Money on the wire is a string of minor units - never a JS number. */
 const minorUnits = z.string().regex(/^\d+$/, 'Expected whole minor units, e.g. "149950".');
@@ -1343,6 +1344,9 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       assertWithinSizeLimit(buffer.byteLength);
 
       const sniffed = sniffImageType(buffer);
+      // Magic bytes say it is a picture; the scanner says whether it is safe.
+      // Product photographs are served to every visitor, signed in or not.
+      await assertNotMalware(buffer);
       const stored = await storage.put(buffer, sniffed.mimeType, sniffed.extension);
 
       const altTextField = file.fields['altText'];

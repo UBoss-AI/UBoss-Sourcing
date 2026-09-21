@@ -12138,6 +12138,7 @@ export const SessionScalarFieldEnum = {
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
   replacedBySessionId: 'replacedBySessionId',
+  familyStartedAt: 'familyStartedAt',
   createdAt: 'createdAt',
   lastUsedAt: 'lastUsedAt'
 } as const

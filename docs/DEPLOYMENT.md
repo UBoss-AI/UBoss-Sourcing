@@ -1019,36 +1019,81 @@ not have to spare (§4.6).
 
 ### 10.7 systemd hardening already present
 
-Do not redo these; verify them.
+Do not redo these; verify them, and **verify them by measuring rather than by
+reading the unit files**.
 
 ```bash
 # [S]
 systemd-analyze security uboss-api@4000
 systemd-analyze security uboss-worker
+systemd-analyze security uboss-backup
+systemd-analyze security uboss-binlog
+systemd-analyze security uboss-monitor
+
+# [S] Syntax, and keys silently ignored because they are in the wrong section.
+systemd-analyze verify /etc/systemd/system/uboss-*.service
 ```
 
-Already set in `deploy/systemd/` **[VR]**: `NoNewPrivileges`, `PrivateTmp`,
-`PrivateDevices`, `ProtectSystem=strict`, `ProtectHome`, `ProtectKernelTunables`,
-`ProtectKernelModules`, `ProtectControlGroups`, `RestrictSUIDSGID`,
-`RestrictRealtime`, `LockPersonality`, `ReadWritePaths=/srv/uboss/media`,
-`MemoryMax`, `LimitNOFILE=65535`.
+Measured on the shipped units, systemd 259, September 2026:
 
-**Worth adding** (safe with this application, which makes only outbound
-TCP/HTTPS and reads no kernel interfaces):
+| Unit | Before the September 2026 audit | Now |
+|---|---|---|
+| `uboss-api@.service` | 6.7 MEDIUM | **1.6 OK** |
+| `uboss-worker.service` | 6.7 MEDIUM | **1.5 OK** |
+| `uboss-backup.service` | **9.2 UNSAFE** | **1.5 OK** |
+| `uboss-binlog.service` | 8.3 EXPOSED | **1.5 OK** |
+| `uboss-monitor.service` | 8.3 EXPOSED | **1.5 OK** |
 
-```ini
-# [S] /etc/systemd/system/uboss-api@.service.d/override.conf
-[Service]
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
-SystemCallFilter=@system-service
-SystemCallArchitectures=native
-ProtectProc=invisible
-PrivateUsers=yes
-```
+`uboss-backup` was the worst of the five and is the one that holds the backup
+encryption passphrase and read access to the whole database. Being a
+short-lived shell script is not a reason to run unconfined.
 
-Apply with `systemctl daemon-reload && systemctl restart uboss-api@4000`, then
-**confirm `/health/ready` still answers before touching 4001 and 4002.** A
-syscall filter that is one call too tight fails at runtime, not at load.
+Set in `deploy/systemd/` **[VR]**, on every unit: `NoNewPrivileges`,
+`PrivateTmp`, `PrivateDevices`, `ProtectSystem=strict`, `ProtectHome`,
+`ProtectKernelTunables`, `ProtectKernelModules`, `ProtectKernelLogs`,
+`ProtectControlGroups`, `ProtectHostname`, `ProtectClock`, `ProtectProc`,
+`RestrictSUIDSGID`, `RestrictRealtime`, `RestrictNamespaces`,
+`RestrictAddressFamilies`, `LockPersonality`, `PrivateMounts`, `RemoveIPC`,
+`CapabilityBoundingSet=` (empty), `AmbientCapabilities=` (empty),
+`SystemCallArchitectures=native`, `SystemCallFilter=@system-service`,
+`SystemCallErrorNumber=EPERM`, plus `DevicePolicy=closed`,
+`ReadWritePaths`, `MemoryMax` and `LimitNOFILE=65535` on the long-running two.
+
+Three deliberate omissions, all because they break something rather than
+because they were forgotten:
+
+- **`ProcSubset=pid`** hides `/proc/meminfo`, which Node reads to size its
+  heap.
+- **`UMask=0077`** makes uploaded media unreadable by nginx, which serves it
+  directly in the MinIO-on-this-host arrangement.
+- **`PrivateUsers=yes`** (suggested by an earlier version of this section) is
+  left off the API unit. `systemd.exec(5)` says that under a user namespace
+  every user and group other than the service's own is mapped to `nobody`,
+  and the API reaches the clamd socket through `SupplementaryGroups=clamav`.
+  That reads as a scanner that cannot be contacted — which, because scanning
+  fails closed, is every document upload refused. **Not tested here**: if you
+  want it, turn it on in staging and upload a certificate before believing
+  it.
+
+`AF_NETLINK` is in `RestrictAddressFamilies` alongside `AF_UNIX`, `AF_INET`
+and `AF_INET6` because glibc's `getaddrinfo()` uses it. Without it, hostname
+lookup fails in a way that reads as the network being down.
+
+> **A score is not evidence that the service runs.** A sandbox directive can
+> score well and still stop a process starting. After
+> `systemctl daemon-reload`, restart **one** API instance, **confirm
+> `/health/ready` answers before touching 4001 and 4002**, and run one backup
+> by hand (`systemctl start uboss-backup`) before trusting the timer. A
+> syscall filter that is one call too tight fails at runtime, not at load.
+
+**One bug this measurement found**, and it is the reason `systemd-analyze
+verify` is now on this list rather than being optional:
+`StartLimitIntervalSec` and `StartLimitBurst` were in `[Service]`. They moved
+to `[Unit]` in systemd 229, so systemd was logging *"Unknown key
+'StartLimitIntervalSec' in section [Service], ignoring"* and running with **no
+restart rate limit at all** — a process crash-looping on a bad config would
+have restarted every two seconds for ever. They are in `[Unit]` now. The unit
+looked correct the whole time; only the verifier said otherwise.
 
 ---
 
@@ -1418,13 +1463,14 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | Variable | Component | Purpose | Req | Secret | Production value | Dev/staging difference | Rotation | Validated by | If wrong |
 |---|---|---|---|---|---|---|---|---|---|
 | `NODE_ENV` | API, worker | Turns on every guard below | yes | no | `production` | `development` / `test` | n/a | `env.ts` enum | **Every guard below is skipped** |
-| `SESSION_COOKIE_SECRET` | API | Cookie signing | yes | **yes** | `openssl rand -base64 36` | any | Rotate in a window — everyone is signed out | placeholder check | **Refuses to start** on the `.env.example` placeholder |
-| `ACCESS_TOKEN_SECRET` | API | Access token signing | yes | **yes** | as above, **distinct** | any | as above | placeholder check | **Refuses to start** |
-| `REFRESH_TOKEN_SECRET` | API | Refresh token signing | yes | **yes** | as above, **distinct** | any | as above | placeholder check | **Refuses to start** |
-| `SECRETS_ENCRYPTION_KEY` | API, worker | Encrypts stored ERP/OAuth credentials | yes | **yes** | 32 bytes, base64 | any | **Only with a re-encryption plan — every `credentialsEnc` value is bound to the current key** | length check | Every stored ERP credential becomes undecryptable |
+| `SESSION_COOKIE_SECRET` | API | Cookie signing | yes | **yes** | `openssl rand -base64 36` | any | Rotate in a window — everyone is signed out | placeholder check + distinctness check | **Refuses to start** on the `.env.example` placeholder |
+| `ACCESS_TOKEN_SECRET` | API | Access token signing | yes | **yes** | as above, **distinct** | any | as above | placeholder check + distinctness check | **Refuses to start** |
+| `REFRESH_TOKEN_SECRET` | API | Refresh token signing | yes | **yes** | as above, **distinct** | any | as above | placeholder check + distinctness check | **Refuses to start** |
+| `SECRETS_ENCRYPTION_KEY` | API, worker | Encrypts stored ERP/OAuth credentials | yes | **yes** | 32 bytes, base64 | any | **Only with a re-encryption plan — every `credentialsEnc` value is bound to the current key** | length check + distinctness check | Every stored ERP credential becomes undecryptable. **Refuses to start** when it equals any of the three signing secrets — one leaked value would otherwise forge sessions, mint tokens and decrypt every credential at once |
 | `COOKIE_SECURE` | API | `Secure` flag | yes | no | `true` | `false` | n/a | production guard | **Refuses to start** |
 | `COOKIE_DOMAIN` | API | Cookie scope | yes | no | `.<DOMAIN>` — **leading dot** | empty | n/a | — | Sign in on admin, immediately signed out |
-| `COOKIE_SAME_SITE` | API | CSRF posture | yes | no | `lax` | `lax` | n/a | enum | `none` without `secure` is refused by browsers |
+| `COOKIE_SAME_SITE` | API | CSRF posture | yes | no | `lax` | `lax` | n/a | enum + production guard | **Refuses to start** on `none` in production: it attaches the session cookie to cross-site requests and removes the browser layer under the double-submit token |
+| `SESSION_ABSOLUTE_TTL_SECONDS` | API | Ceiling on one sign-in, from the password, unaffected by rotation | no | no | `7776000` (90 days) | same | n/a | must exceed `REFRESH_TOKEN_TTL_SECONDS` | **Refuses to start** when shorter — every session would end before its own refresh token expired |
 | `API_PUBLIC_URL` | API | Webhook and redirect URLs | yes | no | `https://shop.<DOMAIN>` | `http://localhost:4000` | n/a | URL | Webhooks and links point at the wrong host |
 | `CUSTOMER_WEB_ORIGIN` | API | CORS + links | yes | no | `https://shop.<DOMAIN>` | `http://localhost:5174` | n/a | origin list | CORS refuses the storefront |
 | `ADMIN_WEB_ORIGIN` | API | CORS + links | yes | no | `https://admin.<DOMAIN>` | `http://localhost:5173` | n/a | origin list | CORS refuses the console |

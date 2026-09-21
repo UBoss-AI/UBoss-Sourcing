@@ -58,6 +58,7 @@ export type SessionMinAggregateOutputType = {
   revokedAt: Date | null
   revokedReason: string | null
   replacedBySessionId: string | null
+  familyStartedAt: Date | null
   createdAt: Date | null
   lastUsedAt: Date | null
 }
@@ -82,6 +83,7 @@ export type SessionMaxAggregateOutputType = {
   revokedAt: Date | null
   revokedReason: string | null
   replacedBySessionId: string | null
+  familyStartedAt: Date | null
   createdAt: Date | null
   lastUsedAt: Date | null
 }
@@ -106,6 +108,7 @@ export type SessionCountAggregateOutputType = {
   revokedAt: number
   revokedReason: number
   replacedBySessionId: number
+  familyStartedAt: number
   createdAt: number
   lastUsedAt: number
   _all: number
@@ -144,6 +147,7 @@ export type SessionMinAggregateInputType = {
   revokedAt?: true
   revokedReason?: true
   replacedBySessionId?: true
+  familyStartedAt?: true
   createdAt?: true
   lastUsedAt?: true
 }
@@ -168,6 +172,7 @@ export type SessionMaxAggregateInputType = {
   revokedAt?: true
   revokedReason?: true
   replacedBySessionId?: true
+  familyStartedAt?: true
   createdAt?: true
   lastUsedAt?: true
 }
@@ -192,6 +197,7 @@ export type SessionCountAggregateInputType = {
   revokedAt?: true
   revokedReason?: true
   replacedBySessionId?: true
+  familyStartedAt?: true
   createdAt?: true
   lastUsedAt?: true
   _all?: true
@@ -303,6 +309,7 @@ export type SessionGroupByOutputType = {
   revokedAt: Date | null
   revokedReason: string | null
   replacedBySessionId: string | null
+  familyStartedAt: Date | null
   createdAt: Date
   lastUsedAt: Date
   _count: SessionCountAggregateOutputType | null
@@ -350,6 +357,7 @@ export type SessionWhereInput = {
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
+  familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -375,6 +383,7 @@ export type SessionOrderByWithRelationInput = {
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  familyStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -404,6 +413,7 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
+  familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -429,6 +439,7 @@ export type SessionOrderByWithAggregationInput = {
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  familyStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   _count?: Prisma.SessionCountOrderByAggregateInput
@@ -461,6 +472,7 @@ export type SessionScalarWhereWithAggregatesInput = {
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
+  familyStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
 }
@@ -484,6 +496,7 @@ export type SessionCreateInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
@@ -509,6 +522,7 @@ export type SessionUncheckedCreateInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -532,6 +546,7 @@ export type SessionUpdateInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
@@ -557,6 +572,7 @@ export type SessionUncheckedUpdateInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -581,6 +597,7 @@ export type SessionCreateManyInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -604,6 +621,7 @@ export type SessionUpdateManyMutationInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -628,6 +646,7 @@ export type SessionUncheckedUpdateManyInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -668,6 +687,7 @@ export type SessionCountOrderByAggregateInput = {
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
+  familyStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -698,6 +718,7 @@ export type SessionMaxOrderByAggregateInput = {
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
+  familyStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -722,6 +743,7 @@ export type SessionMinOrderByAggregateInput = {
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
+  familyStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -809,6 +831,7 @@ export type SessionCreateWithoutUserInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -832,6 +855,7 @@ export type SessionUncheckedCreateWithoutUserInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -885,6 +909,7 @@ export type SessionScalarWhereInput = {
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
+  familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
 }
@@ -908,6 +933,7 @@ export type SessionCreateManyUserInput = {
   revokedAt?: Date | string | null
   revokedReason?: string | null
   replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -931,6 +957,7 @@ export type SessionUpdateWithoutUserInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -954,6 +981,7 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -977,6 +1005,7 @@ export type SessionUncheckedUpdateManyWithoutUserInput = {
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1003,6 +1032,7 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   revokedAt?: boolean
   revokedReason?: boolean
   replacedBySessionId?: boolean
+  familyStartedAt?: boolean
   createdAt?: boolean
   lastUsedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1030,11 +1060,12 @@ export type SessionSelectScalar = {
   revokedAt?: boolean
   revokedReason?: boolean
   replacedBySessionId?: boolean
+  familyStartedAt?: boolean
   createdAt?: boolean
   lastUsedAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "familyStartedAt" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1121,6 +1152,22 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     revokedAt: Date | null
     revokedReason: string | null
     replacedBySessionId: string | null
+    /**
+     * When the SIGN-IN behind this family happened.
+     * 
+     * `createdAt` is when this particular row was written, which a rotation
+     * resets every few minutes; this is set once at sign-in and carried into
+     * every replacement, exactly like `mfaVerifiedAt` above. It is what
+     * `SESSION_ABSOLUTE_TTL_SECONDS` is measured against, and it cannot be
+     * derived from the family's oldest row because housekeeping deletes rows
+     * that expired long ago - which on a long-lived family would quietly move
+     * the start of the clock forward and make the ceiling unreachable.
+     * 
+     * Nullable only so that the migration adding it does not have to invent a
+     * value for sessions that already exist; those are treated as having no
+     * recorded start and are allowed to run out their refresh token normally.
+     */
+    familyStartedAt: Date | null
     createdAt: Date
     lastUsedAt: Date
   }, ExtArgs["result"]["session"]>
@@ -1512,6 +1559,7 @@ export interface SessionFieldRefs {
   readonly revokedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedReason: Prisma.FieldRef<"Session", 'String'>
   readonly replacedBySessionId: Prisma.FieldRef<"Session", 'String'>
+  readonly familyStartedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly lastUsedAt: Prisma.FieldRef<"Session", 'DateTime'>
 }

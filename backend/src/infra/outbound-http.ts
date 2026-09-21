@@ -57,6 +57,68 @@ export const MAX_OUTBOUND_RESPONSE_BYTES = 2 * 1024 * 1024;
 /** Redirects followed, at most, and only after re-validating each target. */
 const MAX_REDIRECTS = 3;
 
+/**
+ * Headers that carry a secret, and which therefore may not cross an origin.
+ *
+ * A redirect is somebody else's instruction about where to send the next
+ * request. If the credential rides along, a customer's ERP - or anybody who
+ * can answer for its hostname - can harvest the stored token by replying
+ * `302 Location: https://collector.example/`, and the address it names still
+ * passes every check in this file because it is a perfectly ordinary public
+ * host. The token would simply be handed to it.
+ *
+ * So on a hop that changes the origin, these are dropped. That is what curl
+ * and the WHATWG fetch specification both do, for the same reason. A same-host
+ * redirect - `/v2/` to `/v2`, http-to-https on the same name - keeps them, so
+ * ordinary ERP routing is unaffected.
+ *
+ * Lower-case: compared against a lower-cased header name, because a caller
+ * writing `Authorization` and a caller writing `authorization` mean the same
+ * header and only one of them would match otherwise.
+ */
+const CREDENTIAL_HEADERS: ReadonlySet<string> = new Set([
+  'authorization',
+  'proxy-authorization',
+  'cookie',
+  'x-api-key',
+  'apikey',
+  'api-key',
+  'x-auth-token',
+  'x-access-token',
+  'x-csrf-token',
+  'x-sap-security-session',
+  'sap-client',
+  'x-shopify-access-token',
+  'x-monday-api-key',
+  'private-token',
+]);
+
+/** True when two URLs differ in scheme, host or port. */
+function isCrossOrigin(from: URL, to: URL): boolean {
+  return from.protocol !== to.protocol || from.host !== to.host;
+}
+
+/**
+ * The headers to send on a redirect hop.
+ *
+ * Returns the same object when nothing is dropped, so the common case - a
+ * same-origin redirect, or no redirect at all - allocates nothing.
+ */
+export function headersForRedirect(
+  headers: Record<string, string>,
+  from: URL,
+  to: URL,
+): Record<string, string> {
+  if (!isCrossOrigin(from, to)) return headers;
+
+  const kept: Record<string, string> = {};
+  for (const [name, value] of Object.entries(headers)) {
+    if (CREDENTIAL_HEADERS.has(name.toLowerCase())) continue;
+    kept[name] = value;
+  }
+  return kept;
+}
+
 // ---------------------------------------------------------------------------
 // Address classification
 // ---------------------------------------------------------------------------
@@ -739,6 +801,11 @@ export async function safeFetch(
   let currentUrl = rawUrl;
   let bodyForHop = options.body;
   let methodForHop = options.method;
+  // Dropped down to the non-secret subset the first time a hop leaves the
+  // origin, and never restored: a chain that goes ours -> theirs -> ours must
+  // not hand the credential back on the third hop, because the second server
+  // chose where the third one is.
+  let headersForHop = options.headers;
 
   // Everything the two validators need, assembled once so the redirect loop
   // cannot accidentally apply a weaker policy on a later hop than the first.
@@ -763,6 +830,7 @@ export async function safeFetch(
     const hopOptions: SafeFetchOptions = {
       ...options,
       method: methodForHop,
+      headers: headersForHop,
       ...(bodyForHop === undefined ? {} : { body: bodyForHop }),
       // Whatever is left of the caller's budget. A chain of three slow hops
       // must not cost three times the timeout the customer configured.
@@ -794,6 +862,12 @@ export async function safeFetch(
       bodyForHop = undefined;
     }
 
-    currentUrl = new URL(location, parsed).toString();
+    const next = new URL(location, parsed);
+
+    // Before the credential travels anywhere the ERP chose. See
+    // `CREDENTIAL_HEADERS`.
+    headersForHop = headersForRedirect(headersForHop, parsed, next);
+
+    currentUrl = next.toString();
   }
 }

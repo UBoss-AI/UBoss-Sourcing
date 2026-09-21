@@ -608,6 +608,36 @@ Note what the access cookie is *not*. It is not how long somebody stays signed
 in: a browser in use refreshes silently against the 30-day refresh cookie and
 notices nothing. It is the ceiling on a tab that has been sitting idle.
 
+**And the refresh cookie is not the last word either.** It *slides*: each time
+it is exchanged, the replacement is good for another thirty days. On its own
+that means a browser used once a month never signs out — which is convenient,
+and is also true for somebody who copied the cookie off an old laptop. The
+theft alarm below only rings when the old token is presented *twice*, and a
+thief who has the browser to themselves never triggers it.
+
+So there is a third number, `SESSION_ABSOLUTE_TTL_SECONDS`, default ninety
+days. It is measured from the moment somebody typed their password and a
+rotation does not reset it. When a session reaches it, the whole family ends
+and the password is asked for again. It has to be longer than the refresh
+window; the backend refuses to start otherwise.
+
+```
+sign-in ──┬── access cookie   1 hour, renewed silently
+          ├── refresh cookie  30 days, renewed on every use  ← slides
+          └── the family      90 days, from the sign-in      ← does not slide
+```
+
+**Exchanging a refresh cookie happens once, even if two requests arrive
+together.** The old row is marked spent with a conditional update — "set this
+to revoked, but only if it is not revoked already" — inside the same
+transaction that writes the replacement. The database holds the row while the
+first one works, so the second request finds nothing to mark and is told the
+token was reused. Both sessions then end.
+
+That last part reads harshly and is the point: when the same token arrives
+twice, one of the two is a thief and there is no way to tell which. Signing
+both out is the only answer that is never wrong.
+
 The first two are **HttpOnly**: JavaScript in the page cannot read them. If an
 attacker managed to inject a script into the page, it still could not steal the
 login.
@@ -625,6 +655,22 @@ that is the whole point of it:
 > state-changing request. The backend checks that the cookie and the header
 > match. `evil.com` cannot read our cookie (browsers forbid cross-site reads),
 > so it cannot produce the header, so its forged request is rejected.
+
+**A server-to-server caller is exempt, and the exemption is narrow.** An API
+client sending `Authorization: Bearer <token>` needs no CSRF check, because a
+browser cannot attach that header to somebody else's request. The guard
+therefore skips the check when the token came from the header.
+
+The phrase doing the work there is *came from*. The guard used to ask a
+slightly different question — "is there an `Authorization` header at all?" —
+and those two are not the same. A request carrying `Authorization: Basic ...`
+answers yes to the second while still authenticating from the cookie, so the
+forgery check was skipped on a request the browser's own cookie jar had
+authorised. Nothing could reach it from a web page, because the browser would
+have to ask permission first and the allowlist would refuse; it was one
+misconfigured proxy away from mattering. `extractAccessToken` now returns
+where the token came from beside the token itself, and the answer to "was a
+cookie used" is that field.
 
 ## The shape of every error
 
@@ -4502,9 +4548,20 @@ Four rules the upload path enforces:
 - **Exactly one primary image, always** — and it can never be a video. It renders
   in a search result and on an order confirmation, and neither can play one.
   Deleting the primary promotes the next picture rather than leaving none.
-- **Malware scanning is fail-closed.** User uploads are scanned before storage;
-  production requires ClamAV, and a scanner error does not produce a `CLEAN`
-  result.
+- **Malware scanning is fail-closed, and it covers pictures too.** Every
+  upload is scanned before a byte is stored — a seller's logo, a listing
+  photograph, a listing video and an operator's product image, as well as the
+  certificates that always were. Production requires ClamAV and a scanner
+  error does not produce a `CLEAN` result.
+
+  The two paths differ in where the answer goes, and the difference is the
+  reason images were missed for a while. A certificate has a `scanState`
+  column and a download gate that reads it, so "we could not check this" can
+  be recorded and acted on later. A photograph is public the moment it is
+  written and has nowhere to park that, so `assertNotMalware` refuses the
+  upload outright instead: infected is a 400, scanner-unavailable is a 503,
+  and neither is a silent pass. Sniffing the magic bytes answers *is this a
+  picture*; it has never answered *is this safe*.
 
 A video cannot carry a caption track — the file comes from a seller and nothing
 here can produce subtitles for it. So the seller is asked for a **written
@@ -11556,6 +11613,43 @@ memory-hungry, so guessing at scale is expensive. The parameters are stored
 inside the digest itself, so raising them later rehashes each user
 transparently on their next successful login.
 
+### The sign-in form is not a directory
+
+Four different, useful answers live behind the sign-in: *this account was
+deactivated*, *this account is waiting to be approved*, *confirm your email
+address first*, *use the invitation link we sent you*. Each of them is the
+right thing to tell the person it applies to.
+
+Each of them also tells a stranger that the address they typed has an account
+here — and which state it is in. Ask about ten thousand addresses and you have
+a customer list; filter it for *waiting on an invitation* and you have a list
+of people already expecting a "click here to set your password" email from
+this shop, which is a phishing campaign somebody else has written the pretext
+for.
+
+So **the password is compared first, and the account's state is named only
+afterwards.** Somebody who knows the password still gets the exact reason and
+the exact remedy, because they always did. Somebody who does not gets "Email
+or password is incorrect" — the same code, the same words, the same
+approximate timing — whatever state the account is in, and whether or not it
+exists at all.
+
+Two disclosures survive that rule on purpose:
+
+- **A locked account is named before the comparison.** The holder needs to
+  know that waiting will help, and the lockout is only reachable after eight
+  failures against that one address anyway.
+- **An account still on its emailed invitation is named after a failed
+  comparison.** It has no password stored for the comparison to test, and it
+  cannot use the reset form either — that refuses anything not yet active — so
+  a generic refusal would leave an invited person with no route into their own
+  account and no way to find out why. It is recorded as an accepted risk in
+  `SECURITY-AUDIT-REPORT.md` rather than left for a reader to rediscover.
+
+An unknown address still costs one full Argon2id verification against a dummy
+digest, so the two cases take the same time. Getting the message right and the
+timing wrong would only move the oracle from the words to the stopwatch.
+
 ### The seeded passwords are published, and that is a decision with an expiry
 
 `npm run db:seed` creates nine accounts whose passwords are printed in
@@ -11698,6 +11792,27 @@ window the check just closed. `ALLOW_PRIVATE_ERP_TARGETS` lifts the address
 rules for local development, and configuration validation **refuses to start a
 production process** with it on.
 
+### The credential does not follow the redirect
+
+Every hop is re-checked, which stops the *address* being abused. It does not
+by itself stop the *credential* being handed over, and that is a separate
+attack with the same starting point.
+
+Picture it. A buyer's ERP is at `erp.buyer.example`, and the stored token is
+sent to it on every call. The ERP answers `302 Location:
+https://collector.somewhere.example/`. That address is a perfectly ordinary
+public host, so it passes every rule above — and the token would have gone
+with it, because the headers were carried onto the next hop unchanged. Anybody
+who can answer for that hostname, including whoever administers the buyer's
+own ERP, could ask for the token and simply be given it.
+
+So when a redirect changes the origin — a different scheme, host or port —
+`Authorization`, `Cookie`, `X-API-Key` and the other credential headers are
+dropped before the next request is made, and they are not restored if a later
+hop comes back. A redirect *within* the same origin keeps them, because
+`/v2/` to `/v2` is ordinary routing and a rule that broke it would be switched
+off. This is what curl and browsers both do, for the same reason.
+
 ## Comparisons
 
 Every attacker-submittable comparison uses a constant-time `safeCompare`, so
@@ -11728,11 +11843,59 @@ message naming the variable. **A server that runs half-configured is worse than
 one that refuses to start** — the first fails quietly, in production, at the
 worst moment.
 
+Production refuses, among others: insecure cookies, `COOKIE_SAME_SITE=none`,
+the log email driver, local disk storage, the malware scanner switched off,
+unscanned document downloads, private ERP targets, a test payment key, and a
+placeholder signing secret.
+
+**It also refuses four settings that are the same string.**
+`SESSION_COOKIE_SECRET`, `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET` and
+`SECRETS_ENCRYPTION_KEY` protect four different things, and the only reason
+they are four settings is so that one leak is not four. A deployment that
+pastes one generated value into all of them gets none of that separation, and
+nothing about the running system would have said so: it boots, it works, and
+the separation exists only in the names.
+
+`tests/unit/production-config.test.ts` builds a complete, valid production
+environment and breaks exactly one thing per case, so each of these is proved
+rather than described. It exists because this chapter claimed all of it for a
+long time and nothing tested any of it.
+
+## The four things a public probe may say
+
+`/health/live` and `/health/ready` answer without a session, because an uptime
+check has no credential to offer. So the reply is held to what a stranger may
+know: up or down, and how long each dependency took.
+
+It used to carry the database driver's own failure text as well, and that text
+is written for an operator — MariaDB and Prisma name the host, the port and
+the database user in it. An outage was therefore the moment the readiness
+probe handed the shape of the infrastructure to anybody who asked. The reason
+now goes to the journal with the correlation id, which is where the operator
+was already looking.
+
 ## The audit log
 
 `audit_log` records who did what, when, from which IP, with a before-and-after
 snapshot. It is written in the same transaction as the change, so an action
 cannot happen without leaving a trace.
+
+## Telling somebody they found a hole
+
+[`SECURITY.md`](SECURITY.md) is the written policy: where to send a report,
+what happens next, how quickly each severity is fixed, what is in scope and
+what is not, and a safe-harbour statement for anybody who follows it.
+
+`deploy/nginx/security.txt.example` is the machine-readable half (RFC 9116).
+An operator copies it into the web root with their own contact address; the
+nginx site file already serves `/.well-known/security.txt`. An absent file
+reads to a researcher as "there is nobody to tell", which is how a finding
+reaches a mailing list instead of an inbox — and for an EU seller it is part
+of the Cyber Resilience Act's vulnerability-handling obligation.
+
+The contact address is deliberately not shipped filled in. **This product is
+sold to other companies to run themselves**, so the person to tell is whoever
+runs that installation, not whoever wrote it.
 
 ---
 
@@ -12273,10 +12436,24 @@ straight through the per-IP rate limit and the per-IP login lockout. Both halves
 are in place; either alone would do for this shape, and both together survive
 somebody putting a CDN in front and forgetting one.
 
-The lockout itself counts in the **database**, so it is correct across all three
-API instances. The request rate limit counts in memory, per process, which is
-why `RATE_LIMIT_GLOBAL_PER_MINUTE` has to be divided by the number of instances
-you run.
+**Both counters are in the database**, so both are correct across all three API
+instances. The lockout always was; the request rate limit used to count in
+memory, per process, which meant `RATE_LIMIT_GLOBAL_PER_MINUTE` had to be
+divided by the number of instances and an attacker got the limit three times
+over by being load-balanced. `DatabaseRateLimitStore` replaced that, and the
+setting now means what it says: that many requests a minute from one address,
+across the whole installation. It is registered with `skipOnError: false`, so
+a database that cannot answer stops requests rather than quietly removing the
+brute-force protection.
+
+nginx holds a second, coarser limit in front of all of it — 30 requests a
+second generally, and **5 a second on every sign-in path on all three
+surfaces**. That last part was `^/api/v1/auth/(login|register|password)` for a
+while, which is the storefront and only the storefront: the console signs in
+at `/api/v1/admin/auth/login` and the carrier portal at
+`/api/v1/logistics/auth/login`, so the two accounts that can refund an order
+or move a consignment were the two held to the general limit. It is
+`^/api/v1/(admin/|logistics/)?auth/(login|register|password)` now.
 
 ## Surviving the loss of the box
 

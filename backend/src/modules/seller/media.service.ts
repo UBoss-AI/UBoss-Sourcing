@@ -36,6 +36,7 @@ import {
   sniffMediaType,
   storage,
 } from '../../infra/storage/index.js';
+import { assertNotMalware } from '../../infra/malware-scan.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
   assertSellerOwnership,
@@ -160,6 +161,16 @@ export async function uploadListingMedia(input: UploadInput): Promise<MediaView>
   // size limit depends on which kind it turned out to be.
   const sniffed = sniffMediaType(input.buffer);
   assertWithinMediaSizeLimit(input.buffer.length, sniffed.kind);
+
+  /*
+   * Then the scanner, before anything is written.
+   *
+   * Sniffing answers "is this a picture or a video"; it does not answer "is
+   * this safe", and these bytes end up on a public listing page. The size
+   * limit is checked first on purpose - scanning sixty-four megabytes that
+   * are about to be refused for being too big is work nobody needs.
+   */
+  await assertNotMalware(input.buffer);
 
   const existing = await prisma.sellerListingDraftMedia.findMany({
     where: { draftId: input.draftId },
