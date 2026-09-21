@@ -34,6 +34,10 @@ export type OrderAvgAggregateOutputType = {
   grandTotalMinor: number | null
   paidMinor: number | null
   refundedMinor: number | null
+  fxBaseGrandTotalMinor: number | null
+  fxMidRate: runtime.Decimal | null
+  fxRateUsed: runtime.Decimal | null
+  fxAdjustmentPercent: runtime.Decimal | null
 }
 
 export type OrderSumAggregateOutputType = {
@@ -44,6 +48,10 @@ export type OrderSumAggregateOutputType = {
   grandTotalMinor: bigint | null
   paidMinor: bigint | null
   refundedMinor: bigint | null
+  fxBaseGrandTotalMinor: bigint | null
+  fxMidRate: runtime.Decimal | null
+  fxRateUsed: runtime.Decimal | null
+  fxAdjustmentPercent: runtime.Decimal | null
 }
 
 export type OrderMinAggregateOutputType = {
@@ -62,6 +70,16 @@ export type OrderMinAggregateOutputType = {
   grandTotalMinor: bigint | null
   paidMinor: bigint | null
   refundedMinor: bigint | null
+  fxPriceSource: $Enums.FxPriceSource | null
+  fxSnapshotId: string | null
+  fxBaseCurrency: string | null
+  fxBaseGrandTotalMinor: bigint | null
+  fxMidRate: runtime.Decimal | null
+  fxRateUsed: runtime.Decimal | null
+  fxAdjustmentPercent: runtime.Decimal | null
+  fxRateAsOf: Date | null
+  fxProvider: string | null
+  fxPolicyVersion: string | null
   shippingMethodCode: string | null
   shippingMethodName: string | null
   paymentMode: $Enums.PaymentIntentMode | null
@@ -106,6 +124,16 @@ export type OrderMaxAggregateOutputType = {
   grandTotalMinor: bigint | null
   paidMinor: bigint | null
   refundedMinor: bigint | null
+  fxPriceSource: $Enums.FxPriceSource | null
+  fxSnapshotId: string | null
+  fxBaseCurrency: string | null
+  fxBaseGrandTotalMinor: bigint | null
+  fxMidRate: runtime.Decimal | null
+  fxRateUsed: runtime.Decimal | null
+  fxAdjustmentPercent: runtime.Decimal | null
+  fxRateAsOf: Date | null
+  fxProvider: string | null
+  fxPolicyVersion: string | null
   shippingMethodCode: string | null
   shippingMethodName: string | null
   paymentMode: $Enums.PaymentIntentMode | null
@@ -150,6 +178,16 @@ export type OrderCountAggregateOutputType = {
   grandTotalMinor: number
   paidMinor: number
   refundedMinor: number
+  fxPriceSource: number
+  fxSnapshotId: number
+  fxBaseCurrency: number
+  fxBaseGrandTotalMinor: number
+  fxMidRate: number
+  fxRateUsed: number
+  fxAdjustmentPercent: number
+  fxRateAsOf: number
+  fxProvider: number
+  fxPolicyVersion: number
   billingAddressJson: number
   shippingAddressJson: number
   shippingMethodCode: number
@@ -190,6 +228,10 @@ export type OrderAvgAggregateInputType = {
   grandTotalMinor?: true
   paidMinor?: true
   refundedMinor?: true
+  fxBaseGrandTotalMinor?: true
+  fxMidRate?: true
+  fxRateUsed?: true
+  fxAdjustmentPercent?: true
 }
 
 export type OrderSumAggregateInputType = {
@@ -200,6 +242,10 @@ export type OrderSumAggregateInputType = {
   grandTotalMinor?: true
   paidMinor?: true
   refundedMinor?: true
+  fxBaseGrandTotalMinor?: true
+  fxMidRate?: true
+  fxRateUsed?: true
+  fxAdjustmentPercent?: true
 }
 
 export type OrderMinAggregateInputType = {
@@ -218,6 +264,16 @@ export type OrderMinAggregateInputType = {
   grandTotalMinor?: true
   paidMinor?: true
   refundedMinor?: true
+  fxPriceSource?: true
+  fxSnapshotId?: true
+  fxBaseCurrency?: true
+  fxBaseGrandTotalMinor?: true
+  fxMidRate?: true
+  fxRateUsed?: true
+  fxAdjustmentPercent?: true
+  fxRateAsOf?: true
+  fxProvider?: true
+  fxPolicyVersion?: true
   shippingMethodCode?: true
   shippingMethodName?: true
   paymentMode?: true
@@ -262,6 +318,16 @@ export type OrderMaxAggregateInputType = {
   grandTotalMinor?: true
   paidMinor?: true
   refundedMinor?: true
+  fxPriceSource?: true
+  fxSnapshotId?: true
+  fxBaseCurrency?: true
+  fxBaseGrandTotalMinor?: true
+  fxMidRate?: true
+  fxRateUsed?: true
+  fxAdjustmentPercent?: true
+  fxRateAsOf?: true
+  fxProvider?: true
+  fxPolicyVersion?: true
   shippingMethodCode?: true
   shippingMethodName?: true
   paymentMode?: true
@@ -306,6 +372,16 @@ export type OrderCountAggregateInputType = {
   grandTotalMinor?: true
   paidMinor?: true
   refundedMinor?: true
+  fxPriceSource?: true
+  fxSnapshotId?: true
+  fxBaseCurrency?: true
+  fxBaseGrandTotalMinor?: true
+  fxMidRate?: true
+  fxRateUsed?: true
+  fxAdjustmentPercent?: true
+  fxRateAsOf?: true
+  fxProvider?: true
+  fxPolicyVersion?: true
   billingAddressJson?: true
   shippingAddressJson?: true
   shippingMethodCode?: true
@@ -439,6 +515,16 @@ export type OrderGroupByOutputType = {
   grandTotalMinor: bigint
   paidMinor: bigint
   refundedMinor: bigint
+  fxPriceSource: $Enums.FxPriceSource | null
+  fxSnapshotId: string | null
+  fxBaseCurrency: string | null
+  fxBaseGrandTotalMinor: bigint | null
+  fxMidRate: runtime.Decimal | null
+  fxRateUsed: runtime.Decimal | null
+  fxAdjustmentPercent: runtime.Decimal | null
+  fxRateAsOf: Date | null
+  fxProvider: string | null
+  fxPolicyVersion: string | null
   billingAddressJson: runtime.JsonValue
   shippingAddressJson: runtime.JsonValue
   shippingMethodCode: string | null
@@ -508,6 +594,16 @@ export type OrderWhereInput = {
   grandTotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   paidMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   refundedMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  fxPriceSource?: Prisma.EnumFxPriceSourceNullableFilter<"Order"> | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseCurrency?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseGrandTotalMinor?: Prisma.BigIntNullableFilter<"Order"> | bigint | number | null
+  fxMidRate?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fxProvider?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxPolicyVersion?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressJson?: Prisma.JsonFilter<"Order">
   shippingAddressJson?: Prisma.JsonFilter<"Order">
   shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -536,6 +632,7 @@ export type OrderWhereInput = {
   cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+  fxSnapshot?: Prisma.XOR<Prisma.ExchangeRateSnapshotNullableScalarRelationFilter, Prisma.ExchangeRateSnapshotWhereInput> | null
   preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
@@ -575,6 +672,16 @@ export type OrderOrderByWithRelationInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxPriceSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxSnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxBaseCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxRateAsOf?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   billingAddressJson?: Prisma.SortOrder
   shippingAddressJson?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -603,6 +710,7 @@ export type OrderOrderByWithRelationInput = {
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  fxSnapshot?: Prisma.ExchangeRateSnapshotOrderByWithRelationInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   cart?: Prisma.CartOrderByWithRelationInput
@@ -646,6 +754,16 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   grandTotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   paidMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   refundedMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  fxPriceSource?: Prisma.EnumFxPriceSourceNullableFilter<"Order"> | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseCurrency?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseGrandTotalMinor?: Prisma.BigIntNullableFilter<"Order"> | bigint | number | null
+  fxMidRate?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fxProvider?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxPolicyVersion?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressJson?: Prisma.JsonFilter<"Order">
   shippingAddressJson?: Prisma.JsonFilter<"Order">
   shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -674,6 +792,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+  fxSnapshot?: Prisma.XOR<Prisma.ExchangeRateSnapshotNullableScalarRelationFilter, Prisma.ExchangeRateSnapshotWhereInput> | null
   preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
@@ -713,6 +832,16 @@ export type OrderOrderByWithAggregationInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxPriceSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxSnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxBaseCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxRateAsOf?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  fxPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   billingAddressJson?: Prisma.SortOrder
   shippingAddressJson?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -767,6 +896,16 @@ export type OrderScalarWhereWithAggregatesInput = {
   grandTotalMinor?: Prisma.BigIntWithAggregatesFilter<"Order"> | bigint | number
   paidMinor?: Prisma.BigIntWithAggregatesFilter<"Order"> | bigint | number
   refundedMinor?: Prisma.BigIntWithAggregatesFilter<"Order"> | bigint | number
+  fxPriceSource?: Prisma.EnumFxPriceSourceNullableWithAggregatesFilter<"Order"> | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fxBaseCurrency?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fxBaseGrandTotalMinor?: Prisma.BigIntNullableWithAggregatesFilter<"Order"> | bigint | number | null
+  fxMidRate?: Prisma.DecimalNullableWithAggregatesFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.DecimalNullableWithAggregatesFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+  fxProvider?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fxPolicyVersion?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   billingAddressJson?: Prisma.JsonWithAggregatesFilter<"Order">
   shippingAddressJson?: Prisma.JsonWithAggregatesFilter<"Order">
   shippingMethodCode?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
@@ -810,6 +949,15 @@ export type OrderCreateInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -835,6 +983,7 @@ export type OrderCreateInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -874,6 +1023,16 @@ export type OrderUncheckedCreateInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -932,6 +1091,15 @@ export type OrderUpdateInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -957,6 +1125,7 @@ export type OrderUpdateInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -996,6 +1165,16 @@ export type OrderUncheckedUpdateInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1057,6 +1236,16 @@ export type OrderCreateManyInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -1100,6 +1289,15 @@ export type OrderUpdateManyMutationInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1143,6 +1341,16 @@ export type OrderUncheckedUpdateManyInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1210,6 +1418,16 @@ export type OrderCountOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxPriceSource?: Prisma.SortOrder
+  fxSnapshotId?: Prisma.SortOrder
+  fxBaseCurrency?: Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrder
+  fxRateAsOf?: Prisma.SortOrder
+  fxProvider?: Prisma.SortOrder
+  fxPolicyVersion?: Prisma.SortOrder
   billingAddressJson?: Prisma.SortOrder
   shippingAddressJson?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
@@ -1248,6 +1466,10 @@ export type OrderAvgOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrder
 }
 
 export type OrderMaxOrderByAggregateInput = {
@@ -1266,6 +1488,16 @@ export type OrderMaxOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxPriceSource?: Prisma.SortOrder
+  fxSnapshotId?: Prisma.SortOrder
+  fxBaseCurrency?: Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrder
+  fxRateAsOf?: Prisma.SortOrder
+  fxProvider?: Prisma.SortOrder
+  fxPolicyVersion?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
@@ -1310,6 +1542,16 @@ export type OrderMinOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxPriceSource?: Prisma.SortOrder
+  fxSnapshotId?: Prisma.SortOrder
+  fxBaseCurrency?: Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrder
+  fxRateAsOf?: Prisma.SortOrder
+  fxProvider?: Prisma.SortOrder
+  fxPolicyVersion?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
@@ -1346,6 +1588,10 @@ export type OrderSumOrderByAggregateInput = {
   grandTotalMinor?: Prisma.SortOrder
   paidMinor?: Prisma.SortOrder
   refundedMinor?: Prisma.SortOrder
+  fxBaseGrandTotalMinor?: Prisma.SortOrder
+  fxMidRate?: Prisma.SortOrder
+  fxRateUsed?: Prisma.SortOrder
+  fxAdjustmentPercent?: Prisma.SortOrder
 }
 
 export type OrderScalarRelationFilter = {
@@ -1501,6 +1747,10 @@ export type EnumOrderSourceFieldUpdateOperationsInput = {
 
 export type EnumOrderStatusFieldUpdateOperationsInput = {
   set?: $Enums.OrderStatus
+}
+
+export type NullableEnumFxPriceSourceFieldUpdateOperationsInput = {
+  set?: $Enums.FxPriceSource | null
 }
 
 export type EnumPaymentIntentModeFieldUpdateOperationsInput = {
@@ -1781,6 +2031,48 @@ export type OrderUpdateOneRequiredWithoutReturnRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutReturnRequestsInput, Prisma.OrderUpdateWithoutReturnRequestsInput>, Prisma.OrderUncheckedUpdateWithoutReturnRequestsInput>
 }
 
+export type OrderCreateNestedManyWithoutFxSnapshotInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput> | Prisma.OrderCreateWithoutFxSnapshotInput[] | Prisma.OrderUncheckedCreateWithoutFxSnapshotInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFxSnapshotInput | Prisma.OrderCreateOrConnectWithoutFxSnapshotInput[]
+  createMany?: Prisma.OrderCreateManyFxSnapshotInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUncheckedCreateNestedManyWithoutFxSnapshotInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput> | Prisma.OrderCreateWithoutFxSnapshotInput[] | Prisma.OrderUncheckedCreateWithoutFxSnapshotInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFxSnapshotInput | Prisma.OrderCreateOrConnectWithoutFxSnapshotInput[]
+  createMany?: Prisma.OrderCreateManyFxSnapshotInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUpdateManyWithoutFxSnapshotNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput> | Prisma.OrderCreateWithoutFxSnapshotInput[] | Prisma.OrderUncheckedCreateWithoutFxSnapshotInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFxSnapshotInput | Prisma.OrderCreateOrConnectWithoutFxSnapshotInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFxSnapshotInput | Prisma.OrderUpsertWithWhereUniqueWithoutFxSnapshotInput[]
+  createMany?: Prisma.OrderCreateManyFxSnapshotInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFxSnapshotInput | Prisma.OrderUpdateWithWhereUniqueWithoutFxSnapshotInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFxSnapshotInput | Prisma.OrderUpdateManyWithWhereWithoutFxSnapshotInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
+export type OrderUncheckedUpdateManyWithoutFxSnapshotNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput> | Prisma.OrderCreateWithoutFxSnapshotInput[] | Prisma.OrderUncheckedCreateWithoutFxSnapshotInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFxSnapshotInput | Prisma.OrderCreateOrConnectWithoutFxSnapshotInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFxSnapshotInput | Prisma.OrderUpsertWithWhereUniqueWithoutFxSnapshotInput[]
+  createMany?: Prisma.OrderCreateManyFxSnapshotInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFxSnapshotInput | Prisma.OrderUpdateWithWhereUniqueWithoutFxSnapshotInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFxSnapshotInput | Prisma.OrderUpdateManyWithWhereWithoutFxSnapshotInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
 export type OrderCreateNestedOneWithoutCouponRedemptionInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutCouponRedemptionInput, Prisma.OrderUncheckedCreateWithoutCouponRedemptionInput>
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutCouponRedemptionInput
@@ -1852,6 +2144,15 @@ export type OrderCreateWithoutFulfilmentLocationInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -1877,6 +2178,7 @@ export type OrderCreateWithoutFulfilmentLocationInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -1915,6 +2217,16 @@ export type OrderUncheckedCreateWithoutFulfilmentLocationInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2004,6 +2316,16 @@ export type OrderScalarWhereInput = {
   grandTotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   paidMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
   refundedMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  fxPriceSource?: Prisma.EnumFxPriceSourceNullableFilter<"Order"> | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseCurrency?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxBaseGrandTotalMinor?: Prisma.BigIntNullableFilter<"Order"> | bigint | number | null
+  fxMidRate?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.DecimalNullableFilter<"Order"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fxProvider?: Prisma.StringNullableFilter<"Order"> | string | null
+  fxPolicyVersion?: Prisma.StringNullableFilter<"Order"> | string | null
   billingAddressJson?: Prisma.JsonFilter<"Order">
   shippingAddressJson?: Prisma.JsonFilter<"Order">
   shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -2047,6 +2369,15 @@ export type OrderCreateWithoutReservationsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2072,6 +2403,7 @@ export type OrderCreateWithoutReservationsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -2110,6 +2442,16 @@ export type OrderUncheckedCreateWithoutReservationsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2183,6 +2525,15 @@ export type OrderUpdateWithoutReservationsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2208,6 +2559,7 @@ export type OrderUpdateWithoutReservationsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -2246,6 +2598,16 @@ export type OrderUncheckedUpdateWithoutReservationsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2303,6 +2665,15 @@ export type OrderCreateWithoutCustomerProfileInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2328,6 +2699,7 @@ export type OrderCreateWithoutCustomerProfileInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
@@ -2365,6 +2737,16 @@ export type OrderUncheckedCreateWithoutCustomerProfileInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2449,6 +2831,15 @@ export type OrderCreateWithoutCartInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2474,6 +2865,7 @@ export type OrderCreateWithoutCartInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
@@ -2511,6 +2903,16 @@ export type OrderUncheckedCreateWithoutCartInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2595,6 +2997,15 @@ export type OrderCreateWithoutItemsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2620,6 +3031,7 @@ export type OrderCreateWithoutItemsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -2658,6 +3070,16 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2731,6 +3153,15 @@ export type OrderUpdateWithoutItemsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2756,6 +3187,7 @@ export type OrderUpdateWithoutItemsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -2794,6 +3226,16 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2851,6 +3293,15 @@ export type OrderCreateWithoutStatusHistoryInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2876,6 +3327,7 @@ export type OrderCreateWithoutStatusHistoryInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -2914,6 +3366,16 @@ export type OrderUncheckedCreateWithoutStatusHistoryInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -2987,6 +3449,15 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3012,6 +3483,7 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -3050,6 +3522,16 @@ export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3107,6 +3589,15 @@ export type OrderCreateWithoutApprovalsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3132,6 +3623,7 @@ export type OrderCreateWithoutApprovalsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -3170,6 +3662,16 @@ export type OrderUncheckedCreateWithoutApprovalsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3243,6 +3745,15 @@ export type OrderUpdateWithoutApprovalsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3268,6 +3779,7 @@ export type OrderUpdateWithoutApprovalsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -3306,6 +3818,16 @@ export type OrderUncheckedUpdateWithoutApprovalsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3363,6 +3885,15 @@ export type OrderCreateWithoutPaymentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3388,6 +3919,7 @@ export type OrderCreateWithoutPaymentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -3426,6 +3958,16 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3499,6 +4041,15 @@ export type OrderUpdateWithoutPaymentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3524,6 +4075,7 @@ export type OrderUpdateWithoutPaymentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -3562,6 +4114,16 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3619,6 +4181,15 @@ export type OrderCreateWithoutPaymentEventsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3644,6 +4215,7 @@ export type OrderCreateWithoutPaymentEventsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -3682,6 +4254,16 @@ export type OrderUncheckedCreateWithoutPaymentEventsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3755,6 +4337,15 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3780,6 +4371,7 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -3818,6 +4410,16 @@ export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3875,6 +4477,15 @@ export type OrderCreateWithoutPaymentLinksInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -3900,6 +4511,7 @@ export type OrderCreateWithoutPaymentLinksInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -3938,6 +4550,16 @@ export type OrderUncheckedCreateWithoutPaymentLinksInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4011,6 +4633,15 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4036,6 +4667,7 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -4074,6 +4706,16 @@ export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4131,6 +4773,15 @@ export type OrderCreateWithoutRefundsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4156,6 +4807,7 @@ export type OrderCreateWithoutRefundsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -4194,6 +4846,16 @@ export type OrderUncheckedCreateWithoutRefundsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4267,6 +4929,15 @@ export type OrderUpdateWithoutRefundsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4292,6 +4963,7 @@ export type OrderUpdateWithoutRefundsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -4330,6 +5002,16 @@ export type OrderUncheckedUpdateWithoutRefundsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4387,6 +5069,15 @@ export type OrderCreateWithoutOccurrenceInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4412,6 +5103,7 @@ export type OrderCreateWithoutOccurrenceInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -4449,6 +5141,16 @@ export type OrderUncheckedCreateWithoutOccurrenceInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4523,6 +5225,15 @@ export type OrderUpdateWithoutOccurrenceInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4548,6 +5259,7 @@ export type OrderUpdateWithoutOccurrenceInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -4585,6 +5297,16 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4643,6 +5365,15 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4668,6 +5399,7 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
@@ -4706,6 +5438,16 @@ export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4789,6 +5531,15 @@ export type OrderCreateWithoutErpPushInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4814,6 +5565,7 @@ export type OrderCreateWithoutErpPushInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -4852,6 +5604,16 @@ export type OrderUncheckedCreateWithoutErpPushInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -4925,6 +5687,15 @@ export type OrderUpdateWithoutErpPushInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4950,6 +5721,7 @@ export type OrderUpdateWithoutErpPushInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -4988,6 +5760,16 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5045,6 +5827,15 @@ export type OrderCreateWithoutFulfilmentQuoteInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5070,6 +5861,7 @@ export type OrderCreateWithoutFulfilmentQuoteInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -5108,6 +5900,16 @@ export type OrderUncheckedCreateWithoutFulfilmentQuoteInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5191,6 +5993,15 @@ export type OrderCreateWithoutShipmentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5216,6 +6027,7 @@ export type OrderCreateWithoutShipmentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -5254,6 +6066,16 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5327,6 +6149,15 @@ export type OrderUpdateWithoutShipmentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5352,6 +6183,7 @@ export type OrderUpdateWithoutShipmentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -5390,6 +6222,16 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5447,6 +6289,15 @@ export type OrderCreateWithoutReturnRequestsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5472,6 +6323,7 @@ export type OrderCreateWithoutReturnRequestsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -5510,6 +6362,16 @@ export type OrderUncheckedCreateWithoutReturnRequestsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5583,6 +6445,15 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5608,6 +6479,7 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -5646,6 +6518,16 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5690,7 +6572,7 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
 }
 
-export type OrderCreateWithoutCouponRedemptionInput = {
+export type OrderCreateWithoutFxSnapshotInput = {
   id: string
   orderNumber: string
   source?: $Enums.OrderSource
@@ -5703,6 +6585,15 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5745,6 +6636,173 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
   paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
   occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutFxSnapshotInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutFxSnapshotInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput>
+}
+
+export type OrderCreateManyFxSnapshotInputEnvelope = {
+  data: Prisma.OrderCreateManyFxSnapshotInput | Prisma.OrderCreateManyFxSnapshotInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrderUpsertWithWhereUniqueWithoutFxSnapshotInput = {
+  where: Prisma.OrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutFxSnapshotInput, Prisma.OrderUncheckedUpdateWithoutFxSnapshotInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFxSnapshotInput, Prisma.OrderUncheckedCreateWithoutFxSnapshotInput>
+}
+
+export type OrderUpdateWithWhereUniqueWithoutFxSnapshotInput = {
+  where: Prisma.OrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutFxSnapshotInput, Prisma.OrderUncheckedUpdateWithoutFxSnapshotInput>
+}
+
+export type OrderUpdateManyWithWhereWithoutFxSnapshotInput = {
+  where: Prisma.OrderScalarWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateManyMutationInput, Prisma.OrderUncheckedUpdateManyWithoutFxSnapshotInput>
+}
+
+export type OrderCreateWithoutCouponRedemptionInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
@@ -5766,6 +6824,16 @@ export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5839,6 +6907,15 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5864,6 +6941,7 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -5902,6 +6980,16 @@ export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5959,6 +7047,15 @@ export type OrderCreateWithoutInvoicesInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -5984,6 +7081,7 @@ export type OrderCreateWithoutInvoicesInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -6022,6 +7120,16 @@ export type OrderUncheckedCreateWithoutInvoicesInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6095,6 +7203,15 @@ export type OrderUpdateWithoutInvoicesInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6120,6 +7237,7 @@ export type OrderUpdateWithoutInvoicesInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -6158,6 +7276,16 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6215,6 +7343,15 @@ export type OrderCreateWithoutSellerOrderGroupsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6240,6 +7377,7 @@ export type OrderCreateWithoutSellerOrderGroupsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -6278,6 +7416,16 @@ export type OrderUncheckedCreateWithoutSellerOrderGroupsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6351,6 +7499,15 @@ export type OrderUpdateWithoutSellerOrderGroupsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6376,6 +7533,7 @@ export type OrderUpdateWithoutSellerOrderGroupsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -6414,6 +7572,16 @@ export type OrderUncheckedUpdateWithoutSellerOrderGroupsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6471,6 +7639,15 @@ export type OrderCreateWithoutLogisticsShipmentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6496,6 +7673,7 @@ export type OrderCreateWithoutLogisticsShipmentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
@@ -6534,6 +7712,16 @@ export type OrderUncheckedCreateWithoutLogisticsShipmentsInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6607,6 +7795,15 @@ export type OrderUpdateWithoutLogisticsShipmentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6632,6 +7829,7 @@ export type OrderUpdateWithoutLogisticsShipmentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -6670,6 +7868,16 @@ export type OrderUncheckedUpdateWithoutLogisticsShipmentsInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6730,6 +7938,16 @@ export type OrderCreateManyFulfilmentLocationInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6772,6 +7990,15 @@ export type OrderUpdateWithoutFulfilmentLocationInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6797,6 +8024,7 @@ export type OrderUpdateWithoutFulfilmentLocationInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -6835,6 +8063,16 @@ export type OrderUncheckedUpdateWithoutFulfilmentLocationInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6895,6 +8133,16 @@ export type OrderUncheckedUpdateManyWithoutFulfilmentLocationInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6939,6 +8187,16 @@ export type OrderCreateManyCustomerProfileInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -6982,6 +8240,15 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7007,6 +8274,7 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
@@ -7044,6 +8312,16 @@ export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7104,6 +8382,16 @@ export type OrderUncheckedUpdateManyWithoutCustomerProfileInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7149,6 +8437,16 @@ export type OrderCreateManyCartInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -7192,6 +8490,15 @@ export type OrderUpdateWithoutCartInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7217,6 +8524,7 @@ export type OrderUpdateWithoutCartInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
@@ -7254,6 +8562,16 @@ export type OrderUncheckedUpdateWithoutCartInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7314,6 +8632,16 @@ export type OrderUncheckedUpdateManyWithoutCartInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7360,6 +8688,16 @@ export type OrderCreateManyPreferredPaymentCardInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -7402,6 +8740,15 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7427,6 +8774,7 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
@@ -7465,6 +8813,16 @@ export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7525,6 +8883,16 @@ export type OrderUncheckedUpdateManyWithoutPreferredPaymentCardInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7570,6 +8938,16 @@ export type OrderCreateManyFulfilmentQuoteInput = {
   grandTotalMinor?: bigint | number
   paidMinor?: bigint | number
   refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
   billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: string | null
@@ -7612,6 +8990,15 @@ export type OrderUpdateWithoutFulfilmentQuoteInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7637,6 +9024,7 @@ export type OrderUpdateWithoutFulfilmentQuoteInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
@@ -7675,6 +9063,16 @@ export type OrderUncheckedUpdateWithoutFulfilmentQuoteInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7735,12 +9133,272 @@ export type OrderUncheckedUpdateManyWithoutFulfilmentQuoteInput = {
   grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OrderCreateManyFxSnapshotInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OrderUpdateWithoutFxSnapshotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutFxSnapshotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateManyWithoutFxSnapshotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7919,6 +9577,16 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   grandTotalMinor?: boolean
   paidMinor?: boolean
   refundedMinor?: boolean
+  fxPriceSource?: boolean
+  fxSnapshotId?: boolean
+  fxBaseCurrency?: boolean
+  fxBaseGrandTotalMinor?: boolean
+  fxMidRate?: boolean
+  fxRateUsed?: boolean
+  fxAdjustmentPercent?: boolean
+  fxRateAsOf?: boolean
+  fxProvider?: boolean
+  fxPolicyVersion?: boolean
   billingAddressJson?: boolean
   shippingAddressJson?: boolean
   shippingMethodCode?: boolean
@@ -7947,6 +9615,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   cancelReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  fxSnapshot?: boolean | Prisma.Order$fxSnapshotArgs<ExtArgs>
   preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
@@ -7989,6 +9658,16 @@ export type OrderSelectScalar = {
   grandTotalMinor?: boolean
   paidMinor?: boolean
   refundedMinor?: boolean
+  fxPriceSource?: boolean
+  fxSnapshotId?: boolean
+  fxBaseCurrency?: boolean
+  fxBaseGrandTotalMinor?: boolean
+  fxMidRate?: boolean
+  fxRateUsed?: boolean
+  fxAdjustmentPercent?: boolean
+  fxRateAsOf?: boolean
+  fxProvider?: boolean
+  fxPolicyVersion?: boolean
   billingAddressJson?: boolean
   shippingAddressJson?: boolean
   shippingMethodCode?: boolean
@@ -8019,8 +9698,9 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "fulfilmentLocationId" | "fulfilmentQuoteId" | "fulfilmentCarrier" | "fulfilmentServiceLevel" | "fulfilmentDispatchDate" | "fulfilmentDeliveryFrom" | "fulfilmentDeliveryTo" | "preferredPaymentProvider" | "preferredPaymentMethod" | "preferredPaymentInstrument" | "preferredPaymentMethodId" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "fxPriceSource" | "fxSnapshotId" | "fxBaseCurrency" | "fxBaseGrandTotalMinor" | "fxMidRate" | "fxRateUsed" | "fxAdjustmentPercent" | "fxRateAsOf" | "fxProvider" | "fxPolicyVersion" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "fulfilmentLocationId" | "fulfilmentQuoteId" | "fulfilmentCarrier" | "fulfilmentServiceLevel" | "fulfilmentDispatchDate" | "fulfilmentDeliveryFrom" | "fulfilmentDeliveryTo" | "preferredPaymentProvider" | "preferredPaymentMethod" | "preferredPaymentInstrument" | "preferredPaymentMethodId" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  fxSnapshot?: boolean | Prisma.Order$fxSnapshotArgs<ExtArgs>
   preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
@@ -8048,6 +9728,7 @@ export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Order"
   objects: {
+    fxSnapshot: Prisma.$ExchangeRateSnapshotPayload<ExtArgs> | null
     preferredPaymentCard: Prisma.$CustomerPaymentMethodPayload<ExtArgs> | null
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     cart: Prisma.$CartPayload<ExtArgs> | null
@@ -8109,6 +9790,51 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      */
     paidMinor: bigint
     refundedMinor: bigint
+    /**
+     * How the figures above were arrived at.
+     * MANUAL    - a price row a person entered for this currency.
+     * CONVERTED - derived from the base-currency price at the rate below.
+     * Null on orders written before this existed.
+     */
+    fxPriceSource: $Enums.FxPriceSource | null
+    /**
+     * The snapshot the rate came from. The audit join: from an order to the
+     * exact list a provider published on a date, and every rate in it.
+     */
+    fxSnapshotId: string | null
+    /**
+     * The authoritative currency the catalogue figure was held in, and what the
+     * order was worth in it. Kept beside the charged amount so a settlement in
+     * the base currency needs no reconstruction.
+     */
+    fxBaseCurrency: string | null
+    fxBaseGrandTotalMinor: bigint | null
+    /**
+     * What the market said, and what this deployment quoted against it.
+     * 
+     * Both, because they are different facts and a dispute needs each. The mid
+     * rate is the provider's; `fxRateUsed` is that rate with
+     * `fxAdjustmentPercent` applied, and is the number that actually produced
+     * the figures above.
+     */
+    fxMidRate: runtime.Decimal | null
+    fxRateUsed: runtime.Decimal | null
+    fxAdjustmentPercent: runtime.Decimal | null
+    /**
+     * The provider's own date for the rate, and the provider's name. Copied
+     * rather than joined so an order stays readable after a snapshot is pruned.
+     */
+    fxRateAsOf: Date | null
+    fxProvider: string | null
+    /**
+     * Which rounding and conversion rules were in force.
+     * 
+     * A version string, not the rules themselves. When the deployment changes
+     * its rounding from "charm" to "exact", every order already placed must
+     * still be explainable under the rules it was placed under, and a bare
+     * timestamp does not say which those were.
+     */
+    fxPolicyVersion: string | null
     /**
      * Address as captured at checkout. Independent of the Address rows.
      */
@@ -8555,6 +10281,7 @@ readonly fields: OrderFieldRefs;
  */
 export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  fxSnapshot<T extends Prisma.Order$fxSnapshotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$fxSnapshotArgs<ExtArgs>>): Prisma.Prisma__ExchangeRateSnapshotClient<runtime.Types.Result.GetResult<Prisma.$ExchangeRateSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   preferredPaymentCard<T extends Prisma.Order$preferredPaymentCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$preferredPaymentCardArgs<ExtArgs>>): Prisma.Prisma__CustomerPaymentMethodClient<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   cart<T extends Prisma.Order$cartArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$cartArgs<ExtArgs>>): Prisma.Prisma__CartClient<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -8620,6 +10347,16 @@ export interface OrderFieldRefs {
   readonly grandTotalMinor: Prisma.FieldRef<"Order", 'BigInt'>
   readonly paidMinor: Prisma.FieldRef<"Order", 'BigInt'>
   readonly refundedMinor: Prisma.FieldRef<"Order", 'BigInt'>
+  readonly fxPriceSource: Prisma.FieldRef<"Order", 'FxPriceSource'>
+  readonly fxSnapshotId: Prisma.FieldRef<"Order", 'String'>
+  readonly fxBaseCurrency: Prisma.FieldRef<"Order", 'String'>
+  readonly fxBaseGrandTotalMinor: Prisma.FieldRef<"Order", 'BigInt'>
+  readonly fxMidRate: Prisma.FieldRef<"Order", 'Decimal'>
+  readonly fxRateUsed: Prisma.FieldRef<"Order", 'Decimal'>
+  readonly fxAdjustmentPercent: Prisma.FieldRef<"Order", 'Decimal'>
+  readonly fxRateAsOf: Prisma.FieldRef<"Order", 'DateTime'>
+  readonly fxProvider: Prisma.FieldRef<"Order", 'String'>
+  readonly fxPolicyVersion: Prisma.FieldRef<"Order", 'String'>
   readonly billingAddressJson: Prisma.FieldRef<"Order", 'Json'>
   readonly shippingAddressJson: Prisma.FieldRef<"Order", 'Json'>
   readonly shippingMethodCode: Prisma.FieldRef<"Order", 'String'>
@@ -8993,6 +10730,25 @@ export type OrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Orders to delete.
    */
   limit?: number
+}
+
+/**
+ * Order.fxSnapshot
+ */
+export type Order$fxSnapshotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExchangeRateSnapshot
+   */
+  select?: Prisma.ExchangeRateSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExchangeRateSnapshot
+   */
+  omit?: Prisma.ExchangeRateSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExchangeRateSnapshotInclude<ExtArgs> | null
+  where?: Prisma.ExchangeRateSnapshotWhereInput
 }
 
 /**

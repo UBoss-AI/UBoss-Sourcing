@@ -467,6 +467,8 @@ export const ModelName = {
   Currency: 'Currency',
   Country: 'Country',
   ProductPrice: 'ProductPrice',
+  ExchangeRateSnapshot: 'ExchangeRateSnapshot',
+  ExchangeRate: 'ExchangeRate',
   Coupon: 'Coupon',
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
@@ -585,7 +587,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5206,6 +5208,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductPriceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductPriceCountAggregateOutputType> | number
+        }
+      }
+    }
+    ExchangeRateSnapshot: {
+      payload: Prisma.$ExchangeRateSnapshotPayload<ExtArgs>
+      fields: Prisma.ExchangeRateSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExchangeRateSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExchangeRateSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.ExchangeRateSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExchangeRateSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.ExchangeRateSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.ExchangeRateSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.ExchangeRateSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ExchangeRateSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        update: {
+          args: Prisma.ExchangeRateSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.ExchangeRateSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExchangeRateSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ExchangeRateSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRateSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.ExchangeRateSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExchangeRateSnapshot>
+        }
+        groupBy: {
+          args: Prisma.ExchangeRateSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExchangeRateSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    ExchangeRate: {
+      payload: Prisma.$ExchangeRatePayload<ExtArgs>
+      fields: Prisma.ExchangeRateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExchangeRateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExchangeRateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        findFirst: {
+          args: Prisma.ExchangeRateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExchangeRateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        findMany: {
+          args: Prisma.ExchangeRateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>[]
+        }
+        create: {
+          args: Prisma.ExchangeRateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        createMany: {
+          args: Prisma.ExchangeRateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ExchangeRateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        update: {
+          args: Prisma.ExchangeRateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ExchangeRateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExchangeRateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ExchangeRateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        aggregate: {
+          args: Prisma.ExchangeRateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExchangeRate>
+        }
+        groupBy: {
+          args: Prisma.ExchangeRateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExchangeRateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateCountAggregateOutputType> | number
         }
       }
     }
@@ -12245,6 +12379,15 @@ export const CurrencyRateSyncScalarFieldEnum = {
   lastRunStatus: 'lastRunStatus',
   lastRunMessage: 'lastRunMessage',
   lastRunUpdated: 'lastRunUpdated',
+  provider: 'provider',
+  displayMaxAgeHours: 'displayMaxAgeHours',
+  checkoutMaxAgeHours: 'checkoutMaxAgeHours',
+  alertMaxAgeHours: 'alertMaxAgeHours',
+  quoteTtlSeconds: 'quoteTtlSeconds',
+  deriveMissingPrices: 'deriveMissingPrices',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  consecutiveFailures: 'consecutiveFailures',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   updatedById: 'updatedById'
@@ -12764,6 +12907,16 @@ export const OrderScalarFieldEnum = {
   grandTotalMinor: 'grandTotalMinor',
   paidMinor: 'paidMinor',
   refundedMinor: 'refundedMinor',
+  fxPriceSource: 'fxPriceSource',
+  fxSnapshotId: 'fxSnapshotId',
+  fxBaseCurrency: 'fxBaseCurrency',
+  fxBaseGrandTotalMinor: 'fxBaseGrandTotalMinor',
+  fxMidRate: 'fxMidRate',
+  fxRateUsed: 'fxRateUsed',
+  fxAdjustmentPercent: 'fxAdjustmentPercent',
+  fxRateAsOf: 'fxRateAsOf',
+  fxProvider: 'fxProvider',
+  fxPolicyVersion: 'fxPolicyVersion',
   billingAddressJson: 'billingAddressJson',
   shippingAddressJson: 'shippingAddressJson',
   shippingMethodCode: 'shippingMethodCode',
@@ -13524,6 +13677,43 @@ export const ProductPriceScalarFieldEnum = {
 } as const
 
 export type ProductPriceScalarFieldEnum = (typeof ProductPriceScalarFieldEnum)[keyof typeof ProductPriceScalarFieldEnum]
+
+
+export const ExchangeRateSnapshotScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  pivotCurrency: 'pivotCurrency',
+  asOf: 'asOf',
+  fetchedAt: 'fetchedAt',
+  sourceReference: 'sourceReference',
+  retrievalStatus: 'retrievalStatus',
+  validationStatus: 'validationStatus',
+  failureReason: 'failureReason',
+  rateCount: 'rateCount',
+  rejectedCount: 'rejectedCount',
+  maxDriftPercent: 'maxDriftPercent',
+  maxDriftCurrency: 'maxDriftCurrency',
+  isActive: 'isActive',
+  activeProvider: 'activeProvider',
+  activatedAt: 'activatedAt',
+  retiredAt: 'retiredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExchangeRateSnapshotScalarFieldEnum = (typeof ExchangeRateSnapshotScalarFieldEnum)[keyof typeof ExchangeRateSnapshotScalarFieldEnum]
+
+
+export const ExchangeRateScalarFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency',
+  rate: 'rate',
+  createdAt: 'createdAt'
+} as const
+
+export type ExchangeRateScalarFieldEnum = (typeof ExchangeRateScalarFieldEnum)[keyof typeof ExchangeRateScalarFieldEnum]
 
 
 export const CouponScalarFieldEnum = {
@@ -15992,6 +16182,7 @@ export const CurrencyRateSyncOrderByRelevanceFieldEnum = {
   rounding: 'rounding',
   lastRunStatus: 'lastRunStatus',
   lastRunMessage: 'lastRunMessage',
+  provider: 'provider',
   updatedById: 'updatedById'
 } as const
 
@@ -16342,6 +16533,10 @@ export const OrderOrderByRelevanceFieldEnum = {
   cartId: 'cartId',
   scheduleOccurrenceId: 'scheduleOccurrenceId',
   currency: 'currency',
+  fxSnapshotId: 'fxSnapshotId',
+  fxBaseCurrency: 'fxBaseCurrency',
+  fxProvider: 'fxProvider',
+  fxPolicyVersion: 'fxPolicyVersion',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
   fulfilmentLocationId: 'fulfilmentLocationId',
@@ -16815,6 +17010,29 @@ export const ProductPriceOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProductPriceOrderByRelevanceFieldEnum = (typeof ProductPriceOrderByRelevanceFieldEnum)[keyof typeof ProductPriceOrderByRelevanceFieldEnum]
+
+
+export const ExchangeRateSnapshotOrderByRelevanceFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  pivotCurrency: 'pivotCurrency',
+  sourceReference: 'sourceReference',
+  failureReason: 'failureReason',
+  maxDriftCurrency: 'maxDriftCurrency',
+  activeProvider: 'activeProvider'
+} as const
+
+export type ExchangeRateSnapshotOrderByRelevanceFieldEnum = (typeof ExchangeRateSnapshotOrderByRelevanceFieldEnum)[keyof typeof ExchangeRateSnapshotOrderByRelevanceFieldEnum]
+
+
+export const ExchangeRateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency'
+} as const
+
+export type ExchangeRateOrderByRelevanceFieldEnum = (typeof ExchangeRateOrderByRelevanceFieldEnum)[keyof typeof ExchangeRateOrderByRelevanceFieldEnum]
 
 
 export const CouponOrderByRelevanceFieldEnum = {
@@ -18480,6 +18698,13 @@ export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
 
 
 /**
+ * Reference to a field of type 'FxPriceSource'
+ */
+export type EnumFxPriceSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FxPriceSource'>
+    
+
+
+/**
  * Reference to a field of type 'PaymentIntentMode'
  */
 export type EnumPaymentIntentModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentIntentMode'>
@@ -18714,6 +18939,20 @@ export type EnumAdminNotificationResolutionPolicyFieldRefInput<$PrismaModel> = F
  * Reference to a field of type 'AdminNotificationResolutionSource'
  */
 export type EnumAdminNotificationResolutionSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminNotificationResolutionSource'>
+    
+
+
+/**
+ * Reference to a field of type 'FxRetrievalStatus'
+ */
+export type EnumFxRetrievalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FxRetrievalStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'FxValidationStatus'
+ */
+export type EnumFxValidationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FxValidationStatus'>
     
 
 
@@ -19560,6 +19799,8 @@ export type GlobalOmitConfig = {
   currency?: Prisma.CurrencyOmit
   country?: Prisma.CountryOmit
   productPrice?: Prisma.ProductPriceOmit
+  exchangeRateSnapshot?: Prisma.ExchangeRateSnapshotOmit
+  exchangeRate?: Prisma.ExchangeRateOmit
   coupon?: Prisma.CouponOmit
   couponCategory?: Prisma.CouponCategoryOmit
   couponMinimum?: Prisma.CouponMinimumOmit

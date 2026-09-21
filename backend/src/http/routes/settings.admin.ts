@@ -50,6 +50,7 @@ import {
   refreshNow,
   updateFxRateSettings,
 } from '../../modules/settings/fx-rate.service.js';
+import { fxHealth, listRateSnapshots } from '../../modules/settings/fx-snapshot.service.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
 import {
   catalogueTranslationCoverage,
@@ -82,6 +83,29 @@ const exchangeRateSettingsBody = z.object({
     .string()
     .regex(/^\d{1,3}(\.\d{1,2})?$/, 'Enter a percentage, e.g. 15.00.')
     .optional(),
+
+  /**
+   * Which feed. Validated against the closed list in the service as well as
+   * here - the provider decides where this server makes an outbound request
+   * to, so it is never free text at any layer.
+   */
+  provider: z.string().min(1).max(32).optional(),
+
+  deriveMissingPrices: z.boolean().optional(),
+
+  /**
+   * The freshness windows.
+   *
+   * The lower bounds are not decoration. A display window under a day would
+   * blank the catalogue every night, and a checkout window under a day would
+   * refuse every sale each weekend - both of which look like an outage and
+   * neither of which is one. The service additionally refuses a set that is
+   * out of order, which the ranges here cannot express.
+   */
+  displayMaxAgeHours: z.number().int().min(24).max(8760).optional(),
+  checkoutMaxAgeHours: z.number().int().min(24).max(8760).optional(),
+  alertMaxAgeHours: z.number().int().min(1).max(8760).optional(),
+  quoteTtlSeconds: z.number().int().min(60).max(86_400).optional(),
 });
 
 function actorFrom(request: FastifyRequest): {
@@ -363,7 +387,34 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     '/settings/exchange-rates',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
     async (_request, reply) =>
-      reply.status(200).send({ settings: await getFxRateSettings() }),
+      reply.status(200).send({
+        settings: await getFxRateSettings(),
+        // Sent with the settings rather than from a second endpoint, because
+        // the switch and the state of the thing it switches belong on one
+        // screen. A scheduled job that quietly stopped working is worse than
+        // one that never ran, and the panel should say so without a refresh.
+        health: await fxHealth(),
+      }),
+  );
+
+  /**
+   * What the feed has actually been doing.
+   *
+   * The audit trail the previous design had nowhere to put: every fetch, the
+   * ones that were refused and why, and how far each one moved the market it
+   * quotes. Read-only and behind `settings.read` - it contains no credential
+   * and no response body, only what was published and what was made of it.
+   */
+  app.get(
+    '/settings/exchange-rates/snapshots',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({ limit: z.coerce.number().int().min(1).max(100).default(20) })
+        .parse(request.query);
+
+      return reply.status(200).send({ snapshots: await listRateSnapshots(query.limit) });
+    },
   );
 
   app.put(

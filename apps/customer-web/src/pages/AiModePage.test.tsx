@@ -747,7 +747,7 @@ describe('the products an answer is about', () => {
       expect(screen.getByRole('link', { name: 'Safety Cannula 22G' })).toBeInTheDocument();
     });
     // The carton price, like every other price a shopper sees: 450.50 × 500.
-    expect(screen.getByText('₹225250.00')).toBeInTheDocument();
+    expect(screen.getByText('₹225,250.00')).toBeInTheDocument();
     expect(screen.getAllByText('One carton has 500 pieces').length).toBeGreaterThan(0);
     expect(screen.getByText('SC-22G')).toBeInTheDocument();
     expect(

@@ -160,7 +160,7 @@ describe('CatalogPage filters', () => {
     expect(
       // Carton prices, because the boxes beside this take carton prices and
       // every figure in the grid below is one. 420.00 × 500 and 4,500.00 × 500.
-      await screen.findByText('Prices here run from ₹210000.00 to ₹2250000.00.'),
+      await screen.findByText('Prices here run from ₹210,000.00 to ₹2,250,000.00.'),
     ).toBeInTheDocument();
   });
 

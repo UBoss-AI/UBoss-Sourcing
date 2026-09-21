@@ -350,6 +350,16 @@ export const ErrorCode = {
   /// The catalogue has no price for this SKU in the requested currency, so it
   /// cannot be sold in it. Never fall back to another currency's number.
   PRICE_UNAVAILABLE_IN_CURRENCY: 'PRICE_UNAVAILABLE_IN_CURRENCY',
+  /// The same outcome as above, from a completely different cause: this
+  /// deployment DOES sell the SKU in this currency, by converting its base
+  /// price, but there is no exchange rate fresh enough to do it with right
+  /// now. A separate code rather than a reuse of the one above because the two
+  /// need opposite advice - "this is not sold here, choose something else"
+  /// against "try again shortly, or switch currency" - and because an operator
+  /// seeing the first will go hunting for a missing price row that was never
+  /// the problem. Temporary by nature: the next successful rate refresh clears
+  /// it without anybody touching the catalogue.
+  PRICE_RATE_UNAVAILABLE: 'PRICE_RATE_UNAVAILABLE',
 
   // --- Coupons ---
   COUPON_NOT_FOUND: 'COUPON_NOT_FOUND',

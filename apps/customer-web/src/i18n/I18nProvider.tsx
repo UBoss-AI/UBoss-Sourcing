@@ -33,6 +33,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { useSession } from '@/auth/session-context';
 import { api } from '@/lib/api';
+import { setMoneyLocale } from '@/lib/format';
 import { i18n, isLanguageCode } from './config';
 
 interface AccountLanguageResponse {
@@ -50,7 +51,20 @@ export function I18nProvider({ children }: { children: ReactNode }): React.JSX.E
   // English synthesiser, which is unintelligible.
   useEffect(() => {
     const apply = (): void => {
-      document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language;
+      const language = i18n.resolvedLanguage ?? i18n.language;
+      document.documentElement.lang = language;
+
+      // And tell the money formatter, which is where the language actually
+      // changes what a number looks like rather than only what the words round
+      // it say. Six of the eight shipped languages use a decimal comma, and
+      // several put the currency symbol after the amount - a Polish buyer
+      // reads "12 345,67 zl", not "zl 12345.67".
+      //
+      // LANGUAGE, NOT CURRENCY, AND THEY ARE INDEPENDENT ON PURPOSE. This
+      // decides the *format*; the currency is carried on each amount. A French
+      // buyer paying in zloty gets French grouping around a zloty symbol, which
+      // is exactly right and is the case that breaks if the two are conflated.
+      setMoneyLocale(language);
     };
 
     apply();

@@ -53,6 +53,7 @@
  * somebody changed language would be a slow no-op.
  */
 import { useEffect, useRef, type ReactNode } from 'react';
+import { setMoneyLocale } from '@/lib/format';
 import { I18nextProvider } from 'react-i18next';
 import { useSession } from '@/auth/session-context';
 import { api } from '@/lib/api';
@@ -113,7 +114,15 @@ export function I18nProvider({ children }: { children: ReactNode }): React.JSX.E
   // English synthesiser, which is unintelligible.
   useEffect(() => {
     const apply = (): void => {
-      document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language;
+      const language = i18n.resolvedLanguage ?? i18n.language;
+      document.documentElement.lang = language;
+
+      // And the money formatter, where the language decides what a number
+      // looks like rather than only the words around it. Six of the eight
+      // shipped languages use a decimal comma and several put the currency
+      // symbol after the amount. Language, not currency: the currency is
+      // carried on each amount, and the two stay independent.
+      setMoneyLocale(language);
     };
 
     apply();

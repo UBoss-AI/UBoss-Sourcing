@@ -80,7 +80,7 @@ describe('the catalogue row', () => {
     expect(within(row()).getByText('33% off')).toBeInTheDocument();
     // Both figures are the carton's, not the piece's: 4,500.00 × 500. Scaling
     // only one of the two would invent a saving nobody offered.
-    expect(within(row()).getByText('₹2250000.00')).toBeInTheDocument();
+    expect(within(row()).getByText('₹2,250,000.00')).toBeInTheDocument();
   });
 
   it('says nothing about a saving when there is not one', () => {

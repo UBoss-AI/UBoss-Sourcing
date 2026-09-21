@@ -167,6 +167,31 @@ const envSchema = z
     FX_RATE_URL: z.string().url().default('https://open.er-api.com/v6/latest/{base}'),
     FX_RATE_TIMEOUT_MS: intFromString(1000, 60_000).default(10_000),
 
+    // The European Central Bank's daily euro reference rates. A URL rather
+    // than a constant for the same reason as every other outbound address in
+    // this file: a deployment behind a firewall mirrors it internally.
+    //
+    // Which provider is actually used is an admin setting, not an environment
+    // variable - it is a pricing decision, and it belongs where the margin and
+    // the rounding rule already live. This only says where the ECB adapter
+    // looks when it is the one selected.
+    FX_ECB_URL: z
+      .string()
+      .url()
+      .default('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml'),
+
+    // How many attempts one refresh makes before giving up until the next
+    // scheduled run, and the base delay it backs off by. Jittered, so a fleet
+    // of workers restarted together does not arrive at the feed in lockstep.
+    FX_RATE_MAX_ATTEMPTS: intFromString(1, 10).default(3),
+    FX_RATE_RETRY_BASE_MS: intFromString(100, 60_000).default(1_000),
+
+    // Snapshots older than this are pruned by the housekeeping job. Rates are
+    // small rows and the history is the audit trail, so the default is long;
+    // an order that points at a pruned snapshot keeps its own copy of the rate
+    // either way, which is why pruning is safe at all.
+    FX_SNAPSHOT_RETENTION_DAYS: intFromString(30, 3650).default(730),
+
     // --- EU VAT number checking (VIES) ---
     //
     // The Commission's REST front door onto the twenty-seven national VAT

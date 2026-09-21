@@ -507,6 +507,16 @@ export type Country = Prisma.CountryModel
  */
 export type ProductPrice = Prisma.ProductPriceModel
 /**
+ * Model ExchangeRateSnapshot
+ * One fetch from one provider.
+ */
+export type ExchangeRateSnapshot = Prisma.ExchangeRateSnapshotModel
+/**
+ * Model ExchangeRate
+ * One quoted pair inside one snapshot. Never updated.
+ */
+export type ExchangeRate = Prisma.ExchangeRateModel
+/**
  * Model Coupon
  * 
  */

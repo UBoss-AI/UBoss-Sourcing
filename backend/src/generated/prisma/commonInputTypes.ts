@@ -711,6 +711,13 @@ export type EnumOrderStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel> | $Enums.OrderStatus
 }
 
+export type EnumFxPriceSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxPriceSource | Prisma.EnumFxPriceSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FxPriceSource[] | null
+  notIn?: $Enums.FxPriceSource[] | null
+  not?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel> | $Enums.FxPriceSource | null
+}
+
 export type EnumPaymentIntentModeFilter<$PrismaModel = never> = {
   equals?: $Enums.PaymentIntentMode | Prisma.EnumPaymentIntentModeFieldRefInput<$PrismaModel>
   in?: $Enums.PaymentIntentMode[]
@@ -764,6 +771,16 @@ export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
+}
+
+export type EnumFxPriceSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxPriceSource | Prisma.EnumFxPriceSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FxPriceSource[] | null
+  notIn?: $Enums.FxPriceSource[] | null
+  not?: Prisma.NestedEnumFxPriceSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.FxPriceSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel>
 }
 
 export type EnumPaymentIntentModeWithAggregatesFilter<$PrismaModel = never> = {
@@ -1358,6 +1375,40 @@ export type EnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<$P
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
+}
+
+export type EnumFxRetrievalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxRetrievalStatus | Prisma.EnumFxRetrievalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxRetrievalStatus[]
+  notIn?: $Enums.FxRetrievalStatus[]
+  not?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel> | $Enums.FxRetrievalStatus
+}
+
+export type EnumFxValidationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxValidationStatus | Prisma.EnumFxValidationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxValidationStatus[]
+  notIn?: $Enums.FxValidationStatus[]
+  not?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel> | $Enums.FxValidationStatus
+}
+
+export type EnumFxRetrievalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxRetrievalStatus | Prisma.EnumFxRetrievalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxRetrievalStatus[]
+  notIn?: $Enums.FxRetrievalStatus[]
+  not?: Prisma.NestedEnumFxRetrievalStatusWithAggregatesFilter<$PrismaModel> | $Enums.FxRetrievalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel>
+}
+
+export type EnumFxValidationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxValidationStatus | Prisma.EnumFxValidationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxValidationStatus[]
+  notIn?: $Enums.FxValidationStatus[]
+  not?: Prisma.NestedEnumFxValidationStatusWithAggregatesFilter<$PrismaModel> | $Enums.FxValidationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel>
 }
 
 export type EnumCouponScopeFilter<$PrismaModel = never> = {
@@ -3601,6 +3652,13 @@ export type NestedEnumOrderStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel> | $Enums.OrderStatus
 }
 
+export type NestedEnumFxPriceSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxPriceSource | Prisma.EnumFxPriceSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FxPriceSource[] | null
+  notIn?: $Enums.FxPriceSource[] | null
+  not?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel> | $Enums.FxPriceSource | null
+}
+
 export type NestedEnumPaymentIntentModeFilter<$PrismaModel = never> = {
   equals?: $Enums.PaymentIntentMode | Prisma.EnumPaymentIntentModeFieldRefInput<$PrismaModel>
   in?: $Enums.PaymentIntentMode[]
@@ -3654,6 +3712,16 @@ export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumFxPriceSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxPriceSource | Prisma.EnumFxPriceSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FxPriceSource[] | null
+  notIn?: $Enums.FxPriceSource[] | null
+  not?: Prisma.NestedEnumFxPriceSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.FxPriceSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxPriceSourceNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumPaymentIntentModeWithAggregatesFilter<$PrismaModel = never> = {
@@ -4248,6 +4316,40 @@ export type NestedEnumAdminNotificationResolutionSourceNullableWithAggregatesFil
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAdminNotificationResolutionSourceNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumFxRetrievalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxRetrievalStatus | Prisma.EnumFxRetrievalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxRetrievalStatus[]
+  notIn?: $Enums.FxRetrievalStatus[]
+  not?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel> | $Enums.FxRetrievalStatus
+}
+
+export type NestedEnumFxValidationStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxValidationStatus | Prisma.EnumFxValidationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxValidationStatus[]
+  notIn?: $Enums.FxValidationStatus[]
+  not?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel> | $Enums.FxValidationStatus
+}
+
+export type NestedEnumFxRetrievalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxRetrievalStatus | Prisma.EnumFxRetrievalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxRetrievalStatus[]
+  notIn?: $Enums.FxRetrievalStatus[]
+  not?: Prisma.NestedEnumFxRetrievalStatusWithAggregatesFilter<$PrismaModel> | $Enums.FxRetrievalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxRetrievalStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumFxValidationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FxValidationStatus | Prisma.EnumFxValidationStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.FxValidationStatus[]
+  notIn?: $Enums.FxValidationStatus[]
+  not?: Prisma.NestedEnumFxValidationStatusWithAggregatesFilter<$PrismaModel> | $Enums.FxValidationStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFxValidationStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumCouponScopeFilter<$PrismaModel = never> = {

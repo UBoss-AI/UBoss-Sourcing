@@ -167,7 +167,7 @@ describe('ProductPage', () => {
     //
     // The carton's price, not the piece's: ₹199.00 × 500. Every figure on
     // this page is the price of the thing that can actually be bought.
-    expect(screen.getAllByText('₹99500.00')).toHaveLength(2);
+    expect(screen.getAllByText('₹99,500.00')).toHaveLength(2);
     expect(screen.getByText('Price shown for 5 Litre.')).toBeInTheDocument();
   });
 
@@ -308,7 +308,7 @@ describe('ProductPage', () => {
     await user.click(screen.getByRole('button', { name: /5 Litre/ }));
 
     // Both ends of the band are carton prices: ₹45.50 × 500 and ₹199.00 × 500.
-    expect(screen.getByText('₹22750.00 to ₹99500.00')).toBeInTheDocument();
+    expect(screen.getByText('₹22,750.00 to ₹99,500.00')).toBeInTheDocument();
     expect(
       screen.getByText('The lowest and the highest of the 2 options you chose.'),
     ).toBeInTheDocument();

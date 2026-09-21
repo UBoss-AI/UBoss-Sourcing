@@ -39,6 +39,11 @@ import {
   refreshConvertedPrices,
 } from '../modules/settings/fx-rate.service.js';
 import {
+  fxHealth,
+  pruneRateSnapshots,
+  refreshRateSnapshot,
+} from '../modules/settings/fx-snapshot.service.js';
+import {
   claimDueSchedules,
   expireActionRequiredOccurrences,
   materialiseOccurrences,
@@ -619,18 +624,61 @@ const integrationSync: JobHandler = async (payload) => {
  */
 const fxRateRefresh: JobHandler = async () => {
   const settings = await getFxRateSettings();
+  const health = await fxHealth();
 
-  if (!settings.isEnabled) {
-    logger.debug('exchange rate refresh is switched off; nothing to do');
+  // TWO SWITCHES, NOT ONE, AND THEY GOVERN DIFFERENT THINGS.
+  //
+  //   `isEnabled`          - rewrite catalogue price rows from the feed.
+  //   `deriveMissingPrices` - convert at read time for markets with no rows.
+  //
+  // A deployment can want the second without the first, and that combination
+  // used to be unreachable: the whole job short-circuited on `isEnabled`, so
+  // nothing ever fetched a rate set and read-time derivation would have had
+  // nothing to read. Fetching is now governed by whether either feature needs
+  // rates, and only the rewrite is governed by `isEnabled`.
+  if (!settings.isEnabled && !health.deriveMissingPrices) {
+    logger.debug('nothing needs exchange rates; not fetching any');
     return;
   }
 
-  const result = await refreshConvertedPrices('schedule', null);
+  if (!settings.isEnabled) {
+    const snapshot = await refreshRateSnapshot('schedule');
 
-  logger.info(
-    { status: result.status, updated: result.updated, message: result.message },
-    'scheduled exchange rate refresh finished',
-  );
+    logger.info(
+      { status: snapshot.status, asOf: snapshot.asOf, rates: snapshot.rateCount },
+      'exchange rate set refreshed for read-time conversion',
+    );
+  } else {
+    // `refreshConvertedPrices` fetches the set itself before repricing, so
+    // calling both here would double the outbound requests for no gain.
+    const result = await refreshConvertedPrices('schedule', null);
+
+    logger.info(
+      { status: result.status, updated: result.updated, message: result.message },
+      'scheduled exchange rate refresh finished',
+    );
+  }
+
+  // Said once per run, after the work, so it reflects what just happened. An
+  // operator with no alerting configured still has this in the log, and the
+  // settings screen reads the same fields.
+  const after = await fxHealth();
+
+  if (after.stale) {
+    logger.error(
+      {
+        provider: after.provider,
+        ageHours: after.ageHours,
+        alertMaxAgeHours: after.alertMaxAgeHours,
+        consecutiveFailures: after.consecutiveFailures,
+        lastSuccessAt: after.lastSuccessAt,
+      },
+      'exchange rates are older than the configured alert threshold',
+    );
+  }
+
+  const pruned = await pruneRateSnapshots();
+  if (pruned > 0) logger.info({ pruned }, 'old exchange rate snapshots removed');
 };
 
 /**

@@ -36,12 +36,22 @@ export type CurrencyRateSyncAvgAggregateOutputType = {
   marginPercent: runtime.Decimal | null
   maxDriftPercent: runtime.Decimal | null
   lastRunUpdated: number | null
+  displayMaxAgeHours: number | null
+  checkoutMaxAgeHours: number | null
+  alertMaxAgeHours: number | null
+  quoteTtlSeconds: number | null
+  consecutiveFailures: number | null
 }
 
 export type CurrencyRateSyncSumAggregateOutputType = {
   marginPercent: runtime.Decimal | null
   maxDriftPercent: runtime.Decimal | null
   lastRunUpdated: number | null
+  displayMaxAgeHours: number | null
+  checkoutMaxAgeHours: number | null
+  alertMaxAgeHours: number | null
+  quoteTtlSeconds: number | null
+  consecutiveFailures: number | null
 }
 
 export type CurrencyRateSyncMinAggregateOutputType = {
@@ -54,6 +64,15 @@ export type CurrencyRateSyncMinAggregateOutputType = {
   lastRunStatus: string | null
   lastRunMessage: string | null
   lastRunUpdated: number | null
+  provider: string | null
+  displayMaxAgeHours: number | null
+  checkoutMaxAgeHours: number | null
+  alertMaxAgeHours: number | null
+  quoteTtlSeconds: number | null
+  deriveMissingPrices: boolean | null
+  lastSuccessAt: Date | null
+  lastFailureAt: Date | null
+  consecutiveFailures: number | null
   createdAt: Date | null
   updatedAt: Date | null
   updatedById: string | null
@@ -69,6 +88,15 @@ export type CurrencyRateSyncMaxAggregateOutputType = {
   lastRunStatus: string | null
   lastRunMessage: string | null
   lastRunUpdated: number | null
+  provider: string | null
+  displayMaxAgeHours: number | null
+  checkoutMaxAgeHours: number | null
+  alertMaxAgeHours: number | null
+  quoteTtlSeconds: number | null
+  deriveMissingPrices: boolean | null
+  lastSuccessAt: Date | null
+  lastFailureAt: Date | null
+  consecutiveFailures: number | null
   createdAt: Date | null
   updatedAt: Date | null
   updatedById: string | null
@@ -84,6 +112,15 @@ export type CurrencyRateSyncCountAggregateOutputType = {
   lastRunStatus: number
   lastRunMessage: number
   lastRunUpdated: number
+  provider: number
+  displayMaxAgeHours: number
+  checkoutMaxAgeHours: number
+  alertMaxAgeHours: number
+  quoteTtlSeconds: number
+  deriveMissingPrices: number
+  lastSuccessAt: number
+  lastFailureAt: number
+  consecutiveFailures: number
   createdAt: number
   updatedAt: number
   updatedById: number
@@ -95,12 +132,22 @@ export type CurrencyRateSyncAvgAggregateInputType = {
   marginPercent?: true
   maxDriftPercent?: true
   lastRunUpdated?: true
+  displayMaxAgeHours?: true
+  checkoutMaxAgeHours?: true
+  alertMaxAgeHours?: true
+  quoteTtlSeconds?: true
+  consecutiveFailures?: true
 }
 
 export type CurrencyRateSyncSumAggregateInputType = {
   marginPercent?: true
   maxDriftPercent?: true
   lastRunUpdated?: true
+  displayMaxAgeHours?: true
+  checkoutMaxAgeHours?: true
+  alertMaxAgeHours?: true
+  quoteTtlSeconds?: true
+  consecutiveFailures?: true
 }
 
 export type CurrencyRateSyncMinAggregateInputType = {
@@ -113,6 +160,15 @@ export type CurrencyRateSyncMinAggregateInputType = {
   lastRunStatus?: true
   lastRunMessage?: true
   lastRunUpdated?: true
+  provider?: true
+  displayMaxAgeHours?: true
+  checkoutMaxAgeHours?: true
+  alertMaxAgeHours?: true
+  quoteTtlSeconds?: true
+  deriveMissingPrices?: true
+  lastSuccessAt?: true
+  lastFailureAt?: true
+  consecutiveFailures?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -128,6 +184,15 @@ export type CurrencyRateSyncMaxAggregateInputType = {
   lastRunStatus?: true
   lastRunMessage?: true
   lastRunUpdated?: true
+  provider?: true
+  displayMaxAgeHours?: true
+  checkoutMaxAgeHours?: true
+  alertMaxAgeHours?: true
+  quoteTtlSeconds?: true
+  deriveMissingPrices?: true
+  lastSuccessAt?: true
+  lastFailureAt?: true
+  consecutiveFailures?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -143,6 +208,15 @@ export type CurrencyRateSyncCountAggregateInputType = {
   lastRunStatus?: true
   lastRunMessage?: true
   lastRunUpdated?: true
+  provider?: true
+  displayMaxAgeHours?: true
+  checkoutMaxAgeHours?: true
+  alertMaxAgeHours?: true
+  quoteTtlSeconds?: true
+  deriveMissingPrices?: true
+  lastSuccessAt?: true
+  lastFailureAt?: true
+  consecutiveFailures?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -245,6 +319,15 @@ export type CurrencyRateSyncGroupByOutputType = {
   lastRunStatus: string | null
   lastRunMessage: string | null
   lastRunUpdated: number
+  provider: string
+  displayMaxAgeHours: number
+  checkoutMaxAgeHours: number
+  alertMaxAgeHours: number
+  quoteTtlSeconds: number
+  deriveMissingPrices: boolean
+  lastSuccessAt: Date | null
+  lastFailureAt: Date | null
+  consecutiveFailures: number
   createdAt: Date
   updatedAt: Date
   updatedById: string | null
@@ -283,6 +366,15 @@ export type CurrencyRateSyncWhereInput = {
   lastRunStatus?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
   lastRunMessage?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
   lastRunUpdated?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  provider?: Prisma.StringFilter<"CurrencyRateSync"> | string
+  displayMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  checkoutMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  alertMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  quoteTtlSeconds?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  deriveMissingPrices?: Prisma.BoolFilter<"CurrencyRateSync"> | boolean
+  lastSuccessAt?: Prisma.DateTimeNullableFilter<"CurrencyRateSync"> | Date | string | null
+  lastFailureAt?: Prisma.DateTimeNullableFilter<"CurrencyRateSync"> | Date | string | null
+  consecutiveFailures?: Prisma.IntFilter<"CurrencyRateSync"> | number
   createdAt?: Prisma.DateTimeFilter<"CurrencyRateSync"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CurrencyRateSync"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
@@ -298,6 +390,15 @@ export type CurrencyRateSyncOrderByWithRelationInput = {
   lastRunStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  deriveMissingPrices?: Prisma.SortOrder
+  lastSuccessAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastFailureAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -317,6 +418,15 @@ export type CurrencyRateSyncWhereUniqueInput = Prisma.AtLeast<{
   lastRunStatus?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
   lastRunMessage?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
   lastRunUpdated?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  provider?: Prisma.StringFilter<"CurrencyRateSync"> | string
+  displayMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  checkoutMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  alertMaxAgeHours?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  quoteTtlSeconds?: Prisma.IntFilter<"CurrencyRateSync"> | number
+  deriveMissingPrices?: Prisma.BoolFilter<"CurrencyRateSync"> | boolean
+  lastSuccessAt?: Prisma.DateTimeNullableFilter<"CurrencyRateSync"> | Date | string | null
+  lastFailureAt?: Prisma.DateTimeNullableFilter<"CurrencyRateSync"> | Date | string | null
+  consecutiveFailures?: Prisma.IntFilter<"CurrencyRateSync"> | number
   createdAt?: Prisma.DateTimeFilter<"CurrencyRateSync"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CurrencyRateSync"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"CurrencyRateSync"> | string | null
@@ -332,6 +442,15 @@ export type CurrencyRateSyncOrderByWithAggregationInput = {
   lastRunStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  deriveMissingPrices?: Prisma.SortOrder
+  lastSuccessAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastFailureAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -355,6 +474,15 @@ export type CurrencyRateSyncScalarWhereWithAggregatesInput = {
   lastRunStatus?: Prisma.StringNullableWithAggregatesFilter<"CurrencyRateSync"> | string | null
   lastRunMessage?: Prisma.StringNullableWithAggregatesFilter<"CurrencyRateSync"> | string | null
   lastRunUpdated?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
+  provider?: Prisma.StringWithAggregatesFilter<"CurrencyRateSync"> | string
+  displayMaxAgeHours?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
+  checkoutMaxAgeHours?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
+  alertMaxAgeHours?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
+  quoteTtlSeconds?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
+  deriveMissingPrices?: Prisma.BoolWithAggregatesFilter<"CurrencyRateSync"> | boolean
+  lastSuccessAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CurrencyRateSync"> | Date | string | null
+  lastFailureAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CurrencyRateSync"> | Date | string | null
+  consecutiveFailures?: Prisma.IntWithAggregatesFilter<"CurrencyRateSync"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CurrencyRateSync"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CurrencyRateSync"> | Date | string
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"CurrencyRateSync"> | string | null
@@ -370,6 +498,15 @@ export type CurrencyRateSyncCreateInput = {
   lastRunStatus?: string | null
   lastRunMessage?: string | null
   lastRunUpdated?: number
+  provider?: string
+  displayMaxAgeHours?: number
+  checkoutMaxAgeHours?: number
+  alertMaxAgeHours?: number
+  quoteTtlSeconds?: number
+  deriveMissingPrices?: boolean
+  lastSuccessAt?: Date | string | null
+  lastFailureAt?: Date | string | null
+  consecutiveFailures?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -385,6 +522,15 @@ export type CurrencyRateSyncUncheckedCreateInput = {
   lastRunStatus?: string | null
   lastRunMessage?: string | null
   lastRunUpdated?: number
+  provider?: string
+  displayMaxAgeHours?: number
+  checkoutMaxAgeHours?: number
+  alertMaxAgeHours?: number
+  quoteTtlSeconds?: number
+  deriveMissingPrices?: boolean
+  lastSuccessAt?: Date | string | null
+  lastFailureAt?: Date | string | null
+  consecutiveFailures?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -400,6 +546,15 @@ export type CurrencyRateSyncUpdateInput = {
   lastRunStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunUpdated?: Prisma.IntFieldUpdateOperationsInput | number
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  displayMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  checkoutMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  alertMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTtlSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  deriveMissingPrices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -415,6 +570,15 @@ export type CurrencyRateSyncUncheckedUpdateInput = {
   lastRunStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunUpdated?: Prisma.IntFieldUpdateOperationsInput | number
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  displayMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  checkoutMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  alertMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTtlSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  deriveMissingPrices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -430,6 +594,15 @@ export type CurrencyRateSyncCreateManyInput = {
   lastRunStatus?: string | null
   lastRunMessage?: string | null
   lastRunUpdated?: number
+  provider?: string
+  displayMaxAgeHours?: number
+  checkoutMaxAgeHours?: number
+  alertMaxAgeHours?: number
+  quoteTtlSeconds?: number
+  deriveMissingPrices?: boolean
+  lastSuccessAt?: Date | string | null
+  lastFailureAt?: Date | string | null
+  consecutiveFailures?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -445,6 +618,15 @@ export type CurrencyRateSyncUpdateManyMutationInput = {
   lastRunStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunUpdated?: Prisma.IntFieldUpdateOperationsInput | number
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  displayMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  checkoutMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  alertMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTtlSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  deriveMissingPrices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -460,6 +642,15 @@ export type CurrencyRateSyncUncheckedUpdateManyInput = {
   lastRunStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastRunUpdated?: Prisma.IntFieldUpdateOperationsInput | number
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  displayMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  checkoutMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  alertMaxAgeHours?: Prisma.IntFieldUpdateOperationsInput | number
+  quoteTtlSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  deriveMissingPrices?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -481,6 +672,15 @@ export type CurrencyRateSyncCountOrderByAggregateInput = {
   lastRunStatus?: Prisma.SortOrder
   lastRunMessage?: Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  deriveMissingPrices?: Prisma.SortOrder
+  lastSuccessAt?: Prisma.SortOrder
+  lastFailureAt?: Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -490,6 +690,11 @@ export type CurrencyRateSyncAvgOrderByAggregateInput = {
   marginPercent?: Prisma.SortOrder
   maxDriftPercent?: Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
 }
 
 export type CurrencyRateSyncMaxOrderByAggregateInput = {
@@ -502,6 +707,15 @@ export type CurrencyRateSyncMaxOrderByAggregateInput = {
   lastRunStatus?: Prisma.SortOrder
   lastRunMessage?: Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  deriveMissingPrices?: Prisma.SortOrder
+  lastSuccessAt?: Prisma.SortOrder
+  lastFailureAt?: Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -517,6 +731,15 @@ export type CurrencyRateSyncMinOrderByAggregateInput = {
   lastRunStatus?: Prisma.SortOrder
   lastRunMessage?: Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  provider?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  deriveMissingPrices?: Prisma.SortOrder
+  lastSuccessAt?: Prisma.SortOrder
+  lastFailureAt?: Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -526,6 +749,11 @@ export type CurrencyRateSyncSumOrderByAggregateInput = {
   marginPercent?: Prisma.SortOrder
   maxDriftPercent?: Prisma.SortOrder
   lastRunUpdated?: Prisma.SortOrder
+  displayMaxAgeHours?: Prisma.SortOrder
+  checkoutMaxAgeHours?: Prisma.SortOrder
+  alertMaxAgeHours?: Prisma.SortOrder
+  quoteTtlSeconds?: Prisma.SortOrder
+  consecutiveFailures?: Prisma.SortOrder
 }
 
 
@@ -540,6 +768,15 @@ export type CurrencyRateSyncSelect<ExtArgs extends runtime.Types.Extensions.Inte
   lastRunStatus?: boolean
   lastRunMessage?: boolean
   lastRunUpdated?: boolean
+  provider?: boolean
+  displayMaxAgeHours?: boolean
+  checkoutMaxAgeHours?: boolean
+  alertMaxAgeHours?: boolean
+  quoteTtlSeconds?: boolean
+  deriveMissingPrices?: boolean
+  lastSuccessAt?: boolean
+  lastFailureAt?: boolean
+  consecutiveFailures?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   updatedById?: boolean
@@ -557,12 +794,21 @@ export type CurrencyRateSyncSelectScalar = {
   lastRunStatus?: boolean
   lastRunMessage?: boolean
   lastRunUpdated?: boolean
+  provider?: boolean
+  displayMaxAgeHours?: boolean
+  checkoutMaxAgeHours?: boolean
+  alertMaxAgeHours?: boolean
+  quoteTtlSeconds?: boolean
+  deriveMissingPrices?: boolean
+  lastSuccessAt?: boolean
+  lastFailureAt?: boolean
+  consecutiveFailures?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   updatedById?: boolean
 }
 
-export type CurrencyRateSyncOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isEnabled" | "marginPercent" | "rounding" | "maxDriftPercent" | "lastRunAt" | "lastRunStatus" | "lastRunMessage" | "lastRunUpdated" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["currencyRateSync"]>
+export type CurrencyRateSyncOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isEnabled" | "marginPercent" | "rounding" | "maxDriftPercent" | "lastRunAt" | "lastRunStatus" | "lastRunMessage" | "lastRunUpdated" | "provider" | "displayMaxAgeHours" | "checkoutMaxAgeHours" | "alertMaxAgeHours" | "quoteTtlSeconds" | "deriveMissingPrices" | "lastSuccessAt" | "lastFailureAt" | "consecutiveFailures" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["currencyRateSync"]>
 
 export type $CurrencyRateSyncPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CurrencyRateSync"
@@ -603,6 +849,101 @@ export type $CurrencyRateSyncPayload<ExtArgs extends runtime.Types.Extensions.In
     lastRunStatus: string | null
     lastRunMessage: string | null
     lastRunUpdated: number
+    /**
+     * The adapter that fetches rates: "ecb" or "json".
+     * 
+     * Defaults to `json` rather than to the ECB deliberately. A deployment
+     * upgrading into this feature had its rates coming from `FX_RATE_URL`, and
+     * changing where a live shop's prices come from as a side effect of running
+     * a migration is precisely the silent financial change the project rules
+     * forbid. A new deployment is pointed at the ECB by configuration instead.
+     */
+    provider: string
+    /**
+     * How old a stored rate set may be and still be shown on a page.
+     * 
+     * THE THREE WINDOWS BELOW ARE SIZED BY THE ECB'S PUBLISHING CALENDAR, NOT
+     * BY INTUITION, AND THE ARITHMETIC IS WORTH WRITING DOWN BECAUSE THE
+     * OBVIOUS NUMBERS ARE ALL WRONG.
+     * 
+     * A snapshot's age is measured from the provider's own date, and the ECB
+     * dates a document by the day. This system reads that as midnight UTC - the
+     * conservative reading, since publication is late afternoon CET, so a set
+     * always looks slightly older than it is rather than slightly fresher.
+     * 
+     * So an ordinary weekend is not the fifty-odd hours it feels like:
+     * 
+     * Friday's document is dated Friday 00:00.
+     * A shopper arrives Monday 09:00.       -> 81 hours.
+     * A shopper arrives Monday 18:00.       -> 90 hours.
+     * 
+     * Seventy-two hours - the number that looks right - therefore blanks every
+     * derived price on a Monday morning, every week. A week is the smallest
+     * window that survives a weekend plus a public holiday either side of it,
+     * and a figure this old is marked approximate wherever it is shown anyway.
+     */
+    displayMaxAgeHours: number
+    /**
+     * How old a rate set may be and still have money taken against it.
+     * 
+     * Separate from the display window and shorter, because the two are not the
+     * same risk: a catalogue page marked "approximate" that was converted from a
+     * three-day-old rate is honest, while a card charged on one is a figure
+     * nobody can reconcile afterwards. Past this, a checkout in a derived
+     * currency fails rather than guessing.
+     * 
+     * Ninety-six hours, for the reason set out above: it has to clear the
+     * 90-hour Monday or derived-currency checkout breaks every weekend. A
+     * longer closure - Christmas, Easter - does block it, and that is the
+     * intended behaviour rather than a gap. A deployment that needs tighter
+     * rates than a daily reference feed can give should price those markets by
+     * hand, or use a settlement-rate provider, which is what the provider
+     * interface exists for.
+     */
+    checkoutMaxAgeHours: number
+    /**
+     * Past this age the health check raises an operational alert, whether or not
+     * anything has yet failed to price.
+     * 
+     * Deliberately the smallest of the three, so the ordering is: somebody is
+     * told (72h), then checkout stops (96h), then the catalogue stops (168h). An
+     * alert that fired at the same moment customers were affected would be a
+     * report rather than a warning.
+     */
+    alertMaxAgeHours: number
+    /**
+     * How long a checkout quote holds its rate.
+     * 
+     * Once a customer is shown a total, that total is what they are charged, and
+     * this is how long the system will still honour it. Nothing recomputes a
+     * price while a payment is in flight.
+     */
+    quoteTtlSeconds: number
+    /**
+     * Whether a currency with no price row of its own may be priced by
+     * converting the base-currency figure at read time.
+     * 
+     * OFF by default, and that is a deliberate refusal to change an existing
+     * shop's behaviour underneath it. Until this is switched on, the rule stays
+     * exactly what it has always been: a SKU with no row in a currency is not
+     * sellable in it, full stop. Switching it on is a pricing decision an
+     * operator makes knowingly, and a derived figure is marked approximate
+     * everywhere it is shown.
+     * 
+     * A manual row always wins. This only ever fills a gap.
+     */
+    deriveMissingPrices: boolean
+    /**
+     * When a fetch last succeeded and last failed, kept apart so "it has been
+     * failing for six hours" is answerable without reading a log.
+     */
+    lastSuccessAt: Date | null
+    lastFailureAt: Date | null
+    /**
+     * Drives the retry backoff, and reset to zero by any success. A worker that
+     * has failed eleven times in a row should not still be trying every hour.
+     */
+    consecutiveFailures: number
     createdAt: Date
     updatedAt: Date
     updatedById: string | null
@@ -984,6 +1325,15 @@ export interface CurrencyRateSyncFieldRefs {
   readonly lastRunStatus: Prisma.FieldRef<"CurrencyRateSync", 'String'>
   readonly lastRunMessage: Prisma.FieldRef<"CurrencyRateSync", 'String'>
   readonly lastRunUpdated: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
+  readonly provider: Prisma.FieldRef<"CurrencyRateSync", 'String'>
+  readonly displayMaxAgeHours: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
+  readonly checkoutMaxAgeHours: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
+  readonly alertMaxAgeHours: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
+  readonly quoteTtlSeconds: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
+  readonly deriveMissingPrices: Prisma.FieldRef<"CurrencyRateSync", 'Boolean'>
+  readonly lastSuccessAt: Prisma.FieldRef<"CurrencyRateSync", 'DateTime'>
+  readonly lastFailureAt: Prisma.FieldRef<"CurrencyRateSync", 'DateTime'>
+  readonly consecutiveFailures: Prisma.FieldRef<"CurrencyRateSync", 'Int'>
   readonly createdAt: Prisma.FieldRef<"CurrencyRateSync", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CurrencyRateSync", 'DateTime'>
   readonly updatedById: Prisma.FieldRef<"CurrencyRateSync", 'String'>

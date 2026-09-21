@@ -17,18 +17,59 @@
  * two in step inside one transaction so they cannot disagree.
  */
 import { ErrorCode, badRequest } from '../../domain/errors.js';
+import type { FxPurpose } from '../../domain/fx.js';
 import { type Minor } from '../../domain/money.js';
 import { NO_VARIANT_KEY, newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
+import { getBaseCurrency } from '../settings/currency.service.js';
+import {
+  conversionContextFor,
+  deriveAmount,
+  type ConversionContext,
+  type PriceSource,
+} from './derived-price.service.js';
 
 export interface SkuPrice {
   basePriceMinor: Minor;
   compareAtPriceMinor: Minor | null;
+  /**
+   * How this figure was arrived at.
+   *
+   * `MANUAL` is a price somebody entered for this currency - the authority,
+   * and the only kind that existed before derivation. `CONVERTED` is the
+   * base-currency figure converted at a recorded rate, which is an
+   * approximation and is captioned as one everywhere it is shown.
+   *
+   * Required rather than optional on purpose. It is only ever constructed in
+   * this file, so making it required costs three lines here and makes it
+   * impossible for a new code path to produce a price that cannot say what
+   * kind of price it is.
+   */
+  source: PriceSource;
+  /**
+   * The rate and its provenance, present only on a `CONVERTED` figure. What
+   * the API discloses to a page and what checkout freezes onto the order.
+   */
+  conversion: ConversionContext | null;
 }
 
 export interface SkuKey {
   productId: string;
   variantId?: string | null;
+}
+
+export interface PriceLookupOptions {
+  /**
+   * What the caller is going to do with the figure.
+   *
+   * It decides how old a rate set may be before derivation refuses, and the
+   * two answers are deliberately different: a catalogue page may render a
+   * marked-approximate figure from a rate that is days old, a checkout may
+   * not. Defaults to `display`, which is the conservative choice for a caller
+   * that has not thought about it - the worst it can do is show a price the
+   * checkout then declines to honour, rather than charge one it should not.
+   */
+  purpose?: FxPurpose;
 }
 
 /** `${productId}:${variantKey}` - the shape every price map is keyed by. */
@@ -46,6 +87,7 @@ export function priceKey(productId: string, variantId: string | null | undefined
 export async function loadPricesForCurrency(
   keys: readonly SkuKey[],
   currency: string,
+  options: PriceLookupOptions = {},
 ): Promise<Map<string, SkuPrice>> {
   const result = new Map<string, SkuPrice>();
   if (keys.length === 0) return result;
@@ -67,6 +109,8 @@ export async function loadPricesForCurrency(
     byKey.set(`${row.productId}:${row.variantKey}`, {
       basePriceMinor: row.basePriceMinor,
       compareAtPriceMinor: row.compareAtPriceMinor,
+      source: 'MANUAL',
+      conversion: null,
     });
   }
 
@@ -83,7 +127,64 @@ export async function loadPricesForCurrency(
   if (unresolved.length === 0) return result;
 
   await fillFromLegacyColumns(unresolved, currency, result);
+
+  const stillUnresolved = keys.filter(
+    (key) => !result.has(priceKey(key.productId, key.variantId)),
+  );
+
+  if (stillUnresolved.length > 0) {
+    await fillByConversion(stillUnresolved, currency, result, options);
+  }
+
   return result;
+}
+
+/**
+ * Last resort: convert the base-currency price.
+ *
+ * Runs only after both manual sources have been exhausted, which is what makes
+ * "a manual price always wins" true by construction rather than by a rule
+ * somebody has to remember. A SKU with a row in this currency never reaches
+ * this function.
+ *
+ * Returns quietly when there is nothing to do - derivation switched off, no
+ * rate set, a set too old for this caller's purpose, a pair the feed does not
+ * quote. In every one of those cases the SKU stays absent from the map, which
+ * is exactly the "not sellable in this currency" the callers already handle.
+ * Nothing here invents a figure to avoid an empty result.
+ */
+async function fillByConversion(
+  keys: readonly SkuKey[],
+  currency: string,
+  into: Map<string, SkuPrice>,
+  options: PriceLookupOptions,
+): Promise<void> {
+  const base = await getBaseCurrency();
+  const context = await conversionContextFor(currency, base, options.purpose ?? 'display');
+
+  if (context === null) return;
+
+  // The base-currency figures, read through this same function so a base price
+  // that only exists in the legacy column is still found. One level of
+  // recursion and no more: the base currency can never itself be derived,
+  // because `conversionContextFor` returns null for base -> base.
+  const basePrices = await loadPricesForCurrency(keys, base, options);
+
+  for (const key of keys) {
+    const lookup = priceKey(key.productId, key.variantId);
+    const basePrice = basePrices.get(lookup);
+    if (basePrice === undefined) continue;
+
+    into.set(lookup, {
+      basePriceMinor: deriveAmount(basePrice.basePriceMinor, context),
+      compareAtPriceMinor:
+        basePrice.compareAtPriceMinor === null
+          ? null
+          : deriveAmount(basePrice.compareAtPriceMinor, context),
+      source: 'CONVERTED',
+      conversion: context,
+    });
+  }
 }
 
 /**
@@ -131,6 +232,9 @@ async function fillFromLegacyColumns(
         variant === undefined || variant.priceMinor === null
           ? product.compareAtPriceMinor
           : null,
+      // Still a figure a person entered, just held in an older column.
+      source: 'MANUAL',
+      conversion: null,
     });
   }
 }

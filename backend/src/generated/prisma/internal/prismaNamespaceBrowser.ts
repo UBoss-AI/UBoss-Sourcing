@@ -121,6 +121,8 @@ export const ModelName = {
   Currency: 'Currency',
   Country: 'Country',
   ProductPrice: 'ProductPrice',
+  ExchangeRateSnapshot: 'ExchangeRateSnapshot',
+  ExchangeRate: 'ExchangeRate',
   Coupon: 'Coupon',
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
@@ -441,6 +443,15 @@ export const CurrencyRateSyncScalarFieldEnum = {
   lastRunStatus: 'lastRunStatus',
   lastRunMessage: 'lastRunMessage',
   lastRunUpdated: 'lastRunUpdated',
+  provider: 'provider',
+  displayMaxAgeHours: 'displayMaxAgeHours',
+  checkoutMaxAgeHours: 'checkoutMaxAgeHours',
+  alertMaxAgeHours: 'alertMaxAgeHours',
+  quoteTtlSeconds: 'quoteTtlSeconds',
+  deriveMissingPrices: 'deriveMissingPrices',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  consecutiveFailures: 'consecutiveFailures',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   updatedById: 'updatedById'
@@ -960,6 +971,16 @@ export const OrderScalarFieldEnum = {
   grandTotalMinor: 'grandTotalMinor',
   paidMinor: 'paidMinor',
   refundedMinor: 'refundedMinor',
+  fxPriceSource: 'fxPriceSource',
+  fxSnapshotId: 'fxSnapshotId',
+  fxBaseCurrency: 'fxBaseCurrency',
+  fxBaseGrandTotalMinor: 'fxBaseGrandTotalMinor',
+  fxMidRate: 'fxMidRate',
+  fxRateUsed: 'fxRateUsed',
+  fxAdjustmentPercent: 'fxAdjustmentPercent',
+  fxRateAsOf: 'fxRateAsOf',
+  fxProvider: 'fxProvider',
+  fxPolicyVersion: 'fxPolicyVersion',
   billingAddressJson: 'billingAddressJson',
   shippingAddressJson: 'shippingAddressJson',
   shippingMethodCode: 'shippingMethodCode',
@@ -1720,6 +1741,43 @@ export const ProductPriceScalarFieldEnum = {
 } as const
 
 export type ProductPriceScalarFieldEnum = (typeof ProductPriceScalarFieldEnum)[keyof typeof ProductPriceScalarFieldEnum]
+
+
+export const ExchangeRateSnapshotScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  pivotCurrency: 'pivotCurrency',
+  asOf: 'asOf',
+  fetchedAt: 'fetchedAt',
+  sourceReference: 'sourceReference',
+  retrievalStatus: 'retrievalStatus',
+  validationStatus: 'validationStatus',
+  failureReason: 'failureReason',
+  rateCount: 'rateCount',
+  rejectedCount: 'rejectedCount',
+  maxDriftPercent: 'maxDriftPercent',
+  maxDriftCurrency: 'maxDriftCurrency',
+  isActive: 'isActive',
+  activeProvider: 'activeProvider',
+  activatedAt: 'activatedAt',
+  retiredAt: 'retiredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExchangeRateSnapshotScalarFieldEnum = (typeof ExchangeRateSnapshotScalarFieldEnum)[keyof typeof ExchangeRateSnapshotScalarFieldEnum]
+
+
+export const ExchangeRateScalarFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency',
+  rate: 'rate',
+  createdAt: 'createdAt'
+} as const
+
+export type ExchangeRateScalarFieldEnum = (typeof ExchangeRateScalarFieldEnum)[keyof typeof ExchangeRateScalarFieldEnum]
 
 
 export const CouponScalarFieldEnum = {
@@ -4188,6 +4246,7 @@ export const CurrencyRateSyncOrderByRelevanceFieldEnum = {
   rounding: 'rounding',
   lastRunStatus: 'lastRunStatus',
   lastRunMessage: 'lastRunMessage',
+  provider: 'provider',
   updatedById: 'updatedById'
 } as const
 
@@ -4538,6 +4597,10 @@ export const OrderOrderByRelevanceFieldEnum = {
   cartId: 'cartId',
   scheduleOccurrenceId: 'scheduleOccurrenceId',
   currency: 'currency',
+  fxSnapshotId: 'fxSnapshotId',
+  fxBaseCurrency: 'fxBaseCurrency',
+  fxProvider: 'fxProvider',
+  fxPolicyVersion: 'fxPolicyVersion',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
   fulfilmentLocationId: 'fulfilmentLocationId',
@@ -5011,6 +5074,29 @@ export const ProductPriceOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProductPriceOrderByRelevanceFieldEnum = (typeof ProductPriceOrderByRelevanceFieldEnum)[keyof typeof ProductPriceOrderByRelevanceFieldEnum]
+
+
+export const ExchangeRateSnapshotOrderByRelevanceFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  pivotCurrency: 'pivotCurrency',
+  sourceReference: 'sourceReference',
+  failureReason: 'failureReason',
+  maxDriftCurrency: 'maxDriftCurrency',
+  activeProvider: 'activeProvider'
+} as const
+
+export type ExchangeRateSnapshotOrderByRelevanceFieldEnum = (typeof ExchangeRateSnapshotOrderByRelevanceFieldEnum)[keyof typeof ExchangeRateSnapshotOrderByRelevanceFieldEnum]
+
+
+export const ExchangeRateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency'
+} as const
+
+export type ExchangeRateOrderByRelevanceFieldEnum = (typeof ExchangeRateOrderByRelevanceFieldEnum)[keyof typeof ExchangeRateOrderByRelevanceFieldEnum]
 
 
 export const CouponOrderByRelevanceFieldEnum = {

@@ -190,6 +190,14 @@ export const OrderSource = {
 export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]
 
 
+export const FxPriceSource = {
+  MANUAL: 'MANUAL',
+  CONVERTED: 'CONVERTED'
+} as const
+
+export type FxPriceSource = (typeof FxPriceSource)[keyof typeof FxPriceSource]
+
+
 export const PaymentIntentMode = {
   ONLINE: 'ONLINE',
   PAYMENT_LINK: 'PAYMENT_LINK'
@@ -507,6 +515,23 @@ export const AdminNotificationResolutionPolicy = {
 } as const
 
 export type AdminNotificationResolutionPolicy = (typeof AdminNotificationResolutionPolicy)[keyof typeof AdminNotificationResolutionPolicy]
+
+
+export const FxRetrievalStatus = {
+  FETCHED: 'FETCHED',
+  FAILED: 'FAILED'
+} as const
+
+export type FxRetrievalStatus = (typeof FxRetrievalStatus)[keyof typeof FxRetrievalStatus]
+
+
+export const FxValidationStatus = {
+  PENDING: 'PENDING',
+  VALID: 'VALID',
+  REJECTED: 'REJECTED'
+} as const
+
+export type FxValidationStatus = (typeof FxValidationStatus)[keyof typeof FxValidationStatus]
 
 
 export const CouponScope = {

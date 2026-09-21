@@ -572,6 +572,99 @@ model CurrencyRateSync {
   lastRunMessage String?   @db.VarChar(512)
   lastRunUpdated Int       @default(0)
 
+  // --- Which feed, and what it may be used for ---------------------------
+
+  /// The adapter that fetches rates: "ecb" or "json".
+  ///
+  /// Defaults to `json` rather than to the ECB deliberately. A deployment
+  /// upgrading into this feature had its rates coming from `FX_RATE_URL`, and
+  /// changing where a live shop's prices come from as a side effect of running
+  /// a migration is precisely the silent financial change the project rules
+  /// forbid. A new deployment is pointed at the ECB by configuration instead.
+  provider String @default("json") @db.VarChar(32)
+
+  /// How old a stored rate set may be and still be shown on a page.
+  ///
+  /// THE THREE WINDOWS BELOW ARE SIZED BY THE ECB'S PUBLISHING CALENDAR, NOT
+  /// BY INTUITION, AND THE ARITHMETIC IS WORTH WRITING DOWN BECAUSE THE
+  /// OBVIOUS NUMBERS ARE ALL WRONG.
+  ///
+  /// A snapshot's age is measured from the provider's own date, and the ECB
+  /// dates a document by the day. This system reads that as midnight UTC - the
+  /// conservative reading, since publication is late afternoon CET, so a set
+  /// always looks slightly older than it is rather than slightly fresher.
+  ///
+  /// So an ordinary weekend is not the fifty-odd hours it feels like:
+  ///
+  ///   Friday's document is dated Friday 00:00.
+  ///   A shopper arrives Monday 09:00.       -> 81 hours.
+  ///   A shopper arrives Monday 18:00.       -> 90 hours.
+  ///
+  /// Seventy-two hours - the number that looks right - therefore blanks every
+  /// derived price on a Monday morning, every week. A week is the smallest
+  /// window that survives a weekend plus a public holiday either side of it,
+  /// and a figure this old is marked approximate wherever it is shown anyway.
+  displayMaxAgeHours Int @default(168)
+
+  /// How old a rate set may be and still have money taken against it.
+  ///
+  /// Separate from the display window and shorter, because the two are not the
+  /// same risk: a catalogue page marked "approximate" that was converted from a
+  /// three-day-old rate is honest, while a card charged on one is a figure
+  /// nobody can reconcile afterwards. Past this, a checkout in a derived
+  /// currency fails rather than guessing.
+  ///
+  /// Ninety-six hours, for the reason set out above: it has to clear the
+  /// 90-hour Monday or derived-currency checkout breaks every weekend. A
+  /// longer closure - Christmas, Easter - does block it, and that is the
+  /// intended behaviour rather than a gap. A deployment that needs tighter
+  /// rates than a daily reference feed can give should price those markets by
+  /// hand, or use a settlement-rate provider, which is what the provider
+  /// interface exists for.
+  checkoutMaxAgeHours Int @default(96)
+
+  /// Past this age the health check raises an operational alert, whether or not
+  /// anything has yet failed to price.
+  ///
+  /// Deliberately the smallest of the three, so the ordering is: somebody is
+  /// told (72h), then checkout stops (96h), then the catalogue stops (168h). An
+  /// alert that fired at the same moment customers were affected would be a
+  /// report rather than a warning.
+  alertMaxAgeHours Int @default(72)
+
+  /// How long a checkout quote holds its rate.
+  ///
+  /// Once a customer is shown a total, that total is what they are charged, and
+  /// this is how long the system will still honour it. Nothing recomputes a
+  /// price while a payment is in flight.
+  quoteTtlSeconds Int @default(900)
+
+  // --- Read-time derivation ----------------------------------------------
+
+  /// Whether a currency with no price row of its own may be priced by
+  /// converting the base-currency figure at read time.
+  ///
+  /// OFF by default, and that is a deliberate refusal to change an existing
+  /// shop's behaviour underneath it. Until this is switched on, the rule stays
+  /// exactly what it has always been: a SKU with no row in a currency is not
+  /// sellable in it, full stop. Switching it on is a pricing decision an
+  /// operator makes knowingly, and a derived figure is marked approximate
+  /// everywhere it is shown.
+  ///
+  /// A manual row always wins. This only ever fills a gap.
+  deriveMissingPrices Boolean @default(false)
+
+  // --- Health ------------------------------------------------------------
+
+  /// When a fetch last succeeded and last failed, kept apart so "it has been
+  /// failing for six hours" is answerable without reading a log.
+  lastSuccessAt DateTime? @db.DateTime(3)
+  lastFailureAt DateTime? @db.DateTime(3)
+
+  /// Drives the retry backoff, and reset to zero by any success. A worker that
+  /// has failed eleven times in a row should not still be trying every hour.
+  consecutiveFailures Int @default(0)
+
   createdAt   DateTime @default(now()) @db.DateTime(3)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
   updatedById String?  @db.Char(26)
@@ -2316,6 +2409,18 @@ enum OrderSource {
   RECURRING
 }
 
+/// How an order's money was arrived at in the currency it was charged in.
+///
+/// Two members and no third. `MANUAL` means a person typed a price for this
+/// currency; `CONVERTED` means the base-currency figure was converted at a
+/// recorded rate. There is deliberately no "unknown" member: an order written
+/// before this column existed simply has NULL, which is a different and more
+/// honest statement than a value that claims to have been checked.
+enum FxPriceSource {
+  MANUAL
+  CONVERTED
+}
+
 enum PaymentIntentMode {
   ONLINE
   PAYMENT_LINK
@@ -2344,6 +2449,62 @@ model Order {
   /// Settled money, maintained only from verified provider events.
   paidMinor       BigInt @default(0)
   refundedMinor   BigInt @default(0)
+
+  // --- How this order's currency was arrived at --------------------------
+  //
+  // A FROZEN RECORD, WRITTEN ONCE.
+  //
+  // Nothing recomputes any of this. When a rate moves, an order placed
+  // yesterday keeps yesterday's number, yesterday's rate and yesterday's
+  // rounding rule - which is the difference between a total somebody can be
+  // shown the arithmetic for and a total nobody can explain. A refund reads
+  // these columns; it never reads today's rates.
+  //
+  // All nullable, and null is the ordinary case: an order priced from a real
+  // per-currency row that a person typed involved no conversion at all, and
+  // inventing a rate of 1.0 for it would make "was this converted?"
+  // unanswerable.
+
+  /// How the figures above were arrived at.
+  ///   MANUAL    - a price row a person entered for this currency.
+  ///   CONVERTED - derived from the base-currency price at the rate below.
+  /// Null on orders written before this existed.
+  fxPriceSource FxPriceSource?
+
+  /// The snapshot the rate came from. The audit join: from an order to the
+  /// exact list a provider published on a date, and every rate in it.
+  fxSnapshotId String? @db.Char(26)
+
+  /// The authoritative currency the catalogue figure was held in, and what the
+  /// order was worth in it. Kept beside the charged amount so a settlement in
+  /// the base currency needs no reconstruction.
+  fxBaseCurrency        String? @db.Char(3)
+  fxBaseGrandTotalMinor BigInt?
+
+  /// What the market said, and what this deployment quoted against it.
+  ///
+  /// Both, because they are different facts and a dispute needs each. The mid
+  /// rate is the provider's; `fxRateUsed` is that rate with
+  /// `fxAdjustmentPercent` applied, and is the number that actually produced
+  /// the figures above.
+  fxMidRate           Decimal? @db.Decimal(24, 12)
+  fxRateUsed          Decimal? @db.Decimal(24, 12)
+  fxAdjustmentPercent Decimal? @db.Decimal(5, 2)
+
+  /// The provider's own date for the rate, and the provider's name. Copied
+  /// rather than joined so an order stays readable after a snapshot is pruned.
+  fxRateAsOf   DateTime? @db.DateTime(3)
+  fxProvider   String?   @db.VarChar(32)
+
+  /// Which rounding and conversion rules were in force.
+  ///
+  /// A version string, not the rules themselves. When the deployment changes
+  /// its rounding from "charm" to "exact", every order already placed must
+  /// still be explainable under the rules it was placed under, and a bare
+  /// timestamp does not say which those were.
+  fxPolicyVersion String? @db.VarChar(32)
+
+  fxSnapshot ExchangeRateSnapshot? @relation(fields: [fxSnapshotId], references: [id], onDelete: SetNull)
 
   /// Address as captured at checkout. Independent of the Address rows.
   billingAddressJson  Json
@@ -2490,6 +2651,8 @@ model Order {
   /// retiring a warehouse a question the panel can answer.
   @@index([fulfilmentLocationId], map: "ix_order_fulfilment_location")
   @@index([fulfilmentQuoteId], map: "ix_order_fulfilment_quote")
+  /// The audit join: every order priced from one published rate set.
+  @@index([fxSnapshotId], map: "ix_order_fx_snapshot")
   @@map("orders")
 }
 
@@ -4556,6 +4719,169 @@ model ProductPrice {
   @@index([currencyCode, basePriceMinor], map: "ix_product_price_currency_amount")
   @@index([variantId], map: "ix_product_price_variant")
   @@map("product_prices")
+}
+
+// ===========================================================================
+// EXCHANGE RATES
+//
+// What a rate feed said, kept.
+//
+// Before these tables the refresh job fetched rates, converted prices with
+// them and threw the rates away. That works right up until somebody asks why
+// an order was priced the way it was, and then there is no answer: the prices
+// moved, nothing recorded what moved them, and a disputed total cannot be
+// reconstructed from anything in the database.
+//
+// TWO TABLES, BECAUSE A FETCH IS THE UNIT OF TRUST
+//
+// A provider publishes a LIST for a date. Mixing Friday's zloty with Monday's
+// dollar produces a cross-rate that never existed anywhere, so the list is the
+// thing that gets validated and activated, not the row. `exchange_rate_snapshots`
+// is one fetch; `exchange_rates` are its rows; and exactly one snapshot per
+// provider is active at a time.
+//
+// APPEND-ONLY
+//
+// Nothing updates a rate row, ever. A snapshot's `isActive`/`activeProvider`
+// move and its validation verdict is written once; the rates themselves are
+// written at insert and never touched. An order that points at a snapshot is
+// pointing at a fact, which is the entire reason this exists.
+// ===========================================================================
+
+/// Whether the fetch itself worked.
+enum FxRetrievalStatus {
+  /// The provider answered and the body parsed.
+  FETCHED
+  /// The provider could not be reached, timed out, or answered unusably.
+  FAILED
+}
+
+/// Whether the fetched list is fit to price with.
+///
+/// Separate from retrieval because they fail for different reasons and want
+/// different responses. A feed that times out is an operations problem that
+/// fixes itself; a feed that answers promptly with a decimal shifted one place
+/// is a catalogue-wide mispricing, and the only safe response is to keep the
+/// previous list and tell somebody.
+enum FxValidationStatus {
+  /// Fetched, not yet checked. A row should not stay here long.
+  PENDING
+  /// Checked against the currencies in use and the previous snapshot.
+  VALID
+  /// Checked and refused. `failureReason` says why, in words a person reads.
+  REJECTED
+}
+
+/// One fetch from one provider.
+model ExchangeRateSnapshot {
+  id String @id @db.Char(26)
+
+  /// Which adapter produced this - "ecb", "json". Stored rather than derived
+  /// from configuration, because configuration changes and an order that
+  /// points here must still be able to say where its number came from.
+  provider String @db.VarChar(32)
+
+  /// What every rate in this snapshot is quoted against. EUR for the ECB, and
+  /// not assumed anywhere: `domain/fx.ts` crosses through whatever this says.
+  pivotCurrency String @db.Char(3)
+
+  /// The date the PROVIDER says these rates are for.
+  ///
+  /// Not when we fetched them. The ECB publishes on working days, so a Sunday
+  /// fetch legitimately carries Friday's date, and every freshness decision in
+  /// the system reads this column rather than `fetchedAt`. Rewriting it to now
+  /// would make a stale set look current to the checkout gate, which is the
+  /// one place that must never be fooled.
+  asOf DateTime @db.DateTime(3)
+
+  /// When UBOSS received it. The pair (asOf, fetchedAt) is what tells an
+  /// operator whether the feed is late or the rates are simply old.
+  fetchedAt DateTime @default(now()) @db.DateTime(3)
+
+  /// Where it came from, for the audit trail: a URL and the document's date.
+  /// Never a credential, never a response body.
+  sourceReference String @db.VarChar(512)
+
+  retrievalStatus  FxRetrievalStatus  @default(FETCHED)
+  validationStatus FxValidationStatus @default(PENDING)
+
+  /// Why this snapshot was refused or could not be fetched, in words a person
+  /// reads on the settings screen. Never carries a key, a header or a body.
+  failureReason String? @db.VarChar(512)
+
+  /// How many rates it carries, and how many rows it saw and refused. The
+  /// second number is the one that catches a feed degrading quietly.
+  rateCount     Int @default(0)
+  rejectedCount Int @default(0)
+
+  /// The largest move against the previously active snapshot, as a percentage,
+  /// and the currency that moved most. Null on the first snapshot, which has
+  /// nothing to compare against.
+  maxDriftPercent  Decimal? @db.Decimal(9, 4)
+  maxDriftCurrency String?  @db.Char(3)
+
+  /// True for the snapshot currently being priced from.
+  isActive Boolean @default(false)
+
+  /// The provider name while this snapshot is active, and NULL once it is not.
+  ///
+  /// The same mechanism as `LogisticsDriverAssignment.activeShipmentId`, used
+  /// for the same reason: MariaDB has no partial indexes but treats every NULL
+  /// in a UNIQUE index as distinct, so `uq_fx_snapshot_active_provider` permits
+  /// any number of retired snapshots and exactly one live one per provider.
+  ///
+  /// It is a database constraint rather than a rule in a service because a rule
+  /// in a service loses a race: two workers that both read "nothing is active"
+  /// would both activate, and the catalogue would be priced from whichever won
+  /// the last write - with no record that there had been a contest.
+  ///
+  /// Written only alongside `isActive`: set together, cleared together.
+  activeProvider String? @db.VarChar(32)
+
+  activatedAt DateTime? @db.DateTime(3)
+  retiredAt   DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rates  ExchangeRate[]
+  orders Order[]
+
+  @@unique([activeProvider], map: "uq_fx_snapshot_active_provider")
+  /// The read path: the live set for a provider.
+  @@index([provider, isActive], map: "ix_fx_snapshot_active")
+  /// The history screen, and the pruner.
+  @@index([provider, asOf], map: "ix_fx_snapshot_provider_asof")
+  @@index([validationStatus, fetchedAt], map: "ix_fx_snapshot_validation")
+  @@map("exchange_rate_snapshots")
+}
+
+/// One quoted pair inside one snapshot. Never updated.
+model ExchangeRate {
+  id         String @id @db.Char(26)
+  snapshotId String @db.Char(26)
+
+  /// Denormalised from the snapshot's pivot so a single row is readable on its
+  /// own - an order's audit trail quotes one of these, not a join.
+  baseCurrency  String @db.Char(3)
+  quoteCurrency String @db.Char(3)
+
+  /// How many `quoteCurrency` one `baseCurrency` buys.
+  ///
+  /// `Decimal(24, 12)`, matching `RATE_SCALE_DP` in `domain/fx.ts`. Twelve
+  /// places rather than eight because a cross-rate is a division and dividing
+  /// two eight-place numbers loses a digit; the four spare places keep the
+  /// result exact to the eight that are actually quoted with.
+  rate Decimal @db.Decimal(24, 12)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  snapshot ExchangeRateSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  /// One rate per currency per snapshot.
+  @@unique([snapshotId, quoteCurrency], map: "uq_exchange_rate_snapshot_currency")
+  @@index([quoteCurrency, createdAt], map: "ix_exchange_rate_currency_time")
+  @@map("exchange_rates")
 }
 
 // ===========================================================================

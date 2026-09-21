@@ -204,7 +204,7 @@ describe('the price is the price of a carton', () => {
 
     // 12.50 × 500. Done on BigInt minor units, never on a float.
     expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
-    expect(within(priceRegion()).getByText('₹6250.00')).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹6,250.00')).toBeInTheDocument();
     // The piece price is never the headline, but it stays on screen so a
     // buyer can check the arithmetic that produced the figure above it.
     expect(within(priceRegion()).getByText(/per carton of 500 pieces · ₹12\.50 per piece/i)).toBeInTheDocument();
@@ -246,7 +246,7 @@ describe('the price is the price of a carton', () => {
     );
 
     expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
-    expect(within(priceRegion()).getByText('₹7999.00')).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹7,999.00')).toBeInTheDocument();
     expect(screen.queryByText(/per carton of/i)).not.toBeInTheDocument();
   });
 
@@ -265,8 +265,8 @@ describe('the price is the price of a carton', () => {
     // Both sides multiplied by 500: a sixth off a piece is a sixth off a
     // carton. Scaling only one would invent a saving nobody offered.
     expect(await screen.findByRole('group', { name: 'Price' })).toBeInTheDocument();
-    expect(within(priceRegion()).getByText('₹6250.00')).toBeInTheDocument();
-    expect(within(priceRegion()).getByText('₹7500.00')).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹6,250.00')).toBeInTheDocument();
+    expect(within(priceRegion()).getByText('₹7,500.00')).toBeInTheDocument();
   });
 });
 

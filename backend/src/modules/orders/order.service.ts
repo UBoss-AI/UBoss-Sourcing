@@ -58,6 +58,10 @@ import {
   createAdminNotification,
 } from '../notifications/admin-notification.service.js';
 import { splitOrderToSellers } from '../seller/order-split.service.js';
+import { QUOTE_DP, invertRate } from '../../domain/fx.js';
+import { conversionFor, convert } from '../catalog/bulk-price.service.js';
+import { orderFxSnapshotFrom } from '../catalog/derived-price.service.js';
+import { FX_POLICY_VERSION } from '../settings/fx-snapshot.service.js';
 import {
   NotificationEvent,
   dispatchPendingNotifications,
@@ -206,6 +210,64 @@ export interface CheckoutResult {
 }
 
 /**
+ * The exchange-rate columns for the order row.
+ *
+ * Two shapes, and the difference matters. A basket priced entirely from
+ * figures somebody typed involved no conversion at all, so its rate columns
+ * stay NULL - writing a rate of 1.0 would make "was this converted?"
+ * unanswerable, which is the one question these columns exist to answer.
+ *
+ * `fxBaseGrandTotalMinor` goes back the other way, from the charged total to
+ * the base currency, rather than being accumulated from converted lines. That
+ * is deliberate: the charged total is the authoritative figure, and rebuilding
+ * a base-currency total out of individually rounded lines would produce a
+ * number a minor unit or two away from it that nothing could reconcile.
+ */
+function orderFxColumns(resolved: ResolvedCart): OrderFxColumns {
+  const context = resolved.fxContext;
+
+  if (context === null) {
+    return { fxPriceSource: 'MANUAL', fxPolicyVersion: FX_POLICY_VERSION };
+  }
+
+  const snapshot = orderFxSnapshotFrom(context);
+
+  return {
+    ...snapshot,
+    fxSnapshotId: snapshot.fxSnapshotId,
+    fxBaseGrandTotalMinor: convert(
+      resolved.pricing.totals.grandTotalMinor,
+      conversionFor({
+        sourceCurrency: context.targetCurrency,
+        targetCurrency: context.baseCurrency,
+        rate: invertRate(context.rate.rate, QUOTE_DP),
+        rounding: 'exact',
+      }),
+    ),
+  };
+}
+
+/**
+ * Exactly the `orders.fx*` columns, and nothing else.
+ *
+ * Spelled out rather than left as `Record<string, unknown>` so a typo in a
+ * field name is a compile error here instead of a column that silently stays
+ * NULL on every order.
+ */
+interface OrderFxColumns {
+  fxPriceSource: 'MANUAL' | 'CONVERTED';
+  fxPolicyVersion: string;
+  fxSnapshotId?: string | null;
+  fxBaseCurrency?: string;
+  fxBaseGrandTotalMinor?: bigint;
+  fxMidRate?: string;
+  fxRateUsed?: string;
+  fxAdjustmentPercent?: string;
+  fxRateAsOf?: Date;
+  fxProvider?: string;
+}
+
+/**
  * Submit a checkout.
  *
  * Wrap the call in `runIdempotent` - this function assumes it runs at most once
@@ -256,10 +318,12 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     resolved = await resolveCart(input.customerProfileId, {
       shippingMethodCode: input.shippingMethodCode ?? null,
       destinationCountry: shippingSnapshot.country,
+      fxPurpose: 'checkout',
     });
   } else {
     const preliminary = await resolveCart(input.customerProfileId, {
       destinationCountry: shippingSnapshot.country,
+      fxPurpose: 'checkout',
     });
 
     fulfilmentQuote = await assertQuoteUsable({
@@ -276,6 +340,7 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         priceMinor: fulfilmentQuote.shippingMinor,
         freeAboveMinor: fulfilmentQuote.freeAboveMinor,
       },
+      fxPurpose: 'checkout',
     });
 
     /*
@@ -432,6 +497,16 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         taxCountry: resolved.taxSetup.context.rateCountry,
         sellerVatNumberSnapshot: resolved.taxSetup.context.sellerVatNumber,
         buyerVatNumberSnapshot: resolved.taxSetup.context.buyerVatNumber,
+        // And how this order arrived at its currency, on exactly the same
+        // reasoning as the tax block above: the terms that produced the
+        // numbers, frozen beside them.
+        //
+        // Written once and never revisited. When the rate moves tomorrow this
+        // order keeps today's total, today's rate and today's rounding rule,
+        // which is what makes a disputed figure explainable a year later
+        // instead of merely assertable. A refund reads these columns; it never
+        // reads today's rates.
+        ...orderFxColumns(resolved),
       },
     });
 

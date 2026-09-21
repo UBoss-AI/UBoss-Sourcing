@@ -40,6 +40,14 @@ import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { assertPurchasable } from '../catalog/purchasability.js';
 import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency, priceKey } from '../catalog/price.service.js';
+import {
+  explainRefusal,
+  isTransientRefusal,
+  resolveDerivation,
+  type ConversionContext,
+} from '../catalog/derived-price.service.js';
+import type { FxPurpose } from '../../domain/fx.js';
+import { getBaseCurrency } from '../settings/currency.service.js';
 import { cheapestOfferFor, OFFER_SELL_TERMS, type OfferSellTerms } from '../catalog/marketplace-price.service.js';
 import {
   evaluateCoupon,
@@ -231,6 +239,23 @@ export interface ResolvedCart {
    * taxable.
    */
   taxSetup: TaxSetup;
+
+  /**
+   * The conversion these prices came from, or null when they did not come
+   * from one.
+   *
+   * Null is the ordinary case and means every line was priced from a figure a
+   * person entered in this currency. Non-null means at least one line was
+   * derived from the base currency, and carries the rate, its provider and its
+   * date - which checkout freezes onto the order and the basket screen uses to
+   * caption the total as approximate.
+   *
+   * Carried out of `resolveCart` for exactly the reason `taxSetup` is: the
+   * caller must record the terms that produced these numbers, not work them
+   * out again. Resolving the rate a second time could straddle a refresh and
+   * charge against a rate the customer was never shown.
+   */
+  fxContext: ConversionContext | null;
 }
 
 /**
@@ -311,6 +336,22 @@ export async function resolveCart(
      * this basket cost".
      */
     shippingOverride?: { priceMinor: Minor; freeAboveMinor: Minor | null } | null;
+    /**
+     * What this quote is for.
+     *
+     * The only thing it changes is how old an exchange rate set may be before
+     * a derived price is refused, and the two answers are deliberately
+     * different. A basket being looked at may be priced from a rate that is
+     * days old, captioned as approximate. A basket being paid for may not: a
+     * charge taken against a stale indicative rate is a figure nobody can
+     * reconcile afterwards.
+     *
+     * So checkout passes `checkout` and gets, in the worst case, a line that
+     * has become unpriceable and a refusal - which is the safe failure. A
+     * basket priced entirely from figures a person typed is unaffected either
+     * way, because no rate is involved in it at all.
+     */
+    fxPurpose?: FxPurpose;
   } = {},
 ): Promise<ResolvedCart> {
   const cartId = await getOrCreateCart(customerProfileId);
@@ -394,7 +435,41 @@ export async function resolveCart(
   const prices = await loadPricesForCurrency(
     items.map((item) => ({ productId: item.productId, variantId: item.variantId })),
     currency,
+    { purpose: options.fxPurpose ?? 'display' },
   );
+
+  // Every line in a basket shares one currency, so at most one conversion
+  // applies to the whole quote. Taking it from the first converted line rather
+  // than resolving the rate again is not an optimisation: resolving twice
+  // could straddle a refresh and leave the basket priced at one rate and
+  // described as another.
+  const fxContext =
+    [...prices.values()].find((price) => price.conversion !== null)?.conversion ?? null;
+
+  // Why derivation could not price anything, when it could not.
+  //
+  // Resolved only when something is actually missing a price, so the ordinary
+  // basket - every line priced from a figure somebody typed - pays nothing for
+  // it. `null` means either everything priced fine or the currency is the base
+  // one, and in both cases there is nothing to explain.
+  const unpriced = items.some(
+    (item) =>
+      item.sellerOfferId === null &&
+      !prices.has(priceKey(item.productId, item.variantId)),
+  );
+
+  const fxRefusal =
+    unpriced && fxContext === null
+      ? await (async () => {
+          const base = await getBaseCurrency();
+          const result = await resolveDerivation(
+            currency,
+            base,
+            options.fxPurpose ?? 'display',
+          );
+          return result.ok ? null : result.refusal;
+        })()
+      : null;
 
   const pricingInputs: PricingLineInput[] = [];
   const lineMeta: {
@@ -479,9 +554,22 @@ export async function resolveCart(
     // by their offer below, and a product the operator has no price for in this
     // currency is still perfectly sellable by somebody else.
     if (price === undefined && item.sellerOfferId === null) {
+      // WHICH kind of unpriceable. `fxRefusal` is resolved once for the whole
+      // basket below, and is non-null only when this deployment would
+      // ordinarily convert into this currency but cannot at this moment - a
+      // rate feed that has been down since Tuesday, most often. Telling a
+      // shopper their product "is not sold in zloty" in that situation is
+      // simply untrue, and it sends whoever investigates into the catalogue
+      // looking for a price row that was never missing.
+      const transient = fxRefusal !== null && isTransientRefusal(fxRefusal);
+
       issues.push({
-        code: ErrorCode.PRICE_UNAVAILABLE_IN_CURRENCY,
-        message: `${product.name} is not sold in ${currency}.`,
+        code: transient
+          ? ErrorCode.PRICE_RATE_UNAVAILABLE
+          : ErrorCode.PRICE_UNAVAILABLE_IN_CURRENCY,
+        message: transient
+          ? explainRefusal(fxRefusal, currency)
+          : `${product.name} is not sold in ${currency}.`,
         meta: { productId: product.id, currency },
       });
     }
@@ -765,6 +853,7 @@ export async function resolveCart(
     couponRejection,
     availableCoupons,
     taxSetup,
+    fxContext,
   };
 }
 
