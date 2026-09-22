@@ -40,6 +40,13 @@ export type SellerNotificationMinAggregateOutputType = {
   subjectType: string | null
   subjectId: string | null
   severity: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote: string | null
+  dedupeKey: string | null
   createdAt: Date | null
   expiresAt: Date | null
 }
@@ -54,6 +61,13 @@ export type SellerNotificationMaxAggregateOutputType = {
   subjectType: string | null
   subjectId: string | null
   severity: string | null
+  class: $Enums.AdminNotificationClass | null
+  status: $Enums.AdminNotificationStatus | null
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote: string | null
+  dedupeKey: string | null
   createdAt: Date | null
   expiresAt: Date | null
 }
@@ -69,6 +83,13 @@ export type SellerNotificationCountAggregateOutputType = {
   subjectId: number
   severity: number
   readByJson: number
+  class: number
+  status: number
+  resolutionKey: number
+  resolvedAt: number
+  resolutionSource: number
+  resolutionNote: number
+  dedupeKey: number
   createdAt: number
   expiresAt: number
   _all: number
@@ -85,6 +106,13 @@ export type SellerNotificationMinAggregateInputType = {
   subjectType?: true
   subjectId?: true
   severity?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolutionSource?: true
+  resolutionNote?: true
+  dedupeKey?: true
   createdAt?: true
   expiresAt?: true
 }
@@ -99,6 +127,13 @@ export type SellerNotificationMaxAggregateInputType = {
   subjectType?: true
   subjectId?: true
   severity?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolutionSource?: true
+  resolutionNote?: true
+  dedupeKey?: true
   createdAt?: true
   expiresAt?: true
 }
@@ -114,6 +149,13 @@ export type SellerNotificationCountAggregateInputType = {
   subjectId?: true
   severity?: true
   readByJson?: true
+  class?: true
+  status?: true
+  resolutionKey?: true
+  resolvedAt?: true
+  resolutionSource?: true
+  resolutionNote?: true
+  dedupeKey?: true
   createdAt?: true
   expiresAt?: true
   _all?: true
@@ -202,6 +244,13 @@ export type SellerNotificationGroupByOutputType = {
   subjectId: string | null
   severity: string
   readByJson: runtime.JsonValue | null
+  class: $Enums.AdminNotificationClass
+  status: $Enums.AdminNotificationStatus
+  resolutionKey: string | null
+  resolvedAt: Date | null
+  resolutionSource: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote: string | null
+  dedupeKey: string
   createdAt: Date
   expiresAt: Date | null
   _count: SellerNotificationCountAggregateOutputType | null
@@ -238,6 +287,13 @@ export type SellerNotificationWhereInput = {
   subjectId?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
   severity?: Prisma.StringFilter<"SellerNotification"> | string
   readByJson?: Prisma.JsonNullableFilter<"SellerNotification">
+  class?: Prisma.EnumAdminNotificationClassFilter<"SellerNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"SellerNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"SellerNotification"> | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
@@ -254,6 +310,13 @@ export type SellerNotificationOrderByWithRelationInput = {
   subjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   severity?: Prisma.SortOrder
   readByJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
@@ -262,6 +325,7 @@ export type SellerNotificationOrderByWithRelationInput = {
 
 export type SellerNotificationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  sellerAccountId_kind_dedupeKey?: Prisma.SellerNotificationSellerAccountIdKindDedupeKeyCompoundUniqueInput
   AND?: Prisma.SellerNotificationWhereInput | Prisma.SellerNotificationWhereInput[]
   OR?: Prisma.SellerNotificationWhereInput[]
   NOT?: Prisma.SellerNotificationWhereInput | Prisma.SellerNotificationWhereInput[]
@@ -274,10 +338,17 @@ export type SellerNotificationWhereUniqueInput = Prisma.AtLeast<{
   subjectId?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
   severity?: Prisma.StringFilter<"SellerNotification"> | string
   readByJson?: Prisma.JsonNullableFilter<"SellerNotification">
+  class?: Prisma.EnumAdminNotificationClassFilter<"SellerNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"SellerNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"SellerNotification"> | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
-}, "id">
+}, "id" | "sellerAccountId_kind_dedupeKey">
 
 export type SellerNotificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -290,6 +361,13 @@ export type SellerNotificationOrderByWithAggregationInput = {
   subjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   severity?: Prisma.SortOrder
   readByJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SellerNotificationCountOrderByAggregateInput
@@ -311,6 +389,13 @@ export type SellerNotificationScalarWhereWithAggregatesInput = {
   subjectId?: Prisma.StringNullableWithAggregatesFilter<"SellerNotification"> | string | null
   severity?: Prisma.StringWithAggregatesFilter<"SellerNotification"> | string
   readByJson?: Prisma.JsonNullableWithAggregatesFilter<"SellerNotification">
+  class?: Prisma.EnumAdminNotificationClassWithAggregatesFilter<"SellerNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusWithAggregatesFilter<"SellerNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableWithAggregatesFilter<"SellerNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerNotification"> | Date | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableWithAggregatesFilter<"SellerNotification"> | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.StringNullableWithAggregatesFilter<"SellerNotification"> | string | null
+  dedupeKey?: Prisma.StringWithAggregatesFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerNotification"> | Date | string | null
 }
@@ -325,6 +410,13 @@ export type SellerNotificationCreateInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutNotificationsInput
@@ -341,6 +433,13 @@ export type SellerNotificationUncheckedCreateInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -355,6 +454,13 @@ export type SellerNotificationUpdateInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutNotificationsNestedInput
@@ -371,6 +477,13 @@ export type SellerNotificationUncheckedUpdateInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -386,6 +499,13 @@ export type SellerNotificationCreateManyInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -400,6 +520,13 @@ export type SellerNotificationUpdateManyMutationInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -415,6 +542,13 @@ export type SellerNotificationUncheckedUpdateManyInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -435,6 +569,12 @@ export type SellerNotificationOrderByRelevanceInput = {
   search: string
 }
 
+export type SellerNotificationSellerAccountIdKindDedupeKeyCompoundUniqueInput = {
+  sellerAccountId: string
+  kind: $Enums.SellerNotificationKind
+  dedupeKey: string
+}
+
 export type SellerNotificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   sellerAccountId?: Prisma.SortOrder
@@ -446,6 +586,13 @@ export type SellerNotificationCountOrderByAggregateInput = {
   subjectId?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   readByJson?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -460,6 +607,13 @@ export type SellerNotificationMaxOrderByAggregateInput = {
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrder
   severity?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -474,6 +628,13 @@ export type SellerNotificationMinOrderByAggregateInput = {
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrder
   severity?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  resolutionKey?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolutionSource?: Prisma.SortOrder
+  resolutionNote?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -534,6 +695,13 @@ export type SellerNotificationCreateWithoutSellerAccountInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -548,6 +716,13 @@ export type SellerNotificationUncheckedCreateWithoutSellerAccountInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -592,6 +767,13 @@ export type SellerNotificationScalarWhereInput = {
   subjectId?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
   severity?: Prisma.StringFilter<"SellerNotification"> | string
   readByJson?: Prisma.JsonNullableFilter<"SellerNotification">
+  class?: Prisma.EnumAdminNotificationClassFilter<"SellerNotification"> | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFilter<"SellerNotification"> | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
+  resolutionSource?: Prisma.EnumAdminNotificationResolutionSourceNullableFilter<"SellerNotification"> | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.StringNullableFilter<"SellerNotification"> | string | null
+  dedupeKey?: Prisma.StringFilter<"SellerNotification"> | string
   createdAt?: Prisma.DateTimeFilter<"SellerNotification"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"SellerNotification"> | Date | string | null
 }
@@ -606,6 +788,13 @@ export type SellerNotificationCreateManySellerAccountInput = {
   subjectId?: string | null
   severity?: string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: $Enums.AdminNotificationClass
+  status?: $Enums.AdminNotificationStatus
+  resolutionKey?: string | null
+  resolvedAt?: Date | string | null
+  resolutionSource?: $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: string | null
+  dedupeKey: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
 }
@@ -620,6 +809,13 @@ export type SellerNotificationUpdateWithoutSellerAccountInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -634,6 +830,13 @@ export type SellerNotificationUncheckedUpdateWithoutSellerAccountInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -648,6 +851,13 @@ export type SellerNotificationUncheckedUpdateManyWithoutSellerAccountInput = {
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   severity?: Prisma.StringFieldUpdateOperationsInput | string
   readByJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  class?: Prisma.EnumAdminNotificationClassFieldUpdateOperationsInput | $Enums.AdminNotificationClass
+  status?: Prisma.EnumAdminNotificationStatusFieldUpdateOperationsInput | $Enums.AdminNotificationStatus
+  resolutionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolutionSource?: Prisma.NullableEnumAdminNotificationResolutionSourceFieldUpdateOperationsInput | $Enums.AdminNotificationResolutionSource | null
+  resolutionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -665,6 +875,13 @@ export type SellerNotificationSelect<ExtArgs extends runtime.Types.Extensions.In
   subjectId?: boolean
   severity?: boolean
   readByJson?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolvedAt?: boolean
+  resolutionSource?: boolean
+  resolutionNote?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   expiresAt?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
@@ -683,11 +900,18 @@ export type SellerNotificationSelectScalar = {
   subjectId?: boolean
   severity?: boolean
   readByJson?: boolean
+  class?: boolean
+  status?: boolean
+  resolutionKey?: boolean
+  resolvedAt?: boolean
+  resolutionSource?: boolean
+  resolutionNote?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }
 
-export type SellerNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "title" | "body" | "linkPath" | "subjectType" | "subjectId" | "severity" | "readByJson" | "createdAt" | "expiresAt", ExtArgs["result"]["sellerNotification"]>
+export type SellerNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "kind" | "title" | "body" | "linkPath" | "subjectType" | "subjectId" | "severity" | "readByJson" | "class" | "status" | "resolutionKey" | "resolvedAt" | "resolutionSource" | "resolutionNote" | "dedupeKey" | "createdAt" | "expiresAt", ExtArgs["result"]["sellerNotification"]>
 export type SellerNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
 }
@@ -718,6 +942,41 @@ export type $SellerNotificationPayload<ExtArgs extends runtime.Types.Extensions.
      * `{ "<profileId>": "<iso timestamp>" }`.
      */
     readByJson: runtime.JsonValue | null
+    /**
+     * News, or a problem. News is cleared by reading; a problem is cleared by
+     * the problem going away.
+     */
+    class: $Enums.AdminNotificationClass
+    status: $Enums.AdminNotificationStatus
+    /**
+     * What problem an ALERT is about, so one domain event closes every
+     * occurrence of it. Required for an ALERT, ignored for news.
+     * 
+     * The identity of the PROBLEM, not of the event: a consignment that lost
+     * two carriers in a row has two notifications and one resolution key, and
+     * giving it a carrier closes both.
+     */
+    resolutionKey: string | null
+    resolvedAt: Date | null
+    resolutionSource: $Enums.AdminNotificationResolutionSource | null
+    /**
+     * One sentence for the seller. Never a stack trace.
+     */
+    resolutionNote: string | null
+    /**
+     * The identity of the thing being announced, for deduplication.
+     * 
+     * A UNIQUE INDEX RATHER THAN A QUERY, and that is the whole point of it.
+     * `notifySellerOnce` used to look for a recent row and insert if it found
+     * none - a check-then-insert, which loses to a payment provider
+     * redelivering a webhook twice in the same second. The two reads both find
+     * nothing and both insert. A constraint cannot lose that race.
+     * 
+     * NOT NULL with the row's own ULID as the fallback, because MariaDB treats
+     * every NULL in a UNIQUE index as distinct - a nullable column here would
+     * enforce precisely nothing for the rows that did not set one.
+     */
+    dedupeKey: string
     createdAt: Date
     /**
      * Swept after this. Notifications are not a record; the audit log is.
@@ -1103,6 +1362,13 @@ export interface SellerNotificationFieldRefs {
   readonly subjectId: Prisma.FieldRef<"SellerNotification", 'String'>
   readonly severity: Prisma.FieldRef<"SellerNotification", 'String'>
   readonly readByJson: Prisma.FieldRef<"SellerNotification", 'Json'>
+  readonly class: Prisma.FieldRef<"SellerNotification", 'AdminNotificationClass'>
+  readonly status: Prisma.FieldRef<"SellerNotification", 'AdminNotificationStatus'>
+  readonly resolutionKey: Prisma.FieldRef<"SellerNotification", 'String'>
+  readonly resolvedAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
+  readonly resolutionSource: Prisma.FieldRef<"SellerNotification", 'AdminNotificationResolutionSource'>
+  readonly resolutionNote: Prisma.FieldRef<"SellerNotification", 'String'>
+  readonly dedupeKey: Prisma.FieldRef<"SellerNotification", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"SellerNotification", 'DateTime'>
 }

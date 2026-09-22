@@ -1149,6 +1149,21 @@ note('Until somebody sets this up, nobody can do it', 'A business that has never
 p('Three screens carry this. In the seller’s own area, **Carriers** lists every arrangement they have — including the ones that were refused, paused or ended, with the reason each time, because a seller who cannot see that their request was turned down three weeks ago will simply ask again. On a paid order, the delivery itself carries the chooser. And in the business’s own console, **Carrier arrangements** is the queue where somebody decides.');
 p('The chooser on a delivery lists the haulage companies that cannot take it as well as the ones that can. The ones that cannot are greyed out with the reason beside them, because a seller looking at an empty box cannot tell whether they have no companies at all, their one company is paused, or it does not go where this parcel is going — and those are three different things to do next.');
 note('A seller asks for a company by its reference', 'Not from a list of everybody the business works with. Who the business has haulage agreements with is its own commercial information, and showing it to every seller on the platform would be handing that out to anyone who signs up. The seller is given a reference by the business or by the haulage company, and types it.', C.blue);
+
+h2('12a.0b What the seller hears back');
+p('Handing a delivery to a haulage company used to be the end of what the seller could see. They were not told when it was accepted, when it was turned down, or when the offer simply ran out unanswered — the parcel sat somewhere only the business could look. Four notices close that gap.');
+table(['What happened', 'What the seller sees'], [
+  ['The business decided their request to use a company', 'A notice saying yes or no, with the reason. Read once and done.'],
+  ['The haulage company took the job', 'A notice naming them. Read once and done.'],
+  ['The haulage company turned it down', 'A WARNING that stays until the delivery is given to somebody else, with the reason they gave.'],
+  ['The offer ran out with no answer', 'A WARNING that stays until the delivery is given to somebody else.'],
+], [3600, 6400]);
+note('The last two cannot be cleared by reading them', 'Because reading them does not change anything: the parcel still has nobody carrying it. They stop counting against the seller only when the delivery is actually handed to another company. The first two are ordinary notices and clear when read, per person — a seller with twelve staff does not need twelve copies.', C.orange);
+bullets([
+  'Nothing is ever deleted. A notice that stops needing attention is kept, with the date it stopped and what it was that fixed it — that is the record somebody reads after a bad week, and a notice that vanished when the problem was solved would erase it.',
+  'Two companies turning down the same delivery is two entries, because the seller needs both reasons. It is still one problem, so handing the parcel to a third company clears both at once.',
+  'The same thing is never announced twice. If a message about one event arrives repeatedly — which happens, because systems retry — the seller is told once.',
+]);
 p('An arrangement is checked again every single time it is used, not only when it is agreed. It has to still be agreed, still be inside its dates, not be paused, belong to a haulage company that is itself still working, cover both the place the goods leave from and the place they are going, and cover any special handling the goods need — refrigeration, for instance. The seller is told which one of those failed, because “you have no haulage companies”, “yours is paused” and “yours does not go to Portugal” need three completely different responses.');
 bullets([
   'An arrangement can only narrow what a haulage company already does. A seller cannot give one the ability to reach a country it does not serve, or to carry something it is not approved to carry.',

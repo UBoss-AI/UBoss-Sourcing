@@ -12126,6 +12126,43 @@ carrier the marketplace works with. That list is the operator's commercial
 relationships, and publishing it to every seller on the platform would be a
 disclosure nobody authorised.
 
+## What the seller is told, and when it stops being told
+
+A seller could hand a consignment to a carrier and then hear nothing: no
+acceptance, no refusal, no word when the offer lapsed unanswered. The parcel
+sat in a state only the marketplace could see.
+
+| Event | Kind | Class |
+|---|---|---|
+| The marketplace decided an arrangement | `CARRIER_ARRANGEMENT_DECISION` | News |
+| The carrier took the job | `CARRIER_ACCEPTED` | News |
+| The carrier refused it, with their reason | `CARRIER_REJECTED` | **Alert** |
+| The offer lapsed unanswered | `CARRIER_OFFER_EXPIRED` | **Alert** |
+
+**Two of those are alerts because the outcome is the same and it is the
+outcome that matters: the parcel has nobody.** That stays true however many
+people glance at the list, so it cannot be cleared by reading. Handing the
+consignment to somebody else closes it.
+
+`SellerNotification` therefore now distinguishes three things that used to be
+one:
+
+- **Read** is per person, in `readByJson`. Twelve staff, twelve marks.
+- **Status** is per business. `ACTIVE` means "this is still true".
+- **Resolved** keeps the row, with when and by what. A notification that
+  vanished when the problem was fixed would delete the record of the problem,
+  which is what somebody reads after a bad week.
+
+The refusal keys on the consignment *and the carrier*, so a second carrier
+turning down the same parcel is a second entry. The **resolution** key is the
+consignment alone, so one assignment closes both.
+
+Deduplication is `uq_seller_notification_dedupe`, a UNIQUE index, not a query.
+`notifySellerOnce` used to look for a recent row and insert if it found none,
+which loses to two workers arriving in the same second — both find nothing and
+both insert. The window query still decides *how often* a repeating condition
+is worth mentioning; the constraint decides whether it is written at all.
+
 ---
 
 # 13. Languages and markets

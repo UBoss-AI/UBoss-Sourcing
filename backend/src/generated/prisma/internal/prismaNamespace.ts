@@ -15386,6 +15386,13 @@ export const SellerNotificationScalarFieldEnum = {
   subjectId: 'subjectId',
   severity: 'severity',
   readByJson: 'readByJson',
+  class: 'class',
+  status: 'status',
+  resolutionKey: 'resolutionKey',
+  resolvedAt: 'resolvedAt',
+  resolutionSource: 'resolutionSource',
+  resolutionNote: 'resolutionNote',
+  dedupeKey: 'dedupeKey',
   createdAt: 'createdAt',
   expiresAt: 'expiresAt'
 } as const
@@ -18179,7 +18186,10 @@ export const SellerNotificationOrderByRelevanceFieldEnum = {
   linkPath: 'linkPath',
   subjectType: 'subjectType',
   subjectId: 'subjectId',
-  severity: 'severity'
+  severity: 'severity',
+  resolutionKey: 'resolutionKey',
+  resolutionNote: 'resolutionNote',
+  dedupeKey: 'dedupeKey'
 } as const
 
 export type SellerNotificationOrderByRelevanceFieldEnum = (typeof SellerNotificationOrderByRelevanceFieldEnum)[keyof typeof SellerNotificationOrderByRelevanceFieldEnum]

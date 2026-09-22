@@ -1586,6 +1586,20 @@ A seller asks for a carrier by reference rather than choosing from a dropdown
 of every carrier the marketplace works with — that list is the operator's
 commercial relationships, not a seller's to browse.
 
+**The seller is told what their carrier did.** An arrangement decision and an
+acceptance are news; a refusal and a lapsed offer are **alerts**, because the
+outcome of both is that the parcel has nobody — and that stays true however
+many people glance at the list. Giving it to somebody else closes them.
+
+So `seller_notifications` now separates three things that were one: **read**
+(per person), **active** (per business), and **resolved** (keeps the row, with
+what closed it and when). A notification that vanished when the problem was
+fixed would delete the record of the problem.
+
+Deduplication is a UNIQUE index rather than a query. The old
+`notifySellerOnce` looked for a recent row and inserted if it found none,
+which loses to two workers arriving in the same second.
+
 ---
 
 ## Search engines

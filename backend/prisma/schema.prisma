@@ -10277,6 +10277,23 @@ enum SellerNotificationKind {
   RETURN_OR_DISPUTE
   SECURITY_EVENT
   BRAND_REQUEST_DECISION
+
+  // --- The carrier loop ---------------------------------------------------
+  //
+  // A seller can hand a consignment to a carrier and, until these existed,
+  // heard nothing back: no acceptance, no refusal, no word when the offer
+  // lapsed. The parcel simply sat there. These four close that loop, and the
+  // last two are ALERTS rather than news - a consignment nobody has agreed to
+  // carry is a problem that stays a problem until somebody takes it.
+
+  /// The marketplace decided a request to use a carrier.
+  CARRIER_ARRANGEMENT_DECISION
+  /// The carrier took the job. News: nothing is owed by anybody.
+  CARRIER_ACCEPTED
+  /// The carrier refused it, with their reason. The parcel has nobody.
+  CARRIER_REJECTED
+  /// The carrier never answered and the offer lapsed. The parcel has nobody.
+  CARRIER_OFFER_EXPIRED
 }
 
 /// An in-app notification for a seller organisation.
@@ -10308,14 +10325,67 @@ model SellerNotification {
   /// `{ "<profileId>": "<iso timestamp>" }`.
   readByJson Json?
 
+  // --- Read, dismissed and resolved are three different things -------------
+  //
+  // They were one thing here, and the carrier loop is what made that
+  // insufficient. "Your carrier refused this parcel" cannot be cleared by
+  // reading it: the parcel still has nobody, and a badge that empties when
+  // somebody glances at the list is a badge that hides the work.
+  //
+  // So: `readByJson` above is PER PERSON and means "I have seen this".
+  // `status` below is PER BUSINESS and means "this is still true". A seller
+  // with twelve staff has twelve read marks and one status.
+  //
+  // The same split the operator's bell and the carrier's feed already draw -
+  // see `AdminNotificationClass` - and deliberately the same words, so the
+  // three surfaces cannot drift into three vocabularies.
+
+  /// News, or a problem. News is cleared by reading; a problem is cleared by
+  /// the problem going away.
+  class AdminNotificationClass @default(INFORMATION)
+
+  status AdminNotificationStatus @default(ACTIVE)
+
+  /// What problem an ALERT is about, so one domain event closes every
+  /// occurrence of it. Required for an ALERT, ignored for news.
+  ///
+  /// The identity of the PROBLEM, not of the event: a consignment that lost
+  /// two carriers in a row has two notifications and one resolution key, and
+  /// giving it a carrier closes both.
+  resolutionKey String? @db.VarChar(120)
+
+  resolvedAt       DateTime?                          @db.DateTime(3)
+  resolutionSource AdminNotificationResolutionSource?
+  /// One sentence for the seller. Never a stack trace.
+  resolutionNote   String?                            @db.VarChar(512)
+
+  /// The identity of the thing being announced, for deduplication.
+  ///
+  /// A UNIQUE INDEX RATHER THAN A QUERY, and that is the whole point of it.
+  /// `notifySellerOnce` used to look for a recent row and insert if it found
+  /// none - a check-then-insert, which loses to a payment provider
+  /// redelivering a webhook twice in the same second. The two reads both find
+  /// nothing and both insert. A constraint cannot lose that race.
+  ///
+  /// NOT NULL with the row's own ULID as the fallback, because MariaDB treats
+  /// every NULL in a UNIQUE index as distinct - a nullable column here would
+  /// enforce precisely nothing for the rows that did not set one.
+  dedupeKey String @db.VarChar(120)
+
   createdAt DateTime  @default(now()) @db.DateTime(3)
   /// Swept after this. Notifications are not a record; the audit log is.
   expiresAt DateTime? @db.DateTime(3)
 
   sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
 
+  /// One announcement per thing, per seller, per kind. See `dedupeKey`.
+  @@unique([sellerAccountId, kind, dedupeKey], map: "uq_seller_notification_dedupe")
   @@index([sellerAccountId, createdAt], map: "ix_seller_notification_feed")
   @@index([sellerAccountId, kind, subjectId], map: "ix_seller_notification_subject")
+  /// The badge query: what is still true for this seller.
+  @@index([sellerAccountId, status, class], map: "ix_seller_notification_active")
+  /// The resolution sweep: close every live alert about one problem.
+  @@index([resolutionKey, status], map: "ix_seller_notification_resolution")
   @@map("seller_notifications")
 }
 

@@ -30,6 +30,10 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { recordLogisticsAudit, OPERATOR_LABEL } from './audit.service.js';
 import { createLogisticsNotification } from './notification.service.js';
+import {
+  notifySellerCarrierAccepted,
+  notifySellerCarrierDeclined,
+} from '../seller/carrier-notification.service.js';
 import { appendEventInTransaction } from './shipment-event.service.js';
 import {
   assertLogisticsPermission,
@@ -584,7 +588,20 @@ export async function acceptAssignment(
       tx,
     );
 
-    return { status: 'ACCEPTED' as ShipmentStatusName };
+    return {
+      status: 'ACCEPTED' as ShipmentStatusName,
+      shipmentId: assignment.shipment.id,
+    };
+  }).then(async (result) => {
+    // After the commit, never inside it: a seller told that their carrier
+    // accepted, on a transaction that then rolled back, has been told about
+    // something that did not happen.
+    await notifySellerCarrierAccepted({
+      shipmentId: result.shipmentId,
+      carrierName: membership.displayName,
+    });
+
+    return { status: result.status };
   });
 }
 
@@ -680,7 +697,21 @@ export async function rejectAssignment(
       tx,
     );
 
-    return { status: 'AWAITING_ASSIGNMENT' as ShipmentStatusName };
+    return {
+      status: 'AWAITING_ASSIGNMENT' as ShipmentStatusName,
+      shipmentId: assignment.shipment.id,
+    };
+  }).then(async (result) => {
+    // The parcel now has nobody, which is the seller's problem to solve and
+    // is raised as an alert rather than as news - see the seller module.
+    await notifySellerCarrierDeclined({
+      shipmentId: result.shipmentId,
+      carrierName: membership.displayName,
+      kind: 'CARRIER_REJECTED',
+      reason: trimmed,
+    });
+
+    return { status: result.status };
   });
 }
 
@@ -781,6 +812,7 @@ export async function expireStaleAssignments(now = new Date()): Promise<{ expire
     select: {
       id: true,
       logisticsPartnerId: true,
+      partner: { select: { displayName: true } },
       shipment: { select: { id: true, status: true, version: true, shipmentReference: true } },
     },
   });
@@ -810,6 +842,14 @@ export async function expireStaleAssignments(now = new Date()): Promise<{ expire
         });
 
         expired += 1;
+      });
+
+      // Outside the transaction, and only once it committed: the parcel now
+      // has nobody, and the seller is the one who has to give it to somebody.
+      await notifySellerCarrierDeclined({
+        shipmentId: assignment.shipment.id,
+        carrierName: assignment.partner.displayName,
+        kind: 'CARRIER_OFFER_EXPIRED',
       });
     } catch {
       // One stubborn row must not stop the sweep. It is retried next pass;

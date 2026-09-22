@@ -47,6 +47,10 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { offerAssignment, withdrawAssignment } from '../logistics/assignment.service.js';
 import { recordSellerAudit } from './audit.service.js';
+import {
+  notifySellerCarrierArrangement,
+  resolveConsignmentUnassigned,
+} from './carrier-notification.service.js';
 
 /**
  * What a consignment needs a carrier to be approved for.
@@ -423,6 +427,15 @@ export async function sellerAssignCarrier(input: SellerAssignInput): Promise<{
     ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
   });
 
+  // The seller has acted, so the parcel is no longer nobody's. Cleared on
+  // the OFFER rather than on the acceptance: leaving the alert up until a
+  // carrier answers would read as "you still have something to do" when they
+  // do not.
+  await resolveConsignmentUnassigned({
+    shipmentId: shipment.id,
+    carrierName: link.logisticsPartner.displayName,
+  });
+
   return { ...offered, replacedPartnerId };
 }
 
@@ -560,7 +573,14 @@ export async function decideSellerCarrier(input: {
 }): Promise<{ linkId: string; status: string }> {
   const existing = await prisma.sellerLogisticsPartner.findUnique({
     where: { id: input.linkId },
-    select: { id: true, status: true, sellerAccountId: true },
+    select: {
+      id: true,
+      status: true,
+      sellerAccountId: true,
+      // Named in the notice the seller reads, so it says which carrier
+      // rather than "your arrangement".
+      logisticsPartner: { select: { displayName: true } },
+    },
   });
 
   if (existing === null) throw notFound('Carrier arrangement');
@@ -602,6 +622,14 @@ export async function decideSellerCarrier(input: {
       ...(input.effectiveTo === undefined ? {} : { effectiveTo: input.effectiveTo }),
     },
     select: { id: true, status: true },
+  });
+
+  await notifySellerCarrierArrangement({
+    sellerAccountId: existing.sellerAccountId,
+    linkId: row.id,
+    carrierName: existing.logisticsPartner.displayName,
+    status: input.to,
+    reason: reason.length === 0 ? null : reason,
   });
 
   return { linkId: row.id, status: row.status };
