@@ -1507,6 +1507,21 @@ export function fetchPayouts(): Promise<{ payouts: PayoutRow[] }> {
 }
 
 export interface SellerOrderDetail {
+  /**
+   * The carrier-grade consignments raised for this part of the order.
+   *
+   * Optional because a response cached from before the field existed
+   * legitimately lacks it, and an absent list must read as "none yet"
+   * rather than crash the page.
+   */
+  consignments?: {
+    id: string;
+    reference: string;
+    status: string;
+    trackingNumber: string | null;
+    carrierId: string | null;
+    carrierName: string | null;
+  }[];
   id: string;
   sellerOrderNumber: string;
   orderNumber: string;
@@ -1845,4 +1860,90 @@ export function nextActions(status: SellerOrderStatus): OrderAction[] {
     default:
       return [];
   }
+}
+
+// ---------------------------------------------------------------------------
+// Carriers
+//
+// The seller half of the fulfilment split: a seller picks a CARRIER for their
+// own paid consignment, and the carrier picks a DRIVER for what it accepts.
+//
+// Note what is absent and will stay absent - there is no function here that
+// touches a driver, a vehicle, or another seller's consignment. The server
+// exposes none either; the seller's own account id comes from the session on
+// every one of these calls and is never sent in a body.
+// ---------------------------------------------------------------------------
+
+/** Where a seller's arrangement with one carrier stands. */
+export type SellerCarrierStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'SUSPENDED'
+  | 'ENDED';
+
+export interface SellerCarrier {
+  linkId: string;
+  logisticsPartnerId: string;
+  displayName: string;
+  partnerCode: string;
+  relationshipType: string;
+  status: SellerCarrierStatus;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  serviceCountries: string[] | null;
+  approvedCapabilities: string[] | null;
+  sellerReference: string | null;
+  /** Why it was refused, paused or ended. The first thing read in a dispute. */
+  statusReason: string | null;
+  requestedAt: string;
+  decidedAt: string | null;
+}
+
+/**
+ * Which of this seller's carriers may take one particular consignment.
+ *
+ * The ineligible ones come back too, with the reason. A seller staring at an
+ * empty dropdown cannot tell whether they have no carriers at all, their one
+ * carrier is paused, or it does not reach the destination - and those are
+ * three different next actions.
+ */
+export interface CarrierOption {
+  logisticsPartnerId: string;
+  displayName: string;
+  partnerCode: string;
+  isEligible: boolean;
+  reason: string | null;
+  refusal: string | null;
+}
+
+export async function fetchSellerCarriers(): Promise<SellerCarrier[]> {
+  const response = await api.get<{ carriers: SellerCarrier[] }>('/seller/carriers');
+  return response.carriers;
+}
+
+export async function requestSellerCarrier(input: {
+  logisticsPartnerId: string;
+  sellerReference?: string | null;
+}): Promise<{ linkId: string; status: string }> {
+  return api.post<{ linkId: string; status: string }>('/seller/carriers', input);
+}
+
+export async function fetchCarrierOptions(shipmentId: string): Promise<CarrierOption[]> {
+  const response = await api.get<{ options: CarrierOption[] }>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/carrier-options`,
+  );
+  return response.options;
+}
+
+export async function assignSellerCarrier(input: {
+  shipmentId: string;
+  logisticsPartnerId: string;
+  /** Required by the server when this displaces a carrier already chosen. */
+  reason?: string | null;
+}): Promise<{ assignmentId: string; replacedPartnerId: string | null }> {
+  return api.post<{ assignmentId: string; replacedPartnerId: string | null }>(
+    `/seller/consignments/${encodeURIComponent(input.shipmentId)}/carrier`,
+    { logisticsPartnerId: input.logisticsPartnerId, reason: input.reason ?? null },
+  );
 }

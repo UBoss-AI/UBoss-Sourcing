@@ -18,6 +18,7 @@
  * has to write it on the box.
  */
 import { useState } from 'react';
+import { ConsignmentCarrierPanel } from './ConsignmentCarrierPanel';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
@@ -118,6 +119,7 @@ export function SellerOrderDetailPage(): React.JSX.Element {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
           <Lines order={order} />
+          <Consignments order={order} />
           <Shipments order={order} />
           <Returns order={order} />
         </div>
@@ -242,6 +244,31 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
           );
         })}
       </ul>
+    </Card>
+  );
+}
+
+/**
+ * The carrier-grade consignments, and who is carrying each.
+ *
+ * Separate from `Shipments` below, which is the seller's own note of a parcel
+ * they sent themselves — a carrier name and a tracking number they typed. This
+ * is the record a haulage company actually works, and the only place a seller
+ * chooses who collects.
+ */
+function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+
+  const consignments = order.consignments ?? [];
+  if (consignments.length === 0) return null;
+
+  return (
+    <Card title={t('sellerConsignment.carrierHeading')}>
+      <div className="space-y-3 px-6 py-4">
+        {consignments.map((consignment) => (
+          <ConsignmentCarrierPanel key={consignment.id} consignment={consignment} />
+        ))}
+      </div>
     </Card>
   );
 }

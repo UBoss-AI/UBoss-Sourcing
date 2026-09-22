@@ -564,6 +564,12 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'carriers',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerCarriersPage').then((m) => m.SellerCarriersPage),
+        ),
+      },
+      {
         path: 'notifications',
         ...accountPage(() =>
           import('@/pages/seller/SellerNotificationsPage').then((m) => m.SellerNotificationsPage),

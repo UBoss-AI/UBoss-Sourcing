@@ -196,6 +196,31 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       },
       shipments: { orderBy: { createdAt: 'desc' } },
       returns: { orderBy: { createdAt: 'desc' } },
+      /*
+       * The carrier-grade consignments raised for this seller's part.
+       *
+       * Distinct from `shipments` above and not a duplicate of it.
+       * `SellerShipment` is the seller's own note of a parcel they sent -
+       * a carrier name and a tracking number they typed. A
+       * `LogisticsShipment` is the record a haulage company actually works,
+       * with an offer, an acceptance and a driver behind it, and it is the
+       * thing a seller chooses a carrier FOR.
+       *
+       * Four fields and no more. The seller is entitled to know which of
+       * their consignments exists, what state it is in, and who has it -
+       * and to nothing else about the carrier's operation.
+       */
+      logisticsShipments: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          shipmentReference: true,
+          status: true,
+          trackingNumber: true,
+          assignedPartnerId: true,
+          assignedPartner: { select: { displayName: true } },
+        },
+      },
     },
   });
 
@@ -266,6 +291,16 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       // What the buyer asked for on this line, in their own words. The seller
       // is the one who has to do it, so this is the screen it has to reach.
       note: noteByOrderItemId.get(line.orderItemId) ?? null,
+    })),
+    consignments: group.logisticsShipments.map((consignment) => ({
+      id: consignment.id,
+      reference: consignment.shipmentReference,
+      status: consignment.status,
+      trackingNumber: consignment.trackingNumber,
+      // The carrier currently holding it, by name. Null while it waits to be
+      // given to one, which is what puts the picker on the screen.
+      carrierId: consignment.assignedPartnerId,
+      carrierName: consignment.assignedPartner?.displayName ?? null,
     })),
     shipments: group.shipments.map((shipment) => ({
       id: shipment.id,

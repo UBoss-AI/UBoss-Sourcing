@@ -237,6 +237,25 @@ export interface PurchaseRules {
   isRecurringEligible: boolean;
 }
 
+/**
+ * Why a price is approximate, when it is.
+ *
+ * Only ever sent for a figure the shop WORKED OUT from another currency, so
+ * the presence of this object is itself the signal.  is spelled
+ * out anyway rather than implied, because a client reading the object should
+ * not have to infer the one thing that matters about it.
+ */
+export interface PriceConversion {
+  approximate: true;
+  /** The currency the real, typed figure lives in. */
+  baseCurrency: string;
+  /** The rate used, as an exact decimal string. Never a number. */
+  rate: string;
+  /** When the rate list was published, ISO-8601. Not when it was fetched. */
+  rateAsOf: string;
+  provider: string;
+}
+
 export interface ProductVariant {
   id: string;
   sku: string;
@@ -443,6 +462,18 @@ export interface Product {
   descriptionHtml: string | null;
   price: Money;
   compareAtPrice: Money | null;
+  /**
+   * Present only when this figure was CONVERTED rather than typed for this
+   * currency, and always `approximate: true` when it is.
+   *
+   * Null is the ordinary case and means a real price somebody entered for
+   * this market. The storefront captions the other case wherever it shows the
+   * number, because a converted figure is a conversion of a commitment made
+   * in another currency at a reference rate that moves daily — and presenting
+   * the two identically leaves the buyer to discover the difference on their
+   * statement.
+   */
+  priceConversion?: PriceConversion | null;
   tax: TaxInfo;
   purchaseRules: PurchaseRules;
   category: { id: string; name: string; slug: string } | null;

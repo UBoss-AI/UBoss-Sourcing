@@ -1575,6 +1575,17 @@ Reassignment withdraws the incumbent explicitly, with a required reason, and
 both assignment rows survive — "why did two carriers have this parcel?" is
 asked after a late delivery.
 
+Three screens: **Seller Hub → Carriers** (the seller's arrangements, refused
+and ended ones included, with reasons), **the picker on a paid consignment**
+(ineligible carriers listed and disabled, each saying why), and **Sellers →
+Carrier arrangements** in the console (the approvals queue). The picker is
+built by the same function that decides whether the server will accept the
+choice, so the two cannot drift apart.
+
+A seller asks for a carrier by reference rather than choosing from a dropdown
+of every carrier the marketplace works with — that list is the operator's
+commercial relationships, not a seller's to browse.
+
 ---
 
 ## Search engines

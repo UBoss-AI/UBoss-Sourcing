@@ -223,6 +223,14 @@ export const NAVIGATION: NavGroup[] = [
         attentionKeys: ['sellerApplications', 'sellerDocuments'],
       },
       {
+        // Beside Sellers, because it is a decision about a seller.
+        labelKey: 'nav.sellerCarriers',
+        to: '/seller-carriers',
+        icon: SellerIcon,
+        permissions: [Permission.CUSTOMER_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.chatEnquiries',
         to: '/chat-enquiries',
         icon: ChatIcon,

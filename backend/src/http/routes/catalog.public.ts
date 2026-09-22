@@ -75,6 +75,7 @@ import {
   type ShelfContext,
 } from '../../modules/catalog/location-price.service.js';
 import { loadPricesForCurrency, priceKey } from '../../modules/catalog/price.service.js';
+import type { ConversionContext } from '../../modules/catalog/derived-price.service.js';
 import {
   attributeConditions,
   attributeFacetsFor,
@@ -244,6 +245,15 @@ type PublicProduct = NonNullable<
 interface PricePair {
   basePriceMinor: bigint;
   compareAtPriceMinor: bigint | null;
+  /**
+   * Present only when the figure was converted rather than typed.
+   *
+   * Optional rather than required because several call sites in this file
+   * build a `PricePair` from a seller's offer or a variant row, where no
+   * conversion was involved and there is nothing to disclose. Absent and null
+   * mean the same thing to the caller: a real price somebody entered.
+   */
+  conversion?: ConversionContext | null;
 }
 
 /**
@@ -501,6 +511,31 @@ function serialiseProduct(
     availableInCurrency: price !== null,
     price: quote === null ? null : serialiseMoney(quote.unitPriceMinor, currency),
     compareAtPrice: compareAt === null ? null : serialiseMoney(compareAt, currency),
+
+    /**
+     * How that figure was arrived at, and - when it was converted - from what.
+     *
+     * Sent on every read because the storefront has to caption the price at
+     * the moment it renders it, not after a second request. A shopper looking
+     * at a converted figure is entitled to know it is one, and to know how old
+     * the rate behind it is; a shopper looking at a price somebody typed is
+     * entitled not to be told anything at all.
+     *
+     * Null for a manual price, which is the ordinary case and the default for
+     * every deployment. `approximate` is always true when this is present,
+     * spelled out rather than implied so a client cannot read the object and
+     * conclude the opposite.
+     */
+    priceConversion:
+      price?.conversion === undefined || price.conversion === null
+        ? null
+        : {
+            approximate: true as const,
+            baseCurrency: price.conversion.baseCurrency,
+            rate: price.conversion.rate.rate,
+            rateAsOf: price.conversion.rate.asOf.toISOString(),
+            provider: price.conversion.rate.provider,
+          },
 
     /**
      * What that price is PER, and how the quantity control may move.

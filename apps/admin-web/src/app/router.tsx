@@ -180,6 +180,16 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        // The approvals queue for which sellers may use which carriers.
+        // Same permission as the seller screens next door: it is the same
+        // kind of authority over the same businesses.
+        path: 'seller-carriers',
+        ...lazyRoute(
+          () => import('@/pages/SellerCarriersPage').then((m) => m.SellerCarriersPage),
+          [Permission.CUSTOMER_READ],
+        ),
+      },
+      {
         path: 'sellers/:id',
         ...lazyRoute(() => import('@/pages/SellerDetailPage').then((m) => m.SellerDetailPage), [
           Permission.CUSTOMER_READ,

@@ -84,6 +84,22 @@ function InventoryIcon({ className }: IconProps): React.JSX.Element {
   );
 }
 
+/** A delivery van. The thing a seller is choosing, drawn as itself. */
+function CarrierIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 7.5h10.5v7.8H3zM13.5 10.2h3.6l2.9 3v2.1h-6.5z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <circle cx="7" cy="17" r="1.7" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="16.5" cy="17" r="1.7" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
 function OrdersIcon({ className }: IconProps): React.JSX.Element {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -271,6 +287,14 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     needsApproval: true,
   },
   { to: '/seller/orders', labelKey: 'seller.nav.orders', icon: OrdersIcon, needsApproval: true },
+  // Beside orders, because that is where a seller is standing when they need
+  // it: a paid order is the reason to go looking for who will carry it.
+  {
+    to: '/seller/carriers',
+    labelKey: 'seller.nav.carriers',
+    icon: CarrierIcon,
+    needsApproval: true,
+  },
   {
     to: '/seller/payments',
     labelKey: 'seller.nav.payments',

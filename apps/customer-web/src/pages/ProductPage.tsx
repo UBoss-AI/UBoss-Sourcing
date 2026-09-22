@@ -50,6 +50,7 @@ import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
 import { canonicalUrl, productJsonLd } from '@/lib/seo';
+import { ApproximatePrice } from '@/components/ApproximatePrice';
 import { NotFoundPage } from './NotFoundPage';
 import type {
   Product,
@@ -1015,6 +1016,8 @@ export function ProductPage(): React.JSX.Element {
           // as purchasable: stock is confirmed when the item reaches the
           // basket. Publishing OutOfStock for it would be a claim nobody made.
           inStock: product.isInStock !== false,
+          // A worked-out figure publishes no offer at all - see productJsonLd.
+          priceIsApproximate: product.priceConversion != null,
         }),
   );
 
@@ -1496,6 +1499,11 @@ export function ProductPage(): React.JSX.Element {
               )}
               {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
+
+            {/* Under the figure, not beside it: this qualifies the price, it
+                does not compete with it. Renders nothing at all for the
+                ordinary case of a price somebody typed for this market. */}
+            <ApproximatePrice conversion={product.priceConversion} className="mt-1.5" />
 
             {/* What that figure is the price OF.
 

@@ -12108,6 +12108,24 @@ Reassignment withdraws the incumbent explicitly, with a required reason, and
 the carrier that loses the work is told. Both assignment rows survive, because
 "why did two carriers have this parcel?" is asked after a late delivery.
 
+## The screens this is worked on
+
+| Screen | Who | What it does |
+|---|---|---|
+| **Seller Hub → Carriers** | Seller | Lists every arrangement, including the refused and ended ones with their reasons — a seller who cannot see that their request was refused simply asks again. Asks for a new one by the carrier's reference. |
+| **Seller order → Who carries this** | Seller | The picker, on the consignment. Lists the ineligible carriers too, disabled, each with the reason it cannot take this one. |
+| **Sellers → Carrier arrangements** | Operator | The approvals queue. Approve, refuse, pause or end, with a reason the server requires for the last three. |
+
+The seller's picker is built by the same function that decides whether the
+server will accept the choice, so a carrier shown as available cannot be
+refused and one shown as unavailable cannot be smuggled through by editing the
+page.
+
+A seller asks for a carrier by **reference**, not from a dropdown of every
+carrier the marketplace works with. That list is the operator's commercial
+relationships, and publishing it to every seller on the platform would be a
+disclosure nobody authorised.
+
 ---
 
 # 13. Languages and markets
