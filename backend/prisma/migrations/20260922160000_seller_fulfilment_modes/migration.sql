@@ -231,28 +231,6 @@ CREATE TABLE `seller_fulfilment_methods` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- A method points at one thing, never at two. True at every status, including
--- while the seller is still filling the configuration in.
-ALTER TABLE `seller_fulfilment_methods`
-    ADD CONSTRAINT `chk_seller_fulfilment_method_single_target`
-    CHECK (`sellerCarrierConnectionId` IS NULL OR `logisticsPartnerId` IS NULL);
-
--- And once it is past setup, it points at the RIGHT thing for its mode.
---
--- DRAFT and PENDING_SETUP are exempt because that is precisely what they
--- mean: the seller chose a mode during onboarding and has not yet connected
--- the account or created the organisation. Requiring the target from the first
--- INSERT would make the onboarding step impossible to save halfway, which is
--- the one thing that step has to be able to do.
-ALTER TABLE `seller_fulfilment_methods`
-    ADD CONSTRAINT `chk_seller_fulfilment_method_target`
-    CHECK (
-        `status` IN ('DRAFT', 'PENDING_SETUP')
-        OR (`mode` = 'INTEGRATED_CARRIER' AND `sellerCarrierConnectionId` IS NOT NULL)
-        OR (`mode` IN ('SELF_MANAGED', 'DEDICATED_PARTNER') AND `logisticsPartnerId` IS NOT NULL)
-        OR (`mode` = 'OPERATOR_FULFILLED' AND `sellerCarrierConnectionId` IS NULL AND `logisticsPartnerId` IS NULL)
-    );
-
 -- ---------------------------------------------------------------------------
 -- 8. WHICH METHOD CARRIES WHICH PARCEL.
 --
@@ -285,34 +263,6 @@ CREATE TABLE `seller_fulfilment_rules` (
     UNIQUE INDEX `uq_seller_fulfilment_rule`(`sellerAccountId`, `ruleKey`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- A rule matches on the column its scope names, and a default matches on none.
-ALTER TABLE `seller_fulfilment_rules`
-    ADD CONSTRAINT `chk_seller_fulfilment_rule_scope`
-    CHECK (
-        (`scope` = 'PRODUCT' AND `sellerOfferId` IS NOT NULL)
-        OR (`scope` = 'WAREHOUSE' AND `sellerLocationId` IS NOT NULL)
-        OR (`scope` = 'DESTINATION' AND `destinationCountry` IS NOT NULL)
-        OR (
-            `scope` = 'SELLER_DEFAULT'
-            AND `sellerOfferId` IS NULL
-            AND `sellerLocationId` IS NULL
-            AND `destinationCountry` IS NULL
-        )
-    );
-
--- The stored precedence is the scope's, and cannot be written as anything
--- else. Without this, one bad write reorders a seller's whole routing table.
-ALTER TABLE `seller_fulfilment_rules`
-    ADD CONSTRAINT `chk_seller_fulfilment_rule_precedence`
-    CHECK (
-        `precedence` = CASE `scope`
-            WHEN 'PRODUCT' THEN 10
-            WHEN 'WAREHOUSE' THEN 20
-            WHEN 'DESTINATION' THEN 30
-            ELSE 40
-        END
-    );
 
 -- ---------------------------------------------------------------------------
 -- 9. How goods leave one building under one method.
@@ -408,12 +358,6 @@ CREATE TABLE `seller_logistics_rate_bands` (
     UNIQUE INDEX `uq_seller_rate_band`(`rateCardId`, `basis`, `serviceType`, `postalPrefix`, `minValue`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- A band spans upwards, or is open-ended. A maximum below its minimum is a
--- band that can never match and is always a typing mistake.
-ALTER TABLE `seller_logistics_rate_bands`
-    ADD CONSTRAINT `chk_seller_rate_band_span`
-    CHECK (`maxValue` IS NULL OR `maxValue` > `minValue`);
 
 -- ---------------------------------------------------------------------------
 -- 11. What a carrier said a consignment would cost, at one moment.
@@ -616,3 +560,81 @@ ALTER TABLE `seller_logistics_partner_invitations` ADD CONSTRAINT `seller_logist
 ALTER TABLE `logistics_shipments` ADD CONSTRAINT `logistics_shipments_sellerFulfilmentMethodId_fkey` FOREIGN KEY (`sellerFulfilmentMethodId`) REFERENCES `seller_fulfilment_methods`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `logistics_shipments` ADD CONSTRAINT `logistics_shipments_sellerCarrierConnectionId_fkey` FOREIGN KEY (`sellerCarrierConnectionId`) REFERENCES `seller_carrier_connections`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `logistics_shipments` ADD CONSTRAINT `logistics_shipments_fulfilmentSelectionRuleId_fkey` FOREIGN KEY (`fulfilmentSelectionRuleId`) REFERENCES `seller_fulfilment_rules`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- ---------------------------------------------------------------------------
+-- 15. The invariants, last of all.
+--
+--    These are declared here rather than beside the tables they guard, and
+--    the reason is a MariaDB rule that only bites on a version newer than
+--    the one development runs.
+--
+--    Adding a FOREIGN KEY to a column that an existing CHECK constraint
+--    mentions is refused from 10.5 onwards:
+--
+--      Function or expression 'sellerCarrierConnectionId' cannot be used in
+--      the CHECK clause of `chk_seller_fulfilment_method_single_target`
+--
+--    10.4 accepts it, so the whole of this migration applied cleanly in
+--    development and failed on the first fresh 11.4 database it met. Every
+--    other migration in this repository already adds its CHECK constraints
+--    after its foreign keys; this one had them inline beside the CREATE
+--    TABLE, which is the only reason it was different.
+--
+--    So: foreign keys first, always, and the CHECK constraints after them.
+-- ---------------------------------------------------------------------------
+
+-- A method points at one thing, never at two. True at every status, including
+-- while the seller is still filling the configuration in.
+ALTER TABLE `seller_fulfilment_methods`
+    ADD CONSTRAINT `chk_seller_fulfilment_method_single_target`
+    CHECK (`sellerCarrierConnectionId` IS NULL OR `logisticsPartnerId` IS NULL);
+
+-- And once it is past setup, it points at the RIGHT thing for its mode.
+--
+-- DRAFT and PENDING_SETUP are exempt because that is precisely what they
+-- mean: the seller chose a mode during onboarding and has not yet connected
+-- the account or created the organisation. Requiring the target from the first
+-- INSERT would make the onboarding step impossible to save halfway, which is
+-- the one thing that step has to be able to do.
+ALTER TABLE `seller_fulfilment_methods`
+    ADD CONSTRAINT `chk_seller_fulfilment_method_target`
+    CHECK (
+        `status` IN ('DRAFT', 'PENDING_SETUP')
+        OR (`mode` = 'INTEGRATED_CARRIER' AND `sellerCarrierConnectionId` IS NOT NULL)
+        OR (`mode` IN ('SELF_MANAGED', 'DEDICATED_PARTNER') AND `logisticsPartnerId` IS NOT NULL)
+        OR (`mode` = 'OPERATOR_FULFILLED' AND `sellerCarrierConnectionId` IS NULL AND `logisticsPartnerId` IS NULL)
+    );
+
+-- A rule matches on the column its scope names, and a default matches on none.
+ALTER TABLE `seller_fulfilment_rules`
+    ADD CONSTRAINT `chk_seller_fulfilment_rule_scope`
+    CHECK (
+        (`scope` = 'PRODUCT' AND `sellerOfferId` IS NOT NULL)
+        OR (`scope` = 'WAREHOUSE' AND `sellerLocationId` IS NOT NULL)
+        OR (`scope` = 'DESTINATION' AND `destinationCountry` IS NOT NULL)
+        OR (
+            `scope` = 'SELLER_DEFAULT'
+            AND `sellerOfferId` IS NULL
+            AND `sellerLocationId` IS NULL
+            AND `destinationCountry` IS NULL
+        )
+    );
+
+-- The stored precedence is the scope's, and cannot be written as anything
+-- else. Without this, one bad write reorders a seller's whole routing table.
+ALTER TABLE `seller_fulfilment_rules`
+    ADD CONSTRAINT `chk_seller_fulfilment_rule_precedence`
+    CHECK (
+        `precedence` = CASE `scope`
+            WHEN 'PRODUCT' THEN 10
+            WHEN 'WAREHOUSE' THEN 20
+            WHEN 'DESTINATION' THEN 30
+            ELSE 40
+        END
+    );
+
+-- A band spans upwards, or is open-ended. A maximum below its minimum is a
+-- band that can never match and is always a typing mistake.
+ALTER TABLE `seller_logistics_rate_bands`
+    ADD CONSTRAINT `chk_seller_rate_band_span`
+    CHECK (`maxValue` IS NULL OR `maxValue` > `minValue`);
