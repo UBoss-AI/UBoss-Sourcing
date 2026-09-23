@@ -491,6 +491,18 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     tags: ['Payments'],
     auth: 'customer',
   },
+  'POST /api/v1/payments/orders/:orderId/mock-capture': {
+    summary: 'Settle an order without a gateway (testing only)',
+    description:
+      'Confirms the order as though the gateway had captured the payment, through the same ' +
+      'code a real capture goes through — so the state machine, the audit row, the ERP push ' +
+      'and the notifications all happen. Exists because a gateway cannot deliver a webhook to ' +
+      'a developer’s machine, which leaves every screen after checkout untestable. Returns ' +
+      'FEATURE_DISABLED unless PAYMENT_MOCK_SUCCESS is on, which the environment refuses in ' +
+      'production and refuses beside a live credential.',
+    tags: ['Payments'],
+    auth: 'customer',
+  },
   'GET /api/v1/payments/orders/:orderId/status': {
     summary: 'Poll payment status after returning from the provider',
     description:

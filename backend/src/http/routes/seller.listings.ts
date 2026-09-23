@@ -35,6 +35,18 @@ import {
 } from '../../modules/seller/listing-draft.service.js';
 import { loadListingSchema } from '../../modules/seller/listing-schema.service.js';
 import {
+  CONTAINER_PRESETS,
+  INCOTERMS,
+  PALLET_FOOTPRINTS,
+} from '../../domain/packaging.js';
+import {
+  previewBulkOrder,
+  readPackagingProfile,
+  savePackagingOption,
+  savePackagingProfileDetails,
+  setPackagingOptionEnabled,
+} from '../../modules/seller/packaging.service.js';
+import {
   deleteListingMedia,
   listListingMedia,
   updateListingMedia,
@@ -977,6 +989,227 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
       const params = idParam.parse(request.params);
       await withdrawBrandRequest(currentSeller(request), params.id);
       return reply.status(204).send();
+    },
+  );
+
+  // --- Bulk packaging ------------------------------------------------------
+  //
+  // Per OFFER, and therefore per variant: two sellers pack the same catalogue
+  // item differently, and one seller packs the 1-litre differently from the
+  // 5-litre. A profile on the product would have to pick one of them and be
+  // wrong for everybody else.
+
+  /**
+   * The presets a form needs before anything has been saved.
+   *
+   * Footprints and NOMINAL container figures, both described as what they are.
+   * A pallet preset supplies two floor dimensions and nothing else - height,
+   * load, cartons and layers are the seller's, because a pallet of gauze and a
+   * pallet of saline have the footprint in common and nothing else. A
+   * container preset is guidance printed beside the seller's own figure and
+   * never a capacity: internal dimensions and payload vary by build and by
+   * carrier, and a seller who promises a number off a table will one day be
+   * unable to load it.
+   */
+  app.get('/packaging/presets', async (_request, reply) =>
+    reply.status(200).send({
+      palletFootprints: Object.values(PALLET_FOOTPRINTS),
+      containers: Object.values(CONTAINER_PRESETS).map((preset) => ({
+        type: preset.type,
+        label: preset.label,
+        nominalInternalLengthMm: preset.nominalInternalLengthMm,
+        nominalInternalWidthMm: preset.nominalInternalWidthMm,
+        nominalInternalHeightMm: preset.nominalInternalHeightMm,
+        // Minor-unit discipline applies to every large integer that crosses
+        // this API, not only to money: a gram figure in the tens of millions
+        // is well inside JS's safe range today and the habit is what keeps it
+        // safe when somebody adds a heavier unit.
+        nominalMaxPayloadGrams: preset.nominalMaxPayloadGrams?.toString() ?? null,
+        nominalVolumeCm3: preset.nominalVolumeCm3?.toString() ?? null,
+      })),
+      incoterms: INCOTERMS,
+    }),
+  );
+
+  app.get(
+    '/offers/:id/packaging',
+    { preHandler: requireSeller(SellerPermission.LISTING_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const profile = await readPackagingProfile(currentSeller(request), params.id);
+      return reply.status(200).send(profile);
+    },
+  );
+
+  app.put(
+    '/offers/:id/packaging/profile',
+    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          baseUnitLabel: z.string().trim().max(48).nullable().optional(),
+          notes: z.string().trim().max(1000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const profile = await savePackagingProfileDetails(currentSeller(request), params.id, body);
+      return reply.status(200).send(profile);
+    },
+  );
+
+  app.put(
+    '/offers/:id/packaging/options',
+    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+
+      const body = z
+        .object({
+          packageType: z.enum(['CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER']),
+          isEnabled: z.boolean(),
+          packageSku: z.string().trim().max(64).nullable().optional(),
+
+          unitsPerCarton: z.number().int().min(1).max(1_000_000).nullable().optional(),
+          unitsPerPackage: z.number().int().min(1).max(10_000_000).nullable().optional(),
+          unitsPerPackageIsOverride: z.boolean().optional(),
+
+          cartonsPerLayer: z.number().int().min(1).max(10_000).nullable().optional(),
+          layerCount: z.number().int().min(1).max(1000).nullable().optional(),
+          cartonsPerPallet: z.number().int().min(1).max(100_000).nullable().optional(),
+          loadedHeight: z.number().min(0).max(1_000_000).nullable().optional(),
+          isStackable: z.boolean().optional(),
+          maxStackCount: z.number().int().min(1).max(50).nullable().optional(),
+
+          containerType: z
+            .enum(['DRY_20GP', 'DRY_40GP', 'HIGH_CUBE_40HC', 'CUSTOM'])
+            .nullable()
+            .optional(),
+          containerLoadMode: z.enum(['FCL', 'LCL']).nullable().optional(),
+          containerLoadingMethod: z
+            .enum(['PALLET_LOADED', 'CARTON_LOADED', 'CUSTOM'])
+            .nullable()
+            .optional(),
+          palletsPerContainer: z.number().int().min(1).max(10_000).nullable().optional(),
+          cartonsPerContainer: z.number().int().min(1).max(1_000_000).nullable().optional(),
+          originPortLabel: z.string().trim().max(160).nullable().optional(),
+          incoterm: z.string().trim().max(8).nullable().optional(),
+
+          // Measurements arrive in the unit the seller typed in and are stored
+          // canonically - millimetres and grams, both integers. The conversion
+          // happens on the server so the figure on the screen and the figure
+          // in the database cannot drift.
+          dimensionUnit: z.enum(['MM', 'CM', 'M', 'IN']).optional(),
+          length: z.number().min(0).max(1_000_000).nullable().optional(),
+          width: z.number().min(0).max(1_000_000).nullable().optional(),
+          height: z.number().min(0).max(1_000_000).nullable().optional(),
+
+          weightUnit: z.enum(['G', 'KG', 'LB']).optional(),
+          netWeight: z.number().min(0).max(100_000_000).nullable().optional(),
+          grossWeight: z.number().min(0).max(100_000_000).nullable().optional(),
+          maxGrossWeight: z.number().min(0).max(100_000_000).nullable().optional(),
+
+          cargoVolumeCm3: z.string().regex(/^\d{1,19}$/).nullable().optional(),
+
+          minimumPackages: z.number().int().min(1).max(100_000).optional(),
+          packageIncrement: z.number().int().min(1).max(100_000).optional(),
+          maximumPackages: z.number().int().min(1).max(1_000_000).nullable().optional(),
+
+          priceMode: z.enum(['PER_PACKAGE', 'DERIVED_FROM_UNIT', 'FREIGHT_QUOTE']).optional(),
+          // Money as a STRING, always. See the schema header: a 19-digit minor
+          // figure crossing as a JS number loses its last digit, and a pallet
+          // price is exactly the size that reaches there.
+          pricePerPackageMinor: z.string().regex(/^\d{1,19}$/).nullable().optional(),
+
+          handlingLeadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
+          productionLeadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
+          originLocationId: z.string().length(26).nullable().optional(),
+
+          isHazardous: z.boolean().optional(),
+          temperatureNotes: z.string().trim().max(500).nullable().optional(),
+          specialHandlingNotes: z.string().trim().max(1000).nullable().optional(),
+
+          tiers: z
+            .array(
+              z.object({
+                minPackages: z.number().int().min(1).max(1_000_000),
+                pricePerPackageMinor: z.string().regex(/^\d{1,19}$/),
+              }),
+            )
+            .max(20)
+            .optional(),
+        })
+        .parse(request.body);
+
+      const profile = await savePackagingOption(
+        currentSeller(request),
+        params.id,
+        body,
+        request.auth?.id ?? null,
+      );
+
+      return reply.status(200).send(profile);
+    },
+  );
+
+  app.post(
+    '/offers/:id/packaging/options/:packageType/enabled',
+    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    async (request, reply) => {
+      const params = z
+        .object({
+          id: z.string().length(26),
+          packageType: z.enum(['CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER']),
+        })
+        .parse(request.params);
+
+      const body = z.object({ enabled: z.boolean() }).parse(request.body);
+
+      const profile = await setPackagingOptionEnabled(
+        currentSeller(request),
+        params.id,
+        params.packageType,
+        body.enabled,
+        request.auth?.id ?? null,
+      );
+
+      return reply.status(200).send(profile);
+    },
+  );
+
+  /**
+   * "What would N of these come to?"
+   *
+   * The same functions the basket uses, so the figure previewed and the figure
+   * charged come from one place. A preview computed its own way would
+   * eventually disagree with the cart, and the seller would be assuring buyers
+   * of a total the checkout does not produce.
+   *
+   * Reserves nothing and creates nothing.
+   */
+  app.get(
+    '/offers/:id/packaging/preview',
+    { preHandler: requireSeller(SellerPermission.LISTING_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const query = z
+        .object({
+          packageType: z.enum(['CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER']),
+          packageQuantity: z.coerce.number().int().min(1).max(1_000_000),
+        })
+        .parse(request.query);
+
+      // Read through the guarded service first, so a preview cannot be taken
+      // against somebody else's offer by posting its id.
+      await readPackagingProfile(currentSeller(request), params.id);
+
+      const preview = await previewBulkOrder({
+        offerId: params.id,
+        packageType: query.packageType,
+        packageQuantity: query.packageQuantity,
+      });
+
+      return reply.status(200).send(preview);
     },
   );
 

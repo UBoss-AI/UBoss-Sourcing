@@ -434,6 +434,17 @@ export async function gatewayOffers(): Promise<GatewayOffer[]> {
 
 export async function availableInstruments(currency: string): Promise<{
   instruments: InstrumentOffer[];
+  /**
+   * Whether this installation will settle a payment simply because it is
+   * asked to.
+   *
+   * Reported so the storefront can say so, in as many words, beside the Pay
+   * button. A test deployment that silently confirms orders is worse than one
+   * that refuses: somebody eventually demonstrates it to a customer.
+   *
+   * Never true where it could matter - see `mockPaymentsEnabled`.
+   */
+  mockPayments: boolean;
 }> {
   const offers = await gatewayOffers();
   const instruments = offerableInstruments(offers, currency);
@@ -460,6 +471,7 @@ export async function availableInstruments(currency: string): Promise<{
           DIRECT_CARD_CHARGE_CAPABLE.has(chosen.provider),
       };
     }),
+    mockPayments: mockPaymentsEnabled(),
   };
 }
 
@@ -2451,6 +2463,306 @@ export async function getPaymentStatusForOrder(
     // advances - never from what the browser reported.
     paid: order.paidMinor >= order.grandTotalMinor && order.grandTotalMinor > 0n,
     orderStatus: order.status,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mock payments
+// ---------------------------------------------------------------------------
+//
+// A SECOND DOOR, NOT A WEAKER FIRST ONE.
+//
+// Everything above this line holds one rule: an order becomes CONFIRMED only
+// from a signature-verified provider event. Nothing below relaxes it. The
+// webhook path is untouched, `applyEvent` is unchanged, and no forged request
+// can reach either.
+//
+// What this adds is a separate, loudly-marked way in, for the case the honest
+// path cannot serve at all: a gateway cannot deliver a webhook to a laptop.
+// Without it a developer pays with a test card, the event never arrives, and
+// the order sits in PENDING_PAYMENT - so the confirmation email, the ERP push,
+// fulfilment, invoices and every screen after checkout are untestable on the
+// machine they are being written on.
+//
+// It is refused unless PAYMENT_MOCK_SUCCESS is on, which the environment schema
+// refuses in production and refuses beside a live credential, and it refuses
+// again here on a LIVE-mode connection. Three independent checks, because the
+// cost of this being reachable where money is real is an order somebody ships
+// for nothing.
+//
+// It goes through `claimEvent` and `applyEvent` like any real capture rather
+// than writing CAPTURED itself. That is the point: a tester sees the real
+// consequences of a payment - the state machine, the audit row, the ERP push,
+// the occurrence settlement - and not a green tick over a system that did
+// nothing.
+
+/** Whether this installation will settle a payment simply because it is asked. */
+export function mockPaymentsEnabled(): boolean {
+  // NODE_ENV is checked again although the schema already refuses the
+  // combination. The boot guard protects a deployment that reads its
+  // configuration; this protects one that is handed an `env` object.
+  return env.PAYMENT_MOCK_SUCCESS && env.NODE_ENV !== 'production';
+}
+
+export interface SimulatePaymentInput {
+  orderId: string;
+  /** Scoped, so nobody can settle an order that is not theirs. */
+  customerProfileId: string;
+  actorUserId: string | null;
+  correlationId?: string | null;
+}
+
+export interface SimulatePaymentResult {
+  status: string;
+  paid: boolean;
+  orderStatus: string;
+  /** False when the order was already settled and nothing was applied. */
+  applied: boolean;
+}
+
+/**
+ * Settle an order as though the gateway had captured it.
+ *
+ * The amount is the order's own outstanding balance, or the open payment's
+ * amount where one exists. A caller cannot name one - the same rule
+ * `createOrderPayment` holds to, and for the same reason: a client that chose
+ * what to pay would be choosing what it owes.
+ */
+export async function simulateOrderPayment(
+  input: SimulatePaymentInput,
+): Promise<SimulatePaymentResult> {
+  if (!mockPaymentsEnabled()) {
+    throw forbidden(
+      ErrorCode.FEATURE_DISABLED,
+      'Mock payments are switched off in this installation.',
+    );
+  }
+
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, customerProfileId: input.customerProfileId },
+  });
+
+  if (order === null) throw notFound('Order');
+
+  const outstanding = order.grandTotalMinor - order.paidMinor;
+
+  // Already settled - by a real webhook, or by an earlier press of the same
+  // button. Answered rather than refused: "it is paid" is what the caller
+  // wanted to hear, and a second press must not produce a second capture.
+  if (outstanding <= 0n) {
+    return { status: 'CAPTURED', paid: true, orderStatus: order.status, applied: false };
+  }
+
+  if (order.status !== 'PENDING_PAYMENT') {
+    throw conflict(
+      order.status === 'PENDING_APPROVAL'
+        ? ErrorCode.ORDER_APPROVAL_REQUIRED
+        : ErrorCode.ORDER_ALREADY_PAID,
+      order.status === 'PENDING_APPROVAL'
+        ? 'This order is waiting for approval and cannot be paid yet.'
+        : `This order is ${order.status.toLowerCase()} and is not awaiting payment.`,
+    );
+  }
+
+  const transaction = await openTransactionForMock(order.id, order.currency, outstanding);
+
+  if (transaction.mode === 'LIVE') {
+    // The last of the three guards. A LIVE connection means a real acquirer,
+    // whatever the environment believes about itself.
+    throw forbidden(
+      ErrorCode.FEATURE_DISABLED,
+      'This payment is against a live gateway and cannot be mocked.',
+    );
+  }
+
+  /**
+   * The event a gateway would have sent.
+   *
+   * `verified: true` is honest here in a way it never is for a request body:
+   * this object was built in this process out of rows in this database, and
+   * not one byte of it was parsed from anything that arrived over a socket.
+   *
+   * Every identifier is prefixed `mock_`, so a row that came from this path is
+   * recognisable at a glance in `payment_events` and in the audit trail -
+   * which matters the day somebody asks why a payment has no counterpart in
+   * the gateway's dashboard.
+   */
+  const event: VerifiedEvent = {
+    verified: true,
+    eventId: `mock_evt_${newId()}`,
+    eventType: 'mock.payment.captured',
+    intent: 'PAYMENT_CAPTURED',
+    providerOrderId: transaction.providerOrderId,
+    providerPaymentId: `mock_pay_${newId()}`,
+    providerRefundId: null,
+    amountMinor: transaction.amountMinor,
+    currency: transaction.currency,
+    method: 'mock',
+    failureCode: null,
+    failureMessage: null,
+    // Never a card. A mock payment tokenises nothing, and offering the
+    // customer a saved card that exists at no gateway would be a card that
+    // fails the first time it is really used.
+    vaultedCard: null,
+  };
+
+  const rawBody = Buffer.from(
+    JSON.stringify({
+      mock: true,
+      note: 'Generated by PAYMENT_MOCK_SUCCESS. No gateway was contacted and no money moved.',
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      amountMinor: transaction.amountMinor.toString(),
+      currency: transaction.currency,
+      requestedBy: input.actorUserId,
+      at: new Date().toISOString(),
+    }),
+    'utf8',
+  );
+
+  logger.warn(
+    {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      amountMinor: transaction.amountMinor.toString(),
+      actorUserId: input.actorUserId,
+      correlationId: input.correlationId,
+    },
+    'MOCK PAYMENT: confirming an order no gateway was asked about',
+  );
+
+  const claim = await claimEvent(event, transaction.provider, transaction.connectionId, rawBody);
+
+  if (claim.kind === 'CLAIMED') {
+    try {
+      await applyEvent(event, claim.eventRowId, input.correlationId ?? undefined);
+    } catch (error) {
+      // Left FAILED, and therefore claimable again - the same contract
+      // `processWebhook` keeps, so a retry of this call is not blocked by the
+      // row its predecessor abandoned.
+      await prisma.paymentEvent.update({
+        where: { id: claim.eventRowId },
+        data: {
+          processingStatus: 'FAILED',
+          processingError:
+            error instanceof Error ? error.message.slice(0, 1000) : 'unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+
+  await recordAudit({
+    action: AuditAction.PAYMENT_CAPTURED,
+    resourceType: 'payment',
+    resourceId: transaction.id,
+    // CUSTOMER, not PROVIDER. No provider was involved, and an audit trail
+    // that says one was is the single thing this must never produce.
+    actorType: 'CUSTOMER',
+    actorUserId: input.actorUserId,
+    after: {
+      mock: true,
+      orderId: order.id,
+      amountMinor: transaction.amountMinor.toString(),
+      providerPaymentId: event.providerPaymentId,
+    },
+    correlationId: input.correlationId ?? null,
+  });
+
+  const settled = await prisma.order.findUniqueOrThrow({
+    where: { id: order.id },
+    select: { status: true, paidMinor: true, grandTotalMinor: true },
+  });
+
+  return {
+    status: 'CAPTURED',
+    // Read back from the order rather than assumed, so this reports what the
+    // apply path actually did and not what it was asked to do.
+    paid: settled.paidMinor >= settled.grandTotalMinor && settled.grandTotalMinor > 0n,
+    orderStatus: settled.status,
+    applied: true,
+  };
+}
+
+/**
+ * The payment row a mock capture is applied to.
+ *
+ * Reuses the open one where the customer already started a payment, which is
+ * the ordinary case and the one that matters: they went through the gateway's
+ * test sheet, the webhook could not reach this machine, and the only thing
+ * missing is the event. Capturing THAT row keeps one payment against one
+ * order.
+ *
+ * Creates one otherwise, so an order can be settled without opening a gateway
+ * at all. It still needs a connection, because a payment belongs to the
+ * gateway that took it; `loadActiveProvider` bootstraps one from the
+ * environment keys in development, so this does not ask a tester to connect
+ * anything first.
+ */
+async function openTransactionForMock(
+  orderId: string,
+  currency: string,
+  outstanding: bigint,
+): Promise<{
+  id: string;
+  connectionId: string;
+  provider: ProviderKind;
+  mode: string;
+  providerOrderId: string;
+  amountMinor: bigint;
+  currency: string;
+}> {
+  const existing = await prisma.paymentTransaction.findFirst({
+    where: {
+      orderId,
+      status: { notIn: ['CAPTURED', 'FAILED', 'CANCELLED', 'EXPIRED'] },
+      providerOrderId: { not: null },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (existing !== null && existing.providerOrderId !== null) {
+    return {
+      id: existing.id,
+      connectionId: existing.connectionId,
+      provider: existing.provider,
+      mode: existing.mode,
+      providerOrderId: existing.providerOrderId,
+      amountMinor: existing.amountMinor,
+      currency: existing.currency,
+    };
+  }
+
+  const { connectionId, kind, provider } = await loadActiveProvider();
+  const id = newId();
+  const providerOrderId = `mock_order_${id}`;
+
+  await prisma.paymentTransaction.create({
+    data: {
+      id,
+      orderId,
+      connectionId,
+      provider: kind,
+      mode: provider.mode,
+      providerOrderId,
+      status: 'CREATED',
+      amountMinor: outstanding,
+      currency,
+      // Distinct per attempt, because the unique index is what stops one key
+      // being spent twice - and a mock capture colliding with a real
+      // checkout's key would be the two paths fighting over one row.
+      idempotencyKey: `mock:${id}`,
+    },
+  });
+
+  return {
+    id,
+    connectionId,
+    provider: kind,
+    mode: provider.mode,
+    providerOrderId,
+    amountMinor: outstanding,
+    currency,
   };
 }
 

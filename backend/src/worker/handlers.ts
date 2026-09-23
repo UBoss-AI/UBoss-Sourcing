@@ -586,6 +586,68 @@ const customerErpMaintenance: JobHandler = async () => {
 };
 
 /**
+ * A SELLER's own accounting connections, kept honest.
+ *
+ * The third ERP beat in this file, and it shares nothing with the two above.
+ * `erp*` is the operator's warehouse system; `customerErp*` is a buyer's
+ * purchasing system; this is a seller's TallyPrime, running on a PC in their
+ * office that is switched off at six o'clock.
+ *
+ * Everything it does is about something that did NOT happen - a heartbeat that
+ * did not arrive, a task whose bridge died mid-post, a pairing code nobody
+ * used - because nothing writes a row for a non-event and a status column
+ * otherwise keeps saying "Connected" over a machine that has been dark since
+ * Friday. Returns immediately when the feature is off.
+ */
+const sellerErpMaintenance: JobHandler = async () => {
+  const { runSellerErpMaintenance } = await import(
+    '../modules/seller-erp/maintenance.service.js'
+  );
+
+  const outcome = await runSellerErpMaintenance();
+
+  if (outcome.releasedTasks > 0 || outcome.offlineBridges > 0 || outcome.expiredCodes > 0) {
+    logger.info(outcome, 'seller ERP maintenance');
+  }
+};
+
+/**
+ * Build the vouchers a backfill deliberately left unbuilt, and raise the alarm
+ * on events that have run out of retries.
+ *
+ * Separate from the maintenance beat because it does real work: a seller who
+ * connects after two years of trading queues five hundred order events
+ * carrying only a reference, and each voucher has to be assembled from the
+ * order. Doing that inside the request that started the backfill would hold a
+ * connection open for a minute.
+ */
+const sellerErpDispatch: JobHandler = async () => {
+  const { runSellerErpDispatch } = await import('../modules/seller-erp/maintenance.service.js');
+
+  const outcome = await runSellerErpDispatch();
+
+  if (outcome.built > 0 || outcome.alerted > 0) {
+    logger.info(outcome, 'seller ERP dispatch');
+  }
+};
+
+/**
+ * Compare what we think posted against what Tally holds.
+ *
+ * READS AND REPORTS, never repairs. A reconciliation that corrected accounts
+ * on its own would be a second thing writing to somebody's books without being
+ * asked - the exact behaviour `autoCreateMasters` defaults to false to
+ * prevent.
+ */
+const sellerErpReconcile: JobHandler = async () => {
+  const { runSellerErpReconcile } = await import('../modules/seller-erp/maintenance.service.js');
+
+  const outcome = await runSellerErpReconcile();
+
+  if (outcome.queued > 0) logger.info(outcome, 'seller ERP reconciliation');
+};
+
+/**
  * Run a scheduled connector sync.
  *
  * Always a real import, never a dry run: a scheduled sync exists to apply
@@ -778,6 +840,9 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.CUSTOMER_ERP_POLL]: customerErpPoll,
   [JobType.CUSTOMER_ERP_MAINTENANCE]: customerErpMaintenance,
   [JobType.LOGISTICS_MAINTENANCE]: logisticsMaintenance,
+  [JobType.SELLER_ERP_MAINTENANCE]: sellerErpMaintenance,
+  [JobType.SELLER_ERP_DISPATCH]: sellerErpDispatch,
+  [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

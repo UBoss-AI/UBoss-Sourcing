@@ -71,6 +71,7 @@ import {
 import { listLogisticsAudit } from '../../modules/logistics/audit.service.js';
 import { readLiveLocation } from '../../modules/logistics/trip.service.js';
 import { currentUser } from '../plugins/auth.js';
+import { readOwnIntegrationHealth } from '../../modules/logistics/partner-catalogue.service.js';
 import { currentLogistics, requireLogistics, requireLogisticsSession } from '../plugins/logistics.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -216,6 +217,32 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
   });
 
   // --- Everything below here is behind the MFA gate ----------------------
+
+  /**
+   * This carrier's own integration, coverage and fleet, in one place.
+   *
+   * THE SCOPED HALF OF A SPLIT. The operator's delivery catalogue lists every
+   * provider and every partner across the installation; that is operator
+   * information and lives in the admin panel. What a CARRIER may see is
+   * itself, and this is it.
+   *
+   * There is no parameter here. The partner id comes from
+   * `currentLogistics`, which resolves it from the session - so there is
+   * nothing a request could carry that would point this at somebody else,
+   * which is what makes the screen safe rather than merely filtered.
+   */
+  app.get(
+    '/integration',
+    { preHandler: requireLogistics(LogisticsPermission.INTEGRATION_READ) },
+    async (request, reply) => {
+      const membership = currentLogistics(request);
+      const health = await readOwnIntegrationHealth(membership.logisticsPartnerId);
+
+      if (health === null) return reply.status(404).send();
+
+      return reply.header('cache-control', 'no-store').status(200).send({ integration: health });
+    },
+  );
 
   app.get(
     '/dashboard',

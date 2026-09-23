@@ -10,6 +10,7 @@
  * total can exceed `2^53`, which is why it crosses the wire as a string.
  */
 import type { Money } from './format';
+import type { BuyablePackaging, LinePackaging } from './bulk-packaging';
 
 export type { Money };
 
@@ -664,6 +665,19 @@ export interface ProductDetailResponse {
    * one. Lets the page offer a switch instead of just saying "unavailable".
    */
   soldInCurrencies: string[];
+  /**
+   * The packages this seller will sell this in — carton, pallet, container.
+   *
+   * On the DETAIL response only. A grid card has no room for "2 UK pallets ×
+   * 50 cartons × 24 units" and draws forty of them, so the server does not pay
+   * forty queries for a sentence nobody can read at that size.
+   *
+   * EMPTY is the ordinary answer and will be for most of the catalogue for a
+   * long time. An empty array is what makes the page draw its plain quantity
+   * box with no packaging controls at all, so a response cached from before
+   * this field existed behaves exactly as it did.
+   */
+  packagingOptions?: BuyablePackaging[];
 }
 
 // ---------------------------------------------------------------------------
@@ -767,6 +781,19 @@ export interface CartLine {
    * existed does not carry it and a basket must still render.
    */
   note?: string | null;
+  /**
+   * The bulk breakdown this line was bought at, or null on an ordinary line.
+   *
+   * The FROZEN snapshot, not the seller's current configuration. A basket
+   * holding "2 UK pallets × 50 cartons × 24 units" keeps saying that even
+   * after the seller re-specifies the pallet at 48 to a layer, because that is
+   * what the shopper agreed to — and the server tells them the two have
+   * diverged rather than quietly applying the new figure.
+   *
+   * Optional on the type: a response cached from before this existed does not
+   * carry it, and a basket must still render.
+   */
+  packaging?: LinePackaging | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
 }
@@ -813,6 +840,17 @@ export interface Cart {
   requiresApproval: boolean;
   approvalReason: string | null;
   itemCount: number;
+  /**
+   * True when something in this basket has to be QUOTED for delivery rather
+   * than priced instantly — a container, or a pallet no carrier on the
+   * seller's account can take.
+   *
+   * NOT a blocker, and the checkout must not treat it as one. The goods are
+   * priced; the freight is not, and the review screen says so and offers to
+   * raise the request. A basket that refused to proceed over it would make
+   * container ordering impossible while telling the buyer nothing was wrong.
+   */
+  requiresFreightQuote?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -1060,6 +1098,15 @@ export interface OrderShipment {
    * list of numbers the buyer cannot match to anything.
    */
   sentBy: string | null;
+  /**
+   * Whether tracking updates arrive on their own.
+   *
+   * Null where no external carrier account is behind the parcel, which is
+   * every consignment carried inside this system - those do move on their own.
+   * False means somebody enters the updates, or they live on the carrier's own
+   * page, and the buyer is told so rather than left refreshing.
+   */
+  trackingIsAutomatic?: boolean | null;
   carrier: string | null;
   trackingNumber: string | null;
   trackingUrl: string | null;
@@ -1186,6 +1233,14 @@ export interface InstrumentOffer {
 /** What `GET /payments/instruments?currency=` returns. */
 export interface PaymentInstruments {
   instruments: InstrumentOffer[];
+  /**
+   * Whether this installation settles payments on request, with no gateway.
+   *
+   * A testing fixture. The backend decides it, and the environment it needs
+   * refuses to boot in production - so this is never true anywhere a customer
+   * could be looking at it.
+   */
+  mockPayments: boolean;
 }
 
 /**

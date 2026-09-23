@@ -281,6 +281,19 @@ export const router = createBrowserRouter([
        * the next addition doing so.
        */
       {
+        // Above the carrier register, because this is the wider question -
+        // every way anything gets delivered - and the register is one answer
+        // to it.
+        path: 'logistics/delivery-catalogue',
+        ...lazyRoute(
+          () =>
+            import('@/pages/logistics/DeliveryCataloguePage').then(
+              (m) => m.DeliveryCataloguePage,
+            ),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
         path: 'logistics/partners',
         ...lazyRoute(
           () => import('@/pages/logistics/PartnersPage').then((m) => m.LogisticsPartnersPage),

@@ -40,12 +40,47 @@ import { ErrorCode, badRequest, conflict } from './errors.js';
 /**
  * The unit column as the database still spells it.
  *
- * Three members, because rows written before the shop settled on cartons say
- * `PIECE` or `INNER_PACK` and an old invoice has to keep describing itself
- * honestly. Nothing new is ever written with either of them - see
- * `SELLING_UNIT`.
+ * The first three members are the original shop: rows written before it
+ * settled on cartons say `PIECE` or `INNER_PACK` and an old invoice has to
+ * keep describing itself honestly. Nothing new is ever written with
+ * `INNER_PACK` - see `SELLING_UNIT`.
+ *
+ * The last four are a SELLER's bulk packaging, added by the bulk ordering
+ * work. They are deliberately not folded into `OUTER_CARTON`: that member
+ * means "the carton THIS DEPLOYMENT sells in", sized by `PIECES_PER_CARTON` or
+ * by the product's own `piecesPerCarton`, and the storefront reads that figure
+ * off `/config` to draw a price. A seller's carton is sized by the seller, per
+ * variant, and holds a different number. One member for both would put the
+ * operator's multiplication on a seller's line, which is the five-hundred-fold
+ * pricing error this file already exists to prevent once.
  */
-export type OrderingUnit = 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+export type OrderingUnit =
+  | 'PIECE'
+  | 'INNER_PACK'
+  | 'OUTER_CARTON'
+  | 'CARTON'
+  | 'UK_PALLET'
+  | 'US_PALLET'
+  | 'CONTAINER';
+
+/**
+ * The members that mean a seller's configured package.
+ *
+ * A line carrying one of these has a packaging snapshot beside it and its
+ * `piecesPerUnitSnapshot` came from that seller's own option row - never from
+ * a deployment setting and never from a request body.
+ */
+export const BULK_UNITS: readonly OrderingUnit[] = [
+  'CARTON',
+  'UK_PALLET',
+  'US_PALLET',
+  'CONTAINER',
+] as const;
+
+/** Is this unit one of a seller's configured packages? */
+export function isBulkUnit(unit: OrderingUnit | null | undefined): boolean {
+  return unit !== null && unit !== undefined && BULK_UNITS.includes(unit);
+}
 
 /**
  * The unit the OPERATOR sells in.
@@ -283,6 +318,35 @@ function requestedUnits(input: {
     );
   }
 
+  /*
+   * A BULK unit on either side of a mismatch is refused outright.
+   *
+   * The lenient branch below reads a mismatched request as a piece count and
+   * rounds UP to whole sell units, and that is safe when the worst it can do
+   * is deliver a whole carton to somebody who asked for most of one. It is not
+   * safe here. Asking for a pallet line "by the carton" would be read as 2
+   * PIECES and rounded up to one whole pallet - a basket six hundred times the
+   * one that was asked for - and asking for a carton line "by the pallet"
+   * would do the reverse.
+   *
+   * Refused in both directions rather than reinterpreted, because there is no
+   * reading of "2 cartons" on a pallet line that is more likely to be what
+   * somebody meant than a stale client or somebody trying it on.
+   */
+  if (named !== null && named !== input.spec.unit && (isBulkUnit(named) || isBulkUnit(input.spec.unit))) {
+    throw badRequest(
+      ErrorCode.PACKAGING_UNIT_MISMATCH,
+      'That is not the packaging this is sold in. Choose one of the options shown.',
+      [
+        {
+          field: input.field,
+          code: 'UNIT_MISMATCH',
+          meta: { expected: input.spec.unit, received: named },
+        },
+      ],
+    );
+  }
+
   return named === input.spec.unit
     ? (input.unitQuantity ?? 0)
     : unitsForPieces(input.pieces, input.spec.piecesPerUnit);
@@ -318,9 +382,11 @@ export function resolveSellUnitQuantity(input: {
   if (!Number.isInteger(asked) || asked <= 0) {
     throw badRequest(
       ErrorCode.VALIDATION_FAILED,
-      spec.unit === SELLER_SELLING_UNIT
-        ? 'Choose how many pieces you need.'
-        : 'Choose how many cartons you need.',
+      isBulkUnit(spec.unit)
+        ? 'Choose how many packages you need.'
+        : spec.unit === SELLER_SELLING_UNIT
+          ? 'Choose how many pieces you need.'
+          : 'Choose how many cartons you need.',
       [{ field: input.field, code: 'INVALID' }],
     );
   }
@@ -336,9 +402,11 @@ export function resolveSellUnitQuantity(input: {
   if (spec.maximumOrderQuantity !== null && units > spec.maximumOrderQuantity) {
     throw badRequest(
       ErrorCode.VALIDATION_FAILED,
-      spec.unit === SELLER_SELLING_UNIT
-        ? `This seller takes at most ${String(spec.maximumOrderQuantity)} pieces on one order.`
-        : `At most ${String(spec.maximumOrderQuantity)} cartons on one order.`,
+      isBulkUnit(spec.unit)
+        ? `This seller takes at most ${String(spec.maximumOrderQuantity)} packages of this size on one order.`
+        : spec.unit === SELLER_SELLING_UNIT
+          ? `This seller takes at most ${String(spec.maximumOrderQuantity)} pieces on one order.`
+          : `At most ${String(spec.maximumOrderQuantity)} cartons on one order.`,
       [{ field: input.field, code: 'TOO_MANY', meta: { maximum: spec.maximumOrderQuantity } }],
     );
   }

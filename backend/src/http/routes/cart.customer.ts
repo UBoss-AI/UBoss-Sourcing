@@ -94,6 +94,26 @@ const addItemSchema = z.object({
    * and the rule has to hold for all three.
    */
   note: z.string().max(MAX_LINE_NOTE_CHARS).nullable().optional(),
+  /**
+   * The seller's PACKAGE the buyer chose, and how many of them.
+   *
+   * Absent on every ordinary line, which is most of them. When present,
+   * `quantity`, `orderingUnit` and `unitQuantity` above are all ignored: the
+   * base-unit count is worked out on the server from the seller's own stored
+   * `SellerPackagingOption`, and never from anything in this body.
+   *
+   * Nothing about what is IN a package travels here, for exactly the reason
+   * the conversion does not travel on `orderingUnit`: a client that could post
+   * its own "units per pallet" could post 1 and take a pallet out of a
+   * warehouse for the price of a bottle.
+   *
+   * Only meaningful on a seller's line. Bulk packaging is a seller's
+   * description of their own goods; the operator's catalogue has its own
+   * carton, configured elsewhere, and a `packageType` on an operator line is
+   * refused rather than reinterpreted.
+   */
+  packageType: z.enum(['CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER']).optional(),
+  packageQuantity: z.number().int().min(1).max(1_000_000).optional(),
 });
 
 /**

@@ -50,7 +50,7 @@ import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { FlipWords } from '@/components/ui/flip-words';
-import { HEADLINE_WORDS, splitHeadline } from '@/lib/greeting-headline';
+import { PARENT_ATTRIBUTION } from '@/lib/brand';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
@@ -142,23 +142,17 @@ function Greeting(): React.JSX.Element {
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
   /*
-   * The headline: a name that stays, and a word beside it that changes.
+   * The two phrases under the headline, in the order they are shown.
    *
-   * Both halves are decided in `lib/greeting-headline.ts` rather than here,
-   * because there is one case that needs a rule instead of an eye. This
-   * deployment is called "UBOSS Sourcing" and the word it cycles first is
-   * "Sourcing", so the headline read "UBOSS Sourcing Sourcing". The name is
-   * the operator's, not ours to trim - so the name hands its last word to the
-   * cycle, which opens on it. That module records the rest of the reasoning,
-   * including what happens on a storefront being read in German.
+   * The first is the strapline and is prose, so it is translated. The second
+   * is the attribution and is a fixed lockup, so it is not — see
+   * `lib/brand.ts`. They alternate whole, rather than one word inside a
+   * sentence changing, because each of them is a complete thought.
    *
    * Rebuilt on each render, which costs nothing: `FlipWords` arms its timer
    * off the length of the list, not off the identity of the array.
    */
-  const headline = splitHeadline(
-    business.displayName,
-    HEADLINE_WORDS.map((word) => t(word.key)),
-  );
+  const phrases = [t('greeting.tagline'), PARENT_ATTRIBUTION];
 
   const eyebrow =
     !isLoading && isCustomer
@@ -225,7 +219,7 @@ function Greeting(): React.JSX.Element {
 
             {/*
               The shop's own name, read from the configuration rather than the
-              phrase book.
+              phrase book, and nothing else.
 
               It used to be a translation key whose value was this software's
               own product name, which meant every business that bought this
@@ -234,26 +228,28 @@ function Greeting(): React.JSX.Element {
               somebody else's marketplace. A name is not a string to translate;
               it is a fact about who is selling.
 
-              Beside it, one word that changes — sourcing, intelligence,
-              optimism, innovation. It is inside the headline rather than on a
-              line of its own because the name is its subject: "UBoss
-              Sourcing", then "UBoss Intelligence". The moving copy is hidden
-              from assistive technology and one steady word stands in for it,
-              so the accessible name of this `h1` does not rewrite itself
-              every three seconds; `components/ui/flip-words.tsx` has that and
-              what a reduced-motion visitor gets instead.
+              IT ALSO USED TO MOVE, AND THAT IS THE OTHER HALF OF THIS.
 
-              Which means the *first* of these words is the one that reads as
-              part of the name. A deployment whose configured name already
-              ends in one of them - "UBOSS Sourcing" - says it twice; that is
-              a setting to change, not a string to trim here.
+              One word beside the name cycled — sourcing, intelligence,
+              optimism, innovation — which made the name itself part of a
+              rotation: "Glovia Sourcing", then "Glovia Intelligence". A brand
+              that rewrites itself every three seconds is not a brand, and a
+              reader arriving mid-cycle saw a product this deployment does not
+              sell. The headline is now the name, still, and the moving copy is
+              the strapline below, where a phrase changing is a phrase changing
+              rather than a name changing.
+
+              `lib/greeting-headline.ts` went with it: the whole module existed
+              to stop a name that ended in a cycling word saying that word
+              twice, and with nothing cycling after the name there is nothing
+              to collide with.
             */}
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-              {headline.name} <FlipWords words={headline.words} />
+              {business.displayName}
             </h1>
 
             {/*
-             * The tagline, in place of two paragraphs of prose.
+             * The strapline, and the attribution, alternating.
              *
              * It used to be a sentence, and a different sentence for a guest
              * than for a signed-in customer. Both are gone, deliberately: the
@@ -267,9 +263,51 @@ function Greeting(): React.JSX.Element {
              * at this type size; under that it wraps, because a phone is
              * narrower than the shortest of them and clipping a tagline is
              * worse than turning it.
+             *
+             * THE GRID IS WHAT STOPS THE LINE JUMPING.
+             *
+             * Both phrases are in the flow, in the same cell — one visible and
+             * one `invisible` — so the row is as tall as the taller of them
+             * and stays that height for the life of the page. Without it the
+             * band grew and shrank by two lines every few seconds on a phone,
+             * where the strapline wraps to three lines and `Powered by UBOSS`
+             * to one, and everything below the hero moved with it. It cannot
+             * be a `min-height`: the taller phrase is a different phrase in
+             * each of the eight languages, and a number measured in English is
+             * a number that is wrong in Polish.
+             *
+             * The measuring copies are `aria-hidden`, and `FlipWords` is
+             * handed one steady sentence covering both phrases — so a screen
+             * reader is told the whole message once and is never read to
+             * again. See `components/ui/flip-words.tsx`.
+             *
+             * 4.2s rather than the component's 3s: these are phrases now
+             * rather than single words, and the longer of them is forty-nine
+             * characters that somebody has to have time to finish.
              */}
-            <p className="mt-4 text-base leading-relaxed text-ink-muted sm:whitespace-nowrap sm:text-lg">
-              {t('greeting.tagline')}
+            <p className="mt-4 grid text-base leading-relaxed text-ink-muted sm:whitespace-nowrap sm:text-lg">
+              {phrases.map((phrase) => (
+                <span
+                  key={phrase}
+                  aria-hidden="true"
+                  className="invisible col-start-1 row-start-1"
+                >
+                  {phrase}
+                </span>
+              ))}
+
+              {/* `greeting-strapline` carries no styling. It is a handle, the
+                  way `.orch-orb` is one: with both phrases in the cell as
+                  measuring copies, a test asking "what does this line say" by
+                  its text would find the copy that is deliberately invisible.
+                  See `pages/brand.test.tsx`. */}
+              <span className="greeting-strapline col-start-1 row-start-1">
+                <FlipWords
+                  words={phrases}
+                  duration={4200}
+                  srLabel={`${t('greeting.tagline')}. ${PARENT_ATTRIBUTION}.`}
+                />
+              </span>
             </p>
 
             {/*

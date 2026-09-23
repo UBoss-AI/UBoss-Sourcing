@@ -69,6 +69,7 @@ import { registerAdminCouponRoutes } from './routes/coupons.admin.js';
 import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
 import { registerSitemapRoutes } from './routes/sitemap.public.js';
 import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
+import { registerPartnerInvitationRoutes } from './routes/partner-invitations.public.js';
 import { registerCustomerFulfilmentRoutes } from './routes/fulfilment.customer.js';
 import { registerHealthRoutes } from './routes/health.js';
 import {
@@ -77,6 +78,8 @@ import {
 } from './routes/seller.account.js';
 import { registerSellerListingRoutes } from './routes/seller.listings.js';
 import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
+import { registerSellerErpRoutes } from './routes/seller.erp.js';
+import { registerErpBridgeRoutes } from './routes/erp-bridge.js';
 import { registerAdminSellerRoutes } from './routes/sellers.admin.js';
 import { registerLogisticsPortalRoutes } from './routes/logistics.portal.js';
 import { registerLogisticsOperationsRoutes } from './routes/logistics.operations.js';
@@ -516,6 +519,13 @@ export async function buildApp() {
   // asks "can you get this to Belgium, and when" before they have an account,
   // and an answer that waits for a sign-in is an answer given too late.
   await app.register(registerPublicDeliveryRoutes, { prefix: `${API_PREFIX}/delivery` });
+  /*
+   * Public because the company being invited has no account here yet. See the
+   * file's own header for why the token travels in the body.
+   */
+  await app.register(registerPartnerInvitationRoutes, {
+    prefix: `${API_PREFIX}/partner-invitations`,
+  });
 
   // NOT public, despite sitting outside the customer block below. The chat
   // widget used to be open to anyone, with a contact form standing in for a
@@ -642,6 +652,24 @@ export async function buildApp() {
   await app.register(registerSellerAccountRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerSellerListingRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerSellerOperationsRoutes, { prefix: `${API_PREFIX}/seller` });
+  // The seller's own accounting system. Under `/seller` like everything else
+  // in the Hub, and resolved from the session - there is no seller id in any
+  // of its paths, for the reason stated above.
+  await app.register(registerSellerErpRoutes, { prefix: `${API_PREFIX}/seller` });
+
+  /*
+   * Where the Glovia Tally Bridge talks to us.
+   *
+   * Outside every session guard, alongside the carrier and ERP webhooks and
+   * for the same reason: the caller is an agent on a seller's own machine with
+   * no cookie, no session and no CSRF token. It authenticates with a bearer
+   * token verified by hash on every request, and the token names the device,
+   * which names the connection, which names the seller.
+   *
+   * Nothing here may sit behind the customer guard, and mixing it into a tree
+   * that has one is how the guard eventually gets relaxed for everybody.
+   */
+  await app.register(registerErpBridgeRoutes, { prefix: `${API_PREFIX}/integrations` });
 
   // The operator's side of the marketplace: applications, listing moderation
   // and brand requests. Guarded by the ADMIN permission catalogue, never the

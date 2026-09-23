@@ -854,6 +854,115 @@ export const ErrorCode = {
   /// it which of the three would help an attacker tune the next attempt.
   CARRIER_WEBHOOK_REJECTED: 'CARRIER_WEBHOOK_REJECTED',
 
+  // --- How a seller's own goods get delivered -------------------------------
+
+  /**
+   * The provider genuinely cannot do this, and no credential would change it.
+   *
+   * Distinct from CARRIER_PROVIDER_UNCONFIGURED, and the distinction is the
+   * whole reason this code exists. That one means "this installation has not
+   * finished setting DHL up"; this one means "India Post does not offer a
+   * rate API to anybody". The first is somebody's task, the second is a fact
+   * about the world, and a seller shown one when the other is true either
+   * chases a key that does not exist or gives up on a key they could get.
+   *
+   * `details[0].meta` carries `provider` and `operation`.
+   */
+  CARRIER_OPERATION_NOT_SUPPORTED: 'CARRIER_OPERATION_NOT_SUPPORTED',
+
+  /// The seller has no fulfilment method that can carry this consignment.
+  ///
+  /// Raised after the whole hierarchy has been walked and nothing eligible
+  /// remains. `details` carries one entry per method that was considered and
+  /// the reason it was passed over, because "no carrier available" with
+  /// nothing else in it is a support ticket.
+  SELLER_FULFILMENT_NO_ELIGIBLE_METHOD: 'SELLER_FULFILMENT_NO_ELIGIBLE_METHOD',
+
+  /// The method exists and is not usable yet - draft, in setup, awaiting the
+  /// marketplace, paused, rejected or disconnected. The message says which.
+  SELLER_FULFILMENT_METHOD_NOT_APPROVED: 'SELLER_FULFILMENT_METHOD_NOT_APPROVED',
+
+  /// A status move the fulfilment-method state machine does not allow.
+  ///
+  /// The same shape as ORDER_TRANSITION_INVALID and for the same reason: a
+  /// status that can be set to anything from anywhere is a status that
+  /// eventually is.
+  SELLER_FULFILMENT_TRANSITION_INVALID: 'SELLER_FULFILMENT_TRANSITION_INVALID',
+
+  /// A seller tried to make a second method primary, or a second fallback.
+  ///
+  /// Mapped from the database's own refusal rather than checked first: two
+  /// browser tabs saving at once is exactly the race a pre-check loses.
+  SELLER_FULFILMENT_ROLE_TAKEN: 'SELLER_FULFILMENT_ROLE_TAKEN',
+
+  /// A rule naming something that is not the seller's, or a scope whose match
+  /// column is missing. The database refuses it too; this is what the seller
+  /// is told.
+  SELLER_FULFILMENT_RULE_INVALID: 'SELLER_FULFILMENT_RULE_INVALID',
+
+  /// A carrier connection cannot go live yet.
+  ///
+  /// Both gates are named in the message: a test that genuinely reached the
+  /// carrier, and a person at the seller confirming they want real parcels
+  /// shipped with it. A saved form is not a working integration and this is
+  /// the code that says so.
+  SELLER_CARRIER_CONNECTION_NOT_READY: 'SELLER_CARRIER_CONNECTION_NOT_READY',
+
+  /// The credential this connection needs is absent, or will not decrypt.
+  ///
+  /// One code for both, deliberately. Which of the two it is tells an attacker
+  /// whether a credential exists for a given seller and carrier, and tells the
+  /// seller nothing they can act on differently - the fix is the same: enter
+  /// it again.
+  SELLER_CARRIER_CREDENTIAL_UNAVAILABLE: 'SELLER_CARRIER_CREDENTIAL_UNAVAILABLE',
+
+  /// A seller tried to reach a delivery company that is not theirs.
+  ///
+  /// Covers a self-managed organisation owned by another seller and a
+  /// dedicated partner with no active relationship. Deliberately does not say
+  /// which: a seller learning that a given company exists, and that somebody
+  /// else uses it, is a disclosure nobody authorised.
+  SELLER_LOGISTICS_PARTNER_NOT_YOURS: 'SELLER_LOGISTICS_PARTNER_NOT_YOURS',
+
+  /// An invitation token that is unknown, spent, withdrawn or out of date.
+  ///
+  /// One code for all four, on the same reasoning as the webhook code above:
+  /// the holder of a bad token learns only that it did not work.
+  SELLER_PARTNER_INVITATION_INVALID: 'SELLER_PARTNER_INVITATION_INVALID',
+
+  /// This consignment has already been bought at the provider.
+  ///
+  /// Carries the original purchase's tracking number in
+  /// `details[0].meta.trackingNumber`, because the caller that hit this is
+  /// almost always a retry that wants the first answer rather than an error.
+  SHIPMENT_ALREADY_PURCHASED: 'SHIPMENT_ALREADY_PURCHASED',
+
+  /// The quote being accepted has expired, been superseded, or belongs to
+  /// another consignment. Never silently re-priced: the shipment asks again.
+  CARRIER_QUOTE_NOT_USABLE: 'CARRIER_QUOTE_NOT_USABLE',
+
+  /// A collection was asked to move somewhere it cannot go from where it is.
+  ///
+  /// Carries `details[0].meta.from` and `.to`. A 409 rather than a 400: the
+  /// request was well formed and the answer depends on what has happened
+  /// since - a driver's phone retrying "collected" against a collection that
+  /// was cancelled an hour ago is told the truth rather than silently winning.
+  PICKUP_TRANSITION_INVALID: 'PICKUP_TRANSITION_INVALID',
+
+  /// This consignment already has a collection booked that has not happened.
+  ///
+  /// Refused rather than booked, because two vans is expensive in a way one
+  /// missed van is not: the second booking is chargeable, and it is the one
+  /// nobody remembers to cancel. `details[0].meta.pickupId` names the existing
+  /// one so the screen can offer to show or cancel it.
+  PICKUP_ALREADY_BOOKED: 'PICKUP_ALREADY_BOOKED',
+
+  /// The consignment has no way of being collected yet.
+  ///
+  /// Either no delivery method has been chosen for it, or the method chosen
+  /// arranges its own collection and there is nothing for a seller to book.
+  PICKUP_NOT_AVAILABLE: 'PICKUP_NOT_AVAILABLE',
+
   // --- Console notifications ----------------------------------------------
 
   /// Somebody pressed "resolve" on an alert that only the underlying domain
@@ -900,6 +1009,124 @@ export const ErrorCode = {
    * eight translations.
    */
   ASSISTANT_GUEST_LIMIT_REACHED: 'ASSISTANT_GUEST_LIMIT_REACHED',
+
+  // --- Bulk ordering: carton, pallet, container -----------------------------
+
+  /// The buyer asked for a package this seller does not offer on this variant.
+  ///
+  /// `details[0].meta.packageType` names what was asked for and `.available`
+  /// is a comma-separated list of what actually is offered - a string rather
+  /// than an array because `meta` is a flat map of scalars and widening it
+  /// would change the shape of every error this API has ever returned. The
+  /// storefront splits it, so it can say "US pallet ordering is not configured
+  /// for this variant" and then show the options that are, rather than a bare
+  /// failure.
+  PACKAGING_OPTION_NOT_AVAILABLE: 'PACKAGING_OPTION_NOT_AVAILABLE',
+
+  /// The seller has switched the package on and not finished describing it.
+  ///
+  /// Deliberately separate from NOT_AVAILABLE. That one means "this seller
+  /// does not sell pallets"; this means "they do, and the configuration is
+  /// half-written, so nobody can be told what a pallet holds". The first is a
+  /// dead end for the buyer, the second is something the seller can fix today
+  /// - and the seller's own listing screen shows exactly which field.
+  PACKAGING_OPTION_INCOMPLETE: 'PACKAGING_OPTION_INCOMPLETE',
+
+  /// The unit named on the request is not the packaging the line is sold in.
+  ///
+  /// Refused rather than reinterpreted, in both directions. Reading "2
+  /// cartons" on a pallet line as a piece count and rounding up would buy a
+  /// whole pallet; reading "2 pallets" on a carton line the same way would
+  /// buy two cartons. There is no generous reading that is not a mistake, so
+  /// there is no generous reading. `details[0].meta` carries `expected` and
+  /// `received`.
+  PACKAGING_UNIT_MISMATCH: 'PACKAGING_UNIT_MISMATCH',
+
+  /// The seller re-specified the packaging while it sat in somebody's basket.
+  ///
+  /// The basket holds an immutable snapshot, so nothing changed under the
+  /// shopper - which is exactly why this has to be SAID rather than silently
+  /// applied. `details[0].meta` carries `snapshotUnitsPerPackage` and
+  /// `currentUnitsPerPackage` so the line can show both and offer to re-add at
+  /// the new figure.
+  PACKAGING_SNAPSHOT_STALE: 'PACKAGING_SNAPSHOT_STALE',
+
+  /// There is not enough stock for a WHOLE number of these packages.
+  ///
+  /// `details[0].meta.wholePackagesAvailable` is the honest answer, and it is
+  /// what the storefront shows: "Only 1 complete UK pallet is currently
+  /// available". Part of a pallet is not something a warehouse can pick.
+  PACKAGING_INSUFFICIENT_FOR_PACKAGE: 'PACKAGING_INSUFFICIENT_FOR_PACKAGE',
+
+  /// The order is past a weight or capacity the seller configured.
+  PACKAGING_CAPACITY_EXCEEDED: 'PACKAGING_CAPACITY_EXCEEDED',
+
+  /// This load cannot be priced instantly and needs a freight quotation.
+  ///
+  /// NOT a failure of anything. It is the honest answer for a container, and
+  /// for a pallet where no carrier on this seller's account can carry one. The
+  /// checkout offers to raise the request rather than showing an error, and
+  /// `details[0].meta.loadType` says what kind of freight it is.
+  FREIGHT_QUOTE_REQUIRED: 'FREIGHT_QUOTE_REQUIRED',
+
+  /// The carrier chosen cannot express a booking for this kind of load.
+  ///
+  /// `details[0].meta` carries `provider`, `loadType` and `supported`. The
+  /// seller's screen says "DHL does not carry pallet freight through this
+  /// integration" rather than letting an API answer with a price for a
+  /// movement nobody will make.
+  FREIGHT_CARRIER_CANNOT_CARRY: 'FREIGHT_CARRIER_CANNOT_CARRY',
+
+  /// A quote request was acted on in a state that does not allow it.
+  FREIGHT_QUOTE_NOT_ACTIONABLE: 'FREIGHT_QUOTE_NOT_ACTIONABLE',
+
+  // --- A seller's own accounting system (TallyPrime) ------------------------
+
+  /// The seller has not set up an ERP connection, or it is switched off.
+  SELLER_ERP_NOT_CONFIGURED: 'SELLER_ERP_NOT_CONFIGURED',
+
+  /// The action needs a live bridge and there is not one.
+  ///
+  /// `details[0].meta.state` carries the connection's own state, because
+  /// "install the bridge", "the machine is off" and "Tally is closed" are
+  /// three different things for the seller to do and one message for all
+  /// three sends people to reinstall software that was working.
+  SELLER_ERP_BRIDGE_UNAVAILABLE: 'SELLER_ERP_BRIDGE_UNAVAILABLE',
+
+  /// The pairing code is wrong, expired, already used, or has been guessed at
+  /// too many times. One code for all four on purpose: telling the holder of a
+  /// bad code WHICH of those it is hands them a way to enumerate good ones.
+  SELLER_ERP_PAIRING_INVALID: 'SELLER_ERP_PAIRING_INVALID',
+
+  /// The bridge presented a token that is unknown, revoked or expired.
+  SELLER_ERP_BRIDGE_UNAUTHORISED: 'SELLER_ERP_BRIDGE_UNAUTHORISED',
+
+  /// A sync was asked for and a mapping it would need is missing or
+  /// unconfirmed. `details` lists each one, so the screen can link to it.
+  SELLER_ERP_MAPPING_INCOMPLETE: 'SELLER_ERP_MAPPING_INCOMPLETE',
+
+  /// Tally answered, and what it said was a refusal.
+  ///
+  /// Raised where an HTTP 200 carried a non-zero ERROR or EXCEPTION count, or
+  /// per-line failures. This code exists because treating a 200 as success is
+  /// the single most common way an ERP integration silently loses a month of
+  /// vouchers. `details` carries the parsed line errors, redacted.
+  SELLER_ERP_TALLY_REJECTED: 'SELLER_ERP_TALLY_REJECTED',
+
+  /// The company this connection posts into is not open in Tally.
+  SELLER_ERP_COMPANY_NOT_LOADED: 'SELLER_ERP_COMPANY_NOT_LOADED',
+
+  /// The response was not well-formed XML, was too large, or contained a
+  /// document-type or entity declaration. All four are refused identically and
+  /// nothing is parsed out of the payload - see `tally/xml.ts`.
+  SELLER_ERP_RESPONSE_INVALID: 'SELLER_ERP_RESPONSE_INVALID',
+
+  /// The job cannot be retried or cancelled from the state it is in.
+  SELLER_ERP_JOB_NOT_ACTIONABLE: 'SELLER_ERP_JOB_NOT_ACTIONABLE',
+
+  /// A direct-mode address was rejected by the outbound guard, or direct mode
+  /// is not permitted on this deployment at all.
+  SELLER_ERP_DIRECT_MODE_REFUSED: 'SELLER_ERP_DIRECT_MODE_REFUSED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

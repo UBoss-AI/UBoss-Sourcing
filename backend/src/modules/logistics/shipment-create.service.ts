@@ -30,10 +30,20 @@
  * them price it or identify the goods.
  */
 import type { Prisma } from '../../generated/prisma/client.js';
-import type { LogisticsServiceType } from '../../generated/prisma/enums.js';
+import type {
+  FulfilmentSelectionSource,
+  LogisticsServiceType,
+} from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { dueAtFrom } from '../../domain/logistics-sla.js';
 import { newId } from '../../infra/ids.js';
+import { logger } from '../../infra/logger.js';
+import { offerAssignment } from './assignment.service.js';
+import { chooseMethodForConsignment } from '../seller/fulfilment-selection.service.js';
+import {
+  notifyConsignmentNeedsMethod,
+  resolveConsignmentMethodAlert,
+} from '../seller/fulfilment-notification.service.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 
 /**
@@ -88,6 +98,25 @@ export interface ShipmentAddressSnapshot {
 }
 
 export interface CreateShipmentInput {
+  /**
+   * How this consignment came to be going the way it is.
+   *
+   * Written once, when the consignment is raised, and never rewritten. A
+   * seller who switches from their own vans to DHL in March must not find that
+   * every consignment they sent in February now claims to have gone by DHL -
+   * which is what a screen that recomputed the answer would tell a customer
+   * disputing a February delivery.
+   *
+   * All optional, because a consignment raised by the OPERATOR for their own
+   * stock has no seller method behind it, and one raised before this feature
+   * existed has none either. Both keep working untouched.
+   */
+  sellerFulfilmentMethodId?: string | null;
+  sellerCarrierConnectionId?: string | null;
+  fulfilmentSelectionSource?: FulfilmentSelectionSource | null;
+  fulfilmentSelectionRuleId?: string | null;
+  fulfilmentSelectionReason?: string | null;
+
   /** All optional: a consignment can exist without an order behind it. */
   orderId?: string | null;
   sellerOrderGroupId?: string | null;
@@ -202,6 +231,12 @@ export async function createShipment(
         // pre-assigned would have no record of who chose the carrier.
         status: 'CREATED',
         serviceType: input.serviceType ?? 'STANDARD',
+
+        sellerFulfilmentMethodId: input.sellerFulfilmentMethodId ?? null,
+        sellerCarrierConnectionId: input.sellerCarrierConnectionId ?? null,
+        fulfilmentSelectionSource: input.fulfilmentSelectionSource ?? null,
+        fulfilmentSelectionRuleId: input.fulfilmentSelectionRuleId ?? null,
+        fulfilmentSelectionReason: input.fulfilmentSelectionReason ?? null,
 
         sellerAccountId: input.sellerAccountId ?? null,
         sellerCompanyName: input.sellerCompanyName.slice(0, 255),
@@ -579,6 +614,30 @@ export async function createShipmentsForOrder(
     }
   }
 
+  /*
+   * Which listings belong to which seller, for the product-level rules.
+   *
+   * One query rather than one per group: a rule about a listing is the most
+   * specific rule there is, and it needs to know what is actually in the box.
+   */
+  const offerIdsBySeller = new Map<string, string[]>();
+
+  {
+    const lines = await prisma.orderItem.findMany({
+      where: { orderId: order.id, sellerOfferId: { not: null } },
+      select: { sellerOfferId: true, sellerOffer: { select: { sellerAccountId: true } } },
+    });
+
+    for (const line of lines) {
+      const sellerId = line.sellerOffer?.sellerAccountId;
+      if (sellerId === undefined || sellerId === null || line.sellerOfferId === null) continue;
+
+      const existing = offerIdsBySeller.get(sellerId) ?? [];
+      existing.push(line.sellerOfferId);
+      offerIdsBySeller.set(sellerId, existing);
+    }
+  }
+
   const sellerPickups = await pickupsForSellerGroups(
     order.sellerOrderGroups.map((group) => ({
       id: group.id,
@@ -597,27 +656,132 @@ export async function createShipmentsForOrder(
       continue;
     }
 
-    created.push(
-      await createShipment(
-        {
-          ...common,
-          sellerOrderGroupId: group.id,
-          sellerAccountId: group.sellerAccount.id,
-          sellerCompanyName: group.sellerAccount.displayName,
-          // A seller's building is not one of the operator's warehouses, so
-          // there is no `InventoryLocation` to point at. The snapshot carries
-          // the address, which is the whole of what a carrier needs.
-          originLocationId: null,
-          pickupAddress: sellerPickup.address,
-          pickupContactName: sellerPickup.contactName,
-        },
-        {
-          orderId: order.id,
-          sellerOrderGroupId: group.id,
-          originLocationId: null,
-        },
-      ),
+    /*
+     * WHICH OF THIS SELLER'S METHODS CARRIES IT.
+     *
+     * Asked here, at the moment the consignment is raised, so the answer is
+     * recorded with it rather than recomputed later against a configuration
+     * that has since changed.
+     *
+     * This never throws for "nothing eligible": it comes back MANUAL_REVIEW
+     * with a reason naming every method that was tried and what stopped it,
+     * and the consignment is still raised. A paid order sitting nowhere
+     * because its seller had not finished a settings screen is worse than one
+     * waiting visibly for a person.
+     */
+    const selection = await chooseMethodForConsignment({
+      sellerAccountId: group.sellerAccount.id,
+      sellerOfferIds: offerIdsBySeller.get(group.sellerAccount.id) ?? [],
+      sellerLocationId: group.locationId,
+      destinationPostalCode: delivery.postalCode,
+      needs: {
+        originCountry: sellerPickup.address.countryCode,
+        destinationCountry: delivery.countryCode,
+        // Derived from the consignment rather than from the order: a
+        // cold-chain line makes the whole box cold-chain.
+        requiredCapabilities: [],
+        weightGrams: null,
+      },
+    });
+
+    const raised = await createShipment(
+      {
+        ...common,
+        sellerOrderGroupId: group.id,
+        sellerAccountId: group.sellerAccount.id,
+        sellerCompanyName: group.sellerAccount.displayName,
+        sellerFulfilmentMethodId: selection.fulfilmentMethodId,
+        sellerCarrierConnectionId: selection.sellerCarrierConnectionId,
+        fulfilmentSelectionSource: selection.source,
+        fulfilmentSelectionRuleId: selection.ruleId,
+        fulfilmentSelectionReason: selection.reason,
+        // A seller's building is not one of the operator's warehouses, so
+        // there is no `InventoryLocation` to point at. The snapshot carries
+        // the address, which is the whole of what a carrier needs.
+        originLocationId: null,
+        pickupAddress: sellerPickup.address,
+        pickupContactName: sellerPickup.contactName,
+      },
+      {
+        orderId: order.id,
+        sellerOrderGroupId: group.id,
+        originLocationId: null,
+      },
     );
+
+    created.push(raised);
+
+    /*
+     * A paid order with nothing to carry it is the most urgent thing this
+     * function can produce, and it is silent otherwise: the consignment is
+     * raised, sits in the list looking ordinary, and nobody is told that
+     * somebody has been charged for goods this system cannot despatch.
+     *
+     * Raised only on a NEW consignment. `createShipment` is idempotent per
+     * despatch part, so a redelivered payment webhook returns the existing row
+     * with `created: false` - and re-announcing it would give a seller a
+     * second alert about a parcel they are already looking at.
+     */
+    if (raised.created) {
+      if (selection.source === 'MANUAL_REVIEW') {
+        await notifyConsignmentNeedsMethod({
+          sellerAccountId: group.sellerAccount.id,
+          shipmentId: raised.id,
+          shipmentReference: raised.shipmentReference,
+          reason: selection.reason,
+        });
+      } else {
+        // Belt and braces: a consignment re-raised after somebody fixed the
+        // seller's configuration should not leave a stale alert counting.
+        await resolveConsignmentMethodAlert(raised.id);
+      }
+
+      /*
+       * CHOOSING A METHOD IS NOT THE SAME AS SOMEBODY HAVING THE PARCEL.
+       *
+       * Where the chosen method is carried by a delivery company on this
+       * platform - the seller's own fleet, or a courier that works for them -
+       * the consignment is offered to them here, automatically. The seller
+       * already decided by writing the rule; asking them to press "hand it
+       * over" on every order afterwards would make that rule decorative.
+       *
+       * Still an OFFER, and still theirs to accept, even when the seller owns
+       * the fleet. That company has its own portal, its own staff and its own
+       * board, and the acceptance is the handshake that says somebody there
+       * has seen it. A consignment assigned without one is a parcel this
+       * system believes is being handled and nobody has looked at.
+       *
+       * An integrated carrier has no partner row and takes none of this: DHL
+       * is not a tenant here, and the booking is made against the seller's own
+       * account when they buy the label.
+       *
+       * FAILURE HERE DOES NOT UNDO THE CONSIGNMENT. It is raised, it is on the
+       * seller's screen, and they can hand it over by hand - which is a
+       * recoverable state. Throwing would lose the consignment for a paid
+       * order because a carrier was suspended between the two statements.
+       */
+      if (selection.logisticsPartnerId !== null) {
+        try {
+          await offerAssignment({
+            shipmentId: raised.id,
+            logisticsPartnerId: selection.logisticsPartnerId,
+            // Null: no member of the marketplace's staff did this. The seller's
+            // own rule did, and the selection trail on the shipment records it.
+            offeredByUserId: null,
+            automatic: true,
+          });
+        } catch (error) {
+          logger.warn(
+            {
+              err: error,
+              shipmentId: raised.id,
+              logisticsPartnerId: selection.logisticsPartnerId,
+            },
+            'Could not offer the consignment to the chosen delivery company; it stays unassigned.',
+          );
+        }
+      }
+    }
   }
 
   if (created.length === 0) {

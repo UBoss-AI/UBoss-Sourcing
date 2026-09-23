@@ -814,7 +814,13 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
 
   return {
     business: {
-      displayName: profile?.displayName ?? 'UBOSS Sourcing',
+      // The product's own name where a deployment has not yet said what its
+      // shop is called. Not a shop's name, because at this point there is no
+      // business profile row to read one from — a fresh install answering
+      // `GET /api/v1/config` before anybody has been near Settings. The
+      // storefront's own fallback is the same string, for the same reason;
+      // see `apps/customer-web/src/lib/brand.ts`.
+      displayName: profile?.displayName ?? 'Glovia',
       supportEmail: profile?.supportEmail ?? null,
       supportPhone: profile?.supportPhone ?? null,
       logo: profile?.logoMedia ?? null,

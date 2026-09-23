@@ -24,8 +24,32 @@ export type LogisticsServiceRegionModel = runtime.Types.Result.DefaultSelection<
 
 export type AggregateLogisticsServiceRegion = {
   _count: LogisticsServiceRegionCountAggregateOutputType | null
+  _avg: LogisticsServiceRegionAvgAggregateOutputType | null
+  _sum: LogisticsServiceRegionSumAggregateOutputType | null
   _min: LogisticsServiceRegionMinAggregateOutputType | null
   _max: LogisticsServiceRegionMaxAggregateOutputType | null
+}
+
+export type LogisticsServiceRegionAvgAggregateOutputType = {
+  deliveryDaysMask: number | null
+  transitDaysMin: number | null
+  transitDaysMax: number | null
+  remoteAreaSurchargeMinor: number | null
+  maxShipmentWeightGrams: number | null
+  maxPackageLengthMm: number | null
+  maxPackageWidthMm: number | null
+  maxPackageHeightMm: number | null
+}
+
+export type LogisticsServiceRegionSumAggregateOutputType = {
+  deliveryDaysMask: number | null
+  transitDaysMin: number | null
+  transitDaysMax: number | null
+  remoteAreaSurchargeMinor: bigint | null
+  maxShipmentWeightGrams: number | null
+  maxPackageLengthMm: number | null
+  maxPackageWidthMm: number | null
+  maxPackageHeightMm: number | null
 }
 
 export type LogisticsServiceRegionMinAggregateOutputType = {
@@ -36,6 +60,15 @@ export type LogisticsServiceRegionMinAggregateOutputType = {
   regionValue: string | null
   supportsPickup: boolean | null
   supportsDelivery: boolean | null
+  isExclusion: boolean | null
+  deliveryDaysMask: number | null
+  transitDaysMin: number | null
+  transitDaysMax: number | null
+  remoteAreaSurchargeMinor: bigint | null
+  maxShipmentWeightGrams: number | null
+  maxPackageLengthMm: number | null
+  maxPackageWidthMm: number | null
+  maxPackageHeightMm: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +82,15 @@ export type LogisticsServiceRegionMaxAggregateOutputType = {
   regionValue: string | null
   supportsPickup: boolean | null
   supportsDelivery: boolean | null
+  isExclusion: boolean | null
+  deliveryDaysMask: number | null
+  transitDaysMin: number | null
+  transitDaysMax: number | null
+  remoteAreaSurchargeMinor: bigint | null
+  maxShipmentWeightGrams: number | null
+  maxPackageLengthMm: number | null
+  maxPackageWidthMm: number | null
+  maxPackageHeightMm: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -62,12 +104,43 @@ export type LogisticsServiceRegionCountAggregateOutputType = {
   regionValue: number
   supportsPickup: number
   supportsDelivery: number
+  isExclusion: number
+  deliveryDaysMask: number
+  transitDaysMin: number
+  transitDaysMax: number
+  remoteAreaSurchargeMinor: number
+  maxShipmentWeightGrams: number
+  maxPackageLengthMm: number
+  maxPackageWidthMm: number
+  maxPackageHeightMm: number
   isActive: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type LogisticsServiceRegionAvgAggregateInputType = {
+  deliveryDaysMask?: true
+  transitDaysMin?: true
+  transitDaysMax?: true
+  remoteAreaSurchargeMinor?: true
+  maxShipmentWeightGrams?: true
+  maxPackageLengthMm?: true
+  maxPackageWidthMm?: true
+  maxPackageHeightMm?: true
+}
+
+export type LogisticsServiceRegionSumAggregateInputType = {
+  deliveryDaysMask?: true
+  transitDaysMin?: true
+  transitDaysMax?: true
+  remoteAreaSurchargeMinor?: true
+  maxShipmentWeightGrams?: true
+  maxPackageLengthMm?: true
+  maxPackageWidthMm?: true
+  maxPackageHeightMm?: true
+}
 
 export type LogisticsServiceRegionMinAggregateInputType = {
   id?: true
@@ -77,6 +150,15 @@ export type LogisticsServiceRegionMinAggregateInputType = {
   regionValue?: true
   supportsPickup?: true
   supportsDelivery?: true
+  isExclusion?: true
+  deliveryDaysMask?: true
+  transitDaysMin?: true
+  transitDaysMax?: true
+  remoteAreaSurchargeMinor?: true
+  maxShipmentWeightGrams?: true
+  maxPackageLengthMm?: true
+  maxPackageWidthMm?: true
+  maxPackageHeightMm?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -90,6 +172,15 @@ export type LogisticsServiceRegionMaxAggregateInputType = {
   regionValue?: true
   supportsPickup?: true
   supportsDelivery?: true
+  isExclusion?: true
+  deliveryDaysMask?: true
+  transitDaysMin?: true
+  transitDaysMax?: true
+  remoteAreaSurchargeMinor?: true
+  maxShipmentWeightGrams?: true
+  maxPackageLengthMm?: true
+  maxPackageWidthMm?: true
+  maxPackageHeightMm?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -103,6 +194,15 @@ export type LogisticsServiceRegionCountAggregateInputType = {
   regionValue?: true
   supportsPickup?: true
   supportsDelivery?: true
+  isExclusion?: true
+  deliveryDaysMask?: true
+  transitDaysMin?: true
+  transitDaysMax?: true
+  remoteAreaSurchargeMinor?: true
+  maxShipmentWeightGrams?: true
+  maxPackageLengthMm?: true
+  maxPackageWidthMm?: true
+  maxPackageHeightMm?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -147,6 +247,18 @@ export type LogisticsServiceRegionAggregateArgs<ExtArgs extends runtime.Types.Ex
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: LogisticsServiceRegionAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: LogisticsServiceRegionSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: LogisticsServiceRegionMinAggregateInputType
@@ -177,6 +289,8 @@ export type LogisticsServiceRegionGroupByArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   _count?: LogisticsServiceRegionCountAggregateInputType | true
+  _avg?: LogisticsServiceRegionAvgAggregateInputType
+  _sum?: LogisticsServiceRegionSumAggregateInputType
   _min?: LogisticsServiceRegionMinAggregateInputType
   _max?: LogisticsServiceRegionMaxAggregateInputType
 }
@@ -189,10 +303,21 @@ export type LogisticsServiceRegionGroupByOutputType = {
   regionValue: string
   supportsPickup: boolean
   supportsDelivery: boolean
+  isExclusion: boolean
+  deliveryDaysMask: number
+  transitDaysMin: number | null
+  transitDaysMax: number | null
+  remoteAreaSurchargeMinor: bigint | null
+  maxShipmentWeightGrams: number | null
+  maxPackageLengthMm: number | null
+  maxPackageWidthMm: number | null
+  maxPackageHeightMm: number | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: LogisticsServiceRegionCountAggregateOutputType | null
+  _avg: LogisticsServiceRegionAvgAggregateOutputType | null
+  _sum: LogisticsServiceRegionSumAggregateOutputType | null
   _min: LogisticsServiceRegionMinAggregateOutputType | null
   _max: LogisticsServiceRegionMaxAggregateOutputType | null
 }
@@ -223,6 +348,15 @@ export type LogisticsServiceRegionWhereInput = {
   regionValue?: Prisma.StringFilter<"LogisticsServiceRegion"> | string
   supportsPickup?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   supportsDelivery?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  isExclusion?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  deliveryDaysMask?: Prisma.IntFilter<"LogisticsServiceRegion"> | number
+  transitDaysMin?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  transitDaysMax?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  remoteAreaSurchargeMinor?: Prisma.BigIntNullableFilter<"LogisticsServiceRegion"> | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageLengthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageWidthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageHeightMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
   isActive?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   createdAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
@@ -237,6 +371,15 @@ export type LogisticsServiceRegionOrderByWithRelationInput = {
   regionValue?: Prisma.SortOrder
   supportsPickup?: Prisma.SortOrder
   supportsDelivery?: Prisma.SortOrder
+  isExclusion?: Prisma.SortOrder
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -256,6 +399,15 @@ export type LogisticsServiceRegionWhereUniqueInput = Prisma.AtLeast<{
   regionValue?: Prisma.StringFilter<"LogisticsServiceRegion"> | string
   supportsPickup?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   supportsDelivery?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  isExclusion?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  deliveryDaysMask?: Prisma.IntFilter<"LogisticsServiceRegion"> | number
+  transitDaysMin?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  transitDaysMax?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  remoteAreaSurchargeMinor?: Prisma.BigIntNullableFilter<"LogisticsServiceRegion"> | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageLengthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageWidthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageHeightMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
   isActive?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   createdAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
@@ -270,12 +422,23 @@ export type LogisticsServiceRegionOrderByWithAggregationInput = {
   regionValue?: Prisma.SortOrder
   supportsPickup?: Prisma.SortOrder
   supportsDelivery?: Prisma.SortOrder
+  isExclusion?: Prisma.SortOrder
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.LogisticsServiceRegionCountOrderByAggregateInput
+  _avg?: Prisma.LogisticsServiceRegionAvgOrderByAggregateInput
   _max?: Prisma.LogisticsServiceRegionMaxOrderByAggregateInput
   _min?: Prisma.LogisticsServiceRegionMinOrderByAggregateInput
+  _sum?: Prisma.LogisticsServiceRegionSumOrderByAggregateInput
 }
 
 export type LogisticsServiceRegionScalarWhereWithAggregatesInput = {
@@ -289,6 +452,15 @@ export type LogisticsServiceRegionScalarWhereWithAggregatesInput = {
   regionValue?: Prisma.StringWithAggregatesFilter<"LogisticsServiceRegion"> | string
   supportsPickup?: Prisma.BoolWithAggregatesFilter<"LogisticsServiceRegion"> | boolean
   supportsDelivery?: Prisma.BoolWithAggregatesFilter<"LogisticsServiceRegion"> | boolean
+  isExclusion?: Prisma.BoolWithAggregatesFilter<"LogisticsServiceRegion"> | boolean
+  deliveryDaysMask?: Prisma.IntWithAggregatesFilter<"LogisticsServiceRegion"> | number
+  transitDaysMin?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
+  transitDaysMax?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
+  remoteAreaSurchargeMinor?: Prisma.BigIntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageLengthMm?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageWidthMm?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageHeightMm?: Prisma.IntNullableWithAggregatesFilter<"LogisticsServiceRegion"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"LogisticsServiceRegion"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsServiceRegion"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsServiceRegion"> | Date | string
@@ -301,6 +473,15 @@ export type LogisticsServiceRegionCreateInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -315,6 +496,15 @@ export type LogisticsServiceRegionUncheckedCreateInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -327,6 +517,15 @@ export type LogisticsServiceRegionUpdateInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -341,6 +540,15 @@ export type LogisticsServiceRegionUncheckedUpdateInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,6 +562,15 @@ export type LogisticsServiceRegionCreateManyInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -366,6 +583,15 @@ export type LogisticsServiceRegionUpdateManyMutationInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -379,6 +605,15 @@ export type LogisticsServiceRegionUncheckedUpdateManyInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,9 +650,29 @@ export type LogisticsServiceRegionCountOrderByAggregateInput = {
   regionValue?: Prisma.SortOrder
   supportsPickup?: Prisma.SortOrder
   supportsDelivery?: Prisma.SortOrder
+  isExclusion?: Prisma.SortOrder
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type LogisticsServiceRegionAvgOrderByAggregateInput = {
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrder
 }
 
 export type LogisticsServiceRegionMaxOrderByAggregateInput = {
@@ -428,6 +683,15 @@ export type LogisticsServiceRegionMaxOrderByAggregateInput = {
   regionValue?: Prisma.SortOrder
   supportsPickup?: Prisma.SortOrder
   supportsDelivery?: Prisma.SortOrder
+  isExclusion?: Prisma.SortOrder
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -441,9 +705,29 @@ export type LogisticsServiceRegionMinOrderByAggregateInput = {
   regionValue?: Prisma.SortOrder
   supportsPickup?: Prisma.SortOrder
   supportsDelivery?: Prisma.SortOrder
+  isExclusion?: Prisma.SortOrder
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type LogisticsServiceRegionSumOrderByAggregateInput = {
+  deliveryDaysMask?: Prisma.SortOrder
+  transitDaysMin?: Prisma.SortOrder
+  transitDaysMax?: Prisma.SortOrder
+  remoteAreaSurchargeMinor?: Prisma.SortOrder
+  maxShipmentWeightGrams?: Prisma.SortOrder
+  maxPackageLengthMm?: Prisma.SortOrder
+  maxPackageWidthMm?: Prisma.SortOrder
+  maxPackageHeightMm?: Prisma.SortOrder
 }
 
 export type LogisticsServiceRegionCreateNestedManyWithoutPartnerInput = {
@@ -499,6 +783,15 @@ export type LogisticsServiceRegionCreateWithoutPartnerInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -511,6 +804,15 @@ export type LogisticsServiceRegionUncheckedCreateWithoutPartnerInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -553,6 +855,15 @@ export type LogisticsServiceRegionScalarWhereInput = {
   regionValue?: Prisma.StringFilter<"LogisticsServiceRegion"> | string
   supportsPickup?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   supportsDelivery?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  isExclusion?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
+  deliveryDaysMask?: Prisma.IntFilter<"LogisticsServiceRegion"> | number
+  transitDaysMin?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  transitDaysMax?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  remoteAreaSurchargeMinor?: Prisma.BigIntNullableFilter<"LogisticsServiceRegion"> | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageLengthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageWidthMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
+  maxPackageHeightMm?: Prisma.IntNullableFilter<"LogisticsServiceRegion"> | number | null
   isActive?: Prisma.BoolFilter<"LogisticsServiceRegion"> | boolean
   createdAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsServiceRegion"> | Date | string
@@ -565,6 +876,15 @@ export type LogisticsServiceRegionCreateManyPartnerInput = {
   regionValue?: string
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: number
+  transitDaysMin?: number | null
+  transitDaysMax?: number | null
+  remoteAreaSurchargeMinor?: bigint | number | null
+  maxShipmentWeightGrams?: number | null
+  maxPackageLengthMm?: number | null
+  maxPackageWidthMm?: number | null
+  maxPackageHeightMm?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -577,6 +897,15 @@ export type LogisticsServiceRegionUpdateWithoutPartnerInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -589,6 +918,15 @@ export type LogisticsServiceRegionUncheckedUpdateWithoutPartnerInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -601,6 +939,15 @@ export type LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerInput = {
   regionValue?: Prisma.StringFieldUpdateOperationsInput | string
   supportsPickup?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isExclusion?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deliveryDaysMask?: Prisma.IntFieldUpdateOperationsInput | number
+  transitDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  transitDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  remoteAreaSurchargeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  maxShipmentWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageLengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageWidthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxPackageHeightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -616,6 +963,15 @@ export type LogisticsServiceRegionSelect<ExtArgs extends runtime.Types.Extension
   regionValue?: boolean
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: boolean
+  transitDaysMin?: boolean
+  transitDaysMax?: boolean
+  remoteAreaSurchargeMinor?: boolean
+  maxShipmentWeightGrams?: boolean
+  maxPackageLengthMm?: boolean
+  maxPackageWidthMm?: boolean
+  maxPackageHeightMm?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -632,12 +988,21 @@ export type LogisticsServiceRegionSelectScalar = {
   regionValue?: boolean
   supportsPickup?: boolean
   supportsDelivery?: boolean
+  isExclusion?: boolean
+  deliveryDaysMask?: boolean
+  transitDaysMin?: boolean
+  transitDaysMax?: boolean
+  remoteAreaSurchargeMinor?: boolean
+  maxShipmentWeightGrams?: boolean
+  maxPackageLengthMm?: boolean
+  maxPackageWidthMm?: boolean
+  maxPackageHeightMm?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LogisticsServiceRegionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "scope" | "countryCode" | "regionValue" | "supportsPickup" | "supportsDelivery" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsServiceRegion"]>
+export type LogisticsServiceRegionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "scope" | "countryCode" | "regionValue" | "supportsPickup" | "supportsDelivery" | "isExclusion" | "deliveryDaysMask" | "transitDaysMin" | "transitDaysMax" | "remoteAreaSurchargeMinor" | "maxShipmentWeightGrams" | "maxPackageLengthMm" | "maxPackageWidthMm" | "maxPackageHeightMm" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsServiceRegion"]>
 export type LogisticsServiceRegionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
 }
@@ -665,6 +1030,41 @@ export type $LogisticsServiceRegionPayload<ExtArgs extends runtime.Types.Extensi
      */
     supportsPickup: boolean
     supportsDelivery: boolean
+    /**
+     * Whether this row grants coverage or takes it away.
+     * 
+     * An exclusion, and it wins over any inclusion that overlaps it. This is
+     * how "the whole of France except Corsica" is expressed, which is the shape
+     * most real coverage takes and which an inclusion-only model can only
+     * approximate by enumerating departments.
+     */
+    isExclusion: boolean
+    /**
+     * Bitmask, Monday = 1, same convention as `SellerLocation.workingDaysMask`.
+     * Which days this region is served at all.
+     */
+    deliveryDaysMask: number
+    /**
+     * The transit promise for this region, as a range in whole days. Both null
+     * where nobody has committed to one - which is honest, and is shown as "no
+     * estimate" rather than as a guess.
+     */
+    transitDaysMin: number | null
+    transitDaysMax: number | null
+    /**
+     * Charged on top for somewhere the van has to be sent specially. BigInt
+     * minor units with the currency of the rate card that reads it; a float
+     * here is a delivery charge that disagrees with the invoice.
+     */
+    remoteAreaSurchargeMinor: bigint | null
+    /**
+     * What this region will accept in one consignment. Grams and millimetres,
+     * integers, null meaning no limit beyond the carrier's own.
+     */
+    maxShipmentWeightGrams: number | null
+    maxPackageLengthMm: number | null
+    maxPackageWidthMm: number | null
+    maxPackageHeightMm: number | null
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -1045,6 +1445,15 @@ export interface LogisticsServiceRegionFieldRefs {
   readonly regionValue: Prisma.FieldRef<"LogisticsServiceRegion", 'String'>
   readonly supportsPickup: Prisma.FieldRef<"LogisticsServiceRegion", 'Boolean'>
   readonly supportsDelivery: Prisma.FieldRef<"LogisticsServiceRegion", 'Boolean'>
+  readonly isExclusion: Prisma.FieldRef<"LogisticsServiceRegion", 'Boolean'>
+  readonly deliveryDaysMask: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly transitDaysMin: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly transitDaysMax: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly remoteAreaSurchargeMinor: Prisma.FieldRef<"LogisticsServiceRegion", 'BigInt'>
+  readonly maxShipmentWeightGrams: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly maxPackageLengthMm: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly maxPackageWidthMm: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
+  readonly maxPackageHeightMm: Prisma.FieldRef<"LogisticsServiceRegion", 'Int'>
   readonly isActive: Prisma.FieldRef<"LogisticsServiceRegion", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"LogisticsServiceRegion", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"LogisticsServiceRegion", 'DateTime'>

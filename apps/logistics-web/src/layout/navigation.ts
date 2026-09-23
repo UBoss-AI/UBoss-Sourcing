@@ -124,6 +124,17 @@ export const NAVIGATION: readonly NavSection[] = [
         icon: SellerIcon,
         anyOf: [Permission.ORGANISATION_READ],
       },
+      {
+        /*
+         * Beside the company record rather than under Shipments: what this
+         * screen answers is "is our side of this working", which is a question
+         * about the company, not about any one parcel.
+         */
+        to: '/integration',
+        labelKey: 'nav.integration',
+        icon: SellerIcon,
+        anyOf: [Permission.INTEGRATION_READ],
+      },
     ],
   },
 ];

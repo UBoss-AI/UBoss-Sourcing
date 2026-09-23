@@ -51,6 +51,7 @@ const REFERENCE = 'en';
  */
 const SAME_IN_ANY_LANGUAGE = new Set(
   [
+    'Glovia',
     'UBOSS',
     'ERP',
     'API',
@@ -143,8 +144,14 @@ const SAME_IN_ANY_LANGUAGE = new Set(
  */
 const NEVER_TRANSLATED_KEYS = new Set([
   // Brand and product names.
+  //
+  // The product itself — "Glovia" — and the attribution under it — "Powered by
+  // UBOSS" — are not in here, because they are not in the catalogues at all.
+  // They are constants, one module per application: see
+  // `apps/customer-web/src/lib/brand.ts` for why a name is not a string to
+  // translate. What IS here is a feature whose name happens to contain the
+  // brand.
   'aiInsights.title',
-  'app.name',
   'erp.system.monday',
   'erp.wizard.presetSearchPlaceholder',
   // Worked examples shown in placeholders and help text. A reader copies the

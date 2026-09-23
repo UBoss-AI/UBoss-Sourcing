@@ -630,3 +630,35 @@ export function fetchNotifications(view: 'active' | 'resolved' = 'active'): Prom
 export function markNotificationsRead(ids?: string[]): Promise<{ marked: number }> {
   return api.post('/logistics/notifications/read', ids === undefined ? {} : { ids });
 }
+
+// ---------------------------------------------------------------------------
+// THIS CARRIER'S OWN INTEGRATION
+//
+// Scoped, and there is no parameter. The partner id is resolved from the
+// session on the server, so there is nothing a request could carry that would
+// point this at another company - which is what makes the screen safe rather
+// than merely filtered.
+// ---------------------------------------------------------------------------
+
+export interface OwnIntegration {
+  partnerCode: string;
+  displayName: string;
+  status: string;
+  partnerKind: 'MARKETPLACE_CARRIER' | 'SELLER_SELF_MANAGED' | 'SELLER_DEDICATED';
+  /** Null where this carrier works entirely inside the portal, which is usual. */
+  provider: string | null;
+  integrationState: string | null;
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+  serviceCountries: string[];
+  capabilities: { kind: string; state: string }[];
+  activeDrivers: number;
+  activeShipments: number;
+  openExceptions: number;
+  /** The businesses this carrier works for, by name. */
+  sellerNames: string[];
+}
+
+export function fetchOwnIntegration(): Promise<{ integration: OwnIntegration }> {
+  return api.get<{ integration: OwnIntegration }>('/logistics/integration');
+}

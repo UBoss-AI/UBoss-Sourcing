@@ -88,7 +88,11 @@ export type DimensionParseStatus = (typeof DimensionParseStatus)[keyof typeof Di
 export const OrderingUnit = {
   PIECE: 'PIECE',
   INNER_PACK: 'INNER_PACK',
-  OUTER_CARTON: 'OUTER_CARTON'
+  OUTER_CARTON: 'OUTER_CARTON',
+  CARTON: 'CARTON',
+  UK_PALLET: 'UK_PALLET',
+  US_PALLET: 'US_PALLET',
+  CONTAINER: 'CONTAINER'
 } as const
 
 export type OrderingUnit = (typeof OrderingUnit)[keyof typeof OrderingUnit]
@@ -1245,7 +1249,19 @@ export const SellerNotificationKind = {
   CARRIER_ARRANGEMENT_DECISION: 'CARRIER_ARRANGEMENT_DECISION',
   CARRIER_ACCEPTED: 'CARRIER_ACCEPTED',
   CARRIER_REJECTED: 'CARRIER_REJECTED',
-  CARRIER_OFFER_EXPIRED: 'CARRIER_OFFER_EXPIRED'
+  CARRIER_OFFER_EXPIRED: 'CARRIER_OFFER_EXPIRED',
+  FULFILMENT_METHOD_DECISION: 'FULFILMENT_METHOD_DECISION',
+  CARRIER_CONNECTION_FAILED: 'CARRIER_CONNECTION_FAILED',
+  PARTNER_INVITATION_RESULT: 'PARTNER_INVITATION_RESULT',
+  CONSIGNMENT_AWAITING_METHOD: 'CONSIGNMENT_AWAITING_METHOD',
+  BULK_ORDER_RECEIVED: 'BULK_ORDER_RECEIVED',
+  FREIGHT_QUOTE_REQUESTED: 'FREIGHT_QUOTE_REQUESTED',
+  FREIGHT_QUOTE_AVAILABLE: 'FREIGHT_QUOTE_AVAILABLE',
+  PACKAGING_VALIDATION_FAILED: 'PACKAGING_VALIDATION_FAILED',
+  ERP_BRIDGE_OFFLINE: 'ERP_BRIDGE_OFFLINE',
+  ERP_MAPPING_INCOMPLETE: 'ERP_MAPPING_INCOMPLETE',
+  ERP_SYNC_RECOVERED: 'ERP_SYNC_RECOVERED',
+  ERP_INITIAL_SYNC_COMPLETE: 'ERP_INITIAL_SYNC_COMPLETE'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -1254,7 +1270,9 @@ export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeo
 export const SellerLogisticsRelationshipType = {
   DIRECT_CONTRACT: 'DIRECT_CONTRACT',
   MARKETPLACE_BROKERED: 'MARKETPLACE_BROKERED',
-  PREFERRED: 'PREFERRED'
+  PREFERRED: 'PREFERRED',
+  SELLER_SELF_MANAGED: 'SELLER_SELF_MANAGED',
+  SELLER_DEDICATED: 'SELLER_DEDICATED'
 } as const
 
 export type SellerLogisticsRelationshipType = (typeof SellerLogisticsRelationshipType)[keyof typeof SellerLogisticsRelationshipType]
@@ -1265,10 +1283,140 @@ export const SellerLogisticsRelationshipStatus = {
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   SUSPENDED: 'SUSPENDED',
-  ENDED: 'ENDED'
+  ENDED: 'ENDED',
+  DRAFT: 'DRAFT',
+  INVITED: 'INVITED',
+  PARTNER_ACCEPTANCE_PENDING: 'PARTNER_ACCEPTANCE_PENDING',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED'
 } as const
 
 export type SellerLogisticsRelationshipStatus = (typeof SellerLogisticsRelationshipStatus)[keyof typeof SellerLogisticsRelationshipStatus]
+
+
+export const SellerFulfilmentMode = {
+  INTEGRATED_CARRIER: 'INTEGRATED_CARRIER',
+  SELF_MANAGED: 'SELF_MANAGED',
+  DEDICATED_PARTNER: 'DEDICATED_PARTNER',
+  OPERATOR_FULFILLED: 'OPERATOR_FULFILLED'
+} as const
+
+export type SellerFulfilmentMode = (typeof SellerFulfilmentMode)[keyof typeof SellerFulfilmentMode]
+
+
+export const SellerFulfilmentMethodStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_SETUP: 'PENDING_SETUP',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED',
+  REJECTED: 'REJECTED',
+  PAUSED: 'PAUSED',
+  DISCONNECTED: 'DISCONNECTED'
+} as const
+
+export type SellerFulfilmentMethodStatus = (typeof SellerFulfilmentMethodStatus)[keyof typeof SellerFulfilmentMethodStatus]
+
+
+export const SellerFulfilmentMethodRole = {
+  PRIMARY: 'PRIMARY',
+  FALLBACK: 'FALLBACK',
+  ADDITIONAL: 'ADDITIONAL'
+} as const
+
+export type SellerFulfilmentMethodRole = (typeof SellerFulfilmentMethodRole)[keyof typeof SellerFulfilmentMethodRole]
+
+
+export const LogisticsPartnerKind = {
+  MARKETPLACE_CARRIER: 'MARKETPLACE_CARRIER',
+  SELLER_SELF_MANAGED: 'SELLER_SELF_MANAGED',
+  SELLER_DEDICATED: 'SELLER_DEDICATED'
+} as const
+
+export type LogisticsPartnerKind = (typeof LogisticsPartnerKind)[keyof typeof LogisticsPartnerKind]
+
+
+export const CarrierEnvironment = {
+  SANDBOX: 'SANDBOX',
+  PRODUCTION: 'PRODUCTION'
+} as const
+
+export type CarrierEnvironment = (typeof CarrierEnvironment)[keyof typeof CarrierEnvironment]
+
+
+export const SellerCarrierConnectionState = {
+  NOT_CONFIGURED: 'NOT_CONFIGURED',
+  CREDENTIALS_SET: 'CREDENTIALS_SET',
+  TEST_PASSED: 'TEST_PASSED',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ERROR: 'ERROR',
+  DISCONNECTED: 'DISCONNECTED'
+} as const
+
+export type SellerCarrierConnectionState = (typeof SellerCarrierConnectionState)[keyof typeof SellerCarrierConnectionState]
+
+
+export const CarrierTrackingMode = {
+  AUTOMATIC_API: 'AUTOMATIC_API',
+  MANUAL_ENTRY: 'MANUAL_ENTRY',
+  EXTERNAL_LINK: 'EXTERNAL_LINK'
+} as const
+
+export type CarrierTrackingMode = (typeof CarrierTrackingMode)[keyof typeof CarrierTrackingMode]
+
+
+export const SellerFulfilmentRuleScope = {
+  PRODUCT: 'PRODUCT',
+  WAREHOUSE: 'WAREHOUSE',
+  DESTINATION: 'DESTINATION',
+  SELLER_DEFAULT: 'SELLER_DEFAULT'
+} as const
+
+export type SellerFulfilmentRuleScope = (typeof SellerFulfilmentRuleScope)[keyof typeof SellerFulfilmentRuleScope]
+
+
+export const SellerLogisticsRateBasis = {
+  FLAT: 'FLAT',
+  WEIGHT: 'WEIGHT',
+  DISTANCE: 'DISTANCE',
+  POSTAL_ZONE: 'POSTAL_ZONE',
+  PACKAGE_SIZE: 'PACKAGE_SIZE'
+} as const
+
+export type SellerLogisticsRateBasis = (typeof SellerLogisticsRateBasis)[keyof typeof SellerLogisticsRateBasis]
+
+
+export const CarrierQuoteState = {
+  OFFERED: 'OFFERED',
+  SELECTED: 'SELECTED',
+  EXPIRED: 'EXPIRED',
+  SUPERSEDED: 'SUPERSEDED'
+} as const
+
+export type CarrierQuoteState = (typeof CarrierQuoteState)[keyof typeof CarrierQuoteState]
+
+
+export const FulfilmentSelectionSource = {
+  AUTOMATIC_RULE: 'AUTOMATIC_RULE',
+  SELLER_DEFAULT: 'SELLER_DEFAULT',
+  FALLBACK: 'FALLBACK',
+  SELLER_CHOICE: 'SELLER_CHOICE',
+  OPERATOR_CHOICE: 'OPERATOR_CHOICE',
+  MANUAL_REVIEW: 'MANUAL_REVIEW'
+} as const
+
+export type FulfilmentSelectionSource = (typeof FulfilmentSelectionSource)[keyof typeof FulfilmentSelectionSource]
+
+
+export const SellerPartnerInvitationState = {
+  SENT: 'SENT',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  EXPIRED: 'EXPIRED',
+  REVOKED: 'REVOKED'
+} as const
+
+export type SellerPartnerInvitationState = (typeof SellerPartnerInvitationState)[keyof typeof SellerPartnerInvitationState]
 
 
 export const LogisticsPartnerStatus = {
@@ -1338,7 +1486,15 @@ export const LogisticsCapabilityKind = {
   INTERNATIONAL: 'INTERNATIONAL',
   CUSTOMS_BROKERAGE: 'CUSTOMS_BROKERAGE',
   PROOF_OF_DELIVERY_PHOTO: 'PROOF_OF_DELIVERY_PHOTO',
-  PROOF_OF_DELIVERY_OTP: 'PROOF_OF_DELIVERY_OTP'
+  PROOF_OF_DELIVERY_OTP: 'PROOF_OF_DELIVERY_OTP',
+  STANDARD_DELIVERY: 'STANDARD_DELIVERY',
+  EXPRESS_DELIVERY: 'EXPRESS_DELIVERY',
+  SCHEDULED_DELIVERY: 'SCHEDULED_DELIVERY',
+  BUSINESS_HOURS_DELIVERY: 'BUSINESS_HOURS_DELIVERY',
+  SIGNATURE_REQUIRED: 'SIGNATURE_REQUIRED',
+  CASH_ON_DELIVERY: 'CASH_ON_DELIVERY',
+  INSURANCE: 'INSURANCE',
+  REVERSE_PICKUP: 'REVERSE_PICKUP'
 } as const
 
 export type LogisticsCapabilityKind = (typeof LogisticsCapabilityKind)[keyof typeof LogisticsCapabilityKind]
@@ -1572,7 +1728,8 @@ export const CarrierProvider = {
   CUSTOM: 'CUSTOM',
   DHL: 'DHL',
   FEDEX: 'FEDEX',
-  UPS: 'UPS'
+  UPS: 'UPS',
+  INDIA_POST: 'INDIA_POST'
 } as const
 
 export type CarrierProvider = (typeof CarrierProvider)[keyof typeof CarrierProvider]
@@ -1625,3 +1782,243 @@ export const LogisticsNotificationKind = {
 } as const
 
 export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]
+
+
+export const SellerPackageType = {
+  CARTON: 'CARTON',
+  UK_PALLET: 'UK_PALLET',
+  US_PALLET: 'US_PALLET',
+  CONTAINER: 'CONTAINER'
+} as const
+
+export type SellerPackageType = (typeof SellerPackageType)[keyof typeof SellerPackageType]
+
+
+export const PalletStandard = {
+  UK_1200_1000: 'UK_1200_1000',
+  US_1219_1016: 'US_1219_1016'
+} as const
+
+export type PalletStandard = (typeof PalletStandard)[keyof typeof PalletStandard]
+
+
+export const ContainerType = {
+  DRY_20GP: 'DRY_20GP',
+  DRY_40GP: 'DRY_40GP',
+  HIGH_CUBE_40HC: 'HIGH_CUBE_40HC',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type ContainerType = (typeof ContainerType)[keyof typeof ContainerType]
+
+
+export const ContainerLoadMode = {
+  FCL: 'FCL',
+  LCL: 'LCL'
+} as const
+
+export type ContainerLoadMode = (typeof ContainerLoadMode)[keyof typeof ContainerLoadMode]
+
+
+export const ContainerLoadingMethod = {
+  PALLET_LOADED: 'PALLET_LOADED',
+  CARTON_LOADED: 'CARTON_LOADED',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type ContainerLoadingMethod = (typeof ContainerLoadingMethod)[keyof typeof ContainerLoadingMethod]
+
+
+export const DimensionUnit = {
+  MM: 'MM',
+  CM: 'CM',
+  M: 'M',
+  IN: 'IN'
+} as const
+
+export type DimensionUnit = (typeof DimensionUnit)[keyof typeof DimensionUnit]
+
+
+export const WeightUnit = {
+  G: 'G',
+  KG: 'KG',
+  LB: 'LB'
+} as const
+
+export type WeightUnit = (typeof WeightUnit)[keyof typeof WeightUnit]
+
+
+export const PackagingOptionState = {
+  DRAFT: 'DRAFT',
+  INCOMPLETE: 'INCOMPLETE',
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type PackagingOptionState = (typeof PackagingOptionState)[keyof typeof PackagingOptionState]
+
+
+export const PackagingPriceMode = {
+  PER_PACKAGE: 'PER_PACKAGE',
+  DERIVED_FROM_UNIT: 'DERIVED_FROM_UNIT',
+  FREIGHT_QUOTE: 'FREIGHT_QUOTE'
+} as const
+
+export type PackagingPriceMode = (typeof PackagingPriceMode)[keyof typeof PackagingPriceMode]
+
+
+export const FreightLoadType = {
+  PARCEL: 'PARCEL',
+  CARTON: 'CARTON',
+  PALLET: 'PALLET',
+  FCL: 'FCL',
+  LCL: 'LCL'
+} as const
+
+export type FreightLoadType = (typeof FreightLoadType)[keyof typeof FreightLoadType]
+
+
+export const FreightQuoteState = {
+  REQUESTED: 'REQUESTED',
+  QUOTED: 'QUOTED',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type FreightQuoteState = (typeof FreightQuoteState)[keyof typeof FreightQuoteState]
+
+
+export const SellerErpProvider = {
+  TALLY_PRIME: 'TALLY_PRIME'
+} as const
+
+export type SellerErpProvider = (typeof SellerErpProvider)[keyof typeof SellerErpProvider]
+
+
+export const SellerErpNetworkMode = {
+  BRIDGE: 'BRIDGE',
+  DIRECT_PRIVATE: 'DIRECT_PRIVATE'
+} as const
+
+export type SellerErpNetworkMode = (typeof SellerErpNetworkMode)[keyof typeof SellerErpNetworkMode]
+
+
+export const SellerErpConnectionState = {
+  NOT_CONFIGURED: 'NOT_CONFIGURED',
+  BRIDGE_REQUIRED: 'BRIDGE_REQUIRED',
+  AWAITING_PAIRING: 'AWAITING_PAIRING',
+  BRIDGE_OFFLINE: 'BRIDGE_OFFLINE',
+  TALLY_UNAVAILABLE: 'TALLY_UNAVAILABLE',
+  COMPANY_NOT_LOADED: 'COMPANY_NOT_LOADED',
+  MAPPING_INCOMPLETE: 'MAPPING_INCOMPLETE',
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  CONNECTED: 'CONNECTED',
+  SYNCING: 'SYNCING',
+  CONNECTED_WITH_WARNINGS: 'CONNECTED_WITH_WARNINGS',
+  PAIRING_EXPIRED: 'PAIRING_EXPIRED',
+  DISABLED: 'DISABLED'
+} as const
+
+export type SellerErpConnectionState = (typeof SellerErpConnectionState)[keyof typeof SellerErpConnectionState]
+
+
+export const SellerErpBridgeState = {
+  PENDING: 'PENDING',
+  ACTIVE: 'ACTIVE',
+  OFFLINE: 'OFFLINE',
+  REVOKED: 'REVOKED'
+} as const
+
+export type SellerErpBridgeState = (typeof SellerErpBridgeState)[keyof typeof SellerErpBridgeState]
+
+
+export const SellerErpMappingEntity = {
+  PARTY_LEDGER: 'PARTY_LEDGER',
+  STOCK_ITEM: 'STOCK_ITEM',
+  GODOWN: 'GODOWN',
+  UNIT: 'UNIT',
+  ALTERNATE_UNIT: 'ALTERNATE_UNIT',
+  SALES_ORDER_VOUCHER_TYPE: 'SALES_ORDER_VOUCHER_TYPE',
+  SALES_INVOICE_VOUCHER_TYPE: 'SALES_INVOICE_VOUCHER_TYPE',
+  RECEIPT_VOUCHER_TYPE: 'RECEIPT_VOUCHER_TYPE',
+  CREDIT_NOTE_VOUCHER_TYPE: 'CREDIT_NOTE_VOUCHER_TYPE',
+  SALES_LEDGER: 'SALES_LEDGER',
+  FREIGHT_LEDGER: 'FREIGHT_LEDGER',
+  DISCOUNT_LEDGER: 'DISCOUNT_LEDGER',
+  COMMISSION_LEDGER: 'COMMISSION_LEDGER',
+  GATEWAY_FEE_LEDGER: 'GATEWAY_FEE_LEDGER',
+  ROUNDING_LEDGER: 'ROUNDING_LEDGER',
+  TAX_LEDGER_CGST: 'TAX_LEDGER_CGST',
+  TAX_LEDGER_SGST: 'TAX_LEDGER_SGST',
+  TAX_LEDGER_IGST: 'TAX_LEDGER_IGST',
+  TAX_LEDGER_CESS: 'TAX_LEDGER_CESS',
+  TAX_LEDGER_OTHER: 'TAX_LEDGER_OTHER',
+  COST_CENTRE: 'COST_CENTRE',
+  CURRENCY: 'CURRENCY'
+} as const
+
+export type SellerErpMappingEntity = (typeof SellerErpMappingEntity)[keyof typeof SellerErpMappingEntity]
+
+
+export const SellerErpEventType = {
+  SALES_ORDER: 'SALES_ORDER',
+  SALES_INVOICE: 'SALES_INVOICE',
+  RECEIPT: 'RECEIPT',
+  CREDIT_NOTE: 'CREDIT_NOTE',
+  CANCELLATION: 'CANCELLATION',
+  STOCK_ITEM_UPSERT: 'STOCK_ITEM_UPSERT',
+  PARTY_LEDGER_UPSERT: 'PARTY_LEDGER_UPSERT',
+  GODOWN_UPSERT: 'GODOWN_UPSERT',
+  INVENTORY_PULL: 'INVENTORY_PULL',
+  MASTER_PULL: 'MASTER_PULL',
+  CONNECTION_TEST: 'CONNECTION_TEST'
+} as const
+
+export type SellerErpEventType = (typeof SellerErpEventType)[keyof typeof SellerErpEventType]
+
+
+export const SellerErpJobStatus = {
+  PENDING: 'PENDING',
+  IN_FLIGHT: 'IN_FLIGHT',
+  SUCCEEDED: 'SUCCEEDED',
+  RETRY_SCHEDULED: 'RETRY_SCHEDULED',
+  FAILED: 'FAILED',
+  DEAD_LETTER: 'DEAD_LETTER',
+  CANCELLED: 'CANCELLED',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type SellerErpJobStatus = (typeof SellerErpJobStatus)[keyof typeof SellerErpJobStatus]
+
+
+export const SellerErpInventoryAuthority = {
+  GLOVIA: 'GLOVIA',
+  TALLY: 'TALLY',
+  MANUAL: 'MANUAL',
+  DISABLED: 'DISABLED'
+} as const
+
+export type SellerErpInventoryAuthority = (typeof SellerErpInventoryAuthority)[keyof typeof SellerErpInventoryAuthority]
+
+
+export const SellerErpSyncTrigger = {
+  MANUAL: 'MANUAL',
+  INITIAL: 'INITIAL',
+  EVENT: 'EVENT',
+  SCHEDULED: 'SCHEDULED',
+  RETRY: 'RETRY',
+  RECONCILE: 'RECONCILE'
+} as const
+
+export type SellerErpSyncTrigger = (typeof SellerErpSyncTrigger)[keyof typeof SellerErpSyncTrigger]
+
+
+export const SellerErpCancellationMode = {
+  CREDIT_NOTE: 'CREDIT_NOTE',
+  MARK_CANCELLED: 'MARK_CANCELLED',
+  MANUAL: 'MANUAL'
+} as const
+
+export type SellerErpCancellationMode = (typeof SellerErpCancellationMode)[keyof typeof SellerErpCancellationMode]

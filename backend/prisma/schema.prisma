@@ -1556,10 +1556,37 @@ model ProductImportRecord {
 /// order and the schedule can each show "2 cartons" back to them rather than
 /// "4,000", and so the conversion they were shown is the conversion they are
 /// held to even if the packing is corrected afterwards.
+/// The four bulk members below are a SELLER's packaging, and they are
+/// deliberately not the same members as the operator's `OUTER_CARTON`.
+///
+/// `OUTER_CARTON` means "the carton this deployment sells in", sized by
+/// `PIECES_PER_CARTON` or by the product's own `piecesPerCarton`. A seller's
+/// carton is sized by the seller, per variant, and holds a different number.
+/// Folding the two onto one member would make every existing row ambiguous:
+/// a line reading `OUTER_CARTON` would no longer say whose carton it meant,
+/// and the storefront - which reads the operator's figure off `/config` to
+/// draw the price - would put the operator's multiplication on a seller's
+/// line. That is the five-hundred-fold error this schema has already been
+/// through once.
 enum OrderingUnit {
   PIECE
   INNER_PACK
   OUTER_CARTON
+
+  /// --- A seller's bulk packaging -----------------------------------------
+  ///
+  /// Every one of these is priced, stepped and converted from the seller's own
+  /// `SellerPackagingOption` row for that package type, and the conversion is
+  /// snapshotted onto the line exactly as `piecesPerUnitSnapshot` already is.
+
+  /// The seller's shipping carton.
+  CARTON
+  /// A 1200 x 1000 mm footprint, loaded as the seller configured it.
+  UK_PALLET
+  /// A 1219 x 1016 mm (48 x 40 in) footprint, likewise.
+  US_PALLET
+  /// A shipping container - 20GP, 40GP, 40HC or one the seller described.
+  CONTAINER
 }
 
 // ===========================================================================
@@ -2358,6 +2385,9 @@ model CartItem {
   product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
   sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict, map: "fk_cart_item_seller_offer")
+  /// The bulk packaging this line was chosen in, where it was chosen in one.
+  /// Null on every ordinary line, which is most of them.
+  packaging   CartItemPackaging?
 
   /// One line per purchasable unit PER SELLER. Re-adding the same SKU from the
   /// same seller bumps quantity; the same product from two sellers is two
@@ -2715,6 +2745,9 @@ model OrderItem {
   product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
   sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict, map: "fk_order_item_seller_offer")
+  /// The frozen bulk breakdown. Written once at checkout and never updated -
+  /// see `OrderItemPackaging`, which is the whole point of the table.
+  packaging   OrderItemPackaging?
 
   @@index([orderId], map: "ix_order_item_order")
   @@index([productId], map: "ix_order_item_product")
@@ -8305,6 +8338,28 @@ model SellerAccount {
   createdProducts    Product[]
   logisticsPartners  SellerLogisticsPartner[]
 
+  /// How this seller's own goods get delivered. See the section headed
+  /// "HOW A SELLER'S OWN GOODS GET DELIVERED".
+  fulfilmentMethods    SellerFulfilmentMethod[]
+  carrierConnections   SellerCarrierConnection[]
+  fulfilmentRules      SellerFulfilmentRule[]
+  pickupProfiles       SellerLogisticsPickupProfile[]
+  logisticsRateCards   SellerLogisticsRateCard[]
+  carrierRateQuotes    CarrierRateQuote[]
+  shipmentPurchases    ShipmentPurchase[]
+  pickupRequests       LogisticsPickupRequest[]
+  partnerInvitations   SellerLogisticsPartnerInvitation[]
+  /// Delivery companies this seller owns or contracts exclusively.
+  ownedLogisticsPartners LogisticsPartner[] @relation("SellerOwnedLogistics")
+
+  /// --- Bulk ordering, and this seller's own accounting system -------------
+  packagingProfiles   SellerPackagingProfile[]
+  freightQuoteRequests SellerFreightQuoteRequest[]
+  erpConnections      SellerErpConnection[]
+  erpBridgeDevices    SellerErpBridgeDevice[]
+  erpSyncJobs         SellerErpSyncJob[]
+  erpAuditEvents      SellerErpAuditEvent[]
+
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
   @@map("seller_accounts")
@@ -8946,6 +9001,8 @@ model SellerLocation {
   inventory     SellerInventory[]
   movements     SellerInventoryMovement[]
   shipments     SellerShipment[]
+  pickupProfiles SellerLogisticsPickupProfile[]
+  fulfilmentRules SellerFulfilmentRule[]
 
   @@unique([sellerAccountId, code], map: "uq_seller_location_code")
   @@index([sellerAccountId, isOperational], map: "ix_seller_location_operational")
@@ -9630,11 +9687,16 @@ model SellerOffer {
 
   sellerAccount SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
   product       Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fulfilmentRules SellerFulfilmentRule[]
   variant       ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: Cascade)
   brand         Brand?            @relation(fields: [brandId], references: [id], onDelete: SetNull)
   priceTiers    SellerPriceTier[]
   inventory     SellerInventory[]
   orderLines    SellerOrderLine[]
+  /// How this offer may be bought in bulk - by the carton, the pallet or the
+  /// container. Optional, and its absence is the ordinary case: an offer with
+  /// no profile sells exactly as it did before bulk ordering existed.
+  packagingProfile SellerPackagingProfile?
   /// Baskets and orders that chose THIS seller's offer. Both are RESTRICT on
   /// delete: an offer somebody has bought is evidence of what was sold, and
   /// removing it would leave the line pointing at nothing. Archive instead.
@@ -10294,6 +10356,74 @@ enum SellerNotificationKind {
   CARRIER_REJECTED
   /// The carrier never answered and the offer lapsed. The parcel has nobody.
   CARRIER_OFFER_EXPIRED
+
+  /// --- How this seller's own goods get delivered ---------------------------
+
+  /// The marketplace approved a way of delivering, refused it, or asked for
+  /// changes. News: the seller reads it once and acts.
+  FULFILMENT_METHOD_DECISION
+  /// The seller's own carrier account stopped answering.
+  ///
+  /// An ALERT, because it stays true however many people read it - and
+  /// because every order routed that way is now going nowhere. Closed by the
+  /// connection working again, not by being glanced at.
+  CARRIER_CONNECTION_FAILED
+  /// A delivery company the seller invited accepted, or declined.
+  PARTNER_INVITATION_RESULT
+  /// A paid order has nothing that can carry it.
+  ///
+  /// The other ALERT, and the more urgent one: somebody has been charged for
+  /// goods this system cannot currently despatch. Closed by a method being
+  /// chosen for it.
+  CONSIGNMENT_AWAITING_METHOD
+
+  /// --- Bulk ordering ------------------------------------------------------
+
+  /// An order arrived by the pallet or the container.
+  ///
+  /// Its own kind rather than a NEW_ORDER with a different body, because it is
+  /// a different job: a pallet order needs a forklift booked and a lorry
+  /// found, and the seller who reads "new order" and pictures a box will
+  /// discover the difference on the loading bay.
+  BULK_ORDER_RECEIVED
+
+  /// A buyer asked for a freight price on a load no carrier here can quote.
+  /// News, and it is waiting for a person to answer.
+  FREIGHT_QUOTE_REQUESTED
+
+  /// Somebody answered a freight request.
+  FREIGHT_QUOTE_AVAILABLE
+
+  /// A package the seller switched on is missing something a buyer would need.
+  ///
+  /// An ALERT: the option is being held out of the buyer's selector for as
+  /// long as it is incomplete, so it stays true however many people read it,
+  /// and it is closed by the fields being filled in rather than by a glance.
+  PACKAGING_VALIDATION_FAILED
+
+  /// --- The seller's own accounting system ----------------------------------
+
+  /// The Glovia Tally Bridge has stopped checking in.
+  ///
+  /// An ALERT. Every accounting event queued since is waiting, and it stays
+  /// true until the machine comes back - which is exactly what an alert is
+  /// for. `ERP_SYNC_FAILURE` above is the operator's warehouse ERP and is a
+  /// different feature; this one is the seller's own books.
+  ERP_BRIDGE_OFFLINE
+
+  /// Something a sync needs has not been matched to Tally yet.
+  ///
+  /// Also an ALERT, and closed by the mapping being made. A seller told this
+  /// once and left to find it again on a settings screen is a seller whose
+  /// month of sales never posted.
+  ERP_MAPPING_INCOMPLETE
+
+  /// The connection is working again after a failure. News, and worth saying:
+  /// somebody who was told it broke is entitled to be told it is fixed.
+  ERP_SYNC_RECOVERED
+
+  /// The one-off first run has finished.
+  ERP_INITIAL_SYNC_COMPLETE
 }
 
 /// An in-app notification for a seller organisation.
@@ -10466,6 +10596,13 @@ enum SellerLogisticsRelationshipType {
   MARKETPLACE_BROKERED
   /// No contract, but the seller may offer work ad hoc.
   PREFERRED
+  /// The carrier IS the seller: their own vans, their own drivers. There is no
+  /// contract because there are not two parties.
+  SELLER_SELF_MANAGED
+  /// A delivery company contracted to this seller and introduced by them.
+  /// Distinct from DIRECT_CONTRACT, which is a seller's own account with a
+  /// carrier the marketplace already knows.
+  SELLER_DEDICATED
 }
 
 /// Where a relationship stands.
@@ -10476,11 +10613,46 @@ enum SellerLogisticsRelationshipType {
 /// carrier as a whole - where an ended one is over. Collapsing them would mean
 /// suspending a carrier stranded every parcel already on their van.
 enum SellerLogisticsRelationshipStatus {
+  /// THE ORDER OF THIS ENUM IS APPEND-ONLY AND IS NOT THE READING ORDER.
+  ///
+  /// MariaDB stores an ENUM as the ORDINAL of its member. A migration that
+  /// MODIFYs the column with the members rearranged rebuilds the table, and
+  /// every stored ordinal then points at a different word - a row that said
+  /// APPROVED comes back saying something else entirely, silently, with no
+  /// error anywhere. So new members go on the END, always, and the lifecycle
+  /// order lives in this comment instead:
+  ///
+  ///   DRAFT -> INVITED -> PARTNER_ACCEPTANCE_PENDING -> REQUESTED
+  ///         -> APPROVED -> (SUSPENDED | ENDED)
+  ///   with CHANGES_REQUESTED and REJECTED hanging off REQUESTED.
+  ///
+  /// The authoritative version of that is the transition table in
+  /// `domain/seller-logistics.ts`, which is what actually refuses a move.
+
+  /// With the marketplace for a decision.
   REQUESTED
+  /// Usable. The brief this was built from calls this state ACTIVE; it stays
+  /// APPROVED because that is what every existing row and every existing query
+  /// already says, and renaming a stored enum member to gain a synonym is a
+  /// table rebuild that buys a word.
   APPROVED
   REJECTED
   SUSPENDED
   ENDED
+
+  // --- Added for seller-introduced partners. Appended, per the note above. ---
+
+  /// Being written by the seller and not yet sent anywhere.
+  DRAFT
+  /// An invitation has gone to a company that has no account here yet.
+  INVITED
+  /// The company has an account and has not yet agreed to work for this
+  /// seller. Distinct from REQUESTED, which waits on the MARKETPLACE: a seller
+  /// shown one undifferentiated "pending" chases the wrong party.
+  PARTNER_ACCEPTANCE_PENDING
+  /// The marketplace asked for a correction. Back with the seller, and
+  /// recoverable, which is what separates it from REJECTED.
+  CHANGES_REQUESTED
 }
 
 /// One seller's entitlement to use one carrier.
@@ -10544,8 +10716,20 @@ model SellerLogisticsPartner {
   /// Soft delete. Shipments already offered keep working.
   archivedAt DateTime? @db.DateTime(3)
 
+  /// The paperwork behind the arrangement, where there is any. Free text: a
+  /// contract number, a framework agreement, a purchase order. Never used for
+  /// authorisation - it is what somebody quotes on the telephone.
+  contractReference String? @db.VarChar(64)
+
+  /// The invitation that produced this arrangement, where a seller introduced
+  /// the company rather than requesting one the marketplace already had.
+  invitationId String? @db.Char(26)
+
   sellerAccount    SellerAccount    @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
   logisticsPartner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  /// Append-only. See the model's own note on why this is not the audit log.
+  statusEvents SellerLogisticsRelationshipEvent[]
 
   /// One row per pair. A seller re-requesting a carrier they once used moves
   /// this row back to REQUESTED rather than creating a second one, so "may
@@ -10560,6 +10744,1015 @@ model SellerLogisticsPartner {
   /// The approvals queue.
   @@index([status, requestedAt], map: "ix_seller_logistics_pending")
   @@map("seller_logistics_partners")
+}
+
+// ===========================================================================
+// HOW A SELLER'S OWN GOODS GET DELIVERED
+//
+// The seller half of fulfilment, and the four different answers a seller can
+// give to "who moves this parcel?".
+//
+// WHY A MODE AND NOT JUST A CARRIER
+//
+// `SellerLogisticsPartner` above answers "may this seller hand work to that
+// carrier". It is the right question for one kind of delivery and the wrong
+// question for the other three. A seller connecting their OWN DHL account is
+// not being entitled to a marketplace carrier - there is no carrier row, no
+// relationship to approve, and the credentials belong to the seller rather
+// than to this installation. A seller who delivers with their own two vans has
+// no third party at all. And a seller with a contracted courier has one, but
+// that courier works for them and not for the marketplace.
+//
+// Collapsing those into "pick a carrier" is what forces a marketplace to
+// pretend a seller's own DHL account is a marketplace carrier, which then
+// makes every credential, every rate and every label belong to the wrong
+// tenant. So the mode is recorded first and the rest hangs off it.
+//
+// THE FOUR MODES, AND WHO DOES WHAT
+//
+//   INTEGRATED_CARRIER  seller stores, seller packs, an external carrier
+//                       (DHL, FedEx, India Post) carries. Drivers are the
+//                       carrier's staff and this system never names them.
+//   SELF_MANAGED        seller stores, seller packs, the seller's OWN
+//                       logistics operation carries, with its own drivers
+//                       inside the portal.
+//   DEDICATED_PARTNER   seller stores, seller packs, a delivery company
+//                       contracted to that seller carries, managing its own
+//                       drivers inside the portal.
+//   OPERATOR_FULFILLED  what this software did before any of the above
+//                       existed, and it is untouched. The operator's own
+//                       warehouse, the operator's own dispatch note.
+//
+// NOTHING HERE CHANGES AN EXISTING ROW. Every table below is new and every
+// added column is nullable or defaulted. A deployment that upgrades and
+// configures none of this keeps dispatching exactly as it does today, with
+// every seller on OPERATOR_FULFILLED by omission rather than by backfill.
+// ===========================================================================
+
+/// Who is responsible for moving a seller's goods.
+///
+/// Read together with `SellerFulfilmentMethod.status`: a mode says what KIND
+/// of delivery this is, the status says whether it may be used yet. A seller
+/// can have a DEDICATED_PARTNER method sitting in PENDING_APPROVAL for a
+/// fortnight while their INTEGRATED_CARRIER method carries everything.
+enum SellerFulfilmentMode {
+  /// An external carrier under the seller's own commercial account.
+  INTEGRATED_CARRIER
+  /// The seller's own drivers, vehicles and service areas.
+  SELF_MANAGED
+  /// A delivery company contracted to this seller specifically.
+  DEDICATED_PARTNER
+  /// The marketplace operator's own fulfilment. The pre-existing behaviour.
+  OPERATOR_FULFILLED
+}
+
+/// Where one of a seller's delivery methods stands.
+///
+/// Longer than it looks necessary, and each member earns its place by being a
+/// state somebody is actually stuck in and needs told apart from its
+/// neighbours. PENDING_SETUP and PENDING_APPROVAL are the pair that matters
+/// most: the first is waiting on the SELLER (connect the account, add a
+/// vehicle), the second is waiting on the MARKETPLACE. A seller shown one
+/// undifferentiated "pending" chases the wrong party.
+enum SellerFulfilmentMethodStatus {
+  /// Chosen during onboarding, nothing configured yet.
+  DRAFT
+  /// Configuration started and incomplete. Waiting on the seller.
+  PENDING_SETUP
+  /// Complete and submitted. Waiting on the marketplace.
+  PENDING_APPROVAL
+  /// Usable.
+  APPROVED
+  /// The marketplace asked for something to be corrected. Back with the
+  /// seller, and distinct from REJECTED because the seller can still fix it.
+  CHANGES_REQUESTED
+  /// Refused. A seller may start a fresh attempt, which moves this row back to
+  /// PENDING_SETUP rather than creating a second one.
+  REJECTED
+  /// The seller stopped using it. Existing consignments finish; no new ones.
+  PAUSED
+  /// Credentials destroyed or the relationship ended. Terminal, and kept
+  /// because shipments reference it.
+  DISCONNECTED
+}
+
+/// Which of a seller's methods is reached for first.
+///
+/// PRIMARY and FALLBACK are at most one each per seller, enforced by the
+/// database rather than by a service - see the `primaryForSellerAccountId`
+/// column below. Two primaries is not a state a picker can resolve, and it is
+/// exactly what two dispatchers saving the same screen produces.
+enum SellerFulfilmentMethodRole {
+  PRIMARY
+  FALLBACK
+  ADDITIONAL
+}
+
+/// What kind of company a `LogisticsPartner` row is.
+///
+/// Added rather than inferred from the relationship table, because the
+/// difference changes who may edit the organisation. A MARKETPLACE_CARRIER is
+/// maintained by the operator and a seller may only request access to it. A
+/// SELLER_SELF_MANAGED organisation is the seller's own and they configure it.
+/// A SELLER_DEDICATED one belongs to a third company that the seller
+/// introduced but does not control.
+///
+/// Every row that existed before this column is MARKETPLACE_CARRIER, which is
+/// what the default records and what those rows have always been.
+enum LogisticsPartnerKind {
+  /// Created by the operator, available to be requested by any seller.
+  MARKETPLACE_CARRIER
+  /// One seller's own delivery operation.
+  SELLER_SELF_MANAGED
+  /// A delivery company working for one seller.
+  SELLER_DEDICATED
+}
+
+/// Sandbox or production, for a carrier account.
+///
+/// Its own column rather than a flag, and part of the connection's unique key:
+/// a seller testing against a sandbox while production carries real parcels is
+/// the ordinary case, not an edge one, and one row that flips between them
+/// loses the test history the moment it is needed.
+enum CarrierEnvironment {
+  SANDBOX
+  PRODUCTION
+}
+
+/// Where a seller's own carrier account stands.
+///
+/// THE THREE STEPS BEFORE `ACTIVE` ARE THE POINT. Credentials being present is
+/// not the same as credentials being right, and neither is the same as a
+/// person having agreed to start shipping real parcels with them. Nothing
+/// reaches ACTIVE without a test that genuinely called the carrier and a
+/// seller who confirmed it afterwards - see `lastTestPassedAt` and
+/// `productionConfirmedAt`.
+enum SellerCarrierConnectionState {
+  /// Declared, no credentials.
+  NOT_CONFIGURED
+  /// Credentials stored, never successfully tested.
+  CREDENTIALS_SET
+  /// A real call to the carrier succeeded. Not yet carrying anything.
+  TEST_PASSED
+  /// In use.
+  ACTIVE
+  /// Stopped by the seller. Existing consignments finish.
+  PAUSED
+  /// Taken out of service after consecutive failures, until a test passes.
+  ERROR
+  /// Credentials destroyed. Terminal; shipments keep referencing the row.
+  DISCONNECTED
+}
+
+/// How this system learns where a parcel is.
+///
+/// The column that stops a screen lying. A provider with no verified API is
+/// MANUAL_ENTRY or EXTERNAL_LINK, the shipment view says so in those words,
+/// and no green "connected" badge is available to it - see the India Post note
+/// on `CarrierProvider`.
+enum CarrierTrackingMode {
+  /// The carrier's own API or webhook feeds the timeline.
+  AUTOMATIC_API
+  /// A person types events in. Honest, and common.
+  MANUAL_ENTRY
+  /// The consignment number is real and the tracking lives on the carrier's
+  /// own public page. This system links to it and claims nothing further.
+  EXTERNAL_LINK
+}
+
+/// Which question a fulfilment rule answers.
+///
+/// The hierarchy, most specific first. A rule's scope IS its precedence -
+/// stored as an integer beside it so the ordering is a database sort rather
+/// than a switch statement that two callers could disagree about.
+enum SellerFulfilmentRuleScope {
+  /// This listing ships this way, whatever else is configured.
+  PRODUCT
+  /// Anything leaving this building ships this way.
+  WAREHOUSE
+  /// Anything going to this country or postcode range ships this way.
+  DESTINATION
+  /// Everything else.
+  SELLER_DEFAULT
+}
+
+/// What a self-managed rate line is charged on.
+///
+/// One enum rather than a column per shape, because a seller's card routinely
+/// mixes them: a flat fee inside the city, weight bands beyond it, and a
+/// surcharge for anywhere the van has to be booked for a whole day.
+enum SellerLogisticsRateBasis {
+  FLAT
+  WEIGHT
+  DISTANCE
+  POSTAL_ZONE
+  PACKAGE_SIZE
+}
+
+/// Where a saved carrier quote stands.
+///
+/// Quotes are kept rather than recomputed for the same reason a seller's
+/// commission rate is kept beside the figure it produced: the number a seller
+/// agreed to and the number they are billed have to be the same number, and a
+/// carrier that reprices overnight makes "recompute it" the wrong answer.
+enum CarrierQuoteState {
+  OFFERED
+  SELECTED
+  EXPIRED
+  /// A newer quote for the same shipment replaced it.
+  SUPERSEDED
+}
+
+/// Why a particular method was chosen for a particular consignment.
+///
+/// Recorded on the shipment, so "why did this go by DHL when our default is
+/// our own van?" has an answer months later. AUTOMATIC_RULE names the rule
+/// row; the rest are the cases where no rule decided it.
+enum FulfilmentSelectionSource {
+  /// A `SellerFulfilmentRule` matched. The rule id is stored beside this.
+  AUTOMATIC_RULE
+  /// Nothing matched and the seller's default was used.
+  SELLER_DEFAULT
+  /// The primary was ineligible and the approved fallback took it.
+  FALLBACK
+  /// A person at the seller chose it on the consignment.
+  SELLER_CHOICE
+  /// A person at the marketplace chose it.
+  OPERATOR_CHOICE
+  /// Nothing was eligible. Parked for a human, and never silently sent.
+  MANUAL_REVIEW
+}
+
+/// One way one seller can get goods delivered.
+///
+/// The row a seller's onboarding step creates and the row every later question
+/// hangs off: is this seller allowed to ship yet, which carriers may this
+/// parcel go by, whose drivers may touch it.
+///
+/// WHY THE TWO TARGET COLUMNS ARE NULLABLE AND ONLY ONE IS EVER SET
+///
+/// A method points at exactly one thing, and which one depends on the mode: a
+/// carrier connection for INTEGRATED_CARRIER, a logistics organisation for
+/// SELF_MANAGED and DEDICATED_PARTNER, and nothing at all for
+/// OPERATOR_FULFILLED. A separate table per mode was the alternative and was
+/// rejected: every consumer would then have to union three tables to answer
+/// "how does this seller ship", which is the question they all ask.
+///
+/// `chk_seller_fulfilment_method_target` enforces the pairing in the database,
+/// so a row with a mode of SELF_MANAGED and no organisation cannot exist even
+/// if a service forgets.
+model SellerFulfilmentMethod {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  mode   SellerFulfilmentMode
+  status SellerFulfilmentMethodStatus @default(DRAFT)
+  role   SellerFulfilmentMethodRole   @default(ADDITIONAL)
+
+  /// The seller's own carrier account, for INTEGRATED_CARRIER. Null otherwise.
+  sellerCarrierConnectionId String? @db.Char(26)
+  /// The logistics organisation, for SELF_MANAGED and DEDICATED_PARTNER.
+  /// Null otherwise.
+  logisticsPartnerId String? @db.Char(26)
+
+  /// What a customer is told carried their parcel.
+  ///
+  /// The seller's APPROVED public logistics name, which is not always the
+  /// legal one and is never the seller's internal shorthand. A buyer tracking
+  /// a delivery sees this string; nothing else about the operation reaches
+  /// them.
+  publicDisplayName String @db.VarChar(160)
+
+  /// One PRIMARY and one FALLBACK per seller, enforced by the database.
+  ///
+  /// The `activeShipmentId` idiom, used a third time. Each column holds the
+  /// seller's own id while this row plays that part and NULL when it does not,
+  /// and MariaDB treats every NULL in a UNIQUE index as distinct - so any
+  /// number of ADDITIONAL methods coexist and a second primary is refused with
+  /// a P2002 rather than accepted and discovered later by a picker that
+  /// returns two answers.
+  ///
+  /// Written only alongside `role`: set together, cleared together.
+  primaryForSellerAccountId  String? @db.Char(26)
+  fallbackForSellerAccountId String? @db.Char(26)
+
+  /// The non-null surrogate that makes "one method per target" expressible.
+  ///
+  /// `CARRIER:DHL:PRODUCTION`, `PARTNER:<ulid>`, or `OPERATOR`. Two of the
+  /// three target columns are null on any given row, so a composite unique
+  /// over them would enforce nothing at all - every NULL being distinct. Same
+  /// reasoning as `variantKey` and `regionValue` elsewhere in this schema.
+  methodKey String @db.VarChar(96)
+
+  /// Approval, and who decided.
+  submittedAt     DateTime? @db.DateTime(3)
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+  /// Required by the service for REJECTED, CHANGES_REQUESTED and PAUSED. A
+  /// refusal with no reason is one the seller cannot act on.
+  statusReason String? @db.VarChar(512)
+
+  /// Whether the seller may ship internationally on this method. False until
+  /// customs responsibilities are configured, because a parcel stopped at a
+  /// border is worse than one that was never offered the option.
+  allowsInternational Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  /// Soft delete. Shipments already sent keep working.
+  archivedAt DateTime? @db.DateTime(3)
+
+  sellerAccount     SellerAccount            @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  carrierConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: Restrict)
+  logisticsPartner  LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict)
+
+  rules          SellerFulfilmentRule[]
+  pickupProfiles SellerLogisticsPickupProfile[]
+  rateCards      SellerLogisticsRateCard[]
+  quotes         CarrierRateQuote[]
+  shipments      LogisticsShipment[]
+
+  /// One method per seller per target.
+  @@unique([sellerAccountId, methodKey], map: "uq_seller_fulfilment_method")
+  /// One primary, one fallback. See the columns above.
+  @@unique([primaryForSellerAccountId], map: "uq_seller_fulfilment_primary")
+  @@unique([fallbackForSellerAccountId], map: "uq_seller_fulfilment_fallback")
+  /// The seller's own list, and the eligibility check.
+  @@index([sellerAccountId, status], map: "ix_seller_fulfilment_method_status")
+  /// The marketplace's approvals queue.
+  @@index([status, submittedAt], map: "ix_seller_fulfilment_method_queue")
+  @@index([logisticsPartnerId], map: "ix_seller_fulfilment_method_partner")
+  @@index([sellerCarrierConnectionId], map: "ix_seller_fulfilment_method_connection")
+  @@map("seller_fulfilment_methods")
+}
+
+/// One seller's own account with one external carrier.
+///
+/// NOT a `CarrierIntegration`. That table is the OPERATOR's - one row per
+/// carrier API this installation has wired up, with the operator's own
+/// credentials, shared by every shipment the operator dispatches. This table
+/// is the seller's, and the difference is the whole of why it exists: a
+/// seller's DHL contract, rates and invoices are theirs, and putting their key
+/// in a row any other seller's shipment can reach through a shared integration
+/// is a tenant boundary crossed at the credential.
+///
+/// THE CREDENTIALS ARE NOT IN THIS TABLE. They are in
+/// `SellerCarrierCredential`, one row per connection, encrypted and bound to
+/// the connection's id. Split so that every screen, list, export and log that
+/// legitimately reads a connection's state cannot reach its secret by
+/// accident - the secret has to be asked for by name, from one service, which
+/// is the only place `decryptSecret` is called for it.
+model SellerCarrierConnection {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  provider    CarrierProvider
+  environment CarrierEnvironment @default(SANDBOX)
+
+  state        SellerCarrierConnectionState @default(NOT_CONFIGURED)
+  trackingMode CarrierTrackingMode          @default(AUTOMATIC_API)
+
+  /// The seller's account number with the carrier. NOT a secret - it is on
+  /// every label and every invoice - and not a credential either: it
+  /// identifies, it does not authorise.
+  accountNumber String? @db.VarChar(64)
+  /// Where the carrier bills, where that differs from the shipping account.
+  billingAccountNumber String? @db.VarChar(64)
+
+  /// The shipper block that goes on every label from this connection, as the
+  /// carrier wants it spelled. JSON because each carrier disagrees about the
+  /// field names and a column per carrier is a migration per carrier.
+  shipperDetailsJson Json?
+
+  /// Preferences the seller set once and should not be asked again.
+  defaultServiceCode  String? @db.VarChar(48)
+  labelFormat         String? @db.VarChar(24)
+  packagingPreference String? @db.VarChar(48)
+  pickupPreference    String? @db.VarChar(48)
+  /// Customs defaults, where the seller ships internationally and has supplied
+  /// them. Never invented: an absent value means the shipment asks.
+  customsDefaultsJson Json?
+
+  /// HEALTH.
+  ///
+  /// `lastFailureMessage` is the carrier's refusal reduced to something safe
+  /// to put on a screen. It never carries a header, a token or a request body
+  /// - a failure message is the most common place a credential leaks into a
+  /// log, and the sanitising happens before the write rather than before the
+  /// read.
+  consecutiveFailures Int       @default(0)
+  lastSuccessAt       DateTime? @db.DateTime(3)
+  lastFailureAt       DateTime? @db.DateTime(3)
+  lastFailureMessage  String?   @db.VarChar(512)
+
+  /// THE TWO GATES ON PRODUCTION.
+  ///
+  /// `lastTestPassedAt` is written only by a test that genuinely reached the
+  /// carrier and got an answer. `productionConfirmedAt` is written only when a
+  /// named person at the seller said "yes, ship real parcels with this". A
+  /// connection reaches ACTIVE with both and never with one, which is what
+  /// stops a saved form looking like a working integration.
+  lastTestAt       DateTime? @db.DateTime(3)
+  lastTestPassedAt DateTime? @db.DateTime(3)
+  /// The safe summary of the last test, for the connection screen.
+  lastTestMessage String? @db.VarChar(512)
+
+  productionConfirmedAt               DateTime? @db.DateTime(3)
+  productionConfirmedBySellerMemberId String?   @db.Char(26)
+
+  createdBySellerMemberId String?   @db.Char(26)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt               DateTime  @updatedAt @db.DateTime(3)
+  disconnectedAt          DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  credential SellerCarrierCredential?
+  methods    SellerFulfilmentMethod[]
+  quotes     CarrierRateQuote[]
+  shipments  LogisticsShipment[]
+  pickups    LogisticsPickupRequest[]
+
+  /// One connection per seller, per carrier, per environment. A seller has one
+  /// DHL sandbox account and one DHL production account, and a second row for
+  /// either is a configuration mistake rather than a second account.
+  @@unique([sellerAccountId, provider, environment], map: "uq_seller_carrier_connection")
+  @@index([sellerAccountId, state], map: "ix_seller_carrier_connection_state")
+  /// The operator's health view: which connections are failing, across sellers.
+  @@index([provider, state], map: "ix_seller_carrier_connection_provider")
+  @@map("seller_carrier_connections")
+}
+
+/// The secret behind one carrier connection, and nothing else.
+///
+/// A table of its own, holding one row per connection, for a reason worth
+/// stating plainly: a secret in a column beside the data everybody reads gets
+/// read by everybody eventually. Not through malice - through a `select *`, a
+/// debug log, an export, a serialiser that was written before the column
+/// existed. Putting it behind its own table makes reaching it deliberate.
+///
+/// AES-256-GCM through `infra/crypto.ts`, bound to
+/// `seller_carrier_credential:<connectionId>` as additional authenticated
+/// data, so an envelope copied from one seller's connection into another's
+/// fails to decrypt rather than quietly authorising the wrong company's
+/// parcels against the first company's account.
+///
+/// NEVER RETURNED. No endpoint reads this row into a response. The connection
+/// screen shows the state, the account number and a masked hint, and there is
+/// no route that could be asked for more.
+model SellerCarrierCredential {
+  id                        String @id @db.Char(26)
+  sellerCarrierConnectionId String @unique(map: "uq_seller_carrier_credential_connection") @db.Char(26)
+
+  /// The envelope. A JSON object of provider-specific fields - a client id and
+  /// secret for FedEx, a key and a password for DHL - encrypted whole, because
+  /// which fields a carrier wants is the carrier's business and a column per
+  /// field is a migration every time one of them adds an audience parameter.
+  credentialsEnc String @db.Text
+
+  /// The secret this connection's inbound webhooks are verified against. Its
+  /// own column rather than a key inside the envelope above, because it is
+  /// rotated on a different schedule and by a different person.
+  webhookSecretEnc String? @db.Text
+
+  /// What the seller sees instead of the secret: last four characters of the
+  /// account-identifying field, and nothing derived from the secret itself.
+  maskedHint String? @db.VarChar(32)
+
+  /// Rotation. Incremented in place rather than adding a row, because a
+  /// superseded credential is a secret with no remaining purpose and keeping
+  /// it is a liability rather than an audit trail. WHO rotated and WHEN is in
+  /// `SellerAuditLog`, which is where the trail belongs.
+  version   Int       @default(1)
+  rotatedAt DateTime? @db.DateTime(3)
+
+  createdBySellerMemberId String   @db.Char(26)
+  createdAt               DateTime @default(now()) @db.DateTime(3)
+  updatedAt               DateTime @updatedAt @db.DateTime(3)
+
+  connection SellerCarrierConnection @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: Cascade)
+
+  @@map("seller_carrier_credentials")
+}
+/// Which of a seller's methods carries a particular consignment.
+///
+/// The hierarchy the brief asks for, as rows rather than as code: a listing
+/// may override a warehouse, a warehouse may override a destination, and the
+/// seller's default catches everything else. `precedence` is written from
+/// `scope` on save, so the picker is one indexed `ORDER BY` rather than four
+/// queries, and two callers cannot disagree about which rule wins.
+///
+/// A RULE DOES NOT GRANT ANYTHING. It selects among methods the seller already
+/// has approved. A rule naming a method that is PAUSED, REJECTED or belongs to
+/// another seller selects nothing and the next rule down is tried - the
+/// eligibility check is always run against the method afterwards, never
+/// skipped because a rule matched.
+model SellerFulfilmentRule {
+  id                  String @id @db.Char(26)
+  sellerAccountId     String @db.Char(26)
+  fulfilmentMethodId  String @db.Char(26)
+
+  scope SellerFulfilmentRuleScope
+  /// 10 PRODUCT, 20 WAREHOUSE, 30 DESTINATION, 40 SELLER_DEFAULT. Lower wins.
+  /// Derived from `scope` and stored so the sort is an index rather than a
+  /// CASE expression.
+  precedence Int
+
+  /// What the rule matches on. Exactly one shape is populated per scope, and
+  /// `chk_seller_fulfilment_rule_scope` holds that in the database.
+  sellerOfferId          String? @db.Char(26)
+  sellerLocationId       String? @db.Char(26)
+  destinationCountry     String? @db.Char(2)
+  /// A postcode prefix, not a whole postcode: "SW1" covers a district and a
+  /// full code covers one building. Upper-cased and stripped of spaces on the
+  /// way in, so a feed that changes its formatting does not stop matching.
+  destinationPostalPrefix String? @db.VarChar(16)
+
+  /// The non-null surrogate, for the same reason every other one in this
+  /// schema exists: three of the four match columns are NULL on any given row
+  /// and MariaDB treats every NULL in a UNIQUE index as distinct, so a unique
+  /// over them would permit a seller to hold two contradictory default rules.
+  /// `PRODUCT:<ulid>`, `WAREHOUSE:<ulid>`, `DESTINATION:DE:SW1`, `DEFAULT`.
+  ruleKey String @db.VarChar(120)
+
+  isActive      Boolean   @default(true)
+  effectiveFrom DateTime  @default(now()) @db.DateTime(3)
+  effectiveTo   DateTime? @db.DateTime(3)
+
+  /// Free text, shown on the consignment beside the method it chose, so the
+  /// seller reading "why DHL?" gets their own words back.
+  note String? @db.VarChar(255)
+
+  createdBySellerMemberId String?   @db.Char(26)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  updatedAt               DateTime  @updatedAt @db.DateTime(3)
+  archivedAt              DateTime? @db.DateTime(3)
+
+  sellerAccount    SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  fulfilmentMethod SellerFulfilmentMethod @relation(fields: [fulfilmentMethodId], references: [id], onDelete: Cascade)
+  /// Cascade on both: a rule about a listing or a building that no longer
+  /// exists is not a rule, and leaving it would route a later consignment by
+  /// a match that can never be true again.
+  sellerOffer    SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Cascade)
+  sellerLocation SellerLocation? @relation(fields: [sellerLocationId], references: [id], onDelete: Cascade)
+
+  shipments LogisticsShipment[]
+
+  /// One rule per seller per target.
+  @@unique([sellerAccountId, ruleKey], map: "uq_seller_fulfilment_rule")
+  /// The picker, in precedence order.
+  @@index([sellerAccountId, isActive, precedence], map: "ix_seller_fulfilment_rule_pick")
+  @@index([fulfilmentMethodId], map: "ix_seller_fulfilment_rule_method")
+  @@map("seller_fulfilment_rules")
+}
+
+/// How goods leave one of a seller's buildings under one delivery method.
+///
+/// DELIBERATELY THIN, because `SellerLocation` already holds most of it. The
+/// address, the timezone, the dispatch cutoff, the working-days mask, the
+/// handling time and the cold-chain flags are all there and are facts about
+/// the BUILDING - they do not change because the seller switched carrier. What
+/// is here is what genuinely differs per method: the window a courier calls
+/// in, how many parcels that courier will take in a day, and the limits the
+/// carrier imposes on a single package.
+///
+/// Duplicating the location's own fields here was the alternative and would
+/// have produced two answers to "when does this warehouse close", which is a
+/// question a dispatch deadline already depends on.
+model SellerLogisticsPickupProfile {
+  id                 String @id @db.Char(26)
+  sellerAccountId    String @db.Char(26)
+  fulfilmentMethodId String @db.Char(26)
+  sellerLocationId   String @db.Char(26)
+
+  /// Bitmask, Monday = 1, same convention as `SellerLocation.workingDaysMask`.
+  /// A courier that calls on Tuesdays and Thursdays is 10.
+  pickupDaysMask Int @default(31)
+  /// `HH:MM` in the LOCATION's timezone, which is why the location owns the
+  /// timezone and this does not.
+  windowStart String? @db.VarChar(5)
+  windowEnd   String? @db.VarChar(5)
+  /// Later than the location's own cutoff for a courier that collects late,
+  /// earlier for one that collects at noon. Null means the location's applies.
+  cutoffOverride String? @db.VarChar(5)
+  /// Null means the location's own handling time applies.
+  handlingTimeDaysOverride Int?
+
+  /// How many consignments this origin can put out in a day under this
+  /// method. Null means no ceiling. Information for the picker, not a lock:
+  /// refusing a paid order because a van is full is worse than dispatching it
+  /// late, so this raises a flag rather than blocking.
+  maxDailyShipments Int?
+
+  /// Dates this origin does not despatch, as `["2026-12-25", ...]`. JSON
+  /// rather than a table because nothing joins to a blackout date and a table
+  /// of two rows per seller per year is a join for no reason.
+  blackoutDatesJson Json?
+
+  contactName  String? @db.VarChar(160)
+  contactPhone String? @db.VarChar(32)
+  contactEmail String? @db.VarChar(320)
+  /// What the driver needs to know to find the bay. Shown to the carrier
+  /// holding the consignment and to nobody else.
+  instructions String? @db.Text
+
+  /// Category ids this origin may despatch under this method, as a JSON list.
+  /// Empty or null means no restriction.
+  eligibleCategoryIdsJson Json?
+
+  /// Per-package limits the carrier imposes. Integers in grams and
+  /// millimetres, like every other measurement in this schema - a float here
+  /// is a parcel refused at a depot over a rounding error.
+  maxPackageWeightGrams Int?
+  maxPackageLengthMm    Int?
+  maxPackageWidthMm     Int?
+  maxPackageHeightMm    Int?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  fulfilmentMethod SellerFulfilmentMethod @relation(fields: [fulfilmentMethodId], references: [id], onDelete: Cascade)
+  sellerLocation   SellerLocation         @relation(fields: [sellerLocationId], references: [id], onDelete: Cascade)
+
+  /// One profile per method per building.
+  ///
+  /// `sellerAccountId` is in the key as well as the two ids, which looks
+  /// redundant and is not: it is what lets every query filter by the session's
+  /// seller in the same statement that finds the row, so a request naming
+  /// another seller's warehouse finds nothing rather than finding something
+  /// and being refused afterwards. The service also checks the location's own
+  /// owner before writing - a foreign key cannot express "these two ids must
+  /// belong to the same third row".
+  @@unique([sellerAccountId, fulfilmentMethodId, sellerLocationId], map: "uq_seller_pickup_profile")
+  @@index([fulfilmentMethodId, isActive], map: "ix_seller_pickup_profile_method")
+  @@index([sellerLocationId], map: "ix_seller_pickup_profile_location")
+  @@map("seller_logistics_pickup_profiles")
+}
+
+/// What a seller's own delivery operation charges.
+///
+/// VERSIONED, AND THAT IS THE POINT. Every quote records the version it was
+/// priced from, so a customer disputing a delivery charge six weeks later can
+/// be shown the card as it stood on the day - not the card as it stands now. A
+/// card edited in place would make that impossible and is exactly how a
+/// marketplace ends up unable to explain a number it charged.
+///
+/// Only for SELF_MANAGED methods. DHL, FedEx and India Post price their own
+/// work and this system never invents a figure on their behalf.
+model SellerLogisticsRateCard {
+  id                 String @id @db.Char(26)
+  sellerAccountId    String @db.Char(26)
+  fulfilmentMethodId String @db.Char(26)
+
+  name String @db.VarChar(120)
+  /// Incremented on every published change. The previous version stays,
+  /// inactive, because quotes point at it.
+  version Int @default(1)
+
+  currency String @db.Char(3)
+
+  /// Money, BigInt minor units, like everywhere in this schema. A float in a
+  /// rate card is a delivery charge that disagrees with itself on the invoice.
+  minimumChargeMinor       BigInt?
+  maximumChargeMinor       BigInt?
+  freeShippingThresholdMinor BigInt?
+  remoteAreaSurchargeMinor BigInt?
+  insuranceFeeMinor        BigInt?
+  /// Only meaningful where the deployment's payment architecture supports cash
+  /// on delivery. Null where it does not, and the capability stays unapproved.
+  codFeeMinor BigInt?
+
+  /// Whether the figures above already include tax. Not a guess: a seller who
+  /// quotes tax-inclusive prices and a seller who does not produce different
+  /// invoices from the same number.
+  taxInclusive Boolean @default(false)
+  /// The tax code this charge is treated under, where the deployment
+  /// distinguishes them. Free text against the operator's own tax setup.
+  taxCategoryCode String? @db.VarChar(32)
+
+  isActive      Boolean   @default(false)
+  effectiveFrom DateTime  @default(now()) @db.DateTime(3)
+  effectiveTo   DateTime? @db.DateTime(3)
+
+  createdBySellerMemberId String?  @db.Char(26)
+  createdAt               DateTime @default(now()) @db.DateTime(3)
+  updatedAt               DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  fulfilmentMethod SellerFulfilmentMethod @relation(fields: [fulfilmentMethodId], references: [id], onDelete: Cascade)
+
+  bands  SellerLogisticsRateBand[]
+  quotes CarrierRateQuote[]
+
+  /// One row per name per version. A republish makes version 2; it does not
+  /// overwrite version 1.
+  @@unique([fulfilmentMethodId, name, version], map: "uq_seller_rate_card_version")
+  /// The pricing lookup: this method's live card.
+  @@index([fulfilmentMethodId, isActive, effectiveFrom], map: "ix_seller_rate_card_live")
+  @@index([sellerAccountId], map: "ix_seller_rate_card_seller")
+  @@map("seller_logistics_rate_cards")
+}
+
+/// One line of a rate card.
+///
+/// The bands of one card are read together and the first match wins, in
+/// `sortOrder`. Bands rather than a formula because a seller's pricing is a
+/// table in a spreadsheet today and a formula this software invented would be
+/// wrong for most of them.
+model SellerLogisticsRateBand {
+  id         String @id @db.Char(26)
+  rateCardId String @db.Char(26)
+
+  basis       SellerLogisticsRateBasis
+  /// Which service this band prices. STANDARD is the default row rather than a
+  /// nullable one, on the NULL-in-a-UNIQUE reasoning used throughout.
+  serviceType LogisticsServiceType     @default(STANDARD)
+
+  /// The band's span, in the unit its basis implies: grams for WEIGHT, whole
+  /// kilometres for DISTANCE, an ordinal for PACKAGE_SIZE, and both zero for
+  /// FLAT. Integers, never floats.
+  minValue Int @default(0)
+  /// Null means "and above", which is the last band of every real card.
+  maxValue Int?
+
+  /// The postcode prefix this band applies to, for POSTAL_ZONE. Empty string
+  /// rather than NULL, for the unique index below.
+  postalPrefix String @default("") @db.VarChar(16)
+
+  /// The charge. `amountMinor` is the fixed part and `perUnitMinor` the part
+  /// multiplied by the measure - a card that is "4 euro plus 50 cents a kilo"
+  /// is one band with both set, rather than forty bands.
+  amountMinor  BigInt
+  perUnitMinor BigInt?
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  rateCard SellerLogisticsRateCard @relation(fields: [rateCardId], references: [id], onDelete: Cascade)
+
+  @@unique([rateCardId, basis, serviceType, postalPrefix, minValue], map: "uq_seller_rate_band")
+  @@index([rateCardId, sortOrder], map: "ix_seller_rate_band_order")
+  @@map("seller_logistics_rate_bands")
+}
+
+/// What one carrier said one consignment would cost, at one moment.
+///
+/// Kept rather than recomputed. A carrier reprices overnight, a self-managed
+/// card is republished, an exchange rate moves - and the figure the seller
+/// agreed to has to remain retrievable, with the provider's own reference
+/// beside it so the carrier can be asked about it by name.
+///
+/// EVERY FIGURE IS BigInt MINOR UNITS IN ONE CURRENCY. The components are
+/// stored separately rather than as a total, because a seller querying a
+/// delivery charge is almost always querying one component of it - a surcharge
+/// they did not expect, or duties they thought were paid.
+model CarrierRateQuote {
+  id         String @id @db.Char(26)
+  shipmentId String @db.Char(26)
+  /// Whose consignment. Denormalised from the shipment so every read filters
+  /// on the session's seller in the same statement that finds the row.
+  sellerAccountId String @db.Char(26)
+
+  fulfilmentMethodId        String  @db.Char(26)
+  sellerCarrierConnectionId String? @db.Char(26)
+  /// The card version this was priced from, for a SELF_MANAGED quote. Null for
+  /// a carrier quote, which was priced by the carrier.
+  rateCardId String? @db.Char(26)
+
+  provider    CarrierProvider
+  serviceCode String  @db.VarChar(48)
+  serviceName String? @db.VarChar(120)
+
+  currency String @db.Char(3)
+
+  baseChargeMinor BigInt
+  surchargesMinor BigInt @default(0)
+  taxMinor        BigInt @default(0)
+  insuranceMinor  BigInt @default(0)
+  /// Duties and import charges, where the carrier returned a landed-cost
+  /// estimate. An ESTIMATE, labelled as one everywhere it is shown: nobody but
+  /// a customs authority knows this figure.
+  dutiesEstimateMinor BigInt?
+  totalMinor          BigInt
+
+  /// What the seller pays the carrier, and what the customer was charged for
+  /// delivery. Two figures because they are routinely different and the
+  /// difference is the seller's own commercial decision.
+  sellerChargeMinor   BigInt?
+  customerChargeMinor BigInt?
+
+  estimatedDeliveryAt   DateTime? @db.DateTime(3)
+  estimatedTransitDays  Int?
+
+  /// When this stops being honourable. A quote past its expiry is never used
+  /// silently: the shipment asks again.
+  expiresAt DateTime? @db.DateTime(3)
+
+  /// The carrier's own id for this quote, so it can be quoted back to them.
+  providerQuoteReference String? @db.VarChar(128)
+
+  state CarrierQuoteState @default(OFFERED)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment         LogisticsShipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  sellerAccount    SellerAccount            @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  fulfilmentMethod SellerFulfilmentMethod   @relation(fields: [fulfilmentMethodId], references: [id], onDelete: Restrict)
+  connection       SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: SetNull)
+  rateCard         SellerLogisticsRateCard? @relation(fields: [rateCardId], references: [id], onDelete: SetNull)
+
+  /// One SELECTED quote per consignment, enforced by the database.
+  ///
+  /// The `activeShipmentId` idiom again: this holds the shipment id while the
+  /// quote is the chosen one and NULL otherwise. Two quotes selected for one
+  /// parcel is two different numbers on one invoice.
+  selectedForShipmentId String? @db.Char(26)
+
+  @@unique([selectedForShipmentId], map: "uq_carrier_quote_selected")
+  @@index([shipmentId, state], map: "ix_carrier_quote_shipment")
+  @@index([sellerAccountId, createdAt], map: "ix_carrier_quote_seller")
+  @@index([state, expiresAt], map: "ix_carrier_quote_expiry")
+  @@map("carrier_rate_quotes")
+}
+
+/// One attempt to buy one consignment at one provider.
+///
+/// THE RECORD THAT STOPS A SELLER BEING BILLED TWICE. Creating a shipment at a
+/// carrier is a chargeable act that a retry, a double click or a redelivered
+/// job will repeat unless something refuses. That something is this table: the
+/// idempotency key is UNIQUE, so the second attempt collides rather than
+/// booking a second consignment, and the first attempt's answer is returned.
+///
+/// The key is derived from the shipment and the request's own shape rather
+/// than generated, so a genuine retry of the SAME purchase reuses it and a
+/// deliberate second purchase - a replacement after a cancellation - gets a
+/// new one.
+model ShipmentPurchase {
+  id         String @id @db.Char(26)
+  shipmentId String @db.Char(26)
+  /// Denormalised, for the same reason as on the quote: every read filters on
+  /// the session's seller in the statement that finds the row.
+  sellerAccountId String @db.Char(26)
+
+  /// Unique across the deployment. The whole mechanism.
+  idempotencyKey String @unique(map: "uq_shipment_purchase_idempotency") @db.VarChar(120)
+
+  provider                  CarrierProvider
+  sellerCarrierConnectionId String? @db.Char(26)
+  quoteId                   String? @db.Char(26)
+
+  /// PENDING while the call is in flight, so a crash mid-call leaves evidence
+  /// that something may have been bought - which is the state a reconciliation
+  /// has to be able to find.
+  state String @default("PENDING") @db.VarChar(16)
+
+  /// What came back, once something did.
+  providerShipmentId      String? @db.VarChar(128)
+  providerTrackingNumber  String? @db.VarChar(128)
+  /// Safe to show. Never a request body, a header or a credential.
+  failureMessage String? @db.VarChar(512)
+
+  createdBySellerMemberId String?   @db.Char(26)
+  createdAt               DateTime  @default(now()) @db.DateTime(3)
+  completedAt             DateTime? @db.DateTime(3)
+
+  shipment      LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  sellerAccount SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  /// One SUCCEEDED purchase per consignment, enforced by the database rather
+  /// than by a check the second caller loses the race to. Holds the shipment
+  /// id on success and NULL otherwise.
+  purchasedShipmentId String? @db.Char(26)
+
+  @@unique([purchasedShipmentId], map: "uq_shipment_purchase_succeeded")
+  @@index([shipmentId, createdAt], map: "ix_shipment_purchase_shipment")
+  @@index([sellerAccountId, state], map: "ix_shipment_purchase_seller")
+  @@map("shipment_purchases")
+}
+
+/// Every status a seller-to-carrier arrangement has held.
+///
+/// Append-only, and separate from the audit log on purpose. `SellerAuditLog`
+/// answers "what did this person do"; this answers "how did this relationship
+/// get here", which is the question asked during a dispute and which a
+/// filtered audit query answers badly once a relationship has been suspended
+/// and restored three times.
+///
+/// NOTHING IS EVER HARD-DELETED FROM HERE, and the relationship it belongs to
+/// is soft-deleted for the same reason: a carrier that moved a parcel has to
+/// remain explicable after the arrangement ends.
+model SellerLogisticsRelationshipEvent {
+  id                       String @id @db.Char(26)
+  sellerLogisticsPartnerId String @db.Char(26)
+
+  fromStatus SellerLogisticsRelationshipStatus?
+  toStatus   SellerLogisticsRelationshipStatus
+
+  /// Required by the service for every status whose change needs explaining.
+  reason String? @db.VarChar(512)
+
+  /// WHO moved it. Three separate columns because they are three separate
+  /// directories - a seller's team, the marketplace's staff, and the carrier's
+  /// own people - and collapsing them into one id column would make the
+  /// commonest audit question ("did the carrier agree to this, or did we
+  /// decide it for them?") unanswerable.
+  actorUserId          String? @db.Char(26)
+  actorSellerMemberId  String? @db.Char(26)
+  actorPartnerUserId   String? @db.Char(26)
+  /// Where nobody did it: a sweep, a migration, an expiry.
+  actorLabel String? @db.VarChar(160)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  relationship SellerLogisticsPartner @relation(fields: [sellerLogisticsPartnerId], references: [id], onDelete: Cascade, map: "seller_logistics_relationship_events_partner_fkey")
+
+  @@index([sellerLogisticsPartnerId, createdAt], map: "ix_seller_logistics_event_history")
+  @@map("seller_logistics_relationship_events")
+}
+
+/// Where a seller's invitation to a new delivery company stands.
+enum SellerPartnerInvitationState {
+  SENT
+  /// The invited company redeemed the token and created its own account.
+  ACCEPTED
+  /// The invited company said no.
+  DECLINED
+  EXPIRED
+  /// The seller withdrew it.
+  REVOKED
+}
+
+/// A seller asking a delivery company it works with to join this marketplace.
+///
+/// THE SELLER DOES NOT CREATE THE PARTNER'S ACCOUNT. They describe the company
+/// and supply a business email; this row holds a single-use hashed token, the
+/// invited company redeems it, verifies its own address and chooses its own
+/// password. A seller who could set that password could sign in as the carrier
+/// and read every consignment the carrier ever holds - including, once the
+/// carrier works for a second seller, somebody else's.
+///
+/// What this creates is therefore a PENDING relationship and nothing more. The
+/// carrier is not trusted, not approved, and carries nothing, until it has
+/// completed its own profile and - where the deployment requires it - an
+/// administrator has agreed.
+model SellerLogisticsPartnerInvitation {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  state SellerPartnerInvitationState @default(SENT)
+
+  /// What the seller says the company is called. PROPOSED, and never written
+  /// onto the partner row without the partner confirming it: a seller
+  /// mistyping a legal name should not rename a company.
+  proposedLegalName   String @db.VarChar(255)
+  proposedDisplayName String @db.VarChar(160)
+
+  businessEmail      String  @db.VarChar(320)
+  businessPhone      String? @db.VarChar(32)
+  registrationNumber String? @db.VarChar(64)
+  countryCode        String  @db.Char(2)
+  addressJson        Json?
+  primaryContactName String? @db.VarChar(160)
+
+  /// What the seller expects of them, as JSON lists of ISO country codes and
+  /// `LogisticsCapabilityKind` names. A REQUEST, not a grant: the carrier
+  /// declares its own coverage and the operator approves its capabilities.
+  expectedServiceCountriesJson Json?
+  requiredCapabilitiesJson     Json?
+  relationshipDescription      String? @db.Text
+
+  /// SHA-256 of the single-use token. The token itself is emailed and never
+  /// stored, exactly as `AuthToken` does it - a database read must not yield
+  /// something that can be redeemed.
+  tokenHash String @unique(map: "uq_seller_partner_invitation_token") @db.Char(64)
+  expiresAt DateTime @db.DateTime(3)
+
+  /// Filled in once redeemed, so the invitation and the company it produced
+  /// can be read together.
+  logisticsPartnerId       String? @db.Char(26)
+  sellerLogisticsPartnerId String? @db.Char(26)
+
+  invitedBySellerMemberId String?   @db.Char(26)
+  acceptedAt              DateTime? @db.DateTime(3)
+  declinedReason          String?   @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  logisticsPartner LogisticsPartner? @relation(fields: [logisticsPartnerId], references: [id], onDelete: SetNull)
+
+  /// The seller's own list, and the reminder sweep.
+  @@index([sellerAccountId, state], map: "ix_seller_partner_invitation_seller")
+  @@index([state, expiresAt], map: "ix_seller_partner_invitation_expiry")
+  @@index([businessEmail], map: "ix_seller_partner_invitation_email")
+  @@map("seller_logistics_partner_invitations")
 }
 
 // ===========================================================================
@@ -10690,6 +11883,28 @@ enum LogisticsCapabilityKind {
   CUSTOMS_BROKERAGE
   PROOF_OF_DELIVERY_PHOTO
   PROOF_OF_DELIVERY_OTP
+  /// The service levels a seller's own operation declares.
+  ///
+  /// Added for self-managed and dedicated delivery, where the seller is
+  /// describing what their own vans will do rather than what a national
+  /// carrier already publishes. SAME_DAY and NEXT_DAY were here already and
+  /// are not repeated.
+  STANDARD_DELIVERY
+  EXPRESS_DELIVERY
+  /// The buyer picks a slot.
+  SCHEDULED_DELIVERY
+  /// Delivers only while the receiving business is open, which for a clinic is
+  /// the difference between a delivery and a wasted journey.
+  BUSINESS_HOURS_DELIVERY
+  SIGNATURE_REQUIRED
+  /// Only meaningful where the deployment's payment architecture supports it.
+  /// Stays unapproved otherwise, rather than being offered and failing at the
+  /// door.
+  CASH_ON_DELIVERY
+  INSURANCE
+  /// Collecting a return from the buyer. Its own capability because a carrier
+  /// that delivers is not automatically a carrier that collects.
+  REVERSE_PICKUP
 }
 
 enum LogisticsCapabilityState {
@@ -10917,6 +12132,25 @@ enum CarrierProvider {
   DHL
   FEDEX
   UPS
+  /// India Post - Department of Posts, shown as "India Post (IPS)".
+  ///
+  /// NOT an API integration, and the enum member exists so that it can be
+  /// honest about that rather than absent. India Post publishes no openly
+  /// documented authenticated API for parcel booking, labels or tracking that
+  /// this repository can verify; what exists is a commercial bulk-customer
+  /// arrangement negotiated per business. So a connection to it is created
+  /// with a tracking mode of MANUAL_ENTRY or EXTERNAL_LINK, the consignment
+  /// number the seller types is validated for shape and nothing more, and the
+  /// tracking timeline says in those words that it is maintained by hand.
+  ///
+  /// The adapter interface is implemented for it in full, every method
+  /// refusing with CARRIER_PROVIDER_UNSUPPORTED, so the day an official API is
+  /// contracted the change is one class and no caller.
+  ///
+  /// The code is INDIA_POST rather than IPS deliberately: three letters that
+  /// already mean half a dozen other things would collide the first time this
+  /// software met another organisation using them.
+  INDIA_POST
 }
 
 enum CarrierIntegrationState {
@@ -11021,6 +12255,26 @@ model LogisticsPartner {
 
   addressJson Json?
 
+  /// What kind of company this is, and therefore who may edit it.
+  ///
+  /// Every row that existed before this column is MARKETPLACE_CARRIER, which
+  /// is what the default records and what those rows have always been. No
+  /// backfill is needed and none is done.
+  partnerKind LogisticsPartnerKind @default(MARKETPLACE_CARRIER)
+
+  /// The seller this company belongs to or works exclusively for.
+  ///
+  /// Null for a MARKETPLACE_CARRIER, which belongs to nobody and may be
+  /// requested by any seller. Set for the other two kinds, and it is what
+  /// keeps a seller's own delivery arm out of every other seller's carrier
+  /// list: the picker excludes any partner whose owner is somebody else.
+  ///
+  /// SetNull rather than Cascade. A seller account being removed must not take
+  /// a logistics company - and its drivers, its consignments and its proof of
+  /// delivery - with it; the company is left ownerless and suspended for a
+  /// person to deal with.
+  ownerSellerAccountId String? @db.Char(26)
+
   status         LogisticsPartnerStatus  @default(PENDING_ACTIVATION)
   contractStatus LogisticsContractStatus @default(DRAFT)
   contractReference String? @db.VarChar(64)
@@ -11065,6 +12319,10 @@ model LogisticsPartner {
   archivedAt  DateTime? @db.DateTime(3)
 
   carrierIntegration CarrierIntegration? @relation(fields: [carrierIntegrationId], references: [id], onDelete: SetNull)
+  ownerSellerAccount SellerAccount?      @relation("SellerOwnedLogistics", fields: [ownerSellerAccountId], references: [id], onDelete: SetNull)
+
+  fulfilmentMethods SellerFulfilmentMethod[]
+  sellerInvitations SellerLogisticsPartnerInvitation[]
 
   users        LogisticsPartnerUser[]
   invitations  LogisticsPartnerInvitation[]
@@ -11085,6 +12343,9 @@ model LogisticsPartner {
   @@index([status, createdAt], map: "ix_logistics_partner_status")
   @@index([registrationCountry], map: "ix_logistics_partner_country")
   @@index([carrierIntegrationId], map: "ix_logistics_partner_integration")
+  /// The seller's own view: my delivery arm, and the companies that work for
+  /// me. Also the exclusion the marketplace carrier picker runs.
+  @@index([ownerSellerAccountId, partnerKind], map: "ix_logistics_partner_owner")
   @@map("logistics_partners")
 }
 
@@ -11202,6 +12463,36 @@ model LogisticsServiceRegion {
   /// licensed to deliver into a country it may not collect from is ordinary.
   supportsPickup   Boolean @default(true)
   supportsDelivery Boolean @default(true)
+
+  /// Whether this row grants coverage or takes it away.
+  ///
+  /// An exclusion, and it wins over any inclusion that overlaps it. This is
+  /// how "the whole of France except Corsica" is expressed, which is the shape
+  /// most real coverage takes and which an inclusion-only model can only
+  /// approximate by enumerating departments.
+  isExclusion Boolean @default(false)
+
+  /// Bitmask, Monday = 1, same convention as `SellerLocation.workingDaysMask`.
+  /// Which days this region is served at all.
+  deliveryDaysMask Int @default(31)
+
+  /// The transit promise for this region, as a range in whole days. Both null
+  /// where nobody has committed to one - which is honest, and is shown as "no
+  /// estimate" rather than as a guess.
+  transitDaysMin Int?
+  transitDaysMax Int?
+
+  /// Charged on top for somewhere the van has to be sent specially. BigInt
+  /// minor units with the currency of the rate card that reads it; a float
+  /// here is a delivery charge that disagrees with the invoice.
+  remoteAreaSurchargeMinor BigInt?
+
+  /// What this region will accept in one consignment. Grams and millimetres,
+  /// integers, null meaning no limit beyond the carrier's own.
+  maxShipmentWeightGrams Int?
+  maxPackageLengthMm     Int?
+  maxPackageWidthMm      Int?
+  maxPackageHeightMm     Int?
 
   isActive Boolean @default(true)
 
@@ -11372,6 +12663,27 @@ model LogisticsShipment {
   /// who bookmarked a tracking page does not lose it.
   trackingNumber String @unique(map: "uq_logistics_shipment_tracking") @db.VarChar(64)
 
+  /// HOW THIS PARCEL CAME TO BE GOING THIS WAY.
+  ///
+  /// Written once, when the method is chosen, and never rewritten when the
+  /// seller later changes their default - which is the whole reason it is
+  /// stored rather than derived. A seller who switches from their own van to
+  /// DHL in March must not find that every consignment they sent in February
+  /// now claims to have gone by DHL.
+  ///
+  /// All nullable, because a consignment raised before this feature existed
+  /// has no method and must keep working exactly as it does today.
+  sellerFulfilmentMethodId  String?                    @db.Char(26)
+  sellerCarrierConnectionId String?                    @db.Char(26)
+  fulfilmentSelectionSource FulfilmentSelectionSource?
+  /// The rule that matched, where one did. SetNull: a seller deleting a rule
+  /// must not be blocked by the consignments it once routed, and the reason
+  /// below survives it.
+  fulfilmentSelectionRuleId String? @db.Char(26)
+  /// The decision in words, for the seller and for the operator reading it
+  /// months later: "Product rule: cold-chain listings go by MediCourier".
+  fulfilmentSelectionReason String? @db.VarChar(512)
+
   /// The CARRIER's own number, where an integrated carrier issued one.
   ///
   /// Unique per integration and not globally: two carriers can and do issue
@@ -11501,6 +12813,13 @@ model LogisticsShipment {
   assignedPartner    LogisticsPartner?   @relation(fields: [assignedPartnerId], references: [id], onDelete: Restrict)
   slaPolicy          LogisticsSlaPolicy? @relation(fields: [slaPolicyId], references: [id], onDelete: SetNull)
   carrierIntegration CarrierIntegration? @relation(fields: [carrierIntegrationId], references: [id], onDelete: SetNull)
+
+  sellerFulfilmentMethod  SellerFulfilmentMethod?  @relation(fields: [sellerFulfilmentMethodId], references: [id], onDelete: SetNull)
+  sellerCarrierConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: SetNull)
+  fulfilmentSelectionRule SellerFulfilmentRule?    @relation(fields: [fulfilmentSelectionRuleId], references: [id], onDelete: SetNull)
+
+  rateQuotes CarrierRateQuote[]
+  purchases  ShipmentPurchase[]
 
   packages        LogisticsShipmentPackage[]
   assignments     LogisticsShipmentAssignment[]
@@ -11918,11 +13237,49 @@ model LogisticsProofOfDelivery {
 /// consignments and one consignment can survive a failed collection and be
 /// collected the next day. A column on the shipment would model neither.
 model LogisticsPickupRequest {
-  id                 String  @id @db.Char(26)
-  logisticsPartnerId String  @db.Char(26)
+  id String @id @db.Char(26)
+
+  /// WHO ARRANGED IT - exactly one of the two, enforced by
+  /// `chk_logistics_pickup_arranger`.
+  ///
+  /// A delivery company inside the platform, or the seller's own account with
+  /// an external carrier. Not both: a collection that named both would be
+  /// booked twice, and the second van is the one nobody cancels. And not
+  /// neither: a collection nobody arranged is a row that means nothing.
+  ///
+  /// The second case is why this stopped being NOT NULL. A seller who
+  /// connected their own DHL account books the van with DHL under their own
+  /// contract, and there is no partner row anywhere in it - nor should there
+  /// be, because inventing one would put a company in the partner directory
+  /// that nobody here has a relationship with.
+  logisticsPartnerId        String? @db.Char(26)
+  sellerAccountId           String? @db.Char(26)
+  sellerCarrierConnectionId String? @db.Char(26)
+
+  /// What the carrier gave back. The confirmation number is the one a seller
+  /// reads out on the telephone when the van has not arrived, which is the
+  /// whole reason it is stored rather than derived.
+  carrierPickupId           String? @db.VarChar(128)
+  carrierConfirmationNumber String? @db.VarChar(64)
+
   /// Null for a standing collection that is not about one parcel.
-  shipmentId         String? @db.Char(26)
-  locationId         String? @db.Char(26)
+  shipmentId String? @db.Char(26)
+
+  /// The consignment this collection is LIVE for, and NULL once it is not.
+  ///
+  /// The NULL-is-distinct idiom this schema uses throughout. Two vans is the
+  /// expensive failure here - the second booking is chargeable, and the second
+  /// van is the one nobody cancels - and a read-then-insert cannot prevent it:
+  /// two dispatchers pressing "book a collection" in the same second both read
+  /// no live pickup and both write one.
+  ///
+  /// So it is a UNIQUE index instead. Set to `shipmentId` while the collection
+  /// is live, cleared the moment it completes, fails or is cancelled. Any
+  /// number of finished collections coexist for one consignment; a second live
+  /// one collides in the database.
+  activeForShipmentId String? @db.Char(26)
+
+  locationId String? @db.Char(26)
 
   state LogisticsPickupState @default(REQUESTED)
 
@@ -11952,6 +13309,7 @@ model LogisticsPickupRequest {
   scheduledAt DateTime? @db.DateTime(3)
   completedAt DateTime? @db.DateTime(3)
   failedAt    DateTime? @db.DateTime(3)
+  cancelledAt DateTime? @db.DateTime(3)
   failureReason String? @db.VarChar(512)
 
   /// How many packages the driver actually took. Less than the consignment's
@@ -11966,14 +13324,18 @@ model LogisticsPickupRequest {
   createdAt       DateTime @default(now()) @db.DateTime(3)
   updatedAt       DateTime @updatedAt @db.DateTime(3)
 
-  partner  LogisticsPartner        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
-  shipment LogisticsShipment?      @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
-  location InventoryLocation?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  driver   LogisticsDriverProfile? @relation(fields: [driverProfileId], references: [id], onDelete: SetNull)
-  vehicle  LogisticsVehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  partner       LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  sellerAccount SellerAccount?           @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  sellerConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: SetNull, map: "logistics_pickup_requests_sellerConnectionId_fkey")
+  shipment      LogisticsShipment?       @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  location      InventoryLocation?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  driver        LogisticsDriverProfile?  @relation(fields: [driverProfileId], references: [id], onDelete: SetNull)
+  vehicle       LogisticsVehicle?        @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   @@unique([logisticsPartnerId, completionIdempotencyKey], map: "uq_logistics_pickup_idempotency")
   @@index([logisticsPartnerId, state, windowStartAt], map: "ix_logistics_pickup_board")
+  @@unique([activeForShipmentId], map: "uq_logistics_pickup_active")
+  @@index([sellerAccountId, windowStartAt], map: "ix_logistics_pickup_seller")
   @@index([shipmentId], map: "ix_logistics_pickup_shipment")
   @@index([locationId, windowStartAt], map: "ix_logistics_pickup_location")
   @@index([driverProfileId, windowStartAt], map: "ix_logistics_pickup_driver")
@@ -12783,4 +14145,1557 @@ model DemoCatalogEntry {
   @@index([subcategorySlug], map: "ix_demo_catalog_subcategory")
   @@index([imageNeedsReview], map: "ix_demo_catalog_image_review")
   @@map("demo_catalog_entries")
+}
+
+// ===========================================================================
+// BULK ORDERING: CARTON, PALLET, CONTAINER
+//
+// A seller states how their goods are actually packed, and a buyer orders in
+// those packages instead of in loose units.
+//
+// THE ONE RULE EVERYTHING ELSE FOLLOWS FROM
+//
+// The stored quantity is still base units. It always has been - see
+// `OrderingUnit` - and no amount of packaging changes it. `CartItem.quantity`
+// and `OrderItem.quantity` remain a count of pieces, so pricing, tax,
+// reservation, picking, settlement and every ERP push continue to read one
+// number and have never had to learn that pallets exist. What a buyer chose is
+// recorded BESIDE that number, never instead of it.
+//
+// So a two-pallet order of 50 cartons of 24 stores `quantity = 2400`, and the
+// pallet count lives in the snapshot. That is what makes "2 pallets" and
+// "2,400 units" the same order rather than two conflicting ones, and it is why
+// an existing order placed before any of this existed reads back unchanged.
+//
+// WHY PACKAGING HANGS OFF THE OFFER RATHER THAN THE PRODUCT
+//
+// `SellerOffer` is already one seller's terms for one variant, and packaging
+// is a term of trade, not a product fact: two sellers of the same catalogue
+// item pack it differently, and one seller packs the 1-litre differently from
+// the 5-litre. A profile on the product would have to pick one of them and be
+// wrong for everybody else.
+//
+// WHAT IS DERIVED AND WHAT IS STATED
+//
+// Units per pallet is DERIVED - cartons per layer x layers x units per carton
+// - and the derived figure is kept in `unitsPerPackageDerived` even when the
+// seller overrides it. A real pallet is not always a tidy multiple: a top
+// layer is short, a corner takes a spacer. The override is allowed, and it is
+// recorded AS an override with the arithmetic it replaced beside it, because
+// "the system says 1,200 and the seller says 1,150" is a question somebody
+// asks during a dispute and it has to have an answer.
+//
+// WHAT THIS DELIBERATELY IS NOT
+//
+// A three-dimensional packing optimiser. Nothing here decides how many cartons
+// fit on a pallet; the seller does, and the system does the multiplication and
+// says out loud that the capacities are the seller's. A container's nominal
+// volume and payload are guidance printed beside the seller's figure, never a
+// guarantee - they differ by carrier and by the individual box.
+// ===========================================================================
+
+/// A package a buyer can order by.
+///
+/// Parallel to the four bulk members of `OrderingUnit` rather than the same
+/// enum, because the two answer different questions: this one is configuration
+/// ("may this be bought by the pallet?") and that one is a historical fact on
+/// a line ("this was bought by the pallet"). Keeping them apart is what lets a
+/// package type be retired from the configuration without rewriting the
+/// meaning of every order that used it.
+enum SellerPackageType {
+  CARTON
+  UK_PALLET
+  US_PALLET
+  CONTAINER
+}
+
+/// A pallet footprint, as a preset.
+///
+/// A FOOTPRINT and nothing else. Height, load and carton count are the
+/// seller's, per variant, because a pallet of gauze and a pallet of saline are
+/// the same two numbers on the floor and nothing else in common.
+enum PalletStandard {
+  /// 1200 x 1000 mm. The British and wider European standard footprint.
+  UK_1200_1000
+  /// 1219 x 1016 mm, which is 48 x 40 inches. The North American standard.
+  US_1219_1016
+}
+
+/// Container equipment.
+///
+/// Nominal values for these are published in `domain/packaging.ts` as
+/// GUIDANCE. They are not capacities: internal dimensions and maximum payload
+/// vary by build, by carrier and by the individual box, and a seller who
+/// promises a figure taken from a table will one day be unable to load it.
+enum ContainerType {
+  /// 20-foot standard dry.
+  DRY_20GP
+  /// 40-foot standard dry.
+  DRY_40GP
+  /// 40-foot high cube.
+  HIGH_CUBE_40HC
+  /// Something the seller described themselves.
+  CUSTOM
+}
+
+/// Whether a container moves as one consignor's load or shares the box.
+enum ContainerLoadMode {
+  /// Full container load - this seller fills it.
+  FCL
+  /// Less than container load - consolidated with other shippers.
+  LCL
+}
+
+/// How a container is filled.
+enum ContainerLoadingMethod {
+  /// Palletised, so the container -> pallet -> carton -> unit chain is whole.
+  PALLET_LOADED
+  /// Loose cartons, floor-loaded. There is no pallet in the breakdown.
+  CARTON_LOADED
+  /// Something else the seller described in words.
+  CUSTOM
+}
+
+/// The unit a seller typed a length in.
+///
+/// Every length is STORED in millimetres. This records what the seller was
+/// looking at when they typed it, so the screen shows their own figure back
+/// rather than a converted one with a rounding artefact in it.
+enum DimensionUnit {
+  MM
+  CM
+  M
+  IN
+}
+
+/// The unit a seller typed a weight in. Every weight is STORED in grams, for
+/// the same reason as above.
+enum WeightUnit {
+  G
+  KG
+  LB
+}
+
+/// Whether a package type is ready to be bought.
+///
+/// `INCOMPLETE` is the state that earns this enum its place. A seller who
+/// enables pallets and then leaves the layer count blank has not made a
+/// mistake worth blocking their whole listing over - but a buyer must not be
+/// offered a pallet whose size nobody has stated. So the option stays
+/// enabled, is held out of the buyer's selector, and `validationMessage` says
+/// what is missing.
+enum PackagingOptionState {
+  /// Being filled in. Never offered.
+  DRAFT
+  /// Enabled but missing something a buyer would need. Never offered, and the
+  /// seller's listing screen says which field.
+  INCOMPLETE
+  /// Complete and buyable.
+  ACTIVE
+  /// The seller switched it off. Kept, with its figures, so switching it back
+  /// on does not mean typing them again.
+  DISABLED
+}
+
+/// Where the price of one package comes from.
+enum PackagingPriceMode {
+  /// The seller states the package price outright. The per-unit figure shown
+  /// to the buyer is derived from it, and that direction matters: a seller
+  /// selling a pallet for a round number should see that round number.
+  PER_PACKAGE
+  /// package price = the offer's unit price x units in the package. What most
+  /// cartons are, and it keeps a carton price honest when the unit price moves.
+  DERIVED_FROM_UNIT
+  /// There is no instant price. The buyer asks for a freight quotation and a
+  /// person answers. The honest setting for most containers, and the reason
+  /// nothing here ever invents a shipping figure.
+  FREIGHT_QUOTE
+}
+
+/// One seller offer's bulk packaging, as a versioned whole.
+///
+/// The version is what an order line points back at. A seller re-specifying a
+/// pallet bumps it, and every historical line keeps naming the version it was
+/// bought under - which, together with the immutable snapshot on the line
+/// itself, is what makes "this order says 1,200 and the listing says 1,150"
+/// answerable rather than merely noticed.
+model SellerPackagingProfile {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// One profile per offer, and therefore per seller per variant.
+  offerId String @unique(map: "uq_seller_packaging_profile_offer") @db.Char(26)
+
+  /// What one base unit is called on screen - "piece", "bottle", "box of 10".
+  /// Display only. Nothing computes with it; the base unit is the offer's, and
+  /// the quantity is a count of them whatever this says.
+  baseUnitLabel String? @db.VarChar(48)
+
+  /// Bumped on every change to this profile or any option under it. Snapshots
+  /// record the value they were taken at.
+  version Int @default(1)
+
+  /// Seller-facing note - "pallets are shrink-wrapped, not strapped".
+  notes String? @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_packaging_profile_seller")
+  offer         SellerOffer            @relation(fields: [offerId], references: [id], onDelete: Cascade, map: "fk_packaging_profile_offer")
+  options       SellerPackagingOption[]
+
+  @@index([sellerAccountId, updatedAt], map: "ix_packaging_profile_seller")
+  @@map("seller_packaging_profiles")
+}
+
+/// One package type, fully specified.
+///
+/// Wide on purpose. The alternative - a thin row plus a JSON blob - cannot be
+/// validated by the database, cannot be indexed, and turns "which of my
+/// listings has a pallet heavier than the forklift takes" into a full scan and
+/// a parser. Every column here is a figure somebody has to answer for.
+model SellerPackagingOption {
+  id        String @id @db.Char(26)
+  profileId String @db.Char(26)
+
+  /// Denormalised from the profile. Every tenant filter in this feature reads
+  /// it, and a query that has to join to find out whose row it is is a query
+  /// somebody will one day write without the join.
+  sellerAccountId String @db.Char(26)
+
+  packageType SellerPackageType
+
+  isEnabled Boolean              @default(false)
+  state     PackagingOptionState @default(DRAFT)
+
+  /// Why it is INCOMPLETE, naming the field. Seller-facing.
+  validationMessage String? @db.VarChar(512)
+
+  /// The seller's own reference for the packed unit - a carton SKU, an ITF-14.
+  packageSku String? @db.VarChar(64)
+
+  // --- What is inside ------------------------------------------------------
+
+  /// Base units in one carton. Required for CARTON. On a pallet or a container
+  /// it is the carton size the derivation runs on, and it is carried onto the
+  /// line so the full chain survives.
+  unitsPerCarton Int?
+
+  /// Base units in one of THIS package. The number everything else multiplies
+  /// by, and the only one the cart reads.
+  ///
+  /// Derived unless the seller overrode it - see the two columns below.
+  unitsPerPackage Int?
+
+  /// What the arithmetic said, kept even when it was overridden. Null where
+  /// nothing could be derived because an input was missing.
+  unitsPerPackageDerived Int?
+
+  /// True when `unitsPerPackage` is the seller's figure rather than the
+  /// derived one. Shown as an override on every screen that draws it, and
+  /// written to the seller audit log on the save that set it.
+  unitsPerPackageIsOverride Boolean @default(false)
+
+  // --- Pallet ---------------------------------------------------------------
+
+  palletStandard  PalletStandard?
+  cartonsPerLayer Int?
+  layerCount      Int?
+  /// cartons per layer x layers, or the seller's own figure.
+  cartonsPerPallet Int?
+
+  /// Loaded height including the pallet itself, in millimetres.
+  loadedHeightMm Int?
+
+  /// Whether a loaded pallet may be stacked on another, and how many high in
+  /// total. A `false` here is what keeps a container's pallet count honest.
+  isStackable   Boolean @default(false)
+  maxStackCount Int?
+
+  // --- Container ------------------------------------------------------------
+
+  containerType          ContainerType?
+  containerLoadMode      ContainerLoadMode?
+  containerLoadingMethod ContainerLoadingMethod?
+
+  /// Pallets in one container, when it is pallet-loaded. Null otherwise, and
+  /// null is meaningful: a floor-loaded container has no pallet in its chain.
+  palletsPerContainer Int?
+  /// Cartons in one container, however it is loaded.
+  cartonsPerContainer Int?
+
+  /// The port or place the container leaves from, in the seller's own words.
+  originPortLabel String? @db.VarChar(160)
+
+  /// An Incoterms 2020 three-letter code - EXW, FOB, CIF, DAP. Free text
+  /// against a validated list rather than an enum: the list is revised by the
+  /// ICC on its own schedule and a migration per revision buys nothing.
+  incoterm String? @db.VarChar(8)
+
+  // --- Physical -------------------------------------------------------------
+  //
+  // Canonical units throughout: millimetres and grams, both integers. A float
+  // gram is the same mistake as a float rupee, and a kilogram column would
+  // have to be one.
+
+  lengthMm Int?
+  widthMm  Int?
+  heightMm Int?
+  /// What the seller typed in, so the screen shows their figure back.
+  enteredDimensionUnit DimensionUnit @default(MM)
+
+  netWeightGrams   BigInt?
+  grossWeightGrams BigInt?
+  enteredWeightUnit WeightUnit @default(G)
+
+  /// The most this package may weigh loaded - the pallet's safe working load,
+  /// the container's maximum gross cargo weight. Checked against the order.
+  maxGrossWeightGrams BigInt?
+
+  /// Estimated loaded volume, cubic centimetres. An ESTIMATE, labelled as one
+  /// everywhere it is shown.
+  cargoVolumeCm3 BigInt?
+
+  // --- Terms of trade -------------------------------------------------------
+
+  minimumPackages  Int  @default(1)
+  /// Quantities must be a multiple of this. 1 means no restriction.
+  packageIncrement Int  @default(1)
+  maximumPackages  Int?
+
+  priceMode            PackagingPriceMode @default(DERIVED_FROM_UNIT)
+  /// Minor units, like every price in this schema. Required when `priceMode`
+  /// is PER_PACKAGE, ignored when it is DERIVED_FROM_UNIT, and null under
+  /// FREIGHT_QUOTE - where there is deliberately no number at all.
+  pricePerPackageMinor BigInt?
+  /// Must equal the offer's currency. Checked in the service; a package priced
+  /// in a currency the offer does not trade in cannot be added to a basket.
+  currency             String? @db.Char(3)
+
+  /// Working days to pack this package, on top of the offer's own handling
+  /// time. A pallet is not made up as fast as a box.
+  handlingLeadTimeDays Int?
+  /// Working days to MAKE the goods, where a container is built to order.
+  productionLeadTimeDays Int?
+
+  /// Which of the seller's own places this ships from, where one package type
+  /// ships from somewhere else - containers from a port warehouse, cartons
+  /// from the unit next door.
+  ///
+  /// Deliberately NOT a foreign key. A seller archives a location and the
+  /// packaging that named it must not stop reading back; the service checks
+  /// ownership on write, which is the check that actually matters.
+  originLocationId String? @db.Char(26)
+
+  /// Temperature, hazardous-material and loading notes. Shown to the buyer,
+  /// and carried onto the consignment.
+  isHazardous          Boolean @default(false)
+  temperatureNotes     String? @db.VarChar(500)
+  specialHandlingNotes String? @db.VarChar(1000)
+
+  version Int @default(1)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  profile SellerPackagingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade, map: "fk_packaging_option_profile")
+  tiers   SellerPackagingTier[]
+
+  /// One row per package type per profile.
+  @@unique([profileId, packageType], map: "uq_packaging_option_type")
+  @@index([sellerAccountId, packageType, state], map: "ix_packaging_option_seller")
+  @@index([state, isEnabled], map: "ix_packaging_option_buyable")
+  @@map("seller_packaging_options")
+}
+
+/// "Cheaper by the pallet if you take four."
+///
+/// A band, exactly like `SellerPriceTier`: `minPackages` starts a band that
+/// runs until the next one begins. Counted in PACKAGES, not base units - a
+/// seller thinking in pallets should not have to work out what 4 pallets is in
+/// pieces to state their own discount.
+model SellerPackagingTier {
+  id       String @id @db.Char(26)
+  optionId String @db.Char(26)
+
+  minPackages          Int
+  pricePerPackageMinor BigInt
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  option SellerPackagingOption @relation(fields: [optionId], references: [id], onDelete: Cascade, map: "fk_packaging_tier_option")
+
+  @@unique([optionId, minPackages], map: "uq_packaging_tier_band")
+  @@index([optionId, minPackages], map: "ix_packaging_tier_band")
+  @@map("seller_packaging_tiers")
+}
+
+/// The bulk breakdown of one basket line, frozen the moment it was chosen.
+///
+/// A basket is not a historical record and this table might look like it
+/// belongs only on the order. It is here because the number a shopper is shown
+/// must not move under them: a seller re-specifying a pallet while somebody
+/// has it in their basket would otherwise silently change what that basket
+/// holds, and the review screen would disagree with the product page they came
+/// from. Re-read on every cart read, compared with the live profile, and the
+/// shopper is TOLD when it has moved rather than having it applied.
+model CartItemPackaging {
+  id         String @id @db.Char(26)
+  cartItemId String @unique(map: "uq_cart_item_packaging") @db.Char(26)
+
+  packageType    SellerPackageType
+  palletStandard PalletStandard?
+  containerType  ContainerType?
+  containerLoadMode ContainerLoadMode?
+  containerLoadingMethod ContainerLoadingMethod?
+
+  /// How many packages the buyer asked for.
+  packageQuantity Int
+  /// Base units in one package, as it was at the moment of choosing.
+  unitsPerPackage Int
+  /// packageQuantity x unitsPerPackage. Held rather than recomputed so the
+  /// stored line and the stored breakdown can be checked against each other.
+  totalBaseUnits  Int
+
+  unitsPerCarton      Int?
+  cartonsPerPallet    Int?
+  palletsPerContainer Int?
+  cartonsPerContainer Int?
+
+  lengthMm Int?
+  widthMm  Int?
+  heightMm Int?
+  grossWeightGrams BigInt?
+  cargoVolumeCm3   BigInt?
+
+  /// Minor units. The price of ONE package and the price of ONE base unit,
+  /// both frozen. Two columns rather than one and a division: the division
+  /// does not always come out, and a rounded-back unit price that no longer
+  /// multiplies up to the package price is how a total stops adding up.
+  packagePriceMinor BigInt
+  unitPriceMinor    BigInt
+  currency          String @db.Char(3)
+
+  /// The tier band that applied, by its `minPackages`. Null when none did.
+  appliedTierMinPackages Int?
+
+  /// Which version of the seller's profile this was taken from, and when.
+  profileVersion Int
+  snapshotAt     DateTime @default(now()) @db.DateTime(3)
+
+  /// True when this line cannot be priced for delivery instantly and needs a
+  /// quotation. Decided from the package type and the seller's price mode, and
+  /// held here so the basket does not have to re-derive it on every read.
+  requiresFreightQuote Boolean @default(false)
+
+  cartItem CartItem @relation(fields: [cartItemId], references: [id], onDelete: Cascade, map: "fk_cart_item_packaging_item")
+
+  @@map("cart_item_packaging")
+}
+
+/// The bulk breakdown of one order line. Immutable.
+///
+/// Written once, inside the transaction that creates the order, and never
+/// updated by anything. The same discipline as the snapshot columns already on
+/// `OrderItem`, and for the same reason: a seller re-specifying a pallet next
+/// month must not change what an invoice from last month says.
+///
+/// There is no `updatedAt`. Its absence is the documentation.
+model OrderItemPackaging {
+  id          String @id @db.Char(26)
+  orderItemId String @unique(map: "uq_order_item_packaging") @db.Char(26)
+
+  packageType    SellerPackageType
+  palletStandard PalletStandard?
+  containerType  ContainerType?
+  containerLoadMode ContainerLoadMode?
+  containerLoadingMethod ContainerLoadingMethod?
+
+  packageQuantity Int
+  unitsPerPackage Int
+  totalBaseUnits  Int
+
+  unitsPerCarton      Int?
+  cartonsPerPallet    Int?
+  palletsPerContainer Int?
+  cartonsPerContainer Int?
+
+  lengthMm Int?
+  widthMm  Int?
+  heightMm Int?
+  grossWeightGrams BigInt?
+  cargoVolumeCm3   BigInt?
+
+  packagePriceMinor BigInt
+  unitPriceMinor    BigInt
+  currency          String @db.Char(3)
+
+  appliedTierMinPackages Int?
+
+  profileVersion Int
+  snapshotAt     DateTime @db.DateTime(3)
+
+  requiresFreightQuote Boolean @default(false)
+
+  /// The seller's packaging reference, frozen. A picking list prints it, and
+  /// the seller may have changed it since.
+  packageSkuSnapshot String? @db.VarChar(64)
+
+  incotermSnapshot String? @db.VarChar(8)
+  originPortLabelSnapshot String? @db.VarChar(160)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade, map: "fk_order_item_packaging_item")
+
+  @@index([packageType], map: "ix_order_item_packaging_type")
+  @@map("order_item_packaging")
+}
+
+// ===========================================================================
+// FREIGHT FOR LOADS A PARCEL CARRIER CANNOT TAKE
+//
+// A pallet is not a parcel and a container is not a big parcel. DHL, FedEx and
+// India Post are wired up here as PARCEL carriers, and handing one of them a
+// twenty-tonne container booking produces either an API error or - worse - a
+// quote for something nobody can actually collect.
+//
+// So the load type is worked out from the packaging, the carrier's declared
+// capability is checked against it, and where nothing matches the answer is a
+// QUOTATION rather than a fabricated price. That is the whole of this section:
+// it exists so the system can say "this needs a freight quote" instead of
+// guessing.
+// ===========================================================================
+
+/// What kind of transport a consignment actually needs.
+enum FreightLoadType {
+  /// A box a courier takes. What every existing shipment is.
+  PARCEL
+  /// Several cartons, still parcel-network sized.
+  CARTON
+  /// Palletised freight. A tail-lift, a pallet truck, a groupage network.
+  PALLET
+  /// A full container.
+  FCL
+  /// A part container, consolidated.
+  LCL
+}
+
+/// Where a request for a freight price has got to.
+enum FreightQuoteState {
+  /// The buyer or the seller asked. Nobody has answered.
+  REQUESTED
+  /// A price, a service and dates have been entered by a person.
+  QUOTED
+  /// Somebody accepted the quoted price.
+  ACCEPTED
+  /// The seller or the carrier will not carry it.
+  DECLINED
+  /// Nobody answered in time, or the quoted price ran out.
+  EXPIRED
+  /// Withdrawn before it was answered.
+  CANCELLED
+}
+
+/// A request for a price to move a load no configured carrier can quote.
+///
+/// Deliberately not a `CarrierRateQuote`. That table holds a price an API
+/// returned; this one holds the absence of one - a question a person has to
+/// answer, with the load described well enough for them to answer it. Mixing
+/// the two would make "did a carrier quote this?" unanswerable, which is the
+/// one thing a freight desk must always be able to tell.
+model SellerFreightQuoteRequest {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// What this is a quote FOR. All optional and at least one is set, because
+  /// a quote can be asked for from a basket before an order exists.
+  ///
+  /// None is a foreign key, deliberately: a basket is swept, and an
+  /// unanswered quote for a basket somebody abandoned should become a dangling
+  /// reference rather than block the sweep or cascade into deleting the
+  /// evidence that the question was asked.
+  cartId             String? @db.Char(26)
+  orderId            String? @db.Char(26)
+  sellerOrderGroupId String? @db.Char(26)
+
+  state FreightQuoteState @default(REQUESTED)
+
+  loadType FreightLoadType
+
+  // --- The load, described ---------------------------------------------------
+
+  totalPackages   Int
+  totalBaseUnits  Int
+  totalCartons    Int?
+  totalPallets    Int?
+  totalContainers Int?
+
+  grossWeightGrams BigInt?
+  volumeCm3        BigInt?
+
+  /// ISO-3166-1 alpha-2.
+  originCountry      String? @db.Char(2)
+  destinationCountry String? @db.Char(2)
+  originPortLabel    String? @db.VarChar(160)
+  incoterm           String? @db.VarChar(8)
+
+  isHazardous      Boolean @default(false)
+  requiresColdChain Boolean @default(false)
+
+  /// A summary of the lines, enough for a freight desk to price without
+  /// opening the order. Structured, redacted of anything personal.
+  linesJson Json?
+
+  // --- The answer ------------------------------------------------------------
+
+  /// Who is being asked. Either one of this seller's delivery partners, or
+  /// nobody - in which case the seller is arranging it themselves.
+  logisticsPartnerId String? @db.Char(26)
+
+  /// Minor units, like every amount here. Null until somebody answers.
+  quotedAmountMinor BigInt?
+  quotedCurrency    String? @db.Char(3)
+  serviceName       String? @db.VarChar(160)
+  carrierReference  String? @db.VarChar(120)
+  trackingReference String? @db.VarChar(120)
+
+  expectedPickupAt   DateTime? @db.DateTime(3)
+  expectedDeliveryAt DateTime? @db.DateTime(3)
+
+  /// When the quoted price stops being good.
+  quoteExpiresAt DateTime? @db.DateTime(3)
+
+  /// Why it was declined, or any note the freight desk left. Seller and
+  /// buyer-facing, so never a raw provider body.
+  responseNote String? @db.VarChar(1000)
+
+  requestedByProfileId String?   @db.Char(26)
+  quotedByUserId       String?   @db.Char(26)
+  quotedAt             DateTime? @db.DateTime(3)
+  decidedAt            DateTime? @db.DateTime(3)
+
+  correlationId String? @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_freight_quote_seller")
+
+  @@index([sellerAccountId, state, createdAt], map: "ix_freight_quote_seller_state")
+  @@index([orderId], map: "ix_freight_quote_order")
+  @@index([cartId], map: "ix_freight_quote_cart")
+  @@index([state, quoteExpiresAt], map: "ix_freight_quote_sweep")
+  @@map("seller_freight_quote_requests")
+}
+
+
+// ===========================================================================
+// A SELLER'S OWN ACCOUNTING SYSTEM: TALLYPRIME
+//
+// THIS IS THE THIRD ERP FEATURE IN THIS SCHEMA AND IT IS NOT EITHER OF THE
+// OTHER TWO. Conflating them is the mistake this comment exists to prevent.
+//
+//   `ErpConnection`        - the OPERATOR's own warehouse system. One
+//                            business, one active connection, the operator's
+//                            stock and the operator's orders.
+//   `CustomerErpConnection`- a BUYER's own purchasing system. A hospital's
+//                            Odoo or SAP, pulling its own orders in.
+//   `SellerErpConnection`  - THIS. A SELLER's own accounting system, one per
+//                            seller, posting that seller's own sales into
+//                            their own books.
+//
+// They share no table, no job type and no retry budget. A seller's Tally going
+// down must not slow the operator's warehouse sync, and one seller's books
+// must be unreachable from another seller's session. Every row here carries
+// `sellerAccountId` and every query filters on it.
+//
+// WHY A BRIDGE AND NOT A URL
+//
+// TallyPrime is a Windows desktop application. Its integration surface is an
+// HTTP listener it opens on the seller's own machine - by default on port
+// 9000, on localhost, with NO AUTHENTICATION OF ANY KIND. Anyone who can reach
+// that port can read the company's entire ledger and post vouchers into it.
+//
+// So there is no URL a seller can safely give us. `localhost:9000` from this
+// server is THIS server, not theirs - a connection "test" against it would be
+// testing the wrong machine entirely, and on a shared host it would be
+// testing somebody else's. And a seller who port-forwards 9000 to the open
+// internet has published their books.
+//
+// The architecture is therefore outbound-only:
+//
+//   1. The seller generates a short-lived, single-use PAIRING CODE here.
+//   2. They run the Glovia Tally Bridge on the machine beside TallyPrime.
+//   3. The bridge talks to Tally over the LOCAL network - its business, not
+//      ours, and configured on their side.
+//   4. The bridge opens an authenticated HTTPS connection OUT to this API and
+//      claims work. Nothing ever connects in.
+//   5. Work is queued per seller, handed out only to that seller's paired
+//      device, and acknowledged with a parsed result.
+//   6. A heartbeat is the only thing that makes the word "Connected" true.
+//
+// `DIRECT_PRIVATE` exists for the one deployment where this is not necessary -
+// an operator running the marketplace inside the same private network or VPN
+// as the seller's Tally, on a host they control. It is allowlisted, guarded by
+// the same SSRF checks as every other outbound call, and it is never the
+// default. It is never offered as a way to "skip installing the bridge".
+//
+// WHAT "CONNECTED" IS ALLOWED TO MEAN
+//
+// One thing only: a live health check, within the freshness window, that
+// reached Tally, found the configured company loaded, and got a well-formed
+// answer back. Every other situation has its own state below and its own
+// sentence on screen. There is no state that means "we assume it is fine".
+// ===========================================================================
+
+/// Which accounting system. One member today; the abstraction is the point.
+///
+/// The connector interface, the job pipeline, the mapping table and the bridge
+/// are all provider-agnostic; only the payload builder and the response parser
+/// are Tally-specific. A second provider is a new module, not a new schema.
+enum SellerErpProvider {
+  TALLY_PRIME
+}
+
+/// How this platform reaches the seller's Tally.
+enum SellerErpNetworkMode {
+  /// Through the Glovia Tally Bridge, outbound-only. The production answer,
+  /// and the default.
+  BRIDGE
+  /// Straight to a host the operator has allowlisted, for a deployment that
+  /// runs inside the same private network as the seller's Tally. Refused
+  /// unless the operator has configured an allowlist, and refused for any
+  /// address `assertSafeErpUrl` will not pass.
+  DIRECT_PRIVATE
+}
+
+/// Where a seller's Tally connection actually stands.
+///
+/// Long, and deliberately so. Each member is a different sentence on screen
+/// with a different thing for the seller to do, and collapsing any two of them
+/// into "not working" is how somebody spends an afternoon reinstalling a
+/// bridge that was running perfectly and had simply not been told which
+/// company to use.
+enum SellerErpConnectionState {
+  /// The row exists and nothing has been set up.
+  NOT_CONFIGURED
+  /// Configured for BRIDGE mode with no bridge installed yet.
+  BRIDGE_REQUIRED
+  /// A pairing code has been issued and not yet used.
+  AWAITING_PAIRING
+  /// Paired, and the bridge has missed its heartbeats. The seller's machine is
+  /// off, asleep, or the agent has stopped.
+  BRIDGE_OFFLINE
+  /// The bridge is alive and TallyPrime is not answering on the local address
+  /// it was given. Tally is closed, or it is running without its HTTP server.
+  TALLY_UNAVAILABLE
+  /// Tally answered, and the company this connection is configured for is not
+  /// open in it. The single most common real-world failure, and it looks
+  /// nothing like a broken connection to the person standing at the machine.
+  COMPANY_NOT_LOADED
+  /// Everything talks, and a mapping a sync would need is missing.
+  MAPPING_INCOMPLETE
+  /// The last validation run found something that would post wrongly. Nothing
+  /// syncs until it is fixed.
+  VALIDATION_FAILED
+  /// A live health check passed, within the freshness window, with the
+  /// company loaded and the mappings complete. The ONLY state that may be
+  /// shown as "Connected".
+  CONNECTED
+  /// Connected, and work is in flight right now.
+  SYNCING
+  /// Connected, and something non-blocking wants attention - an unmapped
+  /// optional ledger, a stock item that has drifted.
+  CONNECTED_WITH_WARNINGS
+  /// The bridge token expired or was revoked, or a pairing code lapsed
+  /// unused. The seller pairs again.
+  PAIRING_EXPIRED
+  /// The seller switched it off. Configuration intact, nothing runs.
+  DISABLED
+}
+
+/// A paired machine's lifecycle.
+enum SellerErpBridgeState {
+  /// A pairing code was issued for it; it has not yet completed the exchange.
+  PENDING
+  /// Paired and heartbeating.
+  ACTIVE
+  /// Paired and past its heartbeat window.
+  OFFLINE
+  /// Revoked by the seller, or its token was rotated out. Never accepted
+  /// again; a replaced machine pairs as a new device.
+  REVOKED
+}
+
+/// What a mapping row maps.
+///
+/// One enum rather than a table per kind, because every one of them is the
+/// same shape - a thing on this side, a NAME on Tally's side - and Tally's
+/// side really is a name: masters there are keyed by name, not by an id, which
+/// is exactly why a rename in Tally breaks a sync and why `tallyGuid` is kept
+/// beside the name wherever Tally gives one.
+enum SellerErpMappingEntity {
+  /// A buyer -> a party ledger under Sundry Debtors.
+  PARTY_LEDGER
+  /// A seller offer / SKU -> a stock item.
+  STOCK_ITEM
+  /// One of the seller's locations -> a godown.
+  GODOWN
+  /// The base unit of a stock item.
+  UNIT
+  /// A compound unit - "PLT of 1200 PCS" - used only where the seller has
+  /// explicitly asked for packages to post as an alternate unit.
+  ALTERNATE_UNIT
+  SALES_ORDER_VOUCHER_TYPE
+  SALES_INVOICE_VOUCHER_TYPE
+  RECEIPT_VOUCHER_TYPE
+  CREDIT_NOTE_VOUCHER_TYPE
+  /// The income ledger a sale credits.
+  SALES_LEDGER
+  FREIGHT_LEDGER
+  DISCOUNT_LEDGER
+  /// What the marketplace keeps. An expense in the seller's books.
+  COMMISSION_LEDGER
+  GATEWAY_FEE_LEDGER
+  ROUNDING_LEDGER
+  TAX_LEDGER_CGST
+  TAX_LEDGER_SGST
+  TAX_LEDGER_IGST
+  TAX_LEDGER_CESS
+  /// Any other tax ledger this seller's jurisdiction needs, keyed by the tax
+  /// class code on this side.
+  TAX_LEDGER_OTHER
+  COST_CENTRE
+  CURRENCY
+}
+
+/// The kinds of thing that get posted, pulled or checked.
+enum SellerErpEventType {
+  /// A confirmed or paid order -> a Sales Order voucher.
+  SALES_ORDER
+  /// An invoice or dispatch -> a Sales voucher.
+  SALES_INVOICE
+  /// A settlement or payment -> a Receipt.
+  RECEIPT
+  /// A refund -> a Credit Note.
+  CREDIT_NOTE
+  /// A cancellation. Never a delete: posted accounting history is reversed or
+  /// marked, and which of those it is is the seller's policy.
+  CANCELLATION
+  /// A SKU -> a Stock Item.
+  STOCK_ITEM_UPSERT
+  /// A buyer -> a Party Ledger.
+  PARTY_LEDGER_UPSERT
+  /// A location -> a Godown.
+  GODOWN_UPSERT
+  /// Read stock back out of Tally.
+  INVENTORY_PULL
+  /// Read the master lists - ledgers, stock items, godowns, voucher types,
+  /// units - so the mapping screen has something to pick from.
+  MASTER_PULL
+  /// Read the open company. What makes "Connected" true.
+  CONNECTION_TEST
+}
+
+/// Where one queued ERP event has got to.
+enum SellerErpJobStatus {
+  /// Queued, due now or later.
+  PENDING
+  /// Claimed by the bridge and awaiting its acknowledgement. Held under a
+  /// lease, so a bridge that dies mid-task releases the work rather than
+  /// stranding it.
+  IN_FLIGHT
+  SUCCEEDED
+  /// Failed for something that may pass. `nextRetryAt` is set.
+  RETRY_SCHEDULED
+  /// Failed for something that will not pass on its own - a ledger Tally does
+  /// not have, a voucher it rejects. Never retried automatically.
+  FAILED
+  /// Retries exhausted. A person has to look, and the seller has been told.
+  DEAD_LETTER
+  CANCELLED
+  /// An earlier event this one depends on has not landed. A Receipt must not
+  /// post before the Invoice it pays.
+  BLOCKED
+}
+
+/// Who owns the stock figure when Tally and this platform disagree.
+///
+/// There is no right answer and so it is a setting, chosen explicitly by the
+/// seller with no default that silently overwrites anything. `DISABLED` is the
+/// default and means the two are simply not compared.
+enum SellerErpInventoryAuthority {
+  /// This platform's figure stands; Tally's is recorded beside it.
+  GLOVIA
+  /// Tally's figure stands and is applied to the seller's own stock, through
+  /// a recorded movement so the ledger still adds up.
+  TALLY
+  /// Neither. Divergences are listed for a person.
+  MANUAL
+  /// Not synced at all.
+  DISABLED
+}
+
+/// What started a sync.
+enum SellerErpSyncTrigger {
+  MANUAL
+  /// The one-off first run after setup.
+  INITIAL
+  /// A business event - an order confirmed, a refund issued.
+  EVENT
+  SCHEDULED
+  RETRY
+  /// The periodic pass that looks for events that should have posted and did
+  /// not, and for vouchers posted twice.
+  RECONCILE
+}
+
+/// How a cancellation is expressed in the books.
+enum SellerErpCancellationMode {
+  /// Post a Credit Note against the invoice. The safest, and the default.
+  CREDIT_NOTE
+  /// Mark the voucher as optional/cancelled in Tally, where the voucher type
+  /// supports it.
+  MARK_CANCELLED
+  /// Do nothing automatically and tell the seller to handle it. Honest for a
+  /// business whose accountant insists on doing it themselves.
+  MANUAL
+}
+
+/// One seller's connection to their own accounting system.
+model SellerErpConnection {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  provider SellerErpProvider @default(TALLY_PRIME)
+
+  /// The seller's own name for it - "Head office books", "FY26 company".
+  name String @db.VarChar(128)
+
+  state           SellerErpConnectionState @default(NOT_CONFIGURED)
+  /// Why it is in that state, in words safe to put on a screen. Never a
+  /// provider body, never a header, never a path from the seller's machine.
+  stateReason     String?                  @db.VarChar(512)
+  stateChangedAt  DateTime                 @default(now()) @db.DateTime(3)
+
+  networkMode SellerErpNetworkMode @default(BRIDGE)
+
+  /// Only meaningful under DIRECT_PRIVATE. Validated by `assertSafeErpUrl` on
+  /// every write AND on every request - DNS moves, and a name that resolved to
+  /// a private host at save time can resolve to a metadata endpoint an hour
+  /// later.
+  directBaseUrl String? @db.VarChar(1024)
+
+  // --- The company in Tally --------------------------------------------------
+
+  /// The company name EXACTLY as Tally holds it. Tally keys masters by name,
+  /// so this is not a label - it is the identifier every request carries.
+  companyName String? @db.VarChar(255)
+  /// Tally's own GUID for the company, where the version in use reports one.
+  /// Kept so a company RENAMED in Tally is recognised rather than treated as a
+  /// different company, which is the failure that silently posts a month of
+  /// sales into the wrong books.
+  companyGuid String? @db.VarChar(96)
+  /// The start of the company's books. Used to refuse a voucher dated before
+  /// it, which Tally would reject anyway - better to say so here.
+  companyBooksFrom DateTime? @db.Date
+  /// What the bridge reported the Tally build as. Display and diagnostics.
+  tallyVersion String? @db.VarChar(64)
+  /// The seller's own base currency in Tally, as reported. Compared with the
+  /// order currency; a mismatch is a warning, never a silent conversion.
+  tallyBaseCurrency String? @db.VarChar(16)
+
+  // --- Truthfulness ----------------------------------------------------------
+  //
+  // Every one of these is a fact with a time on it, and the UI shows the time.
+  // A status with no timestamp beside it is a status nobody can check.
+
+  lastTestAt      DateTime? @db.DateTime(3)
+  lastTestOk      Boolean   @default(false)
+  lastTestMessage String?   @db.VarChar(512)
+
+  lastSuccessfulSyncAt DateTime? @db.DateTime(3)
+  lastHeartbeatAt      DateTime? @db.DateTime(3)
+  mappingCompleteAt    DateTime? @db.DateTime(3)
+  lastValidationAt     DateTime? @db.DateTime(3)
+  lastReconcileAt      DateTime? @db.DateTime(3)
+
+  /// The initial sync, which is its own event: it is the one run that can post
+  /// a great deal at once, and a seller needs to know it finished.
+  initialSyncStartedAt   DateTime? @db.DateTime(3)
+  initialSyncCompletedAt DateTime? @db.DateTime(3)
+
+  // --- Behaviour -------------------------------------------------------------
+
+  inventoryAuthority SellerErpInventoryAuthority @default(DISABLED)
+
+  /// Whether this platform may create masters in Tally without being asked
+  /// each time. FALSE by default and it stays false until a person turns it
+  /// on: silently creating a ledger in somebody's accounts is not a
+  /// convenience, it is an unrequested change to a financial record.
+  autoCreateMasters Boolean @default(false)
+
+  /// Bumped when the shape of what we send changes, so a bridge running an
+  /// older build can refuse a payload it does not understand rather than post
+  /// half of it.
+  payloadVersion Int @default(1)
+
+  // --- Circuit breaker -------------------------------------------------------
+
+  consecutiveFailures Int       @default(0)
+  circuitState        CircuitState @default(CLOSED)
+  circuitOpenedAt     DateTime? @db.DateTime(3)
+  circuitResetAt      DateTime? @db.DateTime(3)
+
+  disabledAt         DateTime? @db.DateTime(3)
+  createdByProfileId String?   @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_seller_erp_connection_seller")
+
+  bridgeDevices SellerErpBridgeDevice[]
+  pairingCodes  SellerErpPairingCode[]
+  companies     SellerErpCompany[]
+  masters       SellerErpMasterCache[]
+  mappings      SellerErpMapping[]
+  syncPolicy    SellerErpSyncPolicy?
+  syncJobs      SellerErpSyncJob[]
+  externalRefs  SellerErpExternalReference[]
+  auditEvents   SellerErpAuditEvent[]
+
+  /// One connection per name per seller. A seller with two Tally companies -
+  /// which is ordinary at a financial year boundary - has two rows.
+  @@unique([sellerAccountId, name], map: "uq_seller_erp_connection_name")
+  @@index([sellerAccountId, state], map: "ix_seller_erp_connection_state")
+  @@index([state, lastHeartbeatAt], map: "ix_seller_erp_connection_heartbeat")
+  @@map("seller_erp_connections")
+}
+
+/// A machine running the Glovia Tally Bridge.
+///
+/// THE TOKEN IS NOT STORED. Only its SHA-256 and a short display prefix are,
+/// exactly as `AuthToken` and the carrier webhook secrets already work here.
+/// A stored ciphertext could be decrypted by anything holding the key; a hash
+/// cannot be turned back into a credential by anybody, including us, and
+/// verification needs nothing more. The plaintext is shown to the seller once,
+/// at pairing, and never again.
+model SellerErpBridgeDevice {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  connectionId    String @db.Char(26)
+
+  /// What the seller called the machine - "Accounts PC", "Server room".
+  label String @db.VarChar(120)
+
+  state SellerErpBridgeState @default(PENDING)
+
+  /// SHA-256 of the bearer token, hex. Unique, so a token cannot be shared
+  /// between two device rows.
+  tokenHash String @unique(map: "uq_seller_erp_bridge_token") @db.Char(64)
+  /// The first few characters, for "which device is this?" on screen. Never
+  /// enough to authenticate with.
+  tokenPrefix String @db.VarChar(12)
+
+  tokenIssuedAt  DateTime  @default(now()) @db.DateTime(3)
+  tokenExpiresAt DateTime? @db.DateTime(3)
+  tokenRotatedAt DateTime? @db.DateTime(3)
+
+  lastHeartbeatAt DateTime? @db.DateTime(3)
+  /// A salted hash of the address the bridge last called from. Kept for the
+  /// audit trail without holding a seller's office IP in the clear.
+  lastSeenIpHash  String?   @db.Char(64)
+
+  agentVersion String? @db.VarChar(32)
+  osLabel      String? @db.VarChar(64)
+
+  /// What the bridge reports as the local Tally address it talks to - shown
+  /// back to the seller so they can confirm it is the right machine. Recorded,
+  /// never dialled: this API never connects to it. Typically
+  /// `http://localhost:9000`.
+  reportedTallyAddress String? @db.VarChar(255)
+
+  /// How many tasks it has taken and finished, ever. A cheap liveness figure
+  /// for the support desk.
+  tasksCompleted Int @default(0)
+  tasksFailed    Int @default(0)
+
+  revokedAt     DateTime? @db.DateTime(3)
+  revokedReason String?   @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount       @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_seller_erp_bridge_seller")
+  connection    SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_bridge_connection")
+
+  @@index([connectionId, state], map: "ix_seller_erp_bridge_connection")
+  @@index([sellerAccountId, state], map: "ix_seller_erp_bridge_seller_state")
+  @@map("seller_erp_bridge_devices")
+}
+
+/// A short-lived, single-use code that pairs one machine.
+///
+/// Hashed like the token, expiring in minutes rather than hours, consumed
+/// exactly once, and rate-limited per seller. A pairing code IS a credential
+/// for the duration of its life - it is the one thing standing between a
+/// stranger's bridge and a seller's books - and it is treated as one.
+model SellerErpPairingCode {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  connectionId    String @db.Char(26)
+
+  /// SHA-256 of the code, hex.
+  codeHash String @unique(map: "uq_seller_erp_pairing_code") @db.Char(64)
+  /// The first group of the code, so the seller can tell two open codes apart
+  /// on screen without either being usable from what is displayed.
+  codePrefix String @db.VarChar(8)
+
+  expiresAt DateTime  @db.DateTime(3)
+  consumedAt DateTime? @db.DateTime(3)
+  /// The device it created. Set in the same transaction that consumes it.
+  consumedByDeviceId String? @db.Char(26)
+
+  /// Failed redemption attempts against this code. A code is burned after a
+  /// handful, because a code short enough for a person to type is short enough
+  /// to guess given unlimited goes.
+  attemptCount Int @default(0)
+
+  /// The machine label the seller typed when they generated it, carried onto
+  /// the device.
+  deviceLabel String @db.VarChar(120)
+
+  createdByProfileId String? @db.Char(26)
+  createdAt          DateTime @default(now()) @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_pairing_connection")
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_erp_pairing_seller")
+  @@index([expiresAt, consumedAt], map: "ix_seller_erp_pairing_sweep")
+  @@map("seller_erp_pairing_codes")
+}
+
+/// A company the bridge found open in Tally.
+///
+/// Its own table rather than a JSON column on the connection, because the
+/// seller PICKS one from it and a picker needs rows. Refreshed on every
+/// connection test; a company that disappears from the list is left here with
+/// its `lastSeenAt` growing stale, which is what lets the screen say "Tally is
+/// running but this company is not open" instead of "no companies".
+model SellerErpCompany {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  tallyName String  @db.VarChar(255)
+  tallyGuid String? @db.VarChar(96)
+
+  booksFrom DateTime? @db.Date
+  /// Whether this is the one the connection is configured to post into.
+  isSelected Boolean @default(false)
+
+  lastSeenAt DateTime @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_company_connection")
+
+  @@unique([connectionId, tallyName], map: "uq_seller_erp_company_name")
+  @@index([connectionId, isSelected], map: "ix_seller_erp_company_selected")
+  @@map("seller_erp_companies")
+}
+
+/// The master lists read back from Tally, so the mapping screen has something
+/// to choose from.
+///
+/// A CACHE, and named one. It is never the authority for anything: a mapping
+/// saved against a ledger that has since been renamed in Tally fails at post
+/// time with Tally's own message, which is the correct place to find out.
+/// Refreshed on demand and on the master-pull job.
+model SellerErpMasterCache {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  entity SellerErpMappingEntity
+
+  tallyName   String  @db.VarChar(255)
+  tallyGuid   String? @db.VarChar(96)
+  /// The group or parent, where Tally reports one - "Sundry Debtors",
+  /// "Duties & Taxes". What makes a list of four hundred ledgers usable.
+  parentName  String? @db.VarChar(255)
+
+  /// Anything else worth showing in the picker - a unit's decimal places, a
+  /// stock item's base unit. Non-financial, non-personal.
+  extraJson Json?
+
+  lastSeenAt DateTime @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_master_connection")
+
+  @@unique([connectionId, entity, tallyName], map: "uq_seller_erp_master")
+  @@index([connectionId, entity, lastSeenAt], map: "ix_seller_erp_master_entity")
+  @@map("seller_erp_master_cache")
+}
+
+/// One thing on this side, matched to one name in Tally.
+model SellerErpMapping {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  connectionId    String @db.Char(26)
+
+  entity SellerErpMappingEntity
+
+  /// What is being mapped on THIS side.
+  ///
+  /// An offer id, a location id, a tax class code, a currency code - or the
+  /// empty string for the singletons, the ledgers there is exactly one of per
+  /// connection. Never null, for the reason the rest of this schema never
+  /// makes a unique-key column nullable: MariaDB treats every NULL as
+  /// distinct, so two "the sales ledger" rows would both be accepted.
+  localKey String @default("") @db.VarChar(64)
+
+  /// What it is called here, so the mapping table reads without four joins.
+  localLabel String? @db.VarChar(255)
+
+  /// The Tally master's name, exactly. This is the identifier, not a label.
+  tallyName String @db.VarChar(255)
+  tallyGuid String? @db.VarChar(96)
+
+  /// --- Units, for the one case where a package posts as a package ---------
+  ///
+  /// Empty on almost every row. Set only where the seller has deliberately
+  /// created a compound unit in Tally ("PLT of 1200 PCS") and asked for
+  /// packages to post in it. Without it, everything posts in base units -
+  /// which is the default, and the reason a two-pallet order posts 2,400 and
+  /// not 2.
+  alternateUnitName String? @db.VarChar(64)
+  /// Base units in one alternate unit. Decimal because Tally's own conversion
+  /// is decimal; never a float in the application, and compared exactly.
+  conversionFactor  Decimal? @db.Decimal(18, 6)
+
+  /// Whether a person has actually confirmed this, as opposed to it having
+  /// been suggested by a name match. Nothing syncs on an unconfirmed mapping.
+  isConfirmed Boolean @default(false)
+
+  /// Something non-blocking worth saying - "this ledger is under Sundry
+  /// Creditors, which is unusual for a customer".
+  warning String? @db.VarChar(512)
+
+  updatedByProfileId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_mapping_connection")
+
+  @@unique([connectionId, entity, localKey], map: "uq_seller_erp_mapping")
+  @@index([sellerAccountId, entity], map: "ix_seller_erp_mapping_seller")
+  @@index([connectionId, isConfirmed], map: "ix_seller_erp_mapping_confirmed")
+  @@map("seller_erp_mappings")
+}
+
+/// What this seller wants synchronised, and when.
+///
+/// One row per connection. Every flag defaults OFF except the two that are
+/// safe: nothing posts into somebody's accounts because a default said so.
+model SellerErpSyncPolicy {
+  id           String @id @db.Char(26)
+  connectionId String @unique(map: "uq_seller_erp_policy_connection") @db.Char(26)
+
+  /// --- What posts -----------------------------------------------------------
+
+  /// A confirmed order -> a Sales Order voucher. On by default once the seller
+  /// completes setup, because it is the one everybody wants and it creates no
+  /// revenue entry.
+  postSalesOrder Boolean @default(true)
+
+  /// An invoice or a dispatch -> a Sales voucher. THE revenue event, and
+  /// deliberately separate from the order above: placing an order and
+  /// recognising revenue are not the same accounting event, and a system that
+  /// treated them as one would overstate a seller's turnover by every order
+  /// that was later cancelled.
+  postSalesInvoice Boolean @default(false)
+
+  /// Which business event raises the invoice. A seller who invoices on
+  /// dispatch and one who invoices on payment are both ordinary.
+  invoiceOnDispatch  Boolean @default(true)
+
+  postReceipt    Boolean @default(false)
+  postCreditNote Boolean @default(false)
+
+  cancellationMode SellerErpCancellationMode @default(CREDIT_NOTE)
+
+  /// --- Masters --------------------------------------------------------------
+
+  syncStockItems   Boolean @default(false)
+  syncPartyLedgers Boolean @default(false)
+  syncGodowns      Boolean @default(false)
+
+  /// --- Inventory ------------------------------------------------------------
+
+  inventoryAuthority SellerErpInventoryAuthority @default(DISABLED)
+  /// Minutes between inventory pulls. Null uses the deployment default.
+  inventoryPollMinutes Int?
+
+  /// --- Presentation ---------------------------------------------------------
+
+  /// Whether the packaging breakdown goes into the voucher narration -
+  /// "2 UK pallets x 50 cartons x 24 units". On by default: it costs nothing
+  /// and it is the line an accountant reads when a quantity looks wrong.
+  includePackagingNarration Boolean @default(true)
+
+  /// A template for the narration, with `{{order}}`, `{{packaging}}`,
+  /// `{{buyer}}` placeholders. Null uses the built-in wording.
+  narrationTemplate String? @db.VarChar(512)
+
+  /// --- Reliability ----------------------------------------------------------
+
+  maxAttempts      Int @default(8)
+  retryBaseSeconds Int @default(30)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_policy_connection")
+
+  @@map("seller_erp_sync_policies")
+}
+
+/// The outbox. One row per thing that must reach Tally exactly once.
+///
+/// WHY THE IDEMPOTENCY KEY IS UNIQUE AND NOT MERELY INDEXED
+///
+/// It is the whole guarantee. A webhook redelivered four times, a worker whose
+/// lease expired mid-flight, a seller pressing "sync now" twice - every one of
+/// those tries to enqueue the same event, and the unique index is what turns
+/// the second and subsequent attempts into a no-op at the database rather than
+/// into a second voucher in somebody's books. A duplicate Sales Invoice is not
+/// a cosmetic bug; it is a tax return that does not reconcile.
+model SellerErpSyncJob {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  connectionId    String @db.Char(26)
+
+  /// Deterministic, built from the connection, the event type and the source
+  /// entity - never from a clock or a random. Two attempts to record the same
+  /// fact produce the same key.
+  idempotencyKey String @unique(map: "uq_seller_erp_job_idempotency") @db.VarChar(191)
+
+  eventType SellerErpEventType
+
+  /// What this is about, on this side. `sourceEntityType` is a table name in
+  /// words - "order", "seller_order_group", "refund", "seller_offer".
+  sourceEntityType String  @db.VarChar(48)
+  sourceEntityId   String? @db.Char(26)
+
+  /// Denormalised so the seller's ERP screen can group by order without a
+  /// join. Not foreign keys: an order is never deleted, but a job outliving
+  /// the row it describes must still read back.
+  orderId            String? @db.Char(26)
+  sellerOrderGroupId String? @db.Char(26)
+
+  /// What will be sent, built at enqueue time from the data as it was THEN.
+  ///
+  /// Built early on purpose. A job that assembled its payload at send time
+  /// would post whatever the order looks like when the bridge happens to come
+  /// back online, which for an order edited in between is not what the event
+  /// described.
+  payloadJson    Json
+  payloadVersion Int  @default(1)
+
+  status       SellerErpJobStatus @default(PENDING)
+  trigger      SellerErpSyncTrigger @default(EVENT)
+
+  attemptCount Int @default(0)
+  maxAttempts  Int @default(8)
+
+  nextRetryAt DateTime? @db.DateTime(3)
+
+  /// Per-seller ordering, where it matters. Jobs sharing a key are handed out
+  /// one at a time and in creation order, so a Receipt cannot post before the
+  /// Invoice it pays. Empty string for the many events that have no ordering
+  /// requirement at all, which are handed out freely.
+  sequenceKey String @default("") @db.VarChar(96)
+
+  /// The job that must land first. Set alongside `sequenceKey` where the
+  /// dependency is a specific job rather than merely an order.
+  dependsOnJobId String? @db.Char(26)
+
+  /// --- The bridge's claim ----------------------------------------------------
+  //
+  // The same lease pattern `JobQueue` uses, and for the same MariaDB 10.4
+  // reason: no `SKIP LOCKED`, so claiming is a conditional UPDATE whose
+  // affected-row count decides who got it.
+
+  leaseOwner     String?   @db.VarChar(64)
+  leaseExpiresAt DateTime? @db.DateTime(3)
+
+  /// --- What came back ---------------------------------------------------------
+
+  /// Tally's own identifier for what it created, where it gave one.
+  externalVoucherId     String? @db.VarChar(96)
+  externalVoucherNumber String? @db.VarChar(64)
+  externalMasterName    String? @db.VarChar(255)
+
+  /// Safe to show. Never a raw Tally body, never a header, never a path from
+  /// the seller's machine.
+  sanitizedError String? @db.VarChar(1000)
+  errorCode      String? @db.VarChar(64)
+
+  correlationId String? @db.VarChar(64)
+
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+  updatedAt   DateTime  @updatedAt @db.DateTime(3)
+  completedAt DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount       @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_seller_erp_job_seller")
+  connection    SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_job_connection")
+
+  attempts SellerErpSyncAttempt[]
+
+  /// The claim query: this seller's connection, due, in creation order.
+  @@index([connectionId, status, nextRetryAt, createdAt], map: "ix_seller_erp_job_claim")
+  @@index([sellerAccountId, status, createdAt], map: "ix_seller_erp_job_seller")
+  @@index([connectionId, sequenceKey, status], map: "ix_seller_erp_job_sequence")
+  @@index([orderId], map: "ix_seller_erp_job_order")
+  @@index([status, leaseExpiresAt], map: "ix_seller_erp_job_lease")
+  @@map("seller_erp_sync_jobs")
+}
+
+/// One go at one job.
+///
+/// Separate from the job so that eight attempts are eight rows rather than one
+/// row overwritten eight times. "It failed the same way every time" and "it
+/// failed differently every time" are different problems with different
+/// answers, and a single mutable error column cannot tell them apart.
+model SellerErpSyncAttempt {
+  id    String @id @db.Char(26)
+  jobId String @db.Char(26)
+
+  attemptNumber Int
+
+  startedAt  DateTime  @db.DateTime(3)
+  finishedAt DateTime? @db.DateTime(3)
+  durationMs Int?
+
+  /// Whether this go succeeded, and if not, how far it got.
+  outcome String @db.VarChar(32)
+
+  /// --- What Tally said --------------------------------------------------------
+  //
+  // Tally answers HTTP 200 to a request that created nothing and rejected
+  // every line. THESE COLUMNS ARE WHY A 200 IS NOT TREATED AS SUCCESS: the
+  // response carries CREATED, ALTERED, IGNORED, ERRORS and LASTVCHID counts,
+  // and a job is successful only when they say it is.
+
+  httpStatus     Int?
+  tallyCreated   Int?
+  tallyAltered   Int?
+  tallyDeleted   Int?
+  tallyIgnored   Int?
+  tallyErrors    Int?
+  tallyExceptions Int?
+  /// Tally's LASTVCHID, where it reported one.
+  tallyLastVoucherId String? @db.VarChar(96)
+
+  /// Per-line rejections, redacted. Structured so the screen can list them.
+  lineErrorsJson Json?
+
+  sanitizedError String? @db.VarChar(1000)
+
+  /// SHA-256 of the request and response bodies. Enough to prove two attempts
+  /// sent the same thing, and to match a support query against a log, WITHOUT
+  /// keeping a financial document in a diagnostics table.
+  requestHash  String? @db.Char(64)
+  responseHash String? @db.Char(64)
+
+  correlationId String? @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  job SellerErpSyncJob @relation(fields: [jobId], references: [id], onDelete: Cascade, map: "fk_seller_erp_attempt_job")
+
+  @@unique([jobId, attemptNumber], map: "uq_seller_erp_attempt_number")
+  @@index([jobId, startedAt], map: "ix_seller_erp_attempt_time")
+  @@map("seller_erp_sync_attempts")
+}
+
+/// What one of our rows became in Tally.
+///
+/// The reconciliation table, and the second half of the duplicate defence. The
+/// unique key on the outbox stops the same EVENT being queued twice; this
+/// stops the same ENTITY acquiring two vouchers by two different routes - an
+/// event and a manual re-sync, say. Before posting, the pipeline looks here;
+/// finding a reference, it verifies rather than re-posts.
+model SellerErpExternalReference {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  /// "order", "refund", "seller_offer", "seller_location", "customer".
+  entityType String @db.VarChar(48)
+  localId    String @db.Char(26)
+
+  /// What it is in Tally. A master has a name; a voucher has a number and an
+  /// id. Nullable individually because different kinds carry different ones.
+  tallyName      String?   @db.VarChar(255)
+  tallyGuid      String?   @db.VarChar(96)
+  voucherNumber  String?   @db.VarChar(64)
+  voucherDate    DateTime? @db.Date
+  voucherTypeName String?  @db.VarChar(128)
+
+  lastSyncedAt DateTime @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection SellerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade, map: "fk_seller_erp_ref_connection")
+
+  @@unique([connectionId, entityType, localId], map: "uq_seller_erp_ref_entity")
+  @@index([connectionId, entityType, lastSyncedAt], map: "ix_seller_erp_ref_type")
+  @@map("seller_erp_external_references")
+}
+
+/// Security-relevant things that happened to a seller's ERP setup.
+///
+/// Its own table rather than rows in `SellerAuditLog`, because the questions
+/// asked of it are different and because its retention is: a pairing, a token
+/// rotation, a revocation and a mapping change to a tax ledger are the trail
+/// somebody follows after a dispute about what posted into whose books.
+model SellerErpAuditEvent {
+  id              String  @id @db.Char(26)
+  sellerAccountId String  @db.Char(26)
+  connectionId    String? @db.Char(26)
+
+  /// `seller_erp.paired`, `seller_erp.token_rotated`, `seller_erp.revoked`,
+  /// `seller_erp.mapping_changed`, `seller_erp.policy_changed`,
+  /// `seller_erp.master_created`.
+  action String @db.VarChar(96)
+
+  actorType   ActorType
+  actorUserId String?   @db.Char(26)
+  actorLabel  String?   @db.VarChar(120)
+
+  /// A sentence, written deliberately. Seller-facing.
+  summary String? @db.VarChar(512)
+
+  /// Structured detail. REDACTED before it is written - no token, no pairing
+  /// code, no Tally body, no buyer's address. The service that writes it owns
+  /// that guarantee.
+  metaJson Json?
+
+  ipHash        String? @db.Char(64)
+  correlationId String? @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount        @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, map: "fk_seller_erp_audit_seller")
+  connection    SellerErpConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull, map: "fk_seller_erp_audit_connection")
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_erp_audit_time")
+  @@index([sellerAccountId, action], map: "ix_seller_erp_audit_action")
+  @@map("seller_erp_audit_events")
 }

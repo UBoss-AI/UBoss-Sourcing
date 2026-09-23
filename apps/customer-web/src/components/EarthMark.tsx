@@ -43,7 +43,23 @@ const Globe3D = lazy(async () => {
 export interface EarthMarkProps {
   /** The letter under it, and the mark itself wherever the globe cannot go. */
   initial: string;
+  /**
+   * How big to draw it.
+   *
+   * `md` is 40px, which is the storefront header. `sm` is 28px, which is the
+   * console and portal rails — those are 28px marks inside a 40px row, and a
+   * 40px earth in one of them would make the brand row taller than every row
+   * beneath it. Two fixed sizes rather than a number, because the classes have
+   * to be literal for Tailwind to emit them.
+   */
+  size?: 'sm' | 'md';
 }
+
+/** Box, letter and radius, per size. The globe fills whatever box it is in. */
+const SIZES = {
+  sm: { box: 'h-7 w-7', letter: 'text-xs', radius: 'rounded-md' },
+  md: { box: 'h-10 w-10', letter: 'text-base', radius: 'rounded-md' },
+} as const;
 
 /**
  * Can this browser draw it at all?
@@ -62,7 +78,8 @@ function wanted(): boolean {
   return supported() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function EarthMark({ initial }: EarthMarkProps): React.JSX.Element {
+export function EarthMark({ initial, size = 'md' }: EarthMarkProps): React.JSX.Element {
+  const { box, letter, radius } = SIZES[size];
   const [allowed, setAllowed] = useState<boolean>(() => wanted());
   const [ready, setReady] = useState(false);
   const [running, setRunning] = useState(true);
@@ -91,10 +108,10 @@ export function EarthMark({ initial }: EarthMarkProps): React.JSX.Element {
   }, []);
 
   return (
-    <span aria-hidden="true" className="relative block h-10 w-10 shrink-0">
+    <span aria-hidden="true" className={`relative block shrink-0 ${box}`}>
       {/* The letter. Always rendered, and on its own it is a finished mark. */}
       <span
-        className={`flex h-10 w-10 items-center justify-center rounded-md bg-brand-fill text-base font-bold text-white shadow-card transition-opacity duration-500 ${
+        className={`flex items-center justify-center bg-brand-fill font-bold text-white shadow-card transition-opacity duration-500 ${box} ${letter} ${radius} ${
           ready ? 'opacity-0' : 'opacity-100'
         }`}
       >

@@ -15,14 +15,26 @@ import {
 } from '../../src/domain/carrier-status-map.js';
 
 describe('providers', () => {
-  it('knows the five the product declares', () => {
+  it('knows the six the product declares', () => {
+    // Pinned deliberately. Adding a provider is a decision with a mapping
+    // table, an adapter and a migration behind it, and this test is what makes
+    // somebody write all three rather than only the enum member.
     expect([...CarrierProviderValues].sort()).toEqual([
       'CUSTOM',
       'DHL',
       'FEDEX',
+      'INDIA_POST',
       'MANUAL',
       'UPS',
     ]);
+  });
+
+  it('has no status table for India Post, and that is the honest entry', () => {
+    // A mapping table is a claim about a feed, and there is no feed. Anything
+    // in here would be a vocabulary nobody has confirmed - and the first time
+    // one of them was wrong, a hospital would be told its consignment had
+    // arrived. Events come from an authorised person instead.
+    expect(resolveCarrierStatus('INDIA_POST', ['delivered'])).toMatchObject({ kind: 'UNMAPPED' });
   });
 
   it('refuses a provider name it does not know', () => {

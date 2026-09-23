@@ -38,6 +38,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
+import { BulkOrderPanel } from '@/components/catalog/BulkOrderPanel';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { ProductInstructionsButton } from '@/components/ProductInstructionsButton';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -801,6 +802,16 @@ export function ProductPage(): React.JSX.Element {
   });
 
   const product = query.data?.product;
+
+  /*
+   * The packages this seller sells this in.
+   *
+   * An empty array while the query is in flight and for the overwhelming
+   * majority of products afterwards, and the panel renders nothing at all for
+   * an empty one - so a product with no bulk packaging draws exactly the page
+   * it drew before any of this existed.
+   */
+  const packagingOptions = query.data?.packagingOptions ?? [];
 
   // What this product is counted and priced in. Derived here rather than with
   // the rest of the storefront context above because it depends on the product
@@ -1998,6 +2009,31 @@ export function ProductPage(): React.JSX.Element {
                       variantId={scheduleLine?.variantId ?? null}
                     />
                   </div>
+
+                  {/*
+                   * Bulk ordering, BELOW the ordinary controls rather than
+                   * instead of them.
+                   *
+                   * Both ways of buying stay available: a seller who ships
+                   * pallets still sells a single box, and a buyer who wanted
+                   * one and found only pallets would leave. The panel renders
+                   * nothing at all when the seller has configured no packages,
+                   * which is most of the catalogue.
+                   *
+                   * It manages its own quantity and its own add, because a
+                   * pallet count and a piece count are two different numbers
+                   * and a single stepper serving both would have to decide
+                   * which the buyer meant.
+                   */}
+                  <BulkOrderPanel
+                    productId={product.id}
+                    variantId={scheduleLine?.variantId ?? null}
+                    options={packagingOptions}
+                    note={noteForWire(lineNote)}
+                    onAdded={() => {
+                      setLineNote('');
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="rounded-md border border-border bg-surface-sunken p-4">

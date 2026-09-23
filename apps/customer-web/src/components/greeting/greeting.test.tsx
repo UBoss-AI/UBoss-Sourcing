@@ -28,6 +28,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SourcingHub } from './SourcingHub';
+import { PRODUCT_BRAND } from '@/lib/brand';
 import { ORCHESTRATION_NODES, resolveNode } from './orchestration-nodes';
 import type { OrchestrationAccess } from './orchestration-nodes';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
@@ -238,7 +239,7 @@ describe('the sourcing hub', () => {
   it('keeps the word in the middle out of everything that rotates', () => {
     const { container } = renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
-    const label = screen.getByText('Sourcing');
+    const label = screen.getByText(PRODUCT_BRAND);
     const orb = container.querySelector('.orch-orb');
     const wire = container.querySelector('.orch-orb-wire');
 

@@ -9,6 +9,7 @@
  * Split from the provider so that file exports only components.
  */
 import { createContext, useContext } from 'react';
+import { PRODUCT_BRAND } from '@/lib/brand';
 import type { StorefrontConfig } from '@/lib/types';
 
 /**
@@ -16,10 +17,16 @@ import type { StorefrontConfig } from '@/lib/types';
  *
  * A storefront that renders nothing because a branding call failed is worse
  * than one that renders with a neutral name — the catalogue is the point.
+ *
+ * The name it falls back to is the product's own — see `lib/brand.ts`. It is
+ * deliberately not a shop's name, because at this point we do not know one: a
+ * deployment that has filled in its business profile overwrites this the
+ * moment `GET /api/v1/config` answers, and until then naming the software is
+ * the one honest thing to put in the header.
  */
 export const FALLBACK_CONFIG: StorefrontConfig = {
   business: {
-    displayName: 'UBOSS Sourcing',
+    displayName: PRODUCT_BRAND,
     supportEmail: null,
     supportPhone: null,
     logo: null,

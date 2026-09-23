@@ -41,6 +41,7 @@ import { exceptionsKey, fetchExceptions } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { locateRoute, visibleNavigation } from './navigation';
 import { NotificationBell } from './NotificationBell';
+import { BrandLockup } from './BrandLockup';
 
 export function AppShell(): React.JSX.Element {
   const { t } = useI18n();
@@ -176,40 +177,6 @@ export function AppShell(): React.JSX.Element {
   );
 }
 
-function Brand(): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <div className="flex h-10 shrink-0 items-center gap-3 px-2">
-      {/*
-        The mark. A simple parcel-and-route glyph rather than an imported
-        image, so it renders before any network request and inherits the theme
-        - which matters on a depot's tablet on a bad connection. At sixty
-        pixels it is the whole of the brand, which is the one thing on the rail
-        that still says which portal this is.
-      */}
-      <span
-        aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-        >
-          <path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z" strokeLinejoin="round" />
-          <path d="M3 8.5 12 13l9-4.5M12 13v7" strokeLinejoin="round" />
-        </svg>
-      </span>
-      <SidebarLabel className="truncate text-sm font-semibold tracking-tight text-ink">
-        {t('app.name')}
-      </SidebarLabel>
-    </div>
-  );
-}
-
 /**
  * The rows, in both presentations.
  *
@@ -235,7 +202,7 @@ function PortalNav({
   return (
     <>
       <div className="flex flex-1 flex-col">
-        <Brand />
+        <BrandLockup collapsible />
 
         <div className="mt-6 space-y-4">
           {sections.map((section, index) => (

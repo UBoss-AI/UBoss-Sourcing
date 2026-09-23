@@ -1,14 +1,17 @@
 /**
- * The word that changes.
+ * The text that changes.
  *
- * One word in a line of text is swapped for the next every few seconds. The
- * outgoing word blurs, grows and drifts up and to the right; the incoming one
+ * One entry in a line of text is swapped for the next every few seconds. The
+ * outgoing entry blurs, grows and drifts up and to the right; the incoming one
  * arrives letter by letter, each letter a little later than the one before it,
- * so the word assembles rather than appears.
+ * so it assembles rather than appears. An entry may be a single word or a
+ * whole phrase — a phrase animates word by word and each word letter by
+ * letter, so a long one lands as one movement rather than fifty.
  *
- * It is on the greeting, in the line under the shop's name, and it is the one
- * thing on that line that moves. The 3D stage behind it is atmosphere; this is
- * the sentence, so it is the piece a visitor actually reads.
+ * It is on the greeting, in the line under the shop's name, where it alternates
+ * the strapline with `Powered by UBOSS`, and it is the one thing on that line
+ * that moves. The 3D stage behind it is atmosphere; this is the sentence, so it
+ * is the piece a visitor actually reads.
  *
  * ---
  *
@@ -68,6 +71,20 @@ interface FlipWordsProps {
   duration?: number;
   /** On the word itself. Type size and colour belong to the caller. */
   className?: string;
+  /**
+   * What a screen reader is told, once, instead of the rotation.
+   *
+   * The default is the first word, which is right when the rotation is one
+   * word in a sentence the rest of the line already carries. It is wrong when
+   * every entry is a whole phrase and each phrase says something different:
+   * announcing only the first would leave the others unreachable, and
+   * announcing them as they change would re-read the line every few seconds.
+   *
+   * A caller in that position passes one steady sentence covering all of them.
+   * It is still read once, and it still never changes — which is the property
+   * that matters, and the reason this is not an `aria-live` region.
+   */
+  srLabel?: string;
 }
 
 /**
@@ -146,6 +163,7 @@ export function FlipWords({
   words,
   duration = 3000,
   className,
+  srLabel,
 }: FlipWordsProps): React.JSX.Element {
   const reduced = usePrefersReducedMotion();
   const [index, setIndex] = useState(0);
@@ -175,13 +193,29 @@ export function FlipWords({
   }, [reduced, isLeaving, count, duration]);
 
   if (reduced) {
+    // No timer, no `AnimatePresence`, and only the first entry ever drawn.
+    //
+    // Where the caller has given a label covering the whole rotation, the
+    // still copy is hidden from assistive technology and the label is read
+    // instead — so a reduced-motion visitor is told the same complete message
+    // as everybody else, rather than only whichever phrase happens to be
+    // first. Once, and never again, because nothing here changes.
+    if (srLabel !== undefined) {
+      return (
+        <span className={cx('inline-block', className)}>
+          <span className="sr-only">{srLabel}</span>
+          <span aria-hidden="true">{resting}</span>
+        </span>
+      );
+    }
+
     return <span className={cx('inline-block', className)}>{resting}</span>;
   }
 
   return (
     <span className="relative inline-block align-baseline">
       {/* What the line actually says, for anything that is not watching it. */}
-      <span className="sr-only">{resting}</span>
+      <span className="sr-only">{srLabel ?? resting}</span>
 
       <AnimatePresence
         onExitComplete={() => {

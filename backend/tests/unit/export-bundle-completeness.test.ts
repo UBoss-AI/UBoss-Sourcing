@@ -122,6 +122,20 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
     'page; `actorUserId` names an employee of a third-party logistics company, which is that ' +
     'person\u2019s data rather than the buyer\u2019s. A logistics employee exercising this right ' +
     'gets the account section and `logisticsMembership`.',
+  SellerErpAuditEvent:
+    'What happened to a SELLER’s connection to their own accounting system - a bridge ' +
+    'paired, a token rotated, a tax ledger remapped. `actorUserId` names a member of that ' +
+    'seller’s own staff acting on their own company’s books, and no shopper ever has a ' +
+    'row here: nothing a buyer does reaches this table, and the buyer-facing consequence of ' +
+    'any of it - what was posted about their order - is already in `orders`. A seller’s ' +
+    'employee exercising this right gets the account section and `sellerMembership`; the ' +
+    'trail itself belongs to the seller BUSINESS, on the same line `sellerAuditTrail` draws.',
+  SellerLogisticsRelationshipEvent:
+    'How a seller-to-carrier arrangement reached its current status. `actorUserId` names a ' +
+    'member of the MARKETPLACE\u2019s staff who approved, refused or suspended a commercial ' +
+    'arrangement between two businesses \u2014 a seller and a delivery company \u2014 and the row ' +
+    'says nothing whatever about any shopper. No customer ever has a row here. A staff member ' +
+    'exercising this right gets the account section and `auditTrail`.',
 });
 
 function modelsWithSubjectColumns(): string[] {

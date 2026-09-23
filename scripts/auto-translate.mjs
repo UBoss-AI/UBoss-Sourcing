@@ -62,7 +62,7 @@ const FORMAL = new Set(['nl', 'fr', 'de', 'it', 'pl', 'es']);
  * German customer's nav and the same customer's support call use two different
  * terms.
  */
-const KEEP = ['UBOSS', 'Autopay', 'Business Owner', 'GSTIN', 'IBAN', 'GDPR'];
+const KEEP = ['Glovia', 'UBOSS', 'Autopay', 'Business Owner', 'GSTIN', 'IBAN', 'GDPR'];
 
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 

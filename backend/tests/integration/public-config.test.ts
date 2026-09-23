@@ -8,6 +8,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/http/app.js';
+import { prisma } from '../../src/infra/prisma.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 
@@ -161,6 +162,43 @@ describe('GET /api/v1/config', () => {
     expect(typeof body.features.selfRegistration).toBe('boolean');
     expect(typeof body.features.selfRegistrationRequiresApproval).toBe('boolean');
     expect(typeof body.features.recurringOrders).toBe('boolean');
+  });
+
+  /*
+   * The brand, and the one thing about it that is not ours to decide.
+   *
+   * The product is called Glovia and the company behind it is UBOSS, and both
+   * of those are constants in the browser bundles — see
+   * `apps/customer-web/src/lib/brand.ts`. What THIS endpoint publishes is
+   * neither of them: it is the operator's own trading name, because every
+   * buyer runs their own deployment and the header of their storefront is
+   * their name. The rename must not have turned that into a constant, which
+   * is exactly the mistake a global search and replace would have made, and
+   * exactly the mistake a test pinned to the string "Glovia" would have
+   * blessed.
+   */
+  it('publishes the operator’s own trading name, not the product’s', async () => {
+    const profile = await prisma.businessProfile.findFirst({ select: { displayName: true } });
+    const response = await app.inject({ method: 'GET', url: '/api/v1/config' });
+    const body = response.json<ConfigResponse>();
+
+    expect(typeof body.business.displayName).toBe('string');
+    expect(String(body.business.displayName).length).toBeGreaterThan(0);
+
+    if (profile !== null) {
+      expect(body.business.displayName).toBe(profile.displayName);
+    }
+  });
+
+  it('never carries the product’s former name', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/v1/config' });
+
+    // "UBOSS Sourcing" was the product's name and the demo profile's trading
+    // name at once, which is how it ended up in a hard-coded fallback in this
+    // module and in the storefront bundle. Neither is there now, and an
+    // operator who has genuinely registered a business by that name still gets
+    // it back from their own profile — which the assertion above covers.
+    expect(response.body).not.toContain('UBOSS Sourcing');
   });
 
   it('is cacheable, because it changes about as often as a company name', async () => {

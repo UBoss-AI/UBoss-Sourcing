@@ -38,7 +38,7 @@ import { prisma } from '../backend/src/infra/prisma.js';
 
 const TARGETS = ['nl', 'fr', 'de', 'el', 'it', 'pl', 'es'];
 const FORMAL = new Set(['nl', 'fr', 'de', 'it', 'pl', 'es']);
-const KEEP = ['UBOSS', 'GSTIN', 'IBAN'];
+const KEEP = ['Glovia', 'UBOSS', 'GSTIN', 'IBAN'];
 
 const flags = process.argv.slice(2);
 const dryRun = flags.includes('--dry-run');

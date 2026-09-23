@@ -56,6 +56,8 @@ export type LogisticsPartnerMinAggregateOutputType = {
   contactPhone: string | null
   emergencyPhone: string | null
   websiteUrl: string | null
+  partnerKind: $Enums.LogisticsPartnerKind | null
+  ownerSellerAccountId: string | null
   status: $Enums.LogisticsPartnerStatus | null
   contractStatus: $Enums.LogisticsContractStatus | null
   contractReference: string | null
@@ -89,6 +91,8 @@ export type LogisticsPartnerMaxAggregateOutputType = {
   contactPhone: string | null
   emergencyPhone: string | null
   websiteUrl: string | null
+  partnerKind: $Enums.LogisticsPartnerKind | null
+  ownerSellerAccountId: string | null
   status: $Enums.LogisticsPartnerStatus | null
   contractStatus: $Enums.LogisticsContractStatus | null
   contractReference: string | null
@@ -123,6 +127,8 @@ export type LogisticsPartnerCountAggregateOutputType = {
   emergencyPhone: number
   websiteUrl: number
   addressJson: number
+  partnerKind: number
+  ownerSellerAccountId: number
   status: number
   contractStatus: number
   contractReference: number
@@ -168,6 +174,8 @@ export type LogisticsPartnerMinAggregateInputType = {
   contactPhone?: true
   emergencyPhone?: true
   websiteUrl?: true
+  partnerKind?: true
+  ownerSellerAccountId?: true
   status?: true
   contractStatus?: true
   contractReference?: true
@@ -201,6 +209,8 @@ export type LogisticsPartnerMaxAggregateInputType = {
   contactPhone?: true
   emergencyPhone?: true
   websiteUrl?: true
+  partnerKind?: true
+  ownerSellerAccountId?: true
   status?: true
   contractStatus?: true
   contractReference?: true
@@ -235,6 +245,8 @@ export type LogisticsPartnerCountAggregateInputType = {
   emergencyPhone?: true
   websiteUrl?: true
   addressJson?: true
+  partnerKind?: true
+  ownerSellerAccountId?: true
   status?: true
   contractStatus?: true
   contractReference?: true
@@ -356,6 +368,8 @@ export type LogisticsPartnerGroupByOutputType = {
   emergencyPhone: string | null
   websiteUrl: string | null
   addressJson: runtime.JsonValue | null
+  partnerKind: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId: string | null
   status: $Enums.LogisticsPartnerStatus
   contractStatus: $Enums.LogisticsContractStatus
   contractReference: string | null
@@ -413,6 +427,8 @@ export type LogisticsPartnerWhereInput = {
   emergencyPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   websiteUrl?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   addressJson?: Prisma.JsonNullableFilter<"LogisticsPartner">
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFilter<"LogisticsPartner"> | $Enums.LogisticsContractStatus
   contractReference?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
@@ -430,6 +446,9 @@ export type LogisticsPartnerWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
   carrierIntegration?: Prisma.XOR<Prisma.CarrierIntegrationNullableScalarRelationFilter, Prisma.CarrierIntegrationWhereInput> | null
+  ownerSellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodListRelationFilter
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationListRelationFilter
   users?: Prisma.LogisticsPartnerUserListRelationFilter
   invitations?: Prisma.LogisticsPartnerInvitationListRelationFilter
   regions?: Prisma.LogisticsServiceRegionListRelationFilter
@@ -463,6 +482,8 @@ export type LogisticsPartnerOrderByWithRelationInput = {
   emergencyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   addressJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerKind?: Prisma.SortOrder
+  ownerSellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   contractStatus?: Prisma.SortOrder
   contractReference?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -480,6 +501,9 @@ export type LogisticsPartnerOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   carrierIntegration?: Prisma.CarrierIntegrationOrderByWithRelationInput
+  ownerSellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodOrderByRelationAggregateInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationOrderByRelationAggregateInput
   users?: Prisma.LogisticsPartnerUserOrderByRelationAggregateInput
   invitations?: Prisma.LogisticsPartnerInvitationOrderByRelationAggregateInput
   regions?: Prisma.LogisticsServiceRegionOrderByRelationAggregateInput
@@ -517,6 +541,8 @@ export type LogisticsPartnerWhereUniqueInput = Prisma.AtLeast<{
   emergencyPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   websiteUrl?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   addressJson?: Prisma.JsonNullableFilter<"LogisticsPartner">
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFilter<"LogisticsPartner"> | $Enums.LogisticsContractStatus
   contractReference?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
@@ -534,6 +560,9 @@ export type LogisticsPartnerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
   carrierIntegration?: Prisma.XOR<Prisma.CarrierIntegrationNullableScalarRelationFilter, Prisma.CarrierIntegrationWhereInput> | null
+  ownerSellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodListRelationFilter
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationListRelationFilter
   users?: Prisma.LogisticsPartnerUserListRelationFilter
   invitations?: Prisma.LogisticsPartnerInvitationListRelationFilter
   regions?: Prisma.LogisticsServiceRegionListRelationFilter
@@ -567,6 +596,8 @@ export type LogisticsPartnerOrderByWithAggregationInput = {
   emergencyPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   addressJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  partnerKind?: Prisma.SortOrder
+  ownerSellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   contractStatus?: Prisma.SortOrder
   contractReference?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -609,6 +640,8 @@ export type LogisticsPartnerScalarWhereWithAggregatesInput = {
   emergencyPhone?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartner"> | string | null
   websiteUrl?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartner"> | string | null
   addressJson?: Prisma.JsonNullableWithAggregatesFilter<"LogisticsPartner">
+  partnerKind?: Prisma.EnumLogisticsPartnerKindWithAggregatesFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartner"> | string | null
   status?: Prisma.EnumLogisticsPartnerStatusWithAggregatesFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusWithAggregatesFilter<"LogisticsPartner"> | $Enums.LogisticsContractStatus
   contractReference?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPartner"> | string | null
@@ -643,6 +676,7 @@ export type LogisticsPartnerCreateInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -659,6 +693,9 @@ export type LogisticsPartnerCreateInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -692,6 +729,8 @@ export type LogisticsPartnerUncheckedCreateInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -708,6 +747,8 @@ export type LogisticsPartnerUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -741,6 +782,7 @@ export type LogisticsPartnerUpdateInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -757,6 +799,9 @@ export type LogisticsPartnerUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -790,6 +835,8 @@ export type LogisticsPartnerUncheckedUpdateInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -806,6 +853,8 @@ export type LogisticsPartnerUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -839,6 +888,8 @@ export type LogisticsPartnerCreateManyInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -873,6 +924,7 @@ export type LogisticsPartnerUpdateManyMutationInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -906,6 +958,8 @@ export type LogisticsPartnerUncheckedUpdateManyInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -924,9 +978,24 @@ export type LogisticsPartnerUncheckedUpdateManyInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type LogisticsPartnerListRelationFilter = {
+  every?: Prisma.LogisticsPartnerWhereInput
+  some?: Prisma.LogisticsPartnerWhereInput
+  none?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type LogisticsPartnerScalarRelationFilter = {
   is?: Prisma.LogisticsPartnerWhereInput
   isNot?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerNullableScalarRelationFilter = {
+  is?: Prisma.LogisticsPartnerWhereInput | null
+  isNot?: Prisma.LogisticsPartnerWhereInput | null
 }
 
 export type LogisticsPartnerOrderByRelevanceInput = {
@@ -951,6 +1020,8 @@ export type LogisticsPartnerCountOrderByAggregateInput = {
   emergencyPhone?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
   addressJson?: Prisma.SortOrder
+  partnerKind?: Prisma.SortOrder
+  ownerSellerAccountId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   contractStatus?: Prisma.SortOrder
   contractReference?: Prisma.SortOrder
@@ -989,6 +1060,8 @@ export type LogisticsPartnerMaxOrderByAggregateInput = {
   contactPhone?: Prisma.SortOrder
   emergencyPhone?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
+  partnerKind?: Prisma.SortOrder
+  ownerSellerAccountId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   contractStatus?: Prisma.SortOrder
   contractReference?: Prisma.SortOrder
@@ -1022,6 +1095,8 @@ export type LogisticsPartnerMinOrderByAggregateInput = {
   contactPhone?: Prisma.SortOrder
   emergencyPhone?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
+  partnerKind?: Prisma.SortOrder
+  ownerSellerAccountId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   contractStatus?: Prisma.SortOrder
   contractReference?: Prisma.SortOrder
@@ -1045,19 +1120,46 @@ export type LogisticsPartnerSumOrderByAggregateInput = {
   maxDailyAssignments?: Prisma.SortOrder
 }
 
-export type LogisticsPartnerNullableScalarRelationFilter = {
-  is?: Prisma.LogisticsPartnerWhereInput | null
-  isNot?: Prisma.LogisticsPartnerWhereInput | null
+export type LogisticsPartnerCreateNestedManyWithoutOwnerSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput> | Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput[] | Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput[]
+  createMany?: Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInputEnvelope
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
 }
 
-export type LogisticsPartnerListRelationFilter = {
-  every?: Prisma.LogisticsPartnerWhereInput
-  some?: Prisma.LogisticsPartnerWhereInput
-  none?: Prisma.LogisticsPartnerWhereInput
+export type LogisticsPartnerUncheckedCreateNestedManyWithoutOwnerSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput> | Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput[] | Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput[]
+  createMany?: Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInputEnvelope
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
 }
 
-export type LogisticsPartnerOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type LogisticsPartnerUpdateManyWithoutOwnerSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput> | Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput[] | Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput[]
+  upsert?: Prisma.LogisticsPartnerUpsertWithWhereUniqueWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpsertWithWhereUniqueWithoutOwnerSellerAccountInput[]
+  createMany?: Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInputEnvelope
+  set?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  delete?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  update?: Prisma.LogisticsPartnerUpdateWithWhereUniqueWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpdateWithWhereUniqueWithoutOwnerSellerAccountInput[]
+  updateMany?: Prisma.LogisticsPartnerUpdateManyWithWhereWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpdateManyWithWhereWithoutOwnerSellerAccountInput[]
+  deleteMany?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
+}
+
+export type LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput> | Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput[] | Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput[]
+  upsert?: Prisma.LogisticsPartnerUpsertWithWhereUniqueWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpsertWithWhereUniqueWithoutOwnerSellerAccountInput[]
+  createMany?: Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInputEnvelope
+  set?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  delete?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput | Prisma.LogisticsPartnerWhereUniqueInput[]
+  update?: Prisma.LogisticsPartnerUpdateWithWhereUniqueWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpdateWithWhereUniqueWithoutOwnerSellerAccountInput[]
+  updateMany?: Prisma.LogisticsPartnerUpdateManyWithWhereWithoutOwnerSellerAccountInput | Prisma.LogisticsPartnerUpdateManyWithWhereWithoutOwnerSellerAccountInput[]
+  deleteMany?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
 }
 
 export type LogisticsPartnerCreateNestedOneWithoutSellerLinksInput = {
@@ -1072,6 +1174,42 @@ export type LogisticsPartnerUpdateOneRequiredWithoutSellerLinksNestedInput = {
   upsert?: Prisma.LogisticsPartnerUpsertWithoutSellerLinksInput
   connect?: Prisma.LogisticsPartnerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutSellerLinksInput, Prisma.LogisticsPartnerUpdateWithoutSellerLinksInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput>
+}
+
+export type LogisticsPartnerCreateNestedOneWithoutFulfilmentMethodsInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutFulfilmentMethodsInput
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+}
+
+export type LogisticsPartnerUpdateOneWithoutFulfilmentMethodsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutFulfilmentMethodsInput
+  upsert?: Prisma.LogisticsPartnerUpsertWithoutFulfilmentMethodsInput
+  disconnect?: Prisma.LogisticsPartnerWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerWhereInput | boolean
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUpdateWithoutFulfilmentMethodsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput>
+}
+
+export type LogisticsPartnerCreateNestedOneWithoutSellerInvitationsInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutSellerInvitationsInput
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+}
+
+export type LogisticsPartnerUpdateOneWithoutSellerInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutSellerInvitationsInput
+  upsert?: Prisma.LogisticsPartnerUpsertWithoutSellerInvitationsInput
+  disconnect?: Prisma.LogisticsPartnerWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerWhereInput | boolean
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUpdateWithoutSellerInvitationsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput>
+}
+
+export type EnumLogisticsPartnerKindFieldUpdateOperationsInput = {
+  set?: $Enums.LogisticsPartnerKind
 }
 
 export type EnumLogisticsPartnerStatusFieldUpdateOperationsInput = {
@@ -1204,10 +1342,12 @@ export type LogisticsPartnerCreateNestedOneWithoutPickupsInput = {
   connect?: Prisma.LogisticsPartnerWhereUniqueInput
 }
 
-export type LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput = {
+export type LogisticsPartnerUpdateOneWithoutPickupsNestedInput = {
   create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutPickupsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutPickupsInput>
   connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutPickupsInput
   upsert?: Prisma.LogisticsPartnerUpsertWithoutPickupsInput
+  disconnect?: Prisma.LogisticsPartnerWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerWhereInput | boolean
   connect?: Prisma.LogisticsPartnerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutPickupsInput, Prisma.LogisticsPartnerUpdateWithoutPickupsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutPickupsInput>
 }
@@ -1324,7 +1464,7 @@ export type LogisticsPartnerUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.LogisticsPartnerUpdateWithoutAuditLogsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput>
 }
 
-export type LogisticsPartnerCreateWithoutSellerLinksInput = {
+export type LogisticsPartnerCreateWithoutOwnerSellerAccountInput = {
   id: string
   partnerCode: string
   legalName: string
@@ -1340,6 +1480,7 @@ export type LogisticsPartnerCreateWithoutSellerLinksInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1356,6 +1497,178 @@ export type LogisticsPartnerCreateWithoutSellerLinksInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput>
+}
+
+export type LogisticsPartnerCreateManyOwnerSellerAccountInputEnvelope = {
+  data: Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInput | Prisma.LogisticsPartnerCreateManyOwnerSellerAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type LogisticsPartnerUpsertWithWhereUniqueWithoutOwnerSellerAccountInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  update: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutOwnerSellerAccountInput>
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput>
+}
+
+export type LogisticsPartnerUpdateWithWhereUniqueWithoutOwnerSellerAccountInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutOwnerSellerAccountInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutOwnerSellerAccountInput>
+}
+
+export type LogisticsPartnerUpdateManyWithWhereWithoutOwnerSellerAccountInput = {
+  where: Prisma.LogisticsPartnerScalarWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateManyMutationInput, Prisma.LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountInput>
+}
+
+export type LogisticsPartnerScalarWhereInput = {
+  AND?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
+  OR?: Prisma.LogisticsPartnerScalarWhereInput[]
+  NOT?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
+  id?: Prisma.StringFilter<"LogisticsPartner"> | string
+  partnerCode?: Prisma.StringFilter<"LogisticsPartner"> | string
+  legalName?: Prisma.StringFilter<"LogisticsPartner"> | string
+  displayName?: Prisma.StringFilter<"LogisticsPartner"> | string
+  displayNameNormalized?: Prisma.StringFilter<"LogisticsPartner"> | string
+  registrationNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  taxNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  licenceNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  licenceExpiresAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
+  registrationCountry?: Prisma.StringFilter<"LogisticsPartner"> | string
+  contactEmail?: Prisma.StringFilter<"LogisticsPartner"> | string
+  contactPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  emergencyPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  websiteUrl?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  addressJson?: Prisma.JsonNullableFilter<"LogisticsPartner">
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  status?: Prisma.EnumLogisticsPartnerStatusFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFilter<"LogisticsPartner"> | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  contractStartsAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
+  contractEndsAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
+  suspensionReason?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  suspendedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
+  maxOpenShipments?: Prisma.IntNullableFilter<"LogisticsPartner"> | number | null
+  maxDailyAssignments?: Prisma.IntNullableFilter<"LogisticsPartner"> | number | null
+  autoAssignEnabled?: Prisma.BoolFilter<"LogisticsPartner"> | boolean
+  carrierIntegrationId?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  internalNotes?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  createdById?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
+  archivedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
+}
+
+export type LogisticsPartnerCreateWithoutSellerLinksInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -1388,6 +1701,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSellerLinksInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1404,6 +1719,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSellerLinksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -1452,6 +1769,7 @@ export type LogisticsPartnerUpdateWithoutSellerLinksInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1468,6 +1786,9 @@ export type LogisticsPartnerUpdateWithoutSellerLinksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -1500,6 +1821,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1516,6 +1839,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -1530,6 +1855,454 @@ export type LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+}
+
+export type LogisticsPartnerCreateWithoutFulfilmentMethodsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerCreateOrConnectWithoutFulfilmentMethodsInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput>
+}
+
+export type LogisticsPartnerUpsertWithoutFulfilmentMethodsInput = {
+  update: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput>
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput>
+  where?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerUpdateToOneWithWhereWithoutFulfilmentMethodsInput = {
+  where?: Prisma.LogisticsPartnerWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutFulfilmentMethodsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput>
+}
+
+export type LogisticsPartnerUpdateWithoutFulfilmentMethodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerCreateWithoutSellerInvitationsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerCreateOrConnectWithoutSellerInvitationsInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput>
+}
+
+export type LogisticsPartnerUpsertWithoutSellerInvitationsInput = {
+  update: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput>
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput>
+  where?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerUpdateToOneWithWhereWithoutSellerInvitationsInput = {
+  where?: Prisma.LogisticsPartnerWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutSellerInvitationsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput>
+}
+
+export type LogisticsPartnerUpdateWithoutSellerInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutUsersInput = {
@@ -1548,6 +2321,7 @@ export type LogisticsPartnerCreateWithoutUsersInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1564,6 +2338,9 @@ export type LogisticsPartnerCreateWithoutUsersInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
@@ -1596,6 +2373,8 @@ export type LogisticsPartnerUncheckedCreateWithoutUsersInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1612,6 +2391,8 @@ export type LogisticsPartnerUncheckedCreateWithoutUsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
@@ -1660,6 +2441,7 @@ export type LogisticsPartnerUpdateWithoutUsersInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1676,6 +2458,9 @@ export type LogisticsPartnerUpdateWithoutUsersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
@@ -1708,6 +2493,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutUsersInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1724,6 +2511,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
@@ -1756,6 +2545,7 @@ export type LogisticsPartnerCreateWithoutInvitationsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1772,6 +2562,9 @@ export type LogisticsPartnerCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
@@ -1804,6 +2597,8 @@ export type LogisticsPartnerUncheckedCreateWithoutInvitationsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1820,6 +2615,8 @@ export type LogisticsPartnerUncheckedCreateWithoutInvitationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
@@ -1868,6 +2665,7 @@ export type LogisticsPartnerUpdateWithoutInvitationsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1884,6 +2682,9 @@ export type LogisticsPartnerUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
@@ -1916,6 +2717,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutInvitationsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1932,6 +2735,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutInvitationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
@@ -1964,6 +2769,7 @@ export type LogisticsPartnerCreateWithoutRegionsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -1980,6 +2786,9 @@ export type LogisticsPartnerCreateWithoutRegionsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
@@ -2012,6 +2821,8 @@ export type LogisticsPartnerUncheckedCreateWithoutRegionsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2028,6 +2839,8 @@ export type LogisticsPartnerUncheckedCreateWithoutRegionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
@@ -2076,6 +2889,7 @@ export type LogisticsPartnerUpdateWithoutRegionsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2092,6 +2906,9 @@ export type LogisticsPartnerUpdateWithoutRegionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
@@ -2124,6 +2941,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutRegionsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2140,6 +2959,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutRegionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
@@ -2172,6 +2993,7 @@ export type LogisticsPartnerCreateWithoutCapabilitiesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2188,6 +3010,9 @@ export type LogisticsPartnerCreateWithoutCapabilitiesInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -2220,6 +3045,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCapabilitiesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2236,6 +3063,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCapabilitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -2284,6 +3113,7 @@ export type LogisticsPartnerUpdateWithoutCapabilitiesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2300,6 +3130,9 @@ export type LogisticsPartnerUpdateWithoutCapabilitiesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -2332,6 +3165,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCapabilitiesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2348,6 +3183,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCapabilitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -2380,6 +3217,7 @@ export type LogisticsPartnerCreateWithoutSlaPoliciesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2396,6 +3234,9 @@ export type LogisticsPartnerCreateWithoutSlaPoliciesInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -2428,6 +3269,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSlaPoliciesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2444,6 +3287,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSlaPoliciesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -2492,6 +3337,7 @@ export type LogisticsPartnerUpdateWithoutSlaPoliciesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2508,6 +3354,9 @@ export type LogisticsPartnerUpdateWithoutSlaPoliciesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -2540,6 +3389,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSlaPoliciesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2556,6 +3407,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSlaPoliciesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -2588,6 +3441,7 @@ export type LogisticsPartnerCreateWithoutShipmentsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2604,6 +3458,9 @@ export type LogisticsPartnerCreateWithoutShipmentsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -2636,6 +3493,8 @@ export type LogisticsPartnerUncheckedCreateWithoutShipmentsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2652,6 +3511,8 @@ export type LogisticsPartnerUncheckedCreateWithoutShipmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -2700,6 +3561,7 @@ export type LogisticsPartnerUpdateWithoutShipmentsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2716,6 +3578,9 @@ export type LogisticsPartnerUpdateWithoutShipmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -2748,6 +3613,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutShipmentsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2764,6 +3631,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutShipmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -2796,6 +3665,7 @@ export type LogisticsPartnerCreateWithoutAssignmentsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2812,6 +3682,9 @@ export type LogisticsPartnerCreateWithoutAssignmentsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -2844,6 +3717,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAssignmentsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -2860,6 +3735,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAssignmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -2908,6 +3785,7 @@ export type LogisticsPartnerUpdateWithoutAssignmentsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2924,6 +3802,9 @@ export type LogisticsPartnerUpdateWithoutAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -2956,6 +3837,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutAssignmentsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2972,6 +3855,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutAssignmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -3004,6 +3889,7 @@ export type LogisticsPartnerCreateWithoutExceptionsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3020,6 +3906,9 @@ export type LogisticsPartnerCreateWithoutExceptionsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -3052,6 +3941,8 @@ export type LogisticsPartnerUncheckedCreateWithoutExceptionsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3068,6 +3959,8 @@ export type LogisticsPartnerUncheckedCreateWithoutExceptionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -3116,6 +4009,7 @@ export type LogisticsPartnerUpdateWithoutExceptionsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3132,6 +4026,9 @@ export type LogisticsPartnerUpdateWithoutExceptionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -3164,6 +4061,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutExceptionsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3180,6 +4079,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutExceptionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -3212,6 +4113,7 @@ export type LogisticsPartnerCreateWithoutPickupsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3228,6 +4130,9 @@ export type LogisticsPartnerCreateWithoutPickupsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -3260,6 +4165,8 @@ export type LogisticsPartnerUncheckedCreateWithoutPickupsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3276,6 +4183,8 @@ export type LogisticsPartnerUncheckedCreateWithoutPickupsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -3324,6 +4233,7 @@ export type LogisticsPartnerUpdateWithoutPickupsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3340,6 +4250,9 @@ export type LogisticsPartnerUpdateWithoutPickupsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -3372,6 +4285,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutPickupsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3388,6 +4303,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutPickupsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -3420,6 +4337,7 @@ export type LogisticsPartnerCreateWithoutManifestsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3436,6 +4354,9 @@ export type LogisticsPartnerCreateWithoutManifestsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -3468,6 +4389,8 @@ export type LogisticsPartnerUncheckedCreateWithoutManifestsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3484,6 +4407,8 @@ export type LogisticsPartnerUncheckedCreateWithoutManifestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -3532,6 +4457,7 @@ export type LogisticsPartnerUpdateWithoutManifestsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3548,6 +4474,9 @@ export type LogisticsPartnerUpdateWithoutManifestsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -3580,6 +4509,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutManifestsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3596,6 +4527,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutManifestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -3628,6 +4561,7 @@ export type LogisticsPartnerCreateWithoutDriversInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3644,6 +4578,9 @@ export type LogisticsPartnerCreateWithoutDriversInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -3676,6 +4613,8 @@ export type LogisticsPartnerUncheckedCreateWithoutDriversInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3692,6 +4631,8 @@ export type LogisticsPartnerUncheckedCreateWithoutDriversInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -3740,6 +4681,7 @@ export type LogisticsPartnerUpdateWithoutDriversInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3756,6 +4698,9 @@ export type LogisticsPartnerUpdateWithoutDriversInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -3788,6 +4733,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutDriversInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3804,6 +4751,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutDriversInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -3836,6 +4785,7 @@ export type LogisticsPartnerCreateWithoutVehiclesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3852,6 +4802,9 @@ export type LogisticsPartnerCreateWithoutVehiclesInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -3884,6 +4837,8 @@ export type LogisticsPartnerUncheckedCreateWithoutVehiclesInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -3900,6 +4855,8 @@ export type LogisticsPartnerUncheckedCreateWithoutVehiclesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -3948,6 +4905,7 @@ export type LogisticsPartnerUpdateWithoutVehiclesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3964,6 +4922,9 @@ export type LogisticsPartnerUpdateWithoutVehiclesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -3996,6 +4957,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutVehiclesInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4012,6 +4975,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutVehiclesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -4044,6 +5009,7 @@ export type LogisticsPartnerCreateWithoutCarrierIntegrationInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4059,6 +5025,9 @@ export type LogisticsPartnerCreateWithoutCarrierIntegrationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -4092,6 +5061,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCarrierIntegrationInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4107,6 +5078,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCarrierIntegrationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -4150,43 +5123,6 @@ export type LogisticsPartnerUpdateManyWithWhereWithoutCarrierIntegrationInput = 
   data: Prisma.XOR<Prisma.LogisticsPartnerUpdateManyMutationInput, Prisma.LogisticsPartnerUncheckedUpdateManyWithoutCarrierIntegrationInput>
 }
 
-export type LogisticsPartnerScalarWhereInput = {
-  AND?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
-  OR?: Prisma.LogisticsPartnerScalarWhereInput[]
-  NOT?: Prisma.LogisticsPartnerScalarWhereInput | Prisma.LogisticsPartnerScalarWhereInput[]
-  id?: Prisma.StringFilter<"LogisticsPartner"> | string
-  partnerCode?: Prisma.StringFilter<"LogisticsPartner"> | string
-  legalName?: Prisma.StringFilter<"LogisticsPartner"> | string
-  displayName?: Prisma.StringFilter<"LogisticsPartner"> | string
-  displayNameNormalized?: Prisma.StringFilter<"LogisticsPartner"> | string
-  registrationNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  taxNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  licenceNumber?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  licenceExpiresAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
-  registrationCountry?: Prisma.StringFilter<"LogisticsPartner"> | string
-  contactEmail?: Prisma.StringFilter<"LogisticsPartner"> | string
-  contactPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  emergencyPhone?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  websiteUrl?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  addressJson?: Prisma.JsonNullableFilter<"LogisticsPartner">
-  status?: Prisma.EnumLogisticsPartnerStatusFilter<"LogisticsPartner"> | $Enums.LogisticsPartnerStatus
-  contractStatus?: Prisma.EnumLogisticsContractStatusFilter<"LogisticsPartner"> | $Enums.LogisticsContractStatus
-  contractReference?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  contractStartsAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
-  contractEndsAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
-  suspensionReason?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  suspendedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
-  maxOpenShipments?: Prisma.IntNullableFilter<"LogisticsPartner"> | number | null
-  maxDailyAssignments?: Prisma.IntNullableFilter<"LogisticsPartner"> | number | null
-  autoAssignEnabled?: Prisma.BoolFilter<"LogisticsPartner"> | boolean
-  carrierIntegrationId?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  internalNotes?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  createdById?: Prisma.StringNullableFilter<"LogisticsPartner"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"LogisticsPartner"> | Date | string
-  archivedAt?: Prisma.DateTimeNullableFilter<"LogisticsPartner"> | Date | string | null
-}
-
 export type LogisticsPartnerCreateWithoutNotificationsInput = {
   id: string
   partnerCode: string
@@ -4203,6 +5139,7 @@ export type LogisticsPartnerCreateWithoutNotificationsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4219,6 +5156,9 @@ export type LogisticsPartnerCreateWithoutNotificationsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -4251,6 +5191,8 @@ export type LogisticsPartnerUncheckedCreateWithoutNotificationsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4267,6 +5209,8 @@ export type LogisticsPartnerUncheckedCreateWithoutNotificationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -4315,6 +5259,7 @@ export type LogisticsPartnerUpdateWithoutNotificationsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4331,6 +5276,9 @@ export type LogisticsPartnerUpdateWithoutNotificationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -4363,6 +5311,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutNotificationsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4379,6 +5329,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutNotificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -4411,6 +5363,7 @@ export type LogisticsPartnerCreateWithoutAuditLogsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4427,6 +5380,9 @@ export type LogisticsPartnerCreateWithoutAuditLogsInput = {
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
@@ -4459,6 +5415,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAuditLogsInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4475,6 +5433,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAuditLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
   users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
   regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
@@ -4523,6 +5483,7 @@ export type LogisticsPartnerUpdateWithoutAuditLogsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4539,6 +5500,9 @@ export type LogisticsPartnerUpdateWithoutAuditLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -4571,6 +5535,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4587,6 +5553,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -4601,6 +5569,180 @@ export type LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerCreateManyOwnerSellerAccountInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+}
+
+export type LogisticsPartnerUpdateWithoutOwnerSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateWithoutOwnerSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type LogisticsPartnerCreateManyCarrierIntegrationInput = {
@@ -4619,6 +5761,8 @@ export type LogisticsPartnerCreateManyCarrierIntegrationInput = {
   emergencyPhone?: string | null
   websiteUrl?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
   status?: $Enums.LogisticsPartnerStatus
   contractStatus?: $Enums.LogisticsContractStatus
   contractReference?: string | null
@@ -4652,6 +5796,7 @@ export type LogisticsPartnerUpdateWithoutCarrierIntegrationInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4667,6 +5812,9 @@ export type LogisticsPartnerUpdateWithoutCarrierIntegrationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
@@ -4700,6 +5848,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCarrierIntegrationInput = {
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4715,6 +5865,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCarrierIntegrationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
   users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
   invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
   regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
@@ -4748,6 +5900,8 @@ export type LogisticsPartnerUncheckedUpdateManyWithoutCarrierIntegrationInput = 
   emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
   contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
   contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4771,6 +5925,8 @@ export type LogisticsPartnerUncheckedUpdateManyWithoutCarrierIntegrationInput = 
  */
 
 export type LogisticsPartnerCountOutputType = {
+  fulfilmentMethods: number
+  sellerInvitations: number
   users: number
   invitations: number
   regions: number
@@ -4789,6 +5945,8 @@ export type LogisticsPartnerCountOutputType = {
 }
 
 export type LogisticsPartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  fulfilmentMethods?: boolean | LogisticsPartnerCountOutputTypeCountFulfilmentMethodsArgs
+  sellerInvitations?: boolean | LogisticsPartnerCountOutputTypeCountSellerInvitationsArgs
   users?: boolean | LogisticsPartnerCountOutputTypeCountUsersArgs
   invitations?: boolean | LogisticsPartnerCountOutputTypeCountInvitationsArgs
   regions?: boolean | LogisticsPartnerCountOutputTypeCountRegionsArgs
@@ -4814,6 +5972,20 @@ export type LogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs extends runtime.T
    * Select specific fields to fetch from the LogisticsPartnerCountOutputType
    */
   select?: Prisma.LogisticsPartnerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LogisticsPartnerCountOutputType without action
+ */
+export type LogisticsPartnerCountOutputTypeCountFulfilmentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerFulfilmentMethodWhereInput
+}
+
+/**
+ * LogisticsPartnerCountOutputType without action
+ */
+export type LogisticsPartnerCountOutputTypeCountSellerInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerLogisticsPartnerInvitationWhereInput
 }
 
 /**
@@ -4938,6 +6110,8 @@ export type LogisticsPartnerSelect<ExtArgs extends runtime.Types.Extensions.Inte
   emergencyPhone?: boolean
   websiteUrl?: boolean
   addressJson?: boolean
+  partnerKind?: boolean
+  ownerSellerAccountId?: boolean
   status?: boolean
   contractStatus?: boolean
   contractReference?: boolean
@@ -4955,6 +6129,9 @@ export type LogisticsPartnerSelect<ExtArgs extends runtime.Types.Extensions.Inte
   updatedAt?: boolean
   archivedAt?: boolean
   carrierIntegration?: boolean | Prisma.LogisticsPartner$carrierIntegrationArgs<ExtArgs>
+  ownerSellerAccount?: boolean | Prisma.LogisticsPartner$ownerSellerAccountArgs<ExtArgs>
+  fulfilmentMethods?: boolean | Prisma.LogisticsPartner$fulfilmentMethodsArgs<ExtArgs>
+  sellerInvitations?: boolean | Prisma.LogisticsPartner$sellerInvitationsArgs<ExtArgs>
   users?: boolean | Prisma.LogisticsPartner$usersArgs<ExtArgs>
   invitations?: boolean | Prisma.LogisticsPartner$invitationsArgs<ExtArgs>
   regions?: boolean | Prisma.LogisticsPartner$regionsArgs<ExtArgs>
@@ -4991,6 +6168,8 @@ export type LogisticsPartnerSelectScalar = {
   emergencyPhone?: boolean
   websiteUrl?: boolean
   addressJson?: boolean
+  partnerKind?: boolean
+  ownerSellerAccountId?: boolean
   status?: boolean
   contractStatus?: boolean
   contractReference?: boolean
@@ -5009,9 +6188,12 @@ export type LogisticsPartnerSelectScalar = {
   archivedAt?: boolean
 }
 
-export type LogisticsPartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partnerCode" | "legalName" | "displayName" | "displayNameNormalized" | "registrationNumber" | "taxNumber" | "licenceNumber" | "licenceExpiresAt" | "registrationCountry" | "contactEmail" | "contactPhone" | "emergencyPhone" | "websiteUrl" | "addressJson" | "status" | "contractStatus" | "contractReference" | "contractStartsAt" | "contractEndsAt" | "suspensionReason" | "suspendedAt" | "maxOpenShipments" | "maxDailyAssignments" | "autoAssignEnabled" | "carrierIntegrationId" | "internalNotes" | "createdById" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["logisticsPartner"]>
+export type LogisticsPartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partnerCode" | "legalName" | "displayName" | "displayNameNormalized" | "registrationNumber" | "taxNumber" | "licenceNumber" | "licenceExpiresAt" | "registrationCountry" | "contactEmail" | "contactPhone" | "emergencyPhone" | "websiteUrl" | "addressJson" | "partnerKind" | "ownerSellerAccountId" | "status" | "contractStatus" | "contractReference" | "contractStartsAt" | "contractEndsAt" | "suspensionReason" | "suspendedAt" | "maxOpenShipments" | "maxDailyAssignments" | "autoAssignEnabled" | "carrierIntegrationId" | "internalNotes" | "createdById" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["logisticsPartner"]>
 export type LogisticsPartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carrierIntegration?: boolean | Prisma.LogisticsPartner$carrierIntegrationArgs<ExtArgs>
+  ownerSellerAccount?: boolean | Prisma.LogisticsPartner$ownerSellerAccountArgs<ExtArgs>
+  fulfilmentMethods?: boolean | Prisma.LogisticsPartner$fulfilmentMethodsArgs<ExtArgs>
+  sellerInvitations?: boolean | Prisma.LogisticsPartner$sellerInvitationsArgs<ExtArgs>
   users?: boolean | Prisma.LogisticsPartner$usersArgs<ExtArgs>
   invitations?: boolean | Prisma.LogisticsPartner$invitationsArgs<ExtArgs>
   regions?: boolean | Prisma.LogisticsPartner$regionsArgs<ExtArgs>
@@ -5034,6 +6216,9 @@ export type $LogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensions.In
   name: "LogisticsPartner"
   objects: {
     carrierIntegration: Prisma.$CarrierIntegrationPayload<ExtArgs> | null
+    ownerSellerAccount: Prisma.$SellerAccountPayload<ExtArgs> | null
+    fulfilmentMethods: Prisma.$SellerFulfilmentMethodPayload<ExtArgs>[]
+    sellerInvitations: Prisma.$SellerLogisticsPartnerInvitationPayload<ExtArgs>[]
     users: Prisma.$LogisticsPartnerUserPayload<ExtArgs>[]
     invitations: Prisma.$LogisticsPartnerInvitationPayload<ExtArgs>[]
     regions: Prisma.$LogisticsServiceRegionPayload<ExtArgs>[]
@@ -5092,6 +6277,28 @@ export type $LogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensions.In
     emergencyPhone: string | null
     websiteUrl: string | null
     addressJson: runtime.JsonValue | null
+    /**
+     * What kind of company this is, and therefore who may edit it.
+     * 
+     * Every row that existed before this column is MARKETPLACE_CARRIER, which
+     * is what the default records and what those rows have always been. No
+     * backfill is needed and none is done.
+     */
+    partnerKind: $Enums.LogisticsPartnerKind
+    /**
+     * The seller this company belongs to or works exclusively for.
+     * 
+     * Null for a MARKETPLACE_CARRIER, which belongs to nobody and may be
+     * requested by any seller. Set for the other two kinds, and it is what
+     * keeps a seller's own delivery arm out of every other seller's carrier
+     * list: the picker excludes any partner whose owner is somebody else.
+     * 
+     * SetNull rather than Cascade. A seller account being removed must not take
+     * a logistics company - and its drivers, its consignments and its proof of
+     * delivery - with it; the company is left ownerless and suspended for a
+     * person to deal with.
+     */
+    ownerSellerAccountId: string | null
     status: $Enums.LogisticsPartnerStatus
     contractStatus: $Enums.LogisticsContractStatus
     contractReference: string | null
@@ -5481,6 +6688,9 @@ readonly fields: LogisticsPartnerFieldRefs;
 export interface Prisma__LogisticsPartnerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   carrierIntegration<T extends Prisma.LogisticsPartner$carrierIntegrationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$carrierIntegrationArgs<ExtArgs>>): Prisma.Prisma__CarrierIntegrationClient<runtime.Types.Result.GetResult<Prisma.$CarrierIntegrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ownerSellerAccount<T extends Prisma.LogisticsPartner$ownerSellerAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$ownerSellerAccountArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  fulfilmentMethods<T extends Prisma.LogisticsPartner$fulfilmentMethodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$fulfilmentMethodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerFulfilmentMethodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sellerInvitations<T extends Prisma.LogisticsPartner$sellerInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$sellerInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerLogisticsPartnerInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.LogisticsPartner$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.LogisticsPartner$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   regions<T extends Prisma.LogisticsPartner$regionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$regionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsServiceRegionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5540,6 +6750,8 @@ export interface LogisticsPartnerFieldRefs {
   readonly emergencyPhone: Prisma.FieldRef<"LogisticsPartner", 'String'>
   readonly websiteUrl: Prisma.FieldRef<"LogisticsPartner", 'String'>
   readonly addressJson: Prisma.FieldRef<"LogisticsPartner", 'Json'>
+  readonly partnerKind: Prisma.FieldRef<"LogisticsPartner", 'LogisticsPartnerKind'>
+  readonly ownerSellerAccountId: Prisma.FieldRef<"LogisticsPartner", 'String'>
   readonly status: Prisma.FieldRef<"LogisticsPartner", 'LogisticsPartnerStatus'>
   readonly contractStatus: Prisma.FieldRef<"LogisticsPartner", 'LogisticsContractStatus'>
   readonly contractReference: Prisma.FieldRef<"LogisticsPartner", 'String'>
@@ -5920,6 +7132,73 @@ export type LogisticsPartner$carrierIntegrationArgs<ExtArgs extends runtime.Type
    */
   include?: Prisma.CarrierIntegrationInclude<ExtArgs> | null
   where?: Prisma.CarrierIntegrationWhereInput
+}
+
+/**
+ * LogisticsPartner.ownerSellerAccount
+ */
+export type LogisticsPartner$ownerSellerAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerAccount
+   */
+  select?: Prisma.SellerAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerAccount
+   */
+  omit?: Prisma.SellerAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerAccountInclude<ExtArgs> | null
+  where?: Prisma.SellerAccountWhereInput
+}
+
+/**
+ * LogisticsPartner.fulfilmentMethods
+ */
+export type LogisticsPartner$fulfilmentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerFulfilmentMethod
+   */
+  select?: Prisma.SellerFulfilmentMethodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerFulfilmentMethod
+   */
+  omit?: Prisma.SellerFulfilmentMethodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerFulfilmentMethodInclude<ExtArgs> | null
+  where?: Prisma.SellerFulfilmentMethodWhereInput
+  orderBy?: Prisma.SellerFulfilmentMethodOrderByWithRelationInput | Prisma.SellerFulfilmentMethodOrderByWithRelationInput[]
+  cursor?: Prisma.SellerFulfilmentMethodWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerFulfilmentMethodScalarFieldEnum | Prisma.SellerFulfilmentMethodScalarFieldEnum[]
+}
+
+/**
+ * LogisticsPartner.sellerInvitations
+ */
+export type LogisticsPartner$sellerInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerLogisticsPartnerInvitation
+   */
+  select?: Prisma.SellerLogisticsPartnerInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerLogisticsPartnerInvitation
+   */
+  omit?: Prisma.SellerLogisticsPartnerInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerLogisticsPartnerInvitationInclude<ExtArgs> | null
+  where?: Prisma.SellerLogisticsPartnerInvitationWhereInput
+  orderBy?: Prisma.SellerLogisticsPartnerInvitationOrderByWithRelationInput | Prisma.SellerLogisticsPartnerInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.SellerLogisticsPartnerInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerLogisticsPartnerInvitationScalarFieldEnum | Prisma.SellerLogisticsPartnerInvitationScalarFieldEnum[]
 }
 
 /**

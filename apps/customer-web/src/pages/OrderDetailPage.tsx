@@ -540,6 +540,22 @@ export function OrderDetailPage(): React.JSX.Element {
                           Dispatched {formatDateTime(shipment.dispatchedAt)}
                         </span>
                       )}
+
+                      {/*
+                        Said plainly where updates will NOT appear here on
+                        their own - the India Post case, and any carrier
+                        followed by hand.
+
+                        A buyer who is not told refreshes this page waiting for
+                        movement that was never going to show up on it, and
+                        then telephones somebody. One line is cheaper for
+                        everybody than that call.
+                      */}
+                      {shipment.trackingIsAutomatic === false && (
+                        <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+                          {t('orderDetail.trackingByHand')}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>

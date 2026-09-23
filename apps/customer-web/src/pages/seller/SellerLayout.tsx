@@ -40,6 +40,7 @@ import {
   setSellerLock,
   type SellerIdentity,
 } from '@/lib/seller';
+import { SellerNotificationBell } from './SellerNotificationBell';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -85,6 +86,50 @@ function InventoryIcon({ className }: IconProps): React.JSX.Element {
 }
 
 /** A delivery van. The thing a seller is choosing, drawn as itself. */
+/**
+ * Delivery: a parcel with an arrow leaving it.
+ *
+ * Deliberately NOT a van. The van is CarrierIcon, one row below, and this
+ * screen is the broader decision of which way the goods go - a second van
+ * would make the two rows read as the same thing twice.
+ */
+function FulfilmentIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M4 8.2 12 4.5l8 3.7v7.6L12 19.5l-8-3.7Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path d="M4 8.2 12 12l8-3.8M12 12v7.5" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+/**
+ * Two systems with a link between them.
+ *
+ * Deliberately not a ledger or a book: this is the INTEGRATION rather than the
+ * accounts, and the thing a seller comes here to check is whether the two ends
+ * are still joined up.
+ */
+function IntegrationsIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="3" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="14" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M10 7.5h3.5a2 2 0 0 1 2 2V13"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M6.5 11v3.5a2 2 0 0 0 2 2H11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function CarrierIcon({ className }: IconProps): React.JSX.Element {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -290,6 +335,20 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
   // Beside orders, because that is where a seller is standing when they need
   // it: a paid order is the reason to go looking for who will carry it.
   {
+    // Above Carriers on purpose. This is the decision - how do my goods get
+    // delivered at all - and Carriers is one of the answers to it. A seller
+    // who meets the narrower screen first has to work out that the broader
+    // one exists.
+    to: '/seller/fulfilment',
+    labelKey: 'seller.nav.fulfilment',
+    icon: FulfilmentIcon,
+    // FALSE, unlike Carriers. A seller still going through onboarding needs
+    // this screen most of all - it is the step they are being asked to
+    // finish - and hiding it until approval would put the only editable copy
+    // behind the approval it helps them reach.
+    needsApproval: false,
+  },
+  {
     to: '/seller/carriers',
     labelKey: 'seller.nav.carriers',
     icon: CarrierIcon,
@@ -300,6 +359,20 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     labelKey: 'seller.nav.payments',
     icon: PaymentsIcon,
     needsApproval: false,
+  },
+  {
+    /*
+     * The seller's own accounting system.
+     *
+     * Below Payments, because that is the order the work happens in: money
+     * arrives, and then it has to appear in the books. `needsApproval: true` -
+     * an applicant who cannot yet sell has no orders to post, and offering
+     * them a Tally setup they cannot use is a step that leads nowhere.
+     */
+    to: '/seller/integrations',
+    labelKey: 'seller.nav.integrations',
+    icon: IntegrationsIcon,
+    needsApproval: true,
   },
   // Both reachable before approval: an applicant is told things and has things
   // recorded about them from the moment they apply, and a screen that refused
@@ -917,6 +990,12 @@ export function SellerLayout(): React.JSX.Element {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+              {/* Beside Refresh, and for the same reason it is on every page:
+                  what a seller has to be told about is decided by somebody
+                  else, in another application, while they are looking at a
+                  screen that has no idea. */}
+              <SellerNotificationBell />
+
               {/* On every page of the Hub, and that is the point: what a seller
                   needs to re-read is whichever screen an operator has just
                   decided something on, and they cannot know which that is. */}

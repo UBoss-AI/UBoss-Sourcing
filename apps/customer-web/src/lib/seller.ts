@@ -1649,6 +1649,19 @@ export interface SellerNotification {
   body: string | null;
   linkPath: string | null;
   severity: string;
+  /**
+   * News, or a problem.
+   *
+   * Named `notificationClass` rather than `class` because the latter is a
+   * reserved word in JavaScript and reads badly everywhere it is destructured.
+   * The bell counts only ALERT - a badge that included every "a customer
+   * placed an order" would never reach zero, and a badge nobody can clear is a
+   * badge people stop reading.
+   */
+  notificationClass: 'INFORMATION' | 'ALERT';
+  /** Whether the thing it is about is still true. */
+  status: 'ACTIVE' | 'RESOLVED' | 'ARCHIVED';
+  resolvedAt: string | null;
   createdAt: string;
   /** Per member, not per account: twelve staff do not get twelve copies. */
   isRead: boolean;
@@ -1945,5 +1958,922 @@ export async function assignSellerCarrier(input: {
   return api.post<{ assignmentId: string; replacedPartnerId: string | null }>(
     `/seller/consignments/${encodeURIComponent(input.shipmentId)}/carrier`,
     { logisticsPartnerId: input.logisticsPartnerId, reason: input.reason ?? null },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// HOW THIS SELLER'S GOODS GET DELIVERED
+//
+// The Logistics Partner onboarding step, and the Seller Hub screen it becomes
+// once the application is approved. One set of calls for both, because they
+// are the same question asked at two moments.
+// ---------------------------------------------------------------------------
+
+export type FulfilmentMode =
+  | 'INTEGRATED_CARRIER'
+  | 'SELF_MANAGED'
+  | 'DEDICATED_PARTNER'
+  | 'OPERATOR_FULFILLED';
+
+export type FulfilmentMethodStatus =
+  | 'DRAFT'
+  | 'PENDING_SETUP'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'CHANGES_REQUESTED'
+  | 'REJECTED'
+  | 'PAUSED'
+  | 'DISCONNECTED';
+
+export type FulfilmentMethodRole = 'PRIMARY' | 'FALLBACK' | 'ADDITIONAL';
+
+export interface FulfilmentMethod {
+  id: string;
+  mode: FulfilmentMode;
+  status: FulfilmentMethodStatus;
+  statusLabel: string;
+  role: FulfilmentMethodRole;
+  publicDisplayName: string;
+  allowsInternational: boolean;
+  statusReason: string | null;
+  submittedAt: string | null;
+  decidedAt: string | null;
+  connection: {
+    id: string;
+    provider: string;
+    environment: 'SANDBOX' | 'PRODUCTION';
+    state: string;
+    trackingMode: string;
+    /** The last four characters. Never the whole number, never a secret. */
+    accountNumberHint: string | null;
+    lastSuccessAt: string | null;
+    lastFailureAt: string | null;
+    lastFailureMessage: string | null;
+  } | null;
+  partner: {
+    id: string;
+    displayName: string;
+    partnerKind: string;
+    status: string;
+  } | null;
+  ruleCount: number;
+}
+
+/**
+ * One card on the Logistics Partner step.
+ *
+ * Every field the card shows comes from the server rather than being written
+ * into this file, so the Seller Hub, the admin panel and the generated feature
+ * guide cannot disagree about what a mode means. `hasVerifiedApi` is the one
+ * that keeps the card honest: false for India Post, and the card says so in
+ * words instead of offering a connect button that leads nowhere.
+ */
+export interface FulfilmentOption {
+  key: string;
+  mode: FulfilmentMode;
+  provider: string | null;
+  name: string;
+  description: string;
+  whoStores: 'SELLER' | 'OPERATOR';
+  whoPacks: 'SELLER' | 'OPERATOR';
+  whoDelivers: string;
+  requiresApiCredentials: boolean;
+  driversManagedHere: boolean;
+  trackingMode: 'AUTOMATIC_API' | 'MANUAL_ENTRY' | 'EXTERNAL_LINK';
+  hasVerifiedApi: boolean;
+  requiresMarketplaceApproval: boolean;
+  originRestriction: string | null;
+  existing: FulfilmentMethod | null;
+}
+
+export type FulfilmentRuleScope = 'PRODUCT' | 'WAREHOUSE' | 'DESTINATION' | 'SELLER_DEFAULT';
+
+export interface FulfilmentRule {
+  id: string;
+  scope: FulfilmentRuleScope;
+  precedence: number;
+  fulfilmentMethodId: string;
+  methodName: string;
+  sellerOfferId: string | null;
+  sellerLocationId: string | null;
+  destinationCountry: string | null;
+  destinationPostalPrefix: string | null;
+  note: string | null;
+  isActive: boolean;
+}
+
+export function fetchFulfilmentOptions(): Promise<{
+  options: FulfilmentOption[];
+  methods: FulfilmentMethod[];
+}> {
+  return api.get<{ options: FulfilmentOption[]; methods: FulfilmentMethod[] }>(
+    '/seller/fulfilment/options',
+  );
+}
+
+export function chooseFulfilmentMethod(input: {
+  mode: FulfilmentMode;
+  provider?: string | null;
+  publicDisplayName?: string | null;
+  makePrimary?: boolean;
+}): Promise<{ method: FulfilmentMethod }> {
+  return api.post<{ method: FulfilmentMethod }>('/seller/fulfilment/methods', input);
+}
+
+export function setFulfilmentMethodRole(input: {
+  methodId: string;
+  role: FulfilmentMethodRole;
+}): Promise<{ method: FulfilmentMethod }> {
+  return api.patch<{ method: FulfilmentMethod }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(input.methodId)}/role`,
+    { role: input.role },
+  );
+}
+
+export function setFulfilmentMethodStatus(input: {
+  methodId: string;
+  status: 'PAUSED' | 'APPROVED' | 'DISCONNECTED';
+  reason?: string | null;
+}): Promise<{ method: FulfilmentMethod }> {
+  return api.patch<{ method: FulfilmentMethod }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(input.methodId)}/status`,
+    { status: input.status, reason: input.reason ?? null },
+  );
+}
+
+export function fetchFulfilmentRules(): Promise<{ rules: FulfilmentRule[] }> {
+  return api.get<{ rules: FulfilmentRule[] }>('/seller/fulfilment/rules');
+}
+
+export function saveFulfilmentRule(input: {
+  scope: FulfilmentRuleScope;
+  fulfilmentMethodId: string;
+  sellerOfferId?: string | null;
+  sellerLocationId?: string | null;
+  destinationCountry?: string | null;
+  destinationPostalPrefix?: string | null;
+  note?: string | null;
+}): Promise<{ rule: FulfilmentRule }> {
+  return api.put<{ rule: FulfilmentRule }>('/seller/fulfilment/rules', input);
+}
+
+export function deleteFulfilmentRule(ruleId: string): Promise<never> {
+  return api.delete<never>(`/seller/fulfilment/rules/${encodeURIComponent(ruleId)}`);
+}
+
+// ---------------------------------------------------------------------------
+// SETTING A DELIVERY METHOD UP
+//
+// The three shapes a method takes once a seller has chosen it: a carrier
+// account of their own, their own delivery arm, or a company that works for
+// them. One module, because they are three answers to one question and a
+// seller moves between them.
+// ---------------------------------------------------------------------------
+
+export type CarrierConnectionState =
+  | 'NOT_CONFIGURED'
+  | 'CREDENTIALS_SET'
+  | 'TEST_PASSED'
+  | 'ACTIVE'
+  | 'PAUSED'
+  | 'ERROR'
+  | 'DISCONNECTED';
+
+export interface CarrierConnection {
+  id: string;
+  provider: string;
+  environment: 'SANDBOX' | 'PRODUCTION';
+  state: CarrierConnectionState;
+  trackingMode: string;
+  /** Last four characters. The whole number is never sent. */
+  accountNumberHint: string | null;
+  /** Derived from the account-identifying field, never from the secret. */
+  credentialHint: string | null;
+  hasCredential: boolean;
+  lastTestAt: string | null;
+  lastTestPassedAt: string | null;
+  lastTestMessage: string | null;
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+  lastFailureMessage: string | null;
+  consecutiveFailures: number;
+  productionConfirmedAt: string | null;
+  /** False for India Post. The screen shows words instead of a badge. */
+  hasVerifiedApi: boolean;
+}
+
+export function fetchCarrierConnections(): Promise<{ connections: CarrierConnection[] }> {
+  return api.get<{ connections: CarrierConnection[] }>('/seller/fulfilment/connections');
+}
+
+export function createCarrierConnection(input: {
+  provider: string;
+  environment?: 'SANDBOX' | 'PRODUCTION';
+  accountNumber?: string | null;
+}): Promise<{ connection: CarrierConnection }> {
+  return api.post<{ connection: CarrierConnection }>('/seller/fulfilment/connections', input);
+}
+
+export function fetchCredentialFields(provider: string): Promise<{ fields: string[] }> {
+  return api.get<{ fields: string[] }>(
+    `/seller/fulfilment/connections/fields/${encodeURIComponent(provider)}`,
+  );
+}
+
+/**
+ * Store or rotate the key.
+ *
+ * Returns nothing. There is nothing safe to say about a credential that was
+ * just stored, and a response here would invite the screen to treat it as
+ * confirmation the key is right - which only a test can say.
+ */
+export function storeCarrierCredentials(input: {
+  connectionId: string;
+  fields: Record<string, string>;
+}): Promise<never> {
+  return api.put<never>(
+    `/seller/fulfilment/connections/${encodeURIComponent(input.connectionId)}/credentials`,
+    { fields: input.fields },
+  );
+}
+
+export function testCarrierConnection(connectionId: string): Promise<{
+  passed: boolean;
+  message: string;
+  connection: CarrierConnection;
+}> {
+  return api.post<{ passed: boolean; message: string; connection: CarrierConnection }>(
+    `/seller/fulfilment/connections/${encodeURIComponent(connectionId)}/test`,
+    {},
+  );
+}
+
+export function activateCarrierConnection(
+  connectionId: string,
+): Promise<{ connection: CarrierConnection }> {
+  return api.post<{ connection: CarrierConnection }>(
+    `/seller/fulfilment/connections/${encodeURIComponent(connectionId)}/activate`,
+    {},
+  );
+}
+
+export function disconnectCarrier(connectionId: string): Promise<never> {
+  return api.delete<never>(
+    `/seller/fulfilment/connections/${encodeURIComponent(connectionId)}/credentials`,
+  );
+}
+
+// --- The seller's own delivery arm ------------------------------------------
+
+export interface SelfManagedInput {
+  fulfilmentMethodId: string;
+  displayName: string;
+  legalName: string;
+  registrationCountry: string;
+  registrationNumber?: string | null;
+  contactEmail: string;
+  contactPhone?: string | null;
+  operationsOwnerEmail: string;
+  operationsOwnerName: string;
+}
+
+export function createSelfManagedOrganisation(input: SelfManagedInput): Promise<{
+  organisation: { logisticsPartnerId: string; partnerCode: string; displayName: string; invitedEmail: string };
+}> {
+  return api.post('/seller/fulfilment/self-managed', input);
+}
+
+// --- A delivery company that works for this seller --------------------------
+
+export interface PartnerSearchRow {
+  id: string;
+  partnerCode: string;
+  displayName: string;
+  registrationCountry: string;
+  serviceCountries: string[];
+  capabilities: string[];
+  existingStatus: string | null;
+}
+
+export function searchDeliveryPartners(term: string): Promise<{ partners: PartnerSearchRow[] }> {
+  return api.get<{ partners: PartnerSearchRow[] }>(
+    `/seller/fulfilment/partners/search?q=${encodeURIComponent(term)}`,
+  );
+}
+
+export function requestDeliveryPartner(input: {
+  fulfilmentMethodId: string;
+  logisticsPartnerId: string;
+}): Promise<{ linkId: string; status: string }> {
+  return api.post('/seller/fulfilment/partners/request', input);
+}
+
+export function inviteDeliveryPartner(input: {
+  fulfilmentMethodId: string;
+  proposedLegalName: string;
+  proposedDisplayName: string;
+  businessEmail: string;
+  countryCode: string;
+  relationshipDescription?: string | null;
+}): Promise<{ invitation: { invitationId: string; businessEmail: string; expiresAt: string } }> {
+  return api.post('/seller/fulfilment/partners/invite', input);
+}
+
+// --- Configuring an operation the seller runs themselves --------------------
+//
+// Where it collects from, where it delivers to, what it may carry, and what it
+// charges. None of these takes an organisation id: the server resolves the
+// delivery company from the seller's own method, so there is no request this
+// file could make that points at somebody else's coverage or prices.
+
+export interface PickupProfile {
+  id: string;
+  sellerLocationId: string;
+  locationName: string;
+  /** Bitmask, Monday = 1. 31 is Mon-Fri. */
+  pickupDaysMask: number;
+  windowStart: string | null;
+  windowEnd: string | null;
+  cutoffOverride: string | null;
+  handlingTimeDaysOverride: number | null;
+  maxDailyShipments: number | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  instructions: string | null;
+  maxPackageWeightGrams: number | null;
+  isActive: boolean;
+}
+
+export function fetchPickupProfiles(methodId: string): Promise<{ profiles: PickupProfile[] }> {
+  return api.get<{ profiles: PickupProfile[] }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/pickup-profiles`,
+  );
+}
+
+export function savePickupProfile(
+  methodId: string,
+  input: {
+    sellerLocationId: string;
+    pickupDaysMask?: number;
+    windowStart?: string | null;
+    windowEnd?: string | null;
+    maxDailyShipments?: number | null;
+    contactName?: string | null;
+    contactPhone?: string | null;
+    instructions?: string | null;
+  },
+): Promise<{ profile: PickupProfile }> {
+  return api.put<{ profile: PickupProfile }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/pickup-profiles`,
+    input,
+  );
+}
+
+export type ServiceAreaScope = 'COUNTRY' | 'STATE' | 'CITY' | 'POSTCODE_PREFIX';
+
+export interface ServiceArea {
+  id: string;
+  scope: ServiceAreaScope;
+  countryCode: string;
+  regionValue: string;
+  /** An exclusion wins over any inclusion that overlaps it. */
+  isExclusion: boolean;
+  supportsPickup: boolean;
+  supportsDelivery: boolean;
+  deliveryDaysMask: number;
+  transitDaysMin: number | null;
+  transitDaysMax: number | null;
+  /** Minor units as a string. Never a number. */
+  remoteAreaSurchargeMinor: string | null;
+  maxShipmentWeightGrams: number | null;
+  isActive: boolean;
+}
+
+export function fetchServiceAreas(methodId: string): Promise<{ areas: ServiceArea[] }> {
+  return api.get<{ areas: ServiceArea[] }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/service-areas`,
+  );
+}
+
+export function saveServiceArea(
+  methodId: string,
+  input: {
+    scope: ServiceAreaScope;
+    countryCode: string;
+    regionValue?: string | null;
+    isExclusion?: boolean;
+    transitDaysMin?: number | null;
+    transitDaysMax?: number | null;
+    remoteAreaSurchargeMinor?: string | null;
+  },
+): Promise<{ area: ServiceArea }> {
+  return api.put<{ area: ServiceArea }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/service-areas`,
+    input,
+  );
+}
+
+export function removeServiceArea(methodId: string, areaId: string): Promise<never> {
+  return api.delete<never>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/service-areas/${encodeURIComponent(areaId)}`,
+  );
+}
+
+export interface Capability {
+  id: string;
+  kind: string;
+  /** REQUESTED, APPROVED, REJECTED, SUSPENDED or EXPIRED. */
+  state: string;
+  evidenceReference: string | null;
+  evidenceExpiresAt: string | null;
+  decisionNote: string | null;
+}
+
+export function fetchCapabilities(methodId: string): Promise<{ capabilities: Capability[] }> {
+  return api.get<{ capabilities: Capability[] }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/capabilities`,
+  );
+}
+
+/**
+ * Ask to be allowed to carry something.
+ *
+ * A REQUEST. There is no function here that approves one, because the server
+ * has no route that would: the approval is the difference between "our vans
+ * have a fridge" and "somebody checked".
+ */
+export function requestCapability(
+  methodId: string,
+  input: { kind: string; evidenceReference?: string | null; evidenceExpiresAt?: string | null },
+): Promise<{ capability: Capability }> {
+  return api.post<{ capability: Capability }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/capabilities`,
+    input,
+  );
+}
+
+export interface RateBand {
+  basis: string;
+  serviceType: string;
+  minValue: number;
+  maxValue: number | null;
+  postalPrefix: string;
+  amountMinor: string;
+  perUnitMinor: string | null;
+}
+
+export interface RateCard {
+  id: string;
+  name: string;
+  version: number;
+  currency: string;
+  isActive: boolean;
+  minimumChargeMinor: string | null;
+  freeShippingThresholdMinor: string | null;
+  taxInclusive: boolean;
+  bands: RateBand[];
+}
+
+export function fetchRateCards(methodId: string): Promise<{ rateCards: RateCard[] }> {
+  return api.get<{ rateCards: RateCard[] }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/rate-cards`,
+  );
+}
+
+/**
+ * Publish what this operation charges.
+ *
+ * There is no function that edits a published card, because publishing again
+ * makes version 2 and leaves version 1 on the record: a quote points at the
+ * version it was priced from, and a customer disputing a charge six weeks
+ * later has to be shown the card as it stood on the day.
+ */
+export function publishRateCard(
+  methodId: string,
+  input: {
+    name: string;
+    currency: string;
+    minimumChargeMinor?: string | null;
+    bands: {
+      basis: string;
+      minValue?: number;
+      maxValue?: number | null;
+      amountMinor: string;
+      perUnitMinor?: string | null;
+    }[];
+  },
+): Promise<{ rateCard: RateCard }> {
+  return api.post<{ rateCard: RateCard }>(
+    `/seller/fulfilment/methods/${encodeURIComponent(methodId)}/rate-cards`,
+    input,
+  );
+}
+
+// --- Booking the van --------------------------------------------------------
+
+export type PickupState =
+  | 'REQUESTED'
+  | 'SCHEDULED'
+  | 'CONFIRMED'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
+
+export interface Pickup {
+  id: string;
+  shipmentId: string | null;
+  shipmentReference: string | null;
+  state: PickupState;
+  windowStartAt: string;
+  windowEndAt: string;
+  timezone: string | null;
+  instructions: string | null;
+  /** Who is coming, in words. */
+  arrangedWith: string;
+  /** Only ever what the carrier actually returned. Null means nobody said. */
+  carrierConfirmationNumber: string | null;
+  readinessConfirmedAt: string | null;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  failureReason: string | null;
+}
+
+export function fetchPickups(
+  params: { shipmentId?: string; liveOnly?: boolean } = {},
+): Promise<{ pickups: Pickup[] }> {
+  const search = new URLSearchParams();
+  if (params.shipmentId !== undefined) search.set('shipmentId', params.shipmentId);
+  if (params.liveOnly === true) search.set('liveOnly', 'true');
+
+  const query = search.toString();
+  return api.get<{ pickups: Pickup[] }>(`/seller/pickups${query.length > 0 ? `?${query}` : ''}`);
+}
+
+export function schedulePickup(
+  shipmentId: string,
+  input: {
+    windowStartAt: string;
+    windowEndAt: string;
+    timezone?: string | null;
+    instructions?: string | null;
+  },
+): Promise<{ pickup: Pickup }> {
+  return api.post<{ pickup: Pickup }>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/pickups`,
+    input,
+  );
+}
+
+export function confirmPickupReadiness(pickupId: string): Promise<{ pickup: Pickup }> {
+  return api.post<{ pickup: Pickup }>(`/seller/pickups/${encodeURIComponent(pickupId)}/ready`, {});
+}
+
+export function cancelPickup(
+  pickupId: string,
+  reason?: string | null,
+): Promise<{ pickup: Pickup }> {
+  return api.post<{ pickup: Pickup }>(`/seller/pickups/${encodeURIComponent(pickupId)}/cancel`, {
+    reason: reason ?? null,
+  });
+}
+
+// --- Pricing and buying one consignment -------------------------------------
+
+export interface CarrierQuote {
+  id: string;
+  provider: string;
+  serviceCode: string;
+  serviceName: string | null;
+  currency: string;
+  /** Minor units, as strings. BigInt does not survive JSON. */
+  baseChargeMinor: string;
+  totalMinor: string;
+  estimatedTransitDays: number | null;
+  isSelected: boolean;
+  expiresAt: string;
+}
+
+export function fetchQuotes(shipmentId: string): Promise<{ quotes: CarrierQuote[] }> {
+  return api.get<{ quotes: CarrierQuote[] }>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/quotes`,
+  );
+}
+
+/** Ask the seller's own carrier account what it would charge, right now. */
+export function requestQuotes(shipmentId: string): Promise<{ quotes: CarrierQuote[] }> {
+  return api.post<{ quotes: CarrierQuote[] }>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/quotes`,
+    {},
+  );
+}
+
+export function selectQuote(
+  shipmentId: string,
+  quoteId: string,
+): Promise<{ quotes: CarrierQuote[] }> {
+  return api.post<{ quotes: CarrierQuote[] }>(
+    `/seller/consignments/${encodeURIComponent(shipmentId)}/quotes/${encodeURIComponent(quoteId)}/select`,
+    {},
+  );
+}
+
+/**
+ * Book it at the carrier.
+ *
+ * `purchasedNow` says whether this call did it or replayed an earlier one, so a
+ * double click shows "already booked" rather than claiming a second parcel.
+ * The label is deliberately NOT in the response: it carries the consignee's
+ * full name and address and is served through its own signed link.
+ */
+export function purchaseConsignment(shipmentId: string): Promise<{
+  purchasedNow: boolean;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
+}> {
+  return api.post(`/seller/consignments/${encodeURIComponent(shipmentId)}/purchase`, {});
+}
+
+// ---------------------------------------------------------------------------
+// Bulk packaging
+//
+// Per OFFER, and therefore per variant: two sellers pack the same catalogue
+// item differently, and one seller packs the 1-litre differently from the
+// 5-litre. Every figure here is the seller's own, and every one of them is
+// re-validated on the server before it can be bought.
+// ---------------------------------------------------------------------------
+
+export type SellerPackageType = 'CARTON' | 'UK_PALLET' | 'US_PALLET' | 'CONTAINER';
+
+export type PackagingOptionState = 'DRAFT' | 'INCOMPLETE' | 'ACTIVE' | 'DISABLED';
+
+export type PackagingPriceMode = 'PER_PACKAGE' | 'DERIVED_FROM_UNIT' | 'FREIGHT_QUOTE';
+
+export interface PackagingOption {
+  id: string;
+  packageType: SellerPackageType;
+  isEnabled: boolean;
+  state: PackagingOptionState;
+  /** Why it is INCOMPLETE, naming the field. Null when it is complete. */
+  validationMessage: string | null;
+  packageSku: string | null;
+
+  unitsPerCarton: number | null;
+  unitsPerPackage: number | null;
+  /**
+   * What the layout arithmetic works out to, kept even when overridden.
+   *
+   * Shown BESIDE the override, never instead of it: "the system says 1,200 and
+   * you said 1,150" is a question somebody asks during a dispute and it has to
+   * have an answer.
+   */
+  unitsPerPackageDerived: number | null;
+  unitsPerPackageIsOverride: boolean;
+
+  palletStandard: string | null;
+  cartonsPerLayer: number | null;
+  layerCount: number | null;
+  cartonsPerPallet: number | null;
+  loadedHeightMm: number | null;
+  isStackable: boolean;
+  maxStackCount: number | null;
+
+  containerType: string | null;
+  containerLoadMode: string | null;
+  containerLoadingMethod: string | null;
+  palletsPerContainer: number | null;
+  cartonsPerContainer: number | null;
+  originPortLabel: string | null;
+  incoterm: string | null;
+
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  /** The unit the seller typed in, so the form shows their own figure back. */
+  enteredDimensionUnit: 'MM' | 'CM' | 'M' | 'IN';
+  lengthEntered: number | null;
+  widthEntered: number | null;
+  heightEntered: number | null;
+
+  netWeightGrams: string | null;
+  grossWeightGrams: string | null;
+  maxGrossWeightGrams: string | null;
+  enteredWeightUnit: 'G' | 'KG' | 'LB';
+  netWeightEntered: number | null;
+  grossWeightEntered: number | null;
+  maxGrossWeightEntered: number | null;
+
+  cargoVolumeCm3: string | null;
+
+  minimumPackages: number;
+  packageIncrement: number;
+  maximumPackages: number | null;
+
+  priceMode: PackagingPriceMode;
+  /** Minor units, as a string. Never a number - see the schema header. */
+  pricePerPackageMinor: string | null;
+  currency: string | null;
+
+  handlingLeadTimeDays: number | null;
+  productionLeadTimeDays: number | null;
+  originLocationId: string | null;
+
+  isHazardous: boolean;
+  temperatureNotes: string | null;
+  specialHandlingNotes: string | null;
+
+  tiers: { id: string; minPackages: number; pricePerPackageMinor: string }[];
+
+  loadType: string;
+  requiresManualFreight: boolean;
+
+  /**
+   * Nominal figures for the chosen container type.
+   *
+   * GUIDANCE, and the screen says so wherever it draws them. Internal
+   * dimensions and payload vary by build, by carrier and by the individual
+   * box; a seller who promises a figure off a table will one day be unable to
+   * load it.
+   */
+  containerGuidance: {
+    label: string;
+    nominalInternalLengthMm: number | null;
+    nominalInternalWidthMm: number | null;
+    nominalInternalHeightMm: number | null;
+    nominalMaxPayloadGrams: string | null;
+    nominalVolumeCm3: string | null;
+  } | null;
+
+  palletFootprint: {
+    standard: string;
+    lengthMm: number;
+    widthMm: number;
+    label: string;
+  } | null;
+
+  version: number;
+  updatedAt: string;
+}
+
+export interface PackagingProfile {
+  offerId: string;
+  baseUnitLabel: string | null;
+  version: number;
+  notes: string | null;
+  options: PackagingOption[];
+  updatedAt: string;
+}
+
+export interface PackagingPresets {
+  palletFootprints: {
+    standard: string;
+    lengthMm: number;
+    widthMm: number;
+    label: string;
+  }[];
+  containers: {
+    type: string;
+    label: string;
+    nominalInternalLengthMm: number | null;
+    nominalInternalWidthMm: number | null;
+    nominalInternalHeightMm: number | null;
+    nominalMaxPayloadGrams: string | null;
+    nominalVolumeCm3: string | null;
+  }[];
+  incoterms: string[];
+}
+
+export function fetchPackagingPresets(): Promise<PackagingPresets> {
+  return api.get<PackagingPresets>('/seller/packaging/presets');
+}
+
+export function fetchPackagingProfile(offerId: string): Promise<PackagingProfile> {
+  return api.get<PackagingProfile>(`/seller/offers/${encodeURIComponent(offerId)}/packaging`);
+}
+
+/** Everything a seller may write for one package type. */
+export interface PackagingOptionInput {
+  packageType: SellerPackageType;
+  isEnabled: boolean;
+  packageSku?: string | null;
+
+  unitsPerCarton?: number | null;
+  unitsPerPackage?: number | null;
+  unitsPerPackageIsOverride?: boolean;
+
+  cartonsPerLayer?: number | null;
+  layerCount?: number | null;
+  cartonsPerPallet?: number | null;
+  loadedHeight?: number | null;
+  isStackable?: boolean;
+  maxStackCount?: number | null;
+
+  containerType?: string | null;
+  containerLoadMode?: string | null;
+  containerLoadingMethod?: string | null;
+  palletsPerContainer?: number | null;
+  cartonsPerContainer?: number | null;
+  originPortLabel?: string | null;
+  incoterm?: string | null;
+
+  dimensionUnit?: 'MM' | 'CM' | 'M' | 'IN';
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
+
+  weightUnit?: 'G' | 'KG' | 'LB';
+  netWeight?: number | null;
+  grossWeight?: number | null;
+  maxGrossWeight?: number | null;
+
+  cargoVolumeCm3?: string | null;
+
+  minimumPackages?: number;
+  packageIncrement?: number;
+  maximumPackages?: number | null;
+
+  priceMode?: PackagingPriceMode;
+  pricePerPackageMinor?: string | null;
+
+  handlingLeadTimeDays?: number | null;
+  productionLeadTimeDays?: number | null;
+  originLocationId?: string | null;
+
+  isHazardous?: boolean;
+  temperatureNotes?: string | null;
+  specialHandlingNotes?: string | null;
+
+  tiers?: { minPackages: number; pricePerPackageMinor: string }[];
+}
+
+export function savePackagingOption(
+  offerId: string,
+  body: PackagingOptionInput,
+): Promise<PackagingProfile> {
+  return api.put<PackagingProfile>(
+    `/seller/offers/${encodeURIComponent(offerId)}/packaging/options`,
+    body,
+  );
+}
+
+export function setPackagingEnabled(
+  offerId: string,
+  packageType: SellerPackageType,
+  enabled: boolean,
+): Promise<PackagingProfile> {
+  return api.post<PackagingProfile>(
+    `/seller/offers/${encodeURIComponent(offerId)}/packaging/options/${packageType}/enabled`,
+    { enabled },
+  );
+}
+
+export function savePackagingProfileDetails(
+  offerId: string,
+  body: { baseUnitLabel?: string | null; notes?: string | null },
+): Promise<PackagingProfile> {
+  return api.put<PackagingProfile>(
+    `/seller/offers/${encodeURIComponent(offerId)}/packaging/profile`,
+    body,
+  );
+}
+
+export interface BulkOrderPreview {
+  packageType: SellerPackageType;
+  packageQuantity: number;
+  /** After the minimum and the step have been applied. */
+  effectivePackageQuantity: number;
+  unitsPerPackage: number;
+  totalBaseUnits: number;
+  packagePriceMinor: string;
+  lineTotalMinor: string;
+  effectiveUnitPriceMinor: string;
+  currency: string;
+  appliedTierMinPackages: number | null;
+  requiresFreightQuote: boolean;
+  loadType: string;
+  wholePackagesAvailable: number;
+  leadTimeDays: number | null;
+  warnings: { code: string; message: string }[];
+}
+
+/**
+ * What ordering N of these would come to.
+ *
+ * Uses the SAME functions the buyer's basket uses, on the server, so the
+ * figure a seller previews is the figure a buyer is charged. A preview
+ * computed its own way would eventually disagree with the cart, and the seller
+ * would be assuring buyers of a total the checkout does not produce.
+ */
+export function previewBulkOrder(
+  offerId: string,
+  packageType: SellerPackageType,
+  packageQuantity: number,
+): Promise<BulkOrderPreview> {
+  const params = new URLSearchParams({
+    packageType,
+    packageQuantity: String(packageQuantity),
+  });
+
+  return api.get<BulkOrderPreview>(
+    `/seller/offers/${encodeURIComponent(offerId)}/packaging/preview?${params.toString()}`,
   );
 }

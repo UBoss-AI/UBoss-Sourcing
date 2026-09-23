@@ -77,12 +77,34 @@ interface ServeOptions {
   statuses?: { status: string; paid: boolean; orderStatus: string }[];
   sessionResponse?: Response;
   onSession?: (init?: RequestInit) => void;
+  /** Whether the backend reports that payments can be settled on request. */
+  mockPayments?: boolean;
+  /** Called every time the mock-capture endpoint is asked. */
+  onMockCapture?: () => void;
 }
 
 function serve(options: ServeOptions = {}): void {
   const statuses = [...(options.statuses ?? [])];
 
   fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+    if (url.includes('/payments/instruments')) {
+      return Promise.resolve(
+        jsonResponse({ instruments: [], mockPayments: options.mockPayments === true }),
+      );
+    }
+
+    if (url.endsWith('/mock-capture')) {
+      options.onMockCapture?.();
+      return Promise.resolve(
+        jsonResponse({
+          status: 'CAPTURED',
+          paid: true,
+          orderStatus: 'CONFIRMED',
+          applied: true,
+        }),
+      );
+    }
+
     if (url.includes('/payments/orders/') && url.endsWith('/session')) {
       options.onSession?.(init);
       return Promise.resolve(
@@ -303,5 +325,89 @@ describe('PaymentPage', () => {
     expect(html).not.toContain('cvv');
     expect(html).not.toContain('card number');
     expect(html).not.toContain('secret');
+  });
+});
+
+/**
+ * The testing fixture.
+ *
+ * Two things worth protecting. It must be invisible unless the backend says it
+ * is on - a customer being offered a button that settles their order for free
+ * is the failure mode here, and it is not a small one. And when it is on, it
+ * must still not let the browser decide: the page waits for the backend's
+ * verdict exactly as it does for a real payment.
+ */
+describe('PaymentPage in test mode', () => {
+  it('offers nothing when the backend has not said mock payments are on', async () => {
+    serve();
+    renderPayment();
+
+    await screen.findByRole('button', { name: /pay securely now/i });
+
+    expect(screen.queryByText('Test mode')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /mark this order as paid/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('says so on the page, and settles the order when asked', async () => {
+    const user = userEvent.setup();
+
+    serve({
+      mockPayments: true,
+      statuses: [{ status: 'CAPTURED', paid: true, orderStatus: 'CONFIRMED' }],
+    });
+
+    renderPayment();
+
+    expect(await screen.findByText('Test mode')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /mark this order as paid/i }));
+
+    // The backend's answer, not the button's. The page goes into the same wait
+    // every real payment ends in and only the status poll moves it on.
+    await waitFor(
+      () => {
+        expect(screen.getByText('Payment confirmed')).toBeInTheDocument();
+      },
+      { timeout: 6000 },
+    );
+  });
+
+  it('settles the order itself after the provider sheet reports success', async () => {
+    const user = userEvent.setup();
+    const captured = vi.fn();
+
+    openCheckout.mockResolvedValue({ kind: 'submitted' });
+    serve({
+      mockPayments: true,
+      onMockCapture: captured,
+      statuses: [{ status: 'CAPTURED', paid: true, orderStatus: 'CONFIRMED' }],
+    });
+
+    renderPayment();
+    await user.click(await screen.findByRole('button', { name: /pay securely now/i }));
+
+    // The case the fixture exists for: the test card went through and the
+    // gateway's webhook cannot reach a laptop.
+    await waitFor(() => {
+      expect(captured).toHaveBeenCalled();
+    });
+  });
+
+  it('leaves a dismissed sheet unpaid', async () => {
+    const user = userEvent.setup();
+    const captured = vi.fn();
+
+    openCheckout.mockResolvedValue({ kind: 'dismissed' });
+    serve({ mockPayments: true, onMockCapture: captured });
+
+    renderPayment();
+    await user.click(await screen.findByRole('button', { name: /pay securely now/i }));
+
+    // Walking away from the sheet is a thing somebody may be testing. A
+    // fixture that paid it anyway would hide the behaviour under test.
+    expect(await screen.findByText('Payment not completed')).toBeInTheDocument();
+    expect(captured).not.toHaveBeenCalled();
   });
 });

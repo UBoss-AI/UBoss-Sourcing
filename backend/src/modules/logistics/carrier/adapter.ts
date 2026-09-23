@@ -195,11 +195,22 @@ export function unconfigured(
   });
 }
 
-/** The refusal a provider gives for something it genuinely cannot do. */
+/**
+ * The refusal a provider gives for something it genuinely cannot do.
+ *
+ * CARRIER_OPERATION_NOT_SUPPORTED rather than CARRIER_REQUEST_FAILED, and the
+ * difference is the one this whole file exists to keep visible. A failure is
+ * something that might work next time; this will not, ever, whatever anybody
+ * configures. A seller told "the carrier refused" goes and checks their
+ * credentials; a seller told "India Post does not offer this through an API"
+ * stops looking.
+ *
+ * 501 rather than 502: nothing was asked of anybody.
+ */
 export function unsupported(provider: CarrierProviderName, operation: string): AppError {
   return new AppError({
     statusCode: 501,
-    code: ErrorCode.CARRIER_REQUEST_FAILED,
+    code: ErrorCode.CARRIER_OPERATION_NOT_SUPPORTED,
     message: `${provider} does not support ${operation} through this integration.`,
     details: [{ code: 'UNSUPPORTED_OPERATION', meta: { provider, operation } }],
   });

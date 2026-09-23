@@ -716,10 +716,6 @@ export type LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput = {
   deleteMany?: Prisma.LogisticsSlaPolicyScalarWhereInput | Prisma.LogisticsSlaPolicyScalarWhereInput[]
 }
 
-export type EnumLogisticsServiceTypeFieldUpdateOperationsInput = {
-  set?: $Enums.LogisticsServiceType
-}
-
 export type LogisticsSlaPolicyCreateNestedOneWithoutShipmentsInput = {
   create?: Prisma.XOR<Prisma.LogisticsSlaPolicyCreateWithoutShipmentsInput, Prisma.LogisticsSlaPolicyUncheckedCreateWithoutShipmentsInput>
   connectOrCreate?: Prisma.LogisticsSlaPolicyCreateOrConnectWithoutShipmentsInput

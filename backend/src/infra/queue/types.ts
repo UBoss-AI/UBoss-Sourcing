@@ -127,6 +127,49 @@ export const JobType = {
   ///
   /// A pass with nothing to do is four indexed queries that match no rows.
   LOGISTICS_MAINTENANCE: 'logistics.maintenance',
+
+  /// Keep every SELLER's own accounting connection honest.
+  ///
+  /// A THIRD ERP beat, and it shares nothing with the two above. `ERP_*` is
+  /// the operator's warehouse system and `CUSTOMER_ERP_*` is a buyer's
+  /// purchasing system; this is a seller's TallyPrime, which runs on a PC in
+  /// their office that is switched off at six o'clock. A seller's machine
+  /// being asleep must not slow the operator's warehouse sync or a buyer's
+  /// order feed, which is why it has its own job and its own retry budget.
+  ///
+  /// Three cheap indexed passes on one beat, because all three are about a
+  /// bridge that has stopped answering and none is worth its own tick:
+  ///
+  ///   - Tasks whose bridge died mid-post. Without this they sit IN_FLIGHT for
+  ///     ever and the seller's books silently stop being updated.
+  ///   - Connections whose heartbeat has stopped. Nothing writes a row when a
+  ///     heartbeat fails to ARRIVE, so a connection would otherwise keep
+  ///     reading "Connected" over a machine somebody switched off an hour ago.
+  ///   - Pairing codes nobody used. A code is a credential for its whole life,
+  ///     and one left outstanding is one somebody can still redeem.
+  ///
+  /// A pass with nothing to do is three indexed queries that match no rows.
+  SELLER_ERP_MAINTENANCE: 'seller_erp.maintenance',
+
+  /// Build the payloads for events queued without one, and tell a seller when
+  /// their accounting connection has gone quiet.
+  ///
+  /// Separate from the maintenance beat because it does real work: a backfill
+  /// enqueues five hundred order events with only a reference in them, and the
+  /// payload for each has to be assembled from the order. Doing that inside
+  /// the request that started the backfill would hold a connection open for a
+  /// minute.
+  SELLER_ERP_DISPATCH: 'seller_erp.dispatch',
+
+  /// Compare what we think posted against what Tally says it holds.
+  ///
+  /// The safety net behind the three duplicate guards, and the thing that
+  /// finds the one failure they cannot: a voucher Tally committed and whose
+  /// acknowledgement never reached us. Runs rarely, reads rather than writes,
+  /// and raises a notification rather than silently correcting anything - a
+  /// reconciliation that repaired accounts on its own would be a second thing
+  /// writing to somebody's books without being asked.
+  SELLER_ERP_RECONCILE: 'seller_erp.reconcile',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

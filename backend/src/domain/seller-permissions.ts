@@ -81,6 +81,29 @@ export const SellerPermission = {
   /// Start or re-run payout onboarding with the provider.
   PAYOUT_SETUP: 'seller.payout.setup',
 
+  // --- How this seller's goods get delivered ---
+  //
+  /// Read which delivery methods the business has, how they are routed, and
+  /// whether each is healthy. NOT the credentials behind them - there is no
+  /// permission anywhere that returns one of those, because no endpoint does.
+  FULFILMENT_READ: 'seller.fulfilment.read',
+  /// Choose a delivery method, make one primary, pause one, write the rules
+  /// that route a parcel.
+  ///
+  /// Held by OWNER and ADMIN only. It looks like an operations key and is not:
+  /// changing how the business ships changes what every order costs and how
+  /// long it takes, and an Order Manager dispatching today's parcels has no
+  /// business switching the company to a different courier.
+  FULFILMENT_WRITE: 'seller.fulfilment.write',
+  /// Store or rotate the API credentials for the seller's own carrier account.
+  ///
+  /// SEPARATE from FULFILMENT_WRITE on purpose. Choosing to ship by DHL and
+  /// holding the key that bills the company's DHL account are different acts
+  /// with different consequences, and the second one is the narrower of the
+  /// two. Nothing here ever READS a credential back - see
+  /// `SellerCarrierCredential`.
+  CARRIER_CREDENTIAL_WRITE: 'seller.carrier.credential.write',
+
   // --- Integrations and records ---
   INTEGRATION_READ: 'seller.integration.read',
   INTEGRATION_WRITE: 'seller.integration.write',
@@ -173,6 +196,9 @@ export const SELLER_ROLE_DEFINITIONS: readonly SellerRoleDefinition[] = Object.f
       SellerPermission.RETURN_HANDLE,
       SellerPermission.FINANCE_READ,
       SellerPermission.PAYOUT_SETUP,
+      SellerPermission.FULFILMENT_READ,
+      SellerPermission.FULFILMENT_WRITE,
+      SellerPermission.CARRIER_CREDENTIAL_WRITE,
       SellerPermission.INTEGRATION_READ,
       SellerPermission.INTEGRATION_WRITE,
       SellerPermission.ANALYTICS_READ,
@@ -218,6 +244,10 @@ export const SELLER_ROLE_DEFINITIONS: readonly SellerRoleDefinition[] = Object.f
       // receiving the stock who knows a new place exists.
       SellerPermission.LOCATION_WRITE,
       SellerPermission.ORDER_READ,
+      // Reads how each building ships, because a pickup window and a cutoff
+      // are facts about the warehouse this role runs. Does not choose the
+      // method - that is an account-level decision.
+      SellerPermission.FULFILMENT_READ,
       SellerPermission.INTEGRATION_READ,
       SellerPermission.ANALYTICS_READ,
     ]),
@@ -236,6 +266,9 @@ export const SELLER_ROLE_DEFINITIONS: readonly SellerRoleDefinition[] = Object.f
       SellerPermission.ORDER_FULFIL,
       SellerPermission.ORDER_CANCEL,
       SellerPermission.RETURN_HANDLE,
+      // Reads which method a consignment is going by, because that is what
+      // this role is dispatching. Cannot change the configuration behind it.
+      SellerPermission.FULFILMENT_READ,
       SellerPermission.ANALYTICS_READ,
     ]),
   },

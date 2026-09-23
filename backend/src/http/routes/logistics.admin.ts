@@ -47,6 +47,12 @@ import {
   withdrawAssignment,
 } from '../../modules/logistics/assignment.service.js';
 import { createShipmentsForOrder } from '../../modules/logistics/shipment-create.service.js';
+import {
+  listConnectionHealth,
+  listPartnersForCatalogue,
+  readCatalogueSummary,
+  readProviderCatalogue,
+} from '../../modules/logistics/partner-catalogue.service.js';
 import { readDriverAssignmentHistory } from '../../modules/logistics/driver-assignment.service.js';
 import {
   asOperator,
@@ -164,6 +170,72 @@ async function sendActivationEmail(params: {
 
 export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void> {
   // --- Carriers -----------------------------------------------------------
+
+  /**
+   * Every way anything gets delivered here, in one call.
+   *
+   * Summary, provider cards and seller connection health together, because
+   * they are one screen and three requests would render it in three stages.
+   *
+   * NOTHING IN THIS RESPONSE IS A CREDENTIAL. The operator sees whether each
+   * seller's carrier account is working and what it last said when it was
+   * not - never the key. A marketplace operator holding its sellers' carrier
+   * credentials is what the per-seller design exists to prevent.
+   */
+  app.get(
+    '/logistics/delivery-catalogue',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({ failingOnly: z.coerce.boolean().optional() })
+        .parse(request.query);
+
+      const [summary, providers, connections] = await Promise.all([
+        readCatalogueSummary(),
+        readProviderCatalogue(),
+        listConnectionHealth({ failingOnly: query.failingOnly }),
+      ]);
+
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({ summary, providers, connections });
+    },
+  );
+
+  /**
+   * The partner table, with the filters the brief asks for.
+   *
+   * Counts rather than contents: an operator triaging carriers needs to know
+   * one has eleven open exceptions, not eleven consignees' addresses on a
+   * screen that exists to be scanned.
+   */
+  app.get(
+    '/logistics/delivery-catalogue/partners',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          search: z.string().trim().max(120).optional(),
+          partnerKind: z
+            .enum(['MARKETPLACE_CARRIER', 'SELLER_SELF_MANAGED', 'SELLER_DEDICATED'])
+            .optional(),
+          status: z
+            .enum(['PENDING_ACTIVATION', 'ACTIVE', 'SUSPENDED', 'DEACTIVATED'])
+            .optional(),
+          country: z.string().trim().length(2).optional(),
+          sellerAccountId: z.string().length(26).optional(),
+          capability: z.string().trim().max(48).optional(),
+          limit: z.coerce.number().int().min(1).max(200).optional(),
+          offset: z.coerce.number().int().min(0).optional(),
+        })
+        .parse(request.query);
+
+      const result = await listPartnersForCatalogue(query);
+
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
 
   app.get(
     '/logistics/partners',

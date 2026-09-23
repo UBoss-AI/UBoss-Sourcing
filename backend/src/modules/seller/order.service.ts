@@ -44,6 +44,7 @@ import {
 } from './account.service.js';
 import { consumeReservation, releaseReservation, reserveStock } from './inventory.service.js';
 import { syncOrderWithSellerGroups } from './order-split.service.js';
+import { enqueueIfConnected } from '../seller-erp/job.service.js';
 
 export interface SellerOrderRow {
   id: string;
@@ -496,6 +497,66 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       correlationId: input.correlationId ?? null,
       tx,
     });
+
+    /*
+     * Dispatch is the REVENUE event, where the seller has said it is.
+     *
+     * `postSalesInvoice` and `invoiceOnDispatch` are two separate switches in
+     * the sync policy for a reason: placing an order and recognising the money
+     * are not the same accounting event, and a seller who invoices on payment
+     * rather than on despatch is entirely ordinary. So the event is queued
+     * here and `enqueueIfConnected` drops it for any seller whose policy says
+     * otherwise - one indexed read, and nothing for the great majority who
+     * have no ERP at all.
+     *
+     * Inside the transaction that moved the status, so an order that shipped
+     * cannot lose the fact that the books have to be told.
+     */
+    if (input.to === 'SHIPPED') {
+      await enqueueIfConnected({
+        sellerAccountId: membership.sellerAccountId,
+        eventType: 'SALES_INVOICE',
+        sourceEntityType: 'seller_order_group',
+        sourceEntityId: input.groupId,
+        orderId: group.orderId,
+        sellerOrderGroupId: input.groupId,
+        payload: { kind: 'ORDER_BACKFILL', sellerOrderGroupId: input.groupId },
+        // Behind the same key as the Sales Order for this buyer order, so the
+        // invoice can never post before the order it invoices.
+        sequenceKey: group.orderId,
+        correlationId: input.correlationId ?? null,
+        tx,
+      });
+    }
+
+    /*
+     * A cancellation is NEVER a delete.
+     *
+     * Posted accounting history is reversed or marked, and which of those it
+     * is belongs to the seller's own accountant - `cancellationMode` on the
+     * sync policy is where they say. The event is recorded either way; the
+     * policy decides what becomes of it, and `MANUAL` means the seller is told
+     * to handle it themselves rather than having something posted on their
+     * behalf.
+     */
+    if (input.to === 'CANCELLED') {
+      await enqueueIfConnected({
+        sellerAccountId: membership.sellerAccountId,
+        eventType: 'CANCELLATION',
+        sourceEntityType: 'seller_order_group',
+        sourceEntityId: input.groupId,
+        orderId: group.orderId,
+        sellerOrderGroupId: input.groupId,
+        payload: {
+          kind: 'CANCELLATION',
+          sellerOrderGroupId: input.groupId,
+          reason: input.reason ?? null,
+        },
+        sequenceKey: group.orderId,
+        correlationId: input.correlationId ?? null,
+        tx,
+      });
+    }
 
     return group.orderId;
   });

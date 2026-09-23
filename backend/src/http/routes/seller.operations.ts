@@ -40,11 +40,30 @@ import {
   startPayoutOnboarding,
 } from '../../modules/seller/payout.service.js';
 import {
+  listQuotes,
+  purchaseConsignment,
+  quoteConsignment,
+  selectQuote,
+} from '../../modules/seller/carrier-purchase.service.js';
+import {
+  cancelPickup,
+  confirmReadiness,
+  listPickups,
+  schedulePickup,
+} from '../../modules/seller/pickup.service.js';
+import {
   carrierChoicesForShipment,
   listSellerCarriers,
   requestSellerCarrier,
   sellerAssignCarrier,
 } from '../../modules/seller/logistics-partner.service.js';
+import {
+  answerFreightQuote,
+  declineFreightQuote,
+  freightNeedsQuote,
+  listFreightQuotes,
+  requestFreightQuote,
+} from '../../modules/seller/freight-quote.service.js';
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -601,7 +620,16 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     const seller = currentSeller(request);
 
     const rows = await prisma.sellerNotification.findMany({
-      where: { sellerAccountId: seller.sellerAccountId },
+      /*
+       * ARCHIVED rows are excluded and everything else is not.
+       *
+       * A RESOLVED alert stays in the list on purpose - "the carrier accepted
+       * after all" is worth reading once, and a row that vanished the instant
+       * the problem fixed itself would leave a seller wondering whether they
+       * imagined the warning. What it does not do is count towards the bell;
+       * that is `status` and `class` below, and it is the caller's job.
+       */
+      where: { sellerAccountId: seller.sellerAccountId, status: { not: 'ARCHIVED' } },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
@@ -619,6 +647,17 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
           body: row.body,
           linkPath: row.linkPath,
           severity: row.severity,
+          /*
+           * The two columns the bell counts on.
+           *
+           * `class` separates news from a problem: "a customer placed an
+           * order" has nothing to resolve, and a badge that counted it would
+           * never reach zero. `status` says whether the problem is still
+           * true - resolved alerts are shown and not counted.
+           */
+          notificationClass: row.class,
+          status: row.status,
+          resolvedAt: row.resolvedAt?.toISOString() ?? null,
           createdAt: row.createdAt.toISOString(),
           // Read state is per member rather than per row - a seller with twelve
           // staff would otherwise get twelve copies of every event.
@@ -705,6 +744,106 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  // --- Pricing a consignment, and buying it --------------------------------
+  //
+  // The two operations on this path that cost real money. Both are scoped to
+  // the session's seller in the query that finds the consignment, so one
+  // belonging to somebody else is not found rather than found and refused.
+
+  /**
+   * Ask the carrier what this consignment costs.
+   *
+   * Supersedes the previous offers, so the list is from one moment rather than
+   * a pile accumulated over a week. A quote the seller has already SELECTED is
+   * left alone - re-pricing must not silently replace what they agreed to.
+   */
+  app.post(
+    '/consignments/:id/quotes',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const seller = currentSeller(request);
+
+      const quotes = await quoteConsignment({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        shipmentId: params.id,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ quotes });
+    },
+  );
+
+  app.get(
+    '/consignments/:id/quotes',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const seller = currentSeller(request);
+
+      const quotes = await listQuotes(seller.sellerAccountId, params.id);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ quotes });
+    },
+  );
+
+  /** The seller picks one service. Exactly one can be selected per consignment. */
+  app.post(
+    '/consignments/:id/quotes/:quoteId/select',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), quoteId: z.string().length(26) })
+        .parse(request.params);
+
+      const seller = currentSeller(request);
+
+      const quotes = await selectQuote({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        shipmentId: params.id,
+        quoteId: params.quoteId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ quotes });
+    },
+  );
+
+  /**
+   * Book it at the carrier.
+   *
+   * IDEMPOTENT, and that is the whole point of the endpoint's shape: the key
+   * is derived from the consignment and the chosen quote, so a retry, a double
+   * click or a redelivered job collides in the database rather than booking a
+   * second parcel. `purchasedNow` says which happened, so a client can tell a
+   * fresh booking from a replayed answer.
+   */
+  app.post(
+    '/consignments/:id/purchase',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const seller = currentSeller(request);
+
+      const result = await purchaseConsignment({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        shipmentId: params.id,
+      });
+
+      /*
+       * 200 rather than 201 on a replay, because nothing was created. The
+       * label is NOT in this response - it is stored privately and served
+       * through the signed-link route, since a shipping label carries the
+       * consignee's full name and address.
+       */
+      return reply
+        .header('cache-control', 'no-store')
+        .status(result.purchasedNow ? 201 : 200)
+        .send(result);
+    },
+  );
+
   /**
    * Which of this seller's carriers may take this consignment.
    *
@@ -761,6 +900,279 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
       });
 
       return reply.status(200).send(result);
+    },
+  );
+
+  // --- Booking the van ----------------------------------------------------
+  //
+  // Who is actually called depends on how the consignment is going out. On the
+  // seller's own carrier account the collection is booked WITH that carrier
+  // and a confirmation number comes back; through a delivery company inside
+  // the platform nothing is called, and the request lands on that company's
+  // board for a person to schedule. The seller sees the difference, because it
+  // is a real one.
+
+  app.get(
+    '/pickups',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          shipmentId: z.string().length(26).optional(),
+          liveOnly: z.coerce.boolean().optional(),
+        })
+        .parse(request.query);
+
+      const seller = currentSeller(request);
+
+      const pickups = await listPickups(seller.sellerAccountId, {
+        ...(query.shipmentId === undefined ? {} : { shipmentId: query.shipmentId }),
+        ...(query.liveOnly === undefined ? {} : { liveOnly: query.liveOnly }),
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ pickups });
+    },
+  );
+
+  /**
+   * Ask for the parcels to be collected.
+   *
+   * `requireTradingSeller`: booking a van is an obligation on somebody else and
+   * usually costs money, so a seller who is suspended or still in onboarding
+   * cannot create one.
+   *
+   * A second live collection for the same consignment is refused by the
+   * database rather than by a check, because two dispatchers pressing this in
+   * the same second is exactly the case a check loses.
+   */
+  app.post(
+    '/consignments/:id/pickups',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          windowStartAt: z.coerce.date(),
+          windowEndAt: z.coerce.date(),
+          timezone: z.string().trim().max(64).nullable().optional(),
+          instructions: z.string().trim().max(1024).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const pickup = await schedulePickup({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        shipmentId: params.id,
+        windowStartAt: body.windowStartAt,
+        windowEndAt: body.windowEndAt,
+        timezone: body.timezone ?? null,
+        instructions: body.instructions ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ pickup });
+    },
+  );
+
+  /** The goods are on the dock - the handshake that stops a wasted van call. */
+  app.post(
+    '/pickups/:pickupId/ready',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = z.object({ pickupId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const pickup = await confirmReadiness({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        pickupId: params.pickupId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ pickup });
+    },
+  );
+
+  /**
+   * Call the van off.
+   *
+   * A POST rather than a DELETE: the collection is not removed, it is recorded
+   * as cancelled with the reason, and a carrier that refused the cancellation
+   * is reported rather than swallowed - a seller told no van is coming when one
+   * still is makes the more expensive of the two mistakes.
+   */
+  app.post(
+    '/pickups/:pickupId/cancel',
+    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = z.object({ pickupId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({ reason: z.string().trim().max(512).nullable().optional() })
+        .parse(request.body ?? {});
+
+      const seller = currentSeller(request);
+
+      const pickup = await cancelPickup({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        pickupId: params.pickupId,
+        reason: body.reason ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ pickup });
+    },
+  );
+
+  // --- Freight for loads a parcel carrier cannot take ----------------------
+  //
+  // A pallet is not a parcel and a container is not a big parcel. Where no
+  // carrier on this seller's account can express the load, the answer is a
+  // QUOTATION rather than a fabricated price - see `domain/freight-load.ts`.
+
+  app.get(
+    '/freight-quotes',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          state: z
+            .enum(['REQUESTED', 'QUOTED', 'ACCEPTED', 'DECLINED', 'EXPIRED', 'CANCELLED'])
+            .nullable()
+            .optional(),
+          orderGroupId: z.string().length(26).nullable().optional(),
+        })
+        .parse(request.query);
+
+      const quotes = await listFreightQuotes({
+        membership: currentSeller(request),
+        state: query.state ?? null,
+        orderGroupId: query.orderGroupId ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ quotes });
+    },
+  );
+
+  /**
+   * Raise a request for one consignment.
+   *
+   * Idempotent per consignment per load type: pressing it twice returns the
+   * request that already exists rather than creating a rival. Two open
+   * requests for one load is two freight desks pricing the same pallets and
+   * one of them wasting an afternoon.
+   */
+  app.post(
+    '/orders/:id/freight-quote',
+    { preHandler: requireSeller(SellerPermission.ORDER_FULFIL) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const seller = currentSeller(request);
+
+      const quote = await requestFreightQuote({
+        sellerAccountId: seller.sellerAccountId,
+        sellerOrderGroupId: params.id,
+        requestedByProfileId: seller.customerProfileId,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send(quote);
+    },
+  );
+
+  /** Whether this consignment can go by carrier at all, or needs quoting. */
+  app.get(
+    '/orders/:id/freight',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const seller = currentSeller(request);
+
+      // Ownership first: a group id from another seller's account must not be
+      // answerable even with a boolean.
+      const group = await prisma.sellerOrderGroup.findFirst({
+        where: { id: params.id, sellerAccountId: seller.sellerAccountId },
+        select: { id: true },
+      });
+
+      if (group === null) {
+        return reply.status(404).send({
+          error: { code: 'NOT_FOUND', message: 'Order not found.' },
+        });
+      }
+
+      const freight = await freightNeedsQuote(params.id);
+      const quotes = await listFreightQuotes({ membership: seller, orderGroupId: params.id });
+
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({ ...freight, quotes });
+    },
+  );
+
+  /**
+   * Enter a real figure.
+   *
+   * `FULFILMENT_WRITE` rather than `ORDER_FULFIL`: this is a delivery
+   * arrangement and a cost, which is the fulfilment desk's authority, not the
+   * authority to pack and ship an order.
+   */
+  app.post(
+    '/freight-quotes/:id/answer',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+
+      const body = z
+        .object({
+          // Money as a STRING, like everywhere else in this API.
+          amountMinor: z.string().regex(/^\d{1,19}$/),
+          currency: z.string().trim().length(3),
+          serviceName: z.string().trim().max(160).nullable().optional(),
+          carrierReference: z.string().trim().max(120).nullable().optional(),
+          trackingReference: z.string().trim().max(120).nullable().optional(),
+          expectedPickupAt: z.coerce.date().nullable().optional(),
+          expectedDeliveryAt: z.coerce.date().nullable().optional(),
+          quoteExpiresAt: z.coerce.date().nullable().optional(),
+          responseNote: z.string().trim().max(1000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const quote = await answerFreightQuote({
+        membership: currentSeller(request),
+        requestId: params.id,
+        amountMinor: body.amountMinor,
+        currency: body.currency,
+        serviceName: body.serviceName ?? null,
+        carrierReference: body.carrierReference ?? null,
+        trackingReference: body.trackingReference ?? null,
+        expectedPickupAt: body.expectedPickupAt ?? null,
+        expectedDeliveryAt: body.expectedDeliveryAt ?? null,
+        quoteExpiresAt: body.quoteExpiresAt ?? null,
+        responseNote: body.responseNote ?? null,
+        actorUserId: request.auth?.id ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send(quote);
+    },
+  );
+
+  app.post(
+    '/freight-quotes/:id/decline',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(1).max(1000) }).parse(request.body);
+
+      const quote = await declineFreightQuote({
+        membership: currentSeller(request),
+        requestId: params.id,
+        reason: body.reason,
+        actorUserId: request.auth?.id ?? null,
+      });
+
+      return reply.status(200).send(quote);
     },
   );
 

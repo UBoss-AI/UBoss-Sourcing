@@ -70,6 +70,23 @@ export const SECTIONS = Object.freeze({
     // individual, and the one they took is the evidence behind a delivery
     // date they may later be arguing about.
     'fulfilmentQuotes',
+    /*
+     * Requests this person made for a freight price on a pallet or container
+     * order, and the answers they got.
+     *
+     * Disclosed on exactly the reasoning above `fulfilmentQuotes`, and rather
+     * more strongly: a freight quotation is a negotiation a named individual
+     * started, it carries what they asked for and what they were told, and it
+     * is the evidence behind a delivery charge and a delivery date they may
+     * later be arguing about. Some of these sit unanswered for weeks, so a
+     * subject asking what is held about them today would otherwise get
+     * nothing about a conversation that is still open.
+     *
+     * The seller's own commercial terms - which carrier, at what cost to the
+     * seller - are not in it. What is disclosed is what was said to THIS
+     * person.
+     */
+    'freightQuoteRequests',
     'chatEnquiries',
     'sessions',
     'dataRequests',
@@ -844,6 +861,73 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           deliveryFromDate: quote.deliveryFromDate.toISOString().slice(0, 10),
           deliveryToDate: quote.deliveryToDate.toISOString().slice(0, 10),
           expiredAt: iso(quote.expiresAt),
+        })),
+      };
+    })(),
+
+    /*
+     * Freight prices this person asked for, and what came back.
+     *
+     * A pallet or a container cannot be priced by a parcel API, so the order
+     * raises a request and a person at the seller or the freight desk answers
+     * it. That exchange is about a named individual's order, so it is theirs.
+     *
+     * What is NOT here is the seller's side of it: which carrier they
+     * approached, what it cost them, what margin they took. That is the
+     * seller's commercial data and belongs to the seller, exactly as the
+     * warehouse's own costs are absent from `fulfilmentQuotes` above. The line
+     * is drawn at what was said TO this person.
+     */
+    freightQuoteRequests: await (async () => {
+      const LIMIT = 100;
+
+      const where = { requestedByProfileId: profile?.id ?? '' };
+
+      const [rows, total] = await Promise.all([
+        prisma.sellerFreightQuoteRequest.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+        }),
+        prisma.sellerFreightQuoteRequest.count({ where }),
+      ]);
+
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? {
+              note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.`,
+            }
+          : {}),
+        requests: rows.map((request) => ({
+          askedAt: iso(request.createdAt),
+          status: request.state,
+          loadType: request.loadType,
+          packages: request.totalPackages,
+          baseUnits: request.totalBaseUnits,
+          cartons: request.totalCartons,
+          pallets: request.totalPallets,
+          containers: request.totalContainers,
+          grossWeightGrams: request.grossWeightGrams?.toString() ?? null,
+          originCountry: request.originCountry,
+          destinationCountry: request.destinationCountry,
+          incoterm: request.incoterm,
+          // The answer, where there is one. Null throughout while it is still
+          // REQUESTED, which is an honest shape rather than a missing row: the
+          // question was asked and nobody has answered it.
+          quotedAmountMinor: request.quotedAmountMinor === null ? null : money(request.quotedAmountMinor),
+          quotedCurrency: request.quotedCurrency,
+          serviceName: request.serviceName,
+          expectedPickupAt: iso(request.expectedPickupAt),
+          expectedDeliveryAt: iso(request.expectedDeliveryAt),
+          quoteExpiresAt: iso(request.quoteExpiresAt),
+          // The note the freight desk left, which was written to be read by
+          // this person. `quotedByUserId` is deliberately absent: which member
+          // of the seller's staff answered is that person's data, not this
+          // one's - the same line `organisationMembership` draws below.
+          response: request.responseNote,
+          answeredAt: iso(request.quotedAt),
         })),
       };
     })(),

@@ -75,8 +75,13 @@ async function seedBusinessConfiguration(): Promise<void> {
     await prisma.businessProfile.create({
       data: {
         id: newId(),
+        // The registered entity, and deliberately still UBOSS Sourcing Private
+        // Limited. It is what appears on an invoice and in a contract, and a
+        // product being renamed does not rename a company — that is an owner's
+        // decision, made at a registrar, not a string edited here. The display
+        // name beside it IS the brand a customer reads, and that is Glovia.
         legalName: 'UBOSS Sourcing Private Limited',
-        displayName: 'UBOSS Sourcing',
+        displayName: 'Glovia',
         supportEmail: 'support@uboss.local',
         supportPhone: '+91 80 4000 0000',
         gstin: '29AAAAA0000A1Z5',

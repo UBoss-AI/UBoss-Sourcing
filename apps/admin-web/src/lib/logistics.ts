@@ -1150,3 +1150,106 @@ export type IntegrationStateKey = `logistics.integrationState.${IntegrationState
 export function integrationStateKey(state: IntegrationState): IntegrationStateKey {
   return `logistics.integrationState.${state}`;
 }
+
+// ---------------------------------------------------------------------------
+// THE DELIVERY CATALOGUE
+//
+// Every way anything gets delivered on this installation: the providers, the
+// delivery companies across every seller, and the health of each seller's own
+// carrier account.
+//
+// This is an OPERATOR screen and not a portal one. The portal's tenant is a
+// single carrier; a page listing other carriers' sellers and integrations
+// would cross that boundary. A carrier sees only itself, in its own portal.
+// ---------------------------------------------------------------------------
+
+export interface CatalogueSummary {
+  activePartners: number;
+  marketplaceCarriers: number;
+  selfManagedOrganisations: number;
+  dedicatedPartners: number;
+  liveCarrierConnections: number;
+  methodsAwaitingApproval: number;
+  arrangementsAwaitingApproval: number;
+  suspendedPartners: number;
+  failingConnections: number;
+  activeShipments: number;
+  openExceptions: number;
+  unassignedShipments: number;
+}
+
+export interface ProviderCard {
+  provider: string;
+  worksOutOfTheBox: boolean;
+  /** False for India Post. The card says so in words instead of a badge. */
+  hasVerifiedApi: boolean;
+  /**
+   * Why there is no interface, where there is none.
+   *
+   * INSIDE_PORTAL and NOT_VERIFIED look identical on a screen and are not the
+   * same thing. The first is a carrier working here by design, with nothing to
+   * connect; the second is India Post, where nobody has found an interface to
+   * connect to. An operator sent looking for a credential in the first case
+   * wastes an afternoon.
+   */
+  noApiReason: 'INSIDE_PORTAL' | 'NOT_VERIFIED' | null;
+  requires: string[];
+  sellerConnections: { total: number; active: number; failing: number };
+  operatorIntegrations: number;
+}
+
+export interface ConnectionHealthRow {
+  id: string;
+  sellerAccountId: string;
+  sellerName: string;
+  provider: string;
+  environment: string;
+  state: string;
+  trackingMode: string;
+  consecutiveFailures: number;
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+  /** The sanitised message the connection stored. Never a key or a header. */
+  lastFailureMessage: string | null;
+  hasVerifiedApi: boolean;
+}
+
+export interface CataloguePartnerRow {
+  id: string;
+  partnerCode: string;
+  displayName: string;
+  partnerKind: 'MARKETPLACE_CARRIER' | 'SELLER_SELF_MANAGED' | 'SELLER_DEDICATED';
+  status: string;
+  registrationCountry: string;
+  ownerSellerName: string | null;
+  linkedSellerNames: string[];
+  serviceCountries: string[];
+  capabilities: string[];
+  activeDrivers: number;
+  activeShipments: number;
+  openExceptions: number;
+  lastActivityAt: string | null;
+}
+
+export function fetchDeliveryCatalogue(failingOnly: boolean): Promise<{
+  summary: CatalogueSummary;
+  providers: ProviderCard[];
+  connections: ConnectionHealthRow[];
+}> {
+  return api.get(
+    `/admin/logistics/delivery-catalogue${failingOnly ? '?failingOnly=true' : ''}`,
+  );
+}
+
+export function fetchCataloguePartners(params: URLSearchParams): Promise<{
+  rows: CataloguePartnerRow[];
+  total: number;
+}> {
+  return api.get(`/admin/logistics/delivery-catalogue/partners?${params.toString()}`);
+}
+
+export type PartnerKindKey = `logistics.partnerKind.${CataloguePartnerRow['partnerKind']}`;
+
+export function partnerKindKey(kind: CataloguePartnerRow['partnerKind']): PartnerKindKey {
+  return `logistics.partnerKind.${kind}`;
+}

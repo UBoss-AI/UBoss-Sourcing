@@ -36,6 +36,10 @@ import {
   setSellerCommission,
 } from '../../modules/seller/moderation.service.js';
 import { decideSellerCarrier } from '../../modules/seller/logistics-partner.service.js';
+import {
+  decideFulfilmentMethod,
+  listMethodsAwaitingDecision,
+} from '../../modules/seller/fulfilment-method.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
@@ -445,6 +449,69 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // -------------------------------------------------------------------------
+  // Seller delivery methods
+  //
+  // The approvals queue for how a seller's OWN goods get delivered, which is a
+  // different question from which marketplace carrier they may hand work to
+  // (that is the section below).
+  //
+  // What the marketplace is approving here is a CLAIM: that this seller's vans
+  // can hold reagents at 2-8C, that their courier covers Bavaria, that they
+  // can handle dangerous goods. Those claims decide which orders the
+  // marketplace lets them accept, which is why they are reviewed. A seller's
+  // own commercial account with DHL makes no such claim and is not reviewed.
+  //
+  // `CUSTOMER_STATUS_WRITE` for the same reason as below: approving one lets a
+  // seller take on work they could otherwise not.
+  // -------------------------------------------------------------------------
+
+  app.get(
+    '/fulfilment-methods/pending',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const query = z.object({ limit: z.coerce.number().int().min(1).max(200).optional() })
+        .parse(request.query);
+
+      const methods = await listMethodsAwaitingDecision(query.limit ?? 50);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ methods });
+    },
+  );
+
+  app.patch(
+    '/fulfilment-methods/:methodId',
+    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          to: z.enum(['APPROVED', 'CHANGES_REQUESTED', 'REJECTED']),
+          reason: z.string().trim().max(512).nullable().optional(),
+          /**
+           * Whether this method may carry a consignment across a border.
+           *
+           * The marketplace's call, not the seller's: it turns on customs
+           * paperwork somebody here has looked at, and a parcel stopped at a
+           * border is worse than one that was never offered the option.
+           */
+          allowsInternational: z.boolean().optional(),
+        })
+        .parse(request.body);
+
+      const auth = currentUser(request);
+
+      const method = await decideFulfilmentMethod({
+        fulfilmentMethodId: params.methodId,
+        to: body.to,
+        decidedByUserId: auth.id,
+        reason: body.reason ?? null,
+        allowsInternational: body.allowsInternational,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ method });
+    },
+  );
+
   // Seller-to-carrier arrangements
   //
   // The approvals queue for the seller half of the fulfilment split. A seller

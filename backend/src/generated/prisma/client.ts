@@ -1401,6 +1401,190 @@ export type SellerAuditLog = Prisma.SellerAuditLogModel
  */
 export type SellerLogisticsPartner = Prisma.SellerLogisticsPartnerModel
 /**
+ * Model SellerFulfilmentMethod
+ * One way one seller can get goods delivered.
+ * 
+ * The row a seller's onboarding step creates and the row every later question
+ * hangs off: is this seller allowed to ship yet, which carriers may this
+ * parcel go by, whose drivers may touch it.
+ * 
+ * WHY THE TWO TARGET COLUMNS ARE NULLABLE AND ONLY ONE IS EVER SET
+ * 
+ * A method points at exactly one thing, and which one depends on the mode: a
+ * carrier connection for INTEGRATED_CARRIER, a logistics organisation for
+ * SELF_MANAGED and DEDICATED_PARTNER, and nothing at all for
+ * OPERATOR_FULFILLED. A separate table per mode was the alternative and was
+ * rejected: every consumer would then have to union three tables to answer
+ * "how does this seller ship", which is the question they all ask.
+ * 
+ * `chk_seller_fulfilment_method_target` enforces the pairing in the database,
+ * so a row with a mode of SELF_MANAGED and no organisation cannot exist even
+ * if a service forgets.
+ */
+export type SellerFulfilmentMethod = Prisma.SellerFulfilmentMethodModel
+/**
+ * Model SellerCarrierConnection
+ * One seller's own account with one external carrier.
+ * 
+ * NOT a `CarrierIntegration`. That table is the OPERATOR's - one row per
+ * carrier API this installation has wired up, with the operator's own
+ * credentials, shared by every shipment the operator dispatches. This table
+ * is the seller's, and the difference is the whole of why it exists: a
+ * seller's DHL contract, rates and invoices are theirs, and putting their key
+ * in a row any other seller's shipment can reach through a shared integration
+ * is a tenant boundary crossed at the credential.
+ * 
+ * THE CREDENTIALS ARE NOT IN THIS TABLE. They are in
+ * `SellerCarrierCredential`, one row per connection, encrypted and bound to
+ * the connection's id. Split so that every screen, list, export and log that
+ * legitimately reads a connection's state cannot reach its secret by
+ * accident - the secret has to be asked for by name, from one service, which
+ * is the only place `decryptSecret` is called for it.
+ */
+export type SellerCarrierConnection = Prisma.SellerCarrierConnectionModel
+/**
+ * Model SellerCarrierCredential
+ * The secret behind one carrier connection, and nothing else.
+ * 
+ * A table of its own, holding one row per connection, for a reason worth
+ * stating plainly: a secret in a column beside the data everybody reads gets
+ * read by everybody eventually. Not through malice - through a `select *`, a
+ * debug log, an export, a serialiser that was written before the column
+ * existed. Putting it behind its own table makes reaching it deliberate.
+ * 
+ * AES-256-GCM through `infra/crypto.ts`, bound to
+ * `seller_carrier_credential:<connectionId>` as additional authenticated
+ * data, so an envelope copied from one seller's connection into another's
+ * fails to decrypt rather than quietly authorising the wrong company's
+ * parcels against the first company's account.
+ * 
+ * NEVER RETURNED. No endpoint reads this row into a response. The connection
+ * screen shows the state, the account number and a masked hint, and there is
+ * no route that could be asked for more.
+ */
+export type SellerCarrierCredential = Prisma.SellerCarrierCredentialModel
+/**
+ * Model SellerFulfilmentRule
+ * Which of a seller's methods carries a particular consignment.
+ * 
+ * The hierarchy the brief asks for, as rows rather than as code: a listing
+ * may override a warehouse, a warehouse may override a destination, and the
+ * seller's default catches everything else. `precedence` is written from
+ * `scope` on save, so the picker is one indexed `ORDER BY` rather than four
+ * queries, and two callers cannot disagree about which rule wins.
+ * 
+ * A RULE DOES NOT GRANT ANYTHING. It selects among methods the seller already
+ * has approved. A rule naming a method that is PAUSED, REJECTED or belongs to
+ * another seller selects nothing and the next rule down is tried - the
+ * eligibility check is always run against the method afterwards, never
+ * skipped because a rule matched.
+ */
+export type SellerFulfilmentRule = Prisma.SellerFulfilmentRuleModel
+/**
+ * Model SellerLogisticsPickupProfile
+ * How goods leave one of a seller's buildings under one delivery method.
+ * 
+ * DELIBERATELY THIN, because `SellerLocation` already holds most of it. The
+ * address, the timezone, the dispatch cutoff, the working-days mask, the
+ * handling time and the cold-chain flags are all there and are facts about
+ * the BUILDING - they do not change because the seller switched carrier. What
+ * is here is what genuinely differs per method: the window a courier calls
+ * in, how many parcels that courier will take in a day, and the limits the
+ * carrier imposes on a single package.
+ * 
+ * Duplicating the location's own fields here was the alternative and would
+ * have produced two answers to "when does this warehouse close", which is a
+ * question a dispatch deadline already depends on.
+ */
+export type SellerLogisticsPickupProfile = Prisma.SellerLogisticsPickupProfileModel
+/**
+ * Model SellerLogisticsRateCard
+ * What a seller's own delivery operation charges.
+ * 
+ * VERSIONED, AND THAT IS THE POINT. Every quote records the version it was
+ * priced from, so a customer disputing a delivery charge six weeks later can
+ * be shown the card as it stood on the day - not the card as it stands now. A
+ * card edited in place would make that impossible and is exactly how a
+ * marketplace ends up unable to explain a number it charged.
+ * 
+ * Only for SELF_MANAGED methods. DHL, FedEx and India Post price their own
+ * work and this system never invents a figure on their behalf.
+ */
+export type SellerLogisticsRateCard = Prisma.SellerLogisticsRateCardModel
+/**
+ * Model SellerLogisticsRateBand
+ * One line of a rate card.
+ * 
+ * The bands of one card are read together and the first match wins, in
+ * `sortOrder`. Bands rather than a formula because a seller's pricing is a
+ * table in a spreadsheet today and a formula this software invented would be
+ * wrong for most of them.
+ */
+export type SellerLogisticsRateBand = Prisma.SellerLogisticsRateBandModel
+/**
+ * Model CarrierRateQuote
+ * What one carrier said one consignment would cost, at one moment.
+ * 
+ * Kept rather than recomputed. A carrier reprices overnight, a self-managed
+ * card is republished, an exchange rate moves - and the figure the seller
+ * agreed to has to remain retrievable, with the provider's own reference
+ * beside it so the carrier can be asked about it by name.
+ * 
+ * EVERY FIGURE IS BigInt MINOR UNITS IN ONE CURRENCY. The components are
+ * stored separately rather than as a total, because a seller querying a
+ * delivery charge is almost always querying one component of it - a surcharge
+ * they did not expect, or duties they thought were paid.
+ */
+export type CarrierRateQuote = Prisma.CarrierRateQuoteModel
+/**
+ * Model ShipmentPurchase
+ * One attempt to buy one consignment at one provider.
+ * 
+ * THE RECORD THAT STOPS A SELLER BEING BILLED TWICE. Creating a shipment at a
+ * carrier is a chargeable act that a retry, a double click or a redelivered
+ * job will repeat unless something refuses. That something is this table: the
+ * idempotency key is UNIQUE, so the second attempt collides rather than
+ * booking a second consignment, and the first attempt's answer is returned.
+ * 
+ * The key is derived from the shipment and the request's own shape rather
+ * than generated, so a genuine retry of the SAME purchase reuses it and a
+ * deliberate second purchase - a replacement after a cancellation - gets a
+ * new one.
+ */
+export type ShipmentPurchase = Prisma.ShipmentPurchaseModel
+/**
+ * Model SellerLogisticsRelationshipEvent
+ * Every status a seller-to-carrier arrangement has held.
+ * 
+ * Append-only, and separate from the audit log on purpose. `SellerAuditLog`
+ * answers "what did this person do"; this answers "how did this relationship
+ * get here", which is the question asked during a dispute and which a
+ * filtered audit query answers badly once a relationship has been suspended
+ * and restored three times.
+ * 
+ * NOTHING IS EVER HARD-DELETED FROM HERE, and the relationship it belongs to
+ * is soft-deleted for the same reason: a carrier that moved a parcel has to
+ * remain explicable after the arrangement ends.
+ */
+export type SellerLogisticsRelationshipEvent = Prisma.SellerLogisticsRelationshipEventModel
+/**
+ * Model SellerLogisticsPartnerInvitation
+ * A seller asking a delivery company it works with to join this marketplace.
+ * 
+ * THE SELLER DOES NOT CREATE THE PARTNER'S ACCOUNT. They describe the company
+ * and supply a business email; this row holds a single-use hashed token, the
+ * invited company redeems it, verifies its own address and chooses its own
+ * password. A seller who could set that password could sign in as the carrier
+ * and read every consignment the carrier ever holds - including, once the
+ * carrier works for a second seller, somebody else's.
+ * 
+ * What this creates is therefore a PENDING relationship and nothing more. The
+ * carrier is not trusted, not approved, and carries nothing, until it has
+ * completed its own profile and - where the deployment requires it - an
+ * administrator has agreed.
+ */
+export type SellerLogisticsPartnerInvitation = Prisma.SellerLogisticsPartnerInvitationModel
+/**
  * Model LogisticsPartner
  * One logistics company.
  * 
@@ -1714,3 +1898,177 @@ export type LogisticsAuditLog = Prisma.LogisticsAuditLogModel
  * 
  */
 export type DemoCatalogEntry = Prisma.DemoCatalogEntryModel
+/**
+ * Model SellerPackagingProfile
+ * One seller offer's bulk packaging, as a versioned whole.
+ * 
+ * The version is what an order line points back at. A seller re-specifying a
+ * pallet bumps it, and every historical line keeps naming the version it was
+ * bought under - which, together with the immutable snapshot on the line
+ * itself, is what makes "this order says 1,200 and the listing says 1,150"
+ * answerable rather than merely noticed.
+ */
+export type SellerPackagingProfile = Prisma.SellerPackagingProfileModel
+/**
+ * Model SellerPackagingOption
+ * One package type, fully specified.
+ * 
+ * Wide on purpose. The alternative - a thin row plus a JSON blob - cannot be
+ * validated by the database, cannot be indexed, and turns "which of my
+ * listings has a pallet heavier than the forklift takes" into a full scan and
+ * a parser. Every column here is a figure somebody has to answer for.
+ */
+export type SellerPackagingOption = Prisma.SellerPackagingOptionModel
+/**
+ * Model SellerPackagingTier
+ * "Cheaper by the pallet if you take four."
+ * 
+ * A band, exactly like `SellerPriceTier`: `minPackages` starts a band that
+ * runs until the next one begins. Counted in PACKAGES, not base units - a
+ * seller thinking in pallets should not have to work out what 4 pallets is in
+ * pieces to state their own discount.
+ */
+export type SellerPackagingTier = Prisma.SellerPackagingTierModel
+/**
+ * Model CartItemPackaging
+ * The bulk breakdown of one basket line, frozen the moment it was chosen.
+ * 
+ * A basket is not a historical record and this table might look like it
+ * belongs only on the order. It is here because the number a shopper is shown
+ * must not move under them: a seller re-specifying a pallet while somebody
+ * has it in their basket would otherwise silently change what that basket
+ * holds, and the review screen would disagree with the product page they came
+ * from. Re-read on every cart read, compared with the live profile, and the
+ * shopper is TOLD when it has moved rather than having it applied.
+ */
+export type CartItemPackaging = Prisma.CartItemPackagingModel
+/**
+ * Model OrderItemPackaging
+ * The bulk breakdown of one order line. Immutable.
+ * 
+ * Written once, inside the transaction that creates the order, and never
+ * updated by anything. The same discipline as the snapshot columns already on
+ * `OrderItem`, and for the same reason: a seller re-specifying a pallet next
+ * month must not change what an invoice from last month says.
+ * 
+ * There is no `updatedAt`. Its absence is the documentation.
+ */
+export type OrderItemPackaging = Prisma.OrderItemPackagingModel
+/**
+ * Model SellerFreightQuoteRequest
+ * A request for a price to move a load no configured carrier can quote.
+ * 
+ * Deliberately not a `CarrierRateQuote`. That table holds a price an API
+ * returned; this one holds the absence of one - a question a person has to
+ * answer, with the load described well enough for them to answer it. Mixing
+ * the two would make "did a carrier quote this?" unanswerable, which is the
+ * one thing a freight desk must always be able to tell.
+ */
+export type SellerFreightQuoteRequest = Prisma.SellerFreightQuoteRequestModel
+/**
+ * Model SellerErpConnection
+ * One seller's connection to their own accounting system.
+ */
+export type SellerErpConnection = Prisma.SellerErpConnectionModel
+/**
+ * Model SellerErpBridgeDevice
+ * A machine running the Glovia Tally Bridge.
+ * 
+ * THE TOKEN IS NOT STORED. Only its SHA-256 and a short display prefix are,
+ * exactly as `AuthToken` and the carrier webhook secrets already work here.
+ * A stored ciphertext could be decrypted by anything holding the key; a hash
+ * cannot be turned back into a credential by anybody, including us, and
+ * verification needs nothing more. The plaintext is shown to the seller once,
+ * at pairing, and never again.
+ */
+export type SellerErpBridgeDevice = Prisma.SellerErpBridgeDeviceModel
+/**
+ * Model SellerErpPairingCode
+ * A short-lived, single-use code that pairs one machine.
+ * 
+ * Hashed like the token, expiring in minutes rather than hours, consumed
+ * exactly once, and rate-limited per seller. A pairing code IS a credential
+ * for the duration of its life - it is the one thing standing between a
+ * stranger's bridge and a seller's books - and it is treated as one.
+ */
+export type SellerErpPairingCode = Prisma.SellerErpPairingCodeModel
+/**
+ * Model SellerErpCompany
+ * A company the bridge found open in Tally.
+ * 
+ * Its own table rather than a JSON column on the connection, because the
+ * seller PICKS one from it and a picker needs rows. Refreshed on every
+ * connection test; a company that disappears from the list is left here with
+ * its `lastSeenAt` growing stale, which is what lets the screen say "Tally is
+ * running but this company is not open" instead of "no companies".
+ */
+export type SellerErpCompany = Prisma.SellerErpCompanyModel
+/**
+ * Model SellerErpMasterCache
+ * The master lists read back from Tally, so the mapping screen has something
+ * to choose from.
+ * 
+ * A CACHE, and named one. It is never the authority for anything: a mapping
+ * saved against a ledger that has since been renamed in Tally fails at post
+ * time with Tally's own message, which is the correct place to find out.
+ * Refreshed on demand and on the master-pull job.
+ */
+export type SellerErpMasterCache = Prisma.SellerErpMasterCacheModel
+/**
+ * Model SellerErpMapping
+ * One thing on this side, matched to one name in Tally.
+ */
+export type SellerErpMapping = Prisma.SellerErpMappingModel
+/**
+ * Model SellerErpSyncPolicy
+ * What this seller wants synchronised, and when.
+ * 
+ * One row per connection. Every flag defaults OFF except the two that are
+ * safe: nothing posts into somebody's accounts because a default said so.
+ */
+export type SellerErpSyncPolicy = Prisma.SellerErpSyncPolicyModel
+/**
+ * Model SellerErpSyncJob
+ * The outbox. One row per thing that must reach Tally exactly once.
+ * 
+ * WHY THE IDEMPOTENCY KEY IS UNIQUE AND NOT MERELY INDEXED
+ * 
+ * It is the whole guarantee. A webhook redelivered four times, a worker whose
+ * lease expired mid-flight, a seller pressing "sync now" twice - every one of
+ * those tries to enqueue the same event, and the unique index is what turns
+ * the second and subsequent attempts into a no-op at the database rather than
+ * into a second voucher in somebody's books. A duplicate Sales Invoice is not
+ * a cosmetic bug; it is a tax return that does not reconcile.
+ */
+export type SellerErpSyncJob = Prisma.SellerErpSyncJobModel
+/**
+ * Model SellerErpSyncAttempt
+ * One go at one job.
+ * 
+ * Separate from the job so that eight attempts are eight rows rather than one
+ * row overwritten eight times. "It failed the same way every time" and "it
+ * failed differently every time" are different problems with different
+ * answers, and a single mutable error column cannot tell them apart.
+ */
+export type SellerErpSyncAttempt = Prisma.SellerErpSyncAttemptModel
+/**
+ * Model SellerErpExternalReference
+ * What one of our rows became in Tally.
+ * 
+ * The reconciliation table, and the second half of the duplicate defence. The
+ * unique key on the outbox stops the same EVENT being queued twice; this
+ * stops the same ENTITY acquiring two vouchers by two different routes - an
+ * event and a manual re-sync, say. Before posting, the pipeline looks here;
+ * finding a reference, it verifies rather than re-posts.
+ */
+export type SellerErpExternalReference = Prisma.SellerErpExternalReferenceModel
+/**
+ * Model SellerErpAuditEvent
+ * Security-relevant things that happened to a seller's ERP setup.
+ * 
+ * Its own table rather than rows in `SellerAuditLog`, because the questions
+ * asked of it are different and because its retention is: a pairing, a token
+ * rotation, a revocation and a mapping change to a tax ledger are the trail
+ * somebody follows after a dispute about what posted into whose books.
+ */
+export type SellerErpAuditEvent = Prisma.SellerErpAuditEventModel

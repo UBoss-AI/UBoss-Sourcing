@@ -53,6 +53,7 @@ import { AccountMenu } from '@/components/account/AccountMenu';
 import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
 import { EarthMark } from '@/components/EarthMark';
+import { PARENT_ATTRIBUTION } from '@/lib/brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CartIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
@@ -61,11 +62,26 @@ import { useI18n } from '@/i18n/i18n-context';
 /**
  * The brand lockup.
  *
- * A plate and a two-line lockup rather than a mark and a word: the second line
- * says what kind of site this is, which for a storefront a buyer may have
- * reached from a purchase-order email is the difference between "some shop"
- * and "our supplier's ordering system". It is `aria-hidden` because the link's
- * accessible name should be the business, not the business plus a tagline.
+ * A plate and a two-line lockup rather than a mark and a word. The first line
+ * is the shop — read from the operator's own configuration, because every
+ * buyer runs their own deployment and the header of their storefront is their
+ * name and not ours. The second line is the attribution: `Powered by UBOSS`,
+ * which is a fact about the software rather than about the shop, so it comes
+ * from `lib/brand.ts` and is the same on every deployment in every language.
+ *
+ * It used to say what KIND of site this is — "Business purchasing" — which was
+ * true of every storefront and therefore told a reader nothing they could not
+ * see. The attribution at least says who stands behind the thing they are
+ * about to hand a purchase order to.
+ *
+ * On a seller's own shop front the second line stays "Seller storefront"
+ * instead. A buyer who followed a link to northwind.example needs to know they
+ * are on Northwind's storefront and not on the marketplace's, because it
+ * decides who they are buying from and who they chase about it — and that is
+ * worth more to them there than the attribution is.
+ *
+ * Both are `aria-hidden` because the link's accessible name should be the
+ * business, not the business plus a second line.
  */
 function BrandMark(): React.JSX.Element {
   const { business, seller } = useStorefront();
@@ -112,13 +128,11 @@ function BrandMark(): React.JSX.Element {
           className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle sm:block"
         >
           {/*
-            On a seller's own shop front, say whose shop it is rather than
-            what kind of shop it is. A buyer who followed a link to
-            northwind.example needs to know they are on Northwind's storefront
-            and not on the marketplace's, because it decides who they are
-            buying from and who they chase about it.
+            Not a translation key when it is the attribution: `Powered by
+            UBOSS` is a fixed lockup, and the reasoning is in `lib/brand.ts`.
+            The seller line beside it is ordinary prose and stays translated.
           */}
-          {seller === undefined ? t('header.brandTagline') : t('header.sellerTagline')}
+          {seller === undefined ? PARENT_ATTRIBUTION : t('header.sellerTagline')}
         </span>
       </span>
     </Link>

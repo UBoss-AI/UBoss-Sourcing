@@ -1,5 +1,5 @@
 /**
- * "Sell on UBOSS" — the public page, and the one that starts an application.
+ * "Sell on Glovia" — the public page, and the one that starts an application.
  *
  * Public, and that matters: somebody deciding whether to bring their catalogue
  * here should be able to read what is involved before opening an account. The

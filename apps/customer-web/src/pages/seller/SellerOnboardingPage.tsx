@@ -70,6 +70,7 @@ import {
   type SellerDocument,
   type SellerDocumentKind,
 } from '@/lib/seller';
+import { LogisticsPartnerPanel } from './LogisticsPartnerPanel';
 import type { SellerOutletContext } from './SellerLayout';
 
 const STATE_TONE: Record<OnboardingStepState, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> =
@@ -452,6 +453,32 @@ function StepPanel({
       );
     case 'locations':
       return <LocationsSummary step={step} />;
+    /*
+     * Header and panel, rather than the panel alone.
+     *
+     * Every other step draws its own `StepHeader` inside its own card. This
+     * one renders several cards - what the seller has set up, and the options
+     * they have not - so the header sits above them instead of inside the
+     * first, which would make the second card look like a separate screen.
+     */
+    case 'logistics_partner':
+      return (
+        <div className="space-y-5">
+          <Card>
+            <div className="space-y-4 px-6 py-5">
+              <StepHeader step={step} />
+
+              {step.message !== null && (
+                <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
+                  {step.message}
+                </p>
+              )}
+            </div>
+          </Card>
+
+          <LogisticsPartnerPanel isEditable={isEditable} />
+        </div>
+      );
     case 'payout':
       return <PayoutStep step={step} />;
     case 'agreements':

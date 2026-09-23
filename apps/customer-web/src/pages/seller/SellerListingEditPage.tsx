@@ -68,7 +68,7 @@ import {
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
-import { majorToMinor, minorToMajor } from '@/lib/format';
+import { currencyExponent, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   addListingPhoto,
   fetchListingForEdit,
@@ -85,6 +85,7 @@ import {
   type VariantTemplateAxis,
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder } from './VariantStepPanel';
+import { SellerPackagingPanel } from './SellerPackagingPanel';
 
 /** The inner padding every card body uses. Stated once so they all match. */
 const BODY = 'px-6 py-5';
@@ -713,6 +714,24 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
           </div>
         </div>
       </Card>
+
+      {/*
+       * --- Bulk packaging ---------------------------------------------------
+       *
+       * Its own card between the terms of trade and the variants, which is
+       * where it belongs: it IS a term of trade - what is in a carton and what
+       * a pallet costs - and it hangs off this offer rather than off a variant
+       * row, because the offer is already one seller's terms for one variant.
+       *
+       * The panel fetches and saves on its own. Nothing here has to be saved
+       * with the rest of the form, because packaging is a separate decision a
+       * seller makes at a different time from re-pricing.
+       */}
+      <SellerPackagingPanel
+        offerId={view.offerId}
+        currency={view.currency}
+        currencyExponent={currencyExponent(view.currency)}
+      />
 
       {/* --- Versions ------------------------------------------------------- */}
       <Card

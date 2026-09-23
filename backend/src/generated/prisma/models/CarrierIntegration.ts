@@ -890,10 +890,6 @@ export type CarrierIntegrationUpdateOneWithoutShipmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CarrierIntegrationUpdateToOneWithWhereWithoutShipmentsInput, Prisma.CarrierIntegrationUpdateWithoutShipmentsInput>, Prisma.CarrierIntegrationUncheckedUpdateWithoutShipmentsInput>
 }
 
-export type EnumCarrierProviderFieldUpdateOperationsInput = {
-  set?: $Enums.CarrierProvider
-}
-
 export type EnumCarrierIntegrationStateFieldUpdateOperationsInput = {
   set?: $Enums.CarrierIntegrationState
 }

@@ -19,6 +19,16 @@
  *     `aria-hidden` copy and the `sr-only` copy from being both or neither.
  *
  * `components/ui/flip-words.tsx` records why each of those had to change.
+ *
+ * ---
+ *
+ * WHOLE PHRASES, AND THE LABEL THAT COVERS THEM
+ *
+ * The greeting no longer cycles one word after the shop's name. It alternates
+ * two complete phrases under it — the strapline, and `Powered by UBOSS` — and
+ * that changes what "told once" has to mean: announcing only the first would
+ * leave the other unreachable, and announcing them as they change would re-read
+ * the line every four seconds. The second half of this file is that case.
  */
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -160,5 +170,128 @@ describe('the flipping word', () => {
     );
 
     await expectNoA11yViolations(container);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Whole phrases
+// ---------------------------------------------------------------------------
+
+const STRAPLINE = 'Source with Intelligence | Deliver with Confidence';
+const ATTRIBUTION = 'Powered by UBOSS';
+const LABEL = `${STRAPLINE}. ${ATTRIBUTION}.`;
+
+/** The non-breaking space the animation puts between a phrase's words. */
+const NBSP = String.fromCharCode(0xa0);
+
+/** Every moving copy on screen, with the ordinary spaces put back. */
+function shownPhrases(container: HTMLElement): string[] {
+  return [...container.querySelectorAll('[aria-hidden="true"]')].map((node) =>
+    node.textContent.replaceAll(NBSP, ' '),
+  );
+}
+
+describe('a rotation of whole phrases', () => {
+  it('opens on the first and moves on to the second', () => {
+    const { container } = render(
+      <FlipWords words={[STRAPLINE, ATTRIBUTION]} duration={4200} srLabel={LABEL} />,
+    );
+
+    expect(shownPhrases(container)).toEqual([STRAPLINE]);
+
+    act(() => {
+      vi.advanceTimersByTime(4200);
+    });
+
+    // The outgoing phrase is still in place while it leaves, so what is
+    // asserted is that the second has arrived rather than that the first has
+    // gone.
+    expect(shownPhrases(container)).toContain(ATTRIBUTION);
+  });
+
+  it('never goes back to a name the headline used to cycle', () => {
+    const { container } = render(
+      <FlipWords words={[STRAPLINE, ATTRIBUTION]} duration={4200} srLabel={LABEL} />,
+    );
+
+    for (let step = 0; step < 6; step++) {
+      act(() => {
+        vi.advanceTimersByTime(4200);
+      });
+
+      const text = shownPhrases(container).join(' ');
+      for (const retired of ['UBOSS Sourcing', 'UBOSS Intelligence', 'UBOSS Innovation']) {
+        expect(text).not.toContain(retired);
+      }
+    }
+  });
+
+  it('leaves no timer behind when it is unmounted', () => {
+    const { unmount } = render(
+      <FlipWords words={[STRAPLINE, ATTRIBUTION]} duration={4200} srLabel={LABEL} />,
+    );
+
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    unmount();
+
+    // Nothing pending, so nothing can call `setState` on a component that is
+    // no longer there.
+    expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe('the label that covers every phrase', () => {
+  it('is what a screen reader is told, instead of the rotation', () => {
+    const { container } = render(<FlipWords words={[STRAPLINE, ATTRIBUTION]} srLabel={LABEL} />);
+
+    expect(container.querySelector('.sr-only')).toHaveTextContent(LABEL);
+  });
+
+  it('does not change when the phrase does', () => {
+    const { container } = render(
+      <FlipWords words={[STRAPLINE, ATTRIBUTION]} duration={4200} srLabel={LABEL} />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(4200);
+    });
+
+    expect(container.querySelector('.sr-only')).toHaveTextContent(LABEL);
+  });
+
+  it('is never in a live region', () => {
+    // The whole reason the label exists rather than an announcement: a phrase
+    // swapping itself inside `aria-live` interrupts a screen-reader user every
+    // four seconds for as long as the page is open.
+    const { container } = render(<FlipWords words={[STRAPLINE, ATTRIBUTION]} srLabel={LABEL} />);
+
+    expect(container.querySelector('[aria-live]')).toBeNull();
+  });
+
+  it('still reaches a visitor who asked for less movement', () => {
+    stubReducedMotion(true);
+    const { container } = render(
+      <FlipWords words={[STRAPLINE, ATTRIBUTION]} duration={4200} srLabel={LABEL} />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(60_000);
+    });
+
+    // Still, and still complete: the one drawn phrase is hidden from
+    // assistive technology and the label carries both, so a reduced-motion
+    // visitor is told the same message as everybody else rather than only
+    // whichever phrase happens to be first.
+    expect(shownPhrases(container)).toEqual([STRAPLINE]);
+    expect(container.querySelector('.sr-only')).toHaveTextContent(LABEL);
+  });
+
+  it('is the first word where the caller gave none', () => {
+    // The original behaviour, which is right when the rotation is one word
+    // inside a sentence the rest of the line already carries.
+    const { container } = render(<FlipWords words={WORDS} />);
+
+    expect(container.querySelector('.sr-only')).toHaveTextContent('Sourcing');
   });
 });

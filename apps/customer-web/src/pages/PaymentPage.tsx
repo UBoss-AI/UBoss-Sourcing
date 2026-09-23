@@ -276,6 +276,37 @@ export function PaymentPage(): React.JSX.Element {
   }, [phase, status.data]);
 
   /**
+   * Whether this installation settles payments on request, with no gateway.
+   *
+   * A development fixture, and the backend decides it - the environment it
+   * needs refuses to boot in production, so a browser cannot talk itself into
+   * this being true. Read from the instruments call the page already makes.
+   */
+  const mockPayments = instruments.data?.mockPayments === true;
+
+  /**
+   * Settle this order without a gateway.
+   *
+   * Only reachable where the backend has said it is on. It does NOT put the
+   * page into `paid` - it puts it into the same wait every other payment ends
+   * in, and the poll below reports the verdict. That is not ceremony: the
+   * whole value of testing through this path is that the screens behave as
+   * they will in production, and in production the answer comes from the
+   * server.
+   */
+  const settleWithoutGateway = useCallback(async (): Promise<void> => {
+    setMessage(null);
+    setPhase('processing');
+
+    try {
+      await api.post(`/payments/orders/${String(orderId)}/mock-capture`, {});
+    } catch (error) {
+      setPhase('unpaid');
+      setMessage(errorMessage(t, error, t('payment.testPaymentDidNotApply')));
+    }
+  }, [orderId, t]);
+
+  /**
    * What to do once the provider's UI has closed, whichever provider it was.
    *
    * `submitted` deliberately does not mean paid - it means the customer is
@@ -297,7 +328,21 @@ export function PaymentPage(): React.JSX.Element {
     }
 
     setPhase('processing');
-  }, [t]);
+
+    /*
+     * In test mode, finish the job the webhook would have.
+     *
+     * This is the case the whole fixture exists for: the tester paid with a
+     * test card, the gateway accepted it, and its event cannot reach a laptop.
+     * Waiting ninety seconds and then failing teaches nobody anything.
+     *
+     * Only on `submitted`. A dismissal or a decline is left exactly as it is,
+     * because a declined card is a thing somebody may be deliberately testing
+     * and a fixture that paid it anyway would hide the very behaviour under
+     * test.
+     */
+    if (mockPayments) void settleWithoutGateway();
+  }, [t, mockPayments, settleWithoutGateway]);
 
   const startPayment = useCallback(async (): Promise<void> => {
     setMessage(null);
@@ -560,6 +605,38 @@ export function PaymentPage(): React.JSX.Element {
               title={t('payment.paymentNotCompleted')}
             >
               {message}
+            </StatusPanel>
+          </div>
+        )}
+
+        {/*
+          Test mode, said out loud.
+
+          A deployment that quietly confirms orders nobody paid for is worse
+          than one that refuses to confirm them at all, because sooner or later
+          somebody demonstrates it to a customer. So it is stated on the screen
+          where the money would be taken, every time, and not tucked into a
+          developer tool.
+        */}
+        {mockPayments && (
+          <div className="mt-6 space-y-3">
+            <StatusPanel
+              tone="warning"
+              icon={<AlertIcon className="h-5 w-5" />}
+              title={t('payment.testModeTitle')}
+            >
+              <p>{t('payment.testModeBody')}</p>
+
+              <Button
+                size="sm"
+                className="mt-3"
+                disabled={phase === 'opening' || phase === 'in-provider'}
+                onClick={() => {
+                  void settleWithoutGateway();
+                }}
+              >
+                {t('payment.markThisOrderPaid')}
+              </Button>
             </StatusPanel>
           </div>
         )}

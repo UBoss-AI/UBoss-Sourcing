@@ -39,6 +39,7 @@ import { AuthSplit } from '@/components/ui/auth-split';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
+import { PARENT_ATTRIBUTION } from '@/lib/brand';
 
 /**
  * Built per render rather than once at module scope, because the messages
@@ -316,6 +317,22 @@ export function LoginPage(): React.JSX.Element {
 
       {/* Renders nothing in English. */}
       <TranslationQualityNotice className="mt-5 text-center" />
+
+      {/*
+        The attribution, as small print at the foot of the column.
+
+        NOT a mark above the title, and the note on the card above says why:
+        there used to be a "U" badge there, the storefront's sign-in has never
+        had one, and a badge on one of three otherwise identical screens is a
+        difference that says nothing. The product is named in the heading —
+        "Sign in to Glovia Admin" — and in the browser tab. What was missing
+        was who stands behind it, and small print at the bottom is where that
+        belongs on a sign-in screen rather than competing with the field
+        somebody came here to type in.
+      */}
+      <p className="mt-5 text-center text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
+        {PARENT_ATTRIBUTION}
+      </p>
     </AuthSplit>
   );
 }

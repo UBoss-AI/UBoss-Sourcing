@@ -54,7 +54,7 @@ import { AuthSplit } from '@/components/ui/auth-split';
 import { AuthCard } from '@/components/ui/auth-form';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useI18n } from '@/i18n/i18n-context';
+import { BrandLockup } from '@/layout/BrandLockup';
 
 export function AuthLayout({
   heading,
@@ -68,8 +68,6 @@ export function AuthLayout({
   /** The MFA setup wizard needs room for a QR code and ten recovery codes. */
   wide?: boolean;
 }): React.JSX.Element {
-  const { t } = useI18n();
-
   return (
     <div className="relative flex min-h-screen flex-col bg-surface-sunken lg:h-[100dvh] lg:overflow-hidden">
       {/*
@@ -86,24 +84,9 @@ export function AuthLayout({
           here too; it is above the card now, where the storefront and the
           admin panel put theirs. */}
       <header className="relative flex shrink-0 items-center justify-between px-4 py-4 sm:px-8">
-        <span className="flex items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white shadow-sm"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4.5 w-4.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z" strokeLinejoin="round" />
-              <path d="M3 8.5 12 13l9-4.5M12 13v7" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <span className="text-sm font-semibold tracking-tight text-ink">{t('app.name')}</span>
-        </span>
+        {/* The same component the rail carries once somebody is through, so
+            the two screens cannot drift apart. See `layout/BrandLockup.tsx`. */}
+        <BrandLockup />
 
         <ThemeToggle />
       </header>

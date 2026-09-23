@@ -1,6 +1,6 @@
 <div align="center">
 
-# UBOSS Sourcing
+# Glovia
 
 **A self-hosted B2B sourcing and ordering platform.**
 
@@ -26,7 +26,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 
 | | |
 |---|---|
-| [What this is](#what-this-is) | What the product does, and who runs it |
+| [What this is](#what-this-is) | What the product does, what it is called, and who runs it |
 | [The programs](#the-programs) | Five processes, and which port each answers on |
 | [Quick start](#quick-start) | One command on Windows; first-time setup lives in `SETUP.md` |
 | [Development sign-ins](#development-sign-ins) | Seeded accounts for each surface |
@@ -36,6 +36,8 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Markets, currencies and prices](#markets-currencies-and-prices) | Opening a market, and keeping converted prices current |
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
 | [Languages](#languages) | Eight languages, and how to add or translate one |
+| [Buying by the carton, the pallet or the container](#buying-by-the-carton-the-pallet-or-the-container) | Bulk packaging, freight quotes, and the base-unit rule |
+| [A seller's own accounting system: TallyPrime](#a-sellers-own-accounting-system-tallyprime) | The bridge, what "Connected" means, and what posts |
 | [Going live](#going-live) | The ordered checklist |
 | [Verifying a change](#verifying-a-change) | What each project gates on |
 | [The rules this system is built on](#the-rules-this-system-is-built-on) | Enforced in code, not by convention |
@@ -49,10 +51,45 @@ A company sells to other companies, and this software runs everything from the
 product page to the invoice: catalogue, stock, pricing per market, checkout,
 payment, fulfilment, returns and the audit trail behind all of it.
 
+**The product is called Glovia. UBOSS is the company behind it**, and every
+surface that carries the brand carries the attribution under it: **Powered by
+UBOSS**. It was called *UBOSS Sourcing* until the rename, and that name is gone
+from every screen a customer, a member of staff or a carrier reads.
+
 **It is a product other companies buy and run themselves.** Nothing in it
 assumes the author is the operator. Every business detail — who you are, what
 you charge, which markets you sell in, whether customers may open their own
 account — is a setting rather than a value in the source.
+
+That applies to the name at the top of your storefront too, and it is the one
+part of the branding worth being precise about:
+
+| Name | What it is | Where it comes from |
+|---|---|---|
+| **Glovia** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
+| **Powered by UBOSS** | The attribution — who makes it | the same module |
+| Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` |
+
+Your customers read **your** name in the header, the footer, the browser tab,
+your e-mails and your invoices. Glovia is the name of the software you are
+running; it never stands in for the name of the business running it. A fresh
+install shows "Glovia" there only until you fill in a business profile, because
+there is no other honest thing to put in a header before you have.
+
+Neither brand name is translated. A name is a fact rather than a string, and
+`Powered by UBOSS` is a fixed attribution lockup, so both read identically in
+all eight languages.
+
+**Inside, UBOSS is unchanged and that is deliberate.** Package names, the
+database, Prisma models, migration history, API routes, cookie names, session
+audiences, environment variables, storage keys, log service names, HTTP headers
+such as `X-UBOSS-Signature`, user agents, deployment paths and the registered
+legal entity all kept their names. Nobody using the product reads any of them,
+and each one is something another system, another machine or a registrar
+already points at. Renaming them would break working connections and change
+nothing anybody sees. Where a *screen* still says UBOSS — "UBOSS operations" in
+the carrier portal, for instance — it is naming the people a carrier deals with
+rather than the software they are looking at.
 
 Two capabilities are optional and off until switched on:
 
@@ -1301,6 +1338,38 @@ Test mode is rejected at save, LIVE mode is labelled *"real money"* everywhere
 it appears, and activating a live connection asks for confirmation in those
 words.
 
+### Testing a payment without a gateway
+
+An order is confirmed only by a signature-verified webhook, and no gateway can
+deliver one to `localhost`. So on a development machine a test-card payment
+leaves the order in **Pending payment** for ever, and the confirmation email,
+the ERP push, fulfilment, invoices and every screen after checkout cannot be
+reached at all.
+
+`PAYMENT_MOCK_SUCCESS=true` in `backend/.env` opens a second, clearly-marked
+door. The payment page then says **Test mode** on it and offers *Mark this
+order as paid*, and a payment made through a gateway's own test sheet settles
+itself as soon as the sheet closes. The order is confirmed through exactly the
+code a real capture runs — the same state machine, the same audit row, the same
+ERP push, the same emails — so what is being tested is the real behaviour and
+not a green tick.
+
+Nothing about the webhook path changes. The fixture is refused three times
+over:
+
+- the server **refuses to start** with it true and `NODE_ENV=production`;
+- the server **refuses to start** with it true beside an `rzp_live_`,
+  `sk_live_` or `pk_live_` key, in any environment;
+- the endpoint refuses again at runtime for a connection in LIVE mode.
+
+Every record it writes is marked. The payment reference is `mock_pay_…`, the
+event id is `mock_evt_…`, and the stored event body says `"mock": true` — so a
+payment with no counterpart in the gateway's dashboard explains itself.
+
+The alternative, when the real path is what you want to exercise, is to give
+the gateway somewhere to deliver to: `stripe listen --forward-to
+localhost:4000/api/v1/payments/webhooks/stripe`, or a tunnel to the same URL.
+
 ---
 
 ## Languages
@@ -1485,8 +1554,9 @@ a human correction is permanent. Three things it handles that a naive
 `translate(json)` would get wrong:
 
 - **Placeholders.** `{{email}}` is a token, not a word. Each is wrapped in a tag
-  DeepL is told to ignore, along with `UBOSS`, `Business Owner` and the other
-  terms in `KEEP`, so they come back verbatim.
+  DeepL is told to ignore, along with `Glovia`, `UBOSS`, `Business Owner` and
+  the other terms in `KEEP`, so they come back verbatim. Both brand names are
+  proper nouns: a brand translated into Greek is not a brand.
 - **Register.** `formality: prefer_more` pins the Sie/usted/vous form a supplier
   owes a business customer. DeepL supports it for six of the seven languages —
   **not Greek**, so Greek register needs a read-through.
@@ -1602,6 +1672,536 @@ which loses to two workers arriving in the same second.
 
 ---
 
+## How a seller's goods get delivered
+
+The section above answers one question: may this seller offer work to that
+marketplace carrier. Four different things can carry a parcel, and only one of
+them is that.
+
+A seller picks a **mode**, during onboarding at *Seller Hub → Delivery*, and
+changes it there afterwards.
+
+| Mode | Who carries it | Credentials | Drivers managed here | Reviewed by the marketplace |
+|---|---|---|---|---|
+| Carrier account of your own | DHL, FedEx or India Post, on the **seller's** account | The seller's own | **No** | No |
+| Self-managed | The seller's own delivery arm | None | Yes | Yes |
+| Dedicated partner | A company contracted to that seller | None | Yes | Yes |
+| Marketplace delivery | The marketplace arranges a haulage company | None | Yes | No |
+
+Marketplace delivery is what this software did before the others existed. It is
+unchanged, it needs nothing configured, and it is why the onboarding step can be
+required: any seller can answer it in one click.
+
+**Drivers are never managed here for an external carrier.** DHL's couriers are
+DHL's staff; no screen offers to assign one.
+
+### The credentials belong to the seller
+
+There is **no `DHL_API_KEY` for an operator to set**. Each seller connects their
+own commercial account, in the Seller Hub, and the key is stored per seller —
+encrypted, in a table of its own, bound to that connection so an envelope copied
+into another seller's row fails to decrypt rather than billing the wrong
+company's account.
+
+The names `DHL_API_KEY`, `FEDEX_CLIENT_ID` and the rest still appear in
+`.env.example`. They are a leftover from before this existed and are read by
+nothing.
+
+A connection goes live only when **both** of these have happened:
+
+1. a call genuinely reached the carrier and got an answer, and
+2. a named person at the seller confirmed they want real parcels sent that way.
+
+Rotating a key drops it back behind both. Nothing anywhere shows "Connected" on
+the strength of a saved form.
+
+### India Post
+
+Supported, and honest about what it is. There is no openly documented
+authenticated API for booking, rating, labelling or tracking that this project
+could verify, so India Post is a **manual** provider: the consignment is real,
+the article number is format-checked, the tracking link goes to India Post's own
+page, and events are entered by an authorised person and shown as manual.
+
+It does not scrape the CAPTCHA-protected consumer page or call undocumented
+endpoints. Its connection screen has no test button, because there is nothing to
+test, and no screen in any front end can show it as connected.
+
+### What each carrier can actually do
+
+Carriers do not offer the same things, and a seller is shown only what theirs
+genuinely does — so nothing on a screen fails when it is pressed. Every row is
+an operation this software either calls or refuses outright.
+
+| | DHL | FedEx | India Post |
+|---|---|---|---|
+| Price a consignment | Yes | Yes | No live rates |
+| Create a consignment | Yes | Yes | No |
+| Cancel one afterwards | No | Yes | No |
+| Book the collection | Yes | No | No |
+| Tracking | Yes | Yes | No |
+| Check an address | Yes | Yes | Local checks only |
+| Send the label again | No | No | No |
+| Proof of delivery | No | No | No |
+
+The label comes back once, as the consignment is created, and neither carrier
+will resend it — so it is stored at that moment and can be reprinted from here.
+DHL will not cancel a consignment through its API, so a seller who needs one
+stopped is told to telephone DHL rather than shown a button that fails. FedEx
+will not book a collection, so a seller on FedEx calls the van through their own
+FedEx account.
+
+**Neither has been called with live credentials from this repository.** The DHL
+adapter has only reached DHL's sandbox with fabricated keys, and the FedEx
+adapter has never been called at all. That is the consequence of the design
+above, not an omission: the credentials belong to each seller, so there is
+nothing an operator can supply here that would prove it. A seller connecting a
+real account is what proves it, and the connection does not go live until that
+call has actually succeeded.
+
+### Which method carries which parcel
+
+Most specific first: a rule about the **listing**, then the **warehouse**, then
+the **destination**, then the seller's **default** and their **fallback**.
+
+A rule selects among methods the seller already has approved; it grants nothing,
+and eligibility is re-checked every time — so pausing a method does not strand
+orders whose rules still point at it. When nothing is eligible the consignment
+is still raised, marked for manual review, with a reason naming each method
+tried and what stopped it.
+
+The answer is written onto the consignment and never recomputed, so a seller who
+changes carrier in March does not find last month's deliveries claiming to have
+gone the new way.
+
+### Where the operator sees all of it
+
+*Admin → Logistics → Delivery catalogue*: every provider, every partner across
+every seller, the approvals queue, and the health of each seller's carrier
+connection — its state, when it last worked, and the sanitised message from when
+it did not. **Never the key.**
+
+The Logistics Portal deliberately does **not** get this screen. Its tenant is a
+single carrier, and a page listing other carriers' sellers and integrations
+would break that boundary. A carrier sees its own at *Portal → Integration*.
+
+### Setting up your own delivery operation
+
+A seller delivering with their own vans says four more things, each on its own
+screen under the method at *Seller Hub → Delivery*:
+
+- **Where goods are collected from** — per warehouse: which days the van calls,
+  the window, how many parcels that door can put out in a day, and what the
+  driver needs to know to find the bay.
+- **Where it delivers to** — countries, states, cities or postcode ranges, and
+  the places it does **not** go. An exclusion beats any larger area that covers
+  it, so "the whole of India except the islands" is two rows rather than a list
+  of states.
+- **What it may carry** — cold chain, sterile handling and the rest. The seller
+  **asks**; the marketplace approves. There is no route in this software that
+  lets a seller approve their own, and only an approved capability is ever
+  matched to an order that needs it.
+- **What it charges** — a versioned price list. Publishing again makes version
+  2 and keeps version 1, because a quote points at the version it was priced
+  from and a delivery charge queried six weeks later has to stay explainable.
+
+None of these appear for DHL, FedEx or India Post, which price and route their
+own work — nor for a courier that merely works for the seller, which sets its
+own coverage in its own portal.
+
+### Booking the van
+
+Once a consignment exists, a collection is arranged by **exactly one** party:
+the seller's own account with an external carrier, where the booking is made
+with that carrier under the seller's own contract and their confirmation number
+is stored; or a delivery company inside the platform, where nothing is called
+and the request lands on that company's board.
+
+Two vans for one parcel is refused by a unique index rather than by a check,
+because two dispatchers pressing the button in the same second both read no live
+collection. Cancelling twice is an answer rather than an error; cancelling a
+collection that already happened is refused.
+
+A warehouse can mark the goods ready. That calls nobody — no carrier has such an
+endpoint — it records that somebody at the warehouse said so, which is what
+stops a van arriving at an unready dock.
+
+### Pricing and buying one consignment
+
+For a seller on their own carrier account, the delivery panel on an order asks
+what it costs, buys it, and books the van. Every figure is the carrier's own and
+is stored with the service it belongs to. Buying is idempotent: a retry or a
+double click collides in the database rather than booking a second parcel, and
+the answer says which of the two happened.
+
+
+---
+## Buying by the carton, the pallet or the container
+
+A hospital group buying gloves does not buy forty-eight hundred of them. They
+buy four pallets. Until this existed the only way to say so was to type 4,800
+into a box meant for singles and hope the seller worked out by hand whether
+that was a whole number of pallets — half the time it was not, and a part
+pallet is not something a warehouse can pick.
+
+A seller now states how their goods are actually packed, **per listing**, at
+*Seller Hub → Listings → (a listing) → Bulk packaging*. A buyer then sees an
+**Order by** selector on the product page and chooses a package rather than a
+number of units.
+
+### The one rule everything else follows from
+
+**Quantity is still base units, everywhere.** `cart_items.quantity` and
+`order_items.quantity` remain a count of pieces, so pricing, tax, reservation,
+picking, settlement and every ERP push read one number and have never had to
+learn that pallets exist.
+
+Two pallets of 50 cartons of 24 stores **2,400**. The pallet count lives beside
+it in an immutable snapshot, never instead of it. That is what makes "2 pallets"
+and "2,400 units" the same order rather than two conflicting ones, and it is why
+every order placed before this feature existed reads back unchanged.
+
+### What a seller configures
+
+Four package types, each switched on independently:
+
+| Package | What the preset supplies | What the seller supplies |
+|---|---|---|
+| Carton | Nothing | Units inside, size, weight, price, minimum, step |
+| UK pallet | The footprint: **1200 × 1000 mm** | Cartons per layer, layers, loaded height, safe load, price |
+| US pallet | The footprint: **1219 × 1016 mm** (48 × 40 in) | The same |
+| Container | Nominal figures for 20GP, 40GP and 40HC — **guidance only** | Type, FCL/LCL, loading method, pallets or cartons inside, price or "quote on request" |
+
+A pallet preset is a **footprint and nothing else**. A pallet of gauze and a
+pallet of saline have two floor dimensions in common and nothing else, so the
+height, the load and the layout are the seller's.
+
+A container preset is **guidance printed beside the seller's own figure, never a
+capacity**. Internal dimensions and maximum payload vary by build, by carrier
+and by the individual box; a seller who promises a number off a table will one
+day be unable to load it. Every field on those presets is named `nominal…` for
+that reason, and a test asserts that none of them ever loses the prefix.
+
+### The arithmetic, and the override
+
+```
+cartons per pallet  = cartons per layer × layers
+units per pallet    = cartons per pallet × units per carton
+units per container = pallets × cartons per pallet × units per carton   (pallet-loaded)
+                    = cartons per container × units per carton          (floor-loaded)
+```
+
+The derived figure updates as the seller types. They may **override** it,
+because a real pallet is not always a tidy multiple — a top layer is short, a
+corner takes a spacer. When they do, both numbers stay on screen and both are
+stored: theirs, and the one the layout works out to. *"The system says 1,200 and
+you said 1,150"* is a question somebody asks during a dispute and it has to have
+an answer. An override more than a factor of two from the arithmetic is refused
+as a typo rather than accepted as a correction.
+
+### A package price must divide exactly by what is in it
+
+The one rule here most likely to look like fussiness, and the one that keeps a
+package line chargeable.
+
+An order line is priced, taxed, discounted, invoiced and refunded from **one**
+number: the price of a base unit, multiplied by the base-unit quantity. So for a
+package line to charge what the buyer agreed:
+
+```
+unit price × units per package  ==  package price
+```
+
+If it does not divide, the per-unit figure has a remainder, and every place that
+remainder could go is worse than refusing: lost (the seller is underpaid on
+every pallet), added to the last unit (an invoice with one unit priced
+differently from its neighbours for no reason anybody can explain), or carried
+as a line adjustment (a second pricing engine, taxed and refunded by different
+rules from the first).
+
+A 1,200-unit pallet must therefore be priced in whole paise per unit —
+9,999,600 is accepted and 9,999,900 is not. The seller's form says so where they
+meet it.
+
+### Freight: a pallet is not a parcel
+
+DHL, FedEx and India Post are wired into this system as **parcel** carriers.
+Their adapters build a box with a weight and three dimensions, and their APIs
+price something a courier can lift. Asking one of them for a container booking
+produces one of two outcomes, and the second is far worse:
+
+1. It refuses, and the seller sees a provider error they cannot act on.
+2. **It answers** — with a price for something nobody will ever collect. The
+   buyer is charged it, the pallet sits on the dock, and the difference is
+   found when somebody rings to ask where it is.
+
+So the load type is worked out from what is actually being shipped, the
+carrier's declared capability is checked against it, and where nothing matches
+the answer is a **quotation** rather than a number:
+
+| Load | Parcel carriers (DHL, FedEx, UPS, India Post) | A seller's own operation or a contracted partner |
+|---|---|---|
+| Parcel, cartons | Booked through the API | Booked |
+| Pallet | **Quote required** | Booked, if approved for `PALLET` |
+| Full or shared container | **Quote required** | Quote required unless approved for `INTERNATIONAL` |
+
+A mixed consignment takes the **heaviest** load, not the commonest: one pallet
+and forty loose units is a pallet shipment, because the pallet has to go on a
+lorry whatever else is on the order.
+
+A quotation is raised at *Seller Hub → Orders → (an order)*, answered by a
+person with a real figure, a service and dates, and the order proceeds. Nothing
+anywhere invents a shipping price.
+
+### What a buyer sees
+
+On the product page, for each package the seller offers: the full breakdown
+("2 UK pallets × 50 cartons × 24 units = 2,400 units"), the price per package
+**and** the effective price per unit, the loaded size and weight, the lead time,
+the minimum and the step, any price band coming up — and how many **complete**
+packages are available, rounded down. Part of a pallet is not something a
+warehouse can pick, and telling somebody three are available and failing at
+checkout is worse than telling them two.
+
+### The snapshot, and why an old order still reads correctly
+
+Every basket line and every order line bought in a package carries an immutable
+breakdown: the package type, the counts, the dimensions, the weight, the price
+per package and per unit, and the version of the seller's packaging profile it
+was taken from.
+
+A seller who re-specifies a pallet next month changes **nothing** about an order
+placed today. A basket holding one is told the two have diverged rather than
+having the new figure applied under it. An invoice from last quarter still
+describes the pallet that was actually bought.
+
+### Configuration
+
+None. Bulk packaging needs no environment variable and no feature flag: an
+offer with no packaging profile — which is every offer until a seller fills one
+in — sells exactly as it did before any of this existed.
+
+---
+## A seller's own accounting system: TallyPrime
+
+This is the **third** ERP feature in this software, and it is neither of the
+other two. Conflating them is the mistake this section exists to prevent.
+
+| Feature | Whose system | Who configures it | Environment flag |
+|---|---|---|---|
+| Warehouse ERP | The **operator's** | The operator, in the console | `FEATURE_ERP_INTEGRATION` |
+| Purchasing ERP | A **buyer's** (a hospital's Odoo or SAP) | Each buyer, in their account | `FEATURE_CUSTOMER_ERP` |
+| **TallyPrime** | A **seller's** accounting system | Each seller, in the Seller Hub | `FEATURE_SELLER_ERP` |
+
+They share no table, no job type and no retry budget. A seller's PC being asleep
+must not slow the operator's warehouse sync or a buyer's order feed.
+
+### Why there is a bridge and not a URL
+
+TallyPrime is a Windows desktop application. Its integration surface is an HTTP
+listener it opens on the seller's own machine — by default on port 9000, on
+localhost, **with no authentication of any kind**. Anyone who can reach that
+port can read the company's entire ledger and post vouchers into it.
+
+So there is no address a seller can safely give anybody:
+
+- `localhost:9000` from this server is **this server**, not theirs. A
+  connection "test" against it would be testing the wrong machine entirely, and
+  on a shared host it would be testing somebody else's.
+- A seller who port-forwards 9000 to the open internet has published their
+  books.
+
+The architecture is therefore **outbound-only**:
+
+1. The seller generates a short-lived, single-use **pairing code** in the Seller
+   Hub.
+2. They run the **Glovia Tally Bridge** on the machine beside TallyPrime.
+3. The bridge talks to Tally over the **local** network — their business, not
+   ours, configured on their side.
+4. The bridge opens an authenticated **HTTPS connection out** to this API and
+   claims work. Nothing ever connects in.
+5. Work is queued per seller and handed only to that seller's paired device.
+6. A **heartbeat** is the only thing that makes the word "Connected" true.
+
+`SELLER_ERP_ALLOW_DIRECT_MODE` exists for the one deployment where this is
+unnecessary — a marketplace running inside the same private network or VPN as
+the seller's Tally, on hosts the operator controls. It is **off by default**,
+the API refuses to start with it on and no host allowlist configured, and it is
+never offered as a way to skip installing the bridge.
+
+### "Connected" is a conclusion, not a flag
+
+It is reached from four facts, each of which carries a timestamp the screen
+shows:
+
+- a bridge heartbeat within **3 minutes**,
+- a connection test that passed within **15 minutes**,
+- the configured company present among the ones Tally reported open,
+- every mapping a switched-on sync would need, confirmed.
+
+Take any one away and the state is a different word with a different instruction
+beside it. There is no state that means "we assume it is fine".
+
+| State | What it means | What the seller does |
+|---|---|---|
+| Not set up | Nothing configured | Start the wizard |
+| Bridge needed | No machine paired | Install the bridge |
+| Waiting to be paired | A code is outstanding | Paste it into the bridge |
+| Pairing expired | The code lapsed, or the token was revoked | Generate another |
+| Bridge offline | No heartbeat | Switch the machine on |
+| TallyPrime not answering | The machine is up; Tally is closed | Open TallyPrime |
+| **Company not open in Tally** | Tally is running; the wrong company is loaded | Open the right company |
+| Matching not finished | Everything talks; a ledger is unmatched | Finish the mapping |
+| Validation failed | Something would post incorrectly | Fix what it names |
+| **Connected** | A live health check passed | Nothing |
+| Sending | Work in flight | Nothing |
+| Connected, with warnings | Working; something non-urgent | Look when convenient |
+| Switched off | The seller paused it | Switch it back on |
+
+*Company not open* is the commonest real failure and looks nothing like a broken
+connection to the person standing at the machine. A marketplace that reported it
+as "disconnected" would send them to reinstall an agent that was working
+perfectly.
+
+### An order and the revenue from it are not the same event
+
+Two separate switches, on purpose:
+
+| Switch | Posts | Default |
+|---|---|---|
+| Confirmed orders → Sales Order | A record that an order exists. Credits nothing. | **On** |
+| Invoices → Sales voucher | **The revenue event** | Off |
+| Settlements → Receipt | Money received | Off |
+| Refunds → Credit Note | A reversal | Off |
+| Create ledgers and stock items in Tally | Masters | **Off** |
+
+A system that treated the first two as one would overstate a seller's turnover
+by every order later cancelled, and would recognise revenue on the day a
+hospital pressed "buy" rather than on the day the goods went out.
+
+Everything that moves money in somebody's accounts starts **off**. A seller
+halfway through setup must never discover that vouchers have been posting into
+their books since they pressed "connect".
+
+### A two-pallet order posts 2,400, not 2
+
+A buyer orders 2 UK pallets. Each pallet holds 50 cartons. Each carton holds 24
+units. The voucher posts **2,400** — in the stock item's own base unit, because
+that is what leaves the warehouse and what the seller's stock reconciles to.
+Posting "2" would tell Tally two units left the building and leave 2,398
+unaccounted for.
+
+The packaging is not discarded to get there. It goes into the voucher narration
+and onto the line as its own description — *"2 UK pallets × 50 cartons × 24
+units = 2,400 units"* — so the 2,400 is a figure an accountant can check rather
+than one they have to trust.
+
+**The one exception is opt-in.** A seller who has created a compound unit in
+Tally ("PLT of 1200 PCS") and mapped it may post in that unit instead. It
+requires a confirmed alternate-unit mapping, the factor on it is checked against
+the order's own packaging before the voucher is built, and a mismatch is refused
+rather than resolved: a Tally unit declaring 1,000 to a pallet against packaging
+that says 1,200 posts a quantity that reconciles to neither.
+
+### HTTP 200 is not success
+
+Tally answers 200 to a request it rejected completely. Post a voucher naming a
+ledger that does not exist and the transport is a clean success — status 200,
+well-formed XML, no error anywhere a naive client would look — and the body
+says `<CREATED>0</CREATED><ERRORS>1</ERRORS>`.
+
+A job here is successful **only** when Tally's own counters say something was
+created or altered and nothing errored. The counters are evaluated **on the
+server**, not by the bridge, so an agent with a bug — or a modified one — cannot
+mark an accounting event successful by saying so.
+
+### Exactly one voucher
+
+Three guards, at three layers, because a duplicate Sales Invoice is not a
+cosmetic bug — it is a tax return that does not reconcile, found weeks later by
+an accountant.
+
+1. **`idempotencyKey` is unique.** Built deterministically from the connection,
+   the event type and the source entity, never from a clock or a random. A
+   webhook redelivered four times produces one row and three no-ops, decided by
+   the database rather than by a read-then-write that can race.
+2. **`seller_erp_external_references`** records what our row became in Tally.
+   Before posting, the pipeline looks there; finding a reference, it verifies
+   rather than re-posts.
+3. **`REMOTEID` on the voucher**, so Tally itself refuses a second copy even if
+   both of ours somehow failed.
+
+Retrying something that already posted is **refused** rather than made
+idempotent-and-allowed.
+
+### Security
+
+- **No credential is stored.** The bridge token and the pairing code are kept as
+  SHA-256 hashes and a short display prefix — the same thing `auth_tokens` and
+  the carrier webhook secrets already do. The plaintext is shown once and never
+  again; a seller who loses it generates another.
+- **Pairing codes** are 60 bits from a transcription-safe alphabet, live for 15
+  minutes, are single-use, are burned after five wrong guesses, and are
+  rate-limited to ten an hour per seller. Wrong, expired, used and
+  guessed-at all answer with **one** wording, because telling the holder of a
+  bad code which it was hands them an oracle.
+- **Revocation is immediate.** Every bridge request re-reads the device row —
+  no session, no cache, no grace period. A seller who has lost a laptop presses
+  revoke and the laptop is out on its next call.
+- **The XML parser has no doctype support at all.** A response carrying
+  `<!DOCTYPE` or `<!ENTITY` is refused whole rather than stripped and parsed,
+  which makes XXE and the billion-laughs shape structurally impossible rather
+  than configured away. Size and nesting are bounded.
+- **Nothing sensitive is logged.** No token, no pairing code, no Tally payload,
+  no buyer address. Attempts keep SHA-256 hashes of the request and response —
+  enough to prove two attempts sent the same thing, without a financial document
+  sitting in a diagnostics table. Tally's error messages are stripped of the
+  seller's own file paths before they reach a marketplace support desk.
+- **Tenant isolation is structural.** There is no seller id, connection id or
+  job id in any bridge request that names another tenant's work: the token names
+  the device, the device names the connection, and every query is filtered on
+  that.
+
+### Setting one up
+
+*Seller Hub → ERP integrations → TallyPrime*, then, in order:
+
+1. Install the Glovia Tally Bridge on the machine that runs TallyPrime.
+2. Make sure TallyPrime is running with the company open.
+3. Generate a pairing code.
+4. Paste it into the bridge.
+5. Choose which Tally company to post into — **only from the ones a test
+   actually found**, never as free text.
+6. Test the connection.
+7. Match the ledgers, stock items, godowns and voucher types.
+8. Choose what gets posted.
+9. Check it would work.
+10. Run the first sync.
+
+The list is a checklist rather than a paged wizard, because the work is not
+linear: a seller pairs a machine on Monday, chooses a company on Tuesday, and
+comes back in a fortnight to map a ledger they forgot.
+
+### Configuration
+
+| Variable | Default | What it does |
+|---|---|---|
+| `FEATURE_SELLER_ERP` | `false` | The master switch. Off hides the screens, refuses every route and 404s the bridge endpoint. |
+| `SELLER_ERP_MAX_CONNECTIONS` | `5` | Tally companies one seller may connect |
+| `SELLER_ERP_PAIRING_TTL_MINUTES` | `15` | How long a pairing code lives |
+| `SELLER_ERP_PAIRING_MAX_ATTEMPTS` | `5` | Wrong guesses before a code is burned |
+| `SELLER_ERP_PAIRING_RATE_PER_HOUR` | `10` | Codes one seller may mint per hour |
+| `SELLER_ERP_BRIDGE_TOKEN_TTL_DAYS` | `180` | Backstop before a token must be rotated |
+| `SELLER_ERP_TASK_LEASE_SECONDS` | `300` | How long the bridge holds claimed work |
+| `SELLER_ERP_TASK_BATCH_SIZE` | `5` | Tasks per poll |
+| `SELLER_ERP_MAX_ATTEMPTS` | `8` | Attempts before an event is dead-lettered |
+| `SELLER_ERP_RETRY_BASE_SECONDS` | `30` | First retry delay; doubles with full jitter, capped at an hour |
+| `SELLER_ERP_FAILURE_THRESHOLD` | `5` | Consecutive failures before the circuit opens |
+| `SELLER_ERP_ALLOW_DIRECT_MODE` | `false` | **Leave off** on anything reachable from the internet |
+| `SELLER_ERP_DIRECT_HOST_SUFFIXES` | *(empty)* | Required when direct mode is on. Startup refuses without it. |
+| `SELLER_ERP_MAX_RESPONSE_BYTES` | `8388608` | Largest Tally reply that will be read |
+
+---
 ## Search engines
 
 The storefront ships the tags a crawler and a link preview read, and one
@@ -1927,6 +2527,31 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   and a rule naming none lets anyone holding `order.read` — the Inventory
   Manager, say — cancel an order. Rejecting an approval is a separate act with
   its own guard, `order.approve`.
+- **A bulk order stores base units, never packages.** Two pallets of 50
+  cartons of 24 is `quantity = 2400`, and the pallet count lives beside it in an
+  immutable snapshot. Every price, tax line, stock reservation, pick and ERP
+  push reads that one number and has never had to learn that pallets exist,
+  which is why every order placed before bulk ordering reads back unchanged.
+- **A package price must divide exactly by what is inside it.** A line is
+  charged as unit price × base-unit quantity, so a package price that does not
+  divide leaves a remainder with nowhere honest to go. Refused at the seller's
+  form rather than rounded at the till.
+- **No carrier API is ever asked to price a load it cannot carry.** A pallet or
+  a container on a parcel integration raises a quotation for a person to answer.
+  The dangerous outcome is not the API refusing — it is the API *answering*,
+  with a price for something nobody will ever collect.
+- **A seller's TallyPrime is never dialled from this server.** Its HTTP listener
+  has no authentication, and `localhost:9000` from here is *here*. The Glovia
+  Tally Bridge runs beside Tally, connects outward and claims work; nothing
+  connects in.
+- **"Connected" is a conclusion, never a stored flag.** It requires a live
+  heartbeat, a recent passing test, the configured company actually open in
+  Tally, and every required mapping confirmed — each with a timestamp the screen
+  shows. There is no state meaning "we assume it is fine".
+- **An HTTP 200 from Tally is not a success.** Tally answers 200 to a request it
+  rejected completely. A job succeeds only when its own counters say something
+  was created or altered and nothing errored, and those counters are evaluated
+  on the server rather than by the agent on the seller's machine.
 - **A scheduled cart is priced by `quoteSchedule` and nothing else.** The
   review screen the customer confirms and the worker that charges them weeks
   later both call it, so the number agreed and the number charged come from one
@@ -2101,7 +2726,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | `backend/docs/FRONTEND-INTEGRATION.md` | Contract notes for a client talking to this API |
 | **[`SECURITY.md`](SECURITY.md)** | How to report a vulnerability, what happens next, how quickly it is fixed, and what is in and out of scope. Publish a filled-in copy before going live |
 | **[`SECURITY-AUDIT-REPORT.md`](SECURITY-AUDIT-REPORT.md)** | The last security audit: every control, its status, the evidence behind it, what was fixed, and what still needs a live system or an independent tester to prove |
-| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
+| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. The document inside is titled *Glovia*; the file name is unchanged because `CLAUDE.md` and the build script both name it. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
 | `CLAUDE.md` | The rules for working in this repository |
 
 ### Keeping the docs true

@@ -133,6 +133,13 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'integration',
+        ...lazyRoute(
+          () => import('@/pages/IntegrationPage').then((m) => m.IntegrationPage),
+          [Permission.INTEGRATION_READ],
+        ),
+      },
+      {
         path: 'company',
         ...lazyRoute(
           () => import('@/pages/CompanyPages').then((m) => m.CompanyPage),

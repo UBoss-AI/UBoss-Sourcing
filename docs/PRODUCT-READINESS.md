@@ -159,6 +159,26 @@ three and it decides whose prices they are charged **[VR]**.
 | Per-occurrence stock revalidation | **Built** | |
 | Idempotency across scheduling, payment, order creation, ERP push | **Built** | `IdempotencyRecord` with `UNIQUE(scope,key)`, a SHA-256 of the canonical body and an owner scope |
 
+### 2.7a Bulk ordering — carton, pallet and container
+
+| Capability | Status | Note |
+|---|---|---|
+| Seller packaging per variant — individual units, carton, UK pallet, US pallet, container | **Built** | `SellerPackagingOption`, one row per variant per package type |
+| Pallet and container presets | **Built, as guidance only** | Every preset field is named `nominal…` and is a **footprint**, never a guaranteed capacity. What the buyer is charged for comes from the seller’s own figures |
+| Seller override of any derived figure, with both numbers shown | **Built** | The override and the derived value are stored side by side, and an audit row says who changed it |
+| Canonical base-unit quantity | **Built** | `cart_items.quantity` and `order_items.quantity` stay a **piece count**. 2 pallets × 50 cartons × 24 units is stored as **2,400**, and a CHECK constraint enforces `totalBaseUnits = packageQuantity × unitsPerPackage` |
+| Immutable packaging snapshot on every cart and order line | **Built** | `CartItemPackaging`, `OrderItemPackaging`. The order copy has **no `updatedAt` column** — it is never updated, and its absence is the documentation |
+| Historical orders unchanged when a seller edits packaging | **Built, and tested** | `tests/integration/bulk-packaging.test.ts` edits the option after the order and asserts the order line did not move |
+| Reservation and deduction on total base units | **Built** | Inventory never sees a package count |
+| Exact-decimal packaging arithmetic | **Built** | Integer-first rational conversion — `48 × 25.4` is `1219.1999999999998` as a float and `1219` here |
+| Package price divisibility | **Built, enforced at the seller’s form** | A package price must divide exactly by units per package, because the line charges `unitPrice × baseUnits`. The alternative was a second pricing engine **[OD]** |
+| Buyer “Order by” selector, live breakdown, whole packages available | **Built**, storefront |
+| Freight routing — no parcel API is offered a pallet or a container | **Built** | `domain/freight-load.ts`. DHL, FedEx, UPS and India Post declare **parcel and carton only** |
+| Freight quote requests, answered by seller staff | **Built** | `SellerFreightQuoteRequest`. **No price is ever fabricated** — the screen says *Freight quote required* until a person enters one |
+| Freight quote from a cart, before an order exists | **Not built** | The schema carries `cartId` for it; nothing writes it yet |
+| Bulk packaging on a recurring schedule | **Not built** | `quoteSchedule` has not been taught package lines |
+| Admin view of a bulk line | **Partial** | The order API returns the full packaging breakdown; **no admin screen renders it yet** |
+
 ### 2.8 Payments
 
 | Capability | Status | Note |
@@ -187,6 +207,31 @@ three and it decides whose prices they are charged **[VR]**.
 | **SSRF protection** | **Built, and thorough** — scheme allowlist; DNS resolved **before** connecting; loopback, link-local (incl. `169.254.169.254`), private, CGNAT, multicast and IPv4-mapped IPv6 all rejected; **the connection is pinned to the validated address to defeat DNS rebinding**; redirects are not followed automatically and are re-validated |
 | Failed ERP push after a successful payment | **Built** — a recoverable state, and the customer is not charged again |
 
+### 2.9a Seller ERP connectivity — TallyPrime
+
+A different feature from §2.9, and easy to confuse with it: that one is each
+**buyer’s** purchasing system, this one is each **seller’s** accounting system.
+
+| Capability | Status | Note |
+|---|---|---|
+| Per-seller connections, never one global one | **Built** | `SellerErpConnection` is keyed on the seller account |
+| Outbound-only bridge — pairing code, local agent, HTTPS poll, task queue | **Built**, server side | Tally’s listener is never reached from the internet, and **the backend never treats its own `localhost` as the seller’s Tally machine** |
+| **The bridge agent program itself** | **Not built here** | It is a separate Windows program. This repository holds the complete, tested **server half** of the contract |
+| Direct URL mode for private or VPN deployments | **Built, and refuses by default** | Requires `SELLER_ERP_ALLOW_DIRECT` **and** a non-empty host allowlist; the configuration refuses to start with one and not the other |
+| Truthful connection state | **Built** | Thirteen states **concluded from four timestamped facts**, not stored as a flag. Nothing says *Connected* without a heartbeat inside 180 seconds and a successful test inside 15 minutes |
+| Guided ten-step setup, company picker, heartbeat and job visibility | **Built**, Seller Hub |
+| Mapping — ledgers, stock items, godowns, units, voucher types, tax accounts, cost centres | **Built** | Chosen from **what a master pull actually found in the seller’s Tally**, never typed. Tally keys masters by name, so a typed name one space out is a mapping that looks complete and fails at post time |
+| **Financial ledgers are never created automatically** | **Built** | A missing mapping refuses the job and names what is missing |
+| Sync policy per event, with safe defaults | **Built** | Order placement and revenue recognition are **separate events**, defaulted apart |
+| Packaging reaches Tally as base units | **Built, and tested end to end** | `tests/integration/bulk-order-to-tally.test.ts` asserts `baseQuantity === 2400`, with the pallet count carried as the alternate unit. **Two pallets never post as “2”** |
+| Transactional outbox, deterministic idempotency key, lease dispatch, full-jitter retry, dead letter, manual retry | **Built** | A `UNIQUE` idempotency key, plus an external-reference row, plus Tally’s own `REMOTEID` — three independent duplicate defences |
+| **A 200 is not a success** | **Built, and tested** | Tally’s response is parsed: `LINEERROR`, `EXCEPTIONMSG` and a zero created-or-altered counter each fail the job |
+| XXE and DTD | **Refused, not stripped** | A hand-written parser with **no doctype support at all**. Billion laughs, external entities and a lower-case doctype are each asserted to be rejected |
+| Bridge credentials at rest | **Built** | Pairing codes and bridge tokens are stored as SHA-256 — **never ciphertext, never plaintext**, so a copy of the database cannot be replayed. Codes are single-use and rate-limited |
+| Receipts, credit notes and master upserts | **Partial** | Enums, policy switches, voucher kinds and request builders exist; **no lifecycle hook enqueues them yet** |
+| Scheduled inventory pull | **Partial** | The request builder and the apply path exist; nothing schedules it on `inventoryPollMinutes` |
+| Admin view of a seller’s ERP status | **Not built** | Deliberate for now — the data is seller-owned, and the admin screen has to be designed not to expose it |
+
 ### 2.10 Logistics portal
 
 | Capability | Status | Note |
@@ -213,6 +258,31 @@ three and it decides whose prices they are charged **[VR]**.
 | Notifications: verification, reset, approval, payment, schedule, shipment, operational alerts | **Built** — queued **after** the business record commits, so an email is never sent for an order that was not saved |
 | GDPR Art. 15 export | **Built, and self-policing** — a test reads the schema and **fails** if a new table holding personal data is absent from the export |
 | **Customer deletion / anonymisation** | **Not built** — it needs a business decision about what "delete" means for an account with orders. `RUNBOOK.md` §6 |
+
+---
+
+### 2.12 Seller fulfilment and carriers
+
+How a seller's own goods reach a doorstep. Five ways, and they differ in who is
+answerable rather than only in who drives. `PROJECT-GUIDE.md`, "How a seller's
+own goods get delivered", carries the responsibility and capability matrices.
+
+| Capability | Status | Note |
+|---|---|---|
+| Seller picks a delivery method during onboarding, and per product | **Built** | The step is **required** and always answerable: `OPERATOR_FULFILLED` needs nothing set up **[VR]** |
+| **Self-Managed Logistics** — the seller's own vans | **Built** | Pickup profiles, service areas with exclusions, capability requests and versioned rate cards, each scoped to the seller's own organisation |
+| **Dedicated Logistics Partner** — a courier contracted to one seller | **Built** | Invited by the seller, accepted by that company, and **that company manages its own fleet**. No seller route reaches another company's drivers |
+| **DHL** on the seller's own account | **Built, unconfigured by design** | Full adapter — rates, consignment, tracking, address check, collection. **Never called with live credentials from this repository**; exercised against the sandbox with fabricated keys |
+| **FedEx** on the seller's own account | **Built, unconfigured by design** | Full adapter — rates, consignment, cancel, tracking, address check. **Never called at all.** No sandbox account exists here |
+| **India Post** | **Built as manual, by design** | There is no official API to hold. Every API operation refuses; pricing answers an empty list rather than an invented figure; the article number is entered and tracked by hand. **No screen shows it as connected** |
+| Carrier credentials belong to the seller | **Built** | Entered in Seller Hub, AES-256-GCM in a table of their own with the connection id as additional authenticated data. **No read path returns a secret.** There is no operator environment variable for a carrier key |
+| Going live needs a real call plus a person | **Built** | A connection reaches `ACTIVE` only after a successful test against the carrier **and** the seller's own confirmation. A green badge is never granted by an adapter answering from a fixture |
+| Drivers for an external carrier | **Not built, deliberately** | DHL's couriers are DHL's staff. `driversAreManagedHere` decides it in one place, and the Seller Hub, the admin panel and the generated feature guide all read it |
+| Quoting, buying and the label | **Built** | Quotes stored with the service they belong to; purchase idempotent at the database, so a double click returns the first answer rather than booking a second parcel. The label carries the consignee's address and is served only through a signed link |
+| Booking the van | **Built** | Arranged by **exactly one** party, enforced by a CHECK constraint; a second live collection for one consignment collides on a UNIQUE index rather than being prevented by a query two dispatchers can both pass |
+| Multi-seller orders | **Built** | One paid order raises one consignment **per seller**, never one shipment for the basket |
+| Duplicate carrier webhooks | **Built** | Event records are idempotent, so a retried delivery notification does not notify twice |
+| Admin oversight and customer tracking | **Built** | The operator sees seller, partner, driver and timeline; the customer sees what they are permitted to and no more |
 
 ---
 
@@ -278,6 +348,21 @@ Named so that nobody reads silence as assurance.
   behaviour have not been independently tested against WCAG 2.2 AA.
 - **Whether the seeded reference data matches the operator's real commercial
   arrangements.** It is sample data and is meant to be replaced.
+- **Any live carrier account.** The DHL adapter has only ever reached DHL's
+  sandbox with fabricated credentials, and **the FedEx adapter has never been
+  called at all** — no FedEx account exists in this repository. Both are
+  complete and unit-tested against recorded shapes, and both stay unproven
+  against a real contract until a seller connects one. This is by design:
+  carrier credentials belong to each seller, so there is nothing here for the
+  operator to supply that would prove it.
+- **Any live TallyPrime.** The Tally half is complete, and every test runs
+  against sanitized fixtures and a mock bridge that drives the real routes.
+  **Nothing here has ever spoken to a real TallyPrime installation**, and it
+  stays unproven until a seller pairs one. Recorded as residual risk RR-9.
+- **India Post's absence is a finding, not a gap.** There is no official API to
+  integrate, so the honest test is the one that asserts no screen claims a
+  connection, and that test passes. If official access is later granted, the
+  adapter interface is already the right shape.
 
 ---
 

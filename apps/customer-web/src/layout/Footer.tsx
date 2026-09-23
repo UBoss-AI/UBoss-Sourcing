@@ -16,6 +16,7 @@
 import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
+import { PARENT_ATTRIBUTION } from '@/lib/brand';
 import { DocumentIcon, MailIcon, PhoneIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 
@@ -221,8 +222,19 @@ export function Footer({
        */}
       <div className="border-t border-border bg-surface-sunken">
         <div className="mx-auto flex max-w-content flex-col gap-1.5 px-4 py-5 text-xxs text-ink-subtle sm:flex-row sm:items-center sm:justify-between">
+          {/*
+            The year and the name belong to the business running this
+            storefront. Who wrote the software is a separate claim, so it is a
+            separate sentence beside it rather than something folded into
+            somebody else's copyright line. `lib/brand.ts` has why the
+            attribution is a constant and not a phrase to translate.
+          */}
           <p>
             © {new Date().getFullYear()} {business.displayName}
+            <span aria-hidden="true" className="px-1.5 text-border">
+              ·
+            </span>
+            {PARENT_ATTRIBUTION}
           </p>
           <p>{t('footer.allPricesIn', { currency: business.currency })}</p>
         </div>

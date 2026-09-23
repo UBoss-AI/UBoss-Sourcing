@@ -43,7 +43,14 @@ import type { ShipmentStatusName } from './logistics-shipment-state.js';
  * `CUSTOM` is a carrier with an API this operator has wired up themselves
  * through the generic adapter and the mapping table.
  */
-export const CarrierProviderValues = ['MANUAL', 'CUSTOM', 'DHL', 'FEDEX', 'UPS'] as const;
+export const CarrierProviderValues = [
+  'MANUAL',
+  'CUSTOM',
+  'DHL',
+  'FEDEX',
+  'UPS',
+  'INDIA_POST',
+] as const;
 
 export type CarrierProviderName = (typeof CarrierProviderValues)[number];
 
@@ -169,6 +176,26 @@ const UPS_CODES: Readonly<Record<string, CarrierStatusResolution>> = Object.free
  */
 const MANUAL_CODES: Readonly<Record<string, CarrierStatusResolution>> = Object.freeze({});
 
+/**
+ * India Post's table is EMPTY, and that is the honest entry rather than a gap.
+ *
+ * A mapping table is a claim about a feed, and there is no feed. India Post -
+ * Department of Posts publishes no openly documented authenticated status API
+ * that this repository can verify, and its consumer tracking page is behind a
+ * CAPTCHA and is not something this software scrapes. Events for an India Post
+ * consignment are typed in by an authorised person, exactly as a MANUAL
+ * carrier's are, and they name a canonical status directly.
+ *
+ * Inventing plausible-looking codes here would put a translation table in the
+ * repository for a vocabulary nobody has confirmed - and the first time one of
+ * them was wrong, a hospital would be told its consignment had arrived.
+ *
+ * If an official API is contracted, this is one of the three places that
+ * changes: this table, the adapter in `carrier/registry.ts`, and the
+ * connection's tracking mode.
+ */
+const INDIA_POST_CODES: Readonly<Record<string, CarrierStatusResolution>> = Object.freeze({});
+
 const PROVIDER_TABLES: Readonly<
   Record<CarrierProviderName, Readonly<Record<string, CarrierStatusResolution>>>
 > = Object.freeze({
@@ -177,6 +204,7 @@ const PROVIDER_TABLES: Readonly<
   DHL: DHL_CODES,
   FEDEX: FEDEX_CODES,
   UPS: UPS_CODES,
+  INDIA_POST: INDIA_POST_CODES,
 });
 
 /** An operator-supplied override, as stored in `CarrierStatusMapping`. */

@@ -570,6 +570,15 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // The onboarding step's panel, at a URL that outlives the application.
+        // An approved seller's application is read-only, so without this there
+        // is no way to change how goods ship after the day you applied.
+        path: 'fulfilment',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerFulfilmentPage').then((m) => m.SellerFulfilmentPage),
+        ),
+      },
+      {
         path: 'notifications',
         ...accountPage(() =>
           import('@/pages/seller/SellerNotificationsPage').then((m) => m.SellerNotificationsPage),
@@ -579,6 +588,20 @@ export const router = createBrowserRouter([
         path: 'activity',
         ...accountPage(() =>
           import('@/pages/seller/SellerActivityPage').then((m) => m.SellerActivityPage),
+        ),
+      },
+      {
+        /*
+         * The seller's own accounting system.
+         *
+         * Its own route rather than a panel on Payments: connecting TallyPrime
+         * is a setup errand somebody does once with a machine in front of
+         * them, and a seller checking a settlement should not have to scroll
+         * past a pairing wizard to reach it.
+         */
+        path: 'integrations',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerErpPage').then((m) => m.SellerErpPage),
         ),
       },
       {

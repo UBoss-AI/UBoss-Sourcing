@@ -47,6 +47,8 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { offerAssignment, withdrawAssignment } from '../logistics/assignment.service.js';
 import { recordSellerAudit } from './audit.service.js';
+import { resolveConsignmentMethodAlert } from './fulfilment-notification.service.js';
+import { recordRelationshipEvent } from './logistics-organisation.service.js';
 import {
   notifySellerCarrierArrangement,
   resolveConsignmentUnassigned,
@@ -436,6 +438,17 @@ export async function sellerAssignCarrier(input: SellerAssignInput): Promise<{
     carrierName: link.logisticsPartner.displayName,
   });
 
+  /*
+   * And the newer alert, for the same reason and at the same moment.
+   *
+   * "This consignment has no way of being delivered" is raised when it is
+   * created and nothing eligible could be found. Handing it to a carrier by
+   * hand is precisely the seller answering it - and an alert nothing can close
+   * is a badge people learn to ignore, which is the one failure mode a
+   * notification system really has.
+   */
+  await resolveConsignmentMethodAlert(shipment.id);
+
   return { ...offered, replacedPartnerId };
 }
 
@@ -622,6 +635,28 @@ export async function decideSellerCarrier(input: {
       ...(input.effectiveTo === undefined ? {} : { effectiveTo: input.effectiveTo }),
     },
     select: { id: true, status: true },
+  });
+
+  /*
+   * The history line, beside the status it describes.
+   *
+   * Every move of this column goes through this function, so recording it here
+   * means the trail cannot be incomplete - which matters because the question
+   * it answers ("how did this arrangement get here?") is asked during a
+   * dispute, months later, after the row has been suspended and restored.
+   *
+   * `actorLabel` is "Marketplace" rather than the member of staff's name. Who
+   * on the operator's side decided is the operator's business; the seller
+   * learns that it was decided, when, and why. That is the same posture
+   * `SellerAuditLog` already takes.
+   */
+  await recordRelationshipEvent({
+    sellerLogisticsPartnerId: row.id,
+    fromStatus: existing.status,
+    toStatus: input.to,
+    reason: reason.length === 0 ? null : reason,
+    actorUserId: input.decidedByUserId,
+    actorLabel: 'Marketplace',
   });
 
   await notifySellerCarrierArrangement({

@@ -309,6 +309,43 @@ async function maintenance(): Promise<void> {
       {},
       { dedupeKey: `logistics_maintenance:${slot}` },
     );
+
+    /*
+     * Every SELLER's own accounting connection.
+     *
+     * Its own beat rather than a share of the ERP ones above, because these
+     * call machines in sellers' offices that are switched off at six o'clock:
+     * one seller's PC being asleep must not slow the operator's warehouse sync
+     * or a buyer's order feed. The handler returns immediately when the
+     * feature is off, so an installation with no sellers using it pays one
+     * branch.
+     */
+    await queue.enqueue(
+      JobType.SELLER_ERP_MAINTENANCE,
+      {},
+      { dedupeKey: `seller_erp_maintenance:${slot}` },
+    );
+
+    await queue.enqueue(
+      JobType.SELLER_ERP_DISPATCH,
+      {},
+      { dedupeKey: `seller_erp_dispatch:${slot}` },
+    );
+
+    /*
+     * The reconciliation, ONCE A DAY rather than on the maintenance beat.
+     *
+     * Keyed on the date, so every pass after the first on a given day collides
+     * on the dedupe key and does nothing. It asks each connected seller's
+     * machine to re-read its master lists, which is cheap but is not free -
+     * and the question it answers, "has a ledger been renamed under a mapping
+     * we hold", does not change from minute to minute.
+     */
+    await queue.enqueue(
+      JobType.SELLER_ERP_RECONCILE,
+      {},
+      { dedupeKey: `seller_erp_reconcile:${new Date().toISOString().slice(0, 10)}` },
+    );
   } catch (error) {
     // Maintenance must never take the loop down; the next tick retries it.
     logger.error({ err: error }, 'maintenance pass failed');

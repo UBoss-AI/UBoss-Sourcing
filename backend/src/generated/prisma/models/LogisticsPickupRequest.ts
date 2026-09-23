@@ -41,7 +41,12 @@ export type LogisticsPickupRequestSumAggregateOutputType = {
 export type LogisticsPickupRequestMinAggregateOutputType = {
   id: string | null
   logisticsPartnerId: string | null
+  sellerAccountId: string | null
+  sellerCarrierConnectionId: string | null
+  carrierPickupId: string | null
+  carrierConfirmationNumber: string | null
   shipmentId: string | null
+  activeForShipmentId: string | null
   locationId: string | null
   state: $Enums.LogisticsPickupState | null
   windowStartAt: Date | null
@@ -54,6 +59,7 @@ export type LogisticsPickupRequestMinAggregateOutputType = {
   scheduledAt: Date | null
   completedAt: Date | null
   failedAt: Date | null
+  cancelledAt: Date | null
   failureReason: string | null
   packagesCollected: number | null
   completionIdempotencyKey: string | null
@@ -65,7 +71,12 @@ export type LogisticsPickupRequestMinAggregateOutputType = {
 export type LogisticsPickupRequestMaxAggregateOutputType = {
   id: string | null
   logisticsPartnerId: string | null
+  sellerAccountId: string | null
+  sellerCarrierConnectionId: string | null
+  carrierPickupId: string | null
+  carrierConfirmationNumber: string | null
   shipmentId: string | null
+  activeForShipmentId: string | null
   locationId: string | null
   state: $Enums.LogisticsPickupState | null
   windowStartAt: Date | null
@@ -78,6 +89,7 @@ export type LogisticsPickupRequestMaxAggregateOutputType = {
   scheduledAt: Date | null
   completedAt: Date | null
   failedAt: Date | null
+  cancelledAt: Date | null
   failureReason: string | null
   packagesCollected: number | null
   completionIdempotencyKey: string | null
@@ -89,7 +101,12 @@ export type LogisticsPickupRequestMaxAggregateOutputType = {
 export type LogisticsPickupRequestCountAggregateOutputType = {
   id: number
   logisticsPartnerId: number
+  sellerAccountId: number
+  sellerCarrierConnectionId: number
+  carrierPickupId: number
+  carrierConfirmationNumber: number
   shipmentId: number
+  activeForShipmentId: number
   locationId: number
   state: number
   windowStartAt: number
@@ -102,6 +119,7 @@ export type LogisticsPickupRequestCountAggregateOutputType = {
   scheduledAt: number
   completedAt: number
   failedAt: number
+  cancelledAt: number
   failureReason: number
   packagesCollected: number
   completionIdempotencyKey: number
@@ -123,7 +141,12 @@ export type LogisticsPickupRequestSumAggregateInputType = {
 export type LogisticsPickupRequestMinAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  sellerAccountId?: true
+  sellerCarrierConnectionId?: true
+  carrierPickupId?: true
+  carrierConfirmationNumber?: true
   shipmentId?: true
+  activeForShipmentId?: true
   locationId?: true
   state?: true
   windowStartAt?: true
@@ -136,6 +159,7 @@ export type LogisticsPickupRequestMinAggregateInputType = {
   scheduledAt?: true
   completedAt?: true
   failedAt?: true
+  cancelledAt?: true
   failureReason?: true
   packagesCollected?: true
   completionIdempotencyKey?: true
@@ -147,7 +171,12 @@ export type LogisticsPickupRequestMinAggregateInputType = {
 export type LogisticsPickupRequestMaxAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  sellerAccountId?: true
+  sellerCarrierConnectionId?: true
+  carrierPickupId?: true
+  carrierConfirmationNumber?: true
   shipmentId?: true
+  activeForShipmentId?: true
   locationId?: true
   state?: true
   windowStartAt?: true
@@ -160,6 +189,7 @@ export type LogisticsPickupRequestMaxAggregateInputType = {
   scheduledAt?: true
   completedAt?: true
   failedAt?: true
+  cancelledAt?: true
   failureReason?: true
   packagesCollected?: true
   completionIdempotencyKey?: true
@@ -171,7 +201,12 @@ export type LogisticsPickupRequestMaxAggregateInputType = {
 export type LogisticsPickupRequestCountAggregateInputType = {
   id?: true
   logisticsPartnerId?: true
+  sellerAccountId?: true
+  sellerCarrierConnectionId?: true
+  carrierPickupId?: true
+  carrierConfirmationNumber?: true
   shipmentId?: true
+  activeForShipmentId?: true
   locationId?: true
   state?: true
   windowStartAt?: true
@@ -184,6 +219,7 @@ export type LogisticsPickupRequestCountAggregateInputType = {
   scheduledAt?: true
   completedAt?: true
   failedAt?: true
+  cancelledAt?: true
   failureReason?: true
   packagesCollected?: true
   completionIdempotencyKey?: true
@@ -281,8 +317,13 @@ export type LogisticsPickupRequestGroupByArgs<ExtArgs extends runtime.Types.Exte
 
 export type LogisticsPickupRequestGroupByOutputType = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId: string | null
+  sellerAccountId: string | null
+  sellerCarrierConnectionId: string | null
+  carrierPickupId: string | null
+  carrierConfirmationNumber: string | null
   shipmentId: string | null
+  activeForShipmentId: string | null
   locationId: string | null
   state: $Enums.LogisticsPickupState
   windowStartAt: Date
@@ -295,6 +336,7 @@ export type LogisticsPickupRequestGroupByOutputType = {
   scheduledAt: Date | null
   completedAt: Date | null
   failedAt: Date | null
+  cancelledAt: Date | null
   failureReason: string | null
   packagesCollected: number | null
   completionIdempotencyKey: string | null
@@ -328,8 +370,13 @@ export type LogisticsPickupRequestWhereInput = {
   OR?: Prisma.LogisticsPickupRequestWhereInput[]
   NOT?: Prisma.LogisticsPickupRequestWhereInput | Prisma.LogisticsPickupRequestWhereInput[]
   id?: Prisma.StringFilter<"LogisticsPickupRequest"> | string
-  logisticsPartnerId?: Prisma.StringFilter<"LogisticsPickupRequest"> | string
+  logisticsPartnerId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerCarrierConnectionId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierPickupId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierConfirmationNumber?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   shipmentId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  activeForShipmentId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   locationId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   state?: Prisma.EnumLogisticsPickupStateFilter<"LogisticsPickupRequest"> | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
@@ -342,13 +389,16 @@ export type LogisticsPickupRequestWhereInput = {
   scheduledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failureReason?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   packagesCollected?: Prisma.IntNullableFilter<"LogisticsPickupRequest"> | number | null
   completionIdempotencyKey?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   createdByUserId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
-  partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
+  partner?: Prisma.XOR<Prisma.LogisticsPartnerNullableScalarRelationFilter, Prisma.LogisticsPartnerWhereInput> | null
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  sellerConnection?: Prisma.XOR<Prisma.SellerCarrierConnectionNullableScalarRelationFilter, Prisma.SellerCarrierConnectionWhereInput> | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentNullableScalarRelationFilter, Prisma.LogisticsShipmentWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileNullableScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput> | null
@@ -357,8 +407,13 @@ export type LogisticsPickupRequestWhereInput = {
 
 export type LogisticsPickupRequestOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  logisticsPartnerId?: Prisma.SortOrder
+  logisticsPartnerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerCarrierConnectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  carrierPickupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  carrierConfirmationNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   shipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeForShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   locationId?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   windowStartAt?: Prisma.SortOrder
@@ -371,6 +426,7 @@ export type LogisticsPickupRequestOrderByWithRelationInput = {
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   packagesCollected?: Prisma.SortOrderInput | Prisma.SortOrder
   completionIdempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,6 +434,8 @@ export type LogisticsPickupRequestOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   partner?: Prisma.LogisticsPartnerOrderByWithRelationInput
+  sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
+  sellerConnection?: Prisma.SellerCarrierConnectionOrderByWithRelationInput
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
   location?: Prisma.InventoryLocationOrderByWithRelationInput
   driver?: Prisma.LogisticsDriverProfileOrderByWithRelationInput
@@ -387,11 +445,16 @@ export type LogisticsPickupRequestOrderByWithRelationInput = {
 
 export type LogisticsPickupRequestWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  activeForShipmentId?: string
   logisticsPartnerId_completionIdempotencyKey?: Prisma.LogisticsPickupRequestLogisticsPartnerIdCompletionIdempotencyKeyCompoundUniqueInput
   AND?: Prisma.LogisticsPickupRequestWhereInput | Prisma.LogisticsPickupRequestWhereInput[]
   OR?: Prisma.LogisticsPickupRequestWhereInput[]
   NOT?: Prisma.LogisticsPickupRequestWhereInput | Prisma.LogisticsPickupRequestWhereInput[]
-  logisticsPartnerId?: Prisma.StringFilter<"LogisticsPickupRequest"> | string
+  logisticsPartnerId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerCarrierConnectionId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierPickupId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierConfirmationNumber?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   shipmentId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   locationId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   state?: Prisma.EnumLogisticsPickupStateFilter<"LogisticsPickupRequest"> | $Enums.LogisticsPickupState
@@ -405,23 +468,31 @@ export type LogisticsPickupRequestWhereUniqueInput = Prisma.AtLeast<{
   scheduledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failureReason?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   packagesCollected?: Prisma.IntNullableFilter<"LogisticsPickupRequest"> | number | null
   completionIdempotencyKey?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   createdByUserId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
-  partner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
+  partner?: Prisma.XOR<Prisma.LogisticsPartnerNullableScalarRelationFilter, Prisma.LogisticsPartnerWhereInput> | null
+  sellerAccount?: Prisma.XOR<Prisma.SellerAccountNullableScalarRelationFilter, Prisma.SellerAccountWhereInput> | null
+  sellerConnection?: Prisma.XOR<Prisma.SellerCarrierConnectionNullableScalarRelationFilter, Prisma.SellerCarrierConnectionWhereInput> | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentNullableScalarRelationFilter, Prisma.LogisticsShipmentWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   driver?: Prisma.XOR<Prisma.LogisticsDriverProfileNullableScalarRelationFilter, Prisma.LogisticsDriverProfileWhereInput> | null
   vehicle?: Prisma.XOR<Prisma.LogisticsVehicleNullableScalarRelationFilter, Prisma.LogisticsVehicleWhereInput> | null
-}, "id" | "logisticsPartnerId_completionIdempotencyKey">
+}, "id" | "logisticsPartnerId_completionIdempotencyKey" | "activeForShipmentId">
 
 export type LogisticsPickupRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  logisticsPartnerId?: Prisma.SortOrder
+  logisticsPartnerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerCarrierConnectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  carrierPickupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  carrierConfirmationNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   shipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activeForShipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   locationId?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrder
   windowStartAt?: Prisma.SortOrder
@@ -434,6 +505,7 @@ export type LogisticsPickupRequestOrderByWithAggregationInput = {
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   packagesCollected?: Prisma.SortOrderInput | Prisma.SortOrder
   completionIdempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -452,8 +524,13 @@ export type LogisticsPickupRequestScalarWhereWithAggregatesInput = {
   OR?: Prisma.LogisticsPickupRequestScalarWhereWithAggregatesInput[]
   NOT?: Prisma.LogisticsPickupRequestScalarWhereWithAggregatesInput | Prisma.LogisticsPickupRequestScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"LogisticsPickupRequest"> | string
-  logisticsPartnerId?: Prisma.StringWithAggregatesFilter<"LogisticsPickupRequest"> | string
+  logisticsPartnerId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
+  sellerAccountId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
+  sellerCarrierConnectionId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
+  carrierPickupId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
+  carrierConfirmationNumber?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
   shipmentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
+  activeForShipmentId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
   locationId?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
   state?: Prisma.EnumLogisticsPickupStateWithAggregatesFilter<"LogisticsPickupRequest"> | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsPickupRequest"> | Date | string
@@ -466,6 +543,7 @@ export type LogisticsPickupRequestScalarWhereWithAggregatesInput = {
   scheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPickupRequest"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPickupRequest"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPickupRequest"> | Date | string | null
+  cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsPickupRequest"> | Date | string | null
   failureReason?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
   packagesCollected?: Prisma.IntNullableWithAggregatesFilter<"LogisticsPickupRequest"> | number | null
   completionIdempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"LogisticsPickupRequest"> | string | null
@@ -476,6 +554,9 @@ export type LogisticsPickupRequestScalarWhereWithAggregatesInput = {
 
 export type LogisticsPickupRequestCreateInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -485,13 +566,16 @@ export type LogisticsPickupRequestCreateInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partner: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
   location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
   driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
@@ -500,8 +584,13 @@ export type LogisticsPickupRequestCreateInput = {
 
 export type LogisticsPickupRequestUncheckedCreateInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -514,6 +603,7 @@ export type LogisticsPickupRequestUncheckedCreateInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -524,6 +614,9 @@ export type LogisticsPickupRequestUncheckedCreateInput = {
 
 export type LogisticsPickupRequestUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -533,13 +626,16 @@ export type LogisticsPickupRequestUpdateInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
   location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
@@ -548,8 +644,13 @@ export type LogisticsPickupRequestUpdateInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -562,6 +663,7 @@ export type LogisticsPickupRequestUncheckedUpdateInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -572,8 +674,13 @@ export type LogisticsPickupRequestUncheckedUpdateInput = {
 
 export type LogisticsPickupRequestCreateManyInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -586,6 +693,7 @@ export type LogisticsPickupRequestCreateManyInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -596,6 +704,9 @@ export type LogisticsPickupRequestCreateManyInput = {
 
 export type LogisticsPickupRequestUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -605,6 +716,7 @@ export type LogisticsPickupRequestUpdateManyMutationInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -615,8 +727,13 @@ export type LogisticsPickupRequestUpdateManyMutationInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -629,6 +746,7 @@ export type LogisticsPickupRequestUncheckedUpdateManyInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -661,7 +779,12 @@ export type LogisticsPickupRequestLogisticsPartnerIdCompletionIdempotencyKeyComp
 export type LogisticsPickupRequestCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerCarrierConnectionId?: Prisma.SortOrder
+  carrierPickupId?: Prisma.SortOrder
+  carrierConfirmationNumber?: Prisma.SortOrder
   shipmentId?: Prisma.SortOrder
+  activeForShipmentId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   windowStartAt?: Prisma.SortOrder
@@ -674,6 +797,7 @@ export type LogisticsPickupRequestCountOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   packagesCollected?: Prisma.SortOrder
   completionIdempotencyKey?: Prisma.SortOrder
@@ -689,7 +813,12 @@ export type LogisticsPickupRequestAvgOrderByAggregateInput = {
 export type LogisticsPickupRequestMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerCarrierConnectionId?: Prisma.SortOrder
+  carrierPickupId?: Prisma.SortOrder
+  carrierConfirmationNumber?: Prisma.SortOrder
   shipmentId?: Prisma.SortOrder
+  activeForShipmentId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   windowStartAt?: Prisma.SortOrder
@@ -702,6 +831,7 @@ export type LogisticsPickupRequestMaxOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   packagesCollected?: Prisma.SortOrder
   completionIdempotencyKey?: Prisma.SortOrder
@@ -713,7 +843,12 @@ export type LogisticsPickupRequestMaxOrderByAggregateInput = {
 export type LogisticsPickupRequestMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   logisticsPartnerId?: Prisma.SortOrder
+  sellerAccountId?: Prisma.SortOrder
+  sellerCarrierConnectionId?: Prisma.SortOrder
+  carrierPickupId?: Prisma.SortOrder
+  carrierConfirmationNumber?: Prisma.SortOrder
   shipmentId?: Prisma.SortOrder
+  activeForShipmentId?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   state?: Prisma.SortOrder
   windowStartAt?: Prisma.SortOrder
@@ -726,6 +861,7 @@ export type LogisticsPickupRequestMinOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   packagesCollected?: Prisma.SortOrder
   completionIdempotencyKey?: Prisma.SortOrder
@@ -777,6 +913,90 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutLocationNestedInput 
   connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
   update?: Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutLocationInput | Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutLocationInput[]
   updateMany?: Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutLocationInput | Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutLocationInput[]
+  deleteMany?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
+}
+
+export type LogisticsPickupRequestCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerAccountInputEnvelope
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+}
+
+export type LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerAccountInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerAccountInputEnvelope
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+}
+
+export type LogisticsPickupRequestUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerAccountInputEnvelope
+  set?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  delete?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  update?: Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerAccountInput[]
+  deleteMany?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
+}
+
+export type LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput[]
+  upsert?: Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerAccountInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerAccountInputEnvelope
+  set?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  delete?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  update?: Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerAccountInput[]
+  updateMany?: Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerAccountInput | Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerAccountInput[]
+  deleteMany?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
+}
+
+export type LogisticsPickupRequestCreateNestedManyWithoutSellerConnectionInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerConnectionInputEnvelope
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+}
+
+export type LogisticsPickupRequestUncheckedCreateNestedManyWithoutSellerConnectionInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerConnectionInputEnvelope
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+}
+
+export type LogisticsPickupRequestUpdateManyWithoutSellerConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput[]
+  upsert?: Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerConnectionInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerConnectionInputEnvelope
+  set?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  delete?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  update?: Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerConnectionInput[]
+  updateMany?: Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerConnectionInput[]
+  deleteMany?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
+}
+
+export type LogisticsPickupRequestUncheckedUpdateManyWithoutSellerConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput> | Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput[] | Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput[]
+  connectOrCreate?: Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput[]
+  upsert?: Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerConnectionInput[]
+  createMany?: Prisma.LogisticsPickupRequestCreateManySellerConnectionInputEnvelope
+  set?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  disconnect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  delete?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  connect?: Prisma.LogisticsPickupRequestWhereUniqueInput | Prisma.LogisticsPickupRequestWhereUniqueInput[]
+  update?: Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerConnectionInput[]
+  updateMany?: Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerConnectionInput | Prisma.LogisticsPickupRequestUpdateManyWithWhereWithoutSellerConnectionInput[]
   deleteMany?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
 }
 
@@ -954,6 +1174,9 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutVehicleNestedInput =
 
 export type LogisticsPickupRequestCreateWithoutLocationInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -963,13 +1186,16 @@ export type LogisticsPickupRequestCreateWithoutLocationInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partner: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
   driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
@@ -977,8 +1203,13 @@ export type LogisticsPickupRequestCreateWithoutLocationInput = {
 
 export type LogisticsPickupRequestUncheckedCreateWithoutLocationInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -990,6 +1221,7 @@ export type LogisticsPickupRequestUncheckedCreateWithoutLocationInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1029,8 +1261,13 @@ export type LogisticsPickupRequestScalarWhereInput = {
   OR?: Prisma.LogisticsPickupRequestScalarWhereInput[]
   NOT?: Prisma.LogisticsPickupRequestScalarWhereInput | Prisma.LogisticsPickupRequestScalarWhereInput[]
   id?: Prisma.StringFilter<"LogisticsPickupRequest"> | string
-  logisticsPartnerId?: Prisma.StringFilter<"LogisticsPickupRequest"> | string
+  logisticsPartnerId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerAccountId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  sellerCarrierConnectionId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierPickupId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  carrierConfirmationNumber?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   shipmentId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
+  activeForShipmentId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   locationId?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   state?: Prisma.EnumLogisticsPickupStateFilter<"LogisticsPickupRequest"> | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
@@ -1043,6 +1280,7 @@ export type LogisticsPickupRequestScalarWhereInput = {
   scheduledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"LogisticsPickupRequest"> | Date | string | null
   failureReason?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
   packagesCollected?: Prisma.IntNullableFilter<"LogisticsPickupRequest"> | number | null
   completionIdempotencyKey?: Prisma.StringNullableFilter<"LogisticsPickupRequest"> | string | null
@@ -1051,8 +1289,11 @@ export type LogisticsPickupRequestScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"LogisticsPickupRequest"> | Date | string
 }
 
-export type LogisticsPickupRequestCreateWithoutPartnerInput = {
+export type LogisticsPickupRequestCreateWithoutSellerAccountInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -1062,21 +1303,29 @@ export type LogisticsPickupRequestCreateWithoutPartnerInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
   location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
   driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
 }
 
-export type LogisticsPickupRequestUncheckedCreateWithoutPartnerInput = {
+export type LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput = {
   id: string
+  logisticsPartnerId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1089,6 +1338,175 @@ export type LogisticsPickupRequestUncheckedCreateWithoutPartnerInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsPickupRequestCreateOrConnectWithoutSellerAccountInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type LogisticsPickupRequestCreateManySellerAccountInputEnvelope = {
+  data: Prisma.LogisticsPickupRequestCreateManySellerAccountInput | Prisma.LogisticsPickupRequestCreateManySellerAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedUpdateWithoutSellerAccountInput>
+  create: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerAccountInput>
+}
+
+export type LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerAccountInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateWithoutSellerAccountInput, Prisma.LogisticsPickupRequestUncheckedUpdateWithoutSellerAccountInput>
+}
+
+export type LogisticsPickupRequestUpdateManyWithWhereWithoutSellerAccountInput = {
+  where: Prisma.LogisticsPickupRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateManyMutationInput, Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountInput>
+}
+
+export type LogisticsPickupRequestCreateWithoutSellerConnectionInput = {
+  id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
+  location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
+  driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
+  vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
+}
+
+export type LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput = {
+  id: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  shipmentId?: string | null
+  activeForShipmentId?: string | null
+  locationId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  driverProfileId?: string | null
+  vehicleId?: string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsPickupRequestCreateOrConnectWithoutSellerConnectionInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput>
+}
+
+export type LogisticsPickupRequestCreateManySellerConnectionInputEnvelope = {
+  data: Prisma.LogisticsPickupRequestCreateManySellerConnectionInput | Prisma.LogisticsPickupRequestCreateManySellerConnectionInput[]
+  skipDuplicates?: boolean
+}
+
+export type LogisticsPickupRequestUpsertWithWhereUniqueWithoutSellerConnectionInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedUpdateWithoutSellerConnectionInput>
+  create: Prisma.XOR<Prisma.LogisticsPickupRequestCreateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedCreateWithoutSellerConnectionInput>
+}
+
+export type LogisticsPickupRequestUpdateWithWhereUniqueWithoutSellerConnectionInput = {
+  where: Prisma.LogisticsPickupRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateWithoutSellerConnectionInput, Prisma.LogisticsPickupRequestUncheckedUpdateWithoutSellerConnectionInput>
+}
+
+export type LogisticsPickupRequestUpdateManyWithWhereWithoutSellerConnectionInput = {
+  where: Prisma.LogisticsPickupRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPickupRequestUpdateManyMutationInput, Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutSellerConnectionInput>
+}
+
+export type LogisticsPickupRequestCreateWithoutPartnerInput = {
+  id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
+  shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
+  location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
+  driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
+  vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
+}
+
+export type LogisticsPickupRequestUncheckedCreateWithoutPartnerInput = {
+  id: string
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  shipmentId?: string | null
+  activeForShipmentId?: string | null
+  locationId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  driverProfileId?: string | null
+  vehicleId?: string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1125,6 +1543,9 @@ export type LogisticsPickupRequestUpdateManyWithWhereWithoutPartnerInput = {
 
 export type LogisticsPickupRequestCreateWithoutShipmentInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -1134,13 +1555,16 @@ export type LogisticsPickupRequestCreateWithoutShipmentInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partner: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
   driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
@@ -1148,7 +1572,12 @@ export type LogisticsPickupRequestCreateWithoutShipmentInput = {
 
 export type LogisticsPickupRequestUncheckedCreateWithoutShipmentInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1161,6 +1590,7 @@ export type LogisticsPickupRequestUncheckedCreateWithoutShipmentInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1197,6 +1627,9 @@ export type LogisticsPickupRequestUpdateManyWithWhereWithoutShipmentInput = {
 
 export type LogisticsPickupRequestCreateWithoutDriverInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -1206,13 +1639,16 @@ export type LogisticsPickupRequestCreateWithoutDriverInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partner: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
   location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
   vehicle?: Prisma.LogisticsVehicleCreateNestedOneWithoutPickupsInput
@@ -1220,8 +1656,13 @@ export type LogisticsPickupRequestCreateWithoutDriverInput = {
 
 export type LogisticsPickupRequestUncheckedCreateWithoutDriverInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1233,6 +1674,7 @@ export type LogisticsPickupRequestUncheckedCreateWithoutDriverInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1269,6 +1711,9 @@ export type LogisticsPickupRequestUpdateManyWithWhereWithoutDriverInput = {
 
 export type LogisticsPickupRequestCreateWithoutVehicleInput = {
   id: string
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -1278,13 +1723,16 @@ export type LogisticsPickupRequestCreateWithoutVehicleInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
   createdByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  partner: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  partner?: Prisma.LogisticsPartnerCreateNestedOneWithoutPickupsInput
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPickupRequestsInput
+  sellerConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutPickupsInput
   shipment?: Prisma.LogisticsShipmentCreateNestedOneWithoutPickupRequestsInput
   location?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsPickupsInput
   driver?: Prisma.LogisticsDriverProfileCreateNestedOneWithoutPickupsInput
@@ -1292,8 +1740,13 @@ export type LogisticsPickupRequestCreateWithoutVehicleInput = {
 
 export type LogisticsPickupRequestUncheckedCreateWithoutVehicleInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1305,6 +1758,7 @@ export type LogisticsPickupRequestUncheckedCreateWithoutVehicleInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1341,8 +1795,13 @@ export type LogisticsPickupRequestUpdateManyWithWhereWithoutVehicleInput = {
 
 export type LogisticsPickupRequestCreateManyLocationInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
   windowEndAt: Date | string
@@ -1354,6 +1813,7 @@ export type LogisticsPickupRequestCreateManyLocationInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1364,6 +1824,9 @@ export type LogisticsPickupRequestCreateManyLocationInput = {
 
 export type LogisticsPickupRequestUpdateWithoutLocationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1373,13 +1836,16 @@ export type LogisticsPickupRequestUpdateWithoutLocationInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutPickupsNestedInput
@@ -1387,8 +1853,13 @@ export type LogisticsPickupRequestUpdateWithoutLocationInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateWithoutLocationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1400,6 +1871,7 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutLocationInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1410,8 +1882,13 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutLocationInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyWithoutLocationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1423,6 +1900,239 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutLocationInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogisticsPickupRequestCreateManySellerAccountInput = {
+  id: string
+  logisticsPartnerId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  shipmentId?: string | null
+  activeForShipmentId?: string | null
+  locationId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  driverProfileId?: string | null
+  vehicleId?: string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsPickupRequestUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
+  shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
+  location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
+  driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
+  vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutPickupsNestedInput
+}
+
+export type LogisticsPickupRequestUncheckedUpdateWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  driverProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogisticsPickupRequestUncheckedUpdateManyWithoutSellerAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  driverProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogisticsPickupRequestCreateManySellerConnectionInput = {
+  id: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  shipmentId?: string | null
+  activeForShipmentId?: string | null
+  locationId?: string | null
+  state?: $Enums.LogisticsPickupState
+  windowStartAt: Date | string
+  windowEndAt: Date | string
+  timezone?: string | null
+  warehouseInstructions?: string | null
+  readinessConfirmedAt?: Date | string | null
+  driverProfileId?: string | null
+  vehicleId?: string | null
+  scheduledAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  failureReason?: string | null
+  packagesCollected?: number | null
+  completionIdempotencyKey?: string | null
+  createdByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LogisticsPickupRequestUpdateWithoutSellerConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
+  location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
+  driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
+  vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutPickupsNestedInput
+}
+
+export type LogisticsPickupRequestUncheckedUpdateWithoutSellerConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  driverProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogisticsPickupRequestUncheckedUpdateManyWithoutSellerConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
+  windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  warehouseInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readinessConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  driverProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1433,7 +2143,12 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutLocationInput = {
 
 export type LogisticsPickupRequestCreateManyPartnerInput = {
   id: string
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1446,6 +2161,7 @@ export type LogisticsPickupRequestCreateManyPartnerInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1456,6 +2172,9 @@ export type LogisticsPickupRequestCreateManyPartnerInput = {
 
 export type LogisticsPickupRequestUpdateWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1465,12 +2184,15 @@ export type LogisticsPickupRequestUpdateWithoutPartnerInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
   location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
@@ -1479,7 +2201,12 @@ export type LogisticsPickupRequestUpdateWithoutPartnerInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1492,6 +2219,7 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutPartnerInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1502,7 +2230,12 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutPartnerInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1515,6 +2248,7 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1525,7 +2259,12 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerInput = {
 
 export type LogisticsPickupRequestCreateManyShipmentInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1538,6 +2277,7 @@ export type LogisticsPickupRequestCreateManyShipmentInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1548,6 +2288,9 @@ export type LogisticsPickupRequestCreateManyShipmentInput = {
 
 export type LogisticsPickupRequestUpdateWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1557,13 +2300,16 @@ export type LogisticsPickupRequestUpdateWithoutShipmentInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutPickupsNestedInput
@@ -1571,7 +2317,12 @@ export type LogisticsPickupRequestUpdateWithoutShipmentInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1584,6 +2335,7 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutShipmentInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1594,7 +2346,12 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutShipmentInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1607,6 +2364,7 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1617,8 +2375,13 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentInput = {
 
 export type LogisticsPickupRequestCreateManyDriverInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1630,6 +2393,7 @@ export type LogisticsPickupRequestCreateManyDriverInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1640,6 +2404,9 @@ export type LogisticsPickupRequestCreateManyDriverInput = {
 
 export type LogisticsPickupRequestUpdateWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1649,13 +2416,16 @@ export type LogisticsPickupRequestUpdateWithoutDriverInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
   location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
   vehicle?: Prisma.LogisticsVehicleUpdateOneWithoutPickupsNestedInput
@@ -1663,8 +2433,13 @@ export type LogisticsPickupRequestUpdateWithoutDriverInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1676,6 +2451,7 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutDriverInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1686,8 +2462,13 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutDriverInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyWithoutDriverInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1699,6 +2480,7 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutDriverInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1709,8 +2491,13 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutDriverInput = {
 
 export type LogisticsPickupRequestCreateManyVehicleInput = {
   id: string
-  logisticsPartnerId: string
+  logisticsPartnerId?: string | null
+  sellerAccountId?: string | null
+  sellerCarrierConnectionId?: string | null
+  carrierPickupId?: string | null
+  carrierConfirmationNumber?: string | null
   shipmentId?: string | null
+  activeForShipmentId?: string | null
   locationId?: string | null
   state?: $Enums.LogisticsPickupState
   windowStartAt: Date | string
@@ -1722,6 +2509,7 @@ export type LogisticsPickupRequestCreateManyVehicleInput = {
   scheduledAt?: Date | string | null
   completedAt?: Date | string | null
   failedAt?: Date | string | null
+  cancelledAt?: Date | string | null
   failureReason?: string | null
   packagesCollected?: number | null
   completionIdempotencyKey?: string | null
@@ -1732,6 +2520,9 @@ export type LogisticsPickupRequestCreateManyVehicleInput = {
 
 export type LogisticsPickupRequestUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   windowEndAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1741,13 +2532,16 @@ export type LogisticsPickupRequestUpdateWithoutVehicleInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  partner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutPickupsNestedInput
+  partner?: Prisma.LogisticsPartnerUpdateOneWithoutPickupsNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPickupRequestsNestedInput
+  sellerConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutPickupsNestedInput
   shipment?: Prisma.LogisticsShipmentUpdateOneWithoutPickupRequestsNestedInput
   location?: Prisma.InventoryLocationUpdateOneWithoutLogisticsPickupsNestedInput
   driver?: Prisma.LogisticsDriverProfileUpdateOneWithoutPickupsNestedInput
@@ -1755,8 +2549,13 @@ export type LogisticsPickupRequestUpdateWithoutVehicleInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1768,6 +2567,7 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutVehicleInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1778,8 +2578,13 @@ export type LogisticsPickupRequestUncheckedUpdateWithoutVehicleInput = {
 
 export type LogisticsPickupRequestUncheckedUpdateManyWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierPickupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierConfirmationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activeForShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.EnumLogisticsPickupStateFieldUpdateOperationsInput | $Enums.LogisticsPickupState
   windowStartAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1791,6 +2596,7 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutVehicleInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   packagesCollected?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completionIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1804,7 +2610,12 @@ export type LogisticsPickupRequestUncheckedUpdateManyWithoutVehicleInput = {
 export type LogisticsPickupRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   logisticsPartnerId?: boolean
+  sellerAccountId?: boolean
+  sellerCarrierConnectionId?: boolean
+  carrierPickupId?: boolean
+  carrierConfirmationNumber?: boolean
   shipmentId?: boolean
+  activeForShipmentId?: boolean
   locationId?: boolean
   state?: boolean
   windowStartAt?: boolean
@@ -1817,13 +2628,16 @@ export type LogisticsPickupRequestSelect<ExtArgs extends runtime.Types.Extension
   scheduledAt?: boolean
   completedAt?: boolean
   failedAt?: boolean
+  cancelledAt?: boolean
   failureReason?: boolean
   packagesCollected?: boolean
   completionIdempotencyKey?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
+  partner?: boolean | Prisma.LogisticsPickupRequest$partnerArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.LogisticsPickupRequest$sellerAccountArgs<ExtArgs>
+  sellerConnection?: boolean | Prisma.LogisticsPickupRequest$sellerConnectionArgs<ExtArgs>
   shipment?: boolean | Prisma.LogisticsPickupRequest$shipmentArgs<ExtArgs>
   location?: boolean | Prisma.LogisticsPickupRequest$locationArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsPickupRequest$driverArgs<ExtArgs>
@@ -1835,7 +2649,12 @@ export type LogisticsPickupRequestSelect<ExtArgs extends runtime.Types.Extension
 export type LogisticsPickupRequestSelectScalar = {
   id?: boolean
   logisticsPartnerId?: boolean
+  sellerAccountId?: boolean
+  sellerCarrierConnectionId?: boolean
+  carrierPickupId?: boolean
+  carrierConfirmationNumber?: boolean
   shipmentId?: boolean
+  activeForShipmentId?: boolean
   locationId?: boolean
   state?: boolean
   windowStartAt?: boolean
@@ -1848,6 +2667,7 @@ export type LogisticsPickupRequestSelectScalar = {
   scheduledAt?: boolean
   completedAt?: boolean
   failedAt?: boolean
+  cancelledAt?: boolean
   failureReason?: boolean
   packagesCollected?: boolean
   completionIdempotencyKey?: boolean
@@ -1856,9 +2676,11 @@ export type LogisticsPickupRequestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LogisticsPickupRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "shipmentId" | "locationId" | "state" | "windowStartAt" | "windowEndAt" | "timezone" | "warehouseInstructions" | "readinessConfirmedAt" | "driverProfileId" | "vehicleId" | "scheduledAt" | "completedAt" | "failedAt" | "failureReason" | "packagesCollected" | "completionIdempotencyKey" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsPickupRequest"]>
+export type LogisticsPickupRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "logisticsPartnerId" | "sellerAccountId" | "sellerCarrierConnectionId" | "carrierPickupId" | "carrierConfirmationNumber" | "shipmentId" | "activeForShipmentId" | "locationId" | "state" | "windowStartAt" | "windowEndAt" | "timezone" | "warehouseInstructions" | "readinessConfirmedAt" | "driverProfileId" | "vehicleId" | "scheduledAt" | "completedAt" | "failedAt" | "cancelledAt" | "failureReason" | "packagesCollected" | "completionIdempotencyKey" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsPickupRequest"]>
 export type LogisticsPickupRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  partner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
+  partner?: boolean | Prisma.LogisticsPickupRequest$partnerArgs<ExtArgs>
+  sellerAccount?: boolean | Prisma.LogisticsPickupRequest$sellerAccountArgs<ExtArgs>
+  sellerConnection?: boolean | Prisma.LogisticsPickupRequest$sellerConnectionArgs<ExtArgs>
   shipment?: boolean | Prisma.LogisticsPickupRequest$shipmentArgs<ExtArgs>
   location?: boolean | Prisma.LogisticsPickupRequest$locationArgs<ExtArgs>
   driver?: boolean | Prisma.LogisticsPickupRequest$driverArgs<ExtArgs>
@@ -1868,7 +2690,9 @@ export type LogisticsPickupRequestInclude<ExtArgs extends runtime.Types.Extensio
 export type $LogisticsPickupRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LogisticsPickupRequest"
   objects: {
-    partner: Prisma.$LogisticsPartnerPayload<ExtArgs>
+    partner: Prisma.$LogisticsPartnerPayload<ExtArgs> | null
+    sellerAccount: Prisma.$SellerAccountPayload<ExtArgs> | null
+    sellerConnection: Prisma.$SellerCarrierConnectionPayload<ExtArgs> | null
     shipment: Prisma.$LogisticsShipmentPayload<ExtArgs> | null
     location: Prisma.$InventoryLocationPayload<ExtArgs> | null
     driver: Prisma.$LogisticsDriverProfilePayload<ExtArgs> | null
@@ -1876,11 +2700,50 @@ export type $LogisticsPickupRequestPayload<ExtArgs extends runtime.Types.Extensi
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    logisticsPartnerId: string
+    /**
+     * WHO ARRANGED IT - exactly one of the two, enforced by
+     * `chk_logistics_pickup_arranger`.
+     * 
+     * A delivery company inside the platform, or the seller's own account with
+     * an external carrier. Not both: a collection that named both would be
+     * booked twice, and the second van is the one nobody cancels. And not
+     * neither: a collection nobody arranged is a row that means nothing.
+     * 
+     * The second case is why this stopped being NOT NULL. A seller who
+     * connected their own DHL account books the van with DHL under their own
+     * contract, and there is no partner row anywhere in it - nor should there
+     * be, because inventing one would put a company in the partner directory
+     * that nobody here has a relationship with.
+     */
+    logisticsPartnerId: string | null
+    sellerAccountId: string | null
+    sellerCarrierConnectionId: string | null
+    /**
+     * What the carrier gave back. The confirmation number is the one a seller
+     * reads out on the telephone when the van has not arrived, which is the
+     * whole reason it is stored rather than derived.
+     */
+    carrierPickupId: string | null
+    carrierConfirmationNumber: string | null
     /**
      * Null for a standing collection that is not about one parcel.
      */
     shipmentId: string | null
+    /**
+     * The consignment this collection is LIVE for, and NULL once it is not.
+     * 
+     * The NULL-is-distinct idiom this schema uses throughout. Two vans is the
+     * expensive failure here - the second booking is chargeable, and the second
+     * van is the one nobody cancels - and a read-then-insert cannot prevent it:
+     * two dispatchers pressing "book a collection" in the same second both read
+     * no live pickup and both write one.
+     * 
+     * So it is a UNIQUE index instead. Set to `shipmentId` while the collection
+     * is live, cleared the moment it completes, fails or is cancelled. Any
+     * number of finished collections coexist for one consignment; a second live
+     * one collides in the database.
+     */
+    activeForShipmentId: string | null
     locationId: string | null
     state: $Enums.LogisticsPickupState
     /**
@@ -1911,6 +2774,7 @@ export type $LogisticsPickupRequestPayload<ExtArgs extends runtime.Types.Extensi
     scheduledAt: Date | null
     completedAt: Date | null
     failedAt: Date | null
+    cancelledAt: Date | null
     failureReason: string | null
     /**
      * How many packages the driver actually took. Less than the consignment's
@@ -2265,7 +3129,9 @@ readonly fields: LogisticsPickupRequestFieldRefs;
  */
 export interface Prisma__LogisticsPickupRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  partner<T extends Prisma.LogisticsPartnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartnerDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  partner<T extends Prisma.LogisticsPickupRequest$partnerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$partnerArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerAccount<T extends Prisma.LogisticsPickupRequest$sellerAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$sellerAccountArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerConnection<T extends Prisma.LogisticsPickupRequest$sellerConnectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$sellerConnectionArgs<ExtArgs>>): Prisma.Prisma__SellerCarrierConnectionClient<runtime.Types.Result.GetResult<Prisma.$SellerCarrierConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   shipment<T extends Prisma.LogisticsPickupRequest$shipmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$shipmentArgs<ExtArgs>>): Prisma.Prisma__LogisticsShipmentClient<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   location<T extends Prisma.LogisticsPickupRequest$locationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$locationArgs<ExtArgs>>): Prisma.Prisma__InventoryLocationClient<runtime.Types.Result.GetResult<Prisma.$InventoryLocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   driver<T extends Prisma.LogisticsPickupRequest$driverArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPickupRequest$driverArgs<ExtArgs>>): Prisma.Prisma__LogisticsDriverProfileClient<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2301,7 +3167,12 @@ export interface Prisma__LogisticsPickupRequestClient<T, Null = never, ExtArgs e
 export interface LogisticsPickupRequestFieldRefs {
   readonly id: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
   readonly logisticsPartnerId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
+  readonly sellerAccountId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
+  readonly sellerCarrierConnectionId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
+  readonly carrierPickupId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
+  readonly carrierConfirmationNumber: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
   readonly shipmentId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
+  readonly activeForShipmentId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
   readonly locationId: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
   readonly state: Prisma.FieldRef<"LogisticsPickupRequest", 'LogisticsPickupState'>
   readonly windowStartAt: Prisma.FieldRef<"LogisticsPickupRequest", 'DateTime'>
@@ -2314,6 +3185,7 @@ export interface LogisticsPickupRequestFieldRefs {
   readonly scheduledAt: Prisma.FieldRef<"LogisticsPickupRequest", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"LogisticsPickupRequest", 'DateTime'>
   readonly failedAt: Prisma.FieldRef<"LogisticsPickupRequest", 'DateTime'>
+  readonly cancelledAt: Prisma.FieldRef<"LogisticsPickupRequest", 'DateTime'>
   readonly failureReason: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
   readonly packagesCollected: Prisma.FieldRef<"LogisticsPickupRequest", 'Int'>
   readonly completionIdempotencyKey: Prisma.FieldRef<"LogisticsPickupRequest", 'String'>
@@ -2665,6 +3537,63 @@ export type LogisticsPickupRequestDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many LogisticsPickupRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * LogisticsPickupRequest.partner
+ */
+export type LogisticsPickupRequest$partnerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsPartner
+   */
+  select?: Prisma.LogisticsPartnerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsPartner
+   */
+  omit?: Prisma.LogisticsPartnerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsPartnerInclude<ExtArgs> | null
+  where?: Prisma.LogisticsPartnerWhereInput
+}
+
+/**
+ * LogisticsPickupRequest.sellerAccount
+ */
+export type LogisticsPickupRequest$sellerAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerAccount
+   */
+  select?: Prisma.SellerAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerAccount
+   */
+  omit?: Prisma.SellerAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerAccountInclude<ExtArgs> | null
+  where?: Prisma.SellerAccountWhereInput
+}
+
+/**
+ * LogisticsPickupRequest.sellerConnection
+ */
+export type LogisticsPickupRequest$sellerConnectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerCarrierConnection
+   */
+  select?: Prisma.SellerCarrierConnectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerCarrierConnection
+   */
+  omit?: Prisma.SellerCarrierConnectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerCarrierConnectionInclude<ExtArgs> | null
+  where?: Prisma.SellerCarrierConnectionWhereInput
 }
 
 /**

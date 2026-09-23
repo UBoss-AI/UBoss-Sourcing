@@ -13,6 +13,8 @@ import { notFound } from '../../domain/errors.js';
 import { getInvoiceForOrder } from '../../modules/invoicing/invoice.service.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { OrderStatusValues } from '../../domain/order-state-machine.js';
+import { describePackaging, type PackageType } from '../../domain/packaging.js';
+import { loadTypeForPackage } from '../../domain/freight-load.js';
 import { Permission } from '../../domain/permissions.js';
 import { prisma } from '../../infra/prisma.js';
 import {
@@ -80,6 +82,112 @@ function serialiseFulfilment(
     deliveryFromDate: fromDateColumn(order.fulfilmentDeliveryFrom),
     deliveryToDate: fromDateColumn(order.fulfilmentDeliveryTo),
     quoteId: order.fulfilmentQuoteId,
+  };
+}
+
+/**
+ * The frozen bulk breakdown of one line, or null.
+ *
+ * Null on every ordinary line, which is most of them - and null is what makes
+ * every screen that draws an order render exactly as it did before bulk
+ * ordering existed.
+ *
+ * Built from the SNAPSHOT and never from the seller's current configuration,
+ * which is the whole reason the snapshot exists: an order from last month
+ * describes the pallet it was actually bought as, after the seller has
+ * re-specified theirs.
+ *
+ * The per-line totals come from `describePackaging`, the same function the
+ * basket, the seller's preview and the freight request all use, so the figure
+ * on an invoice and the figure on a packing list are one calculation rather
+ * than four.
+ */
+function serialisePackaging(
+  packaging: {
+    packageType: string;
+    palletStandard: string | null;
+    containerType: string | null;
+    containerLoadMode: string | null;
+    containerLoadingMethod: string | null;
+    packageQuantity: number;
+    unitsPerPackage: number;
+    totalBaseUnits: number;
+    unitsPerCarton: number | null;
+    cartonsPerPallet: number | null;
+    palletsPerContainer: number | null;
+    cartonsPerContainer: number | null;
+    lengthMm: number | null;
+    widthMm: number | null;
+    heightMm: number | null;
+    grossWeightGrams: bigint | null;
+    cargoVolumeCm3: bigint | null;
+    packagePriceMinor: bigint;
+    unitPriceMinor: bigint;
+    currency: string;
+    appliedTierMinPackages: number | null;
+    profileVersion: number;
+    requiresFreightQuote: boolean;
+    packageSkuSnapshot: string | null;
+    incotermSnapshot: string | null;
+    originPortLabelSnapshot: string | null;
+  } | null
+    | undefined,
+): Record<string, unknown> | null {
+  if (packaging === null || packaging === undefined) return null;
+
+  const packageType = packaging.packageType as PackageType;
+
+  const breakdown = describePackaging({
+    packageType,
+    packageQuantity: packaging.packageQuantity,
+    unitsPerPackage: packaging.unitsPerPackage,
+    unitsPerCarton: packaging.unitsPerCarton,
+    cartonsPerPallet: packaging.cartonsPerPallet,
+    palletsPerContainer: packaging.palletsPerContainer,
+    cartonsPerContainer: packaging.cartonsPerContainer,
+    grossWeightGrams: packaging.grossWeightGrams,
+    cargoVolumeCm3: packaging.cargoVolumeCm3,
+  });
+
+  return {
+    packageType,
+    palletStandard: packaging.palletStandard,
+    containerType: packaging.containerType,
+    containerLoadMode: packaging.containerLoadMode,
+    containerLoadingMethod: packaging.containerLoadingMethod,
+    packageQuantity: packaging.packageQuantity,
+    unitsPerPackage: packaging.unitsPerPackage,
+    totalBaseUnits: packaging.totalBaseUnits,
+    unitsPerCarton: packaging.unitsPerCarton,
+    cartonsPerPallet: packaging.cartonsPerPallet,
+    palletsPerContainer: packaging.palletsPerContainer,
+    cartonsPerContainer: packaging.cartonsPerContainer,
+    totalCartons: breakdown.totalCartons,
+    totalPallets: breakdown.totalPallets,
+    totalContainers: breakdown.totalContainers,
+    lengthMm: packaging.lengthMm,
+    widthMm: packaging.widthMm,
+    heightMm: packaging.heightMm,
+    // The WHOLE line's weight and volume, not one package's. Strings, like
+    // every other large integer this API returns.
+    grossWeightGrams: breakdown.grossWeightGrams?.toString() ?? null,
+    volumeCm3: breakdown.volumeCm3?.toString() ?? null,
+    packagePriceMinor: packaging.packagePriceMinor.toString(),
+    unitPriceMinor: packaging.unitPriceMinor.toString(),
+    currency: packaging.currency,
+    appliedTierMinPackages: packaging.appliedTierMinPackages,
+    profileVersion: packaging.profileVersion,
+    requiresFreightQuote: packaging.requiresFreightQuote,
+    loadType: loadTypeForPackage(
+      packageType,
+      packaging.containerLoadMode as 'FCL' | 'LCL' | null,
+    ),
+    packageSku: packaging.packageSkuSnapshot,
+    incoterm: packaging.incotermSnapshot,
+    originPortLabel: packaging.originPortLabelSnapshot,
+    // The stepper's bounds are NOT here. An order is placed; there is nothing
+    // left to step. Sending them would invite a screen to offer a control that
+    // cannot do anything.
   };
 }
 
@@ -182,7 +290,15 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
       // order simply does not match, so it 404s rather than 403s.
       where: { id, customerProfileId: auth.customerProfileId ?? '' },
       include: {
-        items: true,
+        /*
+         * The frozen bulk breakdown travels with the line.
+         *
+         * Null on every ordinary line, which is most of them. Included so the
+         * order page can show "2 UK pallets x 50 cartons x 24 units" beside
+         * the 2,400 - a line reading 2,400 against a five-figure total is a
+         * number nobody can check.
+         */
+        items: { include: { packaging: true } },
         statusHistory: { orderBy: { createdAt: 'asc' } },
         shipments: true,
         approvals: true,
@@ -236,6 +352,21 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
             dispatchedAt: true,
             deliveredAt: true,
             assignedPartner: { select: { displayName: true } },
+            /*
+             * How the seller said this would be delivered.
+             *
+             * The buyer is told the seller's APPROVED public name, which is
+             * not always the legal one and is never the seller's internal
+             * shorthand. Nothing else about the arrangement reaches them.
+             */
+            sellerFulfilmentMethod: { select: { publicDisplayName: true, mode: true } },
+            /*
+             * Only the tracking mode, and only so the buyer can be told
+             * whether updates arrive on their own or are entered by hand.
+             * Never the provider's credentials, the account number, or
+             * anything else about the seller's arrangement with them.
+             */
+            sellerCarrierConnection: { select: { trackingMode: true } },
           },
         },
         // Which building it is coming from. The customer chose it at
@@ -319,6 +450,7 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
             unitQuantity: item.unitQuantity,
             piecesPerUnit: item.piecesPerUnitSnapshot,
           },
+          packaging: serialisePackaging(item.packaging),
           unitPrice: serialiseMoney(item.unitPriceMinor, order.currency),
           lineSubtotal: serialiseMoney(item.lineSubtotalMinor, order.currency),
           tax: serialiseMoney(item.taxAmountMinor, order.currency),
@@ -375,7 +507,19 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
                 : (groupShipmentCounts.get(consignment.sellerOrderGroupId) ?? 0) === 0,
             )
             .map((consignment) => ({
-              carrier: consignment.assignedPartner?.displayName ?? null,
+              /*
+               * The carrier actually holding it, or the seller's approved
+               * public name for how they deliver.
+               *
+               * The assigned carrier wins because it is the company whose van
+               * will arrive. The method's name is the fallback for a parcel
+               * going by the seller's own arrangement, where there is no third
+               * party to name.
+               */
+              carrier:
+                consignment.assignedPartner?.displayName ??
+                consignment.sellerFulfilmentMethod?.publicDisplayName ??
+                null,
               trackingNumber: consignment.trackingNumber,
               trackingUrl: consignment.carrierTrackingUrl,
               status: consignment.status,
@@ -383,6 +527,22 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
               deliveredAt: consignment.deliveredAt?.toISOString() ?? null,
               sentBy:
                 sellerNameByGroup.get(consignment.sellerOrderGroupId ?? '') ?? null,
+              /*
+               * Whether updates arrive on their own.
+               *
+               * FALSE means somebody types them in, or they live on the
+               * carrier's own page - which is the India Post case. A buyer who
+               * is not told sits refreshing a page waiting for movement that
+               * was never going to appear there, and then rings somebody.
+               *
+               * Null where there is no carrier account behind it at all, which
+               * is every consignment carried inside this system: those DO move
+               * on their own, as the portal records them.
+               */
+              trackingIsAutomatic:
+                consignment.sellerCarrierConnection === null
+                  ? null
+                  : consignment.sellerCarrierConnection.trackingMode === 'AUTOMATIC_API',
             })),
         ],
         approval: order.approvals[0] ?? null,
@@ -494,7 +654,11 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
       const order = await prisma.order.findUnique({
         where: { id },
         include: {
-          items: true,
+          // The same breakdown the buyer sees, on the staff screen. A support
+          // conversation about a pallet order is two people reading one fact,
+          // which it stops being the moment one of them has the arithmetic and
+          // the other has only the total.
+          items: { include: { packaging: true } },
           statusHistory: { orderBy: { createdAt: 'asc' } },
           approvals: true,
           payments: true,
@@ -554,6 +718,7 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
               unitQuantity: item.unitQuantity,
               piecesPerUnit: item.piecesPerUnitSnapshot,
             },
+            packaging: serialisePackaging(item.packaging),
             unitPrice: serialiseMoney(item.unitPriceMinor, order.currency),
             lineSubtotal: serialiseMoney(item.lineSubtotalMinor, order.currency),
             tax: serialiseMoney(item.taxAmountMinor, order.currency),

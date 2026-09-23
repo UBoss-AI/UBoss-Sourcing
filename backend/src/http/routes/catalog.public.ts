@@ -53,6 +53,7 @@ import {
   sellerSellUnit,
 } from '../../domain/ordering-unit.js';
 import { cheapestOfferFor } from '../../modules/catalog/marketplace-price.service.js';
+import { listBuyableOptions } from '../../modules/seller/packaging.service.js';
 import type { PUBLIC_PRODUCT_SELECT } from '../../modules/catalog/catalog.visibility.js';
 import {
   publicProductSelect,
@@ -1440,6 +1441,15 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
      * products, which are stepped by the carton.
      */
     let offerTerms: {
+      /**
+       * The offer's own id, so the page can read the packaging it is sold in.
+       *
+       * Added alongside the terms rather than fetched separately, on the same
+       * reasoning `OFFER_SELL_TERMS` states: a caller that has the terms and
+       * then goes looking for the id is a caller that can end up describing
+       * one offer's packaging beside another offer's minimum.
+       */
+      id: string;
       minimumOrderQuantity: number;
       orderIncrement: number;
       maximumOrderQuantity: number | null;
@@ -1457,6 +1467,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         // shows the "from" figure rather than whichever row came back first.
         orderBy: { priceMinor: 'asc' },
         select: {
+          id: true,
           priceMinor: true,
           compareAtPriceMinor: true,
           minimumOrderQuantity: true,
@@ -1634,6 +1645,27 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
        */
       taxNote: shelf.setup.context.reason,
       soldInCurrencies: soldIn,
+      /**
+       * The packages this seller will sell this in - carton, pallet, container.
+       *
+       * On the DETAIL page only, and deliberately not on the grid. A card has
+       * no room for "2 UK pallets x 50 cartons x 24 units" and the grid draws
+       * forty of them, which would be forty extra queries for a sentence
+       * nobody can read at that size. This page has already resolved the one
+       * offer the basket will bind, so it is one query for the page.
+       *
+       * EMPTY is the ordinary answer and always will be for most of the
+       * catalogue: an offer with no packaging profile returns `[]`, and an
+       * empty array is what makes the storefront draw its plain quantity box
+       * with no packaging controls at all.
+       *
+       * Only ACTIVE, enabled options appear. A pallet the seller switched on
+       * and has not finished describing is held out of the selector rather
+       * than offered at a size nobody has stated - see
+       * `PackagingOptionState.INCOMPLETE`.
+       */
+      packagingOptions:
+        offerTerms === null ? [] : await listBuyableOptions(offerTerms.id),
     });
   });
 

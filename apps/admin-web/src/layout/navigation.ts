@@ -264,6 +264,21 @@ export const NAVIGATION: NavGroup[] = [
         attentionKeys: ['logisticsExceptions'],
       },
       {
+        /*
+         * Above the carrier register on purpose.
+         *
+         * This is the whole picture - every provider, every delivery company
+         * across every seller, and what is waiting for a decision. The
+         * register below it is one slice. An operator who meets the narrow
+         * screen first has to work out that the wide one exists.
+         */
+        labelKey: 'nav.deliveryCatalogue',
+        to: '/logistics/delivery-catalogue',
+        icon: CarrierIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.logisticsPartners',
         to: '/logistics/partners',
         icon: CarrierIcon,

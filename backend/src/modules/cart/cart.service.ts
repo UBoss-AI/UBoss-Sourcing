@@ -34,6 +34,15 @@ import {
   type SellUnitSpec,
   type OrderingUnit,
 } from '../../domain/ordering-unit.js';
+import {
+  describePackaging,
+  packagingSellUnit,
+  pricePackage,
+  wholePackagesAvailable,
+  type PackageType,
+} from '../../domain/packaging.js';
+import { loadTypeForPackage, needsManualFreight } from '../../domain/freight-load.js';
+import { loadBuyableOption, type BuyablePackagingOption } from '../seller/packaging.service.js';
 import { newId, variantKeyOf } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
@@ -69,6 +78,21 @@ export interface CartLineIssue {
   code: string;
   message: string;
   meta?: Record<string, string | number | boolean | null>;
+  /**
+   * Whether this issue stops the basket going to checkout.
+   *
+   * ABSENT MEANS TRUE, and that default is the whole point: every issue that
+   * existed before this field did is a genuine blocker - an unavailable
+   * product, a price that cannot be resolved, a purchasing limit - and adding
+   * the field must not quietly let any of them through.
+   *
+   * It exists because bulk ordering introduced the first line notice that is
+   * NOT a failure. "Delivery for this container is quoted rather than priced
+   * instantly" is the correct and expected state of a container order; a
+   * basket that refused to go to checkout over it would make container
+   * ordering impossible while telling the buyer nothing was wrong.
+   */
+  isBlocking?: boolean;
 }
 
 export interface CartLine {
@@ -151,8 +175,171 @@ export interface CartLine {
    * before the order is placed.
    */
   note: string | null;
+  /**
+   * The bulk breakdown this line was bought at, or null for an ordinary line.
+   *
+   * Read straight off the frozen snapshot. The basket shows "2 UK pallets x 50
+   * cartons x 24 units = 2,400 units" from these figures and from nothing
+   * else, so the sentence keeps saying what the shopper agreed to even after
+   * the seller re-specifies the pallet.
+   */
+  packaging: CartLinePackaging | null;
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
+}
+
+/** The frozen breakdown, as the API returns it. Money as strings, as always. */
+export interface CartLinePackaging {
+  packageType: PackageType;
+  palletStandard: string | null;
+  containerType: string | null;
+  containerLoadMode: string | null;
+  containerLoadingMethod: string | null;
+  packageQuantity: number;
+  unitsPerPackage: number;
+  totalBaseUnits: number;
+  unitsPerCarton: number | null;
+  cartonsPerPallet: number | null;
+  palletsPerContainer: number | null;
+  cartonsPerContainer: number | null;
+  totalCartons: number | null;
+  totalPallets: number | null;
+  totalContainers: number | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  /** The WHOLE line's gross weight and volume, not one package's. */
+  grossWeightGrams: string | null;
+  volumeCm3: string | null;
+  packagePriceMinor: string;
+  unitPriceMinor: string;
+  currency: string;
+  appliedTierMinPackages: number | null;
+  profileVersion: number;
+  requiresFreightQuote: boolean;
+  loadType: string;
+  /** The seller's terms for this package, so the stepper steps correctly. */
+  minimumPackages: number;
+  packageIncrement: number;
+  maximumPackages: number | null;
+}
+
+/**
+ * The word for a package type in a sentence the server writes.
+ *
+ * Deliberately minimal and deliberately English. Every sentence a BUYER reads
+ * is composed in the frontend from structured figures in their own language;
+ * this is only for the handful of server-side messages where a code alone
+ * would be unreadable in a log or an API consumer's fallback.
+ */
+/**
+ * The frozen breakdown, expanded into the whole line's figures.
+ *
+ * The per-line totals - cartons, pallets, weight, volume - are computed by
+ * `describePackaging`, the same function the seller's preview and the freight
+ * request use, so the figure on the basket, the figure on the quote request
+ * and the figure on the packing list are one calculation rather than three.
+ *
+ * The seller's LIVE terms come in separately and are used only for the
+ * stepper's bounds. Nothing about what the package IS is read from them.
+ */
+function toCartLinePackaging(
+  snapshot: {
+    packageType: string;
+    palletStandard: string | null;
+    containerType: string | null;
+    containerLoadMode: string | null;
+    containerLoadingMethod: string | null;
+    packageQuantity: number;
+    unitsPerPackage: number;
+    totalBaseUnits: number;
+    unitsPerCarton: number | null;
+    cartonsPerPallet: number | null;
+    palletsPerContainer: number | null;
+    cartonsPerContainer: number | null;
+    lengthMm: number | null;
+    widthMm: number | null;
+    heightMm: number | null;
+    grossWeightGrams: bigint | null;
+    cargoVolumeCm3: bigint | null;
+    packagePriceMinor: bigint;
+    unitPriceMinor: bigint;
+    currency: string;
+    appliedTierMinPackages: number | null;
+    profileVersion: number;
+    requiresFreightQuote: boolean;
+  } | null,
+  liveTerms: {
+    minimumPackages: number;
+    packageIncrement: number;
+    maximumPackages: number | null;
+  } | null,
+): CartLinePackaging | null {
+  if (snapshot === null) return null;
+
+  const packageType = snapshot.packageType as PackageType;
+
+  const breakdown = describePackaging({
+    packageType,
+    packageQuantity: snapshot.packageQuantity,
+    unitsPerPackage: snapshot.unitsPerPackage,
+    unitsPerCarton: snapshot.unitsPerCarton,
+    cartonsPerPallet: snapshot.cartonsPerPallet,
+    palletsPerContainer: snapshot.palletsPerContainer,
+    cartonsPerContainer: snapshot.cartonsPerContainer,
+    grossWeightGrams: snapshot.grossWeightGrams,
+    cargoVolumeCm3: snapshot.cargoVolumeCm3,
+  });
+
+  return {
+    packageType,
+    palletStandard: snapshot.palletStandard,
+    containerType: snapshot.containerType,
+    containerLoadMode: snapshot.containerLoadMode,
+    containerLoadingMethod: snapshot.containerLoadingMethod,
+    packageQuantity: snapshot.packageQuantity,
+    unitsPerPackage: snapshot.unitsPerPackage,
+    totalBaseUnits: snapshot.totalBaseUnits,
+    unitsPerCarton: snapshot.unitsPerCarton,
+    cartonsPerPallet: snapshot.cartonsPerPallet,
+    palletsPerContainer: snapshot.palletsPerContainer,
+    cartonsPerContainer: snapshot.cartonsPerContainer,
+    totalCartons: breakdown.totalCartons,
+    totalPallets: breakdown.totalPallets,
+    totalContainers: breakdown.totalContainers,
+    lengthMm: snapshot.lengthMm,
+    widthMm: snapshot.widthMm,
+    heightMm: snapshot.heightMm,
+    grossWeightGrams: breakdown.grossWeightGrams?.toString() ?? null,
+    volumeCm3: breakdown.volumeCm3?.toString() ?? null,
+    packagePriceMinor: snapshot.packagePriceMinor.toString(),
+    unitPriceMinor: snapshot.unitPriceMinor.toString(),
+    currency: snapshot.currency,
+    appliedTierMinPackages: snapshot.appliedTierMinPackages,
+    profileVersion: snapshot.profileVersion,
+    requiresFreightQuote: snapshot.requiresFreightQuote,
+    loadType: loadTypeForPackage(
+      packageType,
+      snapshot.containerLoadMode as 'FCL' | 'LCL' | null,
+    ),
+    minimumPackages: liveTerms?.minimumPackages ?? 1,
+    packageIncrement: liveTerms?.packageIncrement ?? 1,
+    maximumPackages: liveTerms?.maximumPackages ?? null,
+  };
+}
+
+function describePackageWord(packageType: string): string {
+  switch (packageType) {
+    case 'CARTON':
+      return 'carton order';
+    case 'UK_PALLET':
+    case 'US_PALLET':
+      return 'pallet order';
+    case 'CONTAINER':
+      return 'container order';
+    default:
+      return 'bulk order';
+  }
 }
 
 export interface CartView {
@@ -176,6 +363,16 @@ export interface CartView {
   requiresApproval: boolean;
   approvalReason: string | null;
   itemCount: number;
+  /**
+   * True when something in this basket has to be quoted for delivery rather
+   * than priced instantly - a container, or a pallet no carrier on the
+   * seller's account can take.
+   *
+   * NOT a blocker. The goods are priced; the FREIGHT is not, and the checkout
+   * says so and offers to raise the request. A basket that refused to proceed
+   * over it would make container ordering impossible.
+   */
+  requiresFreightQuote: boolean;
 }
 
 export interface AppliedCouponView {
@@ -200,6 +397,42 @@ export interface OfferedCouponView {
 }
 
 /** A priced cart plus everything checkout needs, without re-querying. */
+/**
+ * The frozen breakdown as the database holds it.
+ *
+ * Deliberately the storage shape and not the display one: `bigint` money,
+ * per-PACKAGE weight and volume, no derived totals. Checkout copies it onto
+ * `OrderItemPackaging` column for column, which is what makes an order's
+ * snapshot provably the basket's rather than a recomputation that agreed with
+ * it on the day.
+ */
+export interface CartPackagingSnapshot {
+  packageType: string;
+  palletStandard: string | null;
+  containerType: string | null;
+  containerLoadMode: string | null;
+  containerLoadingMethod: string | null;
+  packageQuantity: number;
+  unitsPerPackage: number;
+  totalBaseUnits: number;
+  unitsPerCarton: number | null;
+  cartonsPerPallet: number | null;
+  palletsPerContainer: number | null;
+  cartonsPerContainer: number | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  grossWeightGrams: bigint | null;
+  cargoVolumeCm3: bigint | null;
+  packagePriceMinor: bigint;
+  unitPriceMinor: bigint;
+  currency: string;
+  appliedTierMinPackages: number | null;
+  profileVersion: number;
+  snapshotAt: Date;
+  requiresFreightQuote: boolean;
+}
+
 export interface ResolvedCart {
   cartId: string;
   currency: string;
@@ -221,6 +454,15 @@ export interface ResolvedCart {
      * well.
      */
     sellerOfferId: string | null;
+    /**
+     * The bulk breakdown EXACTLY as it is stored on the basket line, or null.
+     *
+     * The raw row rather than `CartLine.packaging`, which has been expanded
+     * for display - its weight is the whole line's, not one package's.
+     * Checkout copies these columns across verbatim, so the order's snapshot
+     * is byte-for-byte the basket's and nothing is recomputed on the way.
+     */
+    packaging: CartPackagingSnapshot | null;
   }[];
   blockingIssues: CartLineIssue[];
   /** Category of each priced line, positionally aligned with `pricing.lines`. */
@@ -420,8 +662,41 @@ export async function resolveCart(
           orderIncrement: true,
           maximumOrderQuantity: true,
           sellerAccount: { select: { displayName: true, status: true } },
+          /*
+           * The seller's CURRENT packaging, loaded beside the line's frozen
+           * one so the two can be compared.
+           *
+           * Compared, never applied. The line keeps what it was added at -
+           * that is the whole purpose of the snapshot - and a difference
+           * becomes a message on the line rather than a silent change to what
+           * is in somebody's basket.
+           */
+          packagingProfile: {
+            select: {
+              version: true,
+              options: {
+                select: {
+                  packageType: true,
+                  state: true,
+                  isEnabled: true,
+                  unitsPerPackage: true,
+                  minimumPackages: true,
+                  packageIncrement: true,
+                  maximumPackages: true,
+                },
+              },
+            },
+          },
         },
       },
+      /*
+       * What this line was bought as, frozen.
+       *
+       * Null on every ordinary line, which is most of them, and its absence is
+       * what makes the basket render exactly as it did before bulk ordering
+       * existed.
+       */
+      packaging: true,
     },
   });
 
@@ -486,6 +761,9 @@ export async function resolveCart(
     issues: CartLineIssue[];
     ordering: CartLine['ordering'];
     note: string | null;
+    packaging: CartLinePackaging | null;
+    /** The storage shape, for checkout to copy across. See `sourceItems`. */
+    rawPackaging: CartPackagingSnapshot | null;
   }[] = [];
 
   for (const item of items) {
@@ -603,10 +881,83 @@ export async function resolveCart(
       });
     }
 
+    /*
+     * A BULK line is priced from its own snapshot, not from the offer.
+     *
+     * The seller's `priceMinor` is the price of one loose unit. A package is
+     * priced by the seller as a package - at a band, or outright - and the
+     * two are deliberately not the same number: that is what a bulk discount
+     * IS. Pricing a pallet line off the loose unit price would silently throw
+     * away the discount the buyer was shown and charge them list.
+     *
+     * `unitPriceMinor` on the snapshot is exact rather than truncated: the
+     * package price is required to divide by what is in the package, so
+     * `unitPrice x quantity` is the package price times the package count, to
+     * the paise. See `validatePackagingOption`.
+     */
     const listedPriceMinor: Minor =
-      offer !== null && offer.currency === currency
-        ? offer.priceMinor
-        : (price?.basePriceMinor ?? 0n);
+      item.packaging !== null && item.packaging.currency === currency
+        ? item.packaging.unitPriceMinor
+        : offer !== null && offer.currency === currency
+          ? offer.priceMinor
+          : (price?.basePriceMinor ?? 0n);
+
+    if (item.packaging !== null) {
+      const live = offer?.packagingProfile?.options.find(
+        (option) => option.packageType === item.packaging?.packageType,
+      );
+
+      if (live === undefined || !live.isEnabled || live.state !== 'ACTIVE') {
+        issues.push({
+          code: ErrorCode.PACKAGING_OPTION_NOT_AVAILABLE,
+          message: `${offer?.sellerAccount.displayName ?? 'The seller'} no longer offers ${product.name} in this packaging.`,
+          meta: { productId: product.id, packageType: item.packaging.packageType },
+        });
+      } else if (live.unitsPerPackage !== item.packaging.unitsPerPackage) {
+        /*
+         * Told, not applied.
+         *
+         * The line still holds the pallet the shopper agreed to, and it will
+         * be ordered and invoiced at that size. What has changed is what the
+         * seller would pack TODAY, and a buyer about to commit to a five
+         * figure order is entitled to know the two are no longer the same.
+         */
+        issues.push({
+          code: ErrorCode.PACKAGING_SNAPSHOT_STALE,
+          message: `${offer?.sellerAccount.displayName ?? 'The seller'} has changed what goes in one of these packages since you added it.`,
+          meta: {
+            productId: product.id,
+            packageType: item.packaging.packageType,
+            snapshotUnitsPerPackage: item.packaging.unitsPerPackage,
+            currentUnitsPerPackage: live.unitsPerPackage,
+          },
+        });
+      }
+
+      if (item.packaging.requiresFreightQuote) {
+        /*
+         * Not an error, and deliberately worded so nothing renders it as one.
+         *
+         * A container is genuinely not a thing with an instant delivery price,
+         * and saying so is the honest answer rather than a failure. The
+         * checkout offers to raise the quotation; `assertCheckoutReady` is
+         * what decides whether the order may go through without one.
+         */
+        issues.push({
+          code: ErrorCode.FREIGHT_QUOTE_REQUIRED,
+          message: `Delivery for this ${describePackageWord(item.packaging.packageType)} is quoted rather than priced instantly.`,
+          isBlocking: false,
+          meta: {
+            productId: product.id,
+            packageType: item.packaging.packageType,
+            loadType: loadTypeForPackage(
+              item.packaging.packageType,
+              item.packaging.containerLoadMode,
+            ),
+          },
+        });
+      }
+    }
 
     // Under FLAT_RATE this returns the catalogue's own figures untouched.
     // Under an EU treatment it resolves the destination's rate for this
@@ -676,18 +1027,40 @@ export async function resolveCart(
        * agreed at 500 to a carton keeps reading "2 cartons (1,000 pieces)"
        * even after the deployment re-specifies a carton at 250.
        */
-      ordering: {
-        unit: item.orderingUnit,
-        unitQuantity: item.unitQuantity,
-        piecesPerUnit: item.piecesPerUnitSnapshot,
-        minimumOrderQuantity: offer?.minimumOrderQuantity ?? 1,
-        orderIncrement: offer?.orderIncrement ?? 1,
-        maximumOrderQuantity: offer?.maximumOrderQuantity ?? null,
-      },
+      ordering: (() => {
+        // A bulk line steps by PACKAGES, at the seller's own package terms.
+        // Handing the stepper the offer's piece minimum would let a buyer
+        // press minus on a four-pallet minimum and watch nothing move.
+        const livePackage =
+          item.packaging === null
+            ? undefined
+            : offer?.packagingProfile?.options.find(
+                (option) => option.packageType === item.packaging?.packageType,
+              );
+
+        return {
+          unit: item.orderingUnit,
+          unitQuantity: item.unitQuantity,
+          piecesPerUnit: item.piecesPerUnitSnapshot,
+          minimumOrderQuantity: livePackage?.minimumPackages ?? offer?.minimumOrderQuantity ?? 1,
+          orderIncrement: livePackage?.packageIncrement ?? offer?.orderIncrement ?? 1,
+          maximumOrderQuantity:
+            item.packaging === null
+              ? (offer?.maximumOrderQuantity ?? null)
+              : (livePackage?.maximumPackages ?? null),
+        };
+      })(),
       // The buyer's own words about this product. Carried through the basket
       // so it can be shown back and edited before the order is placed, and
       // frozen onto the order line at checkout.
       note: item.note,
+      packaging: toCartLinePackaging(
+        item.packaging,
+        offer?.packagingProfile?.options.find(
+          (option) => option.packageType === item.packaging?.packageType,
+        ) ?? null,
+      ),
+      rawPackaging: item.packaging,
     });
   }
 
@@ -820,6 +1193,7 @@ export async function resolveCart(
       },
       ordering: meta.ordering,
       note: meta.note,
+      packaging: meta.packaging,
       issues: meta.issues,
     };
   });
@@ -846,6 +1220,7 @@ export async function resolveCart(
       quantity: meta.quantity,
       isStockTracked: meta.isStockTracked,
       sellerOfferId: meta.sellerOfferId,
+      packaging: meta.rawPackaging,
     })),
     blockingIssues,
     lineCategoryIds: couponLines.map((line) => line.categoryId),
@@ -882,8 +1257,19 @@ async function resolveShipping(
 export function toCartView(resolved: ResolvedCart): CartView {
   const { totals } = resolved.pricing;
 
-  const hasLineIssue = resolved.lines.some((line) => line.issues.length > 0);
+  // `isBlocking !== false` rather than `=== true`: the field is optional and
+  // its absence has always meant "this stops checkout". See `CartLineIssue`.
+  const hasLineIssue = resolved.lines.some((line) =>
+    line.issues.some((issue) => issue.isBlocking !== false),
+  );
   const isEmpty = resolved.lines.length === 0;
+
+  // Whether anything in this basket has to be quoted rather than priced. The
+  // checkout draws the freight panel from this rather than re-deriving it from
+  // the lines, so one answer reaches the buyer.
+  const requiresFreightQuote = resolved.lines.some(
+    (line) => line.packaging?.requiresFreightQuote === true,
+  );
 
   return {
     cartId: resolved.cartId,
@@ -903,6 +1289,7 @@ export function toCartView(resolved: ResolvedCart): CartView {
     requiresApproval: resolved.limits.requiresApproval,
     approvalReason: resolved.limits.approvalReason,
     itemCount: resolved.lines.reduce((total, line) => total + line.quantity, 0),
+    requiresFreightQuote,
   };
 }
 
@@ -1072,6 +1459,22 @@ export interface AddItemInput {
    * `noteFor` below, which is where the rule is stated and why.
    */
   note?: string | null;
+  /**
+   * The seller's PACKAGE the buyer chose, and how many of them.
+   *
+   * Absent on every line that is not a bulk order, which is most of them.
+   * When present, `quantity`, `orderingUnit` and `unitQuantity` above are all
+   * ignored: the base-unit count is worked out here, from the seller's own
+   * stored `SellerPackagingOption`, and never from anything in this body. A
+   * client that could post its own "units per pallet" could post 1 and take a
+   * pallet out of a warehouse for the price of a bottle.
+   *
+   * Only meaningful on a SELLER's line. Bulk packaging is a seller's
+   * description of their own goods; the operator's own catalogue has its
+   * carton and is untouched by any of this.
+   */
+  packageType?: PackageType | null;
+  packageQuantity?: number | null;
 }
 
 /** As long as `CartItem.note`. Kept here so the refusal names the same figure. */
@@ -1200,6 +1603,144 @@ interface WantedLine {
   piecesPerUnitSnapshot: number;
   /** Normalised, or null where none was given. */
   note: string | null;
+  /** The bulk breakdown to freeze onto the line, or null for an ordinary one. */
+  packaging: PackagingSnapshotDraft | null;
+}
+
+/**
+ * Everything that gets frozen onto `CartItemPackaging`, built on the server.
+ *
+ * Assembled ONCE, from the seller's stored option, at the moment the buyer
+ * chooses. Not re-derived on read, and not re-derived at checkout: the whole
+ * value of the snapshot is that it stops meaning something different when the
+ * seller edits the option tomorrow.
+ */
+interface PackagingSnapshotDraft {
+  packageType: PackageType;
+  palletStandard: string | null;
+  containerType: string | null;
+  containerLoadMode: string | null;
+  containerLoadingMethod: string | null;
+  packageQuantity: number;
+  unitsPerPackage: number;
+  totalBaseUnits: number;
+  unitsPerCarton: number | null;
+  cartonsPerPallet: number | null;
+  palletsPerContainer: number | null;
+  cartonsPerContainer: number | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  grossWeightGrams: bigint | null;
+  cargoVolumeCm3: bigint | null;
+  packagePriceMinor: bigint;
+  unitPriceMinor: bigint;
+  currency: string;
+  appliedTierMinPackages: number | null;
+  profileVersion: number;
+  requiresFreightQuote: boolean;
+}
+
+/**
+ * Turn "2 UK pallets" into a piece count and a frozen breakdown.
+ *
+ * The quantity goes through `resolveSellUnitQuantity` exactly as a carton or a
+ * piece does - same minimum, same step, same overflow ceiling, same
+ * snapshotting - because a pallet is a sell unit and this system has one
+ * quantity engine.
+ */
+function resolveBulkLine(input: {
+  option: BuyablePackagingOption;
+  packageQuantity: number;
+  field: string;
+}): { resolved: ReturnType<typeof resolveSellUnitQuantity>; packaging: PackagingSnapshotDraft } {
+  const { option } = input;
+
+  const spec = packagingSellUnit({
+    packageType: option.packageType,
+    unitsPerPackage: option.unitsPerPackage,
+    minimumPackages: option.minimumPackages,
+    packageIncrement: option.packageIncrement,
+    maximumPackages: option.maximumPackages,
+  });
+
+  const resolved = resolveSellUnitQuantity({
+    spec,
+    unit: spec.unit,
+    unitQuantity: input.packageQuantity,
+    pieces: 0,
+    field: input.field,
+  });
+
+  const price = pricePackage({
+    priceMode: option.priceMode,
+    pricePerPackageMinor: option.pricePerPackageMinor,
+    unitPriceMinor: option.offerPriceMinor,
+    unitsPerPackage: option.unitsPerPackage,
+    tiers: option.tiers,
+    packageQuantity: resolved.unitQuantity,
+  });
+
+  /*
+   * A package price that does not divide by what is in the package cannot be
+   * charged correctly, and is refused rather than rounded.
+   *
+   * `validatePackagingOption` will not let an option reach ACTIVE in that
+   * state, so this is unreachable for anything configured since the rule
+   * existed. It is here for a row saved before it, and it fails CLOSED: the
+   * alternative is a line whose unit price times its quantity is not the
+   * package price the buyer was shown, which is a total that does not add up.
+   */
+  if (price.isIndivisible) {
+    throw badRequest(
+      ErrorCode.PACKAGING_OPTION_INCOMPLETE,
+      'This packaging is priced in a way we cannot charge exactly. The seller has been asked to restate it.',
+      [{ field: input.field, code: 'PRICE_NOT_DIVISIBLE' }],
+    );
+  }
+
+  const breakdown = describePackaging({
+    packageType: option.packageType,
+    packageQuantity: resolved.unitQuantity,
+    unitsPerPackage: option.unitsPerPackage,
+    unitsPerCarton: option.unitsPerCarton,
+    cartonsPerPallet: option.cartonsPerPallet,
+    palletsPerContainer: option.palletsPerContainer,
+    cartonsPerContainer: option.cartonsPerContainer,
+    grossWeightGrams: option.grossWeightGrams,
+    cargoVolumeCm3: option.cargoVolumeCm3,
+  });
+
+  const loadType = loadTypeForPackage(option.packageType, option.containerLoadMode);
+
+  return {
+    resolved,
+    packaging: {
+      packageType: option.packageType,
+      palletStandard: option.palletStandard,
+      containerType: option.containerType,
+      containerLoadMode: option.containerLoadMode,
+      containerLoadingMethod: option.containerLoadingMethod,
+      packageQuantity: resolved.unitQuantity,
+      unitsPerPackage: option.unitsPerPackage,
+      totalBaseUnits: breakdown.totalBaseUnits,
+      unitsPerCarton: option.unitsPerCarton,
+      cartonsPerPallet: option.cartonsPerPallet,
+      palletsPerContainer: option.palletsPerContainer,
+      cartonsPerContainer: option.cartonsPerContainer,
+      lengthMm: option.lengthMm,
+      widthMm: option.widthMm,
+      heightMm: option.heightMm,
+      grossWeightGrams: option.grossWeightGrams,
+      cargoVolumeCm3: option.cargoVolumeCm3,
+      packagePriceMinor: price.packagePriceMinor,
+      unitPriceMinor: price.effectiveUnitPriceMinor,
+      currency: option.currency,
+      appliedTierMinPackages: price.appliedTierMinPackages,
+      profileVersion: option.profileVersion,
+      requiresFreightQuote: price.requiresQuote || needsManualFreight(loadType),
+    },
+  };
 }
 
 async function addLines(
@@ -1423,6 +1964,107 @@ async function addLines(
      * exactly as before - the sheet's own packing still describes the product
      * on the page; it does not decide what a carton is.
      */
+    /*
+     * A BULK line takes the whole of the rest of this block over.
+     *
+     * A buyer who chose a package has chosen a seller's own configured unit,
+     * and everything below - the named-unit check, the minimum, the step -
+     * belongs to that option rather than to the offer's piece terms. So it is
+     * resolved here and the loop moves on, rather than falling through code
+     * that would price a pallet as a piece.
+     *
+     * Refused where there is no seller, because bulk packaging is a SELLER's
+     * description of their own goods. The operator's catalogue has its carton,
+     * which is a different thing configured in a different place, and letting
+     * a `packageType` through onto an operator line would ask the seller's
+     * option table a question about a product no seller sells.
+     */
+    const chosenPackage = input.packageType ?? null;
+
+    if (chosenPackage !== null) {
+      if (sellerOfferId === null) {
+        throw badRequest(
+          ErrorCode.PACKAGING_OPTION_NOT_AVAILABLE,
+          'Bulk packaging is offered by sellers, and this is not a seller listing.',
+          [{ field: nameField(index, 'packageType'), code: 'NOT_A_SELLER_LINE' }],
+        );
+      }
+
+      const option = await loadBuyableOption(sellerOfferId, chosenPackage);
+
+      const bulk = resolveBulkLine({
+        option,
+        packageQuantity: input.packageQuantity ?? 1,
+        field: nameField(index, 'packageQuantity'),
+      });
+
+      // Whole packages only, and checked against the offer's own stock rather
+      // than the operator's - a seller's goods are in a seller's warehouse.
+      // Part of a pallet is not something anybody can pick, so the refusal
+      // names how many COMPLETE ones there are.
+      const whole = wholePackagesAvailable(option.availableQuantity, option.unitsPerPackage);
+      if (whole < bulk.resolved.unitQuantity) {
+        throw badRequest(
+          ErrorCode.PACKAGING_INSUFFICIENT_FOR_PACKAGE,
+          whole === 0
+            ? 'There is not enough stock for a complete package of this size.'
+            : `Only ${String(whole)} complete packages of this size are available.`,
+          [
+            {
+              field: nameField(index, 'packageQuantity'),
+              code: 'INSUFFICIENT_WHOLE_PACKAGES',
+              meta: { wholePackagesAvailable: whole, requested: bulk.resolved.unitQuantity },
+            },
+          ],
+        );
+      }
+
+      const bulkKey = `${product.id}:${variantKey}:${sellerOfferId}`;
+      const already = wanted.get(bulkKey);
+
+      // The same package twice in one request adds the package counts up, on
+      // the same reasoning as every other line: a client retrying half a batch
+      // resends what it already sent, and "four pallets" is what somebody who
+      // asked for two and two meant.
+      if (already?.packaging !== undefined && already.packaging !== null && already.packaging.packageType !== chosenPackage) {
+        throw badRequest(
+          ErrorCode.PACKAGING_UNIT_MISMATCH,
+          'Two different packages of the same listing cannot be added as one line.',
+          [
+            {
+              field: nameField(index, 'packageType'),
+              code: 'UNIT_MISMATCH',
+              meta: { expected: already.packaging.packageType, received: chosenPackage },
+            },
+          ],
+        );
+      }
+
+      const packageQuantity =
+        (already?.packaging?.packageQuantity ?? 0) + bulk.packaging.packageQuantity;
+
+      wanted.set(bulkKey, {
+        productId: product.id,
+        variantId,
+        variantKey,
+        sellerOfferId,
+        sellerOfferKey: sellerOfferId,
+        quantity: (already?.quantity ?? 0) + bulk.resolved.quantity,
+        minOrderQty: product.minOrderQty,
+        orderingUnit: bulk.resolved.orderingUnit,
+        unitQuantity: packageQuantity,
+        piecesPerUnitSnapshot: bulk.resolved.piecesPerUnitSnapshot,
+        note: already?.note ?? normaliseNote(input.note),
+        packaging: {
+          ...bulk.packaging,
+          packageQuantity,
+          totalBaseUnits: packageQuantity * bulk.packaging.unitsPerPackage,
+        },
+      });
+
+      continue;
+    }
+
     const spec =
       offerTerms === null
         ? // The PRODUCT's carton, which is the same figure the storefront put
@@ -1496,6 +2138,24 @@ async function addLines(
     const key = `${product.id}:${variantKey}:${sellerOfferId ?? ''}`;
     const already = wanted.get(key);
 
+    // A bulk line and a loose one for the same SKU are one row in the basket,
+    // and they cannot both be true of it. Refused rather than merged: adding
+    // 40 pieces onto a two-pallet line and calling the result "2 pallets" is a
+    // line that says one thing and holds another.
+    if (already?.packaging !== undefined && already.packaging !== null) {
+      throw badRequest(
+        ErrorCode.PACKAGING_UNIT_MISMATCH,
+        'This listing is already in your basket by the package. Change that line instead.',
+        [
+          {
+            field: nameField(index, 'quantity'),
+            code: 'UNIT_MISMATCH',
+            meta: { expected: already.packaging.packageType, received: 'LOOSE' },
+          },
+        ],
+      );
+    }
+
     wanted.set(key, {
       productId: product.id,
       variantId,
@@ -1521,6 +2181,9 @@ async function addLines(
        * lose something the buyer typed.
        */
       note: already?.note ?? normaliseNote(input.note),
+      // An ordinary line, counted loose. Bulk lines take the branch above and
+      // never reach here.
+      packaging: null,
     });
   }
 
@@ -1543,7 +2206,104 @@ async function addLines(
             sellerOfferKey: line.sellerOfferKey,
           },
         },
+        include: { packaging: true },
       });
+
+      /*
+       * A basket line is EITHER loose or a package, and never becomes the
+       * other.
+       *
+       * The three refusals below all guard one thing: the line's
+       * `piecesPerUnitSnapshot` is what the whole basket reads to say how much
+       * is in it, and merging a pallet add onto a piece line - or the reverse -
+       * would leave that number describing one of the two adds and not the
+       * line. The existing code already refuses to let a line change unit
+       * silently, for the same reason and in the same words: "a basket line
+       * silently changing from cartons to pieces because the second add was
+       * typed differently is a line the buyer stops trusting".
+       *
+       * The way out for the buyer is always the same and always available:
+       * change or remove the line that is there. Nothing is lost.
+       */
+      if (existing !== null) {
+        const existingPackaging = existing.packaging;
+
+        if (line.packaging !== null && existingPackaging === null) {
+          throw badRequest(
+            ErrorCode.PACKAGING_UNIT_MISMATCH,
+            'This listing is already in your basket as loose units. Remove that line to order it by the package.',
+            [{ field: 'packageType', code: 'LINE_IS_LOOSE' }],
+          );
+        }
+
+        if (line.packaging === null && existingPackaging !== null) {
+          throw badRequest(
+            ErrorCode.PACKAGING_UNIT_MISMATCH,
+            'This listing is already in your basket by the package. Change that line instead.',
+            [
+              {
+                field: 'quantity',
+                code: 'LINE_IS_PACKAGED',
+                meta: { packageType: existingPackaging.packageType },
+              },
+            ],
+          );
+        }
+
+        if (
+          line.packaging !== null &&
+          existingPackaging !== null &&
+          existingPackaging.packageType !== line.packaging.packageType
+        ) {
+          throw badRequest(
+            ErrorCode.PACKAGING_UNIT_MISMATCH,
+            'That is a different package from the one already in your basket for this listing.',
+            [
+              {
+                field: 'packageType',
+                code: 'UNIT_MISMATCH',
+                meta: {
+                  expected: existingPackaging.packageType,
+                  received: line.packaging.packageType,
+                },
+              },
+            ],
+          );
+        }
+
+        /*
+         * The seller re-specified the package while it sat in the basket.
+         *
+         * SAID rather than applied. The snapshot has not moved, so the line
+         * still holds what the shopper agreed to - and quietly adding two more
+         * pallets at the NEW size onto a line holding two at the OLD one would
+         * give a single line two different pallets in it, with one
+         * `unitsPerPackage` describing both.
+         *
+         * The meta carries both figures so the basket can show the difference
+         * and offer to start again at the new one.
+         */
+        if (
+          line.packaging !== null &&
+          existingPackaging !== null &&
+          existingPackaging.unitsPerPackage !== line.packaging.unitsPerPackage
+        ) {
+          throw conflict(
+            ErrorCode.PACKAGING_SNAPSHOT_STALE,
+            'The seller has changed what is in one of these packages since you added it. Remove the line and add it again to order at the new size.',
+            [
+              {
+                field: 'packageQuantity',
+                code: 'SNAPSHOT_STALE',
+                meta: {
+                  snapshotUnitsPerPackage: existingPackaging.unitsPerPackage,
+                  currentUnitsPerPackage: line.packaging.unitsPerPackage,
+                },
+              },
+            ],
+          );
+        }
+      }
 
       if (existing !== null) {
         const quantity = existing.quantity + line.quantity;
@@ -1573,6 +2333,27 @@ async function addLines(
           where: { id: existing.id },
           data: { quantity, unitQuantity, note },
         });
+
+        /*
+         * The breakdown moves with the counts.
+         *
+         * Only the COUNTS. Everything describing what one package is -
+         * `unitsPerPackage`, the dimensions, the price, the profile version -
+         * stays exactly as it was frozen, because the guards above have
+         * already established that this add is the same package at the same
+         * size. A snapshot rewritten here would be a snapshot of the add
+         * rather than of the agreement, which is the one thing it must not be.
+         */
+        if (line.packaging !== null && existing.packaging !== null) {
+          await tx.cartItemPackaging.update({
+            where: { cartItemId: existing.id },
+            data: {
+              packageQuantity: unitQuantity,
+              totalBaseUnits: unitQuantity * existing.packaging.unitsPerPackage,
+            },
+          });
+        }
+
         added.push({
           itemId: existing.id,
           productId: line.productId,
@@ -1612,8 +2393,18 @@ async function addLines(
 
       // If the minimum raised the piece count, the carton count has to follow
       // it or the line would read "1 carton" beside a quantity of a thousand.
+      //
+      // A bulk line never takes that branch: it is a seller's line, so the
+      // operator's minimum is not applied to it above, and `quantity` is
+      // therefore exactly what the package arithmetic produced. Its package
+      // count must NOT be re-derived by `cartonsForPieces`, which knows
+      // nothing about pallets.
       const unitQuantity =
-        quantity === line.quantity ? line.unitQuantity : cartonsForPieces(quantity, perCarton);
+        line.packaging !== null
+          ? line.packaging.packageQuantity
+          : quantity === line.quantity
+            ? line.unitQuantity
+            : cartonsForPieces(quantity, perCarton);
 
       await tx.cartItem.create({
         data: {
@@ -1635,6 +2426,42 @@ async function addLines(
           note: line.note,
         },
       });
+
+      // The frozen breakdown, written in the same transaction as the line it
+      // describes. A line without its snapshot would be a pallet count nothing
+      // could explain; a snapshot without its line would be an orphan the
+      // basket never shows.
+      if (line.packaging !== null) {
+        await tx.cartItemPackaging.create({
+          data: {
+            id: newId(),
+            cartItemId: itemId,
+            packageType: line.packaging.packageType,
+            palletStandard: line.packaging.palletStandard as never,
+            containerType: line.packaging.containerType as never,
+            containerLoadMode: line.packaging.containerLoadMode as never,
+            containerLoadingMethod: line.packaging.containerLoadingMethod as never,
+            packageQuantity: line.packaging.packageQuantity,
+            unitsPerPackage: line.packaging.unitsPerPackage,
+            totalBaseUnits: line.packaging.totalBaseUnits,
+            unitsPerCarton: line.packaging.unitsPerCarton,
+            cartonsPerPallet: line.packaging.cartonsPerPallet,
+            palletsPerContainer: line.packaging.palletsPerContainer,
+            cartonsPerContainer: line.packaging.cartonsPerContainer,
+            lengthMm: line.packaging.lengthMm,
+            widthMm: line.packaging.widthMm,
+            heightMm: line.packaging.heightMm,
+            grossWeightGrams: line.packaging.grossWeightGrams,
+            cargoVolumeCm3: line.packaging.cargoVolumeCm3,
+            packagePriceMinor: line.packaging.packagePriceMinor,
+            unitPriceMinor: line.packaging.unitPriceMinor,
+            currency: line.packaging.currency,
+            appliedTierMinPackages: line.packaging.appliedTierMinPackages,
+            profileVersion: line.packaging.profileVersion,
+            requiresFreightQuote: line.packaging.requiresFreightQuote,
+          },
+        });
+      }
 
       added.push({
         itemId,
@@ -1699,6 +2526,37 @@ export async function updateItemQuantity(
     where: { id: itemId },
     data: { quantity: resolved.quantity, unitQuantity: resolved.unitQuantity },
   });
+
+  await syncPackagingCounts(itemId, resolved.unitQuantity);
+}
+
+/**
+ * Keep a bulk line's frozen breakdown in step with its counts.
+ *
+ * Only the COUNTS move. `unitsPerPackage`, the dimensions, the weights, the
+ * price and the profile version are what the buyer agreed to and stay exactly
+ * as frozen - changing a quantity is not agreeing to a different pallet.
+ *
+ * `totalBaseUnits` is rewritten because the database CHECK requires it to
+ * equal `packageQuantity x unitsPerPackage`, and that constraint is the last
+ * line of defence against a line whose breakdown does not add up to its own
+ * quantity. A no-op on an ordinary line, which is most of them.
+ */
+async function syncPackagingCounts(cartItemId: string, packageQuantity: number): Promise<void> {
+  const snapshot = await prisma.cartItemPackaging.findUnique({
+    where: { cartItemId },
+    select: { unitsPerPackage: true },
+  });
+
+  if (snapshot === null) return;
+
+  await prisma.cartItemPackaging.update({
+    where: { cartItemId },
+    data: {
+      packageQuantity,
+      totalBaseUnits: packageQuantity * snapshot.unitsPerPackage,
+    },
+  });
 }
 
 /**
@@ -1714,10 +2572,53 @@ export async function updateItemQuantity(
  * the buyer the line can no longer be bought.
  */
 async function sellUnitSpecForItem(item: {
+  id?: string;
   sellerOfferId: string | null;
   orderingUnit: OrderingUnit;
   piecesPerUnitSnapshot: number;
 }): Promise<SellUnitSpec> {
+  /*
+   * A BULK line is stepped by PACKAGES, and never by the offer's piece terms.
+   *
+   * This is checked first, and the ordering is the fix rather than a tidy-up.
+   * `sellerSellUnit` below reads the OFFER's `orderingUnit`, which for a
+   * seller is always PIECE - packaging lives in its own table and does not
+   * touch that column. So without this branch a pallet line would be stepped
+   * as though one pallet were one piece, and the buyer pressing "+" would add
+   * a single unit to a line measured in thousands.
+   *
+   * The snapshot is the authority for the SIZE, because that is what the
+   * buyer agreed to. The seller's live option supplies only the minimum, the
+   * step and the ceiling - the terms they can actually pick and pack today.
+   */
+  if (item.id !== undefined) {
+    const snapshot = await prisma.cartItemPackaging.findUnique({
+      where: { cartItemId: item.id },
+      select: { packageType: true, unitsPerPackage: true },
+    });
+
+    if (snapshot !== null) {
+      const live =
+        item.sellerOfferId === null
+          ? null
+          : await prisma.sellerPackagingOption.findFirst({
+              where: {
+                packageType: snapshot.packageType,
+                profile: { offerId: item.sellerOfferId },
+              },
+              select: { minimumPackages: true, packageIncrement: true, maximumPackages: true },
+            });
+
+      return packagingSellUnit({
+        packageType: snapshot.packageType,
+        unitsPerPackage: snapshot.unitsPerPackage,
+        minimumPackages: live?.minimumPackages ?? 1,
+        packageIncrement: live?.packageIncrement ?? 1,
+        maximumPackages: live?.maximumPackages ?? null,
+      });
+    }
+  }
+
   if (item.sellerOfferId !== null) {
     const offer = await prisma.sellerOffer.findUnique({
       where: { id: item.sellerOfferId },
@@ -1783,6 +2684,8 @@ export async function updateItemPackQuantity(
     where: { id: itemId },
     data: { unitQuantity: resolved.unitQuantity, quantity: resolved.quantity },
   });
+
+  await syncPackagingCounts(itemId, resolved.unitQuantity);
 }
 
 /**
@@ -1860,13 +2763,18 @@ export function assertCheckoutReady(resolved: ResolvedCart): void {
     throw badRequest(ErrorCode.CART_EMPTY, 'Your cart is empty.');
   }
 
+  // Blocking issues only. A line notice that is explicitly non-blocking - a
+  // container order whose delivery is quoted rather than priced - is something
+  // the buyer is TOLD, not something that stops them. See `CartLineIssue`.
   const lineIssues = resolved.lines.flatMap((line, index) =>
-    line.issues.map((issue) => ({
-      field: `items.${String(index)}`,
-      code: issue.code,
-      message: issue.message,
-      ...(issue.meta !== undefined ? { meta: issue.meta } : {}),
-    })),
+    line.issues
+      .filter((issue) => issue.isBlocking !== false)
+      .map((issue) => ({
+        field: `items.${String(index)}`,
+        code: issue.code,
+        message: issue.message,
+        ...(issue.meta !== undefined ? { meta: issue.meta } : {}),
+      })),
   );
 
   const allIssues = [

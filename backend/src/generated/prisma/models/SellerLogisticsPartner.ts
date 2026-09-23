@@ -41,6 +41,8 @@ export type SellerLogisticsPartnerMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   archivedAt: Date | null
+  contractReference: string | null
+  invitationId: string | null
 }
 
 export type SellerLogisticsPartnerMaxAggregateOutputType = {
@@ -60,6 +62,8 @@ export type SellerLogisticsPartnerMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   archivedAt: Date | null
+  contractReference: string | null
+  invitationId: string | null
 }
 
 export type SellerLogisticsPartnerCountAggregateOutputType = {
@@ -81,6 +85,8 @@ export type SellerLogisticsPartnerCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   archivedAt: number
+  contractReference: number
+  invitationId: number
   _all: number
 }
 
@@ -102,6 +108,8 @@ export type SellerLogisticsPartnerMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  contractReference?: true
+  invitationId?: true
 }
 
 export type SellerLogisticsPartnerMaxAggregateInputType = {
@@ -121,6 +129,8 @@ export type SellerLogisticsPartnerMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  contractReference?: true
+  invitationId?: true
 }
 
 export type SellerLogisticsPartnerCountAggregateInputType = {
@@ -142,6 +152,8 @@ export type SellerLogisticsPartnerCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  contractReference?: true
+  invitationId?: true
   _all?: true
 }
 
@@ -236,6 +248,8 @@ export type SellerLogisticsPartnerGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   archivedAt: Date | null
+  contractReference: string | null
+  invitationId: string | null
   _count: SellerLogisticsPartnerCountAggregateOutputType | null
   _min: SellerLogisticsPartnerMinAggregateOutputType | null
   _max: SellerLogisticsPartnerMaxAggregateOutputType | null
@@ -278,8 +292,11 @@ export type SellerLogisticsPartnerWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPartner"> | Date | string | null
+  contractReference?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
+  invitationId?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   logisticsPartner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventListRelationFilter
 }
 
 export type SellerLogisticsPartnerOrderByWithRelationInput = {
@@ -301,8 +318,11 @@ export type SellerLogisticsPartnerOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  invitationId?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   logisticsPartner?: Prisma.LogisticsPartnerOrderByWithRelationInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventOrderByRelationAggregateInput
   _relevance?: Prisma.SellerLogisticsPartnerOrderByRelevanceInput
 }
 
@@ -329,8 +349,11 @@ export type SellerLogisticsPartnerWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPartner"> | Date | string | null
+  contractReference?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
+  invitationId?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   logisticsPartner?: Prisma.XOR<Prisma.LogisticsPartnerScalarRelationFilter, Prisma.LogisticsPartnerWhereInput>
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventListRelationFilter
 }, "id" | "sellerAccountId_logisticsPartnerId">
 
 export type SellerLogisticsPartnerOrderByWithAggregationInput = {
@@ -352,6 +375,8 @@ export type SellerLogisticsPartnerOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  invitationId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SellerLogisticsPartnerCountOrderByAggregateInput
   _max?: Prisma.SellerLogisticsPartnerMaxOrderByAggregateInput
   _min?: Prisma.SellerLogisticsPartnerMinOrderByAggregateInput
@@ -379,6 +404,8 @@ export type SellerLogisticsPartnerScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsPartner"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerLogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerLogisticsPartner"> | Date | string | null
+  contractReference?: Prisma.StringNullableWithAggregatesFilter<"SellerLogisticsPartner"> | string | null
+  invitationId?: Prisma.StringNullableWithAggregatesFilter<"SellerLogisticsPartner"> | string | null
 }
 
 export type SellerLogisticsPartnerCreateInput = {
@@ -398,8 +425,11 @@ export type SellerLogisticsPartnerCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPartnersInput
   logisticsPartner: Prisma.LogisticsPartnerCreateNestedOneWithoutSellerLinksInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerUncheckedCreateInput = {
@@ -421,6 +451,9 @@ export type SellerLogisticsPartnerUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerUpdateInput = {
@@ -440,8 +473,11 @@ export type SellerLogisticsPartnerUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPartnersNestedInput
   logisticsPartner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutSellerLinksNestedInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateInput = {
@@ -463,6 +499,9 @@ export type SellerLogisticsPartnerUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerCreateManyInput = {
@@ -484,6 +523,8 @@ export type SellerLogisticsPartnerCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
 }
 
 export type SellerLogisticsPartnerUpdateManyMutationInput = {
@@ -503,6 +544,8 @@ export type SellerLogisticsPartnerUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateManyInput = {
@@ -524,6 +567,8 @@ export type SellerLogisticsPartnerUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerLogisticsPartnerListRelationFilter = {
@@ -566,6 +611,8 @@ export type SellerLogisticsPartnerCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  contractReference?: Prisma.SortOrder
+  invitationId?: Prisma.SortOrder
 }
 
 export type SellerLogisticsPartnerMaxOrderByAggregateInput = {
@@ -585,6 +632,8 @@ export type SellerLogisticsPartnerMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  contractReference?: Prisma.SortOrder
+  invitationId?: Prisma.SortOrder
 }
 
 export type SellerLogisticsPartnerMinOrderByAggregateInput = {
@@ -604,6 +653,13 @@ export type SellerLogisticsPartnerMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  contractReference?: Prisma.SortOrder
+  invitationId?: Prisma.SortOrder
+}
+
+export type SellerLogisticsPartnerScalarRelationFilter = {
+  is?: Prisma.SellerLogisticsPartnerWhereInput
+  isNot?: Prisma.SellerLogisticsPartnerWhereInput
 }
 
 export type SellerLogisticsPartnerCreateNestedManyWithoutSellerAccountInput = {
@@ -654,6 +710,20 @@ export type EnumSellerLogisticsRelationshipTypeFieldUpdateOperationsInput = {
 
 export type EnumSellerLogisticsRelationshipStatusFieldUpdateOperationsInput = {
   set?: $Enums.SellerLogisticsRelationshipStatus
+}
+
+export type SellerLogisticsPartnerCreateNestedOneWithoutStatusEventsInput = {
+  create?: Prisma.XOR<Prisma.SellerLogisticsPartnerCreateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedCreateWithoutStatusEventsInput>
+  connectOrCreate?: Prisma.SellerLogisticsPartnerCreateOrConnectWithoutStatusEventsInput
+  connect?: Prisma.SellerLogisticsPartnerWhereUniqueInput
+}
+
+export type SellerLogisticsPartnerUpdateOneRequiredWithoutStatusEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerLogisticsPartnerCreateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedCreateWithoutStatusEventsInput>
+  connectOrCreate?: Prisma.SellerLogisticsPartnerCreateOrConnectWithoutStatusEventsInput
+  upsert?: Prisma.SellerLogisticsPartnerUpsertWithoutStatusEventsInput
+  connect?: Prisma.SellerLogisticsPartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerLogisticsPartnerUpdateToOneWithWhereWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUpdateWithoutStatusEventsInput>, Prisma.SellerLogisticsPartnerUncheckedUpdateWithoutStatusEventsInput>
 }
 
 export type SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput = {
@@ -715,7 +785,10 @@ export type SellerLogisticsPartnerCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
   logisticsPartner: Prisma.LogisticsPartnerCreateNestedOneWithoutSellerLinksInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerUncheckedCreateWithoutSellerAccountInput = {
@@ -736,6 +809,9 @@ export type SellerLogisticsPartnerUncheckedCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerCreateOrConnectWithoutSellerAccountInput = {
@@ -786,6 +862,116 @@ export type SellerLogisticsPartnerScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerLogisticsPartner"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerLogisticsPartner"> | Date | string | null
+  contractReference?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
+  invitationId?: Prisma.StringNullableFilter<"SellerLogisticsPartner"> | string | null
+}
+
+export type SellerLogisticsPartnerCreateWithoutStatusEventsInput = {
+  id: string
+  relationshipType?: $Enums.SellerLogisticsRelationshipType
+  status?: $Enums.SellerLogisticsRelationshipStatus
+  requestedBySellerMemberId?: string | null
+  decidedByUserId?: string | null
+  requestedAt?: Date | string
+  decidedAt?: Date | string | null
+  effectiveFrom?: Date | string
+  effectiveTo?: Date | string | null
+  serviceCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sellerReference?: string | null
+  statusReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPartnersInput
+  logisticsPartner: Prisma.LogisticsPartnerCreateNestedOneWithoutSellerLinksInput
+}
+
+export type SellerLogisticsPartnerUncheckedCreateWithoutStatusEventsInput = {
+  id: string
+  sellerAccountId: string
+  logisticsPartnerId: string
+  relationshipType?: $Enums.SellerLogisticsRelationshipType
+  status?: $Enums.SellerLogisticsRelationshipStatus
+  requestedBySellerMemberId?: string | null
+  decidedByUserId?: string | null
+  requestedAt?: Date | string
+  decidedAt?: Date | string | null
+  effectiveFrom?: Date | string
+  effectiveTo?: Date | string | null
+  serviceCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sellerReference?: string | null
+  statusReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
+}
+
+export type SellerLogisticsPartnerCreateOrConnectWithoutStatusEventsInput = {
+  where: Prisma.SellerLogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerLogisticsPartnerCreateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedCreateWithoutStatusEventsInput>
+}
+
+export type SellerLogisticsPartnerUpsertWithoutStatusEventsInput = {
+  update: Prisma.XOR<Prisma.SellerLogisticsPartnerUpdateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedUpdateWithoutStatusEventsInput>
+  create: Prisma.XOR<Prisma.SellerLogisticsPartnerCreateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedCreateWithoutStatusEventsInput>
+  where?: Prisma.SellerLogisticsPartnerWhereInput
+}
+
+export type SellerLogisticsPartnerUpdateToOneWithWhereWithoutStatusEventsInput = {
+  where?: Prisma.SellerLogisticsPartnerWhereInput
+  data: Prisma.XOR<Prisma.SellerLogisticsPartnerUpdateWithoutStatusEventsInput, Prisma.SellerLogisticsPartnerUncheckedUpdateWithoutStatusEventsInput>
+}
+
+export type SellerLogisticsPartnerUpdateWithoutStatusEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  relationshipType?: Prisma.EnumSellerLogisticsRelationshipTypeFieldUpdateOperationsInput | $Enums.SellerLogisticsRelationshipType
+  status?: Prisma.EnumSellerLogisticsRelationshipStatusFieldUpdateOperationsInput | $Enums.SellerLogisticsRelationshipStatus
+  requestedBySellerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sellerReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPartnersNestedInput
+  logisticsPartner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutSellerLinksNestedInput
+}
+
+export type SellerLogisticsPartnerUncheckedUpdateWithoutStatusEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  logisticsPartnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  relationshipType?: Prisma.EnumSellerLogisticsRelationshipTypeFieldUpdateOperationsInput | $Enums.SellerLogisticsRelationshipType
+  status?: Prisma.EnumSellerLogisticsRelationshipStatusFieldUpdateOperationsInput | $Enums.SellerLogisticsRelationshipStatus
+  requestedBySellerMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decidedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  approvedCapabilitiesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sellerReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerLogisticsPartnerCreateWithoutLogisticsPartnerInput = {
@@ -805,7 +991,10 @@ export type SellerLogisticsPartnerCreateWithoutLogisticsPartnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutLogisticsPartnersInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerUncheckedCreateWithoutLogisticsPartnerInput = {
@@ -826,6 +1015,9 @@ export type SellerLogisticsPartnerUncheckedCreateWithoutLogisticsPartnerInput = 
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedCreateNestedManyWithoutRelationshipInput
 }
 
 export type SellerLogisticsPartnerCreateOrConnectWithoutLogisticsPartnerInput = {
@@ -872,6 +1064,8 @@ export type SellerLogisticsPartnerCreateManySellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
 }
 
 export type SellerLogisticsPartnerUpdateWithoutSellerAccountInput = {
@@ -891,7 +1085,10 @@ export type SellerLogisticsPartnerUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logisticsPartner?: Prisma.LogisticsPartnerUpdateOneRequiredWithoutSellerLinksNestedInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateWithoutSellerAccountInput = {
@@ -912,6 +1109,9 @@ export type SellerLogisticsPartnerUncheckedUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -932,6 +1132,8 @@ export type SellerLogisticsPartnerUncheckedUpdateManyWithoutSellerAccountInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerLogisticsPartnerCreateManyLogisticsPartnerInput = {
@@ -952,6 +1154,8 @@ export type SellerLogisticsPartnerCreateManyLogisticsPartnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  contractReference?: string | null
+  invitationId?: string | null
 }
 
 export type SellerLogisticsPartnerUpdateWithoutLogisticsPartnerInput = {
@@ -971,7 +1175,10 @@ export type SellerLogisticsPartnerUpdateWithoutLogisticsPartnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutLogisticsPartnersNestedInput
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateWithoutLogisticsPartnerInput = {
@@ -992,6 +1199,9 @@ export type SellerLogisticsPartnerUncheckedUpdateWithoutLogisticsPartnerInput = 
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusEvents?: Prisma.SellerLogisticsRelationshipEventUncheckedUpdateManyWithoutRelationshipNestedInput
 }
 
 export type SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerInput = {
@@ -1012,8 +1222,39 @@ export type SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerInpu
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+
+/**
+ * Count Type SellerLogisticsPartnerCountOutputType
+ */
+
+export type SellerLogisticsPartnerCountOutputType = {
+  statusEvents: number
+}
+
+export type SellerLogisticsPartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  statusEvents?: boolean | SellerLogisticsPartnerCountOutputTypeCountStatusEventsArgs
+}
+
+/**
+ * SellerLogisticsPartnerCountOutputType without action
+ */
+export type SellerLogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerLogisticsPartnerCountOutputType
+   */
+  select?: Prisma.SellerLogisticsPartnerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * SellerLogisticsPartnerCountOutputType without action
+ */
+export type SellerLogisticsPartnerCountOutputTypeCountStatusEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerLogisticsRelationshipEventWhereInput
+}
 
 
 export type SellerLogisticsPartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1035,8 +1276,12 @@ export type SellerLogisticsPartnerSelect<ExtArgs extends runtime.Types.Extension
   createdAt?: boolean
   updatedAt?: boolean
   archivedAt?: boolean
+  contractReference?: boolean
+  invitationId?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   logisticsPartner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
+  statusEvents?: boolean | Prisma.SellerLogisticsPartner$statusEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.SellerLogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerLogisticsPartner"]>
 
 
@@ -1060,12 +1305,16 @@ export type SellerLogisticsPartnerSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   archivedAt?: boolean
+  contractReference?: boolean
+  invitationId?: boolean
 }
 
-export type SellerLogisticsPartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "logisticsPartnerId" | "relationshipType" | "status" | "requestedBySellerMemberId" | "decidedByUserId" | "requestedAt" | "decidedAt" | "effectiveFrom" | "effectiveTo" | "serviceCountriesJson" | "approvedCapabilitiesJson" | "sellerReference" | "statusReason" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerLogisticsPartner"]>
+export type SellerLogisticsPartnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "logisticsPartnerId" | "relationshipType" | "status" | "requestedBySellerMemberId" | "decidedByUserId" | "requestedAt" | "decidedAt" | "effectiveFrom" | "effectiveTo" | "serviceCountriesJson" | "approvedCapabilitiesJson" | "sellerReference" | "statusReason" | "createdAt" | "updatedAt" | "archivedAt" | "contractReference" | "invitationId", ExtArgs["result"]["sellerLogisticsPartner"]>
 export type SellerLogisticsPartnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   logisticsPartner?: boolean | Prisma.LogisticsPartnerDefaultArgs<ExtArgs>
+  statusEvents?: boolean | Prisma.SellerLogisticsPartner$statusEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.SellerLogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $SellerLogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1073,6 +1322,10 @@ export type $SellerLogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensi
   objects: {
     sellerAccount: Prisma.$SellerAccountPayload<ExtArgs>
     logisticsPartner: Prisma.$LogisticsPartnerPayload<ExtArgs>
+    /**
+     * Append-only. See the model's own note on why this is not the audit log.
+     */
+    statusEvents: Prisma.$SellerLogisticsRelationshipEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1139,6 +1392,17 @@ export type $SellerLogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensi
      * Soft delete. Shipments already offered keep working.
      */
     archivedAt: Date | null
+    /**
+     * The paperwork behind the arrangement, where there is any. Free text: a
+     * contract number, a framework agreement, a purchase order. Never used for
+     * authorisation - it is what somebody quotes on the telephone.
+     */
+    contractReference: string | null
+    /**
+     * The invitation that produced this arrangement, where a seller introduced
+     * the company rather than requesting one the marketplace already had.
+     */
+    invitationId: string | null
   }, ExtArgs["result"]["sellerLogisticsPartner"]>
   composites: {}
 }
@@ -1481,6 +1745,7 @@ export interface Prisma__SellerLogisticsPartnerClient<T, Null = never, ExtArgs e
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sellerAccount<T extends Prisma.SellerAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   logisticsPartner<T extends Prisma.LogisticsPartnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartnerDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  statusEvents<T extends Prisma.SellerLogisticsPartner$statusEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerLogisticsPartner$statusEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerLogisticsRelationshipEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1528,6 +1793,8 @@ export interface SellerLogisticsPartnerFieldRefs {
   readonly createdAt: Prisma.FieldRef<"SellerLogisticsPartner", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerLogisticsPartner", 'DateTime'>
   readonly archivedAt: Prisma.FieldRef<"SellerLogisticsPartner", 'DateTime'>
+  readonly contractReference: Prisma.FieldRef<"SellerLogisticsPartner", 'String'>
+  readonly invitationId: Prisma.FieldRef<"SellerLogisticsPartner", 'String'>
 }
     
 
@@ -1873,6 +2140,30 @@ export type SellerLogisticsPartnerDeleteManyArgs<ExtArgs extends runtime.Types.E
    * Limit how many SellerLogisticsPartners to delete.
    */
   limit?: number
+}
+
+/**
+ * SellerLogisticsPartner.statusEvents
+ */
+export type SellerLogisticsPartner$statusEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerLogisticsRelationshipEvent
+   */
+  select?: Prisma.SellerLogisticsRelationshipEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerLogisticsRelationshipEvent
+   */
+  omit?: Prisma.SellerLogisticsRelationshipEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerLogisticsRelationshipEventInclude<ExtArgs> | null
+  where?: Prisma.SellerLogisticsRelationshipEventWhereInput
+  orderBy?: Prisma.SellerLogisticsRelationshipEventOrderByWithRelationInput | Prisma.SellerLogisticsRelationshipEventOrderByWithRelationInput[]
+  cursor?: Prisma.SellerLogisticsRelationshipEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerLogisticsRelationshipEventScalarFieldEnum | Prisma.SellerLogisticsRelationshipEventScalarFieldEnum[]
 }
 
 /**

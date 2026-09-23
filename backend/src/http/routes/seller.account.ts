@@ -48,7 +48,63 @@ import {
 import { prisma } from '../../infra/prisma.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
+import {
+  confirmCarrierForProduction,
+  createCarrierConnection,
+  listCarrierConnections,
+  pauseCarrierConnection,
+  testCarrierConnection,
+} from '../../modules/seller/carrier-connection.service.js';
+import {
+  credentialFieldsFor,
+  destroyCarrierCredential,
+  storeCarrierCredential,
+} from '../../modules/seller/carrier-credential.service.js';
+import {
+  createSelfManagedOrganisation,
+  inviteDedicatedPartner,
+  readRelationshipHistory,
+  requestExistingPartner,
+  revokePartnerInvitation,
+  searchPartnersForSeller,
+} from '../../modules/seller/logistics-organisation.service.js';
+import {
+  archiveFulfilmentRule,
+  changeMethodStatus,
+  chooseFulfilmentMethod,
+  describeFulfilmentOptions,
+  listFulfilmentRules,
+  setMethodRole,
+  upsertFulfilmentRule,
+} from '../../modules/seller/fulfilment-method.service.js';
+import {
+  LogisticsCapabilityKind,
+  LogisticsRegionScope,
+} from '../../generated/prisma/enums.js';
+import {
+  listCapabilities,
+  listPickupProfiles,
+  listRateCards,
+  listServiceAreas,
+  publishRateCard,
+  removeServiceArea,
+  requestCapability,
+  savePickupProfile,
+  saveServiceArea,
+} from '../../modules/seller/self-managed-config.service.js';
 import { currentSeller, requireSeller } from '../plugins/seller.js';
+
+/**
+ * Money on the wire, always as a string of whole minor units.
+ *
+ * Never a JSON number: a delivery charge that passed through a JavaScript
+ * float is a charge that can disagree with the invoice by a cent, and the cent
+ * is the one the customer writes in about.
+ */
+const minorUnits = z.string().regex(/^\d+$/, 'Expected whole minor units, e.g. "450".');
+
+/** `HH:MM`, wall-clock at the warehouse - which is why the location owns the timezone. */
+const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Expected HH:MM.');
 
 const applySchema = z.object({
   legalName: z.string().trim().min(2).max(255),
@@ -660,6 +716,908 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     async (request, reply) => {
       await submitApplication(currentSeller(request), request.correlationId);
       return reply.status(204).send();
+    },
+  );
+
+  // --- How this seller's goods get delivered -------------------------------
+  //
+  // The Logistics Partner onboarding step, and the Seller Hub screen it turns
+  // into once the application is approved. One set of routes for both, because
+  // they are the same question asked at two moments - and a second
+  // implementation for "the settings version" is how the two end up disagreeing
+  // about what a seller has configured.
+  //
+  // EVERY ROUTE TAKES THE SELLER FROM THE SESSION. None of them accepts a
+  // `sellerAccountId`, and the service has no function that would take one.
+
+  /**
+   * The five options, with this seller's own state folded into each.
+   *
+   * One call rather than two, so the cards never render as "not started"
+   * against something the seller finished last week while a second request is
+   * still in flight.
+   */
+  app.get(
+    '/fulfilment/options',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const seller = currentSeller(request);
+      const result = await describeFulfilmentOptions(seller.sellerAccountId);
+
+      // no-store: which carriers a business uses and whether each is healthy is
+      // commercially sensitive, and a shared cache holding it would serve one
+      // seller's configuration to the next.
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
+
+  /**
+   * Choose a way of delivering.
+   *
+   * Creates the METHOD and nothing else. Connecting a carrier account,
+   * creating a logistics organisation and inviting a partner are separate,
+   * deliberate acts: one call that did all of them would make "show me what
+   * DHL involves" indistinguishable from "store my DHL credentials".
+   */
+  app.post(
+    '/fulfilment/methods',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          mode: z.enum([
+            'INTEGRATED_CARRIER',
+            'SELF_MANAGED',
+            'DEDICATED_PARTNER',
+            'OPERATOR_FULFILLED',
+          ]),
+          provider: z.enum(['DHL', 'FEDEX', 'INDIA_POST', 'UPS', 'CUSTOM', 'MANUAL']).nullable().optional(),
+          environment: z.enum(['SANDBOX', 'PRODUCTION']).nullable().optional(),
+          publicDisplayName: z.string().trim().min(1).max(160).nullable().optional(),
+          makePrimary: z.boolean().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const method = await chooseFulfilmentMethod({
+        sellerAccountId: seller.sellerAccountId,
+        actor: {
+          memberId: seller.memberId,
+          userId: null,
+          label: seller.displayName,
+        },
+        mode: body.mode,
+        provider: body.provider ?? null,
+        environment: body.environment ?? null,
+        publicDisplayName: body.publicDisplayName ?? null,
+        makePrimary: body.makePrimary,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ method });
+    },
+  );
+
+  /**
+   * Make a method the default, the fallback, or neither.
+   *
+   * Changing the default does not touch consignments already raised - the
+   * method chosen for a parcel is written onto the shipment when it is chosen.
+   */
+  app.patch(
+    '/fulfilment/methods/:methodId/role',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({ role: z.enum(['PRIMARY', 'FALLBACK', 'ADDITIONAL']) })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const method = await setMethodRole({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        methodId: params.methodId,
+        role: body.role,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ method });
+    },
+  );
+
+  /**
+   * Pause a method, restart it, or disconnect it for good.
+   *
+   * The seller's half of the state machine. The marketplace's half - approve,
+   * refuse, ask for changes - is an admin route and goes through the same
+   * assertion, for the same reason order status does.
+   */
+  app.patch(
+    '/fulfilment/methods/:methodId/status',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          // The three a SELLER may ask for. Approving their own method is not
+          // on this list and is not reachable from here.
+          status: z.enum(['PAUSED', 'APPROVED', 'DISCONNECTED']),
+          reason: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const method = await changeMethodStatus({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        methodId: params.methodId,
+        status: body.status,
+        reason: body.reason ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ method });
+    },
+  );
+
+  /** The rules that route a parcel, in the order they are tried. */
+  app.get(
+    '/fulfilment/rules',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const seller = currentSeller(request);
+      const rules = await listFulfilmentRules(seller.sellerAccountId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ rules });
+    },
+  );
+
+  /**
+   * Write a routing rule, or move the one that already exists.
+   *
+   * PUT rather than POST: a rule is identified by what it matches on, not by
+   * an id the client chose, so saving the same rule twice is the same rule.
+   * The service computes the precedence and the key from the scope, so a
+   * client never has to know either.
+   */
+  app.put(
+    '/fulfilment/rules',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          scope: z.enum(['PRODUCT', 'WAREHOUSE', 'DESTINATION', 'SELLER_DEFAULT']),
+          fulfilmentMethodId: z.string().length(26),
+          sellerOfferId: z.string().length(26).nullable().optional(),
+          sellerLocationId: z.string().length(26).nullable().optional(),
+          destinationCountry: z.string().trim().length(2).nullable().optional(),
+          destinationPostalPrefix: z.string().trim().max(16).nullable().optional(),
+          note: z.string().trim().max(255).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const rule = await upsertFulfilmentRule({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        scope: body.scope,
+        fulfilmentMethodId: body.fulfilmentMethodId,
+        sellerOfferId: body.sellerOfferId ?? null,
+        sellerLocationId: body.sellerLocationId ?? null,
+        destinationCountry: body.destinationCountry ?? null,
+        destinationPostalPrefix: body.destinationPostalPrefix ?? null,
+        note: body.note ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ rule });
+    },
+  );
+
+  /**
+   * Retire a rule.
+   *
+   * Archived rather than deleted: consignments point at it, so that "why did
+   * this go by DHL?" has an answer months later.
+   */
+  app.delete(
+    '/fulfilment/rules/:ruleId',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ ruleId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      await archiveFulfilmentRule({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        ruleId: params.ruleId,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
+  // --- The seller's own carrier accounts -----------------------------------
+  //
+  // NOT the operator's. `CarrierIntegration` holds one set of credentials for
+  // the whole installation; these are each seller's own account with DHL or
+  // FedEx, and the distinction is a tenant boundary at the credential: a key
+  // in a shared row would let one seller's consignment bill another seller's
+  // account.
+  //
+  // NOTHING BELOW EVER RETURNS A CREDENTIAL. The list returns a state and a
+  // four-character hint; there is no route that could be asked for more,
+  // because there is no service function that would answer.
+
+  app.get(
+    '/fulfilment/connections',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const seller = currentSeller(request);
+      const connections = await listCarrierConnections(seller.sellerAccountId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ connections });
+    },
+  );
+
+  app.post(
+    '/fulfilment/connections',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          provider: z.enum(['DHL', 'FEDEX', 'UPS', 'INDIA_POST', 'CUSTOM']),
+          environment: z.enum(['SANDBOX', 'PRODUCTION']).default('SANDBOX'),
+          accountNumber: z.string().trim().max(64).nullable().optional(),
+          billingAccountNumber: z.string().trim().max(64).nullable().optional(),
+          defaultServiceCode: z.string().trim().max(48).nullable().optional(),
+          labelFormat: z.string().trim().max(24).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const connection = await createCarrierConnection({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        provider: body.provider,
+        environment: body.environment,
+        accountNumber: body.accountNumber ?? null,
+        billingAccountNumber: body.billingAccountNumber ?? null,
+        defaultServiceCode: body.defaultServiceCode ?? null,
+        labelFormat: body.labelFormat ?? null,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ connection });
+    },
+  );
+
+  /**
+   * Which boxes this carrier's connection screen should show.
+   *
+   * Asked rather than hard-coded in the frontend, so adding a provider does
+   * not mean editing two places and discovering the mismatch when a seller
+   * cannot save.
+   */
+  app.get(
+    '/fulfilment/connections/fields/:provider',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z
+        .object({ provider: z.enum(['DHL', 'FEDEX', 'UPS', 'INDIA_POST', 'CUSTOM']) })
+        .parse(request.params);
+
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({ fields: credentialFieldsFor(params.provider) });
+    },
+  );
+
+  /**
+   * Store or rotate the key.
+   *
+   * `CARRIER_CREDENTIAL_WRITE`, which OWNER and ADMIN hold and nobody else -
+   * choosing to ship by DHL and holding the key that bills the company's DHL
+   * account are different acts.
+   *
+   * Storing one drops the connection back behind the test gate. A rotated key
+   * that was typed wrongly must not inherit the previous key's green tick.
+   */
+  app.put(
+    '/fulfilment/connections/:connectionId/credentials',
+    { preHandler: requireSeller(SellerPermission.CARRIER_CREDENTIAL_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({ fields: z.record(z.string(), z.string().min(1).max(512)) })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      await storeCarrierCredential({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        connectionId: params.connectionId,
+        fields: body.fields,
+      });
+
+      // 204. There is nothing safe to return about a credential that was just
+      // stored, and returning the connection here would invite a client to
+      // treat the response as confirmation the key is correct - which only a
+      // test can say.
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * Call the carrier for real, and write down what happened.
+   *
+   * The only route that can lead to `lastTestPassedAt` being set, which is
+   * the first of the two gates a connection passes before it carries a real
+   * parcel.
+   */
+  app.post(
+    '/fulfilment/connections/:connectionId/test',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const result = await testCarrierConnection({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        connectionId: params.connectionId,
+      });
+
+      // 200 whether it passed or failed: the call itself succeeded, and a
+      // failed carrier test is an answer the screen has a state for rather
+      // than an error the client should treat as a fault.
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
+
+  /** The second gate: a person says to start shipping real parcels with it. */
+  app.post(
+    '/fulfilment/connections/:connectionId/activate',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const connection = await confirmCarrierForProduction({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        connectionId: params.connectionId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ connection });
+    },
+  );
+
+  app.post(
+    '/fulfilment/connections/:connectionId/pause',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
+      const body = z.object({ resume: z.boolean().default(false) }).parse(request.body ?? {});
+      const seller = currentSeller(request);
+
+      const connection = await pauseCarrierConnection({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        connectionId: params.connectionId,
+        resume: body.resume,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ connection });
+    },
+  );
+
+  /**
+   * Disconnect, and destroy the key.
+   *
+   * The credential row goes rather than being blanked. The connection keeps
+   * its history and its shipments; what it does not keep is anything that
+   * could still authenticate.
+   */
+  app.delete(
+    '/fulfilment/connections/:connectionId/credentials',
+    { preHandler: requireSeller(SellerPermission.CARRIER_CREDENTIAL_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      await destroyCarrierCredential({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        connectionId: params.connectionId,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * Create the seller's own delivery arm.
+   *
+   * Creates the organisation AND invites the person who will run it, in one
+   * call - an organisation with nobody in it is one nobody can activate.
+   *
+   * Note what it does not do: grant this seller's team any logistics
+   * permission. The named operations owner gets their own portal account, at
+   * their own address, because `users.emailNormalized` is unique across all
+   * three audiences and a fleet is a different body of personal data from a
+   * catalogue.
+   */
+  app.post(
+    '/fulfilment/self-managed',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          fulfilmentMethodId: z.string().length(26),
+          displayName: z.string().trim().min(2).max(160),
+          legalName: z.string().trim().min(2).max(255),
+          registrationCountry: z.string().trim().length(2),
+          registrationNumber: z.string().trim().max(64).nullable().optional(),
+          taxNumber: z.string().trim().max(64).nullable().optional(),
+          contactEmail: z.string().trim().email().max(320),
+          contactPhone: z.string().trim().max(32).nullable().optional(),
+          emergencyPhone: z.string().trim().max(32).nullable().optional(),
+          addressJson: z.unknown().optional(),
+          licenceNumber: z.string().trim().max(64).nullable().optional(),
+          operationsOwnerEmail: z.string().trim().email().max(320),
+          operationsOwnerName: z.string().trim().min(2).max(160),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const organisation = await createSelfManagedOrganisation({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: body.fulfilmentMethodId,
+        displayName: body.displayName,
+        legalName: body.legalName,
+        registrationCountry: body.registrationCountry,
+        registrationNumber: body.registrationNumber ?? null,
+        taxNumber: body.taxNumber ?? null,
+        contactEmail: body.contactEmail,
+        contactPhone: body.contactPhone ?? null,
+        emergencyPhone: body.emergencyPhone ?? null,
+        addressJson: body.addressJson,
+        licenceNumber: body.licenceNumber ?? null,
+        operationsOwnerEmail: body.operationsOwnerEmail,
+        operationsOwnerName: body.operationsOwnerName,
+        correlationId: request.correlationId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ organisation });
+    },
+  );
+
+  /**
+   * Which delivery companies could this seller ask to work for them.
+   *
+   * Names, coverage and approved capabilities. No contact details, no address,
+   * no contract reference, and nothing about which other sellers use them - a
+   * picker is a list a seller can request from, not a directory of other
+   * businesses' arrangements.
+   */
+  app.get(
+    '/fulfilment/partners/search',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({ q: z.string().trim().max(120).optional() })
+        .parse(request.query);
+
+      const seller = currentSeller(request);
+      const partners = await searchPartnersForSeller(seller.sellerAccountId, query.q ?? '');
+
+      return reply.header('cache-control', 'no-store').status(200).send({ partners });
+    },
+  );
+
+  /** Ask a delivery company that is already here to work for this seller. */
+  app.post(
+    '/fulfilment/partners/request',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          fulfilmentMethodId: z.string().length(26),
+          logisticsPartnerId: z.string().length(26),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const result = await requestExistingPartner({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: body.fulfilmentMethodId,
+        logisticsPartnerId: body.logisticsPartnerId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send(result);
+    },
+  );
+
+  /**
+   * Invite a delivery company that is not here yet.
+   *
+   * The response carries no token. It is generated, hashed into the row and
+   * handed to the mail job; a seller who could read it could redeem it and
+   * become the courier, which is the one thing this flow exists to prevent.
+   */
+  app.post(
+    '/fulfilment/partners/invite',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          fulfilmentMethodId: z.string().length(26),
+          proposedLegalName: z.string().trim().min(2).max(255),
+          proposedDisplayName: z.string().trim().min(2).max(160),
+          businessEmail: z.string().trim().email().max(320),
+          businessPhone: z.string().trim().max(32).nullable().optional(),
+          registrationNumber: z.string().trim().max(64).nullable().optional(),
+          countryCode: z.string().trim().length(2),
+          addressJson: z.unknown().optional(),
+          primaryContactName: z.string().trim().max(160).nullable().optional(),
+          expectedServiceCountries: z.array(z.string().trim().length(2)).max(60).optional(),
+          requiredCapabilities: z.array(z.string().trim().max(48)).max(40).optional(),
+          relationshipDescription: z.string().trim().max(2000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const invitation = await inviteDedicatedPartner({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: body.fulfilmentMethodId,
+        proposedLegalName: body.proposedLegalName,
+        proposedDisplayName: body.proposedDisplayName,
+        businessEmail: body.businessEmail,
+        businessPhone: body.businessPhone ?? null,
+        registrationNumber: body.registrationNumber ?? null,
+        countryCode: body.countryCode,
+        addressJson: body.addressJson,
+        primaryContactName: body.primaryContactName ?? null,
+        expectedServiceCountries: body.expectedServiceCountries ?? null,
+        requiredCapabilities: body.requiredCapabilities ?? null,
+        relationshipDescription: body.relationshipDescription ?? null,
+      });
+
+      /*
+       * `rawToken` is deliberately destructured away and dropped.
+       *
+       * The mail job is what carries it to the invited company. It is not in
+       * this response, it is not logged, and the only stored form is its
+       * SHA-256.
+       */
+      const { rawToken: _rawToken, ...safe } = invitation;
+
+      return reply.header('cache-control', 'no-store').status(201).send({ invitation: safe });
+    },
+  );
+
+  /** Withdraw an invitation nobody has taken up. */
+  app.delete(
+    '/fulfilment/partners/invitations/:invitationId',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ invitationId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      await revokePartnerInvitation({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        invitationId: params.invitationId,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * How an arrangement reached the state it is in.
+   *
+   * Carries a label for whoever moved it and never an actor id. Which named
+   * individual at the marketplace refused a request is the marketplace's
+   * business; the seller learns that it was refused, when, and why.
+   */
+  app.get(
+    '/fulfilment/arrangements/:linkId/history',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z.object({ linkId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const history = await readRelationshipHistory(seller.sellerAccountId, params.linkId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ history });
+    },
+  );
+
+  // --- Configuring an operation the seller runs themselves ----------------
+  //
+  // Four things a self-managed method needs before it is more than a name:
+  // where it collects from, where it delivers to, what it may carry, and what
+  // it charges.
+  //
+  // NONE OF THESE TAKES AN ORGANISATION ID. Every one resolves the delivery
+  // company from the seller's own method, so there is no shape of request that
+  // could point at another company's coverage or prices - including the
+  // dedicated courier this seller contracts with, which sets its own coverage
+  // in its own portal.
+
+  app.get(
+    '/fulfilment/methods/:methodId/pickup-profiles',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const profiles = await listPickupProfiles(seller.sellerAccountId, params.methodId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ profiles });
+    },
+  );
+
+  /**
+   * How goods leave one building under one method.
+   *
+   * An upsert rather than a create/update pair: there is at most one profile
+   * per method per building, and a seller saving the same screen twice has
+   * changed their mind, not created a second arrangement.
+   */
+  app.put(
+    '/fulfilment/methods/:methodId/pickup-profiles',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          sellerLocationId: z.string().length(26),
+          // Monday = 1. 31 is Mon-Fri, 127 every day; nothing outside a
+          // seven-bit mask means anything.
+          pickupDaysMask: z.number().int().min(0).max(127).optional(),
+          windowStart: clockTime.nullable().optional(),
+          windowEnd: clockTime.nullable().optional(),
+          cutoffOverride: clockTime.nullable().optional(),
+          handlingTimeDaysOverride: z.number().int().min(0).max(90).nullable().optional(),
+          maxDailyShipments: z.number().int().min(1).max(100000).nullable().optional(),
+          contactName: z.string().trim().max(160).nullable().optional(),
+          contactPhone: z.string().trim().max(32).nullable().optional(),
+          instructions: z.string().trim().max(2000).nullable().optional(),
+          maxPackageWeightGrams: z.number().int().min(1).max(50000000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const profile = await savePickupProfile({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: params.methodId,
+        ...body,
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ profile });
+    },
+  );
+
+  app.get(
+    '/fulfilment/methods/:methodId/service-areas',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const areas = await listServiceAreas(seller.sellerAccountId, params.methodId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ areas });
+    },
+  );
+
+  app.put(
+    '/fulfilment/methods/:methodId/service-areas',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          // Straight off the generated enum. A hand-typed list here drifts
+          // the moment a scope is added, and drifts silently.
+          scope: z.enum(LogisticsRegionScope),
+          countryCode: z.string().trim().length(2),
+          regionValue: z.string().trim().max(120).nullable().optional(),
+          isExclusion: z.boolean().optional(),
+          supportsPickup: z.boolean().optional(),
+          supportsDelivery: z.boolean().optional(),
+          deliveryDaysMask: z.number().int().min(0).max(127).optional(),
+          transitDaysMin: z.number().int().min(0).max(365).nullable().optional(),
+          transitDaysMax: z.number().int().min(0).max(365).nullable().optional(),
+          // Minor units as a string, like every other money field on this API.
+          remoteAreaSurchargeMinor: minorUnits.nullable().optional(),
+          maxShipmentWeightGrams: z.number().int().min(1).max(50000000).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const area = await saveServiceArea({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: params.methodId,
+        ...body,
+        remoteAreaSurchargeMinor:
+          body.remoteAreaSurchargeMinor === null || body.remoteAreaSurchargeMinor === undefined
+            ? null
+            : BigInt(body.remoteAreaSurchargeMinor),
+      });
+
+      return reply.header('cache-control', 'no-store').status(200).send({ area });
+    },
+  );
+
+  app.delete(
+    '/fulfilment/methods/:methodId/service-areas/:areaId',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z
+        .object({ methodId: z.string().length(26), areaId: z.string().length(26) })
+        .parse(request.params);
+
+      const seller = currentSeller(request);
+
+      await removeServiceArea({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: params.methodId,
+        areaId: params.areaId,
+      });
+
+      return reply.header('cache-control', 'no-store').status(204).send();
+    },
+  );
+
+  app.get(
+    '/fulfilment/methods/:methodId/capabilities',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const capabilities = await listCapabilities(seller.sellerAccountId, params.methodId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ capabilities });
+    },
+  );
+
+  /**
+   * Ask to be allowed to carry something.
+   *
+   * REQUEST, not grant. There is no parameter on this route that would let a
+   * seller approve their own capability, because the approval is the whole
+   * difference between "our vans have a fridge" and "somebody checked", and
+   * only an approved capability is matched against a consignment that needs it.
+   */
+  app.post(
+    '/fulfilment/methods/:methodId/capabilities',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          kind: z.enum(LogisticsCapabilityKind),
+          evidenceReference: z.string().trim().max(255).nullable().optional(),
+          evidenceExpiresAt: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD.')
+            .nullable()
+            .optional(),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const capability = await requestCapability({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: params.methodId,
+        kind: body.kind,
+        evidenceReference: body.evidenceReference ?? null,
+        evidenceExpiresAt:
+          body.evidenceExpiresAt === null || body.evidenceExpiresAt === undefined
+            ? null
+            : new Date(`${body.evidenceExpiresAt}T00:00:00.000Z`),
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ capability });
+    },
+  );
+
+  app.get(
+    '/fulfilment/methods/:methodId/rate-cards',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const seller = currentSeller(request);
+
+      const rateCards = await listRateCards(seller.sellerAccountId, params.methodId);
+
+      return reply.header('cache-control', 'no-store').status(200).send({ rateCards });
+    },
+  );
+
+  /**
+   * Publish what this operation charges.
+   *
+   * There is no route that EDITS a published card, deliberately. Publishing
+   * again makes version 2 and leaves version 1 on the record, because a quote
+   * points at the version it was priced from and a customer disputing a
+   * delivery charge six weeks later has to be shown the card as it stood on
+   * the day.
+   */
+  app.post(
+    '/fulfilment/methods/:methodId/rate-cards',
+    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ methodId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          name: z.string().trim().min(1).max(120),
+          currency: z.string().trim().length(3),
+          minimumChargeMinor: minorUnits.nullable().optional(),
+          freeShippingThresholdMinor: minorUnits.nullable().optional(),
+          taxInclusive: z.boolean().optional(),
+          bands: z
+            .array(
+              z.object({
+                basis: z.enum(['FLAT', 'WEIGHT', 'DISTANCE', 'POSTAL_ZONE', 'PACKAGE_SIZE']),
+                serviceType: z
+                  .enum(['STANDARD', 'EXPRESS', 'SAME_DAY', 'ECONOMY', 'FREIGHT', 'WHITE_GLOVE'])
+                  .optional(),
+                minValue: z.number().int().min(0).optional(),
+                maxValue: z.number().int().min(0).nullable().optional(),
+                postalPrefix: z.string().trim().max(16).optional(),
+                amountMinor: minorUnits,
+                perUnitMinor: minorUnits.nullable().optional(),
+              }),
+            )
+            .min(1)
+            .max(200),
+        })
+        .parse(request.body);
+
+      const seller = currentSeller(request);
+
+      const rateCard = await publishRateCard({
+        sellerAccountId: seller.sellerAccountId,
+        actor: { memberId: seller.memberId, userId: null, label: seller.displayName },
+        fulfilmentMethodId: params.methodId,
+        name: body.name,
+        currency: body.currency,
+        minimumChargeMinor:
+          body.minimumChargeMinor === null || body.minimumChargeMinor === undefined
+            ? null
+            : BigInt(body.minimumChargeMinor),
+        freeShippingThresholdMinor:
+          body.freeShippingThresholdMinor === null ||
+          body.freeShippingThresholdMinor === undefined
+            ? null
+            : BigInt(body.freeShippingThresholdMinor),
+        ...(body.taxInclusive === undefined ? {} : { taxInclusive: body.taxInclusive }),
+        bands: body.bands,
+      });
+
+      return reply.header('cache-control', 'no-store').status(201).send({ rateCard });
     },
   );
 

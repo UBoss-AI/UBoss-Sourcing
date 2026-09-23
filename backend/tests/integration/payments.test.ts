@@ -23,6 +23,7 @@ import {
   loadActiveProvider,
   loadProviderForWebhook,
   processWebhook,
+  simulateOrderPayment,
 } from '../../src/modules/payments/payment.service.js';
 import { assertChargeable } from '../../src/modules/payments/payment-method.service.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
@@ -1526,5 +1527,125 @@ describe('a card saved while paying', () => {
 
     expect(probe.calls()).toBe(0);
     expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(0);
+  });
+});
+
+/**
+ * Mock payments.
+ *
+ * The fixture that settles an order with no gateway and no webhook. What these
+ * guard is not that it works - that is one line - but that it cannot be got at
+ * where it would matter, and that when it does work it goes through the same
+ * code a real capture does rather than writing CAPTURED behind the state
+ * machine's back.
+ */
+describe('mock payments', () => {
+  /** Flip the flag for one test and put it back, whatever the developer's .env says. */
+  function withMockPayments(enabled: boolean): void {
+    (env as { PAYMENT_MOCK_SUCCESS: boolean }).PAYMENT_MOCK_SUCCESS = enabled;
+  }
+
+  afterEach(() => {
+    withMockPayments(false);
+  });
+
+  it('refuses when the flag is off', async () => {
+    const { orderId } = await orderAwaitingPayment();
+    withMockPayments(false);
+
+    await expect(
+      simulateOrderPayment({ orderId, customerProfileId, actorUserId: customerUserId }),
+    ).rejects.toMatchObject({ code: 'FEATURE_DISABLED' });
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('PENDING_PAYMENT');
+    expect(order.paidMinor).toBe(0n);
+  });
+
+  it('confirms the order and credits it in full', async () => {
+    const { orderId, amountMinor } = await orderAwaitingPayment();
+    withMockPayments(true);
+
+    const result = await simulateOrderPayment({
+      orderId,
+      customerProfileId,
+      actorUserId: customerUserId,
+    });
+
+    expect(result.paid).toBe(true);
+    expect(result.applied).toBe(true);
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    // CONFIRMED, and through `transitionOrder` - the capture path is shared
+    // with the webhook, so a status history row exists exactly as it would for
+    // a real payment.
+    expect(order.status).toBe('CONFIRMED');
+    expect(order.paidMinor).toBe(amountMinor);
+
+    const transaction = await prisma.paymentTransaction.findFirstOrThrow({ where: { orderId } });
+    expect(transaction.status).toBe('CAPTURED');
+    expect(transaction.capturedMinor).toBe(amountMinor);
+    expect(transaction.providerPaymentId).toMatch(/^mock_pay_/);
+  });
+
+  it('captures the payment the customer already started, rather than a second one', async () => {
+    const { orderId, providerOrderId } = await orderAwaitingPayment();
+    withMockPayments(true);
+
+    await simulateOrderPayment({ orderId, customerProfileId, actorUserId: customerUserId });
+
+    const transactions = await prisma.paymentTransaction.findMany({ where: { orderId } });
+    expect(transactions).toHaveLength(1);
+    expect(transactions[0]?.providerOrderId).toBe(providerOrderId);
+  });
+
+  it('credits nothing on a second call', async () => {
+    const { orderId, amountMinor } = await orderAwaitingPayment();
+    withMockPayments(true);
+
+    await simulateOrderPayment({ orderId, customerProfileId, actorUserId: customerUserId });
+    const second = await simulateOrderPayment({
+      orderId,
+      customerProfileId,
+      actorUserId: customerUserId,
+    });
+
+    expect(second.applied).toBe(false);
+
+    // The number that would be wrong if it double-credited, and the one a
+    // refund would later be calculated from.
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.paidMinor).toBe(amountMinor);
+  });
+
+  it('will not settle somebody else’s order', async () => {
+    const { orderId } = await orderAwaitingPayment();
+    withMockPayments(true);
+
+    await expect(
+      simulateOrderPayment({
+        orderId,
+        customerProfileId: newId(),
+        actorUserId: customerUserId,
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('PENDING_PAYMENT');
+  });
+
+  it('records the capture as a mock, not as a provider event', async () => {
+    const { orderId } = await orderAwaitingPayment();
+    withMockPayments(true);
+
+    await simulateOrderPayment({ orderId, customerProfileId, actorUserId: customerUserId });
+
+    const event = await prisma.paymentEvent.findFirstOrThrow({ where: { orderId } });
+    expect(event.providerEventId).toMatch(/^mock_evt_/);
+    expect(event.processingStatus).toBe('PROCESSED');
+    // The stored payload has to say what it is. A row that looked like
+    // Razorpay's own body would be the one thing this feature must never
+    // produce: evidence of a payment that never happened.
+    expect(JSON.parse(event.rawPayload)).toMatchObject({ mock: true });
   });
 });

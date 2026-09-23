@@ -47,6 +47,18 @@ const originList = z
  */
 const optionalOriginList = z.string().default('').pipe(originList);
 
+/**
+ * Whether a payment key belongs to a gateway's LIVE environment.
+ *
+ * A copy of the same one-liner in `modules/payments/provider.ts`, and
+ * deliberately a copy: this file is loaded before anything else and importing
+ * a module that imports Prisma to answer a question about a string prefix
+ * would put the database in the boot path of the configuration.
+ */
+function isLivePaymentKey(key: string): boolean {
+  return key.startsWith('rzp_live_') || key.startsWith('sk_live_') || key.startsWith('pk_live_');
+}
+
 const envSchema = z
   .object({
     // --- Runtime ---
@@ -293,6 +305,27 @@ const envSchema = z
     STRIPE_SECRET_KEY: z.string().default(''),
     STRIPE_WEBHOOK_SECRET: z.string().default(''),
     PAYMENT_LINK_TTL_HOURS: intFromString(1, 8760).default(72),
+    /**
+     * Make every payment succeed, without a gateway or a webhook.
+     *
+     * FOR TESTING THIS SOFTWARE, AND FOR NOTHING ELSE. With it on, the
+     * storefront can settle any order awaiting payment by asking for it, and
+     * the order is confirmed exactly as a captured payment confirms it -
+     * same state machine, same ERP push, same audit trail - so a tester sees
+     * the real consequences of a payment rather than a green tick.
+     *
+     * It exists because the honest path is unreachable on a laptop. An order
+     * is confirmed only by a signature-verified webhook, and a gateway cannot
+     * reach `localhost`, so a developer who pays with a test card watches the
+     * order sit in PENDING_PAYMENT forever and every screen after checkout is
+     * untestable.
+     *
+     * Three guards, all below in the refinements: it is refused outright in
+     * production, refused next to a live credential, and off by default. The
+     * webhook path is untouched - this is a second, clearly-marked door, not
+     * a weakening of the first one.
+     */
+    PAYMENT_MOCK_SUCCESS: booleanFromString.default(false),
 
     // --- Business defaults ---
     DEFAULT_CURRENCY: z.string().length(3).toUpperCase().default('INR'),
@@ -668,6 +701,125 @@ const envSchema = z
 
     /// How long an organisation invitation stays valid, in hours.
     CUSTOMER_ERP_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
+
+    // --- A SELLER's own accounting system (TallyPrime) -----------------------
+    //
+    // The third ERP feature in this file, and it is neither of the other two.
+    // `FEATURE_ERP_INTEGRATION` above is the OPERATOR's warehouse system;
+    // `FEATURE_CUSTOMER_ERP` is a BUYER's purchasing system; this is a SELLER's
+    // accounting system, one per seller, posting that seller's own sales into
+    // their own books. They share no table, no job type and no retry budget.
+    //
+    // Off means the Seller Hub's ERP screens are hidden, every route refuses
+    // with FEATURE_DISABLED, no dispatch job is enqueued, and the bridge
+    // endpoint 404s. Opt-in, like the other two.
+    FEATURE_SELLER_ERP: booleanFromString.default(false),
+
+    /// How many Tally connections one seller may hold.
+    ///
+    /// Two is the ordinary case at a financial year boundary - last year's
+    /// company and this year's - and a seller with several trading entities
+    /// legitimately wants one each. Five is room for that without letting one
+    /// tenant create unbounded work for the dispatcher.
+    SELLER_ERP_MAX_CONNECTIONS: intFromString(1, 20).default(5),
+
+    /// How long a pairing code is good for, in minutes.
+    ///
+    /// SHORT on purpose. A pairing code IS a credential for the whole of its
+    /// life - it is the one thing standing between a stranger's bridge and a
+    /// seller's books - and the whole workflow is "generate it, walk to the
+    /// machine, paste it". Fifteen minutes covers that walk. An hour covers a
+    /// code left on a screen in an open office over lunch.
+    SELLER_ERP_PAIRING_TTL_MINUTES: intFromString(2, 120).default(15),
+
+    /// Wrong guesses at one pairing code before it is burned.
+    ///
+    /// A code short enough for a person to type is short enough to guess given
+    /// unlimited goes. Five is generous for a typo and useless for a search.
+    SELLER_ERP_PAIRING_MAX_ATTEMPTS: intFromString(1, 20).default(5),
+
+    /// Pairing codes one seller may generate per hour. A second lock on the
+    /// same door: burning a code after five guesses is worth little if a
+    /// thousand fresh ones can be minted.
+    SELLER_ERP_PAIRING_RATE_PER_HOUR: intFromString(1, 100).default(10),
+
+    /// How long a bridge token lasts before it must be rotated, in days.
+    ///
+    /// The agent rotates on its own well before this, so a seller never
+    /// normally meets it. It is the backstop for a machine that was paired,
+    /// forgotten, and left running in a cupboard for two years.
+    SELLER_ERP_BRIDGE_TOKEN_TTL_DAYS: intFromString(1, 3650).default(180),
+
+    /// How long the bridge holds a claimed task before the lease expires, in
+    /// seconds.
+    ///
+    /// The same lease pattern `JobQueue` uses, and for the same MariaDB 10.4
+    /// reason - no SKIP LOCKED, so claiming is a conditional UPDATE. A bridge
+    /// that dies mid-task releases the work after this rather than stranding
+    /// it; too short and a slow Tally has its work taken off it mid-post.
+    SELLER_ERP_TASK_LEASE_SECONDS: intFromString(30, 1800).default(300),
+
+    /// Tasks the bridge may claim in one poll. A ceiling on how much one
+    /// seller's agent holds at once, not a business rule.
+    SELLER_ERP_TASK_BATCH_SIZE: intFromString(1, 50).default(5),
+
+    /// Attempts at one event before it is dead-lettered.
+    ///
+    /// Every attempt uses the SAME idempotency key, so this bounds noise
+    /// rather than risking duplication. Eight because an accounting event
+    /// matters more than most - losing one is a sale missing from somebody's
+    /// books - and because the backoff has reached hours by then anyway.
+    SELLER_ERP_MAX_ATTEMPTS: intFromString(1, 30).default(8),
+
+    /// The first retry delay, in seconds. Doubled each attempt with full
+    /// jitter and capped at an hour - see `retryDelaySeconds`.
+    SELLER_ERP_RETRY_BASE_SECONDS: intFromString(1, 3600).default(30),
+
+    /// Consecutive failures before a connection's circuit opens.
+    ///
+    /// It stops handing out work until a test passes. Without it, a seller
+    /// whose Tally has been closed for a fortnight gets every queued job
+    /// attempted against it on every pass for a fortnight.
+    SELLER_ERP_FAILURE_THRESHOLD: intFromString(1, 100).default(5),
+
+    /// Whether a seller may point this server straight at a Tally address,
+    /// instead of running the bridge.
+    ///
+    /// FALSE, and it should stay false on anything reachable from the
+    /// internet. TallyPrime's HTTP listener has NO AUTHENTICATION: anyone who
+    /// can reach the port can read the whole ledger and post vouchers into it.
+    /// There is therefore no address a seller can safely publish, and
+    /// `localhost:9000` from this server is THIS server rather than theirs.
+    ///
+    /// It exists for one deployment shape: a marketplace running inside the
+    /// same private network or VPN as the seller's Tally, on hosts the
+    /// operator controls. Turning it on without `SELLER_ERP_DIRECT_HOST_SUFFIXES`
+    /// is refused at startup.
+    SELLER_ERP_ALLOW_DIRECT_MODE: booleanFromString.default(false),
+
+    /// Host suffixes a direct-mode Tally address is allowed to end in.
+    ///
+    /// Required when direct mode is on, and deliberately NOT defaulted to
+    /// anything: an allowlist that defaults to "everything" is not an
+    /// allowlist. A leading dot means "this domain and its subdomains";
+    /// anything else is an exact host. It sits on top of the SSRF guard, never
+    /// in place of it.
+    SELLER_ERP_DIRECT_HOST_SUFFIXES: z
+      .string()
+      .default('')
+      .transform((raw) =>
+        raw
+          .split(',')
+          .map((entry) => entry.trim().toLowerCase())
+          .filter((entry) => entry.length > 0),
+      ),
+
+    /// Bytes of one Tally reply held in memory.
+    ///
+    /// A master list from a large company is the biggest legitimate payload; a
+    /// voucher acknowledgement is a few kilobytes. Matches MAX_XML_BYTES in
+    /// `tally/xml.ts`, which refuses anything larger before parsing.
+    SELLER_ERP_MAX_RESPONSE_BYTES: intFromString(64_000, 33_554_432).default(8_388_608),
 
     // --- Auto-pay ---
     //
@@ -1293,6 +1445,29 @@ const envSchema = z
      * and nobody would find out until a partner said so. Refused at startup,
      * where it is one line to fix.
      */
+    /*
+     * Direct mode without an allowlist is refused outright.
+     *
+     * TallyPrime's HTTP listener authenticates nobody. A deployment that let a
+     * seller type any address would be an SSRF proxy with a business reason
+     * attached, and one that let them type their own public address would be
+     * inviting them to publish their ledger. The allowlist is what makes the
+     * mode mean "inside the network the operator controls" rather than "any
+     * host at all", so an empty one is a configuration mistake and not a
+     * permissive default.
+     */
+    if (value.SELLER_ERP_ALLOW_DIRECT_MODE && value.SELLER_ERP_DIRECT_HOST_SUFFIXES.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SELLER_ERP_DIRECT_HOST_SUFFIXES'],
+        message:
+          'required when SELLER_ERP_ALLOW_DIRECT_MODE is on. TallyPrime’s HTTP interface has no ' +
+          'authentication of any kind, so an unrestricted direct mode lets a seller point this ' +
+          'server at an address of their choosing. List the hosts inside your own network, or ' +
+          'leave direct mode off and use the Glovia Tally Bridge.',
+      });
+    }
+
     if (value.FEATURE_LOGISTICS_PORTAL) {
       if (value.LOGISTICS_WEB_PUBLIC_URL.length === 0) {
         ctx.addIssue({
@@ -1622,6 +1797,44 @@ const envSchema = z
       });
     }
 
+    /*
+     * The mock-success door, and the two places it must never open.
+     *
+     * Production is the obvious one. The other is a live credential in any
+     * environment: a staging box pointed at a live gateway is a place where
+     * real money is at stake, whatever NODE_ENV says, and an order confirmed
+     * there without a payment is an order somebody ships for free.
+     *
+     * Refused at boot rather than ignored at runtime. A flag that is silently
+     * disregarded is worse than one that refuses: the operator goes on
+     * believing it is set to something.
+     */
+    if (value.PAYMENT_MOCK_SUCCESS) {
+      if (value.NODE_ENV === 'production') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PAYMENT_MOCK_SUCCESS'],
+          message:
+            'must be false in production. It confirms orders nobody has paid for.',
+        });
+      }
+
+      const liveCredential = [
+        value.RAZORPAY_KEY_ID,
+        value.STRIPE_PUBLISHABLE_KEY,
+        value.STRIPE_SECRET_KEY,
+      ].some((key) => isLivePaymentKey(key));
+
+      if (liveCredential) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PAYMENT_MOCK_SUCCESS'],
+          message:
+            'cannot be true while a LIVE payment key is configured. Mock payments ' +
+            'confirm orders no money was taken for.',
+        });
+      }
+    }
     // Production-only guards. These are the settings that look harmless in dev
     // and are outright dangerous once real customers and money are involved.
     if (value.NODE_ENV === 'production') {

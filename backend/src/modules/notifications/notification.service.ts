@@ -685,7 +685,11 @@ export async function enqueueNotification(
 
   const variables: TemplateVariables = {
     recipientName: input.recipientName ?? 'there',
-    businessName: 'UBOSS Sourcing',
+    // Every real send passes the operator's own business name in
+    // `input.variables` and overwrites this. It is what `{{businessName}}`
+    // renders as when nothing did — the product's name, because there is no
+    // shop's name to be had.
+    businessName: 'Glovia',
     supportEmail: 'support@uboss.example',
     ...input.variables,
   };

@@ -44,43 +44,7 @@ import { locateRoute, visibleNavigation, type NavItem } from './navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LocaleMenu } from './LocaleMenu';
 import { NotificationBell } from './NotificationBell';
-
-/**
- * The brand block, at the top of the rail.
- *
- * Two lines rather than one: the mark and the product name are the thing you
- * look at once, and "Admin console" underneath is what tells someone with two
- * UBOSS tabs open which one they are in. The whole block is a link home, since
- * a logo that is not clickable is the single most reliably-attempted dead
- * control in any admin panel.
- *
- * At sixty pixels the two lines are gone and the mark is the whole of it —
- * which is the one part of the rail that still says which product this is.
- */
-function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <Link
-      to="/"
-      onClick={onNavigate}
-      className="relative z-20 flex h-10 shrink-0 items-center gap-3 rounded-md px-2 transition-opacity hover:opacity-90"
-    >
-      <span
-        aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-fill text-sm font-bold tracking-tight text-white shadow-card"
-      >
-        U
-      </span>
-      <SidebarLabel display="block" className="min-w-0 leading-tight">
-        <span className="block text-sm font-semibold tracking-tight text-ink">UBOSS</span>
-        <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
-          {t('shell.adminConsole')}
-        </span>
-      </SidebarLabel>
-    </Link>
-  );
-}
+import { BrandLockup } from './BrandLockup';
 
 /**
  * Who is signed in, at the foot of the rail.
@@ -141,7 +105,7 @@ function ConsoleNav({ onNavigate }: { onNavigate: () => void }): React.JSX.Eleme
   return (
     <>
       <div className="flex flex-1 flex-col">
-        <Brand onNavigate={onNavigate} />
+        <BrandLockup onNavigate={onNavigate} />
 
         <div className="mt-6 space-y-4">
           {groups.map((group) => (

@@ -59,7 +59,7 @@ const FORMAL = new Set<CatalogueLanguage>(['nl', 'fr', 'de', 'it', 'pl', 'es']);
  * Same list and same mechanism as the interface script: wrapped in a tag DeepL
  * is told to ignore. A brand name translated into Greek is not a brand name.
  */
-const KEEP = ['UBOSS', 'GSTIN', 'IBAN', 'GDPR'];
+const KEEP = ['Glovia', 'UBOSS', 'GSTIN', 'IBAN', 'GDPR'];
 
 /**
  * Wrap the do-not-translate terms, and make the rest safe to send as XML.

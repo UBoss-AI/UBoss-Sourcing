@@ -128,7 +128,7 @@ describe('colours that have to work on both themes', () => {
    * and no colour derived from a token can promise a ratio against an ice cap.
    * The promise moved to a scrim under the label — see the note on
    * `[data-stage='on'] .orch-hub-label::before` in `orchestration.css`, which
-   * is where to look if "Sourcing" ever stops being readable.
+   * is where to look if the brand at the core ever stops being readable.
    */
 });
 describe('mixing colours', () => {

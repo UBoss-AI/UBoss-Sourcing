@@ -19,6 +19,7 @@
  */
 import { useState } from 'react';
 import { ConsignmentCarrierPanel } from './ConsignmentCarrierPanel';
+import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
@@ -266,7 +267,24 @@ function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Elemen
     <Card title={t('sellerConsignment.carrierHeading')}>
       <div className="space-y-3 px-6 py-4">
         {consignments.map((consignment) => (
-          <ConsignmentCarrierPanel key={consignment.id} consignment={consignment} />
+          <div key={consignment.id} className="space-y-3">
+            <ConsignmentCarrierPanel consignment={consignment} />
+
+            {/*
+              The other route out of the warehouse.
+
+              A seller with their own carrier account prices and buys the
+              consignment here rather than offering it to a haulage company.
+              Both are on the page because a seller can have both — one carrier
+              for the north and their own vans for the city — and hiding one
+              behind a mode toggle makes the choice feel like a setting rather
+              than what it is, which is a decision about this parcel.
+            */}
+            <ConsignmentCarrierPurchasePanel
+              shipmentId={consignment.id}
+              reference={consignment.reference}
+            />
+          </div>
         ))}
       </div>
     </Card>

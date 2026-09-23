@@ -31,6 +31,8 @@ import { Button, Field, Input } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
+import { EarthMark } from '@/components/EarthMark';
+import { PARENT_ATTRIBUTION, PRODUCT_INITIAL } from '@/lib/brand';
 
 interface FormValues {
   currentPassword: string;
@@ -101,12 +103,12 @@ export function ChangePasswordPage(): React.JSX.Element {
         <LanguageSwitcher placement="auth" />
 
         <div className="mb-6 flex flex-col items-center text-center">
-          <span
-            aria-hidden="true"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
-          >
-            U
-          </span>
+          {/* The same mark the rail carries, and the storefront's header —
+              one product, one mark. `lib/brand.ts` has the two strings. */}
+          <EarthMark initial={PRODUCT_INITIAL} />
+          <p className="mb-3 mt-2 text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
+            {PARENT_ATTRIBUTION}
+          </p>
           <h1 className="text-lg font-semibold tracking-tight text-ink">
             {t('auth.change.headingAdmin')}
           </h1>

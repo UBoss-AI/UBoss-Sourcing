@@ -33,6 +33,7 @@ import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { AutoPaySetupDialog } from '@/components/AutoPaySetupDialog';
 import { QuantityInput } from '@/components/QuantityInput';
+import { PackagingBreakdown } from '@/components/catalog/PackagingBreakdown';
 import { CouponPanel } from '@/components/CouponPanel';
 import { DeliveryOptionsPanel } from '@/components/DeliveryOptionsPanel';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
@@ -429,6 +430,21 @@ function LineRow({
             )}
 
             <p className="mt-1 font-mono text-xxs text-ink-subtle">{line.sku}</p>
+
+            {/*
+             * The bulk breakdown, on the line it belongs to.
+             *
+             * A basket row reading "2,400" beside a five-figure total is a
+             * number the buyer has to take on trust. The breakdown is what
+             * makes it checkable - and it is read off the line's own frozen
+             * snapshot, so it keeps describing the pallet that was actually
+             * bought after the seller re-specifies theirs.
+             *
+             * Absent on every ordinary line, which is most of them.
+             */}
+            {line.packaging != null && (
+              <PackagingBreakdown packaging={line.packaging} className="mt-2" />
+            )}
           </div>
 
           <p className="shrink-0 text-right">

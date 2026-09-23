@@ -47,6 +47,7 @@ import { Link } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { BoxIcon, ChevronRightIcon, CloseIcon } from '@/components/icons';
+import { PRODUCT_BRAND } from '@/lib/brand';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
@@ -555,7 +556,18 @@ export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Elem
       <div ref={rootRef} className="orch">
         <div ref={stageRef} className="orch-stage">
           <HubWeb />
-          <HubCore label={t('greeting.hub.sourcing')} />
+          {/*
+            The product, at the centre of the thing the four capabilities
+            orbit. Not a translated word — it is the brand, and the reasoning
+            for that is in `lib/brand.ts`.
+
+            One element, drawn whether or not WebGL is available: the 3D stage
+            replaces the glass sphere behind this label and never the label
+            itself, so there is no second copy of it to keep in step and no
+            fallback that can be left saying something else. See
+            `greeting/HeroStage.tsx`.
+          */}
+          <HubCore label={PRODUCT_BRAND} />
         </div>
 
         {/* The parallax layer. Outside the `<ul>` because the ul's children

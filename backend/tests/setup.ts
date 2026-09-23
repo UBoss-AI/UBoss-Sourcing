@@ -133,6 +133,17 @@ process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_suite_not_a_real_key';
 process.env.STRIPE_SECRET_KEY = 'sk_test_suite_not_a_real_key';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_suite_not_a_real_secret';
 
+/*
+ * Mock payments, pinned OFF.
+ *
+ * Same reasoning as the keys above. A developer's `.env` may well have this on
+ * - it is the only way to settle an order on a laptop - and a suite that
+ * inherited it would run with every payment settleable on request, which is
+ * not what the application does anywhere else. The one test file that wants it
+ * turns it on for itself and puts it back.
+ */
+process.env.PAYMENT_MOCK_SUCCESS = 'false';
+
 // No VIES either. Checking a VAT number reaches a member state's own register
 // through the Commission's service, which is slow, offline as often as not,
 // and rude to call from a test suite. Empty means "cannot check", which is a

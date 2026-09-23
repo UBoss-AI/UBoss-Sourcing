@@ -22,6 +22,7 @@
  */
 import { ErrorCode, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import type { OrderingUnit } from '../../domain/ordering-unit.js';
 import { prisma } from '../../infra/prisma.js';
 import { VISIBLE_TO_CUSTOMER } from './schedule.service.js';
 import { quoteSchedule } from './schedule-quote.service.js';
@@ -95,7 +96,16 @@ type EstimatePlan = {
     productId: string;
     variantId: string | null;
     quantity: number;
-    orderingUnit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    /*
+     * The domain's own union rather than a copy of its members.
+     *
+     * It was spelled out here, and bulk packaging added four members to it -
+     * so the local copy immediately described a narrower set than the column
+     * can hold, and a plan line saved by the bulk work stopped type-checking
+     * against the estimator that has to price it. Importing the type is what
+     * stops the two drifting again the next time a member is added.
+     */
+    orderingUnit: OrderingUnit;
     unitQuantity: number;
     piecesPerUnitSnapshot: number;
     substituteProductId: string | null;

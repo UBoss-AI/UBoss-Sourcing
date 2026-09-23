@@ -88,13 +88,13 @@ function table(headers, rows, widths) {
 function page() { children.push(new Paragraph({ children: [new PageBreak()] })); }
 
 // Cover
-title('UBOSS Sourcing', 'Simple Feature Guide — Customer Storefront, Admin Console, Warehouses, Orders and Automation');
+title('Glovia', 'Simple Feature Guide — Customer Storefront, Admin Console, Warehouses, Orders and Automation');
 p('Prepared from the current project implementation', { align: AlignmentType.CENTER, color: C.muted, size: 11 });
 p('English edition • September 2026', { align: AlignmentType.CENTER, color: C.muted, size: 10 });
 children.push(new Paragraph({ text: '', spacing: { before: 300, after: 60 } }));
 note('Purpose', 'This document explains, in simple English, what customers, staff and the system can do. It describes implemented features and clearly marks features that depend on configuration.', C.blue);
 h2('Quick answer');
-p('UBOSS Sourcing is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a cart, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
+p('Glovia is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a cart, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
 h2('How to use this guide');
 bullets([
   'Read “Customer features” to understand what a buyer can do on the storefront.',
@@ -106,6 +106,12 @@ page();
 
 // 1
 h1('1. The Product in Simple Words');
+h2('1.0 What the product is called');
+p('The product is called Glovia. UBOSS is the company behind it, and every screen says so under the name: Powered by UBOSS.');
+p('The product used to be called UBOSS Sourcing. That name is no longer shown to anybody using the system. Where you still see UBOSS on a screen, it is naming the company or the people you deal with — "UBOSS operations", for example, is the team a delivery company contacts — and not the software.');
+p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices and in your emails. Glovia is the name of the software you are running; it never replaces the name of the business running it.');
+p('Some names inside the system were left exactly as they were on purpose: folder names, database names, addresses, file names and settings that other systems already point at. Changing those would break working connections and would change nothing anybody sees.');
+h2('1.1 The four working parts');
 p('The project has four working parts. They are separate so customers can shop safely while staff run the business without exposing internal tools to buyers.');
 table(['Part', 'Who uses it', 'What it does'], [
   ['Customer storefront', 'Buyers, hospitals, clinics and business customers', 'Browse the catalogue, ask AI questions, make orders, manage delivery/account settings and repeat purchases.'],
@@ -311,6 +317,28 @@ bullets([
 note('How many is in a carton', 'It is recorded against the product, so a business that packs one line in five hundreds and another in twenties can say so, and a line it does not pack in cartons at all is simply sold one at a time. Every price, every quantity box and every page that says “one carton has 500 pieces” follows what that product says. The old single setting for the whole shop is still there as the figure used for a product whose supplier said it came in cartons without saying how many.', C.purple);
 note('Why an outside seller’s goods are not sold by the carton', 'The carton belongs to the business running this shop — it is how they pack and ship their own product. An outside seller packs their own way, and their price is the price of one item. Applying the shop’s carton to their listing would have shown a ten-rupee item at five thousand rupees, and charged it. So what a line is counted in is decided by who is selling it, worked out by the system before any quantity or price is calculated, and never guessed from the name of the product or the department it sits in.', C.orange);
 note('Searching by price when both appear together', 'A price range is matched on what one piece costs, for everything, so that “cheapest first” genuinely orders a page rather than putting every by-the-piece listing below every carton. The search panel says this under the boxes, because a range typed in carton money will also bring back by-the-piece listings at the matching piece price.', C.blue);
+h2('3.3b Buying by the carton, the pallet or the container');
+p('A hospital group buying gloves does not buy forty-eight hundred of them. They buy four pallets. Until now the only way to say so was to type 4,800 into a box meant for single items, and hope the seller worked out by hand whether that came to a whole number of pallets. Half the time it did not, and half a pallet is not something a warehouse can pick up.');
+p('A seller can now say how their goods are actually packed, and the buyer chooses a package instead of a number of units. An “Order by” choice appears on the product page with only the packages that seller offers: a carton, a UK pallet, a US pallet, a shipping container, or any mixture of those.');
+table(['What the customer sees', 'What it means'], [
+  ['A row of choices — Carton, UK pallet, US pallet, Container — showing only what this seller offers.', 'Buy in the unit the goods actually ship in, rather than converting in their head.'],
+  ['The whole breakdown, written out: “2 UK pallets × 50 cartons × 24 units = 2,400 units”.', 'Check the number they are about to be charged for, rather than trusting it.'],
+  ['The price of one package, and beside it the price that works out to per unit.', 'Compare a pallet price against what they pay their current supplier per glove.'],
+  ['How many complete packages are available right now, rounded down.', 'Know they can have two pallets before they try, instead of finding out at the checkout.'],
+  ['The size and the loaded weight of one package.', 'Check the lorry, the door and the forklift before ordering.'],
+  ['How many working days before it is ready to send.', 'A pallet is not next-day, and the page says so before the order is placed.'],
+  ['Any cheaper price for taking more — “take 4 or more and the price falls”.', 'See the better price before committing, not after.'],
+], [4200, 5800]);
+bullets([
+  'Both ways of buying stay available. A seller who ships pallets still sells a single box, and a buyer who wanted one is not turned away.',
+  'Whichever package is chosen, what the warehouse picks and what the invoice counts is still the number of individual units — 2,400, not 2. The package count is shown beside it, never instead of it.',
+  'Where the packaging is half set up, the choice is simply not offered. A buyer is never shown a pallet whose size nobody has stated.',
+  'Where there is stock for one complete pallet and two were asked for, the page says so and names the figure: “Only 1 complete UK pallet is available right now.”',
+]);
+note('Why the pallet in the basket does not change', 'What goes into one pallet is frozen onto the line at the moment it is put in the basket. If the seller changes their packing next week, an order placed today keeps describing the pallet that was actually bought, and a basket still holding one is told the two no longer match rather than being quietly changed. An order from last quarter reads correctly for ever.', C.purple);
+note('Pallet sizes, and what a container figure really is', 'The two pallet sizes are a floor measurement and nothing more — 1200 by 1000 mm for the UK one, and 1219 by 1016 mm (48 by 40 inches) for the US one. Everything else about the pallet is the seller’s to state, because a pallet of gauze and a pallet of saline have the floor in common and nothing else. Container figures are shown as guidance only. What fits in a container varies by the container, by the shipping line and by the age of the box, so the seller states their own figure and that is the one used.', C.blue);
+note('Delivery for a pallet or a container is quoted, not priced instantly', 'A parcel company prices a box a courier can lift. A pallet goes on a lorry and a container goes on a ship, and asking a parcel company’s system to price one of those either fails — or, far worse, answers with a price for something nobody will ever come to collect. So where the delivery cannot honestly be priced on the spot, the goods can still be ordered and the delivery cost is quoted by a person before anything is despatched. The page says so plainly. No delivery price is ever invented.', C.orange);
+
 h2('3.3a A catalogue to look at on the first day');
 p('A business that has just installed this software has an empty shop. There is nothing to click, nothing to filter, nothing to put in a basket and nothing to show a colleague — which makes it hard to decide whether the software does what is wanted. So a demonstration catalogue can be planted with a single command, and it fills every department and every shelf the business has.');
 table(['What is planted', 'What it looks like'], [
@@ -454,7 +482,7 @@ table(['Feature', 'Customer benefit'], [
   ['Schedules', 'Manage Buy Later and Subscribe & Reorder plans.'],
 ], [3000, 6500]);
 h2('6.4 Customer’s own ERP connection');
-p('A customer can connect its own purchasing or business system to UBOSS through Account → Integrations → ERP. This is separate from the supplier/admin ERP connection.');
+p('A customer can connect its own purchasing or business system to Glovia through Account → Integrations → ERP. This is separate from the supplier/admin ERP connection.');
 p('The setup runs as six short steps. Each one opens at the top of the page when the previous is finished, so a long step never leaves the next question somewhere above the screen.');
 bullets([
   'Use a guided setup flow for supported named systems or a documented API.',
@@ -462,15 +490,15 @@ bullets([
   'Keep customer-supplied credentials encrypted and protected.',
   'The application rejects unsafe outbound destinations in normal production configuration.',
 ]);
-p('Some systems ask the customer to sign in rather than to type a password into UBOSS. For those, the connection screen shows a Connect button. The customer presses it, is taken to their own system, signs in there, and approves the list of permissions being asked for. Their system then sends them back to UBOSS, the connection is ready to test, and UBOSS is told which permissions were actually granted — so a customer whose administrator allowed less than was asked for is told straight away rather than at the first order that quietly fails.');
+p('Some systems ask the customer to sign in rather than to type a password into Glovia. For those, the connection screen shows a Connect button. The customer presses it, is taken to their own system, signs in there, and approves the list of permissions being asked for. Their system then sends them back to UBOSS, the connection is ready to test, and UBOSS is told which permissions were actually granted — so a customer whose administrator allowed less than was asked for is told straight away rather than at the first order that quietly fails.');
 p('A customer who changes their mind and cancels on that screen is told nothing was connected, and can start again whenever they are ready. The same button later reads Sign in again, for when their system’s access is withdrawn or expires.');
 p('A connection does not have to send anything. A customer whose own system is a product or price list, rather than a purchasing system, can switch every outgoing item off and use the connection only to read from their system. When they do, UBOSS asks them to match up only the information that connection actually uses — it does not ask a customer to describe a purchase order they have said they will never send.');
 p('A Product matching screen answers the question customers ask first: do both systems hold the same products? Pressing Check now reads the full product list from their system and compares it with their catalogue in UBOSS. It changes nothing — it only looks. The answer is three counts: products found in both systems, products their system has that are not sold here, and products here that their system has never mentioned. That last group is the one worth acting on, because UBOSS will never receive figures for them.');
 p('Products are matched on the product code, exactly as written on each side. Where nothing matches at all, the screen says so in plain words and explains the usual reason: the two systems use different codes for the same item.');
-p('When that happens, and it is common, the same screen is where the customer fixes it. They can tell UBOSS which product in this catalogue each of their own codes means. Rather than pairing them one at a time, they paste two columns straight out of a spreadsheet — their code, then the code used here — separated by a comma, semicolon or tab, so a file exported by any spreadsheet is accepted as it is. A heading row is ignored.');
+p('When that happens, and it is common, the same screen is where the customer fixes it. They can tell Glovia which product in this catalogue each of their own codes means. Rather than pairing them one at a time, they paste two columns straight out of a spreadsheet — their code, then the code used here — separated by a comma, semicolon or tab, so a file exported by any spreadsheet is accepted as it is. A heading row is ignored.');
 p('Any line that names a product this catalogue does not have is reported back with its line number and the reason, and everything else is still saved. A long list will usually contain a few codes that have since been retired, and refusing the whole file because of three of them would leave the customer with nothing.');
 p('Once a code is paired, every sync from then on uses that pairing, and the matching screen counts that product as found in both systems. A pairing the customer has made is always preferred over two codes that merely happen to look the same. Nothing is ever guessed: UBOSS will not decide that two codes probably mean the same product, because a wrong pairing quietly attaches real stock figures to the wrong item and is believed for months.');
-p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in UBOSS. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
+p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in Glovia. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
 p('Setting up a live connection to monday.com needs the store to have registered an application with monday.com first. Where the store has not, the setup wizard says so on its first step and offers a test connection instead, rather than letting the customer fill in every step and be refused at the end.');
 p('Checking a connection never switches it off. A customer can press Test at any time, including on a connection that is switched on and carrying their orders, and it is left exactly as it was — switched on if it was switched on, paused if it was paused. Only the result changes: the screen shows whether the check succeeded, when it ran and what the customer’s system said. A connection is taken out of service by repeated real failures, never by a single check.');
 page();
@@ -732,6 +760,178 @@ bullets([
   'A request nobody has decided yet can be taken back by the seller. One that has been decided stays on the list with its reason, because that is something worth keeping rather than tidying away.',
 ]);
 page();
+h2('6a.11 Choosing how your orders get delivered');
+p('Every seller has to say how the things they sell will reach the people who buy them. It is one of the steps in the application, it can be answered in a single click, and it can be changed at any time afterwards from the Delivery screen in the Seller Hub.');
+p('There are four ways, and a seller can use more than one at a time.');
+table(['Way of delivering', 'What it means'], [
+  ['Your own carrier account', 'The seller already has an account with DHL, FedEx or India Post and wants to use it. The seller packs the goods; the carrier collects and delivers them.'],
+  ['Your own delivery team', 'The seller delivers with their own people, vans and drivers.'],
+  ['A delivery company you work with', 'A courier firm the seller already works with, which delivers for that seller and manages its own drivers.'],
+  ['Marketplace delivery', 'The marketplace arranges a delivery company. Nothing to set up. This is how the system worked before the other three existed, and it is the answer for a seller who has not decided yet.'],
+]);
+note('Why there is always an answer', 'Marketplace delivery needs nothing configured by anybody, so no seller can ever be stuck on this step waiting for somebody else. That is what makes it safe to insist on an answer before an application is sent in.', C.blue);
+
+h2('6a.11a Drivers, and who they belong to');
+p('When a seller delivers with their own team, or through a courier firm that works for them, drivers and vehicles are managed inside the system — added, given their qualifications, put on a delivery, taken off it again.');
+p('When a seller uses DHL, FedEx or India Post, none of that appears. Those drivers work for the carrier, not for the seller and not for the marketplace, and there is no screen anywhere offering to choose one. A seller sees the name and a partly hidden phone number of whoever is bringing their own consignment, and nothing else about anybody’s staff.');
+
+h2('6a.11b Connecting a carrier account the seller already has');
+p('The seller enters their account number and the key their carrier gave them. The key is stored on the marketplace’s own server, encrypted, and is never shown again — not to the seller, not to the marketplace’s staff, not on any screen or report. The seller can replace it at any time, and can delete it, which disconnects the account.');
+p('Before anything real is sent that way, two separate things have to happen, in this order:');
+bullets([
+  'The system calls the carrier for real, using the key that was entered, and the carrier answers. Saving the form is not enough — a key with a typo in it looks exactly like a correct one until somebody actually tries it.',
+  'A person at the seller then says they want live orders sent this way. A test that passed proves the key works; it does not prove anybody meant to start shipping.',
+]);
+p('Until both have happened the screen says so plainly, and the button that switches it on cannot be pressed. Replacing the key puts it back behind both, because a new key that was mistyped must not inherit the old one’s tick.');
+note('Nothing is ever pretended', 'If the carrier refuses, the screen shows what the carrier said and the account stays switched off. There is no state anywhere in this system that reports a working connection on the strength of a saved form.', C.teal);
+
+h2('6a.11c India Post');
+p('India Post is offered, and the system is straightforward about what it can and cannot do with it. There is no published way for software like this to book, price, label or automatically follow an India Post parcel, so none of that is claimed.');
+p('What a seller gets is real and useful: the consignment is recorded here, they enter the article number India Post gave them, its shape is checked, and the tracking link goes to India Post’s own page. Anyone authorised can add tracking updates by hand, and every one of them is shown as having been entered by a person.');
+p('There is no test button on the India Post screen, because there is nothing to test, and no part of the system will ever describe it as connected.');
+
+h2('6a.11d Sending different things different ways');
+p('A seller who sells several kinds of thing rarely wants all of them going the same way. The system lets them say so, and works through the instructions from the most specific to the least:');
+bullets([
+  'A rule about one particular listing.',
+  'A rule about everything leaving one particular place.',
+  'A rule about everything going to a particular country, or to a range of postcodes inside it.',
+  'The seller’s usual choice, and then the one they named as a backup.',
+]);
+p('A rule only chooses between ways of delivering the seller has already had approved; it cannot grant permission for anything. Every rule is re-checked at the moment an order is ready, so a seller who pauses one way of delivering keeps trading — the next one down is used instead, rather than orders quietly stopping.');
+p('If nothing at all can carry a particular order, the order is not sent by something unsuitable and it is not lost either. It waits, marked for a person to look at, with a note saying which ways were tried and what stopped each one.');
+p('Whichever way was chosen is written onto that delivery and never recalculated. A seller who changes carrier in March will still see last month’s deliveries showing what actually carried them.');
+
+h2('6a.11e Setting up your own delivery operation');
+p('A seller who delivers with their own people describes the operation — the name buyers will see, the registered name, the country and an operations contact — and names one person to run it. That person receives their own invitation to the delivery portal, where drivers, vehicles and daily rounds are managed.');
+note('Two jobs, two sign-ins', 'Running a shop and running a fleet are different jobs with different records behind them, so they are separate accounts with separate sign-ins. The person who runs the deliveries needs an email address that is not already used on the marketplace. This is deliberate: driver licences, addresses and live locations are a different kind of information from a product catalogue, and the system does not hand one out with the other.', C.blue);
+p('The marketplace reviews a seller’s own delivery operation before it carries anything. What is being reviewed is what the seller says it can do — carry goods that must stay cold, handle a particular area, take dangerous goods — because those claims decide which orders the marketplace lets them accept. Anything not yet approved simply is not offered: an operation approved for nothing carries nothing special, rather than everything.');
+
+h2('6a.11e-i Telling the system where you collect from, where you go, and what you charge');
+p('Once the marketplace has approved a seller’s own delivery operation, the seller fills in four things about it. Each is a separate screen, and none of them appears for DHL, FedEx or India Post, because those companies decide their own coverage and their own prices. None appears for a courier working for the seller either — that firm sets its own in its own portal.');
+bullets([
+  'Where goods are collected from. For each of the seller’s buildings: which days the van calls, the window it calls in, how many parcels that door can send out in a day, and what the driver needs to know to find the loading bay.',
+  'Where it delivers to. Whole countries, states, cities, or ranges of postcodes — and the places it does not go. A place left out always wins over a larger area that covers it, so "the whole country except the islands" is two lines rather than a long list.',
+  'What it is allowed to carry. Goods that must stay cold, sterile handling, oversized items and so on. The seller asks; the marketplace decides. Nothing in this software lets a seller approve their own, and only something that has been approved is ever matched to an order needing it.',
+  'What it charges. A price list, saved as a version. Publishing it again makes a new version and keeps the old one, because an order priced last month has to stay explainable if somebody queries the delivery charge.',
+]);
+note('Why the old price list is kept', 'A delivery charge queried six weeks later has to be shown as it stood on the day, not as it stands now. A price list edited in place makes that impossible, and that is how a business ends up unable to explain a number it charged.', C.teal);
+
+h2('6a.11e-ii Handing the parcel over, and booking the van');
+p('When a paid order becomes a consignment, the system works out which of the seller’s delivery methods carries it and, where that is a delivery company on this marketplace, offers the consignment to that company straight away. The seller already decided by setting the rules; being asked to hand each order over by hand afterwards would make those rules pointless.');
+p('It is still an offer, and still the company’s to accept, even when the seller owns the fleet. That company has its own screens and its own staff, and accepting is how somebody there says they have seen it.');
+p('Collecting the goods is then arranged in one of two ways. If the seller uses their own account with a carrier, the collection is booked with that carrier under the seller’s own contract and the reference the carrier gives back is kept — that is the number a seller reads out on the telephone when the van has not arrived. If a delivery company on this marketplace is carrying it, nothing is called: the request appears on that company’s own board for somebody there to schedule.');
+bullets([
+  'One collection at a time for one parcel. Asking for a second while one is still coming is refused, and the refusal names the one already booked so it can be cancelled first.',
+  'Cancelling twice does nothing the second time. The van was already called off, so nothing is charged again and the record of when it was cancelled does not move.',
+  'A collection that already happened cannot be cancelled.',
+  'The warehouse can say the goods are ready. Nobody is called — it is written down, and whoever collects sees it.',
+]);
+note('Why two vans matter more than one missed van', 'A second booking costs money, it is the one nobody remembers to cancel, and a warehouse that hands the same boxes to two drivers has lost them. A missed van can be rebooked.', C.blue);
+
+h2('6a.11e-iii Asking what a delivery costs, and paying for it');
+p('A seller using their own carrier account can ask that carrier what a particular consignment would cost, see the services it offers side by side with prices and rough delivery times, choose one, and book it. Every figure comes from the carrier; nothing here works out a price on the carrier’s behalf.');
+p('Pressing the button twice does not book two parcels. The second press is recognised as the same request, nothing further is charged, and the screen says it was already booked rather than pretending a second parcel is on its way.');
+
+h2('6a.11f Asking another delivery company to work with you');
+p('A seller can also bring in a courier firm they already use. Either they pick one already working with this marketplace, or they invite one that is not here yet.');
+p('Inviting does not create the company. The seller describes it and gives a business email address; the firm receives a single-use link, and decides for itself whether to accept. If it does, it enters its own details and chooses its own password. The seller never sees or sets it.');
+note('Why the seller cannot set that password', 'Anybody who could would be able to sign in as the delivery company and read every consignment it carries — including, once it works for a second seller, somebody else’s. The invitation exists so that the company speaks for itself.', C.teal);
+p('A company accepting still does not mean it can start work. That is two parties agreeing, and the marketplace is the third; it reviews the arrangement before anything is handed over. Every step — invited, accepted, approved, suspended, restored — is kept, in order, with the reason. Restoring a suspended arrangement does not erase the suspension.');
+p('The seller can withdraw an invitation nobody has taken up, and can see exactly where each one stands.');
+
+h2('6a.11g What the marketplace can see');
+p('Staff have one screen listing every way anything is delivered on the whole marketplace: which delivery companies are active, which sellers use which carriers, what is waiting for a decision, and which connections are failing. For each seller’s carrier account they can see whether it is working, when it last worked, and what the carrier said when it did not.');
+p('They cannot see the key. A marketplace holding its sellers’ carrier keys is exactly what storing them per seller is meant to prevent, and there is no screen, report or export anywhere that would show one.');
+p('Delivery companies see only themselves — their own coverage, their own drivers, their own consignments and the health of their own connection. One delivery company can never see another’s.');
+h2('6a.11h Who is answerable when something goes wrong');
+p('The way a seller delivers decides more than which van arrives. It decides who the customer’s complaint actually lands on. This is the same information in every direction, set out once.');
+table(['', 'Own carrier account', 'Own delivery team', 'A company you work with', 'Marketplace delivery'], [
+  ['Who books the journey', 'The seller, with their carrier', 'Nobody — it is their own van', 'The company, by accepting the job', 'The marketplace'],
+  ['Who pays for the journey', 'The seller, on their carrier bill', 'The seller', 'Whatever the two of them agreed privately', 'The marketplace'],
+  ['Whose staff the driver is', 'The carrier’s', 'The seller’s', 'That company’s', 'The delivery company the marketplace uses'],
+  ['Who updates where the parcel is', 'The carrier, automatically', 'The driver, on their own screen', 'The driver, on their own screen', 'The driver, on their own screen'],
+  ['Who sorts out a failed delivery', 'The carrier, in their own process', 'The seller’s team', 'That company', 'The marketplace'],
+  ['Who handles a return', 'The seller', 'The seller', 'The seller', 'The seller'],
+  ['Whose name the customer sees', 'The carrier’s', 'The seller’s delivery team', 'That company’s', 'The delivery company'],
+]);
+note('A return is always the seller’s', 'The goods belong to the seller and so does the refund. A return here is a request against the order, which is looked at and the stock put back; no carrier is asked for a return label, because none of these carriers is being asked to take that on. A marketplace that quietly promised otherwise would be promising something nothing in this system does.', C.orange);
+
+h2('6a.10a Saying how your goods are packed');
+p('A seller who ships by the pallet can say so, per listing, and buyers then order pallets instead of counting units. It is set up on the listing itself, under Bulk packaging, and each kind of package is switched on separately — a seller who only ships cartons never sees the container form.');
+table(['What the seller does', 'What the system does'], [
+  ['Says how many units are in one carton.', 'Uses that everywhere below. It is the figure the whole chain is built from.'],
+  ['Says how many cartons sit on a layer, and how many layers high the pallet is.', 'Works out the cartons on a pallet and the units on a pallet, and shows both as they type.'],
+  ['Corrects the figure where the real pallet is not a tidy multiple.', 'Keeps both numbers — theirs and the one the layout works out to — and shows both, so the difference can always be explained.'],
+  ['Gives the size, the loaded weight and the safe load.', 'Shows them to the buyer, and carries them onto the delivery paperwork.'],
+  ['Sets the smallest order and the step, in packages.', 'Holds buyers to it, and moves a quantity up to the nearest allowed one rather than refusing it.'],
+  ['Prices a package — or says it is quoted on request.', 'Shows the package price and the price that works out to per unit. A quoted package is ordered without an instant delivery price.'],
+  ['Adds cheaper prices for larger quantities.', 'Shows the buyer the better price before they commit, and applies it automatically.'],
+]);
+bullets([
+  'Packaging is set per listing, because two sellers pack the same product differently and one seller packs the small size differently from the large one.',
+  'A package that is switched on but not finished is kept, and simply not offered to buyers, with the missing field named on the seller’s own screen. Nothing is lost and nobody is shown a half-filled pallet.',
+  'Container figures offered on the form are guidance. What actually fits varies by the container and the shipping line, so the seller’s own figure is the one used.',
+]);
+note('Why a package price has to divide evenly', 'Every order line is charged as a price per unit multiplied by the number of units. So a package price has to divide exactly by what is inside the package, or the price per unit has a fraction of a paisa left over with nowhere honest to go — and the total would stop adding up. A pallet of 1,200 is therefore priced in whole paise per unit. The form says so, and suggests the nearest figures that work.', C.purple);
+
+h2('6a.10b When no carrier can price the delivery');
+p('A pallet is not a parcel and a container is not a big parcel. Where nothing on the seller’s account can carry the load, the system says so instead of asking a parcel company for a price it cannot honestly give.');
+bullets([
+  'The order still goes through. It is the delivery that is quoted, not the goods.',
+  'A request appears on the seller’s orders screen describing the load — how many pallets, how heavy, from where to which country — and a person enters a real price, a service and the dates.',
+  'Nothing is estimated. A delivery figure on the screen is always one a person put there or one a carrier actually quoted.',
+  'A mixed order takes the heavier answer: one pallet among forty loose items is a pallet delivery, because the pallet still has to go on a lorry.',
+]);
+
+h2('6a.12 Sending your sales into TallyPrime');
+p('A seller who keeps their books in TallyPrime can have their orders appear there automatically, instead of being typed in again at the end of the month. It is set up in the Seller Hub under ERP integrations, and it is switched on by the marketplace — a seller who does not see it should ask whether their marketplace offers it.');
+p('TallyPrime runs on a computer in the seller’s own office. Nothing in this system ever connects to that computer. Instead a small program — the Glovia Tally Bridge — runs on the same machine as Tally, and it connects outwards to fetch whatever is waiting to be sent. The seller’s books are never exposed to the internet.');
+table(['What the seller does', 'What the system does'], [
+  ['Installs the bridge on the machine that runs TallyPrime.', 'Nothing yet. The bridge has no permission until it is paired.'],
+  ['Generates a pairing code in the Seller Hub.', 'Shows a short code, once, that is good for fifteen minutes and can be used one time.'],
+  ['Pastes the code into the bridge.', 'Trusts that one machine from then on, and shows it in the list of paired machines.'],
+  ['Chooses which Tally company to post into.', 'Offers only the companies TallyPrime actually reported as open. A name cannot be typed in.'],
+  ['Presses Test.', 'Asks the bridge to check, and reports what it found — with the time it found it.'],
+  ['Matches their ledgers, stock items and voucher types to what is in Tally.', 'Refuses to post anything until every match a sync needs has been confirmed.'],
+  ['Chooses what should be posted.', 'Posts only that. Everything that moves money starts switched off.'],
+  ['Runs the first sync.', 'Queues the orders, sends them as the bridge collects them, and reports what each one did.'],
+]);
+note('“Connected” means it was actually checked', 'The word is only shown when four things are true at once: the bridge checked in within the last few minutes, a test passed within the last quarter of an hour, the right company is open in Tally, and every match has been made. Each of those is shown with the time it was last true, so it can be checked rather than believed. There is no state meaning “probably fine”.', C.teal);
+note('Told exactly what is wrong, not just that something is', 'A machine switched off, TallyPrime closed, and the wrong company open in Tally look identical from a distance and are three completely different things to go and do. Each has its own message. The commonest one by far is the third: Tally is running perfectly and the company this connection posts into simply is not the one open on screen.', C.blue);
+bullets([
+  'An order confirmed at two in the morning, while the office computer is off, is not lost. It waits, and it posts when the machine is next switched on.',
+  'Placing an order and earning the money from it are two different things in a set of books, so they are two separate switches. A seller who invoices on despatch and one who invoices on payment are both normal.',
+  'Glovia will not create a ledger or a stock item in the seller’s books unless they explicitly allow it. Creating something in somebody’s accounts is a change to a financial record, not a convenience.',
+  'If a machine is lost or replaced, pressing Revoke stops it working on its very next attempt. There is no waiting period.',
+]);
+note('A pallet order arrives in Tally as units, with the pallets written beside it', 'Somebody orders two pallets, each holding fifty cartons of twenty-four. The voucher records 2,400 — because 2,400 is what leaves the warehouse and what the stock has to reconcile to. Recording “2” would tell Tally that two items left the building. The pallets are not thrown away to achieve that: the line and the narration both read “2 UK pallets × 50 cartons × 24 units = 2,400 units”, so the figure can be checked by anybody reading the voucher.', C.purple);
+note('The same order never appears twice', 'A duplicate sales invoice is not a small problem — it is a tax return that does not add up, found weeks later. Three separate things prevent it, and the last of them is Tally itself refusing a second copy. An entry that has already been posted cannot be re-sent; the system refuses, rather than quietly making a second one.', C.orange);
+note('A reply that says “success” is not taken at its word', 'TallyPrime answers a rejected request the same way it answers an accepted one. So a sending is only counted as done when Tally’s own figures say something was actually written and nothing was refused. If a ledger is missing, the entry is kept, the seller is told which ledger, and it can be sent again once it exists.', C.orange);
+p('Everything that goes wrong is shown in plain words with what Tally itself said, minus anything that came from the seller’s own computer. Entries that could not be sent are kept and can be tried again; nothing is silently dropped.');
+
+h2('6a.11i What each carrier can and cannot do');
+p('Carriers do not all offer the same things, and the ones they do not offer are not missing features here. A seller sees only what their carrier can genuinely do, so nothing on screen fails when it is pressed.');
+table(['', 'DHL', 'FedEx', 'India Post'], [
+  ['Tell you the price', 'Yes', 'Yes', 'No live prices'],
+  ['Create the consignment', 'Yes', 'Yes', 'No'],
+  ['Cancel one afterwards', 'No', 'Yes', 'No'],
+  ['Book the van to collect', 'Yes', 'No', 'No'],
+  ['Follow the parcel automatically', 'Yes', 'Yes', 'No'],
+  ['Check the address', 'Yes', 'Yes', 'Basic checks only'],
+  ['Send the label a second time', 'No', 'No', 'No'],
+  ['Give a signed proof of delivery', 'No', 'No', 'No'],
+]);
+bullets([
+  'The label arrives once, at the moment the consignment is made, and neither carrier will send it again. So it is kept from that moment, and can be printed as often as needed.',
+  'DHL will not cancel a consignment this way, so a seller who needs one stopped is told to telephone DHL — which is what they would have had to do anyway — instead of being shown a button that fails.',
+  'FedEx will not book the collection this way, so a seller on FedEx arranges the van through their own FedEx account.',
+  'Neither carrier hands back a signature, so the record of delivery is the carrier’s own status and the time it happened.',
+]);
+p('A seller delivering with their own team, or through a company that works for them, is not in this table at all, because nothing is being asked of an outside carrier. The job appears on that company’s own screen and their driver moves it along.');
+
+page();
+
 
 // 7
 h1('7. Admin Features — Secure Access, Roles and Dashboard');
@@ -1405,6 +1605,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Opening a document nobody has checked for viruses', 'Uploaded documents are scanned with ClamAV before storage. A clean result is required before staff or sellers can open one; an infected or failed scan is refused. Production will not start without the scanner, and the live host still needs an operational scan test.'],
   ['Sign-in details printed on the sign-in page', 'For a demonstration only. Where the business has listed demonstration accounts for a site, that site’s sign-in page shows them, so anybody given the address can look around without being sent a password first. Nothing is listed unless the business lists it, and nothing is listed by default, so an ordinary installation shows an ordinary sign-in page. A site set up this way is open to everybody who has the address, so it must hold made-up information and its passwords must be changed to ones used nowhere else.'],
   ['Logistics partner portal', 'Turned on by the logistics feature. Gives haulage companies their own place to work and the business its own view of every delivery. Off, and none of chapter 12a exists. On, it works straight away with carriers whose staff record each status themselves; connecting a haulage company’s computer system needs that company’s own credentials, and until they are in place the system says so rather than pretending.'],
+  ['Trying the shop without a payment company', 'For testing only, and switched off. A business setting the system up for the first time may not have a payment company connected yet, and nothing after a payment can be looked at until one is. With this on, the payment page says so plainly and offers a button that marks the order paid, and everything that follows a real payment then happens exactly as it would: the order is confirmed, the confirmation email goes out, the warehouse sees it, and the invoice is produced. Every record it creates is marked as a test, so it can never be mistaken for money that was taken. The system refuses to start with it switched on for a live shop, or alongside any real payment details.'],
 ], [3500, 6500]);
 h2('15.1 The insights panel on each dashboard');
 p('Beside the chart on every dashboard is a panel that explains the figures in plain words and answers a typed question about them. It is there to help somebody read the screen. It cannot do anything.');
@@ -1499,12 +1700,12 @@ table(['Step', 'Who acts', 'What happens'], [
   ['8', 'The system', 'Takes it out of every category at once. A buyer cannot find or order something nobody is selling.'],
 ], [700, 2300, 7000]);
 
-note('Document status', 'This guide is based on the current UBOSS Sourcing codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);
+note('Document status', 'This guide is based on the current Glovia codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);
 
 const doc = new Document({
-  creator: 'UBOSS Sourcing',
-  title: 'UBOSS Sourcing Feature Guide',
-  description: 'Simple English feature guide for UBOSS Sourcing.',
+  creator: 'Glovia',
+  title: 'Glovia Feature Guide',
+  description: 'Simple English feature guide for Glovia.',
   styles: {
     default: { document: { run: { font: 'Aptos', size: 21, color: C.ink } } },
   },
@@ -1512,8 +1713,8 @@ const doc = new Document({
     properties: {
       page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } },
     },
-    headers: { default: new Header({ children: [new Paragraph({ text: 'UBOSS SOURCING  |  FEATURE GUIDE', spacing: { after: 0 }, run: { size: 7.5, bold: true, color: C.muted } })] }) },
-    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'UBOSS Sourcing • Page ', color: C.muted, size: 7 }), new TextRun({ children: [PageNumber.CURRENT], color: C.muted, size: 7 })] })] }) },
+    headers: { default: new Header({ children: [new Paragraph({ text: 'GLOVIA  |  FEATURE GUIDE', spacing: { after: 0 }, run: { size: 7.5, bold: true, color: C.muted } })] }) },
+    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Glovia • Page ', color: C.muted, size: 7 }), new TextRun({ children: [PageNumber.CURRENT], color: C.muted, size: 7 })] })] }) },
     children,
   }],
 });

@@ -32,6 +32,7 @@ import {
   loadActiveProvider,
   processWebhook,
   reconcilePayment,
+  simulateOrderPayment,
   testStoredConnection,
 } from '../../modules/payments/payment.service.js';
 import {
@@ -302,6 +303,43 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
 
       const status = await getPaymentStatusForOrder(orderId, auth.customerProfileId ?? '');
       return reply.status(200).send(status);
+    },
+  );
+
+  /**
+   * Settle this order without a gateway.
+   *
+   * FOR TESTING. Refused unless `PAYMENT_MOCK_SUCCESS` is on, which the
+   * environment schema refuses in production and refuses beside a live
+   * credential. `simulateOrderPayment` checks it again and refuses a live
+   * connection on top of that, so switching the flag on in the wrong place
+   * still does not make this endpoint dangerous.
+   *
+   * Behind `requireCustomer` and scoped to the caller's own orders, like every
+   * other route in this block: a test fixture is not a reason to leave an
+   * unauthenticated way to confirm somebody else's order.
+   *
+   * Rate-limited, though it costs no provider call. A loop against it would
+   * otherwise queue an ERP push and a notification per iteration.
+   */
+  app.post(
+    '/orders/:orderId/mock-capture',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 30, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { orderId } = orderParam.parse(request.params);
+
+      const result = await simulateOrderPayment({
+        orderId,
+        customerProfileId: auth.customerProfileId ?? '',
+        actorUserId: auth.id,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send(result);
     },
   );
 

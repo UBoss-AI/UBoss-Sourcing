@@ -798,7 +798,7 @@ describe('the dashboard', () => {
 
   it('has no violations on the insights panel, idle or answered', async () => {
     const labels = {
-      title: 'UBOSS AI Insights',
+      title: 'Glovia AI Insights',
       askLabel: 'Ask a question about this dashboard',
       ask: 'Ask',
       asking: 'Thinking',

@@ -206,11 +206,34 @@ export function linkAllowsExistingWork(status: SellerLogisticsRelationshipStatus
 const TRANSITIONS: Readonly<
   Record<SellerLogisticsRelationshipStatus, readonly SellerLogisticsRelationshipStatus[]>
 > = Object.freeze({
-  REQUESTED: ['APPROVED', 'REJECTED'],
+  // --- A seller introducing a company that is not here yet ------------------
+  //
+  // The four states before REQUESTED exist because a seller-introduced carrier
+  // has to agree before the marketplace is asked anything. A seller cannot
+  // volunteer another company for an obligation, and a marketplace approving a
+  // relationship the carrier has not accepted approves one side of a contract.
+  DRAFT: ['INVITED', 'ENDED'],
+  // The invitation has gone out. REJECTED where the company declined it;
+  // ENDED where the seller withdrew it or it expired.
+  INVITED: ['PARTNER_ACCEPTANCE_PENDING', 'REJECTED', 'ENDED'],
+  // They have an account and are deciding. Their yes moves it to REQUESTED,
+  // which is where the marketplace picks it up.
+  PARTNER_ACCEPTANCE_PENDING: ['REQUESTED', 'REJECTED', 'ENDED'],
+
+  // --- With the marketplace -------------------------------------------------
+  REQUESTED: ['APPROVED', 'REJECTED', 'CHANGES_REQUESTED'],
+  // Back with the seller, and recoverable without starting again - which is
+  // the whole difference between this and REJECTED.
+  CHANGES_REQUESTED: ['REQUESTED', 'ENDED'],
+
+  // --- Live, and after ------------------------------------------------------
   APPROVED: ['SUSPENDED', 'ENDED'],
-  REJECTED: ['REQUESTED'],
+  // Not terminal. A seller may fix what was wrong and ask again, and that
+  // moves this single row rather than creating a second one - so "may this
+  // seller use this carrier" is always answered by exactly one row.
+  REJECTED: ['REQUESTED', 'DRAFT'],
   SUSPENDED: ['APPROVED', 'ENDED'],
-  ENDED: ['REQUESTED'],
+  ENDED: ['REQUESTED', 'DRAFT'],
 });
 
 export function canTransitionLink(
@@ -222,5 +245,13 @@ export function canTransitionLink(
 
 /** Statuses whose change must carry a reason, because somebody will ask. */
 export function transitionRequiresReason(to: SellerLogisticsRelationshipStatus): boolean {
-  return to === 'REJECTED' || to === 'SUSPENDED' || to === 'ENDED';
+  return (
+    to === 'REJECTED' ||
+    to === 'SUSPENDED' ||
+    to === 'ENDED' ||
+    // "We need something changed" with nothing after it is the least useful
+    // message a marketplace can send: it stops the seller and tells them
+    // nothing to do.
+    to === 'CHANGES_REQUESTED'
+  );
 }

@@ -433,6 +433,58 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     (item) => item.isStockTracked && item.sellerOfferId === null,
   );
 
+  /*
+   * Three packaging fields the basket has no reason to carry, keyed by basket
+   * line.
+   *
+   * A shopper is never shown a carton SKU, an Incoterm or a loading port -
+   * they are the seller's paperwork. A picking list, a commercial invoice and
+   * a customs declaration all need them, and all three are produced long after
+   * the basket is gone, so they are read here and frozen onto the order line.
+   *
+   * One query for the whole basket, and none at all for the ordinary one -
+   * the map is empty and the lookup below always misses.
+   */
+  const bulkLines = resolved.sourceItems.filter((item) => item.packaging !== null);
+
+  const bulkPackagingDetail = new Map<
+    string,
+    { packageSku: string | null; incoterm: string | null; originPortLabel: string | null }
+  >();
+
+  if (bulkLines.length > 0) {
+    const options = await prisma.sellerPackagingOption.findMany({
+      where: {
+        OR: bulkLines.map((item) => ({
+          packageType: item.packaging?.packageType as never,
+          profile: { offerId: item.sellerOfferId ?? '' },
+        })),
+      },
+      select: {
+        packageType: true,
+        packageSku: true,
+        incoterm: true,
+        originPortLabel: true,
+        profile: { select: { offerId: true } },
+      },
+    });
+
+    for (const item of bulkLines) {
+      const match = options.find(
+        (option) =>
+          option.profile.offerId === item.sellerOfferId &&
+          option.packageType === item.packaging?.packageType,
+      );
+      if (match !== undefined) {
+        bulkPackagingDetail.set(item.itemId, {
+          packageSku: match.packageSku,
+          incoterm: match.incoterm,
+          originPortLabel: match.originPortLabel,
+        });
+      }
+    }
+  }
+
   const result = await prisma.$transaction(async (tx) => {
     const orderNumber = await nextOrderNumber(tx);
 
@@ -512,9 +564,17 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
 
     // The immutable snapshots. Everything a future invoice or dispute needs,
     // frozen at this instant.
+    //
+    // Ids generated up front rather than by `createMany`, because the bulk
+    // breakdown below has to be attached to the row it describes and
+    // `createMany` returns a count, not rows. Positionally aligned with
+    // `resolved.pricing.lines` - the same join the offer and the ordering unit
+    // already use.
+    const orderItemIds = resolved.pricing.lines.map(() => newId());
+
     await tx.orderItem.createMany({
       data: resolved.pricing.lines.map((line: PricedLine, index: number) => ({
-        id: newId(),
+        id: orderItemIds[index] ?? newId(),
         orderId,
         productId: line.productId,
         variantId: line.variantId,
@@ -558,6 +618,69 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
           resolved.lines[index]?.ordering.piecesPerUnit ?? env.PIECES_PER_CARTON,
       })),
     });
+
+    /*
+     * The bulk breakdown, frozen with everything else on the line.
+     *
+     * COPIED, not recomputed. Every column comes straight off the basket's own
+     * snapshot - which was itself taken from the seller's option at the moment
+     * the buyer chose it - so what the order says a pallet held is what the
+     * product page said it held, not what the seller's configuration says
+     * today. `OrderItemPackaging` has no `updatedAt` for exactly this reason:
+     * nothing ever writes it again.
+     *
+     * Empty on an ordinary basket, which is most of them, and the `createMany`
+     * is skipped entirely in that case.
+     */
+    const packagingRows = resolved.sourceItems
+      .map((source, index) => {
+        const snapshot = source.packaging;
+        const orderItemId = orderItemIds[index];
+        if (snapshot === null || orderItemId === undefined) return null;
+
+        const option = bulkPackagingDetail.get(source.itemId) ?? null;
+
+        return {
+          id: newId(),
+          orderItemId,
+          packageType: snapshot.packageType,
+          palletStandard: snapshot.palletStandard,
+          containerType: snapshot.containerType,
+          containerLoadMode: snapshot.containerLoadMode,
+          containerLoadingMethod: snapshot.containerLoadingMethod,
+          packageQuantity: snapshot.packageQuantity,
+          unitsPerPackage: snapshot.unitsPerPackage,
+          totalBaseUnits: snapshot.totalBaseUnits,
+          unitsPerCarton: snapshot.unitsPerCarton,
+          cartonsPerPallet: snapshot.cartonsPerPallet,
+          palletsPerContainer: snapshot.palletsPerContainer,
+          cartonsPerContainer: snapshot.cartonsPerContainer,
+          lengthMm: snapshot.lengthMm,
+          widthMm: snapshot.widthMm,
+          heightMm: snapshot.heightMm,
+          grossWeightGrams: snapshot.grossWeightGrams,
+          cargoVolumeCm3: snapshot.cargoVolumeCm3,
+          packagePriceMinor: snapshot.packagePriceMinor,
+          unitPriceMinor: snapshot.unitPriceMinor,
+          currency: snapshot.currency,
+          appliedTierMinPackages: snapshot.appliedTierMinPackages,
+          profileVersion: snapshot.profileVersion,
+          snapshotAt: snapshot.snapshotAt,
+          requiresFreightQuote: snapshot.requiresFreightQuote,
+          // Three fields the basket does not carry because a shopper never
+          // needs them, and a picking list, a commercial invoice and a customs
+          // declaration all do. Read from the seller's option as it stands at
+          // checkout and frozen here, which is the last moment they are true.
+          packageSkuSnapshot: option?.packageSku ?? null,
+          incotermSnapshot: option?.incoterm ?? null,
+          originPortLabelSnapshot: option?.originPortLabel ?? null,
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null);
+
+    if (packagingRows.length > 0) {
+      await tx.orderItemPackaging.createMany({ data: packagingRows as never });
+    }
 
     // Reserved inside the same transaction and AFTER the order row exists:
     // stock_reservations.orderId is a foreign key, and "order created" must

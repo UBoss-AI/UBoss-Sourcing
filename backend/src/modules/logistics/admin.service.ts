@@ -96,7 +96,14 @@ export interface CreatedPartner {
 }
 
 /** `LP-000123`. Sequential, operator-facing, and never shown to a buyer. */
-async function nextPartnerCode(): Promise<string> {
+/**
+ * The next LP-000123.
+ *
+ * Exported because a seller creating their own delivery arm allocates one too,
+ * and two allocators over one `NumberSequence` row is how two carriers end up
+ * with the same code.
+ */
+export async function nextPartnerCode(): Promise<string> {
   const key = 'logistics-partner';
 
   await prisma.numberSequence.upsert({

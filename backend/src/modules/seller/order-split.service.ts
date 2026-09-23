@@ -40,6 +40,7 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { notifySeller } from './notification.service.js';
+import { enqueueIfConnected } from '../seller-erp/job.service.js';
 
 type Tx = Prisma.TransactionClient;
 
@@ -130,6 +131,23 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
       lineTotalMinor: true,
       taxAmountMinor: true,
       sellerOffer: { select: { sellerAccountId: true } },
+      /*
+       * The frozen bulk breakdown, where the line has one.
+       *
+       * Selected here so the seller's "new order" notice can say "2 UK pallets
+       * (2,400 units)" rather than "2,400 units" - and so it can be a BULK
+       * order notice rather than an ordinary one. Null on every line that is
+       * not a bulk order, which is most of them, and the notice then reads
+       * exactly as it always has.
+       */
+      packaging: {
+        select: {
+          packageType: true,
+          packageQuantity: true,
+          unitsPerPackage: true,
+          totalBaseUnits: true,
+        },
+      },
     },
   });
 
@@ -248,18 +266,67 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
 
     await tx.sellerOrderLine.createMany({ data: lineRows });
 
+    /*
+     * A BULK order is announced as one.
+     *
+     * Not a NEW_ORDER with different wording. It is a different job: a pallet
+     * order needs a forklift booked and a lorry found, and the seller who
+     * reads "new order", pictures a box, and plans their afternoon accordingly
+     * discovers the difference on the loading bay.
+     *
+     * Read off the frozen snapshots on the order lines, which are already
+     * loaded - no extra query for the ordinary order, which has none.
+     */
+    const bulkSummary = summariseBulk(
+      sellerItems.map((item) => item.packaging ?? null),
+    );
+
     await notifySeller({
       sellerAccountId,
-      kind: 'NEW_ORDER',
-      title: `New order ${sellerOrderNumber}`,
+      kind: bulkSummary === null ? 'NEW_ORDER' : 'BULK_ORDER_RECEIVED',
+      title:
+        bulkSummary === null
+          ? `New order ${sellerOrderNumber}`
+          : `New bulk order ${sellerOrderNumber}`,
       body:
-        lineRows.length === 1
+        bulkSummary ??
+        (lineRows.length === 1
           ? 'One line to pack. Accept it to set your dispatch deadline.'
-          : `${String(lineRows.length)} lines to pack. Accept it to set your dispatch deadline.`,
+          : `${String(lineRows.length)} lines to pack. Accept it to set your dispatch deadline.`),
       linkPath: `/seller/orders/${groupId}`,
       severity: 'INFO',
       subjectType: 'seller_order_group',
       subjectId: groupId,
+      tx,
+    });
+
+    /*
+     * Tell the seller's own accounting system, inside this transaction.
+     *
+     * A TRANSACTIONAL OUTBOX, and the transaction is the point: an order that
+     * committed must not be able to lose the fact that Tally has to be told,
+     * and a rolled-back split must not leave a job behind claiming an order
+     * exists. `enqueueIfConnected` does nothing at all for the overwhelming
+     * majority of sellers, who have no ERP connected - two indexed reads and
+     * out.
+     *
+     * The payload is a REFERENCE rather than a built voucher. Assembling one
+     * here would mean assembling it inside the checkout transaction, on the
+     * critical path of somebody paying; the dispatch beat builds it a moment
+     * later. The EVENT is what must be recorded transactionally, not its
+     * rendering.
+     */
+    await enqueueIfConnected({
+      sellerAccountId,
+      eventType: 'SALES_ORDER',
+      sourceEntityType: 'seller_order_group',
+      sourceEntityId: groupId,
+      orderId,
+      sellerOrderGroupId: groupId,
+      payload: { kind: 'ORDER_BACKFILL', sellerOrderGroupId: groupId },
+      // Everything about ONE buyer order stays in order behind one key, so a
+      // Receipt can never post before the Invoice it pays.
+      sequenceKey: orderId,
       tx,
     });
 
@@ -370,4 +437,55 @@ export async function syncOrderWithSellerGroups(orderId: string): Promise<void> 
   if ((await statusOf()) === 'SHIPPED') {
     await move('DELIVERED', 'Every seller has delivered their part');
   }
+}
+
+/**
+ * "2 UK pallets and 1 container (14,400 units in all)", or null.
+ *
+ * Null when nothing on the order was bought by the package, which is the
+ * ordinary case and is what makes the notice read exactly as it always has.
+ *
+ * English here, deliberately. A seller notification is composed on the server
+ * and stored as text - there is no translation layer between this and the
+ * bell - and that is a pre-existing property of `SellerNotification` rather
+ * than something this feature introduces. What a BUYER reads is built in the
+ * frontend from structured figures in their own language; this is the
+ * seller's own operational alert on their own hub.
+ */
+function summariseBulk(
+  snapshots: readonly ({ packageType: string; packageQuantity: number; totalBaseUnits: number } | null)[],
+): string | null {
+  const counts = new Map<string, number>();
+  let totalUnits = 0;
+  let sawAny = false;
+
+  for (const snapshot of snapshots) {
+    if (snapshot === null) continue;
+    sawAny = true;
+    counts.set(
+      snapshot.packageType,
+      (counts.get(snapshot.packageType) ?? 0) + snapshot.packageQuantity,
+    );
+    totalUnits += snapshot.totalBaseUnits;
+  }
+
+  if (!sawAny) return null;
+
+  const words = [...counts.entries()].map(([type, quantity]) => {
+    const plural = quantity === 1 ? '' : 's';
+    const noun =
+      type === 'CARTON'
+        ? `carton${plural}`
+        : type === 'UK_PALLET'
+          ? `UK pallet${plural}`
+          : type === 'US_PALLET'
+            ? `US pallet${plural}`
+            : `container${plural}`;
+    return `${String(quantity)} ${noun}`;
+  });
+
+  return (
+    `${words.join(', ')} - ${totalUnits.toLocaleString('en-GB')} units in all. ` +
+    'Check you can load and move it before you accept.'
+  );
 }
