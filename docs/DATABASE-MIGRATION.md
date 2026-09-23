@@ -82,6 +82,7 @@ because they do not cause incidents.
 
 | | XAMPP 10.4.32 | Production 11.4.13 | What it does |
 |---|---|---|---|
+| **CHECK over a rewritable column** | allowed | **refused**, `ERROR 1901` | A CHECK constraint may not reference a column a foreign key can rewrite. **This has already cost two red pipelines** — see below |
 | **`sql_mode`** | no strict member | `STRICT_TRANS_TABLES` | An over-long or badly-typed value is **rejected** instead of truncated. **This has already found a real defect** — see below |
 | **Default collation** | `utf8mb4_general_ci` | `utf8mb4_uca1400_ai_ci` | A `CREATE DATABASE` without `COLLATE` gets a collation none of the tables use. A join across the two raises *Illegal mix of collations* at runtime |
 | **Client binaries** | `mysqldump.exe`, `mysql.exe` | **only** `mariadb-dump`, `mariadb` | A script naming `mysqldump` fails with *command not found*. This was a live defect in `backup.sh` |
@@ -110,6 +111,46 @@ ten to `VARCHAR(64)`.
 
 **That is what the compat container is for.** The next upgrade will produce a
 list like it.
+
+### A CHECK constraint and a foreign key that rewrites the same column
+
+From 10.5 onwards MariaDB refuses this, and 10.4 does not:
+
+```
+Function or expression 'sellerCarrierConnectionId' cannot be used in the
+CHECK clause of `chk_seller_fulfilment_method_single_target`
+```
+
+Two referential actions **rewrite** a child column — `ON UPDATE CASCADE`, which
+copies a changed parent key down, and `ON DELETE SET NULL`, which writes a
+NULL. Either would leave a checked row holding a value the check never saw, so
+the server will not let both apply to one column. `ON DELETE CASCADE` and
+`RESTRICT` are fine: they remove the row, or refuse the parent's change,
+rather than editing this column.
+
+Whichever of the two is added second is the one that fails, so **reordering the
+migration does not help** — it only moves the error to the other statement.
+
+The trap is that **Prisma emits `ON UPDATE CASCADE` on every relation unless
+told otherwise**, so the fault is the default. A migration carrying it applies
+cleanly on every machine here and fails on the first fresh 11.4 it meets.
+
+Fix it by deciding which the column actually needs:
+
+- The parent is keyed by a ULID generated once and never updated, so
+  `ON UPDATE CASCADE` has nothing to cascade. Put `onUpdate: Restrict` on the
+  relation in `schema.prisma` **and** `ON UPDATE RESTRICT` in the migration, so
+  the two keep agreeing and `migrate diff` stays clean.
+- `ON DELETE SET NULL` under a CHECK is usually a real design conflict rather
+  than a technicality: emptying the column is the very thing the check forbids.
+  `ON DELETE RESTRICT` is normally what was meant.
+
+**Never fix it by dropping the CHECK.** The constraint is the invariant; the
+referential action is a default nobody chose.
+
+`tests/unit/migration-check-constraints.test.ts` reads every committed
+migration in order and fails with the table, the column and the migration that
+introduced the clash, so this is caught before CI rather than by it.
 
 ---
 

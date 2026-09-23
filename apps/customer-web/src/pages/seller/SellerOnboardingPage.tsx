@@ -397,6 +397,7 @@ function StepPanel({
   step: OnboardingStep;
   seller: SellerOutletContext;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const isEditable = seller.isApplicationEditable;
 
   /*
@@ -476,7 +477,24 @@ function StepPanel({
             </div>
           </Card>
 
-          <LogisticsPartnerPanel isEditable={isEditable} />
+          {/*
+            The application is frozen once it is submitted, and this panel is
+            the one part of it a seller genuinely needs after approval - a
+            carrier changes, a contract ends, their own vans arrive. So the
+            locked copy names the screen that is not locked instead of leaving
+            them looking at four greyed-out cards.
+          */}
+          <LogisticsPartnerPanel
+            isEditable={isEditable}
+            lockedNote={
+              <>
+                {t('sellerFulfilment.lockedDuringApplication')}{' '}
+                <Link to="/seller/fulfilment" className="font-medium underline">
+                  {t('sellerFulfilment.lockedGoToHub')}
+                </Link>
+              </>
+            }
+          />
         </div>
       );
     case 'payout':

@@ -526,13 +526,13 @@ ALTER TABLE `seller_carrier_connections` ADD CONSTRAINT `seller_carrier_connecti
 ALTER TABLE `seller_carrier_credentials` ADD CONSTRAINT `seller_carrier_credentials_sellerCarrierConnectionId_fkey` FOREIGN KEY (`sellerCarrierConnectionId`) REFERENCES `seller_carrier_connections`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `seller_fulfilment_methods` ADD CONSTRAINT `seller_fulfilment_methods_sellerAccountId_fkey` FOREIGN KEY (`sellerAccountId`) REFERENCES `seller_accounts`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `seller_fulfilment_methods` ADD CONSTRAINT `seller_fulfilment_methods_sellerCarrierConnectionId_fkey` FOREIGN KEY (`sellerCarrierConnectionId`) REFERENCES `seller_carrier_connections`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE `seller_fulfilment_methods` ADD CONSTRAINT `seller_fulfilment_methods_logisticsPartnerId_fkey` FOREIGN KEY (`logisticsPartnerId`) REFERENCES `logistics_partners`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `seller_fulfilment_methods` ADD CONSTRAINT `seller_fulfilment_methods_sellerCarrierConnectionId_fkey` FOREIGN KEY (`sellerCarrierConnectionId`) REFERENCES `seller_carrier_connections`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `seller_fulfilment_methods` ADD CONSTRAINT `seller_fulfilment_methods_logisticsPartnerId_fkey` FOREIGN KEY (`logisticsPartnerId`) REFERENCES `logistics_partners`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_sellerAccountId_fkey` FOREIGN KEY (`sellerAccountId`) REFERENCES `seller_accounts`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_fulfilmentMethodId_fkey` FOREIGN KEY (`fulfilmentMethodId`) REFERENCES `seller_fulfilment_methods`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_sellerOfferId_fkey` FOREIGN KEY (`sellerOfferId`) REFERENCES `seller_offers`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_sellerLocationId_fkey` FOREIGN KEY (`sellerLocationId`) REFERENCES `seller_locations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_sellerOfferId_fkey` FOREIGN KEY (`sellerOfferId`) REFERENCES `seller_offers`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE `seller_fulfilment_rules` ADD CONSTRAINT `seller_fulfilment_rules_sellerLocationId_fkey` FOREIGN KEY (`sellerLocationId`) REFERENCES `seller_locations`(`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 ALTER TABLE `seller_logistics_pickup_profiles` ADD CONSTRAINT `seller_logistics_pickup_profiles_sellerAccountId_fkey` FOREIGN KEY (`sellerAccountId`) REFERENCES `seller_accounts`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `seller_logistics_pickup_profiles` ADD CONSTRAINT `seller_logistics_pickup_profiles_fulfilmentMethodId_fkey` FOREIGN KEY (`fulfilmentMethodId`) REFERENCES `seller_fulfilment_methods`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -564,23 +564,34 @@ ALTER TABLE `logistics_shipments` ADD CONSTRAINT `logistics_shipments_fulfilment
 -- ---------------------------------------------------------------------------
 -- 15. The invariants, last of all.
 --
---    These are declared here rather than beside the tables they guard, and
---    the reason is a MariaDB rule that only bites on a version newer than
---    the one development runs.
+--    Declared here rather than beside the tables they guard, to match every
+--    other migration in this repository. The ORDER is cosmetic. What is not
+--    cosmetic is the `ON UPDATE RESTRICT` on four of the foreign keys above,
+--    and this is the note that explains it.
 --
---    Adding a FOREIGN KEY to a column that an existing CHECK constraint
---    mentions is refused from 10.5 onwards:
+--    From MariaDB 10.5 onwards, a CHECK constraint may not reference a column
+--    that is the child of a foreign key declared ON UPDATE CASCADE:
 --
 --      Function or expression 'sellerCarrierConnectionId' cannot be used in
 --      the CHECK clause of `chk_seller_fulfilment_method_single_target`
 --
---    10.4 accepts it, so the whole of this migration applied cleanly in
---    development and failed on the first fresh 11.4 database it met. Every
---    other migration in this repository already adds its CHECK constraints
---    after its foreign keys; this one had them inline beside the CREATE
---    TABLE, which is the only reason it was different.
+--    Whichever of the two is added second is the one that fails, so reordering
+--    does not help - it only moves the error. The rule is about REWRITING:
+--    ON UPDATE CASCADE copies a changed parent key down and ON DELETE SET NULL
+--    writes a NULL, and either would leave a checked row holding a value the
+--    check never saw. ON DELETE CASCADE and RESTRICT stay allowed, because
+--    they remove the row or refuse the parent's change instead.
 --
---    So: foreign keys first, always, and the CHECK constraints after them.
+--    10.4, which development runs, allows it. So this migration applied
+--    cleanly on every machine it had ever seen and failed on the first fresh
+--    11.4 it met.
+--
+--    RESTRICT is free here. Every one of these parents is keyed by a ULID
+--    generated once at insert and never updated, so CASCADE on update has
+--    never had anything to cascade. Prisma emits it on every relation by
+--    default, which is the only reason it was there; the four relations
+--    concerned now say `onUpdate: Restrict` in schema.prisma so that the
+--    schema and these migrations keep agreeing.
 -- ---------------------------------------------------------------------------
 
 -- A method points at one thing, never at two. True at every status, including

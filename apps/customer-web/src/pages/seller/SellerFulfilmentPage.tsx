@@ -61,7 +61,15 @@ export function SellerFulfilmentPage(): React.JSX.Element {
         description={t('sellerFulfilment.pageDescription')}
       />
 
-      <LogisticsPartnerPanel isEditable={isEditable} />
+      {/*
+        Here the lock is the account itself, and there is nowhere else to go:
+        the sentence says what has to change rather than pointing at a screen
+        that would be just as closed.
+      */}
+      <LogisticsPartnerPanel
+        isEditable={isEditable}
+        lockedNote={t('sellerFulfilment.lockedAccountClosed')}
+      />
 
       <SelfManagedConfigPanel
         methods={options.data?.methods ?? []}

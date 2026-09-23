@@ -68,10 +68,28 @@ const STATUS_TONE: Record<
 export interface LogisticsPartnerPanelProps {
   /** False while the application is with a reviewer, or after a refusal. */
   isEditable: boolean;
+  /**
+   * Why every card is greyed out, and what to do instead.
+   *
+   * A locked panel used to say nothing at all. A seller who had been approved
+   * opened the onboarding step, found DHL, FedEx, India Post and their own
+   * vans every one of them unclickable, and had no way to tell whether the
+   * carriers were unavailable, their account was in trouble, or the page was
+   * broken - when in fact the answer was "this copy of the screen is frozen,
+   * the live one is two clicks away".
+   *
+   * It is the CALLER's sentence because the two screens are locked for
+   * different reasons and those reasons lead to different actions: an approved
+   * application is edited in Seller Hub, a suspended account is not edited at
+   * all. A shared panel guessing between them would tell half the sellers who
+   * read it to go somewhere that will not help.
+   */
+  lockedNote?: React.ReactNode;
 }
 
 export function LogisticsPartnerPanel({
   isEditable,
+  lockedNote,
 }: LogisticsPartnerPanelProps): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
@@ -312,6 +330,17 @@ export function LogisticsPartnerPanel({
         title={t('sellerFulfilment.optionsTitle')}
         description={t('sellerFulfilment.optionsBody')}
       >
+        {/* Before the cards, not after: the explanation for why none of them
+            can be pressed has to be read before the pressing is attempted. */}
+        {!isEditable && lockedNote !== undefined && (
+          <p
+            role="status"
+            className="mx-6 mt-5 rounded-lg bg-warning-soft p-3 text-sm text-warning"
+          >
+            {lockedNote}
+          </p>
+        )}
+
         <div className="grid gap-4 px-6 py-5 sm:grid-cols-2 xl:grid-cols-3">
           {options.map((option) => (
             <OptionCard

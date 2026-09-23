@@ -11063,8 +11063,8 @@ model SellerFulfilmentMethod {
   archivedAt DateTime? @db.DateTime(3)
 
   sellerAccount     SellerAccount            @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
-  carrierConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: Restrict)
-  logisticsPartner  LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict)
+  carrierConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  logisticsPartner  LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 
   rules          SellerFulfilmentRule[]
   pickupProfiles SellerLogisticsPickupProfile[]
@@ -11293,8 +11293,8 @@ model SellerFulfilmentRule {
   /// Cascade on both: a rule about a listing or a building that no longer
   /// exists is not a rule, and leaving it would route a later consignment by
   /// a match that can never be true again.
-  sellerOffer    SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Cascade)
-  sellerLocation SellerLocation? @relation(fields: [sellerLocationId], references: [id], onDelete: Cascade)
+  sellerOffer    SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  sellerLocation SellerLocation? @relation(fields: [sellerLocationId], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
   shipments LogisticsShipment[]
 
@@ -13324,9 +13324,9 @@ model LogisticsPickupRequest {
   createdAt       DateTime @default(now()) @db.DateTime(3)
   updatedAt       DateTime @updatedAt @db.DateTime(3)
 
-  partner       LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  partner       LogisticsPartner?        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade, onUpdate: Restrict)
   sellerAccount SellerAccount?           @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
-  sellerConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: SetNull, map: "logistics_pickup_requests_sellerConnectionId_fkey")
+  sellerConnection SellerCarrierConnection? @relation(fields: [sellerCarrierConnectionId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "logistics_pickup_requests_sellerConnectionId_fkey")
   shipment      LogisticsShipment?       @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
   location      InventoryLocation?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
   driver        LogisticsDriverProfile?  @relation(fields: [driverProfileId], references: [id], onDelete: SetNull)
