@@ -1067,6 +1067,10 @@ export type SellerManualCarrierBookingInclude<ExtArgs extends runtime.Types.Exte
 export type $SellerManualCarrierBookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SellerManualCarrierBooking"
   objects: {
+    /**
+     * onUpdate Restrict: `shipmentId` is in a CHECK constraint, and MariaDB 11.4
+     * refuses a CHECK on a column a foreign key may rewrite.
+     */
     shipment: Prisma.$LogisticsShipmentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{

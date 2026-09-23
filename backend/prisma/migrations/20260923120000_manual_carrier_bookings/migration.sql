@@ -84,10 +84,14 @@ CREATE TABLE `seller_manual_carrier_bookings` (
     )
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- ON UPDATE RESTRICT, not CASCADE: `shipmentId` is named in
+-- `chk_manual_booking_active_slot`, and MariaDB 11.4 refuses a CHECK on a
+-- column a foreign key may rewrite (error 1901). ON DELETE CASCADE is allowed.
+-- The parent key is a ULID that is never updated, so RESTRICT costs nothing.
 ALTER TABLE `seller_manual_carrier_bookings`
     ADD CONSTRAINT `seller_manual_carrier_bookings_shipmentId_fkey`
     FOREIGN KEY (`shipmentId`) REFERENCES `logistics_shipments`(`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE;
+    ON DELETE CASCADE ON UPDATE RESTRICT;
 
 ALTER TABLE `logistics_shipment_events`
     MODIFY `source` ENUM(

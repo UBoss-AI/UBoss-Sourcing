@@ -13010,7 +13010,9 @@ model SellerManualCarrierBooking {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  /// onUpdate Restrict: `shipmentId` is in a CHECK constraint, and MariaDB 11.4
+  /// refuses a CHECK on a column a foreign key may rewrite.
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
   @@index([shipmentId, createdAt], map: "ix_manual_booking_shipment")
   @@index([sellerAccountId, status], map: "ix_manual_booking_seller")
