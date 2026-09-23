@@ -12204,7 +12204,9 @@ actions. The reason shown is the most general true one, and it never discloses
 marketplace.
 
 **An arrangement narrows, never widens.** A seller cannot grant a carrier
-reach or handling approval the carrier does not itself hold. Countries are
+reach or handling approval the carrier does not itself hold - and this is
+enforced, by running the carrier's own coverage, approvals and capacity check
+(the one the operator's picker uses) on every seller offer. Countries are
 checked at **both** ends of a route: a carrier agreed for Poland has not
 agreed to carry from Poland to Portugal.
 
@@ -12220,14 +12222,17 @@ enumerate the marketplace's carriers.
 
 Reassignment withdraws the incumbent explicitly, with a required reason, and
 the carrier that loses the work is told. Both assignment rows survive, because
-"why did two carriers have this parcel?" is asked after a late delivery.
+"why did two carriers have this parcel?" is asked after a late delivery. It is
+allowed only before collection, and only after the seller has confirmed the
+order - see "Handing a confirmed consignment to a carrier" below.
 
 ## The screens this is worked on
 
 | Screen | Who | What it does |
 |---|---|---|
 | **Seller Hub → Carriers** | Seller | Lists every arrangement, including the refused and ended ones with their reasons — a seller who cannot see that their request was refused simply asks again. Asks for a new one by the carrier's reference. |
-| **Seller order → Who carries this** | Seller | The picker, on the consignment. Lists the ineligible carriers too, disabled, each with the reason it cannot take this one. |
+| **Seller order → Who carries this** | Seller | **Assign Logistics Partner**, on the consignment, once the order is confirmed. A dialog with the consignment's route, load, packages and handling; every partner, the ineligible ones disabled with their reason; and DHL, FedEx and India Post as hand bookings with what each involves. Then the booking details, progress and documents for a hand booking. |
+| **Seller order → Prepare the consignment** | Seller | Only on a confirmed order that has none. Raises it, once. |
 | **Sellers → Carrier arrangements** | Operator | The approvals queue. Approve, refuse, pause or end, with a reason the server requires for the last three. |
 
 The seller's picker is built by the same function that decides whether the
@@ -12277,6 +12282,144 @@ which loses to two workers arriving in the same second — both find nothing and
 both insert. The window query still decides *how often* a repeating condition
 is worth mentioning; the constraint decides whether it is written at all.
 
+## Handing a confirmed consignment to a carrier
+
+The workflow, end to end, and which record each step writes:
+
+| Step | Who | What is written |
+|---|---|---|
+| The buyer pays | Payment webhook | The order is `CONFIRMED`; one consignment (`logistics_shipments`) per seller part is raised |
+| The seller is told | System | `NEW_ORDER` on the seller's bell |
+| The seller confirms their part | Seller | The seller order becomes `ACCEPTED`. Only now may anybody be asked to carry it |
+| A carrier is named | Seller, or their own rule | An offer to a delivery company (`logistics_shipment_assignments`), **or** a hand-made booking with DHL, FedEx or India Post (`seller_manual_carrier_bookings`) |
+| The company accepts or refuses | Logistics partner | The offer becomes `ACCEPTED` or `REJECTED`; the seller is told either way |
+| A driver is put on it | That company, never the seller | `logistics_driver_assignments`; the driver is told on their own sign-in |
+| The parcel moves | Driver, carrier feed, or the seller for a hand booking | `logistics_shipment_events`, one per step, through the shipment state machine |
+
+**Nobody is offered work before the seller confirms.** A consignment is raised
+when the order is paid, which is before the seller has said they will supply
+it. A rule that picks the seller's own fleet waits for the confirmation, and
+`handConsignmentOnAfterConfirmation` in `shipment-create.service.ts` hands it
+on then. Before this, a carrier could be offered - and accept - a parcel for an
+order the seller then refused. The refusal is `SELLER_ORDER_NOT_CONFIRMED`.
+
+**One live carrier at a time.** A consignment holds either one live offer or one
+live hand booking, never both and never two of either. Switching between them
+- partner to partner, partner to DHL, DHL to FedEx - is a reassignment: a
+reason is required, the loser is told, and the old rows stay. The swap is ONE
+transaction (`offerAssignmentInTransaction` and
+`withdrawAssignmentInTransaction` in `assignment.service.ts`), so a failure
+leaves the incumbent in place rather than the parcel with nobody. A repeated or
+concurrent request for the carrier that already has it returns that offer and
+changes nothing.
+
+**Before collection only.** A seller may reassign or withdraw up to
+`READY_FOR_PICKUP` (`sellerMayReassign` in `domain/logistics-stage.ts`).
+From `PICKED_UP` on the carrier has the goods and the refusal is
+`CONSIGNMENT_REASSIGNMENT_LOCKED`: chain of custody is the carrier's and the
+marketplace's to change, never a dropdown's. A withdrawal takes the old
+carrier's driver off the consignment too, with the reason - before this fix the
+old driver kept the stop and the new carrier could not assign its own.
+
+**The carrier's own reach is checked, not only the arrangement.** Choosing a
+partner runs the operator's own eligibility (`findEligiblePartners`): it must
+serve both ends of the route, hold every handling approval the consignment
+needs, be under its capacity, and - for pallets - hold the `PALLET`
+capability. A container load (`FCL`/`LCL`, from the freight request) is
+offered to no delivery company, because no capability says one can move it.
+
+### DHL, FedEx and India Post without an API account
+
+Most sellers have no API credentials, and that must not stop them shipping. A
+seller chooses the carrier on the order, books the parcel with the carrier
+themselves - on its site or at a counter - and records what it gave them:
+
+| Recorded | Notes |
+|---|---|
+| The carrier's own tracking number | Required before anything about the journey can be recorded. Loosely format-checked, never generated, and not changeable once collected |
+| Service name, pickup reference | As the carrier wrote them |
+| Expected pickup and delivery dates | Copied onto the consignment |
+| What it cost | Optional; minor units as a string, with its currency |
+| Documents | Photographs or screenshots: the carrier's label, a customs form, proof of delivery |
+| Progress | Picked up, in transit, delayed, out for delivery, attempted, delivered, failed, returned |
+
+What it **never** does: book anything, call a carrier, print or buy a label,
+quote a rate, invent a tracking number, show "Connected", or claim the carrier
+accepted the parcel. The consignment moves to `ASSIGNED` (a carrier is named)
+and, once the number is in, `PICKUP_SCHEDULED`. Every event it writes has
+source `SELLER_PORTAL`, so "the seller says DHL said so" is never mistaken for
+"DHL's system said so". The seller's state-machine edges are their own
+(`SELLER` actor in `domain/logistics-shipment-state.ts`); the service allows
+them only on a consignment with a live hand booking and no partner, and
+**delivered** needs a proof-of-delivery photograph or screenshot attached first.
+
+India Post also collects only from India, and neither pallets nor containers go
+by India Post. DHL and FedEx are offered for those loads with a note to book a
+freight service rather than a parcel service.
+
+Marketplace staff can enter a hand booking's tracking number on the seller's
+behalf (`PATCH /admin/logistics/shipments/:id/manual-booking`) when it reached
+them some other way; they are named in the seller's audit trail.
+
+### The stage every portal shows
+
+Order status, payment, the consignment's own status, the carrier's offer, the
+driver and a hand booking each keep their own column and their own rules. The
+single stage a screen shows is **derived**, never stored, by `logisticsStage`
+in `domain/logistics-stage.ts`:
+
+`AWAITING_LOGISTICS_ASSIGNMENT`, `PARTNER_REJECTED`, `ASSIGNMENT_PENDING`,
+`CARRIER_BOOKING_PENDING`, `DRIVER_ASSIGNMENT_REQUIRED`, `DRIVER_ASSIGNED`,
+`PICKUP_SCHEDULED`, `PICKED_UP`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`,
+`DELIVERED`, `DELIVERY_FAILED`, `RETURNING`, `RETURNED`, `CANCELLED`.
+
+The buyer is shown a coarser version (`customerDeliveryStage`): a refusal or a
+pending offer reads as "awaiting a carrier", and driver detail folds into
+"carrier assigned". The seller order side is separate:
+`SELLER_CONFIRMATION_REQUIRED`, `SELLER_CONFIRMED`, `SELLER_REJECTED`.
+
+| Who | Sees |
+|---|---|
+| Seller | Stage, partner or carrier, booking mode, the carrier's tracking number linked to its own page, whether a driver is on it (masked name), the history, and the next action or why there is none |
+| Logistics partner | Only consignments it was offered, as before; an "Assign a driver" alert from acceptance until a driver is on it |
+| Driver | "New delivery" on their own sign-in when put on one |
+| Operator | All of the above plus the seller's method, why it was chosen, the booking and the whole history |
+| Buyer | The coarse stage, the carrier's name and tracking number, and the public event descriptions. Never internal notes, driver details or which partner refused |
+
+### What everybody is told
+
+| Event | To | Kind | Class |
+|---|---|---|---|
+| The seller confirmed and nobody carries it | Seller | `CONSIGNMENT_NEEDS_CARRIER` | **Alert**, closed by an offer or a hand booking |
+| A carrier was chosen by hand, not yet booked | Seller | `CARRIER_BOOKING_INCOMPLETE` | **Alert**, closed by the tracking number |
+| A carrier accepted | Partner's dispatch | "Assign a driver" | **Alert**, closed by a driver or a withdrawal |
+| The consignment was withdrawn | The partner that lost it | "No longer yours", with the reason | News |
+| A driver was assigned | That driver | `DRIVER_ASSIGNED`, on their own sign-in | News |
+| Picked up, in transit, out for delivery, delivered | Buyer | `shipment.*` emails, one per consignment per step | Email |
+| Confirmed and unassigned, or booked by hand without a number, past `LOGISTICS_ASSIGNMENT_RESPONSE_HOURS` | Operator | `LOGISTICS_SHIPMENT_UNASSIGNED` | **Alert** |
+
+"Picked up" is emailed only on an order with more than one consignment: with
+one, the order's own "shipped" email already said it.
+
+### The routes
+
+| Route | Does |
+|---|---|
+| `GET /seller/consignments/:id/carrier-options` | The consignment, its state, every partner with its reason, and DHL/FedEx/India Post with what each would involve |
+| `POST /seller/consignments/:id/carrier` | Offer it to a partner. Idempotent; a reason when replacing |
+| `POST /seller/consignments/:id/withdraw` | Take it back from whoever has it, before collection, with a reason |
+| `POST /seller/consignments/:id/manual-booking` | Choose DHL, FedEx or India Post, booked by hand |
+| `PATCH /seller/consignments/:id/manual-booking` | Enter the tracking number and the other details |
+| `POST /seller/consignments/:id/manual-booking/cancel` | Cancel the hand booking, before collection |
+| `POST /seller/consignments/:id/milestones` | Record progress on a hand booking |
+| `POST /seller/consignments/:id/documents` | Attach a photograph or screenshot to a hand booking |
+| `GET /seller/consignments/:id/tracking` | The journey as the seller may see it |
+| `POST /seller/orders/:id/consignments` | Raise the consignment a confirmed order is missing. Idempotent |
+
+All of them take the seller from the session, are rate-limited, and are behind
+`requireTradingSeller` where they change anything.
+
+
 ---
 ## How a seller's own goods get delivered
 
@@ -12318,7 +12461,7 @@ one.
 | | `INTEGRATED_CARRIER` | `SELF_MANAGED` | `DEDICATED_PARTNER` | `OPERATOR_FULFILLED` |
 |---|---|---|---|---|
 | Raising the consignment | Here, on the payment webhook | Here, on the payment webhook | Here, on the payment webhook | Here, on the payment webhook |
-| Booking the carriage | The seller, against their own carrier account | Nobody — it is their own van | The contracted company, by accepting the offer | The operator's dispatcher |
+| Booking the carriage | The seller, against their own carrier account — or by hand on the carrier's site, recorded here | Nobody — it is their own van | The contracted company, by accepting the offer | The operator's dispatcher |
 | Paying for the carriage | The seller, on their carrier invoice | The seller | Their private contract, which this software does not price | The operator |
 | The label | The carrier returns it as the consignment is created | No carrier label | No carrier label | The carrier, or the operator's paperwork |
 | Who the driver works for | DHL, FedEx or India Post | The seller's own delivery arm | The contracted company | A haulage company the operator engaged |
@@ -12403,6 +12546,42 @@ feed.
 
 `hasVerifiedOfficialApi` answers false for it, and no screen in any of the three
 front ends can render a "Connected" badge for a provider that answers false.
+
+### What a carrier setup screen may say
+
+Each carrier's setup panel is drawn from ONE definition
+(`apps/customer-web/src/lib/carrier-providers.ts`): its title, account-number
+field, credential fields, steps and badge, each with its own translation key
+(`carrier.DHL.*`, `carrier.FEDEX.*`, `carrier.INDIA_POST.*`). No shared
+component names a carrier itself.
+
+This replaced a real bug. The panel read the provider off the seller's
+connection and fell back to `'DHL'` when there was none - and a method has no
+connection until one is added, because nothing ever joined the two. So the
+FedEx card said "Your DHL account", asked for DHL's fields, and created a DHL
+connection when pressed. The method now carries its own `provider` (read back
+from its `methodKey` by `carrierFromMethodKey`), creating a connection joins it
+to the method with the same key (`linkConnectionToMethods`), and migration
+`20260923110000_link_carrier_methods_to_connections` joined the rows written
+before.
+
+The status a panel shows is derived by `carrierSetupStatus` in
+`domain/seller-fulfilment.ts`, never stored:
+
+| Status | When |
+|---|---|
+| `NOT_CONFIGURED` | No account declared |
+| `CREDENTIALS_REQUIRED` | Account declared, no key saved |
+| `PENDING_VERIFICATION` | A key is saved, or tested and waiting for go-live |
+| `CONNECTION_FAILED` | The last test, or live traffic, failed |
+| `PAUSED` | Taken out of service by the seller |
+| `CONNECTED` | `ACTIVE` **and** a test passed. The only way to get it |
+| `MANUAL_MODE_AVAILABLE` | India Post: there is nothing to connect |
+
+A carrier method leaves "Finish setting up" only when its connection goes live
+(`confirmCarrierForProduction` approves it), so the prompt stays until the
+account genuinely works. The panel can be closed at any point, and a carrier
+with no connection can still be used by booking it by hand.
 
 ### What each carrier can actually do
 

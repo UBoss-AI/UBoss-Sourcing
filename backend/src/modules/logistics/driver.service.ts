@@ -29,7 +29,11 @@ import {
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { OPERATOR_LABEL, recordLogisticsAudit } from './audit.service.js';
-import { createLogisticsNotification } from './notification.service.js';
+import {
+  createLogisticsNotification,
+  driverNeededKey,
+  resolveLogisticsNotifications,
+} from './notification.service.js';
 import { assertShipmentAccess } from './shipment.service.js';
 import {
   assertLogisticsPermission,
@@ -730,6 +734,7 @@ export async function assignDriver(
         canCarryDangerousGoods: true,
         licenceExpiresAt: true,
         fullName: true,
+        partnerUserId: true,
       },
     }),
   ]);
@@ -888,6 +893,38 @@ export async function assignDriver(
     // being swallowed as a duplicate of the one it replaced.
     dedupeKey: `driver-assignment:${assignmentId}`,
   });
+
+  /*
+   * And the driver themselves, where they sign in to the portal.
+   *
+   * The notice above goes to the whole company's feed, which is where a
+   * dispatcher works from. The person who has to drive to the pickup door is
+   * told separately, addressed to their own sign-in - a delivery they only
+   * find by scrolling somebody else's feed is one they find late. A driver
+   * with no sign-in is told by their dispatcher, as before.
+   */
+  // Somebody is driving it now, which is the whole of what that alert asked.
+  await resolveLogisticsNotifications({
+    resolutionKey: driverNeededKey(access.shipmentId),
+    reason: `${driver.fullName} was assigned.`,
+    source: 'DOMAIN_EVENT',
+  });
+
+  if (driver.partnerUserId !== null) {
+    await createLogisticsNotification({
+      logisticsPartnerId: who.logisticsPartnerId,
+      partnerUserId: driver.partnerUserId,
+      shipmentId: access.shipmentId,
+      kind: 'DRIVER_ASSIGNED',
+      title: `New delivery: ${shipment.shipmentReference}`,
+      body: shipment.receivingCompanyName,
+      variables: {
+        shipmentReference: shipment.shipmentReference,
+        receivingCompany: shipment.receivingCompanyName,
+      },
+      dedupeKey: `driver-task:${assignmentId}`,
+    });
+  }
 
   return { assignmentId, replacedAssignmentId: existing?.id ?? null };
 }

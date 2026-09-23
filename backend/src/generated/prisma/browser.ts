@@ -1659,17 +1659,31 @@ export type LogisticsShipment = Prisma.LogisticsShipmentModel
  */
 export type LogisticsShipmentPackage = Prisma.LogisticsShipmentPackageModel
 /**
+ * Model SellerManualCarrierBooking
+ * A consignment sent with DHL, FedEx or India Post WITHOUT an API account.
+ * 
+ * WHY THIS EXISTS. A seller with no DHL API credentials can still send a
+ * parcel with DHL: they book it on DHL's site or at a counter, and DHL gives
+ * them a waybill number. Nothing recorded that. The only way to hand a
+ * consignment to anybody was an offer to a delivery company on this platform,
+ * and DHL is not one - so a seller without credentials had no way to say who
+ * was carrying their parcel at all.
+ * 
+ * WHAT THIS ROW NEVER CLAIMS. That Glovia booked anything, that a label
+ * exists, that a rate was quoted, or that DHL has accepted the parcel. It
+ * records what the SELLER says they arranged, and it says so on every screen
+ * that shows it. A tracking number appears only when a person typed one in.
+ * 
+ * One ACTIVE booking per consignment, by the database: `activeShipmentId`
+ * holds the shipment's id while the booking is live and NULL once it is
+ * cancelled, and a UNIQUE index on a nullable column lets any number of
+ * cancelled rows sit beside one live one - the same device
+ * `LogisticsDriverAssignment` uses.
+ */
+export type SellerManualCarrierBooking = Prisma.SellerManualCarrierBookingModel
+/**
  * Model LogisticsShipmentAssignment
- * The offer of one consignment to one carrier, and what they said.
  * 
- * A row per offer rather than a column on the shipment, because reassignment
- * has to leave a trail: "who was asked, when, what they said and why" is the
- * question a disputed delivery turns into, and a column that is overwritten
- * answers none of it.
- * 
- * `state` is what authorises a partner. A COMPLETED or WITHDRAWN assignment
- * leaves the shipment readable as history and refuses every write - a carrier
- * that has finished a job must not keep the consignee's address live for ever.
  */
 export type LogisticsShipmentAssignment = Prisma.LogisticsShipmentAssignmentModel
 /**

@@ -255,6 +255,19 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
     ).map((item) => [item.id, item.noteSnapshot]),
   );
 
+  /*
+   * Who is carrying each consignment, how, and what the seller may do next.
+   * One call to the same function the assign screen and the tracking view
+   * use, so this page and that one cannot disagree about a stage.
+   */
+  const { consignmentStatesForGroup } = await import('./consignment-logistics.service.js');
+  const logistics = new Map(
+    (await consignmentStatesForGroup(membership.sellerAccountId, group.id)).map((state) => [
+      state.id,
+      state,
+    ]),
+  );
+
   return {
     id: group.id,
     sellerOrderNumber: group.sellerOrderNumber,
@@ -302,6 +315,7 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       // given to one, which is what puts the picker on the screen.
       carrierId: consignment.assignedPartnerId,
       carrierName: consignment.assignedPartner?.displayName ?? null,
+      logistics: logistics.get(consignment.id) ?? null,
     })),
     shipments: group.shipments.map((shipment) => ({
       id: shipment.id,
@@ -584,6 +598,18 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       );
 
       await createShipmentsForOrder(orderId, null);
+
+      // Raising is idempotent, so a consignment raised at payment comes back
+      // unchanged and was NOT handed to anybody then - the seller had not
+      // confirmed. Now they have.
+      const { handConsignmentOnAfterConfirmation } = await import(
+        '../logistics/shipment-create.service.js'
+      );
+      const mine = await prisma.logisticsShipment.findMany({
+        where: { sellerOrderGroupId: input.groupId, sellerAccountId: membership.sellerAccountId },
+        select: { id: true },
+      });
+      for (const consignment of mine) await handConsignmentOnAfterConfirmation(consignment.id);
     } catch (error: unknown) {
       logger.warn(
         { err: error, orderId, groupId: input.groupId },

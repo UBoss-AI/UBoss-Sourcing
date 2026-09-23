@@ -108,6 +108,7 @@ async function cleanUp(): Promise<void> {
   await prisma.logisticsPartnerUser.deleteMany({
     where: { logisticsPartnerId: { in: partnerIds } },
   });
+  await prisma.logisticsServiceRegion.deleteMany({ where: { logisticsPartnerId: { in: partnerIds } } });
   await prisma.logisticsPartner.deleteMany({ where: { id: { in: partnerIds } } });
 
   await prisma.sellerOrderLine.deleteMany({ where: { orderGroup: { orderId: { in: orderIds } } } });
@@ -171,6 +172,12 @@ beforeAll(async () => {
   };
 
   carrierId = await makeCarrier(CARRIER_CODE, 'Vistula Freight');
+  // Where it collects and delivers. A seller's arrangement narrows what a
+  // carrier may do and never widens it, so a carrier with no service area
+  // is offered nothing.
+  await prisma.logisticsServiceRegion.create({
+    data: { id: newId(), logisticsPartnerId: carrierId, scope: 'COUNTRY', countryCode: 'PL' },
+  });
   rivalCarrierId = await makeCarrier(RIVAL_CARRIER_CODE, 'Odra Logistics');
 
   const carrierUserId = newId();
@@ -442,6 +449,24 @@ describe('a seller order, from approval to doorstep', () => {
     expect(eligible.map((option) => option.logisticsPartnerId)).toEqual([carrierId]);
     // The carrier they have no arrangement with is not in the list at all.
     expect(options.some((option) => option.logisticsPartnerId === rivalCarrierId)).toBe(false);
+
+    // --- ...but only once they have confirmed the order --------------------
+    //
+    // A carrier offered work on an order the seller may still refuse has
+    // been handed an obligation nobody agreed to, so this is refused until
+    // the seller confirms. The confirmation itself, through the seller order
+    // service, is covered in seller-logistics-assignment.test.ts.
+    await expect(
+      sellerAssignCarrier({
+        sellerAccountId: sellerId,
+        shipmentId,
+        logisticsPartnerId: carrierId,
+        sellerMemberId: null,
+        actorEmail: 'ops@xyz.local',
+      }),
+    ).rejects.toMatchObject({ code: 'SELLER_ORDER_NOT_CONFIRMED' });
+
+    await prisma.sellerOrderGroup.updateMany({ where: { orderId }, data: { status: 'ACCEPTED' } });
 
     // --- ...and assigns it --------------------------------------------------
     const offered = await sellerAssignCarrier({

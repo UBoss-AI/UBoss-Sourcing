@@ -38,6 +38,7 @@ import {
   EmptyState,
   ErrorState,
   Field,
+  Input,
   LoadingState,
   PageHeader,
   Select,
@@ -52,6 +53,7 @@ import {
   assignShipmentDriver,
   correctShipmentStatus,
   fetchAdminShipment,
+  updateAdminManualBooking,
   fetchEligiblePartners,
   fetchPartnerDrivers,
   fetchPartnerVehicles,
@@ -271,6 +273,7 @@ export function LogisticsShipmentDetailPage(): React.JSX.Element {
         </Card>
       </div>
 
+      <SellerSide shipment={shipment} />
       <CarrierConnection shipment={shipment} />
       <Exceptions shipment={shipment} />
       <Assignments shipment={shipment} />
@@ -340,6 +343,124 @@ function HandlingWarnings({
 // ---------------------------------------------------------------------------
 // Carrier connection
 // ---------------------------------------------------------------------------
+
+/**
+ * The seller's side of a seller's consignment.
+ *
+ * Which of the seller's delivery methods it went to and why, whether a
+ * delivery company on the platform has it or the seller booked DHL, FedEx or
+ * India Post by hand, and the one stage every portal shows. Staff may enter a
+ * hand booking's tracking number when it reached them some other way; they
+ * cannot replace a partner or a driver from here.
+ */
+function SellerSide({ shipment }: { shipment: AdminShipmentDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+  const { can } = useSession();
+  const toast = useToast();
+  const client = useQueryClient();
+  const [number, setNumber] = useState('');
+
+  const save = useMutation({
+    mutationFn: () => updateAdminManualBooking(shipment.id, { carrierTrackingNumber: number.trim() }),
+    onSuccess: async () => {
+      setNumber('');
+      toast.success(t('logistics.sellerSide.saved'));
+      await client.invalidateQueries({ queryKey: ['admin', 'logistics', 'shipment', shipment.id] });
+    },
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : t('logistics.sellerSide.failed'));
+    },
+  });
+
+  const side = shipment.sellerLogistics;
+  if (side === undefined || side === null) return null;
+
+  const booking = side.state.manualBooking;
+
+  return (
+    <Card title={t('logistics.sellerSide.title')} bodyClassName="px-5 py-4 space-y-4">
+      <DescriptionList
+        items={[
+          {
+            label: t('logistics.sellerSide.sellerOrder'),
+            value: side.sellerOrder === null ? '-' : `${side.sellerOrder.number} · ${humanise(side.sellerOrder.status)}`,
+          },
+          { label: t('logistics.sellerSide.stage'), value: humanise(side.state.stage) },
+          {
+            label: t('logistics.sellerSide.mode'),
+            value:
+              side.state.mode === 'MANUAL_CARRIER'
+                ? t('logistics.sellerSide.modeManual')
+                : side.state.mode === 'PARTNER'
+                  ? t('logistics.sellerSide.modePartner')
+                  : t('logistics.sellerSide.modeNone'),
+          },
+          { label: t('logistics.sellerSide.method'), value: side.method?.name ?? '-' },
+          { label: t('logistics.sellerSide.why'), value: side.selectionReason ?? '-' },
+          {
+            label: t('logistics.sellerSide.driver'),
+            value: side.state.driver.isAssigned ? (side.state.driver.maskedName ?? '-') : '-',
+          },
+        ]}
+      />
+
+      {booking !== null && (
+        <div className="space-y-3 border-t border-border-subtle pt-3">
+          <Callout tone="warning" role="status">
+            {t('logistics.sellerSide.manualNote', { carrier: booking.carrierName })}
+          </Callout>
+          <DescriptionList
+            items={[
+              { label: t('logistics.sellerSide.carrier'), value: booking.carrierName },
+              { label: t('logistics.sellerSide.service'), value: booking.serviceName ?? '-' },
+              {
+                label: t('logistics.sellerSide.tracking'),
+                value: booking.carrierTrackingNumber ?? t('logistics.sellerSide.trackingPending'),
+              },
+            ]}
+          />
+          {booking.carrierTrackingNumber === null && can(Permission.LOGISTICS_ASSIGN) && (
+            <div className="flex flex-wrap items-end gap-2">
+              <Field label={t('logistics.sellerSide.enterTracking', { carrier: booking.carrierName })}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    value={number}
+                    autoComplete="off"
+                    onChange={(event) => {
+                      setNumber(event.currentTarget.value);
+                    }}
+                  />
+                )}
+              </Field>
+              <Button
+                variant="primary"
+                disabled={number.trim().length < 6 || save.isPending}
+                onClick={() => {
+                  save.mutate();
+                }}
+              >
+                {t('logistics.sellerSide.saveTracking')}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {side.state.history.length > 0 && (
+        <ul className="space-y-1 border-t border-border-subtle pt-3 text-xs text-ink-muted">
+          {side.state.history.map((entry, index) => (
+            <li key={`${entry.at}:${String(index)}`}>
+              {formatDateTime(entry.at)} · {entry.carrierName} · {humanise(entry.state)}
+              {entry.reason === null ? '' : ` - ${entry.reason}`}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
 
 function CarrierConnection({
   shipment,

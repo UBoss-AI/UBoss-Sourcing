@@ -58,6 +58,18 @@ import {
   sellerAssignCarrier,
 } from '../../modules/seller/logistics-partner.service.js';
 import {
+  attachManualBookingDocument,
+  cancelManualBooking,
+  createManualBooking,
+  logisticsOptionsForConsignment,
+  raiseConsignmentForSellerOrder,
+  readSellerTracking,
+  recordManualMilestone,
+  updateManualBooking,
+  withdrawConsignmentCarrier,
+  type SellerLogisticsActor,
+} from '../../modules/seller/consignment-logistics.service.js';
+import {
   answerFreightQuote,
   declineFreightQuote,
   freightNeedsQuote,
@@ -67,6 +79,22 @@ import {
 import { currentSeller, requireSeller, requireTradingSeller } from '../plugins/seller.js';
 
 const idParam = z.object({ id: z.string().length(26) });
+
+/**
+ * The ceiling on every request that hands a consignment to somebody, or says
+ * where it is. Generous for a person at a screen, and low enough that a script
+ * cannot flood a carrier's inbox with offers and withdrawals.
+ */
+const ASSIGNMENT_RATE_LIMIT = { max: 30, timeWindow: '1 minute' } as const;
+
+/** Who is acting, as the logistics services want it. From the session only. */
+function logisticsActor(seller: ReturnType<typeof currentSeller>): SellerLogisticsActor {
+  return {
+    sellerAccountId: seller.sellerAccountId,
+    memberId: seller.memberId,
+    label: seller.displayName,
+  };
+}
 
 const locationSchema = z.object({
   code: z.string().trim().min(1).max(32),
@@ -858,12 +886,23 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     async (request, reply) => {
       const params = idParam.parse(request.params);
 
-      const options = await carrierChoicesForShipment(
-        currentSeller(request).sellerAccountId,
-        params.id,
-      );
+      const sellerAccountId = currentSeller(request).sellerAccountId;
 
-      return reply.header('cache-control', 'no-store').status(200).send({ options });
+      /*
+       * `options` is the original shape and stays for anything reading it.
+       * The rest is what the "Assign logistics partner" screen draws: the
+       * consignment itself, who has it now, every partner with its reason,
+       * and DHL, FedEx and India Post with what using each would involve.
+       */
+      const [options, logistics] = await Promise.all([
+        carrierChoicesForShipment(sellerAccountId, params.id),
+        logisticsOptionsForConsignment(sellerAccountId, params.id),
+      ]);
+
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({ options, ...logistics });
     },
   );
 
@@ -876,7 +915,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
    */
   app.post(
     '/consignments/:id/carrier',
-    { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
     async (request, reply) => {
       const params = idParam.parse(request.params);
       const body = z
@@ -900,6 +942,222 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
       });
 
       return reply.status(200).send(result);
+    },
+  );
+
+  /** Take the consignment back from whoever has it, before collection. */
+  app.post(
+    '/consignments/:id/withdraw',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(4).max(512) }).parse(request.body);
+
+      const state = await withdrawConsignmentCarrier({
+        actor: logisticsActor(currentSeller(request)),
+        shipmentId: params.id,
+        reason: body.reason,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send({ state });
+    },
+  );
+
+  // --- DHL, FedEx and India Post, booked by hand ---------------------------
+  //
+  // Nothing below calls a carrier. The seller books the parcel on the
+  // carrier's own site or at its counter and records here what it gave them.
+  // No label, no rate, no tracking number is ever produced by these routes.
+
+  app.post(
+    '/consignments/:id/manual-booking',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          provider: z.enum(['DHL', 'FEDEX', 'INDIA_POST']),
+          reason: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const result = await createManualBooking({
+        actor: logisticsActor(currentSeller(request)),
+        shipmentId: params.id,
+        provider: body.provider,
+        reason: body.reason ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(result.idempotent ? 200 : 201).send(result);
+    },
+  );
+
+  app.patch(
+    '/consignments/:id/manual-booking',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          serviceName: z.string().trim().max(120).nullable().optional(),
+          pickupReference: z.string().trim().max(64).nullable().optional(),
+          carrierTrackingNumber: z.string().trim().max(64).nullable().optional(),
+          expectedPickupAt: z.coerce.date().nullable().optional(),
+          expectedDeliveryAt: z.coerce.date().nullable().optional(),
+          // Minor units as a string, never a number: money does not cross the
+          // API as a float.
+          shippingCostMinor: z.string().trim().max(16).nullable().optional(),
+          currency: z.string().trim().length(3).nullable().optional(),
+        })
+        .strict()
+        .parse(request.body);
+
+      const details = Object.fromEntries(
+        Object.entries(body).filter(([, value]) => value !== undefined),
+      );
+
+      const booking = await updateManualBooking({
+        editor: { kind: 'SELLER', actor: logisticsActor(currentSeller(request)) },
+        shipmentId: params.id,
+        details,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send({ booking });
+    },
+  );
+
+  app.post(
+    '/consignments/:id/manual-booking/cancel',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z.object({ reason: z.string().trim().min(4).max(512) }).parse(request.body);
+
+      const state = await cancelManualBooking({
+        actor: logisticsActor(currentSeller(request)),
+        shipmentId: params.id,
+        reason: body.reason,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send({ state });
+    },
+  );
+
+  /** Where the seller's own outside carrier says the parcel is. */
+  app.post(
+    '/consignments/:id/milestones',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          status: z.string().trim().min(1).max(32),
+          note: z.string().trim().max(1000).nullable().optional(),
+          reason: z.string().trim().max(512).nullable().optional(),
+          occurredAt: z.coerce.date().nullable().optional(),
+          idempotencyKey: z.string().trim().max(56).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const state = await recordManualMilestone({
+        actor: logisticsActor(currentSeller(request)),
+        shipmentId: params.id,
+        status: body.status,
+        note: body.note ?? null,
+        reason: body.reason ?? null,
+        occurredAt: body.occurredAt ?? null,
+        idempotencyKey: body.idempotencyKey ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send({ state });
+    },
+  );
+
+  app.post(
+    '/consignments/:id/documents',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const file = await request.file();
+
+      if (file === undefined) {
+        return reply.status(400).send({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Attach a file.',
+            details: [{ field: 'file', code: 'REQUIRED' }],
+            correlationId: request.correlationId,
+          },
+        });
+      }
+
+      const kindField = file.fields['kind'];
+      const kind =
+        typeof kindField === 'object' && kindField !== null && 'value' in kindField
+          ? String((kindField as { value: unknown }).value)
+          : 'OTHER';
+
+      const document = await attachManualBookingDocument({
+        actor: logisticsActor(currentSeller(request)),
+        shipmentId: params.id,
+        kind,
+        fileName: file.filename,
+        bytes: await file.toBuffer(),
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send({ document });
+    },
+  );
+
+  /** The journey as the seller may see it: public descriptions, never internal notes. */
+  app.get(
+    '/consignments/:id/tracking',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const tracking = await readSellerTracking(currentSeller(request).sellerAccountId, params.id);
+      return reply.header('cache-control', 'no-store').status(200).send(tracking);
+    },
+  );
+
+  /** Raise the consignment a confirmed order is missing. Idempotent. */
+  app.post(
+    '/orders/:id/consignments',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: ASSIGNMENT_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const consignments = await raiseConsignmentForSellerOrder({
+        actor: logisticsActor(currentSeller(request)),
+        sellerOrderGroupId: params.id,
+      });
+      return reply.status(200).send({ consignments });
     },
   );
 

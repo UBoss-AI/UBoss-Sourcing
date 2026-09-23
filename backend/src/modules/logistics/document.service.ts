@@ -151,6 +151,50 @@ export async function uploadShipmentDocument(
     );
   }
 
+  const access = await assertShipmentAccess(membership, input.shipmentId, 'WRITE');
+
+  const stored = await storeShipmentFile({
+    shipmentId: access.shipmentId,
+    kind: input.kind,
+    audience: input.audience ?? 'BOTH',
+    fileName: input.fileName,
+    bytes: input.bytes,
+    uploadedByUserId: membership.userId,
+    uploadedBySource: membership.driverProfileId !== null ? 'DRIVER_APP' : 'LOGISTICS_PORTAL',
+  });
+
+  await recordLogisticsAudit({
+    logisticsPartnerId: membership.logisticsPartnerId,
+    actorUserId: membership.userId,
+    actorLabel: membership.fullName,
+    action: 'logistics.document.uploaded',
+    resourceType: 'logistics_shipment_document',
+    resourceId: stored.id,
+    after: { kind: input.kind, sizeBytes: input.bytes.length, scanState: stored.scanState },
+    summary: `${input.fileName} was attached.`,
+    correlationId: correlationId ?? null,
+  });
+
+  return stored;
+}
+
+/**
+ * Check, scan and store one file against a consignment.
+ *
+ * The part of an upload that does not depend on WHO is uploading, shared by
+ * the carrier's portal and by a seller recording their own outside carrier's
+ * paperwork. Authorisation is the caller's and has already happened: this
+ * takes a shipment id it trusts.
+ */
+export async function storeShipmentFile(input: {
+  shipmentId: string;
+  kind: LogisticsDocumentKind;
+  audience: 'PARTNER' | 'OPERATOR' | 'BOTH';
+  fileName: string;
+  bytes: Buffer;
+  uploadedByUserId: string | null;
+  uploadedBySource: 'LOGISTICS_PORTAL' | 'DRIVER_APP' | 'SELLER_PORTAL' | 'UBOSS_ADMIN';
+}): Promise<StoredDocument> {
   /*
    * The BYTES decide the type, never the header.
    *
@@ -174,8 +218,6 @@ export async function uploadShipmentDocument(
     ]);
   }
 
-  const access = await assertShipmentAccess(membership, input.shipmentId, 'WRITE');
-
   const id = newId();
 
   /*
@@ -193,9 +235,9 @@ export async function uploadShipmentDocument(
   await prisma.logisticsShipmentDocument.create({
     data: {
       id,
-      shipmentId: access.shipmentId,
+      shipmentId: input.shipmentId,
       kind: input.kind,
-      audience: input.audience ?? 'BOTH',
+      audience: input.audience,
       fileName: input.fileName.slice(0, 255),
       contentType: stored.mimeType,
       sizeBytes: stored.sizeBytes,
@@ -206,21 +248,9 @@ export async function uploadShipmentDocument(
       scanState: scan.state,
       scannedAt: scan.state === 'PENDING' ? null : new Date(),
       scanDetail: scan.detail,
-      uploadedByUserId: membership.userId,
-      uploadedBySource: membership.driverProfileId !== null ? 'DRIVER_APP' : 'LOGISTICS_PORTAL',
+      uploadedByUserId: input.uploadedByUserId,
+      uploadedBySource: input.uploadedBySource,
     },
-  });
-
-  await recordLogisticsAudit({
-    logisticsPartnerId: membership.logisticsPartnerId,
-    actorUserId: membership.userId,
-    actorLabel: membership.fullName,
-    action: 'logistics.document.uploaded',
-    resourceType: 'logistics_shipment_document',
-    resourceId: id,
-    after: { kind: input.kind, sizeBytes: input.bytes.length, scanState: scan.state },
-    summary: `${input.fileName} was attached.`,
-    correlationId: correlationId ?? null,
   });
 
   return {

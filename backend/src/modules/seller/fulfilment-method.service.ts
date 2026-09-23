@@ -45,10 +45,13 @@ import type {
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import {
   assertMethodTransition,
+  carrierFromMethodKey,
+  carrierSetupStatus,
   defaultTrackingModeFor,
   describeMethodStatus,
   hasVerifiedOfficialApi,
   methodKeyFor,
+  type CarrierSetupStatus,
   normaliseCountry,
   normalisePostalPrefix,
   precedenceForScope,
@@ -266,6 +269,29 @@ export interface FulfilmentMethodView {
   statusReason: string | null;
   submittedAt: string | null;
   decidedAt: string | null;
+  /**
+   * Which carrier this method is for. Null for every mode but
+   * INTEGRATED_CARRIER.
+   *
+   * Read from the method itself, not from its connection. A method exists
+   * from the moment the seller chooses the card, and it has no connection
+   * until they add one - a screen that took the provider from the connection
+   * had to guess until then, and it guessed DHL.
+   */
+  provider: CarrierProvider | null;
+  environment: 'SANDBOX' | 'PRODUCTION' | null;
+  /**
+   * What a setup screen may say about the account, derived from the
+   * connection's proven state. Null for modes with no carrier account. See
+   * `carrierSetupStatus` - nothing a seller types can make this CONNECTED.
+   */
+  carrierSetupStatus: CarrierSetupStatus | null;
+  /**
+   * Whether this carrier can be used by booking outside and typing the result
+   * in. True for every integrated carrier whatever its connection state: a
+   * seller without an API account can still send a parcel with DHL.
+   */
+  manualBookingAvailable: boolean;
   /** The carrier account behind it, where the mode has one. Never its secret. */
   connection: {
     id: string;
@@ -313,6 +339,9 @@ export async function listFulfilmentMethods(
           lastSuccessAt: true,
           lastFailureAt: true,
           lastFailureMessage: true,
+          lastTestAt: true,
+          lastTestPassedAt: true,
+          credential: { select: { id: true } },
         },
       },
       logisticsPartner: {
@@ -323,7 +352,10 @@ export async function listFulfilmentMethods(
     orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
   });
 
-  return rows.map((row) => ({
+  return rows.map((row) => {
+    const carrier = row.mode === 'INTEGRATED_CARRIER' ? carrierFromMethodKey(row.methodKey) : null;
+
+    return {
     id: row.id,
     mode: row.mode,
     status: row.status,
@@ -334,6 +366,24 @@ export async function listFulfilmentMethods(
     statusReason: row.statusReason,
     submittedAt: row.submittedAt?.toISOString() ?? null,
     decidedAt: row.decidedAt?.toISOString() ?? null,
+    provider: carrier?.provider ?? null,
+    environment: carrier?.environment ?? null,
+    carrierSetupStatus:
+      carrier === null
+        ? null
+        : carrierSetupStatus({
+            provider: carrier.provider,
+            connection:
+              row.carrierConnection === null
+                ? null
+                : {
+                    state: row.carrierConnection.state,
+                    hasCredential: row.carrierConnection.credential !== null,
+                    lastTestAt: row.carrierConnection.lastTestAt,
+                    lastTestPassedAt: row.carrierConnection.lastTestPassedAt,
+                  },
+          }),
+    manualBookingAvailable: carrier !== null,
     connection:
       row.carrierConnection === null
         ? null
@@ -361,7 +411,8 @@ export async function listFulfilmentMethods(
             status: row.logisticsPartner.status,
           },
     ruleCount: row._count.rules,
-  }));
+    };
+  });
 }
 
 /** The last four characters, for confirming which account this is. */
@@ -399,7 +450,7 @@ export async function describeFulfilmentOptions(sellerAccountId: string): Promis
       methods.find((method) =>
         option.provider === null
           ? method.mode === option.mode
-          : method.mode === option.mode && method.connection?.provider === option.provider,
+          : method.mode === option.mode && method.provider === option.provider,
       ) ?? null;
 
     return { ...option, ...copy, existing };
@@ -521,6 +572,31 @@ export async function chooseFulfilmentMethod(
       select: { id: true },
     });
   });
+
+  /*
+   * A seller who added their FedEx account before choosing the FedEx card -
+   * or who is choosing it again after archiving it - already has the
+   * connection. Join them now, or the card forgets the account it has.
+   */
+  if (input.mode === 'INTEGRATED_CARRIER' && input.provider !== undefined && input.provider !== null) {
+    const connection = await prisma.sellerCarrierConnection.findUnique({
+      where: {
+        sellerAccountId_provider_environment: {
+          sellerAccountId: input.sellerAccountId,
+          provider: input.provider,
+          environment,
+        },
+      },
+      select: { id: true, state: true },
+    });
+
+    if (connection !== null && connection.state !== 'DISCONNECTED') {
+      await prisma.sellerFulfilmentMethod.update({
+        where: { id: created.id },
+        data: { sellerCarrierConnectionId: connection.id },
+      });
+    }
+  }
 
   await recordSellerAudit({
     sellerAccountId: input.sellerAccountId,

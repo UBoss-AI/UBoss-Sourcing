@@ -66,6 +66,10 @@ import {
   type FleetActor,
 } from '../../modules/logistics/driver.service.js';
 import { describeProviders } from '../../modules/logistics/carrier/registry.js';
+import {
+  adminSellerLogisticsView,
+  updateManualBooking,
+} from '../../modules/seller/consignment-logistics.service.js';
 import { buildTokenUrl } from '../../modules/identity/token.service.js';
 import { email } from '../../infra/email/index.js';
 import { currentUser } from '../plugins/auth.js';
@@ -1130,9 +1134,15 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
        */
       const driverAssignments = await readDriverAssignmentHistory(shipment.id);
 
+      // The seller's side: their method, why it was chosen, partner or hand
+      // booking, and the one stage every portal shows. Null for the shop's
+      // own goods.
+      const sellerLogistics = await adminSellerLogisticsView(shipment.id);
+
       return reply.status(200).send({
         ...rest,
         driverAssignments,
+        sellerLogistics,
         /** Whoever has it right now, flattened out of the chain above. */
         driver: driverAssignments.find((entry) => entry.isActive) ?? null,
         /*
@@ -1152,6 +1162,47 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
          */
         allowedTransitions: allowedShipmentTransitions(shipment.status, 'UBOSS_ADMIN'),
       });
+    },
+  );
+
+  /**
+   * Enter what a seller's outside carrier gave them, on the seller's behalf.
+   *
+   * For a consignment the seller booked BY HAND with DHL, FedEx or India Post
+   * and whose tracking number reached the marketplace some other way - an
+   * email, a phone call. The same function the seller's own screen uses, with
+   * the staff member named in the trail. It calls no carrier and verifies
+   * nothing with one; the number is recorded as typed.
+   */
+  app.patch(
+    '/logistics/shipments/:id/manual-booking',
+    {
+      preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN),
+      config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          serviceName: z.string().trim().max(120).nullable().optional(),
+          pickupReference: z.string().trim().max(64).nullable().optional(),
+          carrierTrackingNumber: z.string().trim().max(64).nullable().optional(),
+          expectedPickupAt: z.coerce.date().nullable().optional(),
+          expectedDeliveryAt: z.coerce.date().nullable().optional(),
+        })
+        .strict()
+        .parse(request.body);
+
+      const auth = currentUser(request);
+
+      const booking = await updateManualBooking({
+        editor: { kind: 'ADMIN', userId: auth.id, label: auth.email },
+        shipmentId: params.id,
+        details: Object.fromEntries(Object.entries(body).filter(([, value]) => value !== undefined)),
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send({ booking });
     },
   );
 

@@ -58,7 +58,10 @@ import {
   findDueRetries,
   releaseEvent,
 } from '../modules/integrations/integration-event.service.js';
-import { expireStaleAssignments } from '../modules/logistics/assignment.service.js';
+import {
+  expireStaleAssignments,
+  raiseUnassignedConsignmentAlerts,
+} from '../modules/logistics/assignment.service.js';
 import { sweepTripsAndPings } from '../modules/logistics/trip.service.js';
 import { retryFailedWebhookEvents } from '../modules/logistics/carrier/webhook.service.js';
 import { refreshSlaStates } from '../modules/logistics/sla-sweep.service.js';
@@ -764,6 +767,15 @@ const logisticsMaintenance: JobHandler = async () => {
     outcomes['expiredAssignments'] = expired.expired;
   } catch (error) {
     logger.error({ err: error }, 'logistics assignment expiry pass failed');
+  }
+
+  // After the expiry pass, so a consignment whose offer just lapsed is counted
+  // as nobody's on this beat rather than the next.
+  try {
+    const unassigned = await raiseUnassignedConsignmentAlerts();
+    outcomes['unassignedConsignments'] = unassigned.raised;
+  } catch (error) {
+    logger.error({ err: error }, 'unassigned consignment alert pass failed');
   }
 
   try {

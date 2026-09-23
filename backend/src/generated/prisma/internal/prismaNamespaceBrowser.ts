@@ -219,6 +219,7 @@ export const ModelName = {
   LogisticsSlaPolicy: 'LogisticsSlaPolicy',
   LogisticsShipment: 'LogisticsShipment',
   LogisticsShipmentPackage: 'LogisticsShipmentPackage',
+  SellerManualCarrierBooking: 'SellerManualCarrierBooking',
   LogisticsShipmentAssignment: 'LogisticsShipmentAssignment',
   LogisticsShipmentEvent: 'LogisticsShipmentEvent',
   LogisticsShipmentException: 'LogisticsShipmentException',
@@ -3982,6 +3983,34 @@ export const LogisticsShipmentPackageScalarFieldEnum = {
 export type LogisticsShipmentPackageScalarFieldEnum = (typeof LogisticsShipmentPackageScalarFieldEnum)[keyof typeof LogisticsShipmentPackageScalarFieldEnum]
 
 
+export const SellerManualCarrierBookingScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sellerAccountId: 'sellerAccountId',
+  provider: 'provider',
+  sellerFulfilmentMethodId: 'sellerFulfilmentMethodId',
+  status: 'status',
+  activeShipmentId: 'activeShipmentId',
+  serviceName: 'serviceName',
+  pickupReference: 'pickupReference',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  expectedPickupAt: 'expectedPickupAt',
+  expectedDeliveryAt: 'expectedDeliveryAt',
+  shippingCostMinor: 'shippingCostMinor',
+  currency: 'currency',
+  createdBySellerMemberId: 'createdBySellerMemberId',
+  createdByLabel: 'createdByLabel',
+  bookedAt: 'bookedAt',
+  cancelledAt: 'cancelledAt',
+  cancelledReason: 'cancelledReason',
+  cancelledByLabel: 'cancelledByLabel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerManualCarrierBookingScalarFieldEnum = (typeof SellerManualCarrierBookingScalarFieldEnum)[keyof typeof SellerManualCarrierBookingScalarFieldEnum]
+
+
 export const LogisticsShipmentAssignmentScalarFieldEnum = {
   id: 'id',
   shipmentId: 'shipmentId',
@@ -7299,6 +7328,25 @@ export const LogisticsShipmentPackageOrderByRelevanceFieldEnum = {
 } as const
 
 export type LogisticsShipmentPackageOrderByRelevanceFieldEnum = (typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum]
+
+
+export const SellerManualCarrierBookingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sellerAccountId: 'sellerAccountId',
+  sellerFulfilmentMethodId: 'sellerFulfilmentMethodId',
+  activeShipmentId: 'activeShipmentId',
+  serviceName: 'serviceName',
+  pickupReference: 'pickupReference',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  currency: 'currency',
+  createdBySellerMemberId: 'createdBySellerMemberId',
+  createdByLabel: 'createdByLabel',
+  cancelledReason: 'cancelledReason',
+  cancelledByLabel: 'cancelledByLabel'
+} as const
+
+export type SellerManualCarrierBookingOrderByRelevanceFieldEnum = (typeof SellerManualCarrierBookingOrderByRelevanceFieldEnum)[keyof typeof SellerManualCarrierBookingOrderByRelevanceFieldEnum]
 
 
 export const LogisticsShipmentAssignmentOrderByRelevanceFieldEnum = {

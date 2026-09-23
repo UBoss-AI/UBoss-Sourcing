@@ -224,6 +224,10 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
+  // Clean up AFTER as well as before. Cleaning only in beforeEach left the last
+  // test's stock movements behind, and the next file to delete products hit
+  // the foreign key - failing a different, innocent file on every run.
+  await resetAll();
   await prisma.$disconnect();
 });
 

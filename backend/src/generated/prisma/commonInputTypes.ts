@@ -2941,6 +2941,23 @@ export type EnumLogisticsSlaStateWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLogisticsSlaStateFilter<$PrismaModel>
 }
 
+export type EnumManualCarrierBookingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManualCarrierBookingStatus | Prisma.EnumManualCarrierBookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ManualCarrierBookingStatus[]
+  notIn?: $Enums.ManualCarrierBookingStatus[]
+  not?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel> | $Enums.ManualCarrierBookingStatus
+}
+
+export type EnumManualCarrierBookingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManualCarrierBookingStatus | Prisma.EnumManualCarrierBookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ManualCarrierBookingStatus[]
+  notIn?: $Enums.ManualCarrierBookingStatus[]
+  not?: Prisma.NestedEnumManualCarrierBookingStatusWithAggregatesFilter<$PrismaModel> | $Enums.ManualCarrierBookingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel>
+}
+
 export type EnumLogisticsAssignmentStateFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsAssignmentState | Prisma.EnumLogisticsAssignmentStateFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsAssignmentState[]
@@ -6492,6 +6509,23 @@ export type NestedEnumLogisticsSlaStateWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLogisticsSlaStateFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLogisticsSlaStateFilter<$PrismaModel>
+}
+
+export type NestedEnumManualCarrierBookingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManualCarrierBookingStatus | Prisma.EnumManualCarrierBookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ManualCarrierBookingStatus[]
+  notIn?: $Enums.ManualCarrierBookingStatus[]
+  not?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel> | $Enums.ManualCarrierBookingStatus
+}
+
+export type NestedEnumManualCarrierBookingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManualCarrierBookingStatus | Prisma.EnumManualCarrierBookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ManualCarrierBookingStatus[]
+  notIn?: $Enums.ManualCarrierBookingStatus[]
+  not?: Prisma.NestedEnumManualCarrierBookingStatusWithAggregatesFilter<$PrismaModel> | $Enums.ManualCarrierBookingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManualCarrierBookingStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumLogisticsAssignmentStateFilter<$PrismaModel = never> = {

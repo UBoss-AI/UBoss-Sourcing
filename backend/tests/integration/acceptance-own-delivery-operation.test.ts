@@ -31,7 +31,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { setPartnerStatus } from '../../src/modules/logistics/admin.service.js';
-import { createShipmentsForOrder } from '../../src/modules/logistics/shipment-create.service.js';
+import {
+  createShipmentsForOrder,
+  handConsignmentOnAfterConfirmation,
+} from '../../src/modules/logistics/shipment-create.service.js';
 import {
   chooseFulfilmentMethod,
   decideFulfilmentMethod,
@@ -566,7 +569,25 @@ describe('a seller who delivers their own goods', () => {
     // they collect from, where they deliver and what they can carry should not
     // then have to choose a carrier by hand on every order.
     expect(consignment.sellerFulfilmentMethodId).toBe(methodId);
-    expect(consignment.assignedPartnerId).toBe(partnerId);
+
+    // ...but it is NOT offered to anybody yet. The seller has not confirmed
+    // the order, and a fleet offered work the seller may still refuse has
+    // been given an obligation nobody agreed to.
+    expect(consignment.assignedPartnerId).toBeNull();
+
+    // --- 10b. The seller confirms, and the rule hands it on ---------------
+    //
+    // The confirmation itself, through the seller order service, is covered
+    // in seller-logistics-assignment.test.ts. Here the group is marked
+    // confirmed and the SAME hook that service calls is run.
+    await prisma.sellerOrderGroup.updateMany({ where: { orderId }, data: { status: 'ACCEPTED' } });
+    await handConsignmentOnAfterConfirmation(consignment.id);
+
+    const handedOn = await prisma.logisticsShipment.findUniqueOrThrow({
+      where: { id: consignment.id },
+      select: { assignedPartnerId: true },
+    });
+    expect(handedOn.assignedPartnerId).toBe(partnerId);
     // Nobody's external account is involved: this is the seller's own fleet.
     expect(consignment.sellerCarrierConnectionId).toBeNull();
 

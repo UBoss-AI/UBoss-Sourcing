@@ -31,6 +31,11 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, Field, Input, LoadingState } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
+import {
+  SETUP_STATUS_TONE,
+  carrierDefinition,
+  type CarrierDefinition,
+} from '@/lib/carrier-providers';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import {
@@ -90,29 +95,15 @@ function TextField({
 }
 
 /**
- * The label for one credential box.
+ * The label for one credential box, in THIS carrier's words.
  *
- * A lookup rather than an interpolated key, because the translation catalogue
- * is typed: `t()` takes a known key, and a template literal built from a
- * server response is not one. That typing is worth keeping - it is what makes
- * a missing translation a build error rather than a raw key on a screen.
- *
- * A field this build has not seen falls back to its own name, so a provider
- * added to the backend first shows something usable rather than nothing.
+ * From the carrier's own definition, so FedEx's form says "FedEx client ID"
+ * and never borrows DHL's label. A field the server asks for that this build
+ * has no definition for shows its own name rather than nothing.
  */
-function credentialFieldLabel(t: Translate, field: string): string {
-  switch (field) {
-    case 'apiKey':
-      return t('sellerSetup.field.apiKey');
-    case 'apiSecret':
-      return t('sellerSetup.field.apiSecret');
-    case 'clientId':
-      return t('sellerSetup.field.clientId');
-    case 'clientSecret':
-      return t('sellerSetup.field.clientSecret');
-    default:
-      return field;
-  }
+function credentialFieldLabel(t: Translate, carrier: CarrierDefinition, field: string): string {
+  const known = carrier.credentialFields.find((entry) => entry.name === field);
+  return known === undefined ? field : t(known.labelKey);
 }
 
 const CONNECTION_TONE: Record<
@@ -131,13 +122,45 @@ const CONNECTION_TONE: Record<
 export function FulfilmentSetupPanel({
   method,
   isEditable,
+  onClose,
 }: {
   method: FulfilmentMethod;
   isEditable: boolean;
+  /** Close the panel without finishing. Setup can always be left for later. */
+  onClose?: () => void;
 }): React.JSX.Element {
   switch (method.mode) {
-    case 'INTEGRATED_CARRIER':
-      return <CarrierAccountPanel method={method} isEditable={isEditable} />;
+    case 'INTEGRATED_CARRIER': {
+      const carrier = carrierDefinition(method.provider);
+
+      // No guess. A carrier method whose carrier this build does not know is
+      // said to be so, rather than drawn as some other carrier's form.
+      if (carrier === null) {
+        return (
+          <Card>
+            <p className="px-6 py-8 text-center text-sm text-ink-muted">
+              {t_unknownCarrier(method.provider)}
+            </p>
+          </Card>
+        );
+      }
+
+      /*
+       * KEYED on the method and the carrier. Switching from the FedEx panel to
+       * the DHL one mounts a fresh panel with empty fields, so nothing typed
+       * for one carrier - an account number, half a key - survives into the
+       * other.
+       */
+      return (
+        <CarrierAccountPanel
+          key={`${method.id}:${carrier.provider}`}
+          method={method}
+          carrier={carrier}
+          isEditable={isEditable}
+          {...(onClose === undefined ? {} : { onClose })}
+        />
+      );
+    }
     case 'SELF_MANAGED':
       return <SelfManagedPanel method={method} isEditable={isEditable} />;
     case 'DEDICATED_PARTNER':
@@ -166,16 +189,20 @@ function NothingToSetUp(): React.JSX.Element {
 
 function CarrierAccountPanel({
   method,
+  carrier,
   isEditable,
+  onClose,
 }: {
   method: FulfilmentMethod;
+  carrier: CarrierDefinition;
   isEditable: boolean;
+  onClose?: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const client = useQueryClient();
 
-  const provider = method.connection?.provider ?? 'DHL';
+  const provider = carrier.provider;
 
   const connections = useQuery({
     queryKey: ['seller', 'carrier-connections'],
@@ -185,6 +212,8 @@ function CarrierAccountPanel({
   const fields = useQuery({
     queryKey: ['seller', 'credential-fields', provider],
     queryFn: () => fetchCredentialFields(provider),
+    // A carrier with no API has nothing to ask for.
+    enabled: carrier.hasApi,
   });
 
   const [accountNumber, setAccountNumber] = useState('');
@@ -195,9 +224,11 @@ function CarrierAccountPanel({
     void client.invalidateQueries({ queryKey: ['seller', 'fulfilment-options'] });
   }
 
+  const environment = method.environment ?? 'SANDBOX';
   const connection: CarrierConnection | undefined = connections.data?.connections.find(
-    (row) => row.provider === provider,
+    (row) => row.provider === provider && row.environment === environment,
   );
+  const setupStatus = method.carrierSetupStatus ?? 'NOT_CONFIGURED';
 
   const create = useMutation({
     mutationFn: createCarrierConnection,
@@ -271,14 +302,50 @@ function CarrierAccountPanel({
   }
 
   return (
-    <Card
-      title={t('sellerSetup.carrierTitle', { provider })}
-      description={t('sellerSetup.carrierBody')}
-    >
-      <div className="space-y-5 px-6 py-5">
-        {connection === undefined ? (
+    <Card title={t(carrier.titleKey)} description={t(carrier.descriptionKey)}>
+      <div className="space-y-5 px-6 py-5" data-carrier={carrier.provider}>
+        {/* --- Whose account, and the one honest status line ---------------- */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className={cx(
+                'inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-bold',
+                carrier.badgeClass,
+              )}
+            >
+              {carrier.monogram}
+            </span>
+            <p className="text-sm font-semibold text-ink">{carrier.displayName}</p>
+          </div>
+          <Badge tone={SETUP_STATUS_TONE[setupStatus]}>
+            {t(`carrier.setupStatus.${setupStatus}`)}
+          </Badge>
+        </div>
+
+        {/*
+          What works WITHOUT an account, said before the form rather than
+          after it. A seller with no DHL account reads this and closes the
+          panel; nothing about onboarding waits on it.
+        */}
+        {setupStatus !== 'CONNECTED' && (
+          <p
+            role="status"
+            className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-xs leading-relaxed text-ink"
+          >
+            {carrier.hasApi ? t('carrier.notConnectedNotice') : t('carrier.INDIA_POST.noApiNotice')}
+          </p>
+        )}
+
+        <ol className="list-decimal space-y-1 pl-5 text-xxs leading-relaxed text-ink-muted">
+          {carrier.setupStepKeys.map((key) => (
+            <li key={key}>{t(key)}</li>
+          ))}
+        </ol>
+
+        {carrier.hasApi && connection === undefined && carrier.accountNumber !== null && (
           <div className="space-y-4">
-            <TextField label={t('sellerSetup.accountNumber')} hint={t('sellerSetup.accountNumberHint')}
+            <TextField label={t(carrier.accountNumber.labelKey)} hint={t(carrier.accountNumber.hintKey)}
                 value={accountNumber}
                 onChange={(event) => {
                   setAccountNumber(event.target.value);
@@ -289,24 +356,26 @@ function CarrierAccountPanel({
             <Button
               variant="primary"
               size="sm"
-              disabled={!isEditable || create.isPending}
+              disabled={!isEditable || create.isPending || accountNumber.trim().length === 0}
               onClick={() => {
                 create.mutate({
                   provider,
-                  environment: 'SANDBOX',
-                  accountNumber: accountNumber.trim().length === 0 ? null : accountNumber.trim(),
+                  environment,
+                  accountNumber: accountNumber.trim(),
                 });
               }}
             >
-              {t('sellerSetup.addConnection')}
+              {t('carrier.addAccount', { carrier: carrier.displayName })}
             </Button>
           </div>
-        ) : (
+        )}
+
+        {carrier.hasApi && connection !== undefined && (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-medium text-ink">
-                  {provider} · {t(`sellerSetup.env.${connection.environment}`)}
+                  {carrier.displayName} · {t(`sellerSetup.env.${connection.environment}`)}
                 </p>
                 {connection.accountNumberHint !== null && (
                   <p className="mt-0.5 text-xxs text-ink-muted">
@@ -319,16 +388,6 @@ function CarrierAccountPanel({
                 {t(`sellerSetup.state.${connection.state}`)}
               </Badge>
             </div>
-
-            {/*
-              The honesty line for a provider with no API. It replaces the test
-              and activate controls entirely - there is nothing to press.
-            */}
-            {!connection.hasVerifiedApi && (
-              <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-xs leading-relaxed text-ink">
-                {t('sellerSetup.noApi')}
-              </p>
-            )}
 
             {connection.lastFailureMessage !== null && (
               <p className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-xs text-ink">
@@ -353,7 +412,7 @@ function CarrierAccountPanel({
                   )}
 
                   {(fields.data?.fields ?? []).map((field) => (
-                    <TextField key={field} label={credentialFieldLabel(t, field)}
+                    <TextField key={field} label={credentialFieldLabel(t, carrier, field)}
                         type="password"
                         value={secrets[field] ?? ''}
                         onChange={(event) => {
@@ -459,9 +518,22 @@ function CarrierAccountPanel({
             )}
           </>
         )}
+
+        {onClose !== undefined && (
+          <div className="flex justify-end border-t border-border-subtle pt-4">
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              {t('carrier.closeForNow')}
+            </Button>
+          </div>
+        )}
       </div>
     </Card>
   );
+}
+
+/** Said in English on purpose: it only appears for a carrier this build predates. */
+function t_unknownCarrier(provider: string | null): string {
+  return `This delivery method is for a carrier this version of the Seller Hub does not recognise (${provider ?? 'none'}).`;
 }
 
 // ---------------------------------------------------------------------------

@@ -14,16 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model LogisticsShipmentAssignment
- * The offer of one consignment to one carrier, and what they said.
  * 
- * A row per offer rather than a column on the shipment, because reassignment
- * has to leave a trail: "who was asked, when, what they said and why" is the
- * question a disputed delivery turns into, and a column that is overwritten
- * answers none of it.
- * 
- * `state` is what authorises a partner. A COMPLETED or WITHDRAWN assignment
- * leaves the shipment readable as history and refuses every write - a carrier
- * that has finished a job must not keep the consignee's address live for ever.
  */
 export type LogisticsShipmentAssignmentModel = runtime.Types.Result.DefaultSelection<Prisma.$LogisticsShipmentAssignmentPayload>
 

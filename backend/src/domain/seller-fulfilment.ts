@@ -248,6 +248,120 @@ export function methodKeyFor(input: MethodKeyInput): string {
 }
 
 /**
+ * Which carrier an integrated-carrier method is for, read back out of its key.
+ *
+ * The inverse of `methodKeyFor`, and the only reader of that format. It exists
+ * because a method is created the moment a seller presses the FedEx card - long
+ * before any carrier connection exists - and until this was read, the only
+ * place a method's provider appeared was `connection.provider`. A method with
+ * no connection therefore had no provider at all, the setup panel fell back to
+ * DHL, and the FedEx card said "Your DHL account" and created a DHL connection
+ * when its button was pressed.
+ *
+ * Null for every other mode, and for a key this build does not recognise,
+ * rather than a guess. A guess is exactly the bug this replaces.
+ */
+export function carrierFromMethodKey(methodKey: string): {
+  provider: CarrierProvider;
+  environment: 'SANDBOX' | 'PRODUCTION';
+} | null {
+  const match = /^CARRIER:([A-Z_]+):(SANDBOX|PRODUCTION)$/.exec(methodKey);
+  if (match === null) return null;
+
+  const provider = match[1] as string;
+  const environment = match[2] as 'SANDBOX' | 'PRODUCTION';
+
+  return (CARRIER_PROVIDERS as readonly string[]).includes(provider)
+    ? { provider: provider as CarrierProvider, environment }
+    : null;
+}
+
+/** Every `CarrierProvider`, for validating a value read back out of a string. */
+const CARRIER_PROVIDERS: readonly CarrierProvider[] = Object.freeze([
+  'MANUAL',
+  'CUSTOM',
+  'DHL',
+  'FEDEX',
+  'UPS',
+  'INDIA_POST',
+]);
+
+// ---------------------------------------------------------------------------
+// WHAT A CARRIER SETUP SCREEN MAY CLAIM
+// ---------------------------------------------------------------------------
+
+/**
+ * The state of a seller's own carrier account, in the words a setup screen uses.
+ *
+ * Derived, never stored, and derived from the ONE thing that can prove a
+ * connection works: `SellerCarrierConnection.state`, which reaches ACTIVE only
+ * after a real call reached the carrier and a person confirmed it. Nothing a
+ * seller types can produce CONNECTED.
+ *
+ *   NOT_CONFIGURED         nothing declared yet.
+ *   CREDENTIALS_REQUIRED   the account is declared; no key has been saved.
+ *   PENDING_VERIFICATION   a key is saved, or tested and waiting for the
+ *                          seller's go-live. Not connected.
+ *   CONNECTED              tested AND confirmed. The only state that is.
+ *   CONNECTION_FAILED      the last test, or live traffic, failed.
+ *   PAUSED                 tested once, deliberately out of service.
+ *   MANUAL_MODE_AVAILABLE  the provider has no API this software can call -
+ *                          India Post - so there is nothing to connect, and
+ *                          the carrier is used by booking outside and typing
+ *                          the result in.
+ *
+ * Manual booking is available for every provider in every one of these
+ * states; that is a separate fact, carried separately by the caller.
+ */
+export type CarrierSetupStatus =
+  | 'NOT_CONFIGURED'
+  | 'CREDENTIALS_REQUIRED'
+  | 'PENDING_VERIFICATION'
+  | 'CONNECTED'
+  | 'CONNECTION_FAILED'
+  | 'PAUSED'
+  | 'MANUAL_MODE_AVAILABLE';
+
+export function carrierSetupStatus(input: {
+  provider: CarrierProvider;
+  connection: {
+    state: string;
+    hasCredential: boolean;
+    lastTestAt: Date | string | null;
+    lastTestPassedAt: Date | string | null;
+  } | null;
+}): CarrierSetupStatus {
+  if (!hasVerifiedOfficialApi(input.provider)) return 'MANUAL_MODE_AVAILABLE';
+
+  const connection = input.connection;
+  if (connection === null || connection.state === 'DISCONNECTED') return 'NOT_CONFIGURED';
+
+  switch (connection.state) {
+    case 'ACTIVE':
+      // Belt and braces: ACTIVE without a passed test cannot be reached through
+      // the service, and if a hand-edited row ever produces it, the screen
+      // does not repeat the claim.
+      return connection.lastTestPassedAt === null ? 'PENDING_VERIFICATION' : 'CONNECTED';
+    case 'ERROR':
+      return 'CONNECTION_FAILED';
+    case 'PAUSED':
+      return 'PAUSED';
+    default:
+      break;
+  }
+
+  if (!connection.hasCredential) return 'CREDENTIALS_REQUIRED';
+
+  // A test was run and did not pass. The key is there; it is wrong or the
+  // carrier refused it, and "pending" would hide that.
+  if (connection.lastTestAt !== null && connection.lastTestPassedAt === null) {
+    return 'CONNECTION_FAILED';
+  }
+
+  return 'PENDING_VERIFICATION';
+}
+
+/**
  * The precedence stored beside a rule's scope.
  *
  * MUST agree with `chk_seller_fulfilment_rule_precedence` in

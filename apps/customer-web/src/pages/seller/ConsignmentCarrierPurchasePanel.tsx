@@ -1,7 +1,7 @@
 /**
  * Pricing a consignment, buying it, and booking the van.
  *
- * The other half of the delivery screen. `ConsignmentCarrierPanel` is for a
+ * The other half of the delivery screen. `ConsignmentLogisticsPanel` is for a
  * seller who hands the parcel to a haulage company inside the platform; this
  * is for a seller who has their OWN account with a carrier, where the three
  * steps are asking what it costs, paying for it, and arranging collection.

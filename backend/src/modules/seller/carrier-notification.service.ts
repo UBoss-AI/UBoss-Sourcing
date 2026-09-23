@@ -229,3 +229,110 @@ export async function notifySellerCarrierArrangement(params: {
     );
   }
 }
+
+/** The resolution key of "finish your booking with the carrier". */
+export function carrierBookingIncompleteKey(shipmentId: string): string {
+  return `carrier-booking-incomplete:${shipmentId}`;
+}
+
+/**
+ * The seller confirmed the order, and its consignment has nobody carrying it.
+ *
+ * An ALERT on the same resolution key as a refusal or a lapse, because it is
+ * the same problem: the parcel has nobody. Whatever answers one - an offer to
+ * a delivery company, or a hand-made booking with DHL - answers all of them.
+ *
+ * Linked to the order itself, where the "Assign logistics partner" action is,
+ * rather than to the list: the list does not have the button.
+ */
+export async function notifyConsignmentNeedsCarrier(params: {
+  shipmentId: string;
+  sellerOrderGroupId: string | null;
+  sellerOrderNumber: string | null;
+}): Promise<void> {
+  try {
+    const seller = await sellerFor(params.shipmentId);
+    if (seller === null) return;
+
+    const order = params.sellerOrderNumber ?? seller.reference;
+
+    await notifySeller({
+      sellerAccountId: seller.sellerAccountId,
+      kind: 'CONSIGNMENT_NEEDS_CARRIER',
+      title: `Assign a logistics partner for ${order}`,
+      body: `You confirmed ${order}. Consignment ${seller.reference} has nobody carrying it yet. Choose a delivery company, or book it yourself with DHL, FedEx or India Post.`,
+      linkPath:
+        params.sellerOrderGroupId === null ? '/seller/orders' : `/seller/orders/${params.sellerOrderGroupId}`,
+      severity: 'WARNING',
+      subjectType: 'logistics_shipment',
+      subjectId: params.shipmentId,
+      dedupeKey: `needs-carrier:${params.shipmentId}`,
+      class: 'ALERT',
+      resolutionKey: consignmentUnassignedKey(params.shipmentId),
+    });
+  } catch (error) {
+    logger.warn(
+      { err: error, shipmentId: params.shipmentId },
+      'could not tell the seller their consignment needs a carrier',
+    );
+  }
+}
+
+/**
+ * The seller chose DHL, FedEx or India Post by hand, and has not booked it.
+ *
+ * Says in words what Glovia has NOT done, because that is the misunderstanding
+ * this exists to prevent: nothing has been booked with the carrier, no label
+ * exists, and nobody is coming to collect until the seller arranges it.
+ * Resolved by the carrier's own tracking number being entered, or by the
+ * booking being cancelled.
+ */
+export async function notifyCarrierBookingIncomplete(params: {
+  shipmentId: string;
+  sellerOrderGroupId: string | null;
+  carrierName: string;
+}): Promise<void> {
+  try {
+    const seller = await sellerFor(params.shipmentId);
+    if (seller === null) return;
+
+    await notifySeller({
+      sellerAccountId: seller.sellerAccountId,
+      kind: 'CARRIER_BOOKING_INCOMPLETE',
+      title: `Book ${seller.reference} with ${params.carrierName}`,
+      body: `You chose ${params.carrierName} for consignment ${seller.reference}. Glovia has not booked anything with ${params.carrierName}: book it with them directly, then enter their tracking number here.`,
+      linkPath:
+        params.sellerOrderGroupId === null ? '/seller/orders' : `/seller/orders/${params.sellerOrderGroupId}`,
+      severity: 'WARNING',
+      subjectType: 'logistics_shipment',
+      subjectId: params.shipmentId,
+      dedupeKey: `booking-incomplete:${params.shipmentId}:${params.carrierName}`.slice(0, 120),
+      class: 'ALERT',
+      resolutionKey: carrierBookingIncompleteKey(params.shipmentId),
+    });
+  } catch (error) {
+    logger.warn(
+      { err: error, shipmentId: params.shipmentId },
+      'could not tell the seller their carrier booking is incomplete',
+    );
+  }
+}
+
+/** Close "finish your booking" - the number is in, or the booking is gone. */
+export async function resolveCarrierBookingIncomplete(params: {
+  shipmentId: string;
+  note: string;
+}): Promise<void> {
+  try {
+    await resolveSellerNotifications({
+      resolutionKey: carrierBookingIncompleteKey(params.shipmentId),
+      source: 'DOMAIN_EVENT',
+      note: params.note,
+    });
+  } catch (error) {
+    logger.warn(
+      { err: error, shipmentId: params.shipmentId },
+      'could not clear the carrier-booking alert',
+    );
+  }
+}

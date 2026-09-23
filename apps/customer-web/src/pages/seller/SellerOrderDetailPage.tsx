@@ -18,7 +18,8 @@
  * has to write it on the box.
  */
 import { useState } from 'react';
-import { ConsignmentCarrierPanel } from './ConsignmentCarrierPanel';
+import { ConsignmentLogisticsPanel } from './ConsignmentLogisticsPanel';
+import { raiseConsignment } from '@/lib/consignment-logistics';
 import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -257,18 +258,64 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
  * is the record a haulage company actually works, and the only place a seller
  * chooses who collects.
  */
+/** Seller-order statuses in which the seller has confirmed they will supply. */
+const CONFIRMED: ReadonlySet<string> = new Set(['ACCEPTED', 'PROCESSING', 'READY_FOR_DISPATCH']);
+
 function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Element | null {
   const { t } = useI18n();
+  const toast = useToast();
+  const client = useQueryClient();
 
   const consignments = order.consignments ?? [];
-  if (consignments.length === 0) return null;
+
+  /*
+   * A confirmed order with no consignment. Normally impossible - payment and
+   * confirmation both raise one - but an order confirmed before that existed,
+   * or on a day the raise failed, would otherwise show nothing to assign and
+   * no way to fix it.
+   */
+  const raise = useMutation({
+    mutationFn: () => raiseConsignment(order.id),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ['seller', 'order', order.id] });
+      toast.success(t('logistics.consignmentRaised'));
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error, t('logistics.actionFailed')));
+    },
+  });
+
+  if (consignments.length === 0) {
+    if (!CONFIRMED.has(order.status)) return null;
+
+    return (
+      <Card title={t('sellerConsignment.carrierHeading')}>
+        <div className="space-y-3 px-6 py-5">
+          <p className="text-sm text-ink-muted">{t('logistics.noConsignmentYet')}</p>
+          <Button
+            variant="primary"
+            isLoading={raise.isPending}
+            onClick={() => {
+              raise.mutate();
+            }}
+          >
+            {t('logistics.prepareConsignment')}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <Card title={t('sellerConsignment.carrierHeading')}>
+    <Card title={t('sellerConsignment.carrierHeading')} description={t('logistics.cardBody')}>
       <div className="space-y-3 px-6 py-4">
         {consignments.map((consignment) => (
           <div key={consignment.id} className="space-y-3">
-            <ConsignmentCarrierPanel consignment={consignment} />
+            {consignment.logistics !== undefined && consignment.logistics !== null ? (
+              <ConsignmentLogisticsPanel sellerOrderId={order.id} state={consignment.logistics} />
+            ) : (
+              <p className="text-sm text-ink-muted">{consignment.reference}</p>
+            )}
 
             {/*
               The other route out of the warehouse.
@@ -280,10 +327,18 @@ function Consignments({ order }: { order: SellerOrderDetail }): React.JSX.Elemen
               behind a mode toggle makes the choice feel like a setting rather
               than what it is, which is a decision about this parcel.
             */}
-            <ConsignmentCarrierPurchasePanel
-              shipmentId={consignment.id}
-              reference={consignment.reference}
-            />
+            {/*
+              Not for a consignment booked BY HAND with DHL, FedEx or India
+              Post: pricing and collection booking go through a carrier API or
+              a partner's board, and a hand booking has neither. Offering a
+              "book a pickup" form there would promise a van nobody sends.
+            */}
+            {consignment.logistics?.mode !== 'MANUAL_CARRIER' && (
+              <ConsignmentCarrierPurchasePanel
+                shipmentId={consignment.id}
+                reference={consignment.reference}
+              />
+            )}
           </div>
         ))}
       </div>

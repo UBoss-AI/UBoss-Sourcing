@@ -27,9 +27,21 @@ import { LogisticsPermission } from '../../domain/logistics-permissions.js';
 import type { ShipmentStatusName } from '../../domain/logistics-shipment-state.js';
 import { dueAtFrom } from '../../domain/logistics-sla.js';
 import { newId } from '../../infra/ids.js';
+import { logger } from '../../infra/logger.js';
+import { Permission } from '../../domain/permissions.js';
+import {
+  AdminNotificationKind,
+  ResolutionKey,
+  createAdminNotification,
+  resolveAdminNotifications,
+} from '../notifications/admin-notification.service.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { recordLogisticsAudit, OPERATOR_LABEL } from './audit.service.js';
-import { createLogisticsNotification } from './notification.service.js';
+import {
+  createLogisticsNotification,
+  driverNeededKey,
+  resolveLogisticsNotifications,
+} from './notification.service.js';
 import {
   notifySellerCarrierAccepted,
   notifySellerCarrierDeclined,
@@ -108,12 +120,19 @@ export async function findEligiblePartners(shipmentId: string): Promise<Eligible
       requiresTemperatureRange: true,
       requiresSterileHandling: true,
       isDangerousGoods: true,
+      sellerOrderGroupId: true,
     },
   });
 
   if (shipment === null) throw notFound('Shipment');
 
+  const loadType = await consignmentLoadType(shipment.sellerOrderGroupId);
   const needed = requiredCapabilities(shipment);
+
+  // A pallet needs a pallet truck and somebody approved to run one. The
+  // capability is an approval, like cold chain, and a carrier that has not
+  // shown the marketplace its equipment is not offered a pallet.
+  if (loadType === 'PALLET') needed.push('PALLET');
 
   const partners = await prisma.logisticsPartner.findMany({
     where: { archivedAt: null, status: { in: ['ACTIVE', 'SUSPENDED'] } },
@@ -187,6 +206,12 @@ export async function findEligiblePartners(shipmentId: string): Promise<Eligible
       const missing = needed.filter((kind) => !approved.has(kind));
       for (const kind of missing) reasons.push(`MISSING_CAPABILITY:${kind}`);
 
+      // A full or part container is sea or rail freight, arranged through a
+      // freight quote with a forwarder. No capability on this platform says
+      // a delivery company can move one, so none is offered it - rather than
+      // offering it to everybody and letting a van turn up at a port.
+      if (loadType === 'FCL' || loadType === 'LCL') reasons.push('CONTAINER_NOT_SUPPORTED');
+
       const openShipments = partner._count.shipments;
       if (partner.maxOpenShipments !== null && openShipments >= partner.maxOpenShipments) {
         reasons.push('AT_CAPACITY');
@@ -214,6 +239,29 @@ export async function findEligiblePartners(shipmentId: string): Promise<Eligible
     if (scoreDiff !== 0) return scoreDiff;
     return a.openShipments - b.openShipments;
   });
+}
+
+/**
+ * What kind of load a seller's consignment is, from the freight request made
+ * for its order.
+ *
+ * PARCEL where there is no freight request, which is every order bought by
+ * the box - the ordinary case, and the only one before bulk ordering existed.
+ * The newest request wins, because a load re-quoted as two pallets instead of
+ * a container is two pallets.
+ */
+export async function consignmentLoadType(
+  sellerOrderGroupId: string | null,
+): Promise<'PARCEL' | 'CARTON' | 'PALLET' | 'FCL' | 'LCL'> {
+  if (sellerOrderGroupId === null) return 'PARCEL';
+
+  const request = await prisma.sellerFreightQuoteRequest.findFirst({
+    where: { sellerOrderGroupId },
+    orderBy: { createdAt: 'desc' },
+    select: { loadType: true },
+  });
+
+  return request?.loadType ?? 'PARCEL';
 }
 
 /**
@@ -294,12 +342,40 @@ export async function offerAssignment(input: OfferAssignmentInput): Promise<{
   assignmentId: string;
   respondBy: Date | null;
 }> {
+  const offered = await prisma.$transaction((tx) => offerAssignmentInTransaction(tx, input));
+  await announceOffer(offered);
+  return { assignmentId: offered.assignmentId, respondBy: offered.respondBy };
+}
+
+/** What an offer made inside a transaction needs announced once it commits. */
+export interface OfferOutcome {
+  assignmentId: string;
+  respondBy: Date | null;
+  partnerId: string;
+  partnerName: string;
+  shipment: { id: string; shipmentReference: string; receivingCompanyName: string; destinationCity: string | null };
+}
+
+/**
+ * The offer itself, inside somebody's transaction.
+ *
+ * Exported for the seller's reassignment, which has to withdraw the incumbent
+ * and offer to the replacement as ONE unit: done as two transactions, a
+ * failure between them left the consignment with nobody - a carrier told it
+ * had lost the work, and no carrier given it. Announcing is left to the
+ * caller, after its commit, through `announceOffer`: an email queued for an
+ * offer that then rolls back is an email about something that never happened.
+ */
+export async function offerAssignmentInTransaction(
+  tx: PrismaTransaction,
+  input: OfferAssignmentInput,
+): Promise<OfferOutcome> {
   const respondBy = dueAtFrom(
     new Date(),
     input.respondByHours ?? env.LOGISTICS_ASSIGNMENT_RESPONSE_HOURS,
   );
 
-  return prisma.$transaction(async (tx) => {
+  {
     const shipment = await tx.logisticsShipment.findUnique({
       where: { id: input.shipmentId },
       select: {
@@ -410,21 +486,33 @@ export async function offerAssignment(input: OfferAssignmentInput): Promise<{
     // Outside-the-transaction work is deliberately not done here: this runs
     // inside one, and an email queued for a change that then rolls back is an
     // email about something that never happened. The caller notifies.
-    return { assignmentId, respondBy, partnerId: partner.id, shipment };
-  }).then(async (result) => {
-    await createLogisticsNotification({
-      logisticsPartnerId: result.partnerId,
-      shipmentId: result.shipment.id,
-      kind: 'SHIPMENT_ASSIGNED',
-      title: `New shipment ${result.shipment.shipmentReference}`,
-      body: `${result.shipment.receivingCompanyName}${
-        result.shipment.destinationCity === null ? '' : `, ${result.shipment.destinationCity}`
-      }`,
-      variables: { shipmentReference: result.shipment.shipmentReference },
-      dedupeKey: `assignment:${result.assignmentId}`,
-    });
+    return {
+      assignmentId,
+      respondBy,
+      partnerId: partner.id,
+      partnerName: partner.displayName,
+      shipment: {
+        id: shipment.id,
+        shipmentReference: shipment.shipmentReference,
+        receivingCompanyName: shipment.receivingCompanyName,
+        destinationCity: shipment.destinationCity,
+      },
+    };
+  }
+}
 
-    return { assignmentId: result.assignmentId, respondBy: result.respondBy };
+/** Tell the carrier it has been offered work. After the commit, never inside it. */
+export async function announceOffer(result: OfferOutcome): Promise<void> {
+  await createLogisticsNotification({
+    logisticsPartnerId: result.partnerId,
+    shipmentId: result.shipment.id,
+    kind: 'SHIPMENT_ASSIGNED',
+    title: `New shipment ${result.shipment.shipmentReference}`,
+    body: `${result.shipment.receivingCompanyName}${
+      result.shipment.destinationCity === null ? '' : `, ${result.shipment.destinationCity}`
+    }`,
+    variables: { shipmentReference: result.shipment.shipmentReference },
+    dedupeKey: `assignment:${result.assignmentId}`,
   });
 }
 
@@ -591,6 +679,7 @@ export async function acceptAssignment(
     return {
       status: 'ACCEPTED' as ShipmentStatusName,
       shipmentId: assignment.shipment.id,
+      assignmentId: assignment.id,
     };
   }).then(async (result) => {
     // After the commit, never inside it: a seller told that their carrier
@@ -599,6 +688,31 @@ export async function acceptAssignment(
     await notifySellerCarrierAccepted({
       shipmentId: result.shipmentId,
       carrierName: membership.displayName,
+    });
+
+    await resolveUnassignedConsignmentAlert(
+      result.shipmentId,
+      `${membership.displayName} accepted it.`,
+    );
+
+    /*
+     * And the carrier's own dispatch is reminded what acceptance obliges.
+     *
+     * An accepted consignment with no driver is the one state in which
+     * everybody believes somebody else has it: the seller sees "accepted", the
+     * marketplace sees a carrier, and nobody is driving. An ALERT, resolved by
+     * the driver assignment itself (`driverNeededKey`), so it cannot be
+     * dismissed by reading it.
+     */
+    await createLogisticsNotification({
+      logisticsPartnerId: membership.logisticsPartnerId,
+      shipmentId: result.shipmentId,
+      kind: 'ASSIGNMENT_ACCEPTED',
+      class: 'ALERT',
+      resolutionKey: driverNeededKey(result.shipmentId),
+      title: 'Assign a driver',
+      body: `You accepted this consignment. Put a driver on it so it can be collected.`,
+      dedupeKey: `driver-needed:${result.shipmentId}:${result.assignmentId}`,
     });
 
     return { status: result.status };
@@ -723,12 +837,36 @@ export async function rejectAssignment(
  * operator-only: a carrier that could withdraw its own accepted work would be
  * able to abandon a parcel it is holding without telling anybody.
  */
-export async function withdrawAssignment(params: {
+export interface WithdrawAssignmentInput {
   shipmentId: string;
   reason: string;
   actorUserId: string | null;
+  /** How the actor is named in the carrier's audit trail. The marketplace by default. */
+  actorLabel?: string;
   correlationId?: string | null;
-}): Promise<void> {
+}
+
+export async function withdrawAssignment(params: WithdrawAssignmentInput): Promise<void> {
+  const withdrawn = await prisma.$transaction((tx) => withdrawAssignmentInTransaction(tx, params));
+  await announceWithdrawal(withdrawn);
+}
+
+export interface WithdrawalOutcome {
+  assignmentId: string;
+  logisticsPartnerId: string;
+  shipmentId: string;
+  shipmentReference: string;
+  reason: string;
+}
+
+/**
+ * The withdrawal itself, inside somebody's transaction. See
+ * `offerAssignmentInTransaction` for why the two are exported this way.
+ */
+export async function withdrawAssignmentInTransaction(
+  tx: PrismaTransaction,
+  params: WithdrawAssignmentInput,
+): Promise<WithdrawalOutcome> {
   const trimmed = params.reason.trim();
 
   if (trimmed.length < 4) {
@@ -739,7 +877,7 @@ export async function withdrawAssignment(params: {
     );
   }
 
-  await prisma.$transaction(async (tx) => {
+  {
     const assignment = await tx.logisticsShipmentAssignment.findFirst({
       where: { shipmentId: params.shipmentId, state: { in: ['OFFERED', 'ACCEPTED'] } },
       select: {
@@ -765,6 +903,24 @@ export async function withdrawAssignment(params: {
       },
     });
 
+    /*
+     * The carrier losing the work loses its driver's stop too.
+     *
+     * Without this, an ACCEPTED assignment withdrawn after a driver was put
+     * on it left that driver on the consignment: the old carrier's driver
+     * still had it on their round, and the new carrier could not put its own
+     * driver on it at all, because the one-live-driver index refused. The
+     * row stays, with the reason, as part of the chain of custody.
+     */
+    await tx.logisticsDriverAssignment.updateMany({
+      where: { shipmentId: assignment.shipment.id, unassignedAt: null },
+      data: {
+        unassignedAt: new Date(),
+        activeShipmentId: null,
+        unassignedReason: `Consignment withdrawn from the carrier: ${trimmed}`.slice(0, 512),
+      },
+    });
+
     await moveShipmentInTransaction(tx, {
       shipmentId: assignment.shipment.id,
       version: assignment.shipment.version,
@@ -782,7 +938,7 @@ export async function withdrawAssignment(params: {
       {
         logisticsPartnerId: assignment.logisticsPartnerId,
         actorUserId: params.actorUserId,
-        actorLabel: OPERATOR_LABEL,
+        actorLabel: params.actorLabel ?? OPERATOR_LABEL,
         action: 'logistics.assignment.withdrawn',
         resourceType: 'logistics_shipment_assignment',
         resourceId: assignment.id,
@@ -792,8 +948,43 @@ export async function withdrawAssignment(params: {
       },
       tx,
     );
+
+    return {
+      assignmentId: assignment.id,
+      logisticsPartnerId: assignment.logisticsPartnerId,
+      shipmentId: assignment.shipment.id,
+      shipmentReference: assignment.shipment.shipmentReference,
+      reason: trimmed,
+    };
+  }
+}
+
+/**
+ * Tell the carrier that lost the work.
+ *
+ * It used to learn only from an audit row nobody reads in real time - so a
+ * driver could still turn up at a seller's door for a parcel that had been
+ * given to somebody else. Its driver-needed alert is closed too: there is no
+ * longer anything to put a driver on.
+ */
+export async function announceWithdrawal(result: WithdrawalOutcome): Promise<void> {
+  await createLogisticsNotification({
+    logisticsPartnerId: result.logisticsPartnerId,
+    shipmentId: result.shipmentId,
+    kind: 'ASSIGNMENT_REJECTED',
+    title: `${result.shipmentReference} is no longer yours`,
+    body: `It was withdrawn: ${result.reason}`,
+    variables: { shipmentReference: result.shipmentReference },
+    dedupeKey: `withdrawn:${result.assignmentId}`,
+  });
+
+  await resolveLogisticsNotifications({
+    resolutionKey: driverNeededKey(result.shipmentId),
+    reason: 'The consignment was withdrawn.',
+    source: 'DOMAIN_EVENT',
   });
 }
+
 
 /**
  * Close out offers nobody answered.
@@ -879,4 +1070,74 @@ export async function completeAssignmentsFor(
     where: { shipmentId, state: 'ACCEPTED' },
     data: { state: 'COMPLETED', completedAt: new Date() },
   });
+}
+
+/**
+ * Tell the marketplace about seller consignments nobody is carrying.
+ *
+ * Two cases, both past the deployment's response window
+ * (`LOGISTICS_ASSIGNMENT_RESPONSE_HOURS`): a confirmed order's consignment
+ * with nobody assigned, and a hand-made carrier booking still without a
+ * tracking number. Either way a buyer has paid and nothing is moving. One
+ * ALERT per consignment, closed by a carrier accepting it or the booking's
+ * number being entered - never by being read.
+ */
+export async function raiseUnassignedConsignmentAlerts(
+  now = new Date(),
+): Promise<{ raised: number }> {
+  const cutoff = new Date(now.getTime() - env.LOGISTICS_ASSIGNMENT_RESPONSE_HOURS * 3_600_000);
+
+  const stuck = await prisma.logisticsShipment.findMany({
+    where: {
+      sellerAccountId: { not: null },
+      createdAt: { lt: cutoff },
+      sellerOrderGroup: { status: { in: ['ACCEPTED', 'PROCESSING', 'READY_FOR_DISPATCH'] } },
+      OR: [
+        { status: { in: ['CREATED', 'AWAITING_ASSIGNMENT'] } },
+        {
+          status: 'ASSIGNED',
+          manualCarrierBookings: {
+            some: { status: 'BOOKING_REQUIRED', activeShipmentId: { not: null } },
+          },
+        },
+      ],
+    },
+    take: 200,
+    select: { id: true, shipmentReference: true, receivingCompanyName: true, createdAt: true },
+  });
+
+  for (const shipment of stuck) {
+    await createAdminNotification({
+      kind: AdminNotificationKind.LOGISTICS_SHIPMENT_UNASSIGNED,
+      variables: {
+        shipmentReference: shipment.shipmentReference,
+        receivingCompany: shipment.receivingCompanyName,
+        waitingHours: Math.floor((now.getTime() - shipment.createdAt.getTime()) / 3_600_000),
+      },
+      linkPath: `/logistics/shipments/${shipment.id}`,
+      requiredPermission: Permission.LOGISTICS_READ,
+      relatedType: 'logistics_shipment',
+      relatedId: shipment.id,
+      dedupeKey: `shipment-unassigned:${shipment.id}`,
+      resolutionKey: ResolutionKey.shipmentAssignment(shipment.id),
+    });
+  }
+
+  return { raised: stuck.length };
+}
+
+/** Close the marketplace's "nobody is carrying this" alert for one consignment. */
+export async function resolveUnassignedConsignmentAlert(
+  shipmentId: string,
+  reason: string,
+): Promise<void> {
+  try {
+    await resolveAdminNotifications({
+      resolutionKey: ResolutionKey.shipmentAssignment(shipmentId),
+      reason,
+      source: 'DOMAIN_EVENT',
+    });
+  } catch (error) {
+    logger.warn({ err: error, shipmentId }, 'could not close the unassigned-consignment alert');
+  }
 }

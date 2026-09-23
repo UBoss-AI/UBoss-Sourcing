@@ -10424,6 +10424,21 @@ enum SellerNotificationKind {
 
   /// The one-off first run has finished.
   ERP_INITIAL_SYNC_COMPLETE
+
+  /// --- Handing a confirmed order to a carrier ------------------------------
+
+  /// The seller confirmed an order and its consignment has nobody carrying it.
+  ///
+  /// An ALERT: "assign a logistics partner" stays true until somebody is
+  /// assigned, however many people read it. Closed by an offer to a partner or
+  /// by a manual booking with DHL, FedEx or India Post.
+  CONSIGNMENT_NEEDS_CARRIER
+  /// A carrier was chosen by hand and the booking with them is not finished.
+  ///
+  /// An ALERT. Glovia has not booked anything with DHL - the seller has to,
+  /// on DHL's own site or counter, and type in the tracking number. Closed by
+  /// that number being entered, or by the booking being cancelled.
+  CARRIER_BOOKING_INCOMPLETE
 }
 
 /// An in-app notification for a seller organisation.
@@ -11995,6 +12010,13 @@ enum LogisticsEventSource {
   CARRIER_API
   INBOUND_WEBHOOK
   SYSTEM_AUTOMATION
+  /// The seller, in Seller Hub, typing in what their own carrier told them.
+  ///
+  /// Only ever on a consignment booked BY HAND with DHL, FedEx or India Post -
+  /// one with no delivery company on this platform holding it. Separate from
+  /// CARRIER_API on purpose: "DHL's system said so" and "the seller says DHL
+  /// said so" are different amounts of evidence, and a dispute turns on which.
+  SELLER_PORTAL
 }
 
 enum LogisticsExceptionType {
@@ -12828,6 +12850,7 @@ model LogisticsShipment {
   documents       LogisticsShipmentDocument[]
   proofOfDelivery LogisticsProofOfDelivery?
   pickupRequests  LogisticsPickupRequest[]
+  manualCarrierBookings SellerManualCarrierBooking[]
   manifestEntries LogisticsDispatchManifestEntry[]
   driverAssignments LogisticsDriverAssignment[]
   trips           LogisticsActiveTrip[]
@@ -12921,6 +12944,79 @@ model LogisticsShipmentPackage {
 /// `state` is what authorises a partner. A COMPLETED or WITHDRAWN assignment
 /// leaves the shipment readable as history and refuses every write - a carrier
 /// that has finished a job must not keep the consignee's address live for ever.
+/// Where a hand-made booking with an outside carrier stands.
+enum ManualCarrierBookingStatus {
+  /// The seller chose the carrier. Nothing has been booked with it yet.
+  BOOKING_REQUIRED
+  /// The seller booked it outside Glovia and entered the carrier's own
+  /// tracking number. Only this state lets a consignment be tracked.
+  BOOKED
+  /// Given up before collection, with a reason. Kept, never deleted.
+  CANCELLED
+}
+
+/// A consignment sent with DHL, FedEx or India Post WITHOUT an API account.
+///
+/// WHY THIS EXISTS. A seller with no DHL API credentials can still send a
+/// parcel with DHL: they book it on DHL's site or at a counter, and DHL gives
+/// them a waybill number. Nothing recorded that. The only way to hand a
+/// consignment to anybody was an offer to a delivery company on this platform,
+/// and DHL is not one - so a seller without credentials had no way to say who
+/// was carrying their parcel at all.
+///
+/// WHAT THIS ROW NEVER CLAIMS. That Glovia booked anything, that a label
+/// exists, that a rate was quoted, or that DHL has accepted the parcel. It
+/// records what the SELLER says they arranged, and it says so on every screen
+/// that shows it. A tracking number appears only when a person typed one in.
+///
+/// One ACTIVE booking per consignment, by the database: `activeShipmentId`
+/// holds the shipment's id while the booking is live and NULL once it is
+/// cancelled, and a UNIQUE index on a nullable column lets any number of
+/// cancelled rows sit beside one live one - the same device
+/// `LogisticsDriverAssignment` uses.
+model SellerManualCarrierBooking {
+  id              String @id @db.Char(26)
+  shipmentId      String @db.Char(26)
+  /// Copied from the shipment, so the seller's own list is one indexed query
+  /// and ownership is checked on the row that is read.
+  sellerAccountId String @db.Char(26)
+
+  provider CarrierProvider
+  /// The seller's delivery method for this carrier, where they have one.
+  sellerFulfilmentMethodId String? @db.Char(26)
+
+  status ManualCarrierBookingStatus @default(BOOKING_REQUIRED)
+  activeShipmentId String? @unique(map: "uq_manual_booking_active") @db.Char(26)
+
+  /// What the carrier calls the service: "Express Worldwide", "Speed Post".
+  serviceName           String?   @db.VarChar(120)
+  /// The collection booking number the carrier gave, where it gave one.
+  pickupReference       String?   @db.VarChar(64)
+  /// The carrier's OWN waybill number. Never generated here.
+  carrierTrackingNumber String?   @db.VarChar(128)
+  expectedPickupAt      DateTime? @db.DateTime(3)
+  expectedDeliveryAt    DateTime? @db.DateTime(3)
+  /// What the seller paid the carrier, if they choose to record it.
+  shippingCostMinor     BigInt?   @db.BigInt
+  currency              String?   @db.Char(3)
+
+  createdBySellerMemberId String?   @db.Char(26)
+  createdByLabel          String    @db.VarChar(160)
+  bookedAt                DateTime? @db.DateTime(3)
+  cancelledAt             DateTime? @db.DateTime(3)
+  cancelledReason         String?   @db.VarChar(512)
+  cancelledByLabel        String?   @db.VarChar(160)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId, createdAt], map: "ix_manual_booking_shipment")
+  @@index([sellerAccountId, status], map: "ix_manual_booking_seller")
+  @@map("seller_manual_carrier_bookings")
+}
+
 model LogisticsShipmentAssignment {
   id                 String @id @db.Char(26)
   shipmentId         String @db.Char(26)

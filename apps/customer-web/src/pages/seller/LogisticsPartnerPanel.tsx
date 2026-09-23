@@ -35,6 +35,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import { FulfilmentSetupPanel } from './FulfilmentSetupPanel';
+import { SETUP_STATUS_TONE } from '@/lib/carrier-providers';
 import {
   chooseFulfilmentMethod,
   fetchFulfilmentOptions,
@@ -207,6 +208,16 @@ export function LogisticsPartnerPanel({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
+                    {/*
+                      The carrier account's own state beside the method's. A
+                      DHL method can be "Finish setting up" while its account
+                      is "API credentials required", and the seller needs both.
+                    */}
+                    {method.carrierSetupStatus !== null && (
+                      <Badge tone={SETUP_STATUS_TONE[method.carrierSetupStatus]}>
+                        {t(`carrier.setupStatus.${method.carrierSetupStatus}`)}
+                      </Badge>
+                    )}
                     {method.role === 'PRIMARY' && (
                       <Badge tone="brand">{t('sellerFulfilment.role.primary')}</Badge>
                     )}
@@ -316,7 +327,13 @@ export function LogisticsPartnerPanel({
 
                 {settingUp === method.id && (
                   <div className="mt-4">
-                    <FulfilmentSetupPanel method={method} isEditable={isEditable} />
+                    <FulfilmentSetupPanel
+                      method={method}
+                      isEditable={isEditable}
+                      onClose={() => {
+                        setSettingUp(null);
+                      }}
+                    />
                   </div>
                 )}
               </li>

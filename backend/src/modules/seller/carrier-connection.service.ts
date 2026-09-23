@@ -28,8 +28,10 @@
 import type { CarrierProvider } from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import {
+  assertMethodTransition,
   defaultTrackingModeFor,
   hasVerifiedOfficialApi,
+  methodKeyFor,
 } from '../../domain/seller-fulfilment.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
@@ -222,6 +224,13 @@ export async function createCarrierConnection(
     await prisma.sellerCarrierConnection.update({ where: { id }, data });
   }
 
+  await linkConnectionToMethods({
+    sellerAccountId: input.sellerAccountId,
+    provider: input.provider,
+    environment: input.environment,
+    connectionId: id,
+  });
+
   await recordSellerAudit({
     sellerAccountId: input.sellerAccountId,
     action: 'seller.carrier.connection.created',
@@ -238,6 +247,41 @@ export async function createCarrierConnection(
   });
 
   return toView(row);
+}
+
+/**
+ * Point the seller's method for this carrier at this connection.
+ *
+ * THE MISSING HALF OF CREATING A CONNECTION. A method is created when the
+ * seller presses the FedEx card; the connection is created later, from the
+ * setup panel. Nothing joined the two, so `method.connection` stayed null for
+ * ever: the method's card never learned its account existed, the selection
+ * service never saw a carrier account behind the method, and the panel - which
+ * had nothing else to read the provider from - guessed DHL.
+ *
+ * Keyed on the same `methodKeyFor` string the method was written with, so the
+ * FedEx connection can only ever be joined to the FedEx method. Exported so
+ * `chooseFulfilmentMethod` can make the same join when the method is chosen
+ * after the connection already exists.
+ */
+export async function linkConnectionToMethods(input: {
+  sellerAccountId: string;
+  provider: CarrierProvider;
+  environment: 'SANDBOX' | 'PRODUCTION';
+  connectionId: string;
+}): Promise<void> {
+  await prisma.sellerFulfilmentMethod.updateMany({
+    where: {
+      sellerAccountId: input.sellerAccountId,
+      methodKey: methodKeyFor({
+        mode: 'INTEGRATED_CARRIER',
+        provider: input.provider,
+        environment: input.environment,
+      }),
+      archivedAt: null,
+    },
+    data: { sellerCarrierConnectionId: input.connectionId },
+  });
 }
 
 /**
@@ -501,6 +545,46 @@ export async function confirmCarrierForProduction(input: {
     after: { state: 'ACTIVE' },
     summary: `Put the ${connection.provider} connection into service.`,
   });
+
+  /*
+   * And the method it belongs to is now set up.
+   *
+   * This is the ONLY place an integrated-carrier method leaves PENDING_SETUP,
+   * and it is reached only after a real call passed and a person confirmed
+   * it - so "Finish setting up" stays on the seller's screen until the account
+   * genuinely works, which is the promise that screen makes. Before this,
+   * nothing ever moved it, and a seller who had connected DHL end to end was
+   * still told to finish setting it up.
+   */
+  const methods = await prisma.sellerFulfilmentMethod.findMany({
+    where: {
+      sellerAccountId: input.sellerAccountId,
+      sellerCarrierConnectionId: connection.id,
+      status: 'PENDING_SETUP',
+      archivedAt: null,
+    },
+    select: { id: true, status: true, publicDisplayName: true },
+  });
+
+  for (const method of methods) {
+    assertMethodTransition(method.status, 'APPROVED', null);
+
+    await prisma.sellerFulfilmentMethod.update({
+      where: { id: method.id },
+      data: { status: 'APPROVED', decidedAt: new Date(), statusReason: null },
+    });
+
+    await recordSellerAudit({
+      sellerAccountId: input.sellerAccountId,
+      action: 'seller.fulfilment.method.ready',
+      actor: { type: 'CUSTOMER', userId: input.actor.userId, label: input.actor.label },
+      resourceType: 'SellerFulfilmentMethod',
+      resourceId: method.id,
+      before: { status: method.status },
+      after: { status: 'APPROVED' },
+      summary: `${method.publicDisplayName} is ready to use: its account passed a live test.`,
+    });
+  }
 
   const row = await prisma.sellerCarrierConnection.findUniqueOrThrow({
     where: { id: connection.id },

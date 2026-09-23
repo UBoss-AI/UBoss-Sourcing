@@ -77,6 +77,10 @@ async function cleanUp(): Promise<void> {
     })
   ).map((row) => row.id);
 
+  const orderIds = (
+    await prisma.order.findMany({ where: { orderNumber: { startsWith: 'UB-SLP-' } }, select: { id: true } })
+  ).map((row) => row.id);
+
   // Children first. Orders are ON DELETE RESTRICT elsewhere in this schema and
   // leftovers break the NEXT run's first file rather than this one, which is
   // the most confusing failure available in this suite.
@@ -86,6 +90,11 @@ async function cleanUp(): Promise<void> {
     where: { shipmentId: { in: shipmentIds } },
   });
   await prisma.logisticsShipment.deleteMany({ where: { id: { in: shipmentIds } } });
+  await prisma.sellerOrderGroup.deleteMany({ where: { orderId: { in: orderIds } } });
+  await prisma.orderStatusHistory.deleteMany({ where: { orderId: { in: orderIds } } });
+  await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+  await prisma.sellerNotification.deleteMany({ where: { sellerAccountId: { in: sellerIds } } });
+  await prisma.logisticsServiceRegion.deleteMany({ where: { logisticsPartnerId: { in: partnerIds } } });
   await prisma.logisticsNotification.deleteMany({
     where: { logisticsPartnerId: { in: partnerIds } },
   });
@@ -96,6 +105,9 @@ async function cleanUp(): Promise<void> {
   await prisma.logisticsPartner.deleteMany({ where: { id: { in: partnerIds } } });
   await prisma.sellerAuditLog.deleteMany({ where: { sellerAccountId: { in: sellerIds } } });
   await prisma.sellerAccount.deleteMany({ where: { id: { in: sellerIds } } });
+  await prisma.customerProfile.deleteMany({
+    where: { user: { emailNormalized: { contains: '@slptest.local' } } },
+  });
   await prisma.user.deleteMany({ where: { emailNormalized: { contains: '@slptest.local' } } });
   await prisma.numberSequence.deleteMany({ where: { key: { startsWith: 'logistics-' } } });
 }
@@ -136,11 +148,77 @@ async function makeCarrier(partnerCode: string, name: string): Promise<string> {
     },
   });
 
+  // Where it collects and delivers. An arrangement narrows what a carrier may
+  // do and never widens it, so a carrier with no service area is offered
+  // nothing - every consignment here runs inside Poland.
+  await prisma.logisticsServiceRegion.create({
+    data: { id: newId(), logisticsPartnerId: id, scope: 'COUNTRY', countryCode: 'PL' },
+  });
+
   return id;
 }
 
+/** The buyer every fixture order belongs to. */
+async function buyerProfileId(): Promise<string> {
+  const existing = await prisma.customerProfile.findFirst({
+    where: { user: { emailNormalized: 'buyer@slptest.local' } },
+    select: { id: true },
+  });
+  if (existing !== null) return existing.id;
+
+  const user = await prisma.user.create({
+    data: {
+      id: newId(),
+      type: 'CUSTOMER',
+      email: 'buyer@slptest.local',
+      emailNormalized: 'buyer@slptest.local',
+      status: 'ACTIVE',
+    },
+  });
+  return (await prisma.customerProfile.create({ data: { id: newId(), userId: user.id, fullName: 'Szpital' } })).id;
+}
+
 async function makeShipment(sellerAccountId: string, seller: string): Promise<string> {
+  /*
+   * A seller's consignment always belongs to a seller order, and nobody may
+   * be asked to carry it until the seller has confirmed that order. The
+   * group is created already ACCEPTED: this file is about which carrier may
+   * take it, and confirmation is tested in seller-consignment-logistics.
+   */
+  const orderId = newId();
+  await prisma.order.create({
+    data: {
+      id: orderId,
+      orderNumber: `UB-SLP-${newId().slice(-8)}`,
+      customerProfileId: await buyerProfileId(),
+      status: 'CONFIRMED',
+      currency: 'INR',
+      subtotalMinor: 1_000n,
+      taxMinor: 0n,
+      grandTotalMinor: 1_000n,
+      paidMinor: 1_000n,
+      shippingAddressJson: PL_ADDRESS,
+      billingAddressJson: PL_ADDRESS,
+      placedAt: new Date(),
+    },
+  });
+  const groupId = newId();
+  await prisma.sellerOrderGroup.create({
+    data: {
+      id: groupId,
+      sellerAccountId,
+      orderId,
+      sellerOrderNumber: `SO-SLP-${newId().slice(-6)}`,
+      status: 'ACCEPTED',
+      currency: 'INR',
+      goodsTotalMinor: 1_000n,
+      sellerNetMinor: 1_000n,
+    },
+  });
+
   const created = await createShipment({
+    orderId,
+    sellerOrderGroupId: groupId,
     sellerAccountId,
     sellerCompanyName: seller,
     receivingCompanyName: 'Szpital Bielanski',

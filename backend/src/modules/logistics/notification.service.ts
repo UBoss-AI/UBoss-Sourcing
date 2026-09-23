@@ -239,6 +239,17 @@ export function shipmentTroubleKey(shipmentId: string): string {
 }
 
 /**
+ * The resolution key of "assign a driver" for one consignment.
+ *
+ * Raised when a carrier accepts, resolved when a driver is put on it or the
+ * consignment is withdrawn - so it stays up for exactly as long as a parcel
+ * has been accepted by somebody and is being driven by nobody.
+ */
+export function driverNeededKey(shipmentId: string): string {
+  return `driver-needed:${shipmentId}`;
+}
+
+/**
  * Announce a status change, if it is one worth announcing.
  *
  * The dedupe key is the EVENT id, which is already unique and already

@@ -45,14 +45,10 @@ import {
 } from '../../domain/seller-logistics.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
-import { offerAssignment, withdrawAssignment } from '../logistics/assignment.service.js';
 import { recordSellerAudit } from './audit.service.js';
-import { resolveConsignmentMethodAlert } from './fulfilment-notification.service.js';
+import { assignPartnerToConsignment } from './consignment-logistics.service.js';
 import { recordRelationshipEvent } from './logistics-organisation.service.js';
-import {
-  notifySellerCarrierArrangement,
-  resolveConsignmentUnassigned,
-} from './carrier-notification.service.js';
+import { notifySellerCarrierArrangement } from './carrier-notification.service.js';
 
 /**
  * What a consignment needs a carrier to be approved for.
@@ -289,167 +285,27 @@ export async function sellerAssignCarrier(input: SellerAssignInput): Promise<{
   respondBy: Date | null;
   replacedPartnerId: string | null;
 }> {
-  const shipment = await prisma.logisticsShipment.findFirst({
-    where: { id: input.shipmentId, sellerAccountId: input.sellerAccountId },
-    select: {
-      id: true,
-      shipmentReference: true,
-      status: true,
-      assignedPartnerId: true,
-      originCountry: true,
-      destinationCountry: true,
-      requiresColdChain: true,
-      requiresTemperatureRange: true,
-      requiresSterileHandling: true,
-      isDangerousGoods: true,
-    },
-  });
-
-  if (shipment === null) throw notFound('Shipment');
-
-  // Terminal states. Reading the list from the state machine rather than
-  // writing one here, so a new terminal status cannot be added without this
-  // check learning about it.
-  const TERMINAL = new Set(['DELIVERED', 'CANCELLED', 'RETURNED', 'LOST', 'DESTROYED']);
-
-  if (TERMINAL.has(shipment.status)) {
-    throw conflict(
-      ErrorCode.LOGISTICS_SHIPMENT_TERMINAL,
-      `Consignment ${shipment.shipmentReference} is already finished and cannot be reassigned.`,
-    );
-  }
-
-  const link = await prisma.sellerLogisticsPartner.findUnique({
-    where: {
-      sellerAccountId_logisticsPartnerId: {
-        sellerAccountId: input.sellerAccountId,
-        logisticsPartnerId: input.logisticsPartnerId,
-      },
-    },
-    include: {
-      logisticsPartner: {
-        select: { displayName: true, status: true, archivedAt: true },
-      },
-    },
-  });
-
-  // A carrier this seller has no row for, and a carrier that does not exist at
-  // all, are answered identically. Distinguishing them would turn this
-  // endpoint into a way to enumerate the marketplace's carrier list.
-  if (link === null) {
-    throw badRequest(
-      ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE,
-      'You are not set up to use that carrier. Request them from your carriers page first.',
-      [{ field: 'logisticsPartnerId', code: ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE }],
-    );
-  }
-
-  const verdict = canSellerOfferToCarrier(
-    toDomainLink(link),
-    { status: link.logisticsPartner.status, archivedAt: link.logisticsPartner.archivedAt },
-    {
-      originCountry: shipment.originCountry,
-      destinationCountry: shipment.destinationCountry,
-      requiredCapabilities: requiredCapabilities(shipment),
-    },
-  );
-
-  if (!verdict.allowed) {
-    throw badRequest(
-      ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE,
-      explainSellerCarrierRefusal(verdict.refusal, link.logisticsPartner.displayName),
-      [{ field: 'logisticsPartnerId', code: ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE }],
-    );
-  }
-
-  const replacedPartnerId = shipment.assignedPartnerId;
-  const reason = input.reason?.trim() ?? '';
-
-  if (
-    replacedPartnerId !== null &&
-    replacedPartnerId !== input.logisticsPartnerId &&
-    reason.length === 0
-  ) {
-    // A reassignment without a reason is a reassignment nobody can explain,
-    // and "why did three carriers have this parcel?" is asked after a late
-    // delivery, when the person who did it has forgotten.
-    throw badRequest(
-      ErrorCode.VALIDATION_FAILED,
-      'Say why you are moving this consignment to a different carrier.',
-      [{ field: 'reason', code: ErrorCode.VALIDATION_FAILED }],
-    );
-  }
-
-  // Displace the incumbent first, because `offerAssignment` refuses while
-  // another carrier holds the consignment rather than overwriting them.
-  //
-  // Two steps rather than one transaction, and that is a real trade-off worth
-  // stating: if the offer below fails, the consignment is left unassigned
-  // rather than back with the previous carrier. That is the better of the two
-  // bad outcomes - the alternative is a carrier who has been told they lost
-  // the job still holding it in the system - and the shipment is in
-  // AWAITING_ASSIGNMENT, which is a state the operator's own queue surfaces.
-  if (replacedPartnerId !== null && replacedPartnerId !== input.logisticsPartnerId) {
-    await withdrawAssignment({
-      shipmentId: shipment.id,
-      reason: reason,
-      // Null: no member of the marketplace's staff did this. The seller who
-      // did is named in the audit row below.
-      actorUserId: null,
-      ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
-    });
-  }
-
-  const offered = await offerAssignment({
-    shipmentId: shipment.id,
-    logisticsPartnerId: input.logisticsPartnerId,
-    // Null, because no member of the marketplace's staff did this. The seller
-    // who did is recorded in the audit row below - `offeredByUserId` names a
-    // `User`, and a seller team member is not one.
-    offeredByUserId: null,
-    automatic: false,
-    ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
-  });
-
-  await recordSellerAudit({
-    sellerAccountId: input.sellerAccountId,
-    action: replacedPartnerId === null ? 'seller.carrier.assigned' : 'seller.carrier.reassigned',
+  // One implementation of "give this parcel to that carrier", with every
+  // gate: ownership, the seller's confirmation, not yet collected, the
+  // arrangement AND the carrier's own reach and approvals, one live carrier,
+  // an atomic swap and an idempotent repeat. See consignment-logistics.service.
+  const result = await assignPartnerToConsignment({
     actor: {
-      type: 'CUSTOMER',
+      sellerAccountId: input.sellerAccountId,
+      memberId: input.sellerMemberId,
       label: input.actorEmail,
     },
-    resourceType: 'logistics_shipment',
-    resourceId: shipment.id,
-    before: replacedPartnerId === null ? null : { logisticsPartnerId: replacedPartnerId },
-    after: { logisticsPartnerId: input.logisticsPartnerId, assignmentId: offered.assignmentId },
-    summary:
-      replacedPartnerId === null
-        ? `Offered consignment ${shipment.shipmentReference} to ${link.logisticsPartner.displayName}.`
-        : `Moved consignment ${shipment.shipmentReference} to ${link.logisticsPartner.displayName}. ${reason}`,
+    shipmentId: input.shipmentId,
+    logisticsPartnerId: input.logisticsPartnerId,
+    reason: input.reason ?? null,
     ...(input.correlationId === undefined ? {} : { correlationId: input.correlationId }),
   });
 
-  // The seller has acted, so the parcel is no longer nobody's. Cleared on
-  // the OFFER rather than on the acceptance: leaving the alert up until a
-  // carrier answers would read as "you still have something to do" when they
-  // do not.
-  await resolveConsignmentUnassigned({
-    shipmentId: shipment.id,
-    carrierName: link.logisticsPartner.displayName,
-  });
-
-  /*
-   * And the newer alert, for the same reason and at the same moment.
-   *
-   * "This consignment has no way of being delivered" is raised when it is
-   * created and nothing eligible could be found. Handing it to a carrier by
-   * hand is precisely the seller answering it - and an alert nothing can close
-   * is a badge people learn to ignore, which is the one failure mode a
-   * notification system really has.
-   */
-  await resolveConsignmentMethodAlert(shipment.id);
-
-  return { ...offered, replacedPartnerId };
+  return {
+    assignmentId: result.assignmentId,
+    respondBy: result.respondBy,
+    replacedPartnerId: result.replacedPartnerId,
+  };
 }
 
 // ---------------------------------------------------------------------------

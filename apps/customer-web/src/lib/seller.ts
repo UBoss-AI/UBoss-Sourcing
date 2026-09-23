@@ -17,6 +17,8 @@
  *     hand somebody else's.
  */
 import { api, postFile } from './api';
+import type { CarrierSetupStatus } from './carrier-providers';
+import type { ConsignmentLogisticsState } from './consignment-logistics';
 import type { MapConfig } from '@/components/LocationMap';
 
 // ---------------------------------------------------------------------------
@@ -1521,6 +1523,8 @@ export interface SellerOrderDetail {
     trackingNumber: string | null;
     carrierId: string | null;
     carrierName: string | null;
+    /** Who has it, how, and what the seller may do. Null from an older server. */
+    logistics?: ConsignmentLogisticsState | null;
   }[];
   id: string;
   sellerOrderNumber: string;
@@ -1921,15 +1925,6 @@ export interface SellerCarrier {
  * carrier is paused, or it does not reach the destination - and those are
  * three different next actions.
  */
-export interface CarrierOption {
-  logisticsPartnerId: string;
-  displayName: string;
-  partnerCode: string;
-  isEligible: boolean;
-  reason: string | null;
-  refusal: string | null;
-}
-
 export async function fetchSellerCarriers(): Promise<SellerCarrier[]> {
   const response = await api.get<{ carriers: SellerCarrier[] }>('/seller/carriers');
   return response.carriers;
@@ -1940,25 +1935,6 @@ export async function requestSellerCarrier(input: {
   sellerReference?: string | null;
 }): Promise<{ linkId: string; status: string }> {
   return api.post<{ linkId: string; status: string }>('/seller/carriers', input);
-}
-
-export async function fetchCarrierOptions(shipmentId: string): Promise<CarrierOption[]> {
-  const response = await api.get<{ options: CarrierOption[] }>(
-    `/seller/consignments/${encodeURIComponent(shipmentId)}/carrier-options`,
-  );
-  return response.options;
-}
-
-export async function assignSellerCarrier(input: {
-  shipmentId: string;
-  logisticsPartnerId: string;
-  /** Required by the server when this displaces a carrier already chosen. */
-  reason?: string | null;
-}): Promise<{ assignmentId: string; replacedPartnerId: string | null }> {
-  return api.post<{ assignmentId: string; replacedPartnerId: string | null }>(
-    `/seller/consignments/${encodeURIComponent(input.shipmentId)}/carrier`,
-    { logisticsPartnerId: input.logisticsPartnerId, reason: input.reason ?? null },
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1998,6 +1974,18 @@ export interface FulfilmentMethod {
   statusReason: string | null;
   submittedAt: string | null;
   decidedAt: string | null;
+  /**
+   * Which carrier this method is for, from the method itself. Null for every
+   * mode but INTEGRATED_CARRIER. Never inferred from `connection`: a method
+   * has no connection until one is added, and inferring it is what made the
+   * FedEx form say DHL.
+   */
+  provider: string | null;
+  environment: 'SANDBOX' | 'PRODUCTION' | null;
+  /** Derived by the server from a proven connection state. Null for non-carrier modes. */
+  carrierSetupStatus: CarrierSetupStatus | null;
+  /** True for DHL, FedEx and India Post whatever the connection state. */
+  manualBookingAvailable: boolean;
   connection: {
     id: string;
     provider: string;

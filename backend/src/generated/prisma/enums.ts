@@ -1261,7 +1261,9 @@ export const SellerNotificationKind = {
   ERP_BRIDGE_OFFLINE: 'ERP_BRIDGE_OFFLINE',
   ERP_MAPPING_INCOMPLETE: 'ERP_MAPPING_INCOMPLETE',
   ERP_SYNC_RECOVERED: 'ERP_SYNC_RECOVERED',
-  ERP_INITIAL_SYNC_COMPLETE: 'ERP_INITIAL_SYNC_COMPLETE'
+  ERP_INITIAL_SYNC_COMPLETE: 'ERP_INITIAL_SYNC_COMPLETE',
+  CONSIGNMENT_NEEDS_CARRIER: 'CONSIGNMENT_NEEDS_CARRIER',
+  CARRIER_BOOKING_INCOMPLETE: 'CARRIER_BOOKING_INCOMPLETE'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -1583,7 +1585,8 @@ export const LogisticsEventSource = {
   UBOSS_ADMIN: 'UBOSS_ADMIN',
   CARRIER_API: 'CARRIER_API',
   INBOUND_WEBHOOK: 'INBOUND_WEBHOOK',
-  SYSTEM_AUTOMATION: 'SYSTEM_AUTOMATION'
+  SYSTEM_AUTOMATION: 'SYSTEM_AUTOMATION',
+  SELLER_PORTAL: 'SELLER_PORTAL'
 } as const
 
 export type LogisticsEventSource = (typeof LogisticsEventSource)[keyof typeof LogisticsEventSource]
@@ -1782,6 +1785,15 @@ export const LogisticsNotificationKind = {
 } as const
 
 export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]
+
+
+export const ManualCarrierBookingStatus = {
+  BOOKING_REQUIRED: 'BOOKING_REQUIRED',
+  BOOKED: 'BOOKED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ManualCarrierBookingStatus = (typeof ManualCarrierBookingStatus)[keyof typeof ManualCarrierBookingStatus]
 
 
 export const SellerPackageType = {

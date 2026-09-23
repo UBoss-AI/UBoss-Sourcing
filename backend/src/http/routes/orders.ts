@@ -16,6 +16,7 @@ import { OrderStatusValues } from '../../domain/order-state-machine.js';
 import { describePackaging, type PackageType } from '../../domain/packaging.js';
 import { loadTypeForPackage } from '../../domain/freight-load.js';
 import { Permission } from '../../domain/permissions.js';
+import { customerDeliveryStage, logisticsStage } from '../../domain/logistics-stage.js';
 import { prisma } from '../../infra/prisma.js';
 import {
   availableTransitions,
@@ -315,6 +316,9 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         sellerOrderGroups: {
           select: {
             id: true,
+            // For the delivery stage: "waiting for the seller to confirm" is
+            // the buyer's business, and is all of it they see.
+            status: true,
             sellerAccount: { select: { displayName: true } },
             shipments: {
               orderBy: { createdAt: 'asc' },
@@ -345,8 +349,13 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         logisticsShipments: {
           orderBy: { createdAt: 'asc' },
           select: {
+            id: true,
             sellerOrderGroupId: true,
             trackingNumber: true,
+            // The carrier's OWN waybill number, which is what the buyer types
+            // into DHL's site. Present only when a carrier API returned it or
+            // a person entered it; never generated here.
+            carrierTrackingNumber: true,
             carrierTrackingUrl: true,
             status: true,
             dispatchedAt: true,
@@ -367,6 +376,27 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
              * anything else about the seller's arrangement with them.
              */
             sellerCarrierConnection: { select: { trackingMode: true } },
+            /*
+             * Facts for the stage, and nothing the buyer reads directly: the
+             * newest offer's STATE (not which company, not why it refused),
+             * whether a driver is on it (not who), and the carrier of a
+             * hand-made booking.
+             */
+            assignments: { orderBy: { offeredAt: 'desc' }, take: 1, select: { state: true } },
+            driverAssignments: { where: { activeShipmentId: { not: null } }, select: { id: true } },
+            manualCarrierBookings: {
+              where: { activeShipmentId: { not: null } },
+              select: { provider: true, status: true },
+            },
+            /*
+             * The timeline, in the words written FOR the buyer. The internal
+             * note beside each event is the carrier's own and never selected.
+             */
+            events: {
+              where: { publicDescription: { not: null } },
+              orderBy: { occurredAt: 'asc' },
+              select: { status: true, publicDescription: true, occurredAt: true },
+            },
           },
         },
         // Which building it is coming from. The customer chose it at
@@ -383,6 +413,9 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
     // already sent a despatch note for it. Both read by the tracking list.
     const sellerNameByGroup = new Map(
       order.sellerOrderGroups.map((group) => [group.id, group.sellerAccount.displayName]),
+    );
+    const groupStatusById = new Map<string, string>(
+      order.sellerOrderGroups.map((group) => [group.id, group.status]),
     );
     const groupShipmentCounts = new Map(
       order.sellerOrderGroups.map((group) => [group.id, group.shipments.length]),
@@ -518,9 +551,33 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
                */
               carrier:
                 consignment.assignedPartner?.displayName ??
+                manualCarrierName(consignment.manualCarrierBookings[0]?.provider) ??
                 consignment.sellerFulfilmentMethod?.publicDisplayName ??
                 null,
               trackingNumber: consignment.trackingNumber,
+              carrierTrackingNumber: consignment.carrierTrackingNumber,
+              /*
+               * One stage, from the same function the seller, the carrier and
+               * the marketplace see - coarsened so a refusal or a pending
+               * offer reads as "awaiting a carrier".
+               */
+              deliveryStage: customerDeliveryStage({
+                sellerOrderStatus:
+                  consignment.sellerOrderGroupId === null
+                    ? null
+                    : (groupStatusById.get(consignment.sellerOrderGroupId) ?? null),
+                stage: logisticsStage({
+                  shipmentStatus: consignment.status,
+                  latestAssignmentState: consignment.assignments[0]?.state ?? null,
+                  hasActiveDriver: consignment.driverAssignments.length > 0,
+                  manualBookingStatus: bookingStatus(consignment.manualCarrierBookings[0]?.status),
+                }),
+              }),
+              events: consignment.events.map((event) => ({
+                status: event.status,
+                description: event.publicDescription,
+                occurredAt: event.occurredAt.toISOString(),
+              })),
               trackingUrl: consignment.carrierTrackingUrl,
               status: consignment.status,
               dispatchedAt: consignment.dispatchedAt?.toISOString() ?? null,
@@ -540,9 +597,11 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
                * on their own, as the portal records them.
                */
               trackingIsAutomatic:
-                consignment.sellerCarrierConnection === null
-                  ? null
-                  : consignment.sellerCarrierConnection.trackingMode === 'AUTOMATIC_API',
+                consignment.manualCarrierBookings.length > 0
+                  ? false
+                  : consignment.sellerCarrierConnection === null
+                    ? null
+                    : consignment.sellerCarrierConnection.trackingMode === 'AUTOMATIC_API',
             })),
         ],
         approval: order.approvals[0] ?? null,
@@ -863,4 +922,22 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
   );
 
   return Promise.resolve();
+}
+
+/** The name of an outside carrier booked by hand, as the carrier writes it. */
+function manualCarrierName(provider: string | undefined): string | null {
+  switch (provider) {
+    case 'DHL':
+      return 'DHL';
+    case 'FEDEX':
+      return 'FedEx';
+    case 'INDIA_POST':
+      return 'India Post';
+    default:
+      return null;
+  }
+}
+
+function bookingStatus(status: string | undefined): 'BOOKING_REQUIRED' | 'BOOKED' | null {
+  return status === 'BOOKING_REQUIRED' || status === 'BOOKED' ? status : null;
 }

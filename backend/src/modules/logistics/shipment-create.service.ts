@@ -36,10 +36,12 @@ import type {
 } from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { dueAtFrom } from '../../domain/logistics-sla.js';
+import { sellerHasConfirmed } from '../../domain/logistics-stage.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { offerAssignment } from './assignment.service.js';
 import { chooseMethodForConsignment } from '../seller/fulfilment-selection.service.js';
+import { notifyConsignmentNeedsCarrier } from '../seller/carrier-notification.service.js';
 import {
   notifyConsignmentNeedsMethod,
   resolveConsignmentMethodAlert,
@@ -518,6 +520,8 @@ export async function createShipmentsForOrder(
           id: true,
           // Where the seller said it ships from, once they have accepted it.
           locationId: true,
+          // Whether they have confirmed it. Nobody is offered the work before.
+          status: true,
           sellerAccount: { select: { id: true, displayName: true } },
         },
       },
@@ -760,26 +764,16 @@ export async function createShipmentsForOrder(
        * recoverable state. Throwing would lose the consignment for a paid
        * order because a carrier was suspended between the two statements.
        */
-      if (selection.logisticsPartnerId !== null) {
-        try {
-          await offerAssignment({
-            shipmentId: raised.id,
-            logisticsPartnerId: selection.logisticsPartnerId,
-            // Null: no member of the marketplace's staff did this. The seller's
-            // own rule did, and the selection trail on the shipment records it.
-            offeredByUserId: null,
-            automatic: true,
-          });
-        } catch (error) {
-          logger.warn(
-            {
-              err: error,
-              shipmentId: raised.id,
-              logisticsPartnerId: selection.logisticsPartnerId,
-            },
-            'Could not offer the consignment to the chosen delivery company; it stays unassigned.',
-          );
-        }
+      /*
+       * NOT BEFORE THE SELLER HAS CONFIRMED. A consignment is raised when the
+       * order is paid, which is before the seller has said they will supply
+       * it - and a carrier offered work on an order the seller then refuses
+       * has been handed an obligation nobody agreed to. An unconfirmed
+       * group's consignment waits, and the seller's confirmation hands it on
+       * (`handConsignmentOnAfterConfirmation`).
+       */
+      if (sellerHasConfirmed(group.status)) {
+        await handConsignmentOnAfterConfirmation(raised.id);
       }
     }
   }
@@ -795,6 +789,84 @@ export async function createShipmentsForOrder(
   }
 
   return created;
+}
+
+/**
+ * The seller has confirmed: give the consignment to the carrier their rules
+ * chose, or tell them they have to choose one.
+ *
+ * Where the chosen method is carried by a delivery company on this platform -
+ * the seller's own fleet, a courier that works for them - the consignment is
+ * OFFERED to that company automatically. The seller already decided by writing
+ * the rule; asking them to press "hand it over" on every order would make that
+ * rule decorative. It is still an offer, and still that company's to accept.
+ *
+ * Otherwise - no rule chose anybody, or the rule chose an outside carrier like
+ * DHL that is booked by hand - the seller is alerted: "Assign a logistics
+ * partner". Nothing else will move this parcel.
+ *
+ * Idempotent: a consignment that already has somebody is left alone, so
+ * running this at payment and again at confirmation does nothing twice.
+ * Never throws: a failure here must not undo the seller's confirmation.
+ */
+export async function handConsignmentOnAfterConfirmation(shipmentId: string): Promise<void> {
+  try {
+    const shipment = await prisma.logisticsShipment.findUnique({
+      where: { id: shipmentId },
+      select: {
+        id: true,
+        status: true,
+        sellerOrderGroupId: true,
+        sellerOrderGroup: { select: { sellerOrderNumber: true, status: true } },
+        sellerFulfilmentMethod: { select: { logisticsPartnerId: true, status: true } },
+      },
+    });
+
+    if (shipment === null || shipment.sellerOrderGroup === null) return;
+    if (!sellerHasConfirmed(shipment.sellerOrderGroup.status)) return;
+    if (shipment.status !== 'CREATED' && shipment.status !== 'AWAITING_ASSIGNMENT') return;
+
+    const [live, booking] = await Promise.all([
+      prisma.logisticsShipmentAssignment.findFirst({
+        where: { shipmentId, state: { in: ['OFFERED', 'ACCEPTED'] } },
+        select: { id: true },
+      }),
+      prisma.sellerManualCarrierBooking.findUnique({
+        where: { activeShipmentId: shipmentId },
+        select: { id: true },
+      }),
+    ]);
+    if (live !== null || booking !== null) return;
+
+    const partnerId = shipment.sellerFulfilmentMethod?.logisticsPartnerId ?? null;
+
+    if (partnerId !== null) {
+      try {
+        await offerAssignment({
+          shipmentId,
+          logisticsPartnerId: partnerId,
+          // Null: no member of the marketplace's staff did this. The seller's
+          // own rule did, and the selection trail on the shipment records it.
+          offeredByUserId: null,
+          automatic: true,
+        });
+        return;
+      } catch (error) {
+        logger.warn(
+          { err: error, shipmentId, logisticsPartnerId: partnerId },
+          'Could not offer the consignment to the chosen delivery company; the seller is asked to assign one.',
+        );
+      }
+    }
+
+    await notifyConsignmentNeedsCarrier({
+      shipmentId,
+      sellerOrderGroupId: shipment.sellerOrderGroupId,
+      sellerOrderNumber: shipment.sellerOrderGroup.sellerOrderNumber,
+    });
+  } catch (error) {
+    logger.warn({ err: error, shipmentId }, 'could not hand a confirmed consignment on');
+  }
 }
 
 /**

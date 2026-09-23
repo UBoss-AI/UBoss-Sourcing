@@ -426,6 +426,7 @@ table(['Step', 'What the application does'], [
   ['Order history', 'Customer can view the order timeline, payment context, invoice context and fulfilment status.'],
 ], [3000, 7300]);
 p('An order made up of goods from two places arrives as two deliveries, and the order page says so: each one names who sent it, who is carrying it and its tracking number. Until a haulage company has been put on a delivery the order simply does not name one yet; nothing invents a carrier.');
+p('Each delivery also shows where it has got to, in plain words: waiting for the seller to confirm, awaiting a carrier, carrier assigned, pickup scheduled, picked up, in transit, out for delivery, delivered. Underneath is the list of updates written for the buyer. The buyer is not told which delivery company turned a parcel down, who the driver is, or anything the carrier writes for its own staff. The buyer is also emailed when a delivery is on its way, out for delivery and delivered.');
 h2('5.2 Order life cycle');
 p('The normal order path is Draft → Pending Approval or Pending Payment → Confirmed → Processing → Shipped → Delivered. Cancellation, return and refund are controlled transitions with history and reason rules.');
 h2('5.3 Buy Later and Subscribe & Reorder');
@@ -785,6 +786,17 @@ bullets([
 p('Until both have happened the screen says so plainly, and the button that switches it on cannot be pressed. Replacing the key puts it back behind both, because a new key that was mistyped must not inherit the old one’s tick.');
 note('Nothing is ever pretended', 'If the carrier refuses, the screen shows what the carrier said and the account stays switched off. There is no state anywhere in this system that reports a working connection on the strength of a saved form.', C.teal);
 
+h2('6a.11b-i Sending with DHL, FedEx or India Post without an account');
+p('Most sellers have no DHL, FedEx or India Post account connected to the marketplace, and they do not need one to send with those carriers. On a confirmed order the seller chooses the carrier, books the parcel with it themselves — on the carrier’s own website or at its counter — and then writes down here what the carrier gave them.');
+bullets([
+  'The carrier’s own tracking number. Nothing about the parcel’s journey can be recorded until it is entered, and it cannot be changed once the carrier has collected the parcel.',
+  'The service chosen, the pickup reference, the expected pickup and delivery dates, and, if the seller wants, what it cost.',
+  'Photographs or screenshots of the paperwork: the label the carrier issued, customs forms, a proof of delivery.',
+  'Each step as the carrier reports it: picked up, in transit, delayed, out for delivery, delivered. The buyer sees these updates.',
+]);
+note('What the marketplace never pretends', 'Nothing is booked with the carrier, no label is printed, no price is quoted and no tracking number is made up. The delivery is marked “Manual booking” everywhere it appears, and until the tracking number is in, it also says “Tracking number pending” and the seller is reminded to book it. Marking it delivered needs a proof of delivery to be attached first.', C.orange);
+p('Each carrier’s own setup screen now shows only that carrier: its name, its account-number box, the keys it uses and the steps to get them. A carrier with no connection says so — “API account not connected” — and explains that it can still be used by booking by hand. The setup screen can be closed at any time, and the reminder to finish setting up stays until the connection has genuinely been tested and switched on.');
+
 h2('6a.11c India Post');
 p('India Post is offered, and the system is straightforward about what it can and cannot do with it. There is no published way for software like this to book, price, label or automatically follow an India Post parcel, so none of that is claimed.');
 p('What a seller gets is real and useful: the consignment is recorded here, they enter the article number India Post gave them, its shape is checked, and the tracking link goes to India Post’s own page. Anyone authorised can add tracking updates by hand, and every one of them is shown as having been entered by a person.');
@@ -818,7 +830,8 @@ bullets([
 note('Why the old price list is kept', 'A delivery charge queried six weeks later has to be shown as it stood on the day, not as it stands now. A price list edited in place makes that impossible, and that is how a business ends up unable to explain a number it charged.', C.teal);
 
 h2('6a.11e-ii Handing the parcel over, and booking the van');
-p('When a paid order becomes a consignment, the system works out which of the seller’s delivery methods carries it and, where that is a delivery company on this marketplace, offers the consignment to that company straight away. The seller already decided by setting the rules; being asked to hand each order over by hand afterwards would make those rules pointless.');
+p('When a paid order becomes a consignment, the system works out which of the seller’s delivery methods carries it. As soon as the seller confirms the order, where that method is a delivery company on this marketplace, the consignment is offered to that company automatically. The seller already decided by setting the rules; being asked to hand each order over by hand afterwards would make those rules pointless. Nothing is offered before the seller confirms, because a company should not be asked to collect an order the seller may still turn down.');
+p('Where no rule chose anybody, the seller is told to assign one. On the order they press “Assign Logistics Partner” and see the consignment’s route, load, packages and any special handling; every delivery company they work with, with the ones that cannot take this consignment greyed out and the reason given (not approved, does not serve this route, does not take pallets, does not take containers, account inactive); and DHL, FedEx and India Post as carriers they can book by hand. The seller can change their choice, with a reason, until the parcel is collected — after that only the carrier and the marketplace can move it. The company that loses the work is told why.');
 p('It is still an offer, and still the company’s to accept, even when the seller owns the fleet. That company has its own screens and its own staff, and accepting is how somebody there says they have seen it.');
 p('Collecting the goods is then arranged in one of two ways. If the seller uses their own account with a carrier, the collection is booked with that carrier under the seller’s own contract and the reference the carrier gives back is kept — that is the number a seller reads out on the telephone when the van has not arrived. If a delivery company on this marketplace is carrying it, nothing is called: the request appears on that company’s own board for somebody there to schedule.');
 bullets([
@@ -1657,6 +1670,18 @@ table(['Step', 'Who does it', 'What happens'], [
   ['5', 'The driver', 'Works through their round on a phone, recording each stop as it happens.'],
   ['6', 'The driver', 'Captures whatever that delivery needs as proof — a name, a signature, a photograph — and marks it delivered. Without all of it, they cannot.'],
   ['7', 'The system', 'Moves the order on, and tells the business straight away if anything went wrong instead.'],
+], [700, 2300, 7000]);
+
+h2('Example C2 — A seller hands an order to a carrier');
+p('Only where the logistics portal is switched on.');
+table(['Step', 'Who does it', 'What happens'], [
+  ['1', 'The buyer', 'Pays for an order that includes this seller’s goods. The seller is told there is a new order.'],
+  ['2', 'The seller', 'Confirms the order and says which of their buildings it leaves from. Until they do, nobody can be asked to carry it.'],
+  ['3', 'The seller', 'Presses “Assign Logistics Partner” and chooses who carries it: a delivery company they work with, or DHL, FedEx or India Post booked by hand.'],
+  ['4a', 'The delivery company', 'Accepts or turns it down in its own portal. The seller is told either way. If it accepts, it is reminded to put one of its own drivers on it, and the driver is told.'],
+  ['4b', 'The seller, for a hand booking', 'Books it with DHL, FedEx or India Post, enters the tracking number the carrier gave, and records each step as the carrier reports it.'],
+  ['5', 'Everybody', 'The seller, the delivery company, the marketplace and the buyer each see the same stage — picked up, in transit, out for delivery, delivered — with only the detail each of them is entitled to.'],
+  ['6', 'The system', 'Tells the marketplace if a confirmed order has sat with nobody carrying it for too long.'],
 ], [700, 2300, 7000]);
 
 h2('Example D — Staff work out who a business is');

@@ -5,7 +5,7 @@
  * dry run that under-reports errors is worse than no dry run, because an
  * administrator confirms on the strength of it.
  */
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { prisma } from '../../src/infra/prisma.js';
 import { newId } from '../../src/infra/ids.js';
 import { createCategory } from '../../src/modules/catalog/category.service.js';
@@ -55,6 +55,12 @@ async function resetImports(): Promise<void> {
   await prisma.userRole.deleteMany({});
   await prisma.user.deleteMany({ where: { emailNormalized: 'import@test.local' } });
 }
+
+// After the last test as well: cleaning only before each one left the final
+// import's products and categories for the next file to trip over.
+afterAll(async () => {
+  await resetImports();
+});
 
 beforeEach(async () => {
   await resetImports();

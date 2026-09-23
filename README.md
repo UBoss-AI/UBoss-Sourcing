@@ -1617,7 +1617,7 @@ one are a Vite cache, not a code bug.
 
 Two responsibilities, and they do not overlap:
 
-> **A seller chooses a carrier for their own paid consignment.**
+> **A seller chooses a carrier for their own consignment, once they have confirmed the order.**
 > **A carrier chooses a driver for the consignments it has accepted.**
 
 A seller has no business knowing who is on a carrier's payroll, and a carrier
@@ -1638,17 +1638,29 @@ of those failed, because "no carriers", "your carrier is suspended" and "your
 carrier does not reach Portugal" need three different responses.
 
 An arrangement **narrows, never widens** — a seller cannot grant a carrier
-reach it does not have. **Suspended is not ended**: a suspended arrangement
-finishes the parcels already on a van and takes no new ones.
+reach it does not have, and the carrier's own service area, handling approvals,
+capacity and pallet capability are checked on every seller offer. A container
+load is offered to no delivery company. **Suspended is not ended**: a suspended
+arrangement finishes the parcels already on a van and takes no new ones.
 
-Reassignment withdraws the incumbent explicitly, with a required reason, and
-both assignment rows survive — "why did two carriers have this parcel?" is
-asked after a late delivery.
+**Nobody is offered work before the seller confirms the order.** A seller's own
+rule (for example "everything from Delhi goes on our vans") waits for the
+confirmation and hands the consignment on then.
+
+Reassignment withdraws the incumbent explicitly, with a required reason, in one
+transaction with the new offer, and both assignment rows survive — "why did two
+carriers have this parcel?" is asked after a late delivery. It is allowed only
+**before collection**; once the carrier has the goods, only the carrier and the
+marketplace can move it. Repeating a request for the carrier that already has
+it changes nothing.
 
 Three screens: **Seller Hub → Carriers** (the seller's arrangements, refused
-and ended ones included, with reasons), **the picker on a paid consignment**
-(ineligible carriers listed and disabled, each saying why), and **Sellers →
-Carrier arrangements** in the console (the approvals queue). The picker is
+and ended ones included, with reasons), **Assign Logistics Partner on a
+confirmed order** (the consignment's route, load and handling; ineligible
+carriers listed and disabled, each saying why; DHL, FedEx and India Post as
+hand bookings), and **Sellers → Carrier arrangements** in the console (the
+approvals queue). The operator also sees, on each seller consignment, the
+seller's method, why it was chosen, and any hand booking. The picker is
 built by the same function that decides whether the server will accept the
 choice, so the two cannot drift apart.
 
@@ -1713,7 +1725,24 @@ A connection goes live only when **both** of these have happened:
 2. a named person at the seller confirmed they want real parcels sent that way.
 
 Rotating a key drops it back behind both. Nothing anywhere shows "Connected" on
-the strength of a saved form.
+the strength of a saved form. Each carrier's setup panel shows only that
+carrier's name, fields and steps, with a status of *Carrier API not connected*,
+*API credentials required*, *Waiting for a successful test*, *Connection
+failed*, *Paused*, *Connected* or (India Post) *Manual booking only*; it can be
+closed at any point, and "Finish setting up" stays until the connection is
+live.
+
+### Without any API account
+
+A seller with no DHL, FedEx or India Post credentials can still send with
+them. On a confirmed order they choose the carrier, book the parcel with it
+themselves, and record the carrier's own tracking number, service, pickup
+reference, dates, optional cost, photos of the paperwork and each step of the
+journey. Nothing is booked, labelled, priced or numbered by this software, the
+consignment is badged *Manual booking*, and every step is recorded as the
+seller's word rather than the carrier's feed. Marking it delivered needs a
+proof-of-delivery photo attached. Marketplace staff can enter the tracking
+number on the seller's behalf.
 
 ### India Post
 

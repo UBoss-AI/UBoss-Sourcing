@@ -62,6 +62,14 @@ export const NotificationEvent = {
   ORDER_CONFIRMED: 'order.confirmed',
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_SHIPPED: 'order.shipped',
+  /// A consignment's milestones, told to the BUYER. One email per consignment
+  /// per milestone, however many carrier scans report it. PICKED_UP is sent
+  /// only where the order has more than one consignment - with one, the
+  /// order's own "shipped" email already says it.
+  SHIPMENT_PICKED_UP: 'shipment.picked_up',
+  SHIPMENT_IN_TRANSIT: 'shipment.in_transit',
+  SHIPMENT_OUT_FOR_DELIVERY: 'shipment.out_for_delivery',
+  SHIPMENT_DELIVERED: 'shipment.delivered',
   PAYMENT_LINK: 'payment.link',
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
@@ -202,6 +210,34 @@ function renderTemplate(template: string, variables: TemplateVariables): string 
 /** Built-in fallbacks, used when no notification_settings row exists yet. */
 const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string }>> = Object.freeze(
   {
+    [NotificationEvent.SHIPMENT_PICKED_UP]: {
+      subject: 'Part of order {{orderNumber}} has been collected',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{carrier}} has collected consignment {{shipmentReference}} from order {{orderNumber}}.\n\n' +
+        '{{trackingLine}}Follow the order here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.SHIPMENT_IN_TRANSIT]: {
+      subject: 'Order {{orderNumber}} is on its way',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Consignment {{shipmentReference}} from order {{orderNumber}} is on its way with {{carrier}}.\n\n' +
+        '{{trackingLine}}Follow the order here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.SHIPMENT_OUT_FOR_DELIVERY]: {
+      subject: 'Order {{orderNumber}} is out for delivery',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Consignment {{shipmentReference}} from order {{orderNumber}} is out for delivery with {{carrier}} today.\n\n' +
+        '{{trackingLine}}Follow the order here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.SHIPMENT_DELIVERED]: {
+      subject: 'Order {{orderNumber}}: consignment delivered',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Consignment {{shipmentReference}} from order {{orderNumber}} has been delivered by {{carrier}}.\n\n' +
+        'If anything is wrong with it, tell us from the order:\n{{orderUrl}}\n',
+    },
     [NotificationEvent.CUSTOMER_INVITATION]: {
       subject: 'Your {{businessName}} account is ready to activate',
       body:

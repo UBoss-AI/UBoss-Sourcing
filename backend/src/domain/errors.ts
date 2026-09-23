@@ -1113,6 +1113,21 @@ export const ErrorCode = {
   /// vouchers. `details` carries the parsed line errors, redacted.
   SELLER_ERP_TALLY_REJECTED: 'SELLER_ERP_TALLY_REJECTED',
 
+  /// The seller has not confirmed this order yet, so nobody may be asked to
+  /// carry it. A carrier offered work on an order the seller may still refuse
+  /// has been handed an obligation nobody agreed to.
+  SELLER_ORDER_NOT_CONFIRMED: 'SELLER_ORDER_NOT_CONFIRMED',
+
+  /// The carrier has the goods, so the seller cannot move the consignment to
+  /// somebody else. Chain of custody: only the carrier holding it and the
+  /// marketplace can arrange that. `details[0].meta.status` is where it is.
+  CONSIGNMENT_REASSIGNMENT_LOCKED: 'CONSIGNMENT_REASSIGNMENT_LOCKED',
+
+  /// A hand-made carrier booking has no tracking number yet, and the step
+  /// asked for needs one: nothing about a parcel's journey is recorded until
+  /// the carrier's own number for it exists.
+  CARRIER_TRACKING_NUMBER_REQUIRED: 'CARRIER_TRACKING_NUMBER_REQUIRED',
+
   /// The company this connection posts into is not open in Tally.
   SELLER_ERP_COMPANY_NOT_LOADED: 'SELLER_ERP_COMPANY_NOT_LOADED',
 

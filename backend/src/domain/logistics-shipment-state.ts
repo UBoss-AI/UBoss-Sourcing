@@ -95,8 +95,15 @@ export type ShipmentStatusName = (typeof ShipmentStatusValues)[number];
  * DRIVER is separate from PARTNER rather than a narrower version of it,
  * because the two can do genuinely different things: a driver may mark a
  * delivery attempted from the doorstep and may not cancel a shipment from it.
+ *
+ * SELLER is the seller recording, by hand, what their OWN outside carrier -
+ * DHL, FedEx, India Post booked without an API account - told them. It has a
+ * short list of edges of its own, below, and nothing else: it cannot touch a
+ * consignment a delivery company on this platform is carrying, and the
+ * service refuses it on any consignment without a live hand-made booking.
+ * The matrix is the second lock on that door, not the first.
  */
-export type ShipmentActor = 'PARTNER' | 'DRIVER' | 'CARRIER' | 'UBOSS_ADMIN' | 'SYSTEM';
+export type ShipmentActor = 'PARTNER' | 'DRIVER' | 'CARRIER' | 'UBOSS_ADMIN' | 'SYSTEM' | 'SELLER';
 
 interface ShipmentTransitionRule {
   to: ShipmentStatusName;
@@ -140,7 +147,14 @@ const ANYONE_IN_THE_FIELD: readonly ShipmentActor[] = Object.freeze([
  * the same six rules is eight places for them to drift apart.
  */
 const IN_MOTION_EXCEPTIONS: readonly ShipmentTransitionRule[] = Object.freeze([
-  { to: 'DELAYED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
+  // SELLER may report a delay their own outside carrier told them about. The
+  // service allows it only on a consignment they booked by hand.
+  {
+    to: 'DELAYED',
+    actors: [...ANYONE_IN_THE_FIELD, 'SELLER'],
+    permission: STATUS_WRITE,
+    requiresReason: true,
+  },
   { to: 'ON_HOLD', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
   { to: 'DAMAGED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
   { to: 'LOST', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
@@ -175,11 +189,15 @@ const SHIPMENT_TRANSITIONS: Readonly<
    */
   CREATED: [
     { to: 'AWAITING_ASSIGNMENT', actors: ['UBOSS_ADMIN', 'SYSTEM'] },
+    // The seller chose an outside carrier by hand. ASSIGNED means "somebody
+    // has been named", which is true; nobody has been ASKED, because there is
+    // nobody on this platform to ask.
+    { to: 'ASSIGNED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
 
   AWAITING_ASSIGNMENT: [
-    { to: 'ASSIGNED', actors: ['UBOSS_ADMIN', 'SYSTEM'] },
+    { to: 'ASSIGNED', actors: ['UBOSS_ADMIN', 'SYSTEM', 'SELLER'] },
     { to: 'ON_HOLD', actors: ['UBOSS_ADMIN'], requiresReason: true },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
@@ -191,12 +209,16 @@ const SHIPMENT_TRANSITIONS: Readonly<
   ASSIGNED: [
     { to: 'ACCEPTANCE_PENDING', actors: ['UBOSS_ADMIN', 'SYSTEM'] },
     // Reassignment: the named partner never answered, or the operator changed
-    // their mind. Back to the pool rather than forward.
+    // their mind. Back to the pool rather than forward. A seller cancelling a
+    // hand-made booking takes the same edge, and owes the same reason.
     {
       to: 'AWAITING_ASSIGNMENT',
-      actors: ['UBOSS_ADMIN', 'SYSTEM'],
+      actors: ['UBOSS_ADMIN', 'SYSTEM', 'SELLER'],
       requiresReason: true,
     },
+    // Booked outside Glovia: the seller has the carrier's waybill or
+    // collection reference. The service demands one before it takes this.
+    { to: 'PICKUP_SCHEDULED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
 
@@ -227,9 +249,11 @@ const SHIPMENT_TRANSITIONS: Readonly<
     // that refuses to model that is a matrix people work around.
     {
       to: 'PICKED_UP',
-      actors: ANYONE_IN_THE_FIELD,
+      actors: [...ANYONE_IN_THE_FIELD, 'SELLER'],
       permission: PICKUP_WRITE,
     },
+    // A hand-made booking given up before the carrier came.
+    { to: 'AWAITING_ASSIGNMENT', actors: ['SELLER'], requiresReason: true },
     { to: 'DELAYED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'ADDRESS_ISSUE', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
     { to: 'ON_HOLD', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
@@ -251,7 +275,7 @@ const SHIPMENT_TRANSITIONS: Readonly<
   PICKED_UP: [
     { to: 'DISPATCHED', actors: CARRIER_STAFF, permission: DISPATCH_WRITE },
     { to: 'AT_ORIGIN_HUB', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'IN_TRANSIT', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
+    { to: 'IN_TRANSIT', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
     ...IN_MOTION_EXCEPTIONS,
     { to: 'RETURN_REQUESTED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
@@ -273,7 +297,7 @@ const SHIPMENT_TRANSITIONS: Readonly<
 
   IN_TRANSIT: [
     { to: 'AT_DESTINATION_HUB', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'OUT_FOR_DELIVERY', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
+    { to: 'OUT_FOR_DELIVERY', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
     { to: 'CUSTOMS_HOLD', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'ADDRESS_ISSUE', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     ...IN_MOTION_EXCEPTIONS,
@@ -298,11 +322,16 @@ const SHIPMENT_TRANSITIONS: Readonly<
   OUT_FOR_DELIVERY: [
     {
       to: 'DELIVERED',
-      actors: ['PARTNER', 'DRIVER', 'CARRIER', 'UBOSS_ADMIN'],
+      actors: ['PARTNER', 'DRIVER', 'CARRIER', 'UBOSS_ADMIN', 'SELLER'],
       permission: POD_WRITE,
       requiresProofOfDelivery: true,
     },
-    { to: 'DELIVERY_ATTEMPTED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
+    {
+      to: 'DELIVERY_ATTEMPTED',
+      actors: [...ANYONE_IN_THE_FIELD, 'SELLER'],
+      permission: STATUS_WRITE,
+      requiresReason: true,
+    },
     { to: 'ADDRESS_ISSUE', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     ...IN_MOTION_EXCEPTIONS,
   ],
@@ -310,13 +339,18 @@ const SHIPMENT_TRANSITIONS: Readonly<
   DELIVERY_ATTEMPTED: [
     {
       to: 'DELIVERED',
-      actors: ['PARTNER', 'DRIVER', 'CARRIER', 'UBOSS_ADMIN'],
+      actors: ['PARTNER', 'DRIVER', 'CARRIER', 'UBOSS_ADMIN', 'SELLER'],
       permission: POD_WRITE,
       requiresProofOfDelivery: true,
     },
     // Another go tomorrow.
-    { to: 'OUT_FOR_DELIVERY', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'DELIVERY_FAILED', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
+    { to: 'OUT_FOR_DELIVERY', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
+    {
+      to: 'DELIVERY_FAILED',
+      actors: [...CARRIER_STAFF, 'SELLER'],
+      permission: STATUS_WRITE,
+      requiresReason: true,
+    },
     { to: 'ADDRESS_ISSUE', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'RETURN_REQUESTED', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
     ...IN_MOTION_EXCEPTIONS,
@@ -338,9 +372,10 @@ const SHIPMENT_TRANSITIONS: Readonly<
     { to: 'READY_FOR_PICKUP', actors: CARRIER_STAFF, permission: STATUS_WRITE },
     { to: 'PICKED_UP', actors: ANYONE_IN_THE_FIELD, permission: PICKUP_WRITE },
     { to: 'AT_ORIGIN_HUB', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'IN_TRANSIT', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
+    // SELLER on these two: their own outside carrier caught up.
+    { to: 'IN_TRANSIT', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
     { to: 'AT_DESTINATION_HUB', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'OUT_FOR_DELIVERY', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
+    { to: 'OUT_FOR_DELIVERY', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
     { to: 'DELIVERY_ATTEMPTED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'DELIVERY_FAILED', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
     { to: 'ON_HOLD', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
@@ -414,8 +449,13 @@ const SHIPMENT_TRANSITIONS: Readonly<
 
   DELIVERY_FAILED: [
     // Re-arranged with the receiver.
-    { to: 'OUT_FOR_DELIVERY', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
-    { to: 'RETURN_REQUESTED', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
+    { to: 'OUT_FOR_DELIVERY', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
+    {
+      to: 'RETURN_REQUESTED',
+      actors: [...CARRIER_STAFF, 'SELLER'],
+      permission: STATUS_WRITE,
+      requiresReason: true,
+    },
     { to: 'ON_HOLD', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
@@ -423,12 +463,12 @@ const SHIPMENT_TRANSITIONS: Readonly<
   // --- Returns -----------------------------------------------------------
 
   RETURN_REQUESTED: [
-    { to: 'RETURN_IN_TRANSIT', actors: CARRIER_STAFF, permission: STATUS_WRITE },
+    { to: 'RETURN_IN_TRANSIT', actors: [...CARRIER_STAFF, 'SELLER'], permission: STATUS_WRITE },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },
   ],
 
   RETURN_IN_TRANSIT: [
-    { to: 'RETURNED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE },
+    { to: 'RETURNED', actors: [...ANYONE_IN_THE_FIELD, 'SELLER'], permission: STATUS_WRITE },
     { to: 'DELAYED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'DAMAGED', actors: ANYONE_IN_THE_FIELD, permission: STATUS_WRITE, requiresReason: true },
     { to: 'LOST', actors: CARRIER_STAFF, permission: STATUS_WRITE, requiresReason: true },
@@ -712,5 +752,7 @@ function describeActor(actor: ShipmentActor): string {
       return 'An administrator';
     case 'SYSTEM':
       return 'The system';
+    case 'SELLER':
+      return 'A seller';
   }
 }

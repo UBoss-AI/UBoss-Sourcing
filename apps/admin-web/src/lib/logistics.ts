@@ -477,7 +477,42 @@ export interface ShipmentTimelineEvent {
   reason: string | null;
 }
 
+/** The seller's side of a consignment: their method, the stage, a hand booking. */
+export interface AdminSellerLogistics {
+  state: {
+    stage: string;
+    mode: 'NONE' | 'PARTNER' | 'MANUAL_CARRIER';
+    partner: { id: string; displayName: string; assignmentState: string } | null;
+    manualBooking: {
+      id: string;
+      provider: string;
+      carrierName: string;
+      status: 'BOOKING_REQUIRED' | 'BOOKED';
+      serviceName: string | null;
+      pickupReference: string | null;
+      carrierTrackingNumber: string | null;
+      trackingPageUrl: string | null;
+      createdAt: string;
+    } | null;
+    driver: { isAssigned: boolean; maskedName: string | null };
+    history: { kind: string; carrierName: string; state: string; at: string; reason: string | null }[];
+  };
+  sellerOrder: { id: string; number: string; status: string } | null;
+  method: { name: string; mode: string } | null;
+  selectionSource: string | null;
+  selectionReason: string | null;
+}
+
+export function updateAdminManualBooking(
+  shipmentId: string,
+  input: { carrierTrackingNumber?: string | null; serviceName?: string | null; pickupReference?: string | null },
+): Promise<unknown> {
+  return api.patch(`/admin/logistics/shipments/${encodeURIComponent(shipmentId)}/manual-booking`, input);
+}
+
 export interface AdminShipmentDetail {
+  /** Null for the shop's own goods. Optional for an older server. */
+  sellerLogistics?: AdminSellerLogistics | null;
   id: string;
   shipmentReference: string;
   trackingNumber: string;

@@ -515,6 +515,11 @@ export function OrderDetailPage(): React.JSX.Element {
                   {order.shipments.map((shipment, index) => (
                     <li key={`${shipment.trackingNumber ?? ''}:${String(index)}`}>
                       <span className="text-ink">{shipment.carrier ?? t('orderDetail.courier')}</span>
+                      {shipment.deliveryStage !== undefined && (
+                        <span className="ml-2 inline-flex rounded-full bg-brand-soft px-2 py-0.5 text-xxs font-medium text-brand">
+                          {t(`orderDetail.stage.${shipment.deliveryStage}`)}
+                        </span>
+                      )}
                       {shipment.sentBy !== null && (
                         <span className="ml-2 text-xs text-ink-muted">
                           {t('orderDetail.sentBy', { seller: shipment.sentBy })}
@@ -525,6 +530,14 @@ export function OrderDetailPage(): React.JSX.Element {
                           {shipment.trackingNumber}
                         </span>
                       )}
+                      {shipment.carrierTrackingNumber !== undefined &&
+                        shipment.carrierTrackingNumber !== null && (
+                          <span className="ml-2 text-xs text-ink-muted">
+                            {t('orderDetail.carrierTrackingNumber', {
+                              number: shipment.carrierTrackingNumber,
+                            })}
+                          </span>
+                        )}
                       {shipment.trackingUrl !== null && (
                         <a
                           href={shipment.trackingUrl}
@@ -555,6 +568,20 @@ export function OrderDetailPage(): React.JSX.Element {
                         <p className="mt-1 text-xs leading-relaxed text-ink-muted">
                           {t('orderDetail.trackingByHand')}
                         </p>
+                      )}
+
+                      {/* The consignment's own journey, in the words written for the buyer. */}
+                      {shipment.events !== undefined && shipment.events.length > 0 && (
+                        <ol className="mt-2 space-y-1 border-l border-border pl-3">
+                          {shipment.events
+                            .filter((event) => event.description !== null)
+                            .map((event, eventIndex) => (
+                              <li key={`${event.occurredAt}:${String(eventIndex)}`} className="text-xs text-ink-muted">
+                                <span className="text-ink-subtle">{formatDateTime(event.occurredAt)}</span>{' '}
+                                {event.description}
+                              </li>
+                            ))}
+                        </ol>
                       )}
                     </li>
                   ))}

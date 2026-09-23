@@ -791,6 +791,7 @@ export type LogisticsShipmentWhereInput = {
   documents?: Prisma.LogisticsShipmentDocumentListRelationFilter
   proofOfDelivery?: Prisma.XOR<Prisma.LogisticsProofOfDeliveryNullableScalarRelationFilter, Prisma.LogisticsProofOfDeliveryWhereInput> | null
   pickupRequests?: Prisma.LogisticsPickupRequestListRelationFilter
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingListRelationFilter
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryListRelationFilter
   driverAssignments?: Prisma.LogisticsDriverAssignmentListRelationFilter
   trips?: Prisma.LogisticsActiveTripListRelationFilter
@@ -885,6 +886,7 @@ export type LogisticsShipmentOrderByWithRelationInput = {
   documents?: Prisma.LogisticsShipmentDocumentOrderByRelationAggregateInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryOrderByWithRelationInput
   pickupRequests?: Prisma.LogisticsPickupRequestOrderByRelationAggregateInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingOrderByRelationAggregateInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryOrderByRelationAggregateInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentOrderByRelationAggregateInput
   trips?: Prisma.LogisticsActiveTripOrderByRelationAggregateInput
@@ -983,6 +985,7 @@ export type LogisticsShipmentWhereUniqueInput = Prisma.AtLeast<{
   documents?: Prisma.LogisticsShipmentDocumentListRelationFilter
   proofOfDelivery?: Prisma.XOR<Prisma.LogisticsProofOfDeliveryNullableScalarRelationFilter, Prisma.LogisticsProofOfDeliveryWhereInput> | null
   pickupRequests?: Prisma.LogisticsPickupRequestListRelationFilter
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingListRelationFilter
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryListRelationFilter
   driverAssignments?: Prisma.LogisticsDriverAssignmentListRelationFilter
   trips?: Prisma.LogisticsActiveTripListRelationFilter
@@ -1220,6 +1223,7 @@ export type LogisticsShipmentCreateInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -1305,6 +1309,7 @@ export type LogisticsShipmentUncheckedCreateInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -1390,6 +1395,7 @@ export type LogisticsShipmentUpdateInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -1475,6 +1481,7 @@ export type LogisticsShipmentUncheckedUpdateInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -2340,6 +2347,20 @@ export type LogisticsShipmentUpdateOneRequiredWithoutPackagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsShipmentUpdateToOneWithWhereWithoutPackagesInput, Prisma.LogisticsShipmentUpdateWithoutPackagesInput>, Prisma.LogisticsShipmentUncheckedUpdateWithoutPackagesInput>
 }
 
+export type LogisticsShipmentCreateNestedOneWithoutManualCarrierBookingsInput = {
+  create?: Prisma.XOR<Prisma.LogisticsShipmentCreateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedCreateWithoutManualCarrierBookingsInput>
+  connectOrCreate?: Prisma.LogisticsShipmentCreateOrConnectWithoutManualCarrierBookingsInput
+  connect?: Prisma.LogisticsShipmentWhereUniqueInput
+}
+
+export type LogisticsShipmentUpdateOneRequiredWithoutManualCarrierBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsShipmentCreateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedCreateWithoutManualCarrierBookingsInput>
+  connectOrCreate?: Prisma.LogisticsShipmentCreateOrConnectWithoutManualCarrierBookingsInput
+  upsert?: Prisma.LogisticsShipmentUpsertWithoutManualCarrierBookingsInput
+  connect?: Prisma.LogisticsShipmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsShipmentUpdateToOneWithWhereWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUpdateWithoutManualCarrierBookingsInput>, Prisma.LogisticsShipmentUncheckedUpdateWithoutManualCarrierBookingsInput>
+}
+
 export type LogisticsShipmentCreateNestedOneWithoutAssignmentsInput = {
   create?: Prisma.XOR<Prisma.LogisticsShipmentCreateWithoutAssignmentsInput, Prisma.LogisticsShipmentUncheckedCreateWithoutAssignmentsInput>
   connectOrCreate?: Prisma.LogisticsShipmentCreateOrConnectWithoutAssignmentsInput
@@ -2606,6 +2627,7 @@ export type LogisticsShipmentCreateWithoutOriginLocationInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -2690,6 +2712,7 @@ export type LogisticsShipmentUncheckedCreateWithoutOriginLocationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -2875,6 +2898,7 @@ export type LogisticsShipmentCreateWithoutOrderInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -2959,6 +2983,7 @@ export type LogisticsShipmentUncheckedCreateWithoutOrderInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -3069,6 +3094,7 @@ export type LogisticsShipmentCreateWithoutSellerOrderGroupInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -3153,6 +3179,7 @@ export type LogisticsShipmentUncheckedCreateWithoutSellerOrderGroupInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -3263,6 +3290,7 @@ export type LogisticsShipmentCreateWithoutSellerFulfilmentMethodInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -3347,6 +3375,7 @@ export type LogisticsShipmentUncheckedCreateWithoutSellerFulfilmentMethodInput =
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -3457,6 +3486,7 @@ export type LogisticsShipmentCreateWithoutSellerCarrierConnectionInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -3541,6 +3571,7 @@ export type LogisticsShipmentUncheckedCreateWithoutSellerCarrierConnectionInput 
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -3651,6 +3682,7 @@ export type LogisticsShipmentCreateWithoutFulfilmentSelectionRuleInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -3735,6 +3767,7 @@ export type LogisticsShipmentUncheckedCreateWithoutFulfilmentSelectionRuleInput 
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -3845,6 +3878,7 @@ export type LogisticsShipmentCreateWithoutRateQuotesInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -3929,6 +3963,7 @@ export type LogisticsShipmentUncheckedCreateWithoutRateQuotesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -4029,6 +4064,7 @@ export type LogisticsShipmentUpdateWithoutRateQuotesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -4113,6 +4149,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutRateQuotesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -4197,6 +4234,7 @@ export type LogisticsShipmentCreateWithoutPurchasesInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -4281,6 +4319,7 @@ export type LogisticsShipmentUncheckedCreateWithoutPurchasesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -4381,6 +4420,7 @@ export type LogisticsShipmentUpdateWithoutPurchasesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -4465,6 +4505,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutPurchasesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -4549,6 +4590,7 @@ export type LogisticsShipmentCreateWithoutAssignedPartnerInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -4633,6 +4675,7 @@ export type LogisticsShipmentUncheckedCreateWithoutAssignedPartnerInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -4743,6 +4786,7 @@ export type LogisticsShipmentCreateWithoutSlaPolicyInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -4827,6 +4871,7 @@ export type LogisticsShipmentUncheckedCreateWithoutSlaPolicyInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -4937,6 +4982,7 @@ export type LogisticsShipmentCreateWithoutPackagesInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -5021,6 +5067,7 @@ export type LogisticsShipmentUncheckedCreateWithoutPackagesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -5121,6 +5168,7 @@ export type LogisticsShipmentUpdateWithoutPackagesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -5199,6 +5247,363 @@ export type LogisticsShipmentUncheckedUpdateWithoutPackagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutShipmentNestedInput
   purchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutShipmentNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
+  events?: Prisma.LogisticsShipmentEventUncheckedUpdateManyWithoutShipmentNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutShipmentNestedInput
+  documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
+  proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
+  manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
+  driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
+  trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutShipmentNestedInput
+}
+
+export type LogisticsShipmentCreateWithoutManualCarrierBookingsInput = {
+  id: string
+  shipmentReference: string
+  operatorShipmentId?: string | null
+  status?: $Enums.LogisticsShipmentStatus
+  serviceType?: $Enums.LogisticsServiceType
+  trackingNumber: string
+  fulfilmentSelectionSource?: $Enums.FulfilmentSelectionSource | null
+  fulfilmentSelectionReason?: string | null
+  carrierTrackingNumber?: string | null
+  carrierTrackingUrl?: string | null
+  sellerAccountId?: string | null
+  sellerCompanyName: string
+  receivingCustomerProfileId?: string | null
+  receivingCompanyName: string
+  pickupAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  deliveryAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  pickupContactName?: string | null
+  pickupContactPhone?: string | null
+  pickupContactEmail?: string | null
+  deliveryContactName?: string | null
+  deliveryContactPhone?: string | null
+  deliveryContactEmail?: string | null
+  originCountry: string
+  destinationCountry: string
+  destinationCity?: string | null
+  destinationPostalCode?: string | null
+  distanceKm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageCount?: number
+  totalWeightGrams?: number
+  totalVolumeCm3?: number | null
+  productCategorySummary?: string | null
+  requiresColdChain?: boolean
+  requiresTemperatureRange?: boolean
+  temperatureMinC?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  temperatureMaxC?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requiresSterileHandling?: boolean
+  isFragile?: boolean
+  isDangerousGoods?: boolean
+  dangerousGoodsClass?: string | null
+  handlingNotes?: string | null
+  declaredValueMinor?: bigint | number | null
+  currency?: string | null
+  expectedPickupAt?: Date | string | null
+  pickupDueAt?: Date | string | null
+  estimatedDeliveryAt?: Date | string | null
+  deliveryDueAt?: Date | string | null
+  slaState?: $Enums.LogisticsSlaState
+  slaEvaluatedAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  pickedUpAt?: Date | string | null
+  dispatchedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryAttemptCount?: number
+  lastEventAt?: Date | string | null
+  lastCarrierSyncAt?: Date | string | null
+  version?: number
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  order?: Prisma.OrderCreateNestedOneWithoutLogisticsShipmentsInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupCreateNestedOneWithoutLogisticsShipmentsInput
+  originLocation?: Prisma.InventoryLocationCreateNestedOneWithoutLogisticsShipmentsInput
+  assignedPartner?: Prisma.LogisticsPartnerCreateNestedOneWithoutShipmentsInput
+  slaPolicy?: Prisma.LogisticsSlaPolicyCreateNestedOneWithoutShipmentsInput
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutShipmentsInput
+  sellerFulfilmentMethod?: Prisma.SellerFulfilmentMethodCreateNestedOneWithoutShipmentsInput
+  sellerCarrierConnection?: Prisma.SellerCarrierConnectionCreateNestedOneWithoutShipmentsInput
+  fulfilmentSelectionRule?: Prisma.SellerFulfilmentRuleCreateNestedOneWithoutShipmentsInput
+  rateQuotes?: Prisma.CarrierRateQuoteCreateNestedManyWithoutShipmentInput
+  purchases?: Prisma.ShipmentPurchaseCreateNestedManyWithoutShipmentInput
+  packages?: Prisma.LogisticsShipmentPackageCreateNestedManyWithoutShipmentInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutShipmentInput
+  events?: Prisma.LogisticsShipmentEventCreateNestedManyWithoutShipmentInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutShipmentInput
+  documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
+  proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
+  pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
+  driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
+  trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutShipmentInput
+}
+
+export type LogisticsShipmentUncheckedCreateWithoutManualCarrierBookingsInput = {
+  id: string
+  shipmentReference: string
+  orderId?: string | null
+  sellerOrderGroupId?: string | null
+  operatorShipmentId?: string | null
+  originLocationId?: string | null
+  assignedPartnerId?: string | null
+  status?: $Enums.LogisticsShipmentStatus
+  serviceType?: $Enums.LogisticsServiceType
+  trackingNumber: string
+  sellerFulfilmentMethodId?: string | null
+  sellerCarrierConnectionId?: string | null
+  fulfilmentSelectionSource?: $Enums.FulfilmentSelectionSource | null
+  fulfilmentSelectionRuleId?: string | null
+  fulfilmentSelectionReason?: string | null
+  carrierIntegrationId?: string | null
+  carrierTrackingNumber?: string | null
+  carrierTrackingUrl?: string | null
+  sellerAccountId?: string | null
+  sellerCompanyName: string
+  receivingCustomerProfileId?: string | null
+  receivingCompanyName: string
+  pickupAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  deliveryAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  pickupContactName?: string | null
+  pickupContactPhone?: string | null
+  pickupContactEmail?: string | null
+  deliveryContactName?: string | null
+  deliveryContactPhone?: string | null
+  deliveryContactEmail?: string | null
+  originCountry: string
+  destinationCountry: string
+  destinationCity?: string | null
+  destinationPostalCode?: string | null
+  distanceKm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageCount?: number
+  totalWeightGrams?: number
+  totalVolumeCm3?: number | null
+  productCategorySummary?: string | null
+  requiresColdChain?: boolean
+  requiresTemperatureRange?: boolean
+  temperatureMinC?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  temperatureMaxC?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requiresSterileHandling?: boolean
+  isFragile?: boolean
+  isDangerousGoods?: boolean
+  dangerousGoodsClass?: string | null
+  handlingNotes?: string | null
+  declaredValueMinor?: bigint | number | null
+  currency?: string | null
+  slaPolicyId?: string | null
+  expectedPickupAt?: Date | string | null
+  pickupDueAt?: Date | string | null
+  estimatedDeliveryAt?: Date | string | null
+  deliveryDueAt?: Date | string | null
+  slaState?: $Enums.LogisticsSlaState
+  slaEvaluatedAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  pickedUpAt?: Date | string | null
+  dispatchedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryAttemptCount?: number
+  lastEventAt?: Date | string | null
+  lastCarrierSyncAt?: Date | string | null
+  version?: number
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rateQuotes?: Prisma.CarrierRateQuoteUncheckedCreateNestedManyWithoutShipmentInput
+  purchases?: Prisma.ShipmentPurchaseUncheckedCreateNestedManyWithoutShipmentInput
+  packages?: Prisma.LogisticsShipmentPackageUncheckedCreateNestedManyWithoutShipmentInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutShipmentInput
+  events?: Prisma.LogisticsShipmentEventUncheckedCreateNestedManyWithoutShipmentInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutShipmentInput
+  documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
+  proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
+  driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
+  trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutShipmentInput
+}
+
+export type LogisticsShipmentCreateOrConnectWithoutManualCarrierBookingsInput = {
+  where: Prisma.LogisticsShipmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsShipmentCreateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedCreateWithoutManualCarrierBookingsInput>
+}
+
+export type LogisticsShipmentUpsertWithoutManualCarrierBookingsInput = {
+  update: Prisma.XOR<Prisma.LogisticsShipmentUpdateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedUpdateWithoutManualCarrierBookingsInput>
+  create: Prisma.XOR<Prisma.LogisticsShipmentCreateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedCreateWithoutManualCarrierBookingsInput>
+  where?: Prisma.LogisticsShipmentWhereInput
+}
+
+export type LogisticsShipmentUpdateToOneWithWhereWithoutManualCarrierBookingsInput = {
+  where?: Prisma.LogisticsShipmentWhereInput
+  data: Prisma.XOR<Prisma.LogisticsShipmentUpdateWithoutManualCarrierBookingsInput, Prisma.LogisticsShipmentUncheckedUpdateWithoutManualCarrierBookingsInput>
+}
+
+export type LogisticsShipmentUpdateWithoutManualCarrierBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentReference?: Prisma.StringFieldUpdateOperationsInput | string
+  operatorShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsShipmentStatusFieldUpdateOperationsInput | $Enums.LogisticsShipmentStatus
+  serviceType?: Prisma.EnumLogisticsServiceTypeFieldUpdateOperationsInput | $Enums.LogisticsServiceType
+  trackingNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfilmentSelectionSource?: Prisma.NullableEnumFulfilmentSelectionSourceFieldUpdateOperationsInput | $Enums.FulfilmentSelectionSource | null
+  fulfilmentSelectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierTrackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierTrackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingCustomerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivingCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  pickupAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  deliveryAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  pickupContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupContactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  distanceKm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWeightGrams?: Prisma.IntFieldUpdateOperationsInput | number
+  totalVolumeCm3?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productCategorySummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresTemperatureRange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temperatureMinC?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  temperatureMaxC?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requiresSterileHandling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFragile?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDangerousGoods?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dangerousGoodsClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declaredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expectedPickupAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimatedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slaState?: Prisma.EnumLogisticsSlaStateFieldUpdateOperationsInput | $Enums.LogisticsSlaState
+  slaEvaluatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dispatchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastCarrierSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneWithoutLogisticsShipmentsNestedInput
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneWithoutLogisticsShipmentsNestedInput
+  originLocation?: Prisma.InventoryLocationUpdateOneWithoutLogisticsShipmentsNestedInput
+  assignedPartner?: Prisma.LogisticsPartnerUpdateOneWithoutShipmentsNestedInput
+  slaPolicy?: Prisma.LogisticsSlaPolicyUpdateOneWithoutShipmentsNestedInput
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutShipmentsNestedInput
+  sellerFulfilmentMethod?: Prisma.SellerFulfilmentMethodUpdateOneWithoutShipmentsNestedInput
+  sellerCarrierConnection?: Prisma.SellerCarrierConnectionUpdateOneWithoutShipmentsNestedInput
+  fulfilmentSelectionRule?: Prisma.SellerFulfilmentRuleUpdateOneWithoutShipmentsNestedInput
+  rateQuotes?: Prisma.CarrierRateQuoteUpdateManyWithoutShipmentNestedInput
+  purchases?: Prisma.ShipmentPurchaseUpdateManyWithoutShipmentNestedInput
+  packages?: Prisma.LogisticsShipmentPackageUpdateManyWithoutShipmentNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutShipmentNestedInput
+  events?: Prisma.LogisticsShipmentEventUpdateManyWithoutShipmentNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutShipmentNestedInput
+  documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
+  proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
+  pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
+  driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
+  trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutShipmentNestedInput
+}
+
+export type LogisticsShipmentUncheckedUpdateWithoutManualCarrierBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentReference?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerOrderGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorShipmentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedPartnerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsShipmentStatusFieldUpdateOperationsInput | $Enums.LogisticsShipmentStatus
+  serviceType?: Prisma.EnumLogisticsServiceTypeFieldUpdateOperationsInput | $Enums.LogisticsServiceType
+  trackingNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerFulfilmentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCarrierConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentSelectionSource?: Prisma.NullableEnumFulfilmentSelectionSourceFieldUpdateOperationsInput | $Enums.FulfilmentSelectionSource | null
+  fulfilmentSelectionRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentSelectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierTrackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrierTrackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  receivingCustomerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivingCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  pickupAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  deliveryAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  pickupContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupContactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryContactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destinationPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  distanceKm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalWeightGrams?: Prisma.IntFieldUpdateOperationsInput | number
+  totalVolumeCm3?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  productCategorySummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresTemperatureRange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temperatureMinC?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  temperatureMaxC?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  requiresSterileHandling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFragile?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDangerousGoods?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dangerousGoodsClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  declaredValueMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slaPolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expectedPickupAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickupDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimatedDeliveryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slaState?: Prisma.EnumLogisticsSlaStateFieldUpdateOperationsInput | $Enums.LogisticsSlaState
+  slaEvaluatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pickedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dispatchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastEventAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastCarrierSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rateQuotes?: Prisma.CarrierRateQuoteUncheckedUpdateManyWithoutShipmentNestedInput
+  purchases?: Prisma.ShipmentPurchaseUncheckedUpdateManyWithoutShipmentNestedInput
+  packages?: Prisma.LogisticsShipmentPackageUncheckedUpdateManyWithoutShipmentNestedInput
   assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   events?: Prisma.LogisticsShipmentEventUncheckedUpdateManyWithoutShipmentNestedInput
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutShipmentNestedInput
@@ -5289,6 +5694,7 @@ export type LogisticsShipmentCreateWithoutAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -5373,6 +5779,7 @@ export type LogisticsShipmentUncheckedCreateWithoutAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -5473,6 +5880,7 @@ export type LogisticsShipmentUpdateWithoutAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -5557,6 +5965,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -5641,6 +6050,7 @@ export type LogisticsShipmentCreateWithoutEventsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -5725,6 +6135,7 @@ export type LogisticsShipmentUncheckedCreateWithoutEventsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -5825,6 +6236,7 @@ export type LogisticsShipmentUpdateWithoutEventsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -5909,6 +6321,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutEventsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -5993,6 +6406,7 @@ export type LogisticsShipmentCreateWithoutExceptionsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -6077,6 +6491,7 @@ export type LogisticsShipmentUncheckedCreateWithoutExceptionsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -6177,6 +6592,7 @@ export type LogisticsShipmentUpdateWithoutExceptionsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -6261,6 +6677,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutExceptionsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -6345,6 +6762,7 @@ export type LogisticsShipmentCreateWithoutDocumentsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -6429,6 +6847,7 @@ export type LogisticsShipmentUncheckedCreateWithoutDocumentsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -6529,6 +6948,7 @@ export type LogisticsShipmentUpdateWithoutDocumentsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -6613,6 +7033,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutDocumentsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -6697,6 +7118,7 @@ export type LogisticsShipmentCreateWithoutProofOfDeliveryInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutShipmentInput
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -6781,6 +7203,7 @@ export type LogisticsShipmentUncheckedCreateWithoutProofOfDeliveryInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutShipmentInput
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -6881,6 +7304,7 @@ export type LogisticsShipmentUpdateWithoutProofOfDeliveryInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutShipmentNestedInput
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -6965,6 +7389,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutProofOfDeliveryInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutShipmentNestedInput
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -7049,6 +7474,7 @@ export type LogisticsShipmentCreateWithoutPickupRequestsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutShipmentInput
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -7133,6 +7559,7 @@ export type LogisticsShipmentUncheckedCreateWithoutPickupRequestsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutShipmentInput
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -7233,6 +7660,7 @@ export type LogisticsShipmentUpdateWithoutPickupRequestsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutShipmentNestedInput
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -7317,6 +7745,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutPickupRequestsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutShipmentNestedInput
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -7402,6 +7831,7 @@ export type LogisticsShipmentCreateWithoutManifestEntriesInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutShipmentInput
@@ -7486,6 +7916,7 @@ export type LogisticsShipmentUncheckedCreateWithoutManifestEntriesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutShipmentInput
@@ -7586,6 +8017,7 @@ export type LogisticsShipmentUpdateWithoutManifestEntriesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutShipmentNestedInput
@@ -7670,6 +8102,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutManifestEntriesInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutShipmentNestedInput
@@ -7754,6 +8187,7 @@ export type LogisticsShipmentCreateWithoutDriverAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutShipmentInput
@@ -7838,6 +8272,7 @@ export type LogisticsShipmentUncheckedCreateWithoutDriverAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutShipmentInput
@@ -7938,6 +8373,7 @@ export type LogisticsShipmentUpdateWithoutDriverAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutShipmentNestedInput
@@ -8022,6 +8458,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutDriverAssignmentsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutShipmentNestedInput
@@ -8106,6 +8543,7 @@ export type LogisticsShipmentCreateWithoutTripsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutShipmentInput
@@ -8190,6 +8628,7 @@ export type LogisticsShipmentUncheckedCreateWithoutTripsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutShipmentInput
@@ -8290,6 +8729,7 @@ export type LogisticsShipmentUpdateWithoutTripsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutShipmentNestedInput
@@ -8374,6 +8814,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutTripsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutShipmentNestedInput
@@ -8457,6 +8898,7 @@ export type LogisticsShipmentCreateWithoutCarrierIntegrationInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -8541,6 +8983,7 @@ export type LogisticsShipmentUncheckedCreateWithoutCarrierIntegrationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -8652,6 +9095,7 @@ export type LogisticsShipmentCreateWithoutNotificationsInput = {
   documents?: Prisma.LogisticsShipmentDocumentCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripCreateNestedManyWithoutShipmentInput
@@ -8736,6 +9180,7 @@ export type LogisticsShipmentUncheckedCreateWithoutNotificationsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedCreateNestedManyWithoutShipmentInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedCreateNestedOneWithoutShipmentInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutShipmentInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedCreateNestedManyWithoutShipmentInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedCreateNestedManyWithoutShipmentInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedCreateNestedManyWithoutShipmentInput
   trips?: Prisma.LogisticsActiveTripUncheckedCreateNestedManyWithoutShipmentInput
@@ -8836,6 +9281,7 @@ export type LogisticsShipmentUpdateWithoutNotificationsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -8920,6 +9366,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutNotificationsInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -9074,6 +9521,7 @@ export type LogisticsShipmentUpdateWithoutOriginLocationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -9158,6 +9606,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutOriginLocationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -9384,6 +9833,7 @@ export type LogisticsShipmentUpdateWithoutOrderInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -9468,6 +9918,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutOrderInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -9694,6 +10145,7 @@ export type LogisticsShipmentUpdateWithoutSellerOrderGroupInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -9778,6 +10230,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutSellerOrderGroupInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -10004,6 +10457,7 @@ export type LogisticsShipmentUpdateWithoutSellerFulfilmentMethodInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -10088,6 +10542,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutSellerFulfilmentMethodInput =
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -10314,6 +10769,7 @@ export type LogisticsShipmentUpdateWithoutSellerCarrierConnectionInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -10398,6 +10854,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutSellerCarrierConnectionInput 
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -10624,6 +11081,7 @@ export type LogisticsShipmentUpdateWithoutFulfilmentSelectionRuleInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -10708,6 +11166,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutFulfilmentSelectionRuleInput 
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -10934,6 +11393,7 @@ export type LogisticsShipmentUpdateWithoutAssignedPartnerInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -11018,6 +11478,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutAssignedPartnerInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -11244,6 +11705,7 @@ export type LogisticsShipmentUpdateWithoutSlaPolicyInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -11328,6 +11790,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutSlaPolicyInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -11554,6 +12017,7 @@ export type LogisticsShipmentUpdateWithoutCarrierIntegrationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUpdateManyWithoutShipmentNestedInput
@@ -11638,6 +12102,7 @@ export type LogisticsShipmentUncheckedUpdateWithoutCarrierIntegrationInput = {
   documents?: Prisma.LogisticsShipmentDocumentUncheckedUpdateManyWithoutShipmentNestedInput
   proofOfDelivery?: Prisma.LogisticsProofOfDeliveryUncheckedUpdateOneWithoutShipmentNestedInput
   pickupRequests?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutShipmentNestedInput
+  manualCarrierBookings?: Prisma.SellerManualCarrierBookingUncheckedUpdateManyWithoutShipmentNestedInput
   manifestEntries?: Prisma.LogisticsDispatchManifestEntryUncheckedUpdateManyWithoutShipmentNestedInput
   driverAssignments?: Prisma.LogisticsDriverAssignmentUncheckedUpdateManyWithoutShipmentNestedInput
   trips?: Prisma.LogisticsActiveTripUncheckedUpdateManyWithoutShipmentNestedInput
@@ -11729,6 +12194,7 @@ export type LogisticsShipmentCountOutputType = {
   exceptions: number
   documents: number
   pickupRequests: number
+  manualCarrierBookings: number
   manifestEntries: number
   driverAssignments: number
   trips: number
@@ -11744,6 +12210,7 @@ export type LogisticsShipmentCountOutputTypeSelect<ExtArgs extends runtime.Types
   exceptions?: boolean | LogisticsShipmentCountOutputTypeCountExceptionsArgs
   documents?: boolean | LogisticsShipmentCountOutputTypeCountDocumentsArgs
   pickupRequests?: boolean | LogisticsShipmentCountOutputTypeCountPickupRequestsArgs
+  manualCarrierBookings?: boolean | LogisticsShipmentCountOutputTypeCountManualCarrierBookingsArgs
   manifestEntries?: boolean | LogisticsShipmentCountOutputTypeCountManifestEntriesArgs
   driverAssignments?: boolean | LogisticsShipmentCountOutputTypeCountDriverAssignmentsArgs
   trips?: boolean | LogisticsShipmentCountOutputTypeCountTripsArgs
@@ -11814,6 +12281,13 @@ export type LogisticsShipmentCountOutputTypeCountDocumentsArgs<ExtArgs extends r
  */
 export type LogisticsShipmentCountOutputTypeCountPickupRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LogisticsPickupRequestWhereInput
+}
+
+/**
+ * LogisticsShipmentCountOutputType without action
+ */
+export type LogisticsShipmentCountOutputTypeCountManualCarrierBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerManualCarrierBookingWhereInput
 }
 
 /**
@@ -11933,6 +12407,7 @@ export type LogisticsShipmentSelect<ExtArgs extends runtime.Types.Extensions.Int
   documents?: boolean | Prisma.LogisticsShipment$documentsArgs<ExtArgs>
   proofOfDelivery?: boolean | Prisma.LogisticsShipment$proofOfDeliveryArgs<ExtArgs>
   pickupRequests?: boolean | Prisma.LogisticsShipment$pickupRequestsArgs<ExtArgs>
+  manualCarrierBookings?: boolean | Prisma.LogisticsShipment$manualCarrierBookingsArgs<ExtArgs>
   manifestEntries?: boolean | Prisma.LogisticsShipment$manifestEntriesArgs<ExtArgs>
   driverAssignments?: boolean | Prisma.LogisticsShipment$driverAssignmentsArgs<ExtArgs>
   trips?: boolean | Prisma.LogisticsShipment$tripsArgs<ExtArgs>
@@ -12034,6 +12509,7 @@ export type LogisticsShipmentInclude<ExtArgs extends runtime.Types.Extensions.In
   documents?: boolean | Prisma.LogisticsShipment$documentsArgs<ExtArgs>
   proofOfDelivery?: boolean | Prisma.LogisticsShipment$proofOfDeliveryArgs<ExtArgs>
   pickupRequests?: boolean | Prisma.LogisticsShipment$pickupRequestsArgs<ExtArgs>
+  manualCarrierBookings?: boolean | Prisma.LogisticsShipment$manualCarrierBookingsArgs<ExtArgs>
   manifestEntries?: boolean | Prisma.LogisticsShipment$manifestEntriesArgs<ExtArgs>
   driverAssignments?: boolean | Prisma.LogisticsShipment$driverAssignmentsArgs<ExtArgs>
   trips?: boolean | Prisma.LogisticsShipment$tripsArgs<ExtArgs>
@@ -12062,6 +12538,7 @@ export type $LogisticsShipmentPayload<ExtArgs extends runtime.Types.Extensions.I
     documents: Prisma.$LogisticsShipmentDocumentPayload<ExtArgs>[]
     proofOfDelivery: Prisma.$LogisticsProofOfDeliveryPayload<ExtArgs> | null
     pickupRequests: Prisma.$LogisticsPickupRequestPayload<ExtArgs>[]
+    manualCarrierBookings: Prisma.$SellerManualCarrierBookingPayload<ExtArgs>[]
     manifestEntries: Prisma.$LogisticsDispatchManifestEntryPayload<ExtArgs>[]
     driverAssignments: Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>[]
     trips: Prisma.$LogisticsActiveTripPayload<ExtArgs>[]
@@ -12612,6 +13089,7 @@ export interface Prisma__LogisticsShipmentClient<T, Null = never, ExtArgs extend
   documents<T extends Prisma.LogisticsShipment$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   proofOfDelivery<T extends Prisma.LogisticsShipment$proofOfDeliveryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$proofOfDeliveryArgs<ExtArgs>>): Prisma.Prisma__LogisticsProofOfDeliveryClient<runtime.Types.Result.GetResult<Prisma.$LogisticsProofOfDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   pickupRequests<T extends Prisma.LogisticsShipment$pickupRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$pickupRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsPickupRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  manualCarrierBookings<T extends Prisma.LogisticsShipment$manualCarrierBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$manualCarrierBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerManualCarrierBookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   manifestEntries<T extends Prisma.LogisticsShipment$manifestEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$manifestEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsDispatchManifestEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   driverAssignments<T extends Prisma.LogisticsShipment$driverAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$driverAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trips<T extends Prisma.LogisticsShipment$tripsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipment$tripsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsActiveTripPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13441,6 +13919,30 @@ export type LogisticsShipment$pickupRequestsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.LogisticsPickupRequestScalarFieldEnum | Prisma.LogisticsPickupRequestScalarFieldEnum[]
+}
+
+/**
+ * LogisticsShipment.manualCarrierBookings
+ */
+export type LogisticsShipment$manualCarrierBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerManualCarrierBooking
+   */
+  select?: Prisma.SellerManualCarrierBookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerManualCarrierBooking
+   */
+  omit?: Prisma.SellerManualCarrierBookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerManualCarrierBookingInclude<ExtArgs> | null
+  where?: Prisma.SellerManualCarrierBookingWhereInput
+  orderBy?: Prisma.SellerManualCarrierBookingOrderByWithRelationInput | Prisma.SellerManualCarrierBookingOrderByWithRelationInput[]
+  cursor?: Prisma.SellerManualCarrierBookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerManualCarrierBookingScalarFieldEnum | Prisma.SellerManualCarrierBookingScalarFieldEnum[]
 }
 
 /**

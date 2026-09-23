@@ -66,6 +66,10 @@ import { recordLogisticsAudit } from './audit.service.js';
 // would close the loop. See the header of `driver-assignment.service.ts`.
 import { completeDriverAssignmentsFor } from './driver-assignment.service.js';
 import { notifyShipmentEvent } from './notification.service.js';
+import {
+  NotificationEvent,
+  enqueueNotification,
+} from '../notifications/notification.service.js';
 
 /**
  * The two ways a concurrent insert of the same key can fail.
@@ -517,6 +521,7 @@ async function attemptShipmentEvent(
       eventId: result.eventId,
     });
     await syncOperationsAlert(result.shipmentId, result.status);
+    await tellTheBuyer(result.shipmentId, result.status);
 
     return {
       eventId: result.eventId,
@@ -763,6 +768,86 @@ async function allDeliveredFor(orderId: string): Promise<boolean> {
   return outstanding === 0;
 }
 
+/**
+ * Tell the buyer a consignment reached a milestone they care about.
+ *
+ * Four milestones, no more: a buyer does not need an email per hub scan. The
+ * dedupe key is the consignment and the milestone, so a carrier reporting
+ * IN_TRANSIT six times sends one email, and a redelivered webhook sends none.
+ * The carrier named is the company whose van it is; a driver's name and the
+ * carrier's internal notes never appear.
+ *
+ * After the commit and never throwing, like every consequence here.
+ */
+async function tellTheBuyer(shipmentId: string, status: ShipmentStatusName): Promise<void> {
+  const eventKey =
+    status === 'PICKED_UP'
+      ? NotificationEvent.SHIPMENT_PICKED_UP
+      : status === 'IN_TRANSIT'
+        ? NotificationEvent.SHIPMENT_IN_TRANSIT
+        : status === 'OUT_FOR_DELIVERY'
+          ? NotificationEvent.SHIPMENT_OUT_FOR_DELIVERY
+          : status === 'DELIVERED'
+            ? NotificationEvent.SHIPMENT_DELIVERED
+            : null;
+
+  if (eventKey === null) return;
+
+  try {
+    const shipment = await prisma.logisticsShipment.findUnique({
+      where: { id: shipmentId },
+      select: {
+        shipmentReference: true,
+        orderId: true,
+        carrierTrackingNumber: true,
+        assignedPartner: { select: { displayName: true } },
+        manualCarrierBookings: {
+          where: { activeShipmentId: { not: null } },
+          select: { provider: true },
+        },
+        order: {
+          select: {
+            orderNumber: true,
+            customerProfile: { select: { fullName: true, user: { select: { email: true } } } },
+            _count: { select: { logisticsShipments: true } },
+          },
+        },
+      },
+    });
+
+    if (shipment === null || shipment.order === null || shipment.orderId === null) return;
+
+    // One consignment: the order's own "shipped" email already said this.
+    if (status === 'PICKED_UP' && shipment.order._count.logisticsShipments <= 1) return;
+
+    const provider = shipment.manualCarrierBookings[0]?.provider;
+    const carrier =
+      shipment.assignedPartner?.displayName ??
+      (provider === 'DHL' ? 'DHL' : provider === 'FEDEX' ? 'FedEx' : provider === 'INDIA_POST' ? 'India Post' : 'the carrier');
+
+    await enqueueNotification({
+      eventKey,
+      recipientEmail: shipment.order.customerProfile.user.email,
+      recipientName: shipment.order.customerProfile.fullName,
+      variables: {
+        orderNumber: shipment.order.orderNumber,
+        shipmentReference: shipment.shipmentReference,
+        carrier,
+        trackingLine:
+          shipment.carrierTrackingNumber === null
+            ? ''
+            : `${carrier} tracking number: ${shipment.carrierTrackingNumber}\n\n`,
+        orderUrl: `/orders/${shipment.orderId}`,
+      },
+      dedupeKey: `consignment:${shipmentId}:${status}`,
+      relatedType: 'logistics_shipment',
+      relatedId: shipmentId,
+    });
+  } catch (error) {
+    logger.warn({ err: error, shipmentId, status }, 'could not tell the buyer about a consignment milestone');
+  }
+}
+
 function sourceLabel(source: LogisticsEventSource): string {
   switch (source) {
     case 'LOGISTICS_PORTAL':
@@ -777,6 +862,8 @@ function sourceLabel(source: LogisticsEventSource): string {
       return 'Carrier webhook';
     case 'SYSTEM_AUTOMATION':
       return 'Automatic';
+    case 'SELLER_PORTAL':
+      return 'Seller (entered by hand)';
   }
 }
 

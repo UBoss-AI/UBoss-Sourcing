@@ -1027,7 +1027,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
    */
   app.put(
     '/fulfilment/connections/:connectionId/credentials',
-    { preHandler: requireSeller(SellerPermission.CARRIER_CREDENTIAL_WRITE) },
+    {
+      preHandler: requireSeller(SellerPermission.CARRIER_CREDENTIAL_WRITE),
+      config: { rateLimit: { max: 20, timeWindow: '1 hour' } },
+    },
     async (request, reply) => {
       const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
       const body = z
@@ -1060,7 +1063,13 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
    */
   app.post(
     '/fulfilment/connections/:connectionId/test',
-    { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
+    {
+      preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE),
+      // Every test is a real call to the carrier, against the seller's own
+      // API quota. Ten an hour is plenty for a person fixing a typo and too
+      // few to hammer DHL with somebody else's session.
+      config: { rateLimit: { max: 10, timeWindow: '1 hour' } },
+    },
     async (request, reply) => {
       const params = z.object({ connectionId: z.string().length(26) }).parse(request.params);
       const seller = currentSeller(request);
