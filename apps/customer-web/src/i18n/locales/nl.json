@@ -4247,6 +4247,8 @@
   "bulkSavings.overStock_other": "De verkoper heeft {{stock}} stuks op voorraad. Hebt u er meer nodig, vraag de verkoper dan om ze via een voorbestelling te maken.",
   "bulkSavings.addMore_one": "Voeg nog {{more}} stuk toe om {{price}} per stuk te betalen, waarmee u {{saving}} per stuk bespaart.",
   "bulkSavings.addMore_other": "Voeg nog {{more}} stuks toe om {{price}} per stuk te betalen, waarmee u {{saving}} per stuk bespaart.",
+  "bulkSavings.appliedAndNextSaving_one": "Bij deze hoeveelheid betaalt u {{price}} per stuk ({{percent}} korting). Voeg {{more}} extra stuk toe en bespaar nog eens {{saving}} per stuk.",
+  "bulkSavings.appliedAndNextSaving_other": "Bij deze hoeveelheid betaalt u {{price}} per stuk ({{percent}} korting). Voeg nog {{more}} stuks toe en bespaar nog eens {{saving}} per stuk.",
   "bulkSavings.saving": "Bij deze hoeveelheid bespaart u {{percent}} ({{amount}}).",
   "bulkSavings.cheaperInBulk": "Een stuk is goedkoper wanneer u een grotere verpakking koopt.",
   "bulkSavings.approximate": "Ongeveer {{price}} elk in uw valuta. De kosten worden in rekening gebracht in de valuta van de verkoper.",
@@ -4263,7 +4265,7 @@
   "bulkSavings.unit.CONTAINER": "Verpakking met {{pieces}}-stukken",
   "bulkSavings.preorderBand": "Bij voorbestelling van {{quantity}} stuks bedraagt de prijs {{price}} per stuk.",
   "cart.bandApplied": "Staffelprijs: {{percent}} lager dan de catalogusprijs van {{list}}",
-  "cart.bandNext": "Voeg {{more}} extra stuks toe; u betaalt dan {{price}} per stuk.",
+  "cart.bandNextSaving": "Voeg {{more}} meer stuks toe om {{price}} per stuk te betalen en bespaar {{saving}} per stuk.",
   "errors.quantityTiersInvalid": "Sommige hoeveelheidsprijzen zijn onderling tegenstrijdig of wijken af van de catalogusprijs. Elk probleem wordt bij de betreffende prijsklasse aangegeven.",
   "quantityTiers.title": "Prijzen per hoeveelheid",
   "quantityTiers.intro": "Rekent u minder per stuk bij grotere hoeveelheden. De catalogusprijs is {{price}} per stuk. Kopers zien deze prijzen op de productpagina en betalen ze in het winkelmandje.",
@@ -4301,7 +4303,5 @@
   "bulkSavings.checking_one": "Staffelprijzen voor {{quantity}} stuk worden gecontroleerd…",
   "bulkSavings.checking_other": "Staffelprijzen voor {{quantity}} stuks worden gecontroleerd…",
   "bulkSavings.noDiscount_one": "Voor dit product geldt nog geen kwantumkorting: {{quantity}} stuk à {{price}} komt op {{total}}.",
-  "bulkSavings.noDiscount_other": "Voor dit product geldt nog geen kwantumkorting: {{quantity}} stuks à {{price}} komen op {{total}}.",
-  "bulkSavings.appliedAndNext_one": "Bij deze hoeveelheid betaalt u {{price}} per stuk ({{percent}} korting). Voeg nog {{more}} stuk toe om {{nextPrice}} per stuk te betalen.",
-  "bulkSavings.appliedAndNext_other": "Bij deze hoeveelheid betaalt u {{price}} per stuk ({{percent}} korting). Voeg nog {{more}} stuks toe om {{nextPrice}} per stuk te betalen."
+  "bulkSavings.noDiscount_other": "Voor dit product geldt nog geen kwantumkorting: {{quantity}} stuks à {{price}} komen op {{total}}."
 }

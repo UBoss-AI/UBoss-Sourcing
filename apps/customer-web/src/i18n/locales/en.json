@@ -4247,6 +4247,8 @@
   "bulkSavings.overStock_other": "The seller has {{stock}} pieces in stock. For more, ask the seller to make them with a preorder.",
   "bulkSavings.addMore_one": "Add {{more}} more piece to pay {{price}} each, saving {{saving}} per piece.",
   "bulkSavings.addMore_other": "Add {{more}} more pieces to pay {{price}} each, saving {{saving}} per piece.",
+  "bulkSavings.appliedAndNextSaving_one": "At this quantity you pay {{price}} each ({{percent}} off). Add {{more}} more piece and save another {{saving}} per piece.",
+  "bulkSavings.appliedAndNextSaving_other": "At this quantity you pay {{price}} each ({{percent}} off). Add {{more}} more pieces and save another {{saving}} per piece.",
   "bulkSavings.saving": "You are saving {{percent}} ({{amount}}) at this quantity.",
   "bulkSavings.cheaperInBulk": "One piece costs less when you buy a larger pack.",
   "bulkSavings.approximate": "About {{price}} each in your currency. You are charged in the seller's currency.",
@@ -4263,7 +4265,7 @@
   "bulkSavings.unit.CONTAINER": "Container of {{pieces}} pieces",
   "bulkSavings.preorderBand": "By preorder, from {{quantity}} pieces the price is {{price}} each.",
   "cart.bandApplied": "Quantity price: {{percent}} less than the {{list}} list price",
-  "cart.bandNext": "Add {{more}} more pieces to pay {{price}} each.",
+  "cart.bandNextSaving": "Add {{more}} more pieces to pay {{price}} each and save {{saving}} per piece.",
   "errors.quantityTiersInvalid": "Some quantity prices contradict each other or the list price. Each problem is shown on its price band.",
   "quantityTiers.title": "Quantity prices",
   "quantityTiers.intro": "Charge less per piece for larger quantities. The list price is {{price}} per piece. Buyers see these prices on the product page and are charged them in the basket.",
@@ -4301,7 +4303,5 @@
   "bulkSavings.checking_one": "Checking bulk prices for {{quantity}} piece…",
   "bulkSavings.checking_other": "Checking bulk prices for {{quantity}} pieces…",
   "bulkSavings.noDiscount_one": "No bulk discount on this product yet: {{quantity}} piece at {{price}} comes to {{total}}.",
-  "bulkSavings.noDiscount_other": "No bulk discount on this product yet: {{quantity}} pieces at {{price}} each come to {{total}}.",
-  "bulkSavings.appliedAndNext_one": "At this quantity you pay {{price}} each ({{percent}} off). Add {{more}} more piece to pay {{nextPrice}} each.",
-  "bulkSavings.appliedAndNext_other": "At this quantity you pay {{price}} each ({{percent}} off). Add {{more}} more pieces to pay {{nextPrice}} each."
+  "bulkSavings.noDiscount_other": "No bulk discount on this product yet: {{quantity}} pieces at {{price}} each come to {{total}}."
 }

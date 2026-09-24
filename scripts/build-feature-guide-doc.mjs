@@ -476,6 +476,7 @@ bullets([
   'Some prices are only for business accounts, only for deliveries to certain countries, or only for a limited time. A customer only sees the prices that apply to them.',
   'A price shown in another currency is marked as approximate; the customer pays in the seller’s currency.',
   'Every time the customer raises the quantity, a small spinning galaxy appears under the quantity box for about a second while the new price is worked out, then turns into the card: the saving if there is one, or otherwise the price per piece and the total, with a note that this product has no bulk discount yet. Lowering the quantity goes straight to the figures.',
+  'The store’s own products get the same card once the store turns on quantity discounts (see “Quantity discounts” in the admin section). Raising the quantity on any of them then says, for example, “Add 6 more pieces to pay 97.00 each, saving 3.00 per piece”, and the basket charges that price.',
   'The card can be hidden, and stays hidden for that product until the customer closes the browser tab. It moves gently into view, and nothing moves at all for people who have asked their device to reduce motion.',
 ]);
 
@@ -1289,6 +1290,21 @@ bullets([
   'Create and manage coupons, code rules, validity periods and usage context.',
   'Maintain manufacturer/economic operator data used by catalogue and product compliance information.',
   'View coupon behaviour in cart/checkout while the server remains the authority for eligibility and final totals.',
+]);
+
+h2('8.10a Quantity discounts');
+p('Staff can offer “buy more, save more” on every product the store sells itself, with one short list of rules — for example 3% off from 10 pieces, and 5% off from 50. Buyers see the offer the moment they raise the quantity, and the basket charges it.');
+table(['Staff do', 'What the system does'], [
+  ['Add a rule: from how many pieces, and how much off', 'Shows straight away what that means on an item priced 1,000 — the new price per piece and the saving — and the sentence a buyer will read, such as “Add 9 more pieces and save 30.00 per piece”.'],
+  ['Pause a rule', 'Stops that discount without deleting it, so it can be switched back on later.'],
+  ['Save', 'Checks all the rules together. A rule must start at 2 pieces or more, take off between 0.01% and 90%, and a larger quantity can never save less than a smaller one. Each problem is shown under its rule. Every save is recorded in the audit log.'],
+], [4200, 5800]);
+bullets([
+  'It covers every product the store sells itself, in every currency. There is nothing to set per product.',
+  'It never changes a marketplace seller’s product. A seller is paid what their product sells for, so sellers set their own quantity prices instead.',
+  'Nothing is discounted until staff add a rule. With no rules, every quantity pays the normal price.',
+  'The saving is rounded down to the smallest coin, so a buyer promised 5% off is never charged more than 95% of the price.',
+  'Repeat orders get the same discount as the basket for the same quantity.',
 ]);
 note('Market rule', 'A product only appears to a customer market when it is published and has a real stored price for that market. The platform does not make up an exchange-rate price at browse time.', C.teal);
 page();

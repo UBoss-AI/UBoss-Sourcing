@@ -41,6 +41,7 @@
     "catalog:prices": "tsx src/modules/catalog/provisional-price/set-provisional-prices.cli.ts",
     "catalog:group": "tsx src/modules/catalog/group-root-categories.cli.ts",
     "seed:demo-catalog": "tsx src/modules/catalog/demo-catalog/seed-demo-catalog.cli.ts",
+    "seed:demo-quantity-tiers": "tsx src/seed/demo-quantity-tiers.cli.ts",
     "variants:audit": "tsx src/modules/catalog/variant-audit.cli.ts",
     "variants:demo": "tsx scripts/demo-variants.ts",
     "marketplace:sync": "tsx src/modules/catalog/marketplace-price.cli.ts"

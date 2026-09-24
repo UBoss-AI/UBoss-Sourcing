@@ -24,6 +24,11 @@ import {
   type CouponWriteInput,
 } from '../../modules/coupons/coupon.service.js';
 import { notFound } from '../../domain/errors.js';
+import {
+  readStoreDiscounts,
+  saveStoreDiscounts,
+  storeDiscountsInputSchema,
+} from '../../modules/catalog/store-discount.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 /** Minor units arrive as a digit string; a JSON number has already lost precision. */
@@ -259,6 +264,39 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
       });
 
       return reply.status(204).send();
+    },
+  );
+
+  /*
+   * Store-wide quantity discounts: "from 50 pieces, 5% off" on every product
+   * the operator sells itself. Under the coupon permissions because it is the
+   * same kind of decision - a discount the store funds - made by the same
+   * people. Replaced as a set; see `store-discount.service.ts`.
+   */
+  app.get(
+    '/quantity-discounts',
+    { preHandler: requireAdmin(Permission.COUPON_READ) },
+    async (_request, reply) => {
+      return reply.status(200).send(await readStoreDiscounts());
+    },
+  );
+
+  app.put(
+    '/quantity-discounts',
+    { preHandler: requireAdmin(Permission.COUPON_WRITE) },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const body = storeDiscountsInputSchema.parse(request.body);
+      const saved = await saveStoreDiscounts(
+        {
+          userId: auth.id,
+          email: auth.email,
+          ipAddress: request.ip,
+          correlationId: request.correlationId ?? null,
+        },
+        body,
+      );
+      return reply.status(200).send(saved);
     },
   );
 

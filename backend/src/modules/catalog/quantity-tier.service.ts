@@ -70,6 +70,8 @@ export function isBusinessBuyer(
 /** What an order line freezes about the band that priced it. */
 export interface QuantityTierSnapshot {
   tierId: string;
+  /** A seller's own band, or the operator's store-wide quantity discount. */
+  source: 'SELLER' | 'STORE';
   minQuantity: number;
   maxQuantity: number | null;
   listUnitPriceMinor: string;
@@ -77,9 +79,14 @@ export interface QuantityTierSnapshot {
   businessBuyersOnly: boolean;
 }
 
-export function snapshotTier(tier: QuantityTier, listUnitPriceMinor: bigint): QuantityTierSnapshot {
+export function snapshotTier(
+  tier: QuantityTier,
+  listUnitPriceMinor: bigint,
+  source: QuantityTierSnapshot['source'] = 'SELLER',
+): QuantityTierSnapshot {
   return {
     tierId: tier.id,
+    source,
     minQuantity: tier.minQuantity,
     maxQuantity: tier.maxQuantity,
     listUnitPriceMinor: listUnitPriceMinor.toString(),

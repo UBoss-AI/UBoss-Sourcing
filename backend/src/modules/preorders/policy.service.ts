@@ -9,6 +9,7 @@
  */
 import type { QuantityTier } from '../../domain/quantity-tier.js';
 import { TIER_SELECT, toQuantityTier } from '../catalog/quantity-tier.service.js';
+import { storeTiersFor } from '../catalog/store-discount.service.js';
 import { z } from 'zod';
 
 import { env } from '../../config/env.js';
@@ -366,6 +367,7 @@ async function operatorEligibility(input: {
     }
   }
 
+  const operatorPriceMinor = variant?.priceMinor ?? product.basePriceMinor;
   const offer: EligibilityOffer = {
     id: null,
     sellerAccountId: null,
@@ -373,14 +375,16 @@ async function operatorEligibility(input: {
     variantId: variant?.id ?? null,
     variantKey: variant?.id ?? '',
     status: 'ACTIVE',
-    priceMinor: variant?.priceMinor ?? product.basePriceMinor,
+    priceMinor: operatorPriceMinor,
     currency: product.currency,
     handlingTimeDays: null,
     availableQuantity: available,
     sellerDisplayName: business?.displayName ?? 'The store',
     sellerStatus: 'APPROVED',
     sellingRegions: [],
-    quantityTiers: [],
+    // The operator's own product is banded by the store-wide quantity
+    // discounts, if the operator runs any. See `StoreQuantityDiscount`.
+    quantityTiers: await storeTiersFor(operatorPriceMinor),
   };
 
   if (product.status !== 'ACTIVE' || !product.isPublished || product.archivedAt !== null) {

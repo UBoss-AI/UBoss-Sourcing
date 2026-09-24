@@ -471,9 +471,10 @@ function LineRow({
                 ? ` ${t('cart.taxIncludedNote')}`
                 : ` ${t('cart.plusTaxRate', { rate: line.taxRatePercent })}`}
             </span>
-            {/* The seller's quantity band: what this quantity saves, and what
-                a few more would. Both figures are the server's, from the same
-                function that priced the line. */}
+            {/* The quantity band - the seller's own, or the store-wide
+                quantity discount on the store's own products: what this
+                quantity saves, and what a few more would. Both figures are the
+                server's, from the same function that priced the line. */}
             {line.quantityTier != null && (
               <span className="mt-0.5 block text-xxs font-medium text-success">
                 {t('cart.bandApplied', {
@@ -484,9 +485,10 @@ function LineRow({
             )}
             {line.nextQuantityTier != null && (
               <span className="mt-0.5 block text-xxs text-ink-muted">
-                {t('cart.bandNext', {
+                {t('cart.bandNextSaving', {
                   more: formatNumber(line.nextQuantityTier.addQuantity),
                   price: formatMoney(line.nextQuantityTier.unitPrice),
+                  saving: formatMoney(line.nextQuantityTier.savingPerPiece),
                 })}
               </span>
             )}

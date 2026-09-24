@@ -4247,6 +4247,8 @@
   "bulkSavings.overStock_other": "Der Verkäufer hat {{stock}} Stück auf Lager. Für mehr bitten Sie den Verkäufer, sie per Vorbestellung zu fertigen.",
   "bulkSavings.addMore_one": "Fügen Sie {{more}} weiteres Stück hinzu, dann zahlen Sie {{price}} pro Stück und sparen {{saving}} pro Stück.",
   "bulkSavings.addMore_other": "Fügen Sie {{more}} weitere Stück hinzu, dann zahlen Sie {{price}} pro Stück und sparen {{saving}} pro Stück.",
+  "bulkSavings.appliedAndNextSaving_one": "Bei dieser Menge zahlen Sie jeweils {{price}} ({{percent}} Rabatt). Fügen Sie {{more}} weiteres Stück hinzu und sparen Sie weitere {{saving}} pro Stück.",
+  "bulkSavings.appliedAndNextSaving_other": "Bei dieser Stückzahl zahlen Sie jeweils {{price}} ({{percent}} Rabatt). Fügen Sie {{more}} weitere Artikel hinzu und sparen Sie zusätzlich {{saving}} pro Stück.",
   "bulkSavings.saving": "Bei dieser Bestellmenge sparen Sie {{percent}} ({{amount}}).",
   "bulkSavings.cheaperInBulk": "Ein Stück kostet weniger, wenn Sie eine größere Packung kaufen.",
   "bulkSavings.approximate": "Etwa {{price}} jeweils in Ihrer Währung. Die Abrechnung erfolgt in der Währung des Verkäufers.",
@@ -4263,7 +4265,7 @@
   "bulkSavings.unit.CONTAINER": "Behälter mit {{pieces}}-Stücken",
   "bulkSavings.preorderBand": "Bei Vorbestellung von {{quantity}} Stück beträgt der Preis jeweils {{price}}.",
   "cart.bandApplied": "Mengenpreis: {{percent}} unter dem Listenpreis von {{list}}",
-  "cart.bandNext": "Fügen Sie „{{more}}“ weitere Exemplare hinzu, um jeweils „{{price}}“ zu zahlen.",
+  "cart.bandNextSaving": "Fügen Sie {{more}} weitere Artikel hinzu, zahlen Sie jeweils {{price}} und sparen Sie {{saving}} pro Artikel.",
   "errors.quantityTiersInvalid": "Einige Mengenpreise widersprechen einander oder weichen vom Listenpreis ab. Jeder Fehler ist in der jeweiligen Preisklasse ausgewiesen.",
   "quantityTiers.title": "Mengenpreise",
   "quantityTiers.intro": "Bei größeren Mengen berechnen Sie einen geringeren Stückpreis. Der Listenpreis beträgt {{price}} pro Stück. Die Käufer sehen diese Preise auf der Produktseite und sie werden ihnen im Warenkorb in Rechnung gestellt.",
@@ -4301,7 +4303,5 @@
   "bulkSavings.checking_one": "Mengenpreise für {{quantity}} Stück werden geprüft…",
   "bulkSavings.checking_other": "Mengenpreise für {{quantity}} Stück werden geprüft…",
   "bulkSavings.noDiscount_one": "Für dieses Produkt gibt es noch keinen Mengenrabatt: {{quantity}} Stück zu {{price}} kostet {{total}}.",
-  "bulkSavings.noDiscount_other": "Für dieses Produkt gibt es noch keinen Mengenrabatt: {{quantity}} Stück zu je {{price}} kosten insgesamt {{total}}.",
-  "bulkSavings.appliedAndNext_one": "Bei dieser Stückzahl zahlen Sie {{price}} pro Stück ({{percent}} Rabatt). Fügen Sie {{more}} weiteres Stück hinzu, um {{nextPrice}} pro Stück zu zahlen.",
-  "bulkSavings.appliedAndNext_other": "Bei dieser Stückzahl zahlen Sie {{price}} pro Stück ({{percent}} Rabatt). Fügen Sie {{more}} weitere Stück hinzu, um {{nextPrice}} pro Stück zu zahlen."
+  "bulkSavings.noDiscount_other": "Für dieses Produkt gibt es noch keinen Mengenrabatt: {{quantity}} Stück zu je {{price}} kosten insgesamt {{total}}."
 }

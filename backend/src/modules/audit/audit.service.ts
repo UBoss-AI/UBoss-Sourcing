@@ -67,6 +67,8 @@ export const AuditAction = {
   COUPON_CREATED: 'coupon.created',
   COUPON_UPDATED: 'coupon.updated',
   COUPON_ARCHIVED: 'coupon.archived',
+  /// The store-wide quantity discounts were replaced as a set.
+  STORE_QUANTITY_DISCOUNTS_SAVED: 'store_quantity_discounts.saved',
 
   // Inventory
   INVENTORY_RECEIVED: 'inventory.received',

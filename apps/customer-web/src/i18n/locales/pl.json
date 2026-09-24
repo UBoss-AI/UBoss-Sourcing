@@ -4385,6 +4385,10 @@
   "bulkSavings.addMore_few": "Proszę dodać jeszcze {{more}} sztuki, aby płacić {{price}} za sztukę i oszczędzać {{saving}} na każdej.",
   "bulkSavings.addMore_many": "Proszę dodać jeszcze {{more}} sztuk, aby płacić {{price}} za sztukę i oszczędzać {{saving}} na każdej.",
   "bulkSavings.addMore_other": "Proszę dodać jeszcze {{more}} sztuki, aby płacić {{price}} za sztukę i oszczędzać {{saving}} na każdej.",
+  "bulkSavings.appliedAndNextSaving_one": "Przy tej ilości zapłacą Państwo {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztukę, aby zaoszczędzić kolejne {{saving}} na każdej sztuce.",
+  "bulkSavings.appliedAndNextSaving_few": "Przy tej ilości zapłacą Państwo {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuki, aby zaoszczędzić kolejne {{saving}} na każdej sztuce.",
+  "bulkSavings.appliedAndNextSaving_many": "Przy tej ilości zapłacą Państwo {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuk, aby zaoszczędzić kolejne {{saving}} na każdej sztuce.",
+  "bulkSavings.appliedAndNextSaving_other": "Przy tej ilości zapłacą Państwo {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuki, aby zaoszczędzić kolejne {{saving}} na każdej sztuce.",
   "bulkSavings.saving": "Przy tej ilości oszczędzają Państwo {{percent}} ({{amount}}).",
   "bulkSavings.cheaperInBulk": "Kupując większe opakowanie, cena jednej sztuki jest niższa.",
   "bulkSavings.approximate": "Około {{price}} w Państwa walucie. Opłata zostanie naliczona w walucie sprzedawcy.",
@@ -4401,7 +4405,7 @@
   "bulkSavings.unit.CONTAINER": "Opakowanie zawierające {{pieces}} sztuk",
   "bulkSavings.preorderBand": "W ramach przedsprzedaży, od {{quantity}} sztuk cena wynosi {{price}} za sztukę.",
   "cart.bandApplied": "Cena za ilość: {{percent}} mniej niż cena katalogowa {{list}}",
-  "cart.bandNext": "Dodaj {{more}} kolejne sztuki, a za każdą z nich zapłacą Państwo {{price}}.",
+  "cart.bandNextSaving": "Proszę dodać jeszcze {{more}} szt., aby płacić {{price}} za sztukę i zaoszczędzić {{saving}} na każdej sztuce.",
   "errors.quantityTiersInvalid": "Niektóre ceny przy określonych ilościach są sprzeczne między sobą lub z ceną katalogową. Każdy taki przypadek jest zaznaczony w odpowiednim przedziale cenowym.",
   "quantityTiers.title": "Ceny w zależności od ilości",
   "quantityTiers.intro": "W przypadku większych ilości cena za sztukę jest niższa. Cena katalogowa wynosi {{price}} za sztukę. Kupujący widzą te ceny na stronie produktu, a kwoty te są naliczane w koszyku.",
@@ -4443,9 +4447,5 @@
   "bulkSavings.noDiscount_one": "Ten produkt nie ma jeszcze rabatu hurtowego: {{quantity}} sztuka po {{price}} kosztuje łącznie {{total}}.",
   "bulkSavings.noDiscount_few": "Ten produkt nie ma jeszcze rabatu hurtowego: {{quantity}} sztuki po {{price}} kosztują łącznie {{total}}.",
   "bulkSavings.noDiscount_many": "Ten produkt nie ma jeszcze rabatu hurtowego: {{quantity}} sztuk po {{price}} kosztuje łącznie {{total}}.",
-  "bulkSavings.noDiscount_other": "Ten produkt nie ma jeszcze rabatu hurtowego: {{quantity}} sztuki po {{price}} kosztują łącznie {{total}}.",
-  "bulkSavings.appliedAndNext_one": "Przy tej ilości cena wynosi {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztukę, aby cena wyniosła {{nextPrice}} za sztukę.",
-  "bulkSavings.appliedAndNext_few": "Przy tej ilości cena wynosi {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuki, aby cena wyniosła {{nextPrice}} za sztukę.",
-  "bulkSavings.appliedAndNext_many": "Przy tej ilości cena wynosi {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuk, aby cena wyniosła {{nextPrice}} za sztukę.",
-  "bulkSavings.appliedAndNext_other": "Przy tej ilości cena wynosi {{price}} za sztukę (rabat {{percent}}). Proszę dodać jeszcze {{more}} sztuki, aby cena wyniosła {{nextPrice}} za sztukę."
+  "bulkSavings.noDiscount_other": "Ten produkt nie ma jeszcze rabatu hurtowego: {{quantity}} sztuki po {{price}} kosztują łącznie {{total}}."
 }

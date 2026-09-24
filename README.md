@@ -212,6 +212,7 @@ npm run db:studio        # browse the database
 npm run db:seed          # restore or update the sample data
 npm run db:reference     # currencies and countries; idempotent
 npm run seed:demo-catalog # a demonstration catalogue: every department, every shelf
+npm run seed:demo-quantity-tiers # mock quantity prices on every seller listing (-- --undo removes them)
 npm run db:reset         # wipe and re-migrate (development only)
 npm run openapi:export   # regenerate openapi.json from the live route table
 npm run test:watch       # tests in watch mode
@@ -2267,6 +2268,44 @@ listing may have up to 20.
   (`order_items.quantityTierJson`), so a band changed later never rewrites what
   an order says it cost.
 
+### The store's own products: store-wide quantity discounts
+
+Seller bands cover sellers' listings. For the products **your store sells
+itself**, set one ladder at *Admin console → Catalogue → Quantity discounts*:
+*from 10 pieces, 3% off; from 50, 5% off*. It applies to every one of your own
+products, in every currency, through the same `priceForQuantity` — so raising
+the quantity on any of them shows "Add 6 more pieces to pay ₹97.00 each,
+saving ₹3.00 per piece", and the basket charges exactly that.
+
+- Off until you add a rule. Pause a rule without deleting it.
+- A rule starts at 2 pieces or more, takes 0.01%–90% off, and a larger
+  quantity can never take off less. Up to 10 rules.
+- The discount is rounded **down** to the smallest coin, so "5% off" never
+  charges more than 95%.
+- **Never applied to a marketplace seller's product.** A seller is paid what
+  their line sells for, so they set their own quantity prices instead.
+- Needs the `coupon.read` / `coupon.write` permissions, like coupons. Each
+  save is in the audit log.
+
+### Mock quantity prices for a demonstration
+
+A marketplace fresh from its imports has hundreds of seller listings and almost
+none with quantity prices, so the bulk-savings card has nothing to offer. One
+command gives every **active seller listing that has no bands of its own** a
+small ladder, written as that seller's own bands: 3% off from 10 pieces, 5% from
+50 and 8% from 100.
+
+```powershell
+cd backend
+npm run seed:demo-quantity-tiers             # add
+npm run seed:demo-quantity-tiers -- --undo   # remove them again
+```
+
+A listing that already has bands is never touched, and `--undo` removes a set
+only while it is still exactly the mock ladder, so a seller's own edits
+survive. It refuses to run with `NODE_ENV=production`: on a live marketplace a
+seller's prices are the seller's.
+
 A band prices a **loose** line. A carton, pallet or container line already has
 the seller's own package price and is not discounted twice.
 
@@ -2857,7 +2896,9 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   last of a month cannot both succeed. Every status change goes through
   `assertPreorderTransition`.
 - **A quantity band is applied by `priceForQuantity` and nothing else.** The
-  basket, the checkout, a preorder and the product page's popover all call it,
+  basket, the checkout, a preorder, a scheduled order and the product page's
+  popover all call it (the store-wide quantity discounts on the store's own
+  products become bands too, and never touch a seller's product),
   a band can never make a line dearer than list, and the band that priced a
   line is frozen onto the order item.
 - **An issued seller invoice is never edited.** Its number comes from a

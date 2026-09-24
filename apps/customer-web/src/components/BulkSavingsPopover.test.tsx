@@ -146,7 +146,7 @@ describe('BulkSavingsPopover', () => {
 
     expect(
       await screen.findByText(
-        'At this quantity you pay ₹9.50 each (5% off). Add 20 more pieces to pay ₹9.20 each.',
+        'At this quantity you pay ₹9.50 each (5% off). Add 20 more pieces and save another ₹0.30 per piece.',
       ),
     ).toBeInTheDocument();
     expect(screen.getByText('Carton of 50 pieces')).toBeInTheDocument();

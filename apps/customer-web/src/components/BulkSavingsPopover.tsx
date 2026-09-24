@@ -159,12 +159,12 @@ export function BulkSavingsPopover({
     }
     if (pricing.next !== null && pricing.current.savingBasisPoints > 0) {
       // A band already applies AND a better one is in reach: say both.
-      return t('bulkSavings.appliedAndNext', {
+      return t('bulkSavings.appliedAndNextSaving', {
         count: pricing.next.addQuantity,
         price: formatMoney(pricing.current.unitPrice),
         percent: formatBasisPoints(pricing.current.savingBasisPoints, intlLocale),
         more: pricing.next.addQuantity.toLocaleString(intlLocale),
-        nextPrice: formatMoney(pricing.next.unitPrice),
+        saving: formatMoney(pricing.next.savingPerPiece),
       });
     }
     if (pricing.next !== null) {

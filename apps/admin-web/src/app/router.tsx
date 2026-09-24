@@ -103,6 +103,13 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        path: 'quantity-discounts',
+        ...lazyRoute(
+          () => import('@/pages/QuantityDiscountsPage').then((m) => m.QuantityDiscountsPage),
+          [Permission.COUPON_READ],
+        ),
+      },
+      {
         path: 'inventory',
         ...lazyRoute(() => import('@/pages/InventoryPage').then((m) => m.InventoryPage), [
           Permission.INVENTORY_READ,

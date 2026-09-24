@@ -1310,6 +1310,11 @@ export const ErrorCode = {
   /// The seller's quantity bands contradict themselves or the list price. The
   /// details name each band by index and what is wrong (`domain/quantity-tier.ts`).
   QUANTITY_TIERS_INVALID: 'QUANTITY_TIERS_INVALID',
+
+  /// The store-wide quantity discounts contradict themselves: a start below two
+  /// pieces, a discount outside 0.01%-90%, a repeated start, or a larger quantity
+  /// taking off less. The details name each rule by index and what is wrong.
+  STORE_QUANTITY_DISCOUNTS_INVALID: 'STORE_QUANTITY_DISCOUNTS_INVALID',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

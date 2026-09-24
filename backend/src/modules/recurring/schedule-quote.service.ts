@@ -31,6 +31,8 @@
 import { env } from '../../config/env.js';
 import { ErrorCode } from '../../domain/errors.js';
 import { serialiseMoney, type Minor } from '../../domain/money.js';
+import { priceForQuantity, storeDiscountTiers, type TierBuyer } from '../../domain/quantity-tier.js';
+import { loadStoreDiscounts } from '../catalog/store-discount.service.js';
 import { SELLING_UNIT, cartonsForPieces, type OrderingUnit } from '../../domain/ordering-unit.js';
 import {
   assertTotalsConsistent,
@@ -252,6 +254,12 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
     input.inventoryLocationId ?? undefined,
   );
 
+  // The store-wide quantity discounts, read once. A plan for 100 pieces a
+  // month gets the band 100 pieces gets in the basket - through
+  // `priceForQuantity`, the function the basket uses.
+  const storeDiscounts = await loadStoreDiscounts();
+  const bandBuyer: TierBuyer = { now: new Date(), isBusinessBuyer: false, country: null, channel: 'BASKET' };
+
   const pricingInputs: PricingLineInput[] = [];
   const lineMeta: {
     availableQty: number | null;
@@ -282,7 +290,12 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
         taxInclusive: line.taxInclusive,
         productName: line.name,
       },
-      price.basePriceMinor,
+      priceForQuantity(
+        price.basePriceMinor,
+        storeDiscountTiers(price.basePriceMinor, storeDiscounts),
+        line.quantity,
+        bandBuyer,
+      ).unitPriceMinor,
     );
 
     if (lineTax.problem !== null) {

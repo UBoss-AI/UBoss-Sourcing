@@ -237,3 +237,121 @@ export function validateTiers(
   }
   return problems;
 }
+
+// ---------------------------------------------------------------------------
+// Store-wide quantity discounts, on the operator's own products
+// ---------------------------------------------------------------------------
+
+/**
+ * "From 50 pieces, 5% off", set once by the operator for every product it
+ * sells itself.
+ *
+ * A percentage rather than a price, because one rule covers every product and
+ * every currency. It becomes an ordinary band here, and from then on it is
+ * priced by `priceForQuantity` like any other - so the popover, the basket and
+ * the checkout still agree through one function.
+ *
+ * Never applied to a seller's offer. A seller is paid what their line sells
+ * for, and a discount they did not choose would come out of their pocket; a
+ * seller sets their own bands instead.
+ */
+export interface StoreQuantityDiscount {
+  id: string;
+  minQuantity: number;
+  /** 1% = 100. */
+  discountBasisPoints: number;
+  isActive: boolean;
+}
+
+/** 90% off is the most a store-wide rule may give. More is a typo, not an offer. */
+export const MAX_STORE_DISCOUNT_BASIS_POINTS = 9_000;
+export const MAX_STORE_DISCOUNTS = 10;
+
+/**
+ * The store-wide discounts as bands on one list price.
+ *
+ * The discount is rounded DOWN to the minor unit, so the buyer is never told
+ * "5% off" and charged more than 95%. A rule too small to take a whole paisa
+ * off this price is left out rather than shown as a saving of nothing.
+ */
+export function storeDiscountTiers(
+  listPriceMinor: bigint,
+  discounts: readonly StoreQuantityDiscount[],
+): QuantityTier[] {
+  if (listPriceMinor <= 0n) return [];
+  const tiers: QuantityTier[] = [];
+  for (const discount of discounts) {
+    if (!discount.isActive || discount.discountBasisPoints <= 0) continue;
+    const off = (listPriceMinor * BigInt(discount.discountBasisPoints)) / 10_000n;
+    if (off <= 0n || off >= listPriceMinor) continue;
+    tiers.push({
+      id: discount.id,
+      minQuantity: discount.minQuantity,
+      maxQuantity: null,
+      priceMinor: listPriceMinor - off,
+      isActive: true,
+      startsAt: null,
+      endsAt: null,
+      businessBuyersOnly: false,
+      countryCodes: null,
+      preorderOnly: false,
+    });
+  }
+  return tiers;
+}
+
+export interface StoreDiscountProblem {
+  /** Index into the submitted list; -1 for the list as a whole. */
+  index: number;
+  code:
+    | 'MIN_TOO_LOW'
+    | 'DISCOUNT_OUT_OF_RANGE'
+    | 'DUPLICATE_MINIMUM'
+    | 'DISCOUNT_NOT_INCREASING'
+    | 'TOO_MANY';
+  otherIndex?: number;
+}
+
+/**
+ * Everything wrong with a proposed set of store-wide discounts.
+ *
+ * A larger quantity may never take off less than a smaller one: "buy more,
+ * save more" is the whole promise, and a ladder that dips would tell a buyer
+ * adding pieces that they are about to pay more for each.
+ */
+export function validateStoreDiscounts(
+  discounts: readonly StoreQuantityDiscount[],
+): StoreDiscountProblem[] {
+  const problems: StoreDiscountProblem[] = [];
+  if (discounts.length > MAX_STORE_DISCOUNTS) problems.push({ index: -1, code: 'TOO_MANY' });
+  const seen = new Map<number, number>();
+  discounts.forEach((discount, index) => {
+    // From one piece is not a quantity discount; it is a price cut.
+    if (!Number.isSafeInteger(discount.minQuantity) || discount.minQuantity < 2)
+      problems.push({ index, code: 'MIN_TOO_LOW' });
+    if (
+      !Number.isSafeInteger(discount.discountBasisPoints) ||
+      discount.discountBasisPoints < 1 ||
+      discount.discountBasisPoints > MAX_STORE_DISCOUNT_BASIS_POINTS
+    )
+      problems.push({ index, code: 'DISCOUNT_OUT_OF_RANGE' });
+    const earlier = seen.get(discount.minQuantity);
+    if (earlier !== undefined)
+      problems.push({ index, code: 'DUPLICATE_MINIMUM', otherIndex: earlier });
+    else seen.set(discount.minQuantity, index);
+  });
+  const active = discounts
+    .map((discount, index) => ({ discount, index }))
+    .filter(({ discount }) => discount.isActive)
+    .sort((a, b) => a.discount.minQuantity - b.discount.minQuantity);
+  for (let i = 1; i < active.length; i += 1) {
+    const low = active[i - 1];
+    const high = active[i];
+    if (low === undefined || high === undefined) continue;
+    if (low.discount.minQuantity === high.discount.minQuantity) continue;
+    if (high.discount.discountBasisPoints < low.discount.discountBasisPoints) {
+      problems.push({ index: high.index, code: 'DISCOUNT_NOT_INCREASING', otherIndex: low.index });
+    }
+  }
+  return problems;
+}

@@ -10192,6 +10192,66 @@ tooltip; no Aceternity or React Bits source is included (React Bits is MIT +
 Commons Clause; Aceternity forbids redistributing source; this product is
 redistributed to every operator).
 
+### Store-wide quantity discounts (the store's own products)
+
+Seller bands only ever covered sellers' listings, and the operator's own
+products had no quantity pricing at all (`evaluateEligibility` built their
+offer with `quantityTiers: []`). The operator can now set one ladder of
+percentage rules - "from 10 pieces, 3% off; from 50, 5% off" - that covers
+**every product the store sells itself**, in every currency.
+
+- **Table** `store_quantity_discounts` (migration
+  `20260925100000_store_quantity_discounts`): `minQuantity` (UNIQUE, CHECK
+  >= 2), `discountBasisPoints` (CHECK 1-9000, so 0.01%-90%), `isActive`. Empty
+  by default: a new or upgraded installation runs no store-wide discount.
+- **Applied as ordinary bands.** `storeDiscountTiers(listPriceMinor, rules)` in
+  `domain/quantity-tier.ts` turns each active rule into a band on that list
+  price, rounding the discount **down** to the minor unit (never "5% off" and
+  charged more than 95%); a rule too small to take a whole minor unit off is
+  left out. From there `priceForQuantity` / `nextSaving` price it like any
+  seller band, so the popover, the basket and checkout still agree.
+- **Where:** `resolveCart` (operator lines, on the price quoted in the cart's
+  currency - the rules are percentages, so FX-derived prices get them too),
+  `evaluateEligibility` (so `GET /catalog/bulk-pricing` and an operator
+  preorder's price get them), and `quoteSchedule` (a scheduled basket gets the
+  band its quantity gets in the basket).
+- **Never on a seller's offer.** A seller is paid what their line sells for,
+  so a discount they did not choose would come out of their settlement. Sellers
+  keep using their own bands.
+- The order item's `quantityTierJson` snapshot gained `source`:
+  `"SELLER"` or `"STORE"`.
+- **Validation** (`validateStoreDiscounts`), as a set: start >= 2 pieces,
+  discount 0.01%-90%, no repeated start, at most 10 rules, and among active
+  rules a larger quantity may never take off less.
+
+| Method and path | Who | What |
+|---|---|---|
+| `GET /admin/quantity-discounts` | Staff, `coupon.read` | `{ maxDiscountBasisPoints, baseCurrency, discounts: [{ id, minQuantity, discountBasisPoints, isActive }] }`. `baseCurrency` is only for the editor's worked example |
+| `PUT /admin/quantity-discounts` | Staff, `coupon.write` | Replace the set `{ discounts: [{ minQuantity, discountBasisPoints, isActive }] }` in one transaction, audited `store_quantity_discounts.saved` with before and after |
+
+New error code (appended): `STORE_QUANTITY_DISCOUNTS_INVALID`, details
+`{ field: "discounts.N", code, meta: { index, otherIndex } }` with codes
+MIN_TOO_LOW, DISCOUNT_OUT_OF_RANGE, DUPLICATE_MINIMUM,
+DISCOUNT_NOT_INCREASING, TOO_MANY.
+
+**Screens.** Admin console - *Catalogue → Quantity discounts*
+(`QuantityDiscountsPage`, beside Coupons, same permissions): the rules, a
+worked example on an item priced 1,000 in the base currency, and a preview of
+the sentence a buyer reads. Storefront - no new screen: the product page's
+bulk-savings card now has something to say on the store's own products ("Add
+6 more pieces to pay ₹97.00 each, saving ₹3.00 per piece"), and the basket line
+says "Add 38 more pieces to pay ₹95.00 each and save ₹2.00 per piece".
+
+### Mock seller bands for demonstrations
+
+`npm run seed:demo-quantity-tiers` (`src/seed/demo-quantity-tiers.cli.ts`)
+writes the ladder 3% / 5% / 8% off from 10 / 50 / 100 pieces as
+`seller_price_tiers` rows on every ACTIVE seller offer with no bands, using
+`storeDiscountTiers` for the rounding and `validateTiers` as the gate (an offer
+whose price is too small for every step is skipped). `-- --undo` deletes an
+offer's set only when it still equals the mock ladder for the offer's current
+price. Refuses `NODE_ENV=production`.
+
 ### Known limits
 
 The older listing writers (`offer.service.ts`, `offer-edit.service.ts`) still

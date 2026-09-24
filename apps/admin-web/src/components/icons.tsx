@@ -162,6 +162,17 @@ export function CouponsIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** Quantities rising while the price per piece falls: "buy more, save more". */
+export function QuantityDiscountIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4.6 20.4v-4.8M9.6 20.4v-8M14.6 20.4v-11.2M19.6 20.4v-14.4" />
+      <path d="M4 5.2l4.4 3 4-2.2 6.8 4.4" />
+      <path d="M16.6 10.6h2.8V7.8" />
+    </Icon>
+  );
+}
+
 export function OrdersIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

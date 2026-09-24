@@ -186,6 +186,7 @@ export const ModelName = {
   SellerListingIssue: 'SellerListingIssue',
   SellerOffer: 'SellerOffer',
   SellerPriceTier: 'SellerPriceTier',
+  StoreQuantityDiscount: 'StoreQuantityDiscount',
   SellerInventory: 'SellerInventory',
   SellerInventoryMovement: 'SellerInventoryMovement',
   SellerBulkImportJob: 'SellerBulkImportJob',
@@ -3191,6 +3192,18 @@ export const SellerPriceTierScalarFieldEnum = {
 } as const
 
 export type SellerPriceTierScalarFieldEnum = (typeof SellerPriceTierScalarFieldEnum)[keyof typeof SellerPriceTierScalarFieldEnum]
+
+
+export const StoreQuantityDiscountScalarFieldEnum = {
+  id: 'id',
+  minQuantity: 'minQuantity',
+  discountBasisPoints: 'discountBasisPoints',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StoreQuantityDiscountScalarFieldEnum = (typeof StoreQuantityDiscountScalarFieldEnum)[keyof typeof StoreQuantityDiscountScalarFieldEnum]
 
 
 export const SellerInventoryScalarFieldEnum = {
@@ -7431,6 +7444,13 @@ export const SellerPriceTierOrderByRelevanceFieldEnum = {
 } as const
 
 export type SellerPriceTierOrderByRelevanceFieldEnum = (typeof SellerPriceTierOrderByRelevanceFieldEnum)[keyof typeof SellerPriceTierOrderByRelevanceFieldEnum]
+
+
+export const StoreQuantityDiscountOrderByRelevanceFieldEnum = {
+  id: 'id'
+} as const
+
+export type StoreQuantityDiscountOrderByRelevanceFieldEnum = (typeof StoreQuantityDiscountOrderByRelevanceFieldEnum)[keyof typeof StoreQuantityDiscountOrderByRelevanceFieldEnum]
 
 
 export const SellerInventoryOrderByRelevanceFieldEnum = {

@@ -18,6 +18,7 @@ import {
   ChatIcon,
   CompaniesIcon,
   CouponsIcon,
+  QuantityDiscountIcon,
   CustomersIcon,
   DashboardIcon,
   DataProtectionIcon,
@@ -128,6 +129,15 @@ export const NAVIGATION: NavGroup[] = [
         labelKey: 'nav.coupons',
         to: '/coupons',
         icon: CouponsIcon,
+        permissions: [Permission.COUPON_READ],
+        matchPrefix: true,
+      },
+      {
+        // Beside Coupons: both are discounts the store funds, decided by the
+        // same people under the same permission.
+        labelKey: 'nav.quantityDiscounts',
+        to: '/quantity-discounts',
+        icon: QuantityDiscountIcon,
         permissions: [Permission.COUPON_READ],
         matchPrefix: true,
       },

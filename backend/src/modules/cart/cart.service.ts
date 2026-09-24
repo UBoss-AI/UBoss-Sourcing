@@ -74,8 +74,10 @@ import {
   nextSaving,
   priceForQuantity,
   savingBasisPoints,
+  storeDiscountTiers,
   type TierBuyer,
 } from '../../domain/quantity-tier.js';
+import { loadStoreDiscounts } from '../catalog/store-discount.service.js';
 import {
   TIER_SELECT,
   isBusinessBuyer,
@@ -696,6 +698,9 @@ export async function resolveCart(
     channel: 'BASKET',
   };
 
+  // The store-wide quantity discounts, read once for the whole basket.
+  const storeDiscounts = await loadStoreDiscounts();
+
   const taxSetup = await loadTaxContext({
     destinationCountry: options.destinationCountry ?? taxProfile?.preferredCountry ?? null,
     vatNumber: taxProfile?.vatNumber ?? null,
@@ -989,14 +994,32 @@ export async function resolveCart(
      * applies. Not a bulk (packaged) line: a package already has its own
      * price, and applying a piece band on top would discount it twice.
      */
-    const tiers = offer?.priceTiers.map(toQuantityTier) ?? [];
+    /*
+     * The operator's own line is banded by the store-wide quantity discounts
+     * instead, on the price quoted in this currency. They are percentages, so
+     * one rule makes the right band in every currency.
+     */
+    const bandListMinor: Minor | null =
+      item.packaging !== null
+        ? null
+        : offer !== null
+          ? offer.currency === currency
+            ? offer.priceMinor
+            : null
+          : (price?.basePriceMinor ?? null);
+    const tiers =
+      bandListMinor === null
+        ? []
+        : offer !== null
+          ? offer.priceTiers.map(toQuantityTier)
+          : storeDiscountTiers(bandListMinor, storeDiscounts);
     const tierPrice =
-      item.packaging === null && offer !== null && offer.currency === currency && tiers.length > 0
-        ? priceForQuantity(offer.priceMinor, tiers, item.quantity, tierBuyer)
+      bandListMinor !== null && tiers.length > 0
+        ? priceForQuantity(bandListMinor, tiers, item.quantity, tierBuyer)
         : null;
     const upcoming =
-      item.packaging === null && offer !== null && offer.currency === currency && tiers.length > 0
-        ? nextSaving(offer.priceMinor, tiers, item.quantity, tierBuyer)
+      bandListMinor !== null && tiers.length > 0
+        ? nextSaving(bandListMinor, tiers, item.quantity, tierBuyer)
         : null;
 
     const listedPriceMinor: Minor =
@@ -1004,7 +1027,9 @@ export async function resolveCart(
         ? item.packaging.unitPriceMinor
         : offer !== null && offer.currency === currency
           ? (tierPrice?.unitPriceMinor ?? offer.priceMinor)
-          : (price?.basePriceMinor ?? 0n);
+          : offer === null
+            ? (tierPrice?.unitPriceMinor ?? price?.basePriceMinor ?? 0n)
+            : (price?.basePriceMinor ?? 0n);
 
     if (item.packaging !== null) {
       const live = offer?.packagingProfile?.options.find(
@@ -1107,14 +1132,18 @@ export async function resolveCart(
 
     lineMeta.push({
       quantityTier:
-        tierPrice?.tier === undefined || tierPrice.tier === null || offer === null
+        tierPrice?.tier === undefined || tierPrice.tier === null || bandListMinor === null
           ? null
           : {
               minQuantity: tierPrice.tier.minQuantity,
               maxQuantity: tierPrice.tier.maxQuantity,
-              listUnitPrice: serialiseMoney(offer.priceMinor, currency),
-              savingBasisPoints: savingBasisPoints(offer.priceMinor, tierPrice.unitPriceMinor),
-              snapshot: snapshotTier(tierPrice.tier, offer.priceMinor),
+              listUnitPrice: serialiseMoney(bandListMinor, currency),
+              savingBasisPoints: savingBasisPoints(bandListMinor, tierPrice.unitPriceMinor),
+              snapshot: snapshotTier(
+                tierPrice.tier,
+                bandListMinor,
+                offer === null ? 'STORE' : 'SELLER',
+              ),
             },
       nextQuantityTier:
         upcoming === null

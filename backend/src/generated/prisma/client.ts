@@ -1297,6 +1297,22 @@ export type SellerOffer = Prisma.SellerOfferModel
  */
 export type SellerPriceTier = Prisma.SellerPriceTierModel
 /**
+ * Model StoreQuantityDiscount
+ * "Buy more, save more" on every product the operator sells itself.
+ * 
+ * A percentage from a quantity: "from 50 pieces, 5% off". Set once in the
+ * admin console and applied to the operator's own products in every currency,
+ * by turning it into an ordinary band (`storeDiscountTiers`) that
+ * `priceForQuantity` prices like a seller's - so the offer the storefront
+ * shows when a buyer adds pieces is the price the checkout charges.
+ * 
+ * Never applied to a seller's offer: a seller is paid what their line sells
+ * for, and sets their own bands (`SellerPriceTier`) instead. No rows, or no
+ * active rows, means the store runs no quantity discount - the default for a
+ * new installation.
+ */
+export type StoreQuantityDiscount = Prisma.StoreQuantityDiscountModel
+/**
  * Model SellerInventory
  * Stock of one offer at one of the seller's locations.
  * 
