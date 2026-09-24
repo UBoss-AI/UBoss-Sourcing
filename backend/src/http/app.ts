@@ -85,6 +85,21 @@ import { registerLogisticsPortalRoutes } from './routes/logistics.portal.js';
 import { registerLogisticsOperationsRoutes } from './routes/logistics.operations.js';
 import { registerLogisticsDriverRoutes } from './routes/logistics.driver.js';
 import { registerAdminLogisticsRoutes } from './routes/logistics.admin.js';
+import {
+  registerAdminLogisticsLevelRoutes,
+  registerCustomerLogisticsPricingRoutes,
+  registerCustomerOrderBreakdownRoutes,
+  registerLogisticsPortalLegRoutes,
+} from './routes/logistics-levels.admin.js';
+import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
+import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
+import { registerPreorderRoutes } from './routes/preorders.js';
+import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
+import { registerSellerDocumentRoutes } from './routes/seller.documents.js';
+import { registerSellerQuantityTierRoutes } from './routes/seller.quantity-tiers.js';
+import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
+import { registerDocumentRoutes } from './routes/documents.js';
+import { registerAdminDocumentRoutes } from './routes/documents.admin.js';
 import { registerCarrierWebhookRoutes } from './routes/carrier-webhooks.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
@@ -511,6 +526,8 @@ export async function buildApp() {
   // before anybody signs in.
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // The bulk-savings popover's figures. See `bulk-pricing.service.ts`.
+  await app.register(registerBulkPricingRoutes, { prefix: `${API_PREFIX}/catalog` });
   // The sitemap. Unauthenticated because a sitemap has to be, and it discloses
   // nothing a visitor could not find by browsing: the same products, at the
   // same addresses, under the same visibility rules the catalogue uses.
@@ -656,6 +673,21 @@ export async function buildApp() {
   // in the Hub, and resolved from the session - there is no seller id in any
   // of its paths, for the reason stated above.
   await app.register(registerSellerErpRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Seller Hub -> Logistics: the four delivery levels, their prices, the legs
+  // of confirmed orders and the read-only settlement preview.
+  await app.register(registerSellerLogisticsRoutes, { prefix: `${API_PREFIX}/seller` });
+  // Seller Hub -> Orders -> Preorders, and the preorder terms on a listing.
+  await app.register(registerSellerPreorderRoutes, { prefix: `${API_PREFIX}/seller` });
+  // The buyer's side of bulk preorders, and the public eligibility check.
+  await app.register(registerPreorderRoutes, { prefix: `${API_PREFIX}/preorders` });
+  // Read-only for the operator.
+  await app.register(registerAdminPreorderRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Seller invoices and packing lists: the seller's side, the buyer's and the
+  // public check, and read-only for the operator.
+  await app.register(registerSellerDocumentRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerSellerQuantityTierRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerDocumentRoutes, { prefix: `${API_PREFIX}/documents` });
+  await app.register(registerAdminDocumentRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
    * Where the Glovia Tally Bridge talks to us.
@@ -702,6 +734,13 @@ export async function buildApp() {
   // catalogue (`logistics.*`), never the logistics one - see
   // `domain/logistics-permissions.ts` for why the two are kept apart.
   await app.register(registerAdminLogisticsRoutes, { prefix: `${API_PREFIX}/admin` });
+  // UBOSS-managed levels, legs, and the platform fee (finance permissions).
+  await app.register(registerAdminLogisticsLevelRoutes, { prefix: `${API_PREFIX}/admin` });
+  // The legs a delivery company holds, in its own portal.
+  await app.register(registerLogisticsPortalLegRoutes, { prefix: `${API_PREFIX}/logistics` });
+  // The buyer's delivery quote and an order's price breakdown.
+  await app.register(registerCustomerLogisticsPricingRoutes, { prefix: `${API_PREFIX}/pricing` });
+  await app.register(registerCustomerOrderBreakdownRoutes, { prefix: `${API_PREFIX}/orders` });
 
   // Where a CARRIER pushes tracking to us. Unauthenticated by necessity and
   // authenticated in substance by an HMAC over the raw body plus an

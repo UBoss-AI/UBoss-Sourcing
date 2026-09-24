@@ -159,6 +159,24 @@ export const NotificationEvent = {
   /// sent per failed attempt - only when the retries are finished, because a
   /// message per attempt is a message nobody reads by the third one.
   CUSTOMER_ERP_EVENT_FAILED: 'customer_erp.event_failed',
+  /// Bulk preorders, told to the BUYER. Each is deduplicated per request per
+  /// event (and per revision where a seller can answer more than once), so a
+  /// retried answer sends one email.
+  PREORDER_SUBMITTED: 'preorder.submitted',
+  PREORDER_SELLER_ACCEPTED: 'preorder.seller_accepted',
+  PREORDER_SELLER_COUNTERED: 'preorder.seller_countered',
+  PREORDER_REJECTED: 'preorder.rejected',
+  /// Both parties agreed and the order is waiting to be paid. Nothing has
+  /// been charged, and the message says so first.
+  PREORDER_PAYMENT_REQUIRED: 'preorder.payment_required',
+  PREORDER_CONFIRMED: 'preorder.confirmed',
+  PREORDER_PRODUCTION_STARTED: 'preorder.production_started',
+  PREORDER_READY: 'preorder.ready_for_fulfilment',
+  PREORDER_EXPIRED: 'preorder.expired',
+  PREORDER_CANCELLED: 'preorder.cancelled',
+  PREORDER_DELIVERY_RISK: 'preorder.delivery_risk',
+  /// A seller issued the tax invoice for a consignment of the buyer's order.
+  SELLER_INVOICE_ISSUED: 'seller_invoice.issued',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -682,6 +700,99 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'dispatch may be later than normal. We are on it and there is nothing ' +
         'you need to do.\n\n' +
         'You can follow the order here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_SUBMITTED]: {
+      subject: 'Preorder {{requestNumber}} sent to {{sellerName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your preorder request {{requestNumber}} for {{quantity}} of {{productName}} has been ' +
+        'sent to {{sellerName}}, with delivery requested for {{requestedDate}}.\n\n' +
+        'Nothing has been charged. {{sellerName}} will confirm what they can supply, at what ' +
+        'price and by when, and you will then be asked to confirm.\n\n' +
+        'Follow it here:\n{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_SELLER_ACCEPTED]: {
+      subject: 'Preorder {{requestNumber}}: {{sellerName}} accepted - please confirm',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} can supply {{quantity}} of {{productName}} by {{committedDate}}, at ' +
+        '{{unitPrice}} per piece ({{total}} in total).\n\n' +
+        'Nothing has been charged. The preorder goes ahead only when you confirm, before ' +
+        '{{expiresAt}}:\n{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_SELLER_COUNTERED]: {
+      subject: 'Preorder {{requestNumber}}: {{sellerName}} proposed different terms',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} has proposed {{quantity}} of {{productName}} by {{committedDate}}, at ' +
+        '{{unitPrice}} per piece ({{total}} in total).\n\n' +
+        'Nothing has been charged. Review and confirm or decline before {{expiresAt}}:\n' +
+        '{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_REJECTED]: {
+      subject: 'Preorder {{requestNumber}} was declined',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} cannot supply your preorder {{requestNumber}} for {{productName}}.\n\n' +
+        'Their reason: {{reason}}\n\nNothing was charged.\n',
+    },
+    [NotificationEvent.PREORDER_PAYMENT_REQUIRED]: {
+      subject: 'Preorder {{requestNumber}} agreed - order {{orderNumber}} is ready to pay',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Nothing has been charged yet. You confirmed {{sellerName}}\'s terms, and order ' +
+        '{{orderNumber}} for {{total}} is waiting for payment.\n\n' +
+        'Pay for it here before {{expiresAt}}, or the capacity held for you is released:\n' +
+        '{{orderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_CONFIRMED]: {
+      subject: 'Preorder {{requestNumber}} is confirmed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Payment for order {{orderNumber}} was received and your preorder {{requestNumber}} ' +
+        'is confirmed, for delivery by {{committedDate}}.\n\n{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_PRODUCTION_STARTED]: {
+      subject: 'Preorder {{requestNumber}}: production has started',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} has started production of your preorder {{requestNumber}}, due by ' +
+        '{{committedDate}}.\n\n{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_READY]: {
+      subject: 'Preorder {{requestNumber}} is ready for dispatch',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your preorder {{requestNumber}} is made and ready for dispatch. You can follow its ' +
+        'delivery on order {{orderNumber}}:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_EXPIRED]: {
+      subject: 'Preorder {{requestNumber}} has expired',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Preorder {{requestNumber}} for {{productName}} expired because {{reason}}. ' +
+        'Nothing was charged, and you can send a new request from the product page.\n',
+    },
+    [NotificationEvent.PREORDER_CANCELLED]: {
+      subject: 'Preorder {{requestNumber}} was cancelled',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Preorder {{requestNumber}} for {{productName}} was cancelled: {{reason}}\n',
+    },
+    [NotificationEvent.SELLER_INVOICE_ISSUED]: {
+      subject: 'Invoice {{invoiceNumber}} from {{sellerName}} for order {{orderNumber}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{sellerName}} has issued invoice {{invoiceNumber}} for {{total}}, for the goods in ' +
+        'consignment {{shipmentReference}} of your order {{orderNumber}}.\n\n' +
+        'Download it from the order:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_DELIVERY_RISK]: {
+      subject: 'Preorder {{requestNumber}} may miss {{committedDate}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your preorder {{requestNumber}} is due by {{committedDate}} and is not yet ready for ' +
+        'dispatch. {{sellerName}} has been asked to update you.\n\n{{preorderUrl}}\n',
     },
   },
 );

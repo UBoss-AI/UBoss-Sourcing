@@ -796,6 +796,23 @@ export interface CartLine {
   packaging?: LinePackaging | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
+  /**
+   * The seller's quantity band that priced this line, or null at list price.
+   * Absent on a response from a server that predates bands.
+   */
+  quantityTier?: {
+    minQuantity: number;
+    maxQuantity: number | null;
+    listUnitPrice: Money;
+    savingBasisPoints: number;
+  } | null;
+  /** The nearest band above this quantity that lowers the price per piece. */
+  nextQuantityTier?: {
+    minQuantity: number;
+    addQuantity: number;
+    unitPrice: Money;
+    savingPerPiece: Money;
+  } | null;
 }
 
 export interface CartTotals {
@@ -851,6 +868,47 @@ export interface Cart {
    * container ordering impossible while telling the buyer nothing was wrong.
    */
   requiresFreightQuote?: boolean;
+  /**
+   * The marketplace sellers' four-level delivery (L1 + L2 + L3 + L4), or null
+   * when no seller in the basket has a published logistics policy. Already
+   * inside `totals.shipping`; this is its breakdown, and `token` is what the
+   * checkout must send back unchanged.
+   */
+  delivery?: DeliveryQuote | null;
+}
+
+export interface DeliveryQuoteLevel {
+  level: 'L1' | 'L2' | 'L3' | 'L4';
+  owner: 'SELLER' | 'UBOSS';
+  /** Why there is no price, when there is none. */
+  reason: string | null;
+  /** Minor units, or null when unpriced - or hidden by the operator's setting. */
+  amount: string | null;
+  isFree: boolean;
+  transportMode: string | null;
+  carrier: string | null;
+  origin: string | null;
+  destination: string | null;
+  transitDaysMin: number | null;
+  transitDaysMax: number | null;
+}
+
+export interface DeliveryQuote {
+  version: string;
+  currency: string;
+  total: string;
+  quoteRequired: boolean;
+  token: string;
+  /** False when the operator shows one delivery line instead of four. */
+  showLevels: boolean;
+  sellers: {
+    sellerAccountId: string;
+    sellerName: string;
+    status: 'PRICED' | 'QUOTE_REQUIRED';
+    policyVersionNumber: number;
+    total: string | null;
+    levels: DeliveryQuoteLevel[];
+  }[];
 }
 
 // ---------------------------------------------------------------------------

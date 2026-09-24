@@ -114,6 +114,20 @@ export const Permission = {
   /// key, and the narrowest one here: it is the only permission in this block
   /// that touches a secret.
   LOGISTICS_INTEGRATION_WRITE: 'logistics.integration.write',
+
+  // --- Finance policy ---
+  //
+  // The platform fee a seller pays and the tax charged on it. Kept out of
+  // SETTINGS_WRITE on purpose: a general administrator who can change the
+  // shop's address must not be able to change what every seller is charged,
+  // or what that charge is called on a tax document.
+  /// Read platform-fee policies, their versions and the orders on each.
+  FINANCE_POLICY_READ: 'finance.policy.read',
+  /// Draft, publish and retire platform-fee policies.
+  FINANCE_POLICY_WRITE: 'finance.policy.write',
+  /// Mark a policy's tax rule as verified - the step that lets a document
+  /// call it GST. Its own key because it is a legal statement, not a setting.
+  FINANCE_TAX_VERIFY: 'finance.tax.verify',
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',
@@ -288,6 +302,11 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // work rather than the order desk's.
       Permission.INVOICE_READ,
       Permission.INVOICE_ISSUE,
+      // What sellers are charged and the tax on it: finance's decision, and
+      // nobody else's below the business owner.
+      Permission.FINANCE_POLICY_READ,
+      Permission.FINANCE_POLICY_WRITE,
+      Permission.FINANCE_TAX_VERIFY,
       Permission.SCHEDULE_READ,
       Permission.SCHEDULE_WRITE,
       Permission.REPORT_READ,

@@ -58,7 +58,16 @@ export function ConsoleGround({
   className?: string | undefined;
 }): React.JSX.Element {
   return (
-    <div className={cx('console-ground relative isolate -mx-4 -my-6 px-4 py-6 sm:-mx-6 sm:px-6', className)}>
+    // The bleed must cancel the shell's own padding at every width, or the
+    // ground pokes past the screen: it used `sm:-mx-6` while the shell only
+    // pads 24px from `lg`, which pushed every dashboard 8px wide between
+    // 640 and 1024px (a tablet).
+    <div
+      className={cx(
+        'console-ground relative isolate -mx-4 -my-6 px-4 py-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8',
+        className,
+      )}
+    >
       <div className="console-backdrop" aria-hidden="true" />
       <div className="relative z-10">{children}</div>
     </div>
@@ -298,7 +307,11 @@ export function ConsoleHeader({
       </div>
 
       {children === undefined ? null : (
-        <div className="flex flex-wrap items-center gap-2">{children}</div>
+        // `min-w-0 max-w-full`: a flex item is otherwise as wide as its content,
+        // and the range switch inside is built to scroll sideways - which it
+        // cannot do if its row grows to fit it. At 320px that row pushed the
+        // whole dashboard 35px past the screen.
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">{children}</div>
       )}
     </header>
   );

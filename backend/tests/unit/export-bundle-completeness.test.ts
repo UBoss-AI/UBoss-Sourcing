@@ -130,6 +130,14 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
     'any of it - what was posted about their order - is already in `orders`. A seller’s ' +
     'employee exercising this right gets the account section and `sellerMembership`; the ' +
     'trail itself belongs to the seller BUSINESS, on the same line `sellerAuditTrail` draws.',
+  // A bulk preorder this person asked for, with every set of terms put to
+  // them. Disclosed whole, as `preorderRequests`.
+  PreorderRequest: 'preorderRequests',
+  PreorderStatusHistory:
+    'Who moved a preorder between statuses. The history itself is disclosed inside ' +
+    '`preorderRequests` (from, to, when and why); `actorUserId` names whoever acted - the ' +
+    'buyer themselves, a member of the seller’s staff or the marketplace’s - and a ' +
+    'staff member’s identity is their data rather than the buyer’s.',
   SellerLogisticsRelationshipEvent:
     'How a seller-to-carrier arrangement reached its current status. `actorUserId` names a ' +
     'member of the MARKETPLACE\u2019s staff who approved, refused or suspended a commercial ' +

@@ -82,7 +82,7 @@ import { ImageSearchDialog } from './ImageSearchDialog';
 
 /** The shared shape of every item, so they cannot drift apart visually. */
 const ITEM_CLASS =
-  'relative inline-flex items-center gap-1.5 rounded-sm pb-2.5 text-lg font-semibold tracking-tight transition-colors sm:text-xl';
+  'relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm pb-2.5 text-base font-semibold tracking-tight transition-colors min-[400px]:text-lg sm:text-xl';
 
 /**
  * One item in the row: a link, underlined when it is the page you are on.
@@ -163,7 +163,12 @@ function SearchModes({
       // and read as one thick line under the tab, so the underline stops
       // looking like an indicator of where you are and starts looking like the
       // top of the input. Two separate things need to look like two.
-      className="mb-2 flex items-end gap-4 border-b border-transparent sm:gap-5"
+      // On the narrowest phones the three items do not fit at the desktop
+      // size: "Products" was cut off at 320px. Smaller type and gaps below
+      // 400px, and, for a language whose labels are longer still, the row
+      // scrolls sideways (scrollbar hidden) rather than clipping an item.
+      // `relative` so screen-reader text inside cannot escape the scroll area.
+      className="hide-scrollbar relative mb-2 flex items-end gap-3 overflow-x-auto border-b border-transparent min-[400px]:gap-4 sm:gap-5"
     >
       <ModeLink to="/" isCurrent={pathname === '/'}>
         {t('heroSearch.home')}

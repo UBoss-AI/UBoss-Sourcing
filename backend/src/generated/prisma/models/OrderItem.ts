@@ -121,6 +121,7 @@ export type OrderItemCountAggregateOutputType = {
   unitQuantity: number
   piecesPerUnitSnapshot: number
   noteSnapshot: number
+  quantityTierJson: number
   lineSubtotalMinor: number
   taxRatePercent: number
   taxInclusive: number
@@ -228,6 +229,7 @@ export type OrderItemCountAggregateInputType = {
   unitQuantity?: true
   piecesPerUnitSnapshot?: true
   noteSnapshot?: true
+  quantityTierJson?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxInclusive?: true
@@ -342,6 +344,7 @@ export type OrderItemGroupByOutputType = {
   unitQuantity: number
   piecesPerUnitSnapshot: number
   noteSnapshot: string | null
+  quantityTierJson: runtime.JsonValue | null
   lineSubtotalMinor: bigint
   taxRatePercent: runtime.Decimal
   taxInclusive: boolean
@@ -392,6 +395,7 @@ export type OrderItemWhereInput = {
   unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   noteSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  quantityTierJson?: Prisma.JsonNullableFilter<"OrderItem">
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -424,6 +428,7 @@ export type OrderItemOrderByWithRelationInput = {
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
   noteSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantityTierJson?: Prisma.SortOrderInput | Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -460,6 +465,7 @@ export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
   unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   noteSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  quantityTierJson?: Prisma.JsonNullableFilter<"OrderItem">
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -492,6 +498,7 @@ export type OrderItemOrderByWithAggregationInput = {
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
   noteSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  quantityTierJson?: Prisma.SortOrderInput | Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -527,6 +534,7 @@ export type OrderItemScalarWhereWithAggregatesInput = {
   unitQuantity?: Prisma.IntWithAggregatesFilter<"OrderItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntWithAggregatesFilter<"OrderItem"> | number
   noteSnapshot?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
+  quantityTierJson?: Prisma.JsonNullableWithAggregatesFilter<"OrderItem">
   lineSubtotalMinor?: Prisma.BigIntWithAggregatesFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalWithAggregatesFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolWithAggregatesFilter<"OrderItem"> | boolean
@@ -550,6 +558,7 @@ export type OrderItemCreateInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -582,6 +591,7 @@ export type OrderItemUncheckedCreateInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -606,6 +616,7 @@ export type OrderItemUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -638,6 +649,7 @@ export type OrderItemUncheckedUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -666,6 +678,7 @@ export type OrderItemCreateManyInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -689,6 +702,7 @@ export type OrderItemUpdateManyMutationInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -716,6 +730,7 @@ export type OrderItemUncheckedUpdateManyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -759,6 +774,7 @@ export type OrderItemCountOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   piecesPerUnitSnapshot?: Prisma.SortOrder
   noteSnapshot?: Prisma.SortOrder
+  quantityTierJson?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -1047,6 +1063,7 @@ export type OrderItemCreateWithoutProductInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1077,6 +1094,7 @@ export type OrderItemUncheckedCreateWithoutProductInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1134,6 +1152,7 @@ export type OrderItemScalarWhereInput = {
   unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
   piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   noteSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  quantityTierJson?: Prisma.JsonNullableFilter<"OrderItem">
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -1157,6 +1176,7 @@ export type OrderItemCreateWithoutVariantInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1187,6 +1207,7 @@ export type OrderItemUncheckedCreateWithoutVariantInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1237,6 +1258,7 @@ export type OrderItemCreateWithoutOrderInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1267,6 +1289,7 @@ export type OrderItemUncheckedCreateWithoutOrderInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1317,6 +1340,7 @@ export type OrderItemCreateWithoutSellerOfferInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1347,6 +1371,7 @@ export type OrderItemUncheckedCreateWithoutSellerOfferInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1397,6 +1422,7 @@ export type OrderItemCreateWithoutPackagingInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1428,6 +1454,7 @@ export type OrderItemUncheckedCreateWithoutPackagingInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1467,6 +1494,7 @@ export type OrderItemUpdateWithoutPackagingInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1498,6 +1526,7 @@ export type OrderItemUncheckedUpdateWithoutPackagingInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1524,6 +1553,7 @@ export type OrderItemCreateManyProductInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1547,6 +1577,7 @@ export type OrderItemUpdateWithoutProductInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1577,6 +1608,7 @@ export type OrderItemUncheckedUpdateWithoutProductInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1604,6 +1636,7 @@ export type OrderItemUncheckedUpdateManyWithoutProductInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1630,6 +1663,7 @@ export type OrderItemCreateManyVariantInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1653,6 +1687,7 @@ export type OrderItemUpdateWithoutVariantInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1683,6 +1718,7 @@ export type OrderItemUncheckedUpdateWithoutVariantInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1710,6 +1746,7 @@ export type OrderItemUncheckedUpdateManyWithoutVariantInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1736,6 +1773,7 @@ export type OrderItemCreateManyOrderInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1759,6 +1797,7 @@ export type OrderItemUpdateWithoutOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1789,6 +1828,7 @@ export type OrderItemUncheckedUpdateWithoutOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1816,6 +1856,7 @@ export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1842,6 +1883,7 @@ export type OrderItemCreateManySellerOfferInput = {
   unitQuantity?: number
   piecesPerUnitSnapshot?: number
   noteSnapshot?: string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1865,6 +1907,7 @@ export type OrderItemUpdateWithoutSellerOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1895,6 +1938,7 @@ export type OrderItemUncheckedUpdateWithoutSellerOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1922,6 +1966,7 @@ export type OrderItemUncheckedUpdateManyWithoutSellerOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   noteSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantityTierJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1951,6 +1996,7 @@ export type OrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   unitQuantity?: boolean
   piecesPerUnitSnapshot?: boolean
   noteSnapshot?: boolean
+  quantityTierJson?: boolean
   lineSubtotalMinor?: boolean
   taxRatePercent?: boolean
   taxInclusive?: boolean
@@ -1985,6 +2031,7 @@ export type OrderItemSelectScalar = {
   unitQuantity?: boolean
   piecesPerUnitSnapshot?: boolean
   noteSnapshot?: boolean
+  quantityTierJson?: boolean
   lineSubtotalMinor?: boolean
   taxRatePercent?: boolean
   taxInclusive?: boolean
@@ -1995,7 +2042,7 @@ export type OrderItemSelectScalar = {
   createdAt?: boolean
 }
 
-export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "sellerOfferId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "noteSnapshot" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "createdAt", ExtArgs["result"]["orderItem"]>
+export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "sellerOfferId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "noteSnapshot" | "quantityTierJson" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "createdAt", ExtArgs["result"]["orderItem"]>
 export type OrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -2065,6 +2112,13 @@ export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
      * done, not something that changes what is charged.
      */
     noteSnapshot: string | null
+    /**
+     * The quantity band that priced this line, frozen: its id, range, the list
+     * price it replaced and the price charged. Null when the list price applied.
+     * Written once, so a later change to the seller's bands never rewrites
+     * what this order says it was charged and why.
+     */
+    quantityTierJson: runtime.JsonValue | null
     lineSubtotalMinor: bigint
     taxRatePercent: runtime.Decimal
     taxInclusive: boolean
@@ -2463,6 +2517,7 @@ export interface OrderItemFieldRefs {
   readonly unitQuantity: Prisma.FieldRef<"OrderItem", 'Int'>
   readonly piecesPerUnitSnapshot: Prisma.FieldRef<"OrderItem", 'Int'>
   readonly noteSnapshot: Prisma.FieldRef<"OrderItem", 'String'>
+  readonly quantityTierJson: Prisma.FieldRef<"OrderItem", 'Json'>
   readonly lineSubtotalMinor: Prisma.FieldRef<"OrderItem", 'BigInt'>
   readonly taxRatePercent: Prisma.FieldRef<"OrderItem", 'Decimal'>
   readonly taxInclusive: Prisma.FieldRef<"OrderItem", 'Boolean'>

@@ -2,9 +2,14 @@
  * The brand block, at the top of the rail.
  *
  * Two lines rather than one: the mark and the product name are the thing you
- * look at once, and `Powered by UBOSS` underneath is the attribution — who
- * makes the thing. Both come from `lib/brand.ts`, which is the one place
- * either string is written in any of the three applications. The whole block
+ * look at once, and `The Way to the World` underneath is the product's
+ * tagline. Both come from `lib/brand.ts`, which is the one place either
+ * string is written in any of the three applications. The name is set in
+ * `font-brand` (Dancing Script Bold) — the wordmark's own face, and used for
+ * nothing else — so it reads as a mark rather than as one more Inter label on
+ * the rail. A step larger than the label it replaced, because a script's short
+ * x-height reads a size smaller than Inter at the same number. `Powered by UBOSS` is not here: it is the small print on the sign-in
+ * screens, as it is in the storefront's footer. The whole block
  * is a link home, since a logo that is not clickable is the single most
  * reliably-attempted dead control in any admin panel.
  *
@@ -33,7 +38,7 @@
 import { Link } from 'react-router-dom';
 import { SidebarLabel } from '@/components/ui/sidebar';
 import { EarthMark } from '@/components/EarthMark';
-import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_INITIAL } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_TAGLINE } from '@/lib/brand';
 
 export function BrandLockup({
   onNavigate,
@@ -44,19 +49,19 @@ export function BrandLockup({
     <Link
       to="/"
       onClick={onNavigate}
-      aria-label={`${PRODUCT_BRAND} — ${PARENT_ATTRIBUTION}`}
+      aria-label={`${PRODUCT_BRAND} — ${PRODUCT_TAGLINE}`}
       className="relative z-20 flex h-10 shrink-0 items-center gap-3 rounded-md px-2 transition-opacity hover:opacity-90"
     >
       <EarthMark initial={PRODUCT_INITIAL} size="sm" />
       <SidebarLabel display="block" className="min-w-0 leading-tight">
-        <span aria-hidden="true" className="block text-sm font-semibold tracking-tight text-ink">
+        <span aria-hidden="true" className="block font-brand text-lg font-bold leading-6 text-ink">
           {PRODUCT_BRAND}
         </span>
         <span
           aria-hidden="true"
-          className="block text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle"
+          className="block truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle"
         >
-          {PARENT_ATTRIBUTION}
+          {PRODUCT_TAGLINE}
         </span>
       </SidebarLabel>
     </Link>

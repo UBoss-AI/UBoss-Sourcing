@@ -19,6 +19,13 @@ import type * as Prisma from "../internal/prismaNamespace.js"
  * A band, not a step: `minQuantity` starts a band that runs until the next
  * one begins. Overlapping bands are refused in the service, because a
  * quantity matching two prices has no answer a buyer would accept.
+ * A price per piece that applies from a quantity: "from 500 pieces, 9.20".
+ * 
+ * Quantities are BASE UNITS (pieces), the same unit the cart line holds, and
+ * the price is the offer's currency in minor units. Applied by
+ * `domain/quantity-tier.ts` and nothing else, from the cart, the checkout and
+ * the preorder price - so the figure the popover promises and the figure the
+ * order is charged are the same function.
  */
 export type SellerPriceTierModel = runtime.Types.Result.DefaultSelection<Prisma.$SellerPriceTierPayload>
 
@@ -32,11 +39,13 @@ export type AggregateSellerPriceTier = {
 
 export type SellerPriceTierAvgAggregateOutputType = {
   minQuantity: number | null
+  maxQuantity: number | null
   priceMinor: number | null
 }
 
 export type SellerPriceTierSumAggregateOutputType = {
   minQuantity: number | null
+  maxQuantity: number | null
   priceMinor: bigint | null
 }
 
@@ -44,7 +53,13 @@ export type SellerPriceTierMinAggregateOutputType = {
   id: string | null
   offerId: string | null
   minQuantity: number | null
+  maxQuantity: number | null
   priceMinor: bigint | null
+  isActive: boolean | null
+  startsAt: Date | null
+  endsAt: Date | null
+  businessBuyersOnly: boolean | null
+  preorderOnly: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,7 +68,13 @@ export type SellerPriceTierMaxAggregateOutputType = {
   id: string | null
   offerId: string | null
   minQuantity: number | null
+  maxQuantity: number | null
   priceMinor: bigint | null
+  isActive: boolean | null
+  startsAt: Date | null
+  endsAt: Date | null
+  businessBuyersOnly: boolean | null
+  preorderOnly: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,7 +83,14 @@ export type SellerPriceTierCountAggregateOutputType = {
   id: number
   offerId: number
   minQuantity: number
+  maxQuantity: number
   priceMinor: number
+  isActive: number
+  startsAt: number
+  endsAt: number
+  businessBuyersOnly: number
+  countryCodes: number
+  preorderOnly: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -71,11 +99,13 @@ export type SellerPriceTierCountAggregateOutputType = {
 
 export type SellerPriceTierAvgAggregateInputType = {
   minQuantity?: true
+  maxQuantity?: true
   priceMinor?: true
 }
 
 export type SellerPriceTierSumAggregateInputType = {
   minQuantity?: true
+  maxQuantity?: true
   priceMinor?: true
 }
 
@@ -83,7 +113,13 @@ export type SellerPriceTierMinAggregateInputType = {
   id?: true
   offerId?: true
   minQuantity?: true
+  maxQuantity?: true
   priceMinor?: true
+  isActive?: true
+  startsAt?: true
+  endsAt?: true
+  businessBuyersOnly?: true
+  preorderOnly?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,7 +128,13 @@ export type SellerPriceTierMaxAggregateInputType = {
   id?: true
   offerId?: true
   minQuantity?: true
+  maxQuantity?: true
   priceMinor?: true
+  isActive?: true
+  startsAt?: true
+  endsAt?: true
+  businessBuyersOnly?: true
+  preorderOnly?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -101,7 +143,14 @@ export type SellerPriceTierCountAggregateInputType = {
   id?: true
   offerId?: true
   minQuantity?: true
+  maxQuantity?: true
   priceMinor?: true
+  isActive?: true
+  startsAt?: true
+  endsAt?: true
+  businessBuyersOnly?: true
+  countryCodes?: true
+  preorderOnly?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -197,7 +246,14 @@ export type SellerPriceTierGroupByOutputType = {
   id: string
   offerId: string
   minQuantity: number
+  maxQuantity: number | null
   priceMinor: bigint
+  isActive: boolean
+  startsAt: Date | null
+  endsAt: Date | null
+  businessBuyersOnly: boolean
+  countryCodes: runtime.JsonValue | null
+  preorderOnly: boolean
   createdAt: Date
   updatedAt: Date
   _count: SellerPriceTierCountAggregateOutputType | null
@@ -229,7 +285,14 @@ export type SellerPriceTierWhereInput = {
   id?: Prisma.StringFilter<"SellerPriceTier"> | string
   offerId?: Prisma.StringFilter<"SellerPriceTier"> | string
   minQuantity?: Prisma.IntFilter<"SellerPriceTier"> | number
+  maxQuantity?: Prisma.IntNullableFilter<"SellerPriceTier"> | number | null
   priceMinor?: Prisma.BigIntFilter<"SellerPriceTier"> | bigint | number
+  isActive?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  startsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  countryCodes?: Prisma.JsonNullableFilter<"SellerPriceTier">
+  preorderOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
   offer?: Prisma.XOR<Prisma.SellerOfferScalarRelationFilter, Prisma.SellerOfferWhereInput>
@@ -239,7 +302,14 @@ export type SellerPriceTierOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   offerId?: Prisma.SortOrder
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessBuyersOnly?: Prisma.SortOrder
+  countryCodes?: Prisma.SortOrderInput | Prisma.SortOrder
+  preorderOnly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   offer?: Prisma.SellerOfferOrderByWithRelationInput
@@ -254,7 +324,14 @@ export type SellerPriceTierWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SellerPriceTierWhereInput | Prisma.SellerPriceTierWhereInput[]
   offerId?: Prisma.StringFilter<"SellerPriceTier"> | string
   minQuantity?: Prisma.IntFilter<"SellerPriceTier"> | number
+  maxQuantity?: Prisma.IntNullableFilter<"SellerPriceTier"> | number | null
   priceMinor?: Prisma.BigIntFilter<"SellerPriceTier"> | bigint | number
+  isActive?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  startsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  countryCodes?: Prisma.JsonNullableFilter<"SellerPriceTier">
+  preorderOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
   offer?: Prisma.XOR<Prisma.SellerOfferScalarRelationFilter, Prisma.SellerOfferWhereInput>
@@ -264,7 +341,14 @@ export type SellerPriceTierOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   offerId?: Prisma.SortOrder
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessBuyersOnly?: Prisma.SortOrder
+  countryCodes?: Prisma.SortOrderInput | Prisma.SortOrder
+  preorderOnly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SellerPriceTierCountOrderByAggregateInput
@@ -281,7 +365,14 @@ export type SellerPriceTierScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SellerPriceTier"> | string
   offerId?: Prisma.StringWithAggregatesFilter<"SellerPriceTier"> | string
   minQuantity?: Prisma.IntWithAggregatesFilter<"SellerPriceTier"> | number
+  maxQuantity?: Prisma.IntNullableWithAggregatesFilter<"SellerPriceTier"> | number | null
   priceMinor?: Prisma.BigIntWithAggregatesFilter<"SellerPriceTier"> | bigint | number
+  isActive?: Prisma.BoolWithAggregatesFilter<"SellerPriceTier"> | boolean
+  startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPriceTier"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerPriceTier"> | Date | string | null
+  businessBuyersOnly?: Prisma.BoolWithAggregatesFilter<"SellerPriceTier"> | boolean
+  countryCodes?: Prisma.JsonNullableWithAggregatesFilter<"SellerPriceTier">
+  preorderOnly?: Prisma.BoolWithAggregatesFilter<"SellerPriceTier"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPriceTier"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerPriceTier"> | Date | string
 }
@@ -289,7 +380,14 @@ export type SellerPriceTierScalarWhereWithAggregatesInput = {
 export type SellerPriceTierCreateInput = {
   id: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   offer: Prisma.SellerOfferCreateNestedOneWithoutPriceTiersInput
@@ -299,7 +397,14 @@ export type SellerPriceTierUncheckedCreateInput = {
   id: string
   offerId: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -307,7 +412,14 @@ export type SellerPriceTierUncheckedCreateInput = {
 export type SellerPriceTierUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offer?: Prisma.SellerOfferUpdateOneRequiredWithoutPriceTiersNestedInput
@@ -317,7 +429,14 @@ export type SellerPriceTierUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   offerId?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -326,7 +445,14 @@ export type SellerPriceTierCreateManyInput = {
   id: string
   offerId: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -334,7 +460,14 @@ export type SellerPriceTierCreateManyInput = {
 export type SellerPriceTierUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -343,7 +476,14 @@ export type SellerPriceTierUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   offerId?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -373,13 +513,21 @@ export type SellerPriceTierCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   offerId?: Prisma.SortOrder
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  businessBuyersOnly?: Prisma.SortOrder
+  countryCodes?: Prisma.SortOrder
+  preorderOnly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SellerPriceTierAvgOrderByAggregateInput = {
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
 }
 
@@ -387,7 +535,13 @@ export type SellerPriceTierMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   offerId?: Prisma.SortOrder
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  businessBuyersOnly?: Prisma.SortOrder
+  preorderOnly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -396,13 +550,20 @@ export type SellerPriceTierMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   offerId?: Prisma.SortOrder
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  businessBuyersOnly?: Prisma.SortOrder
+  preorderOnly?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SellerPriceTierSumOrderByAggregateInput = {
   minQuantity?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
   priceMinor?: Prisma.SortOrder
 }
 
@@ -451,7 +612,14 @@ export type SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput = {
 export type SellerPriceTierCreateWithoutOfferInput = {
   id: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -459,7 +627,14 @@ export type SellerPriceTierCreateWithoutOfferInput = {
 export type SellerPriceTierUncheckedCreateWithoutOfferInput = {
   id: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -497,7 +672,14 @@ export type SellerPriceTierScalarWhereInput = {
   id?: Prisma.StringFilter<"SellerPriceTier"> | string
   offerId?: Prisma.StringFilter<"SellerPriceTier"> | string
   minQuantity?: Prisma.IntFilter<"SellerPriceTier"> | number
+  maxQuantity?: Prisma.IntNullableFilter<"SellerPriceTier"> | number | null
   priceMinor?: Prisma.BigIntFilter<"SellerPriceTier"> | bigint | number
+  isActive?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  startsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"SellerPriceTier"> | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
+  countryCodes?: Prisma.JsonNullableFilter<"SellerPriceTier">
+  preorderOnly?: Prisma.BoolFilter<"SellerPriceTier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerPriceTier"> | Date | string
 }
@@ -505,7 +687,14 @@ export type SellerPriceTierScalarWhereInput = {
 export type SellerPriceTierCreateManyOfferInput = {
   id: string
   minQuantity: number
+  maxQuantity?: number | null
   priceMinor: bigint | number
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  businessBuyersOnly?: boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -513,7 +702,14 @@ export type SellerPriceTierCreateManyOfferInput = {
 export type SellerPriceTierUpdateWithoutOfferInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -521,7 +717,14 @@ export type SellerPriceTierUpdateWithoutOfferInput = {
 export type SellerPriceTierUncheckedUpdateWithoutOfferInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -529,7 +732,14 @@ export type SellerPriceTierUncheckedUpdateWithoutOfferInput = {
 export type SellerPriceTierUncheckedUpdateManyWithoutOfferInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   minQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  businessBuyersOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCodes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preorderOnly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -540,7 +750,14 @@ export type SellerPriceTierSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   offerId?: boolean
   minQuantity?: boolean
+  maxQuantity?: boolean
   priceMinor?: boolean
+  isActive?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  businessBuyersOnly?: boolean
+  countryCodes?: boolean
+  preorderOnly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   offer?: boolean | Prisma.SellerOfferDefaultArgs<ExtArgs>
@@ -552,12 +769,19 @@ export type SellerPriceTierSelectScalar = {
   id?: boolean
   offerId?: boolean
   minQuantity?: boolean
+  maxQuantity?: boolean
   priceMinor?: boolean
+  isActive?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  businessBuyersOnly?: boolean
+  countryCodes?: boolean
+  preorderOnly?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerPriceTierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "offerId" | "minQuantity" | "priceMinor" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPriceTier"]>
+export type SellerPriceTierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "offerId" | "minQuantity" | "maxQuantity" | "priceMinor" | "isActive" | "startsAt" | "endsAt" | "businessBuyersOnly" | "countryCodes" | "preorderOnly" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerPriceTier"]>
 export type SellerPriceTierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   offer?: boolean | Prisma.SellerOfferDefaultArgs<ExtArgs>
 }
@@ -571,7 +795,33 @@ export type $SellerPriceTierPayload<ExtArgs extends runtime.Types.Extensions.Int
     id: string
     offerId: string
     minQuantity: number
+    /**
+     * Inclusive. Null means "and above".
+     */
+    maxQuantity: number | null
     priceMinor: bigint
+    /**
+     * Off without deleting it, so a seller can pause a promotion and keep it.
+     */
+    isActive: boolean
+    /**
+     * Both optional, inclusive start and exclusive end.
+     */
+    startsAt: Date | null
+    endsAt: Date | null
+    /**
+     * Only for buyers with a business account (active, with a company name).
+     */
+    businessBuyersOnly: boolean
+    /**
+     * ISO 3166-1 alpha-2 delivery countries this band is for. Null: everywhere.
+     */
+    countryCodes: runtime.JsonValue | null
+    /**
+     * Only through a bulk preorder, never in the basket - a price for a
+     * quantity the seller makes to order rather than holds.
+     */
+    preorderOnly: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sellerPriceTier"]>
@@ -947,7 +1197,14 @@ export interface SellerPriceTierFieldRefs {
   readonly id: Prisma.FieldRef<"SellerPriceTier", 'String'>
   readonly offerId: Prisma.FieldRef<"SellerPriceTier", 'String'>
   readonly minQuantity: Prisma.FieldRef<"SellerPriceTier", 'Int'>
+  readonly maxQuantity: Prisma.FieldRef<"SellerPriceTier", 'Int'>
   readonly priceMinor: Prisma.FieldRef<"SellerPriceTier", 'BigInt'>
+  readonly isActive: Prisma.FieldRef<"SellerPriceTier", 'Boolean'>
+  readonly startsAt: Prisma.FieldRef<"SellerPriceTier", 'DateTime'>
+  readonly endsAt: Prisma.FieldRef<"SellerPriceTier", 'DateTime'>
+  readonly businessBuyersOnly: Prisma.FieldRef<"SellerPriceTier", 'Boolean'>
+  readonly countryCodes: Prisma.FieldRef<"SellerPriceTier", 'Json'>
+  readonly preorderOnly: Prisma.FieldRef<"SellerPriceTier", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"SellerPriceTier", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerPriceTier", 'DateTime'>
 }

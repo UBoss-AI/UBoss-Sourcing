@@ -348,7 +348,9 @@ export async function createShipment(
 
   if (!result.created) return result;
 
-  const stored = await prisma.logisticsShipment.findUniqueOrThrow({
+  // Through the caller's transaction when there is one: the row is not
+  // committed yet, so the global client cannot see it.
+  const stored = await (tx ?? prisma).logisticsShipment.findUniqueOrThrow({
     where: { id: result.id },
     select: { trackingNumber: true },
   });

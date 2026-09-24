@@ -439,6 +439,11 @@ model BusinessProfile {
   /// negotiated onto their own schedule keeps it when this moves.
   sellerCommissionBasisPoints Int @default(0) @db.SmallInt
 
+  /// Whether a buyer sees L1-L4 as separate delivery lines, or one delivery
+  /// total. A presentation choice only: the order keeps every level's amount
+  /// either way, because a disputed delivery charge is answered from them.
+  showLogisticsLevelBreakdown Boolean @default(true)
+
   /// Whether a product marked as a medical device must carry its MDR
   /// identification before it publishes.
   ///
@@ -2190,6 +2195,7 @@ model CustomerProfile {
   fulfilmentQuotes  FulfilmentQuote[]
 
   assistantConversations AssistantConversation[]
+  preorderRequests  PreorderRequest[]
 
   /// Their place in a buyer organisation, which is what owns an ERP
   /// connection. At most one - see `BuyerOrganizationMember`, where the
@@ -2437,6 +2443,9 @@ enum OrderStatus {
 enum OrderSource {
   ONE_TIME
   RECURRING
+  /// Converted from a bulk preorder both parties confirmed. Appended: MariaDB
+  /// stores an enum by position.
+  PREORDER
 }
 
 /// How an order's money was arrived at in the currency it was charged in.
@@ -2651,6 +2660,12 @@ model Order {
   /// partner independently.
   logisticsShipments LogisticsShipment[]
 
+  /// What each of L1-L4 cost this buyer, frozen at checkout. See the SELLER
+  /// LOGISTICS POLICY block at the end of this file.
+  logisticsLegCharges OrderLogisticsLeg[]
+  /// The four legs being carried out, one set per seller part.
+  shipmentLegs        ShipmentLeg[]
+
   items          OrderItem[]
   statusHistory  OrderStatusHistory[]
   approvals      OrderApproval[]
@@ -2672,6 +2687,17 @@ model Order {
   /// before the Seller Hub is. The buyer still has ONE order - see the ORDERS,
   /// SPLIT BY SELLER block at the end of this file.
   sellerOrderGroups SellerOrderGroup[]
+
+  /// The bulk preorder this order was converted from, where it was one. The
+  /// unique column lives on the request, which is what makes "a preorder
+  /// becomes an order at most once" a database fact.
+  preorderRequest PreorderRequest?
+
+  /// Invoices and packing lists the SELLERS issued for their parts of this
+  /// order - several of each, one per consignment. Not the operator's own
+  /// `invoices` above, which cover goods the operator sold.
+  sellerInvoices SellerInvoice[]
+  packingLists   SellerPackingList[]
 
   @@index([customerProfileId, createdAt], map: "ix_order_customer_time")
   @@index([status, createdAt], map: "ix_order_status_time")
@@ -2729,6 +2755,12 @@ model OrderItem {
   /// admin order detail. Never by pricing - an instruction is something to be
   /// done, not something that changes what is charged.
   noteSnapshot String? @db.VarChar(500)
+
+  /// The quantity band that priced this line, frozen: its id, range, the list
+  /// price it replaced and the price charged. Null when the list price applied.
+  /// Written once, so a later change to the seller's bands never rewrites
+  /// what this order says it was charged and why.
+  quantityTierJson Json?
 
   lineSubtotalMinor BigInt
   taxRatePercent    Decimal @db.Decimal(9, 6)
@@ -8360,6 +8392,24 @@ model SellerAccount {
   erpSyncJobs         SellerErpSyncJob[]
   erpAuditEvents      SellerErpAuditEvent[]
 
+  /// Who controls each of the four delivery levels, and what each costs.
+  logisticsPolicy         SellerLogisticsPolicy?
+  logisticsPolicyVersions SellerLogisticsPolicyVersion[]
+  logisticsProviders      SellerLogisticsProvider[]
+  logisticsLevelRates     LogisticsLevelRate[]
+  orderLogisticsLegs      OrderLogisticsLeg[]
+  shipmentLegs            ShipmentLeg[]
+  orderSettlements        SellerOrderSettlement[]
+  /// Bulk preorder terms and the requests made under them. See the ENTERPRISE
+  /// BULK PREORDER block at the end of this file.
+  preorderPolicies        PreorderPolicy[]
+  preorderRequests        PreorderRequest[]
+  /// The seller's own invoices and packing lists, and how they are numbered.
+  /// See the SELLER DOCUMENTS block at the end of this file.
+  invoiceSettings         SellerInvoiceSettings?
+  sellerInvoices          SellerInvoice[]
+  packingLists            SellerPackingList[]
+
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
   @@map("seller_accounts")
@@ -9003,6 +9053,8 @@ model SellerLocation {
   shipments     SellerShipment[]
   pickupProfiles SellerLogisticsPickupProfile[]
   fulfilmentRules SellerFulfilmentRule[]
+  /// L1 prices that start from this place.
+  levelRates      LogisticsLevelRate[]
 
   @@unique([sellerAccountId, code], map: "uq_seller_location_code")
   @@index([sellerAccountId, isOperational], map: "ix_seller_location_operational")
@@ -9702,6 +9754,17 @@ model SellerOffer {
   /// removing it would leave the line pointing at nothing. Archive instead.
   cartItems     CartItem[]
   orderItems    OrderItem[]
+  /// Bulk preorders asked for against this offer. RESTRICT, like the order
+  /// lines above: a request is evidence of what was negotiated.
+  preorderRequests PreorderRequest[]
+
+  /// The goods' tariff code: an Indian HSN (4, 6 or 8 digits) or an
+  /// international HS code. The seller's statement about their own goods, and
+  /// required on a GST tax invoice - so it is on the seller's offer rather than
+  /// on the shared catalogue product, where two sellers could disagree.
+  hsnCode         String? @db.VarChar(10)
+  /// ISO-3166 alpha-2. Printed on an export invoice and a packing list.
+  countryOfOrigin String? @db.Char(2)
 
   @@unique([sellerAccountId, productId, variantKey], map: "uq_seller_offer_product")
   @@unique([sellerAccountId, sellerSku], map: "uq_seller_offer_sku")
@@ -9716,12 +9779,34 @@ model SellerOffer {
 /// A band, not a step: `minQuantity` starts a band that runs until the next
 /// one begins. Overlapping bands are refused in the service, because a
 /// quantity matching two prices has no answer a buyer would accept.
+/// A price per piece that applies from a quantity: "from 500 pieces, 9.20".
+///
+/// Quantities are BASE UNITS (pieces), the same unit the cart line holds, and
+/// the price is the offer's currency in minor units. Applied by
+/// `domain/quantity-tier.ts` and nothing else, from the cart, the checkout and
+/// the preorder price - so the figure the popover promises and the figure the
+/// order is charged are the same function.
 model SellerPriceTier {
   id      String @id @db.Char(26)
   offerId String @db.Char(26)
 
   minQuantity Int
+  /// Inclusive. Null means "and above".
+  maxQuantity Int?
   priceMinor  BigInt
+
+  /// Off without deleting it, so a seller can pause a promotion and keep it.
+  isActive Boolean @default(true)
+  /// Both optional, inclusive start and exclusive end.
+  startsAt DateTime? @db.DateTime(3)
+  endsAt   DateTime? @db.DateTime(3)
+  /// Only for buyers with a business account (active, with a company name).
+  businessBuyersOnly Boolean @default(false)
+  /// ISO 3166-1 alpha-2 delivery countries this band is for. Null: everywhere.
+  countryCodes Json?
+  /// Only through a bulk preorder, never in the basket - a price for a
+  /// quantity the seller makes to order rather than holds.
+  preorderOnly Boolean @default(false)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
@@ -10021,6 +10106,12 @@ model SellerOrderGroup {
   settlementLines    SellerSettlementLine[]
   /// The carrier-grade shipments raised for this seller's part of the order.
   logisticsShipments LogisticsShipment[]
+  /// L1-L4 for this seller's part, created when the seller confirms it.
+  shipmentLegs       ShipmentLeg[]
+  /// What this seller is owed for it, and on which fee policy.
+  settlement         SellerOrderSettlement?
+  sellerInvoices     SellerInvoice[]
+  packingLists       SellerPackingList[]
 
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
   @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
@@ -10439,6 +10530,40 @@ enum SellerNotificationKind {
   /// on DHL's own site or counter, and type in the tracking number. Closed by
   /// that number being entered, or by the booking being cancelled.
   CARRIER_BOOKING_INCOMPLETE
+  /// The seller's four-level logistics policy was saved or published.
+  LOGISTICS_POLICY_UPDATE
+  /// A delivery level has no published price, so the route cannot be sold.
+  /// An ALERT, closed when a price is published for that level.
+  LOGISTICS_PRICE_REQUIRED
+  /// UBOSS published the price for a level it controls.
+  LOGISTICS_UBOSS_PRICE_PUBLISHED
+  /// A seller-controlled leg of a confirmed order needs a carrier. An ALERT,
+  /// closed when one is named.
+  LOGISTICS_LEG_ASSIGNMENT_REQUIRED
+  /// Something happened on a leg: accepted, refused, handed over, the next
+  /// leg's turn, or an exception.
+  LOGISTICS_LEG_UPDATE
+  /// The settlement for an order was calculated.
+  SETTLEMENT_CALCULATED
+
+  // --- Bulk preorders -------------------------------------------------------
+
+  /// A buyer asked for a preorder. An ALERT: it waits on the seller.
+  PREORDER_REQUEST_RECEIVED
+  /// The buyer answered the seller's terms - confirmed, or asked again.
+  PREORDER_BUYER_RESPONSE
+  /// The buyer paid and the preorder is a confirmed order.
+  PREORDER_CONFIRMED
+  /// The preorder ended without an order: cancelled, rejected or expired.
+  PREORDER_CLOSED
+  /// A confirmed preorder is close to its committed date and is not ready.
+  PREORDER_DELIVERY_RISK
+
+  // --- Seller documents -------------------------------------------------------
+
+  /// An issued invoice's goods were cancelled or returned, so a credit note is
+  /// owed. An ALERT, closed when the credit note is issued.
+  INVOICE_CREDIT_NOTE_REQUIRED
 }
 
 /// An in-app notification for a seller organisation.
@@ -12089,6 +12214,11 @@ enum LogisticsDocumentScanState {
   INFECTED
   FAILED
   SKIPPED
+  /// Produced by this server from its own records - an issued packing list,
+  /// an issued invoice. Nothing was uploaded, so there was nothing to scan,
+  /// and saying CLEAN would claim a scan that never happened. Appended:
+  /// MariaDB stores an enum by position.
+  GENERATED
 }
 
 /// Who may read one document.
@@ -12228,6 +12358,10 @@ enum LogisticsNotificationKind {
   INTEGRATION_FAILURE
   USER_INVITED
   SECURITY_EVENT
+  /// A leg of a four-level journey (L1-L4) was given to this company.
+  LEG_ASSIGNED
+  /// A leg this company held was taken back by whoever controls it.
+  LEG_WITHDRAWN
 }
 
 // ---------------------------------------------------------------------------
@@ -12361,6 +12495,9 @@ model LogisticsPartner {
   notifications LogisticsNotification[]
   auditLogs    LogisticsAuditLog[]
   sellerLinks  SellerLogisticsPartner[]
+  /// Level prices that name this company as the carrier, and the legs it holds.
+  levelRates   LogisticsLevelRate[]
+  shipmentLegs ShipmentLeg[]
 
   @@index([status, createdAt], map: "ix_logistics_partner_status")
   @@index([registrationCountry], map: "ix_logistics_partner_country")
@@ -12852,6 +12989,21 @@ model LogisticsShipment {
   pickupRequests  LogisticsPickupRequest[]
   manualCarrierBookings SellerManualCarrierBooking[]
   manifestEntries LogisticsDispatchManifestEntry[]
+
+  /// What goes in this consignment, and in which of its packages. See the
+  /// SELLER DOCUMENTS block at the end of this file.
+  lines          LogisticsShipmentLine[]
+  sellerInvoices SellerInvoice[]
+  packingLists   SellerPackingList[]
+
+  /// When the seller marked it packed - which happens only after its invoice
+  /// and packing list were validated and issued, in the same transaction.
+  packedAt DateTime? @db.DateTime(3)
+
+  /// The consignment this one was split from, when a seller divided one
+  /// seller order across two vehicles or two dispatch days. Not a key: the
+  /// original can be cancelled without taking this with it.
+  splitFromShipmentId String? @db.Char(26)
   driverAssignments LogisticsDriverAssignment[]
   trips           LogisticsActiveTrip[]
   notifications   LogisticsNotification[]
@@ -12927,7 +13079,16 @@ model LogisticsShipmentPackage {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
+  /// Net of packaging, where the seller weighed it. `weightGrams` above is the
+  /// gross figure a carrier needs.
+  netWeightGrams  Int?
+  /// A container's own number (ISO 6346) and the seal on it, as printed on a
+  /// packing list and checked at the port.
+  containerNumber String? @db.VarChar(20)
+  sealNumber      String? @db.VarChar(64)
+
   shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  contents LogisticsShipmentPackageLine[]
 
   @@unique([shipmentId, sequence], map: "uq_logistics_package_sequence")
   @@index([shipmentId], map: "ix_logistics_package_shipment")
@@ -15796,4 +15957,1363 @@ model SellerErpAuditEvent {
   @@index([sellerAccountId, createdAt], map: "ix_seller_erp_audit_time")
   @@index([sellerAccountId, action], map: "ix_seller_erp_audit_action")
   @@map("seller_erp_audit_events")
+}
+
+// ===========================================================================
+// SELLER LOGISTICS POLICY - who controls each of the four delivery levels,
+// what each level costs, and what the seller is owed afterwards
+//
+// A delivery from a seller's plant to a buyer is four legs, not one:
+//
+//   L1  first mile          plant / origin warehouse  -> port or airport of loading
+//   L2  international haul  port of loading           -> destination port or airport
+//   L3  destination inland  destination port          -> destination warehouse
+//   L4  last mile           destination warehouse     -> the buyer
+//
+// Each level is controlled by the SELLER or by UBOSS (the marketplace), and
+// the seller's policy says which. L1 is the seller's in every mode - the CHECK
+// constraints below refuse anything else - and in the mixed mode the seller
+// chooses L2, L3 and L4 one by one, but may not choose all three (that is
+// simply the Self mode). `domain/logistics-levels.ts` holds the same rules in
+// code so a request is refused with a sentence before the database refuses it
+// with a constraint.
+//
+// The words SELF, UBOSS and HYBRID say who is in control. They are not
+// carriers. The carrier for a level is on its price row (`provider` or
+// `logisticsPartnerId`), and DHL, FedEx and India Post may be used with no
+// API account at all - booked by hand, see `SellerLogisticsProvider`.
+// ===========================================================================
+
+enum LogisticsControlMode {
+  /// The seller controls all four levels.
+  SELF
+  /// The seller controls L1; UBOSS controls L2, L3 and L4.
+  UBOSS
+  /// The seller controls L1 and chooses, per level, who controls L2-L4.
+  HYBRID
+}
+
+enum LogisticsLevel {
+  L1
+  L2
+  L3
+  L4
+}
+
+enum LogisticsControlOwner {
+  SELLER
+  UBOSS
+}
+
+enum LogisticsTransportMode {
+  ROAD
+  AIR
+  SEA
+  RAIL
+  POSTAL
+}
+
+/// Where a level's price came from. Recorded because "the seller typed it",
+/// "the carrier quoted it" and "UBOSS set it" are answered by different people
+/// when a buyer disputes it.
+enum LogisticsPriceSource {
+  MANUAL
+  PROVIDER_QUOTE
+  UBOSS_RATE
+  RATE_CARD
+}
+
+/// A price row's own life. Append-only in practice: a published price is never
+/// edited - a change is a new row that supersedes it - because an order points
+/// at the price it was charged and must still find it as it stood.
+enum LogisticsLevelRateStatus {
+  DRAFT
+  PUBLISHED
+  SUPERSEDED
+  INACTIVE
+}
+
+/// How a seller means to use a carrier. MANUAL_ONLY is a real, supported
+/// choice - book on the carrier's site, type the tracking number here - and
+/// never pretends an API exists.
+enum LogisticsProviderConnectionMode {
+  MANUAL_ONLY
+  API
+}
+
+/// One leg of a confirmed order, moving. Changed only through
+/// `assertLegTransition` in `domain/logistics-levels.ts`.
+enum ShipmentLegStatus {
+  /// Waiting for the leg before it to be handed over.
+  PENDING
+  /// Its turn, and nobody is carrying it yet.
+  AWAITING_ASSIGNMENT
+  /// A carrier is named and has not yet said yes (a partner), or has been
+  /// booked by hand (DHL, FedEx, India Post, a forwarder).
+  ASSIGNED
+  /// The partner accepted it.
+  ACCEPTED
+  /// The goods are moving on this leg.
+  IN_PROGRESS
+  /// Handed over to the next leg, or delivered to the buyer on L4.
+  COMPLETED
+  CANCELLED
+}
+
+enum PlatformFeeType {
+  PERCENT
+  FLAT
+  PERCENT_PLUS_FLAT
+}
+
+enum PlatformFeeBasis {
+  /// The seller's goods, after discounts. Tax and delivery excluded.
+  PRODUCT_SUBTOTAL
+  /// The goods plus the delivery levels the SELLER controls - the delivery
+  /// money that is theirs. UBOSS-controlled levels are never in a seller's fee
+  /// basis: that money was never the seller's.
+  PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY
+}
+
+enum PlatformFeePolicyStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum PlatformFeeScope {
+  GLOBAL
+  MARKET
+  CATEGORY
+  SELLER
+}
+
+/// A seller's logistics policy: the DRAFT being edited, and a pointer to the
+/// version in force.
+///
+/// Exactly one per seller (`uq_seller_logistics_policy_seller`), and exactly
+/// one version in force, because `activeVersionId` is one column rather than a
+/// flag on many rows. A policy with no published version offers the seller's
+/// goods on no four-level route at all - the storefront behaves for them as it
+/// did before this existed.
+model SellerLogisticsPolicy {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// The draft. L1 is not stored: it is the seller's in every mode, and a
+  /// column that could only ever hold one value is a column that could one
+  /// day hold another.
+  mode    LogisticsControlMode  @default(SELF)
+  l2Owner LogisticsControlOwner @default(SELLER)
+  l3Owner LogisticsControlOwner @default(SELLER)
+  l4Owner LogisticsControlOwner @default(SELLER)
+
+  activeVersionId String? @db.Char(26)
+
+  /// Optimistic lock. A PUT carries the version it read; two people editing
+  /// the same policy do not silently overwrite each other.
+  version Int @default(1)
+
+  updatedByUserId String?  @db.Char(26)
+  createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt       DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount                  @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_logistics_policy_seller")
+  activeVersion SellerLogisticsPolicyVersion?  @relation("ActiveLogisticsPolicyVersion", fields: [activeVersionId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_seller_logistics_policy_active")
+  versions      SellerLogisticsPolicyVersion[] @relation("LogisticsPolicyVersions")
+
+  @@unique([sellerAccountId], map: "uq_seller_logistics_policy_seller")
+  @@unique([activeVersionId], map: "uq_seller_logistics_policy_active")
+  @@map("seller_logistics_policies")
+}
+
+/// One published state of a seller's policy. Never updated except to record
+/// when it stopped being in force: an order names the version it was priced
+/// under, and a mode change in March must not rewrite February's orders.
+model SellerLogisticsPolicyVersion {
+  id              String @id @db.Char(26)
+  policyId        String @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  versionNumber   Int
+
+  mode    LogisticsControlMode
+  l2Owner LogisticsControlOwner
+  l3Owner LogisticsControlOwner
+  l4Owner LogisticsControlOwner
+
+  changeNote        String?   @db.VarChar(512)
+  publishedAt       DateTime  @default(now()) @db.DateTime(3)
+  publishedByUserId String?   @db.Char(26)
+  supersededAt      DateTime? @db.DateTime(3)
+
+  policy        SellerLogisticsPolicy  @relation("LogisticsPolicyVersions", fields: [policyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_logistics_policy_version_policy")
+  sellerAccount SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_logistics_policy_version_seller")
+  activeFor     SellerLogisticsPolicy? @relation("ActiveLogisticsPolicyVersion")
+  legCharges    OrderLogisticsLeg[]
+
+  @@unique([policyId, versionNumber], map: "uq_logistics_policy_version_number")
+  @@index([sellerAccountId, publishedAt], map: "ix_logistics_policy_version_seller")
+  @@map("seller_logistics_policy_versions")
+}
+
+/// Which of DHL, FedEx, India Post (and a hand-booked forwarder, `MANUAL`) a
+/// seller has switched on for their own levels.
+///
+/// Deliberately NOT a connection. Whether an API account works is decided by
+/// `SellerCarrierConnection` and `carrierSetupStatus`, and only there - this
+/// row records that the seller intends to use the carrier, and how. A seller
+/// with no API credentials enables a carrier as MANUAL_ONLY and books it by
+/// hand; nothing on any screen will then say "Connected".
+model SellerLogisticsProvider {
+  id              String                          @id @db.Char(26)
+  sellerAccountId String                          @db.Char(26)
+  provider        CarrierProvider
+  connectionMode  LogisticsProviderConnectionMode @default(MANUAL_ONLY)
+
+  enabledAt       DateTime? @db.DateTime(3)
+  disabledAt      DateTime? @db.DateTime(3)
+  updatedByUserId String?   @db.Char(26)
+  createdAt       DateTime  @default(now()) @db.DateTime(3)
+  updatedAt       DateTime  @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_logistics_provider_seller")
+
+  @@unique([sellerAccountId, provider], map: "uq_seller_logistics_provider")
+  @@map("seller_logistics_providers")
+}
+
+/// What one level costs on one route, and who set it.
+///
+/// ROUTE-SCOPED, because one number for the whole world is wrong: moving a
+/// pallet from Mumbai to Rotterdam and from Mumbai to Dubai are not the same
+/// price. Every scope column is optional and a NULL means "any" - a seller who
+/// really does charge one flat price everywhere says so (`isWorldwideFlat`)
+/// rather than getting it by leaving everything blank.
+///
+///   L1  originLocationId -> originPortCode
+///   L2  originPortCode   -> destinationPortCode (+ destinationCountry)
+///   L3  destinationPortCode -> destinationHubCode (+ destinationCountry)
+///   L4  destinationHubCode  -> destinationCountry / destinationPostalPrefix
+///
+/// `owner` is who set the price, and it must match who controls the level in
+/// the seller's policy when a buyer is quoted - a price the seller typed for a
+/// level UBOSS now controls is kept, and ignored. L1 is never UBOSS's
+/// (`chk_level_rate_l1_seller`).
+///
+/// EMPTY IS NOT ZERO. `amountMinor` is NULL until somebody enters a price, and
+/// zero is allowed only as an explicit, confirmed free level
+/// (`chk_level_rate_free`). A blank field silently read as zero is free
+/// international freight nobody agreed to give away.
+model LogisticsLevelRate {
+  id              String                @id @db.Char(26)
+  sellerAccountId String                @db.Char(26)
+  level           LogisticsLevel
+  owner           LogisticsControlOwner
+
+  // --- Scope -------------------------------------------------------------
+  originLocationId        String? @db.Char(26)
+  /// UN/LOCODE (INBOM, NLRTM) or IATA airport code (BOM, AMS).
+  originPortCode          String? @db.VarChar(8)
+  destinationPortCode     String? @db.VarChar(8)
+  /// The destination warehouse, as the price's author names it. A code and a
+  /// name rather than a foreign key: L3 may end at UBOSS's warehouse, a
+  /// seller's own one abroad, or a forwarder's bonded store.
+  destinationHubCode      String? @db.VarChar(64)
+  destinationHubName      String? @db.VarChar(160)
+  destinationCountry      String? @db.Char(2)
+  /// '' for the whole country. Never NULL - see the note on `regionValue` in
+  /// `LogisticsServiceRegion`.
+  destinationPostalPrefix String  @default("") @db.VarChar(16)
+  /// PARCEL, PALLET, CONTAINER - or NULL for any.
+  packageClass            String? @db.VarChar(16)
+  minWeightGrams          Int?
+  maxWeightGrams          Int?
+  isWorldwideFlat         Boolean @default(false)
+
+  // --- Carrier -----------------------------------------------------------
+  transportMode      LogisticsTransportMode
+  /// DHL, FEDEX, INDIA_POST, or MANUAL (a forwarder booked by hand, named in
+  /// `providerLabel`). NULL when a delivery company on this platform carries it.
+  provider           CarrierProvider?
+  logisticsPartnerId String?          @db.Char(26)
+  providerLabel      String?          @db.VarChar(160)
+  serviceName        String?          @db.VarChar(120)
+  /// AWB, BOL, CONTAINER - what an L2 tracking reference will be.
+  trackingReferenceKind  String? @db.VarChar(16)
+  /// L3: the goods cannot leave the port until customs releases them.
+  requiresCustomsRelease Boolean @default(false)
+  transitDaysMin         Int?    @db.SmallInt
+  transitDaysMax         Int?    @db.SmallInt
+
+  // --- Price -------------------------------------------------------------
+  amountMinor     BigInt?
+  currency        String               @db.Char(3)
+  isFree          Boolean              @default(false)
+  freeConfirmedAt DateTime?            @db.DateTime(3)
+  taxInclusive    Boolean              @default(false)
+  priceSource     LogisticsPriceSource
+  status          LogisticsLevelRateStatus @default(DRAFT)
+  effectiveFrom   DateTime             @default(now()) @db.DateTime(3)
+  versionNumber   Int                  @default(1)
+  /// The published row this one replaces when it is published.
+  supersedesRateId String?             @db.Char(26)
+
+  publishedAt       DateTime? @db.DateTime(3)
+  publishedByUserId String?   @db.Char(26)
+  updatedByUserId   String?   @db.Char(26)
+  createdAt         DateTime  @default(now()) @db.DateTime(3)
+  updatedAt         DateTime  @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_level_rate_seller")
+  originLocation   SellerLocation?   @relation(fields: [originLocationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_level_rate_origin")
+  logisticsPartner LogisticsPartner? @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_level_rate_partner")
+
+  @@index([sellerAccountId, level, owner, status], map: "ix_level_rate_lookup")
+  @@index([originLocationId], map: "ix_level_rate_origin")
+  @@index([logisticsPartnerId], map: "ix_level_rate_partner")
+  @@map("logistics_level_rates")
+}
+
+/// What one level cost one buyer, frozen at checkout.
+///
+/// Copied, never joined: the rate, the policy version, the carrier's name and
+/// the exchange rate are all written here as they stood, so a price published
+/// next week, a mode change or a new rate set changes nothing about this row.
+/// Written once and never updated - the table has no `updatedAt`.
+model OrderLogisticsLeg {
+  id              String                @id @db.Char(26)
+  orderId         String                @db.Char(26)
+  sellerAccountId String                @db.Char(26)
+  level           LogisticsLevel
+  owner           LogisticsControlOwner
+  policyVersionId String                @db.Char(26)
+  /// The price row it was charged from. No foreign key on purpose: the row is
+  /// kept forever anyway, and this snapshot must not depend on it.
+  rateId            String @db.Char(26)
+  rateVersionNumber Int
+
+  transportMode      LogisticsTransportMode
+  provider           CarrierProvider?
+  logisticsPartnerId String?          @db.Char(26)
+  providerLabel      String?          @db.VarChar(160)
+  serviceName        String?          @db.VarChar(120)
+  originLabel        String           @db.VarChar(160)
+  destinationLabel   String           @db.VarChar(160)
+  transitDaysMin     Int?             @db.SmallInt
+  transitDaysMax     Int?             @db.SmallInt
+
+  /// The price as its author entered it.
+  originalAmountMinor BigInt
+  originalCurrency    String @db.Char(3)
+  /// The conversion into the order's currency. All NULL when none was needed.
+  fxRate              Decimal?  @db.Decimal(24, 12)
+  fxProvider          String?   @db.VarChar(64)
+  fxRateAsOf          DateTime? @db.DateTime(3)
+  /// What the buyer was charged for this level, in `currency`.
+  amountMinor         BigInt
+  currency            String    @db.Char(3)
+  isFree              Boolean   @default(false)
+  taxInclusive        Boolean   @default(false)
+  priceSource         LogisticsPriceSource
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  order         Order                        @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_logistics_leg_order")
+  sellerAccount SellerAccount                @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_logistics_leg_seller")
+  policyVersion SellerLogisticsPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_logistics_leg_policy")
+  shipmentLeg   ShipmentLeg?
+
+  @@unique([orderId, sellerAccountId, level], map: "uq_order_logistics_leg")
+  @@index([sellerAccountId], map: "ix_order_logistics_leg_seller")
+  @@index([policyVersionId], map: "ix_order_logistics_leg_policy")
+  @@map("order_logistics_legs")
+}
+
+/// One leg being carried out, for one seller's part of a confirmed order.
+///
+/// Created when the seller confirms their part - never before, because
+/// nobody may be offered work on an order the seller may still refuse - with
+/// the owner copied from the frozen charge, so a later policy change moves
+/// nobody's parcel. The carrier is a COLUMN, not a row per offer: one leg has
+/// at most one carrier at a time by construction, and a reassignment is a
+/// `ShipmentLegEvent`, not a second live row.
+model ShipmentLeg {
+  id                 String                @id @db.Char(26)
+  orderId            String                @db.Char(26)
+  sellerOrderGroupId String                @db.Char(26)
+  sellerAccountId    String                @db.Char(26)
+  orderLegId         String?               @db.Char(26)
+  /// The consignment this journey belongs to, where one was raised.
+  logisticsShipmentId String?              @db.Char(26)
+  level              LogisticsLevel
+  sequence           Int                   @db.SmallInt
+  owner              LogisticsControlOwner
+  status             ShipmentLegStatus     @default(PENDING)
+
+  // --- The carrier -------------------------------------------------------
+  provider           CarrierProvider?
+  logisticsPartnerId String?                          @db.Char(26)
+  providerLabel      String?                          @db.VarChar(160)
+  serviceName        String?                          @db.VarChar(120)
+  connectionMode     LogisticsProviderConnectionMode?
+  /// The carrier's own reference: tracking number, air waybill, bill of
+  /// lading or container number. Typed in by a person, never generated.
+  trackingNumber        String? @db.VarChar(64)
+  trackingReferenceKind String? @db.VarChar(16)
+  pickupReference       String? @db.VarChar(64)
+  expectedStartAt       DateTime? @db.DateTime(3)
+  expectedCompleteAt    DateTime? @db.DateTime(3)
+  /// A driver of the partner holding the leg. Set by that partner only.
+  driverProfileId       String?   @db.Char(26)
+
+  assignedAt       DateTime? @db.DateTime(3)
+  assignedByUserId String?   @db.Char(26)
+  /// SELLER or UBOSS - who named the carrier. Always equal to `owner`; kept
+  /// so the history reads without a join.
+  assignedByRole   String?   @db.VarChar(8)
+  acceptedAt       DateTime? @db.DateTime(3)
+  startedAt        DateTime? @db.DateTime(3)
+  completedAt      DateTime? @db.DateTime(3)
+  cancelledAt      DateTime? @db.DateTime(3)
+
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  order            Order              @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_leg_order")
+  sellerOrderGroup SellerOrderGroup   @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_leg_group")
+  sellerAccount    SellerAccount      @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_leg_seller")
+  orderLeg         OrderLogisticsLeg? @relation(fields: [orderLegId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_shipment_leg_charge")
+  logisticsPartner LogisticsPartner?  @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_shipment_leg_partner")
+  events           ShipmentLegEvent[]
+
+  @@unique([sellerOrderGroupId, level], map: "uq_shipment_leg_group_level")
+  @@unique([orderLegId], map: "uq_shipment_leg_charge")
+  @@index([owner, status], map: "ix_shipment_leg_owner_status")
+  @@index([logisticsPartnerId, status], map: "ix_shipment_leg_partner")
+  @@index([sellerAccountId, status], map: "ix_shipment_leg_seller")
+  @@index([orderId], map: "ix_shipment_leg_order")
+  @@map("shipment_legs")
+}
+
+/// Everything that happened to a leg, append-only: who named which carrier,
+/// the partner's yes or no, each handover. The handover record is what a
+/// dispute about "who had it when it broke" is settled from.
+model ShipmentLegEvent {
+  id         String             @id @db.Char(26)
+  legId      String             @db.Char(26)
+  kind       String             @db.VarChar(32)
+  fromStatus ShipmentLegStatus?
+  toStatus   ShipmentLegStatus
+  /// SELLER, UBOSS, PARTNER or SYSTEM.
+  actorRole         String   @db.VarChar(8)
+  performedByUserId String?  @db.Char(26)
+  note              String?  @db.VarChar(512)
+  occurredAt        DateTime @default(now()) @db.DateTime(3)
+  /// A retried request collides here rather than recording a handover twice.
+  idempotencyKey    String?  @db.VarChar(80)
+
+  leg ShipmentLeg @relation(fields: [legId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_leg_event_leg")
+
+  @@unique([idempotencyKey], map: "uq_shipment_leg_event_idem")
+  @@index([legId, occurredAt], map: "ix_shipment_leg_event_leg")
+  @@map("shipment_leg_events")
+}
+
+/// What the marketplace deducts from a seller's proceeds, and the tax charged
+/// on that deduction.
+///
+/// A SELLER-SETTLEMENT DEDUCTION, never a buyer charge. No part of this is
+/// added to what a buyer pays, and no seller can write it: every route that
+/// changes it requires `finance.policy.write`.
+///
+/// Versioned per scope. A published row is never edited; publishing a new
+/// version retires the old one, and a seller order's settlement names the
+/// version it was calculated on, so a rate change in March leaves February's
+/// settlements exactly as they were. `activeScopeKey` is the scope key while
+/// the row is PUBLISHED and NULL otherwise, so `uq_platform_fee_active` allows
+/// any number of retired versions and exactly one live one per scope.
+///
+/// `taxRatePercent` is a CONFIGURED value, and `isTaxRuleVerified` says
+/// whether a person with authority has confirmed it is the legally correct
+/// one. Until they have, no screen or invoice calls it GST.
+model PlatformFeePolicy {
+  id              String                  @id @db.Char(26)
+  scope           PlatformFeeScope
+  /// 'GLOBAL', 'MARKET:IN', 'CATEGORY:<id>', 'SELLER:<id>'.
+  scopeKey        String                  @db.VarChar(64)
+  sellerAccountId String?                 @db.Char(26)
+  categoryId      String?                 @db.Char(26)
+  marketCountry   String?                 @db.Char(2)
+  versionNumber   Int
+  status          PlatformFeePolicyStatus @default(DRAFT)
+  activeScopeKey  String?                 @db.VarChar(64)
+
+  name        String           @db.VarChar(160)
+  feeType     PlatformFeeType
+  feeBasis    PlatformFeeBasis @default(PRODUCT_SUBTOTAL)
+  /// Percent, e.g. 10.000000 for 10%. Decimal, never a float.
+  percentRate Decimal          @default(0) @db.Decimal(9, 6)
+  flatFeeMinor BigInt          @default(0)
+  minFeeMinor  BigInt?
+  maxFeeMinor  BigInt?
+  currency     String          @db.Char(3)
+
+  /// The configured tax on the platform fee, in percent. `platformFeeTaxRate`.
+  taxRatePercent       Decimal   @default(0) @db.Decimal(9, 6)
+  taxLabel             String    @default("Tax on platform fee") @db.VarChar(64)
+  taxJurisdiction      String?   @db.Char(2)
+  isTaxRuleVerified    Boolean   @default(false)
+  taxVerifiedByUserId  String?   @db.Char(26)
+  taxVerifiedAt        DateTime? @db.DateTime(3)
+  taxVerificationNote  String?   @db.VarChar(512)
+
+  effectiveFrom     DateTime  @default(now()) @db.DateTime(3)
+  effectiveTo       DateTime? @db.DateTime(3)
+  notes             String?   @db.VarChar(1024)
+  publishedAt       DateTime? @db.DateTime(3)
+  publishedByUserId String?   @db.Char(26)
+  retiredAt         DateTime? @db.DateTime(3)
+  createdByUserId   String?   @db.Char(26)
+  createdAt         DateTime  @default(now()) @db.DateTime(3)
+  updatedAt         DateTime  @updatedAt @db.DateTime(3)
+
+  settlements SellerOrderSettlement[]
+
+  @@unique([scopeKey, versionNumber], map: "uq_platform_fee_version")
+  @@unique([activeScopeKey], map: "uq_platform_fee_active")
+  @@index([status, scope], map: "ix_platform_fee_status")
+  @@map("platform_fee_policies")
+}
+
+/// What one seller is owed for one order, and how that was worked out.
+///
+/// Calculated once, when the order is confirmed, and kept: the fee policy
+/// version, the rates and every figure are stored, so a later policy leaves
+/// this row alone and a disputed settlement can be recomputed by hand.
+///
+///   gross seller proceeds
+/// + seller-controlled delivery proceeds
+/// - platform fee
+/// - tax on platform fee
+/// - refunds and adjustments
+/// = estimated seller settlement
+model SellerOrderSettlement {
+  id                 String @id @db.Char(26)
+  sellerOrderGroupId String @db.Char(26)
+  sellerAccountId    String @db.Char(26)
+  currency           String @db.Char(3)
+
+  grossProceedsMinor          BigInt
+  sellerDeliveryProceedsMinor BigInt @default(0)
+  /// Delivery the buyer paid for levels UBOSS controlled. Shown so the seller
+  /// can see it is not theirs; never part of their settlement.
+  ubossDeliveryMinor          BigInt @default(0)
+  feeBasisMinor               BigInt
+  platformFeeMinor            BigInt
+  platformFeeTaxMinor         BigInt
+  refundsAdjustmentsMinor     BigInt @default(0)
+  estimatedSettlementMinor    BigInt
+
+  platformFeePolicyId      String?  @db.Char(26)
+  platformFeePolicyVersion Int?
+  feeTaxRatePercent        Decimal  @default(0) @db.Decimal(9, 6)
+  feeTaxLabel              String   @db.VarChar(64)
+  feeTaxVerified           Boolean  @default(false)
+  /// How the fee was reached, per policy, for the screen that explains it.
+  breakdownJson            Json
+  computedAt               DateTime @default(now()) @db.DateTime(3)
+
+  sellerOrderGroup SellerOrderGroup   @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_settlement_group")
+  sellerAccount    SellerAccount      @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_settlement_seller")
+  feePolicy        PlatformFeePolicy? @relation(fields: [platformFeePolicyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_order_settlement_policy")
+
+  @@unique([sellerOrderGroupId], map: "uq_order_settlement_group")
+  @@index([sellerAccountId, computedAt], map: "ix_order_settlement_seller")
+  @@index([platformFeePolicyId], map: "ix_order_settlement_policy")
+  @@map("seller_order_settlements")
+}
+
+// ===========================================================================
+// ENTERPRISE BULK PREORDER
+//
+// A preorder is NOT a scheduled cart and NOT a basket line. It is a request for
+// a quantity so large that the seller has to say whether they can make it, by
+// when, and at what price - and the buyer then has to agree to what the seller
+// said. Nothing in this block reserves sellable stock, charges a card or
+// creates an order until both parties have agreed:
+//
+//   buyer submits -> seller accepts / counters / rejects -> buyer confirms
+//   -> ONE order is created, awaiting payment -> the signed payment webhook
+//   confirms that order -> the preorder is CONFIRMED.
+//
+// Every status write goes through `domain/preorder-state.ts`, the same rule
+// the order and schedule state machines follow.
+//
+// The terms each side proposed are `PreorderOffer` rows, numbered and hashed.
+// A proposal is never edited: a change is a new revision. The one the buyer
+// confirmed is copied onto the request as `confirmedTermsJson` with its hash,
+// and that pair is what the order is built from.
+// ===========================================================================
+
+/// Which level of the fallback chain a policy sits at.
+///
+///   OFFER -> PRODUCT -> SELLER_DEFAULT -> the platform's own defaults (config)
+///
+/// The first one that EXISTS wins, whole. A variant whose own policy says
+/// "disabled" is disabled, and does not fall through to an enabled product
+/// policy - a seller who switched one variant off meant it.
+enum PreorderPolicyScope {
+  /// One seller's offer, which is one seller's terms for one variant.
+  OFFER
+  /// Every one of this seller's offers on one product.
+  PRODUCT
+  /// Everything this seller sells, unless something more specific exists.
+  SELLER_DEFAULT
+}
+
+/// What a preorder quantity is counted in. Whatever it is, the stored
+/// quantity is ALSO held in base units (pieces), for the same reason every
+/// basket and order line is: one number the rest of the system reads.
+enum PreorderQuantityUnit {
+  PIECE
+  CARTON
+  UK_PALLET
+  US_PALLET
+  CONTAINER
+}
+
+enum PreorderCapacityPeriod {
+  DAY
+  WEEK
+  MONTH
+}
+
+/// Whether the seller publishes a preorder price or quotes each request.
+enum PreorderPricingMode {
+  /// The price bands on the policy apply. The buyer sees an indicative
+  /// figure on the form, and the seller still confirms it.
+  FIXED
+  /// No indicative price. The seller answers each request with one.
+  QUOTE_REQUIRED
+}
+
+enum PreorderTransportMode {
+  ANY
+  ROAD
+  AIR
+  SEA
+  RAIL
+}
+
+/// Where a preorder request stands.
+///
+/// There is deliberately no DRAFT and no separate BUYER_CONFIRMATION_REQUIRED.
+/// Nothing is saved until the buyer submits, and SELLER_ACCEPTED and
+/// SELLER_COUNTERED are both "the buyer must now confirm" - a third name for
+/// the same waiting state would be one more status nobody can explain.
+enum PreorderStatus {
+  /// The buyer asked. The seller must answer.
+  SUBMITTED
+  /// The buyer declined the seller's terms and asked again. The seller must
+  /// answer.
+  SELLER_REVIEW_REQUIRED
+  /// The seller agreed to exactly what was asked, with a committed date. The
+  /// buyer must confirm.
+  SELLER_ACCEPTED
+  /// The seller proposed something different. The buyer must confirm.
+  SELLER_COUNTERED
+  /// The buyer agreed. Recorded in the history; the same transaction moves on
+  /// to PAYMENT_REQUIRED.
+  BUYER_CONFIRMED
+  /// An order exists and is awaiting payment. Capacity is held.
+  PAYMENT_REQUIRED
+  /// The order was paid - confirmed by a signed webhook, never a redirect.
+  CONFIRMED
+  IN_PRODUCTION
+  READY_FOR_FULFILLMENT
+  /// Handed to ordinary order fulfilment. Terminal for the preorder.
+  CONVERTED_TO_ORDER
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum PreorderParty {
+  BUYER
+  SELLER
+}
+
+enum PreorderOfferKind {
+  /// The seller agreed to the request as asked.
+  ACCEPT_AS_REQUESTED
+  /// The seller proposed different terms.
+  COUNTER
+}
+
+enum PreorderOfferState {
+  PROPOSED
+  ACCEPTED
+  DECLINED
+  /// A newer revision replaced it before anybody answered.
+  SUPERSEDED
+  EXPIRED
+  /// The request ended while this was still open.
+  WITHDRAWN
+}
+
+/// One seller's preorder terms, at one level of the fallback chain.
+///
+/// MOQ, increment and maximum are held in `moqUnit` because that is how a
+/// seller thinks ("ten pallets"), and converted to base units whenever they
+/// are used - from the offer's CURRENT packaging, so a policy written for a
+/// whole product is correct for every variant's own pallet size. A policy
+/// whose unit the offer has no active packaging for is incomplete for that
+/// offer, and says so, rather than guessing a pallet size.
+model PreorderPolicy {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  scope    PreorderPolicyScope
+  /// The offer id under OFFER, the product id under PRODUCT, '' under
+  /// SELLER_DEFAULT. Never null, so the unique key below actually holds - a
+  /// MariaDB UNIQUE index treats every NULL as distinct.
+  scopeKey String              @default("") @db.VarChar(26)
+
+  /// Set under OFFER and PRODUCT respectively. Deliberately not foreign keys:
+  /// ownership is checked on write, which is the check that matters, and an
+  /// archived offer must not take its terms with it.
+  offerId   String? @db.Char(26)
+  productId String? @db.Char(26)
+
+  isEnabled Boolean @default(false)
+
+  moqUnit           PreorderQuantityUnit @default(PIECE)
+  /// Null means the seller has not set one. Never defaulted: a preorder with
+  /// no minimum would be an ordinary order with extra steps.
+  moqQuantity       Int?
+  incrementQuantity Int                  @default(1)
+  maxQuantity       Int?
+
+  /// Pieces the seller can make per `capacityPeriod`. Null means capacity is
+  /// not tracked, and nothing is reserved.
+  capacityBaseUnits Int?
+  capacityPeriod    PreorderCapacityPeriod @default(MONTH)
+
+  /// Calendar days from today to the earliest delivery the seller will commit
+  /// to. Null falls back to the platform notice period alone.
+  minLeadTimeDays Int?
+  /// How far ahead a delivery may be booked. Null means no limit.
+  maxAdvanceDays  Int?
+
+  /// ISO-3166 alpha-2 codes. Null or empty means wherever the offer sells.
+  deliveryCountriesJson   Json?
+  /// The seller's own locations that can make or ship this. Informational to
+  /// the buyer; the seller chooses one when they accept.
+  eligibleLocationIdsJson Json?
+  /// Which of `PreorderQuantityUnit` a buyer may order in. Null means PIECE
+  /// plus every packaging the offer has active.
+  packagingTypesJson      Json?
+
+  pricingMode            PreorderPricingMode @default(QUOTE_REQUIRED)
+  allowPartialFulfilment Boolean             @default(false)
+  allowSplitDelivery     Boolean             @default(false)
+
+  /// How long the seller has to answer a request, and the buyer to answer
+  /// the seller. Null falls back to the platform default.
+  requestExpiryHours Int?
+  offerExpiryHours   Int?
+
+  cancellationTerms   String? @db.VarChar(1000)
+  specialInstructions String? @db.VarChar(1000)
+
+  /// Bumped on every save. A request records the version it was made under.
+  version Int @default(1)
+
+  updatedByLabel String?  @db.VarChar(160)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+  updatedAt      DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount       @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_policy_seller")
+  tiers         PreorderPriceTier[]
+  capacity      PreorderCapacityBucket[]
+
+  @@unique([sellerAccountId, scope, scopeKey], map: "uq_preorder_policy_scope")
+  @@index([sellerAccountId, updatedAt], map: "ix_preorder_policy_seller")
+  @@map("preorder_policies")
+}
+
+/// "Cheaper per piece if you take fifty thousand."
+///
+/// A band, exactly like `SellerPriceTier`: `minBaseUnits` starts a band that
+/// runs until the next one begins. Only read under FIXED pricing, and only as
+/// an INDICATIVE figure - the seller confirms the price in their answer.
+model PreorderPriceTier {
+  id       String @id @db.Char(26)
+  policyId String @db.Char(26)
+
+  minBaseUnits   Int
+  /// The price of ONE base unit in this band. Minor units.
+  unitPriceMinor BigInt
+  currency       String @db.Char(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  policy PreorderPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_tier_policy")
+
+  @@unique([policyId, minBaseUnits], map: "uq_preorder_tier_band")
+  @@map("preorder_price_tiers")
+}
+
+/// Production capacity already promised, per policy per period.
+///
+/// A counter row rather than a SUM over requests, because the check has to be
+/// ONE atomic statement: `UPDATE ... SET reserved = reserved + n WHERE
+/// reserved + n <= capacity`, and an affected-row count of zero means the
+/// capacity was not there. MariaDB 10.4 has no SKIP LOCKED and a
+/// read-then-write loses to the second buyer confirming in the same second.
+model PreorderCapacityBucket {
+  id              String @id @db.Char(26)
+  policyId        String @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// "2026-12-15", "2026-W50" or "2026-12", after the policy's period.
+  periodKey String @db.VarChar(16)
+
+  reservedBaseUnits Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  policy PreorderPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_capacity_policy")
+
+  @@unique([policyId, periodKey], map: "uq_preorder_capacity_period")
+  @@index([sellerAccountId, periodKey], map: "ix_preorder_capacity_seller")
+  @@map("preorder_capacity_buckets")
+}
+
+/// One buyer's preorder request, and where the negotiation over it stands.
+model PreorderRequest {
+  id String @id @db.Char(26)
+
+  /// PRQ-2026-000001. What both parties quote on the telephone.
+  requestNumber String @unique(map: "uq_preorder_request_number") @db.VarChar(32)
+
+  /// The seller who answers, or NULL when the product is the operator's own
+  /// and the operator's staff answer it in the admin console. Null together
+  /// with `offerId` (chk_preorder_request_supplier).
+  sellerAccountId   String? @db.Char(26)
+  customerProfileId String  @db.Char(26)
+  requestedByUserId String @db.Char(26)
+
+  productId  String  @db.Char(26)
+  variantId  String? @db.Char(26)
+  variantKey String  @default("") @db.VarChar(26)
+  offerId    String? @db.Char(26)
+
+  /// The policy that applied, its version, and the terms as they stood. The
+  /// snapshot is what the request is judged against later - a seller raising
+  /// their minimum next week does not invalidate a request made today.
+  policyId           String? @db.Char(26)
+  policyVersion      Int
+  policySnapshotJson Json
+
+  status PreorderStatus @default(SUBMITTED)
+
+  // --- What the buyer asked for -----------------------------------------------
+
+  orderingUnit       PreorderQuantityUnit
+  unitQuantity       Int
+  unitsPerPackage    Int
+  requestedBaseUnits Int
+
+  /// Calendar days, not instants - see `domain/delivery-dates.ts`.
+  requestedDeliveryDate DateTime @db.Date
+  /// What the earliest-date rule said at submission, kept for the dispute
+  /// about whether the date asked for was ever possible.
+  earliestDeliveryDate  DateTime @db.Date
+  timezone              String   @db.VarChar(64)
+
+  /// The buyer's address book entry, and the address as it was. The snapshot
+  /// is the authority; the id is a convenience that may stop resolving.
+  shippingAddressId   String? @db.Char(26)
+  shippingAddressJson Json
+  destinationCountry  String  @db.Char(2)
+  /// The buyer's own receiving warehouse, in their words.
+  destinationWarehouseLabel String? @db.VarChar(160)
+
+  packagingPreference  PreorderQuantityUnit?
+  transportPreference  PreorderTransportMode @default(ANY)
+  allowPartialDelivery Boolean               @default(false)
+
+  purchaseOrderReference String? @db.VarChar(64)
+  customerNotes          String? @db.VarChar(2000)
+  handlingInstructions   String? @db.VarChar(1000)
+  termsAcceptedAt        DateTime @db.DateTime(3)
+
+  // --- The indicative price at submission ---------------------------------------
+  //
+  // In the offer's own currency, which is the currency an order would be
+  // charged in. Null under QUOTE_REQUIRED, where there is deliberately no
+  // number until the seller gives one.
+
+  pricingMode                PreorderPricingMode
+  currency                   String  @db.Char(3)
+  indicativeUnitPriceMinor   BigInt?
+  indicativeTotalMinor       BigInt?
+  indicativeTierMinBaseUnits Int?
+
+  /// The approximate conversion the buyer was shown, where they browse in a
+  /// different currency. Display only and labelled so; frozen so the figure
+  /// they saw can be reproduced.
+  displayCurrency String?   @db.Char(3)
+  fxSnapshotId    String?   @db.Char(26)
+  fxRate          String?   @db.VarChar(40)
+  fxRateAsOf      DateTime? @db.DateTime(3)
+
+  // --- What was agreed ------------------------------------------------------------
+
+  /// The revision now waiting on somebody. Not a foreign key: the offers
+  /// point here, and a cycle of keys is a cycle nothing can delete.
+  currentOfferId  String? @db.Char(26)
+  acceptedOfferId String? @unique(map: "uq_preorder_request_accepted_offer") @db.Char(26)
+
+  /// Frozen at buyer confirmation, with its SHA-256. Never written again.
+  confirmedTermsJson         Json?
+  confirmedTermsHash         String?   @db.Char(64)
+  confirmedBaseUnits         Int?
+  confirmedUnitPriceMinor    BigInt?
+  confirmedFreightMinor      BigInt?
+  confirmedGoodsTotalMinor   BigInt?
+  committedDeliveryDate      DateTime? @db.Date
+
+  /// The order this became. UNIQUE, so a double-clicked confirm, a retried
+  /// request and a race between two tabs all produce one order.
+  convertedOrderId String? @unique(map: "uq_preorder_request_order") @db.Char(26)
+
+  /// What is held against the seller's capacity, and where.
+  capacityBucketId          String? @db.Char(26)
+  capacityReservedBaseUnits Int     @default(0)
+
+  /// When the party now being waited on runs out of time.
+  expiresAt DateTime? @db.DateTime(3)
+
+  closedReason String? @db.VarChar(1000)
+
+  submittedAt         DateTime  @default(now()) @db.DateTime(3)
+  sellerRespondedAt   DateTime? @db.DateTime(3)
+  buyerConfirmedAt    DateTime? @db.DateTime(3)
+  confirmedAt         DateTime? @db.DateTime(3)
+  productionStartedAt DateTime? @db.DateTime(3)
+  readyAt             DateTime? @db.DateTime(3)
+  convertedAt         DateTime? @db.DateTime(3)
+  closedAt            DateTime? @db.DateTime(3)
+  /// Set once the delivery-risk warning has been sent, so it is sent once.
+  deliveryRiskNotifiedAt DateTime? @db.DateTime(3)
+
+  /// Optimistic concurrency: every status write is conditional on it.
+  version Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount   SellerAccount?  @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_request_seller")
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_request_customer")
+  offer           SellerOffer?    @relation(fields: [offerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_preorder_request_offer")
+  convertedOrder  Order?          @relation(fields: [convertedOrderId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_preorder_request_order")
+
+  offers  PreorderOffer[]
+  history PreorderStatusHistory[]
+
+  /// The seller's inbox, newest first, narrowed by status.
+  @@index([sellerAccountId, status, updatedAt], map: "ix_preorder_request_seller")
+  /// The buyer's own list.
+  @@index([customerProfileId, createdAt], map: "ix_preorder_request_customer")
+  /// The expiry sweep.
+  @@index([status, expiresAt], map: "ix_preorder_request_expiry")
+  @@index([offerId], map: "ix_preorder_request_offer")
+  @@map("preorder_requests")
+}
+
+/// One proposal of terms. Immutable apart from its state.
+///
+/// `termsHash` is SHA-256 over the canonical terms. It is what the buyer's
+/// confirmation names, so a confirmation can only ever confirm the terms the
+/// buyer was actually shown - a revision written between the page loading and
+/// the button being pressed has a different hash and is refused.
+model PreorderOffer {
+  id              String @id @db.Char(26)
+  requestId       String @db.Char(26)
+  /// NULL when the operator's staff proposed these terms (an operator product).
+  sellerAccountId String? @db.Char(26)
+
+  revision Int
+  author   PreorderParty
+  kind     PreorderOfferKind
+  state    PreorderOfferState @default(PROPOSED)
+
+  quantityBaseUnits Int
+  unitPriceMinor    BigInt
+  goodsTotalMinor   BigInt
+  /// Delivery, quoted by the seller. Zero means included, and says so.
+  freightMinor      BigInt
+  currency          String @db.Char(3)
+
+  committedDeliveryDate DateTime @db.Date
+  /// `[{ date, baseUnits }]` when the seller proposes to deliver in parts.
+  /// Null means one delivery on the committed date.
+  deliverySplitsJson    Json?
+  /// The seller's own location this will be made or shipped from.
+  originLocationId      String?  @db.Char(26)
+
+  note String? @db.VarChar(2000)
+
+  expiresAt DateTime @db.DateTime(3)
+
+  termsHash String @db.Char(64)
+
+  createdByUserId  String?   @db.Char(26)
+  createdByLabel   String    @db.VarChar(160)
+  respondedAt      DateTime? @db.DateTime(3)
+  respondedByLabel String?   @db.VarChar(160)
+  responseNote     String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  request PreorderRequest @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_offer_request")
+
+  @@unique([requestId, revision], map: "uq_preorder_offer_revision")
+  @@index([sellerAccountId, createdAt], map: "ix_preorder_offer_seller")
+  @@map("preorder_offers")
+}
+
+/// Every status a preorder has been through. Append-only.
+model PreorderStatusHistory {
+  id        String @id @db.Char(26)
+  requestId String @db.Char(26)
+
+  fromStatus PreorderStatus?
+  toStatus   PreorderStatus
+
+  actorType   ActorType
+  actorUserId String?   @db.Char(26)
+  actorLabel  String    @db.VarChar(160)
+  reason      String?   @db.VarChar(1000)
+  metaJson    Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  request PreorderRequest @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_history_request")
+
+  @@index([requestId, createdAt], map: "ix_preorder_history_request")
+  @@map("preorder_status_history")
+}
+
+// ===========================================================================
+// SELLER DOCUMENTS: INVOICES AND PACKING LISTS
+//
+// A marketplace seller is the supplier of the goods they sell here, so the tax
+// invoice for those goods is THEIRS - issued in their legal name, under their
+// tax registration, numbered in their own series. The operator's `invoices`
+// table is for goods the operator sells itself and must never be used to
+// invoice a seller's supply in the operator's name.
+//
+// Both documents are per CONSIGNMENT (`logistics_shipments`), not per order:
+// one order can have several sellers, one seller's part can leave in several
+// vehicles on several days, and each physical load carries its own packing
+// list and - where the law ties the invoice to the removal of goods, as GST
+// does - its own invoice.
+//
+// Lifecycle, for both:
+//
+//   DRAFT / VALIDATION_REQUIRED / READY_TO_ISSUE  (a preview, rewritable)
+//   -> ISSUED  (numbered, rendered, hashed, immutable)
+//   -> VOIDED (with a credit note) | CREDIT_NOTE_REQUIRED | SUPERSEDED
+//
+// An issued document is never edited. Its figures, its PDF's SHA-256 and its
+// storage key are written once; a correction is a credit note (invoice) or a
+// superseding version with a new number (packing list).
+// ===========================================================================
+
+enum SellerInvoiceJurisdiction {
+  /// Indian GST: GSTIN, HSN, place of supply, CGST+SGST or IGST.
+  IN_GST
+  /// EU VAT: VAT numbers, per-rate breakdown, reverse-charge wording.
+  EU_VAT
+  /// Neither: seller and buyer identities, tax per rate as charged.
+  GENERIC
+}
+
+enum SellerDocumentStatus {
+  DRAFT
+  VALIDATION_REQUIRED
+  READY_TO_ISSUE
+  ISSUED
+  VOIDED
+  /// Issued, and the goods were since cancelled or returned. A credit note is
+  /// owed; the seller is told until they issue one.
+  CREDIT_NOTE_REQUIRED
+  /// A packing list replaced by a newer version before the load left.
+  SUPERSEDED
+}
+
+enum SellerInvoiceKind {
+  TAX_INVOICE
+  CREDIT_NOTE
+}
+
+/// How one seller numbers and signs their invoices.
+model SellerInvoiceSettings {
+  id              String @id @db.Char(26)
+  sellerAccountId String @unique(map: "uq_seller_invoice_settings_seller") @db.Char(26)
+
+  /// Null means "decide from the seller's registration country".
+  jurisdiction SellerInvoiceJurisdiction?
+
+  /// Rule 46(b) of the CGST Rules: a series of at most sixteen characters,
+  /// unique for a financial year. The series here is the prefix; the full
+  /// number is "INV/26-27/00042".
+  invoiceSeries    String @default("INV") @db.VarChar(6)
+  creditNoteSeries String @default("CN") @db.VarChar(6)
+
+  /// 4 for the Indian April-March year, 1 for a calendar year.
+  financialYearStartMonth Int @default(4) @db.SmallInt
+
+  signatoryName        String? @db.VarChar(160)
+  signatoryDesignation String? @db.VarChar(120)
+
+  /// A Letter of Undertaking lets an Indian exporter ship zero-rated without
+  /// paying IGST. Without one, an export invoice with no tax on it is refused.
+  lutReference String?   @db.VarChar(64)
+  lutValidFrom DateTime? @db.Date
+  lutValidTo   DateTime? @db.Date
+
+  footerNotes String? @db.VarChar(1000)
+
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_invoice_settings_seller")
+
+  @@map("seller_invoice_settings")
+}
+
+/// What one consignment carries: this many of this order line.
+///
+/// The sum over a seller order's consignments never exceeds the line's
+/// quantity - enforced in the service, inside the transaction that splits or
+/// allocates. A consignment with no rows yet is given the unallocated
+/// remainder the first time its documents are prepared.
+model LogisticsShipmentLine {
+  id              String @id @db.Char(26)
+  shipmentId      String @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  orderItemId     String @db.Char(26)
+  quantity        Int
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_shipment_line_shipment")
+
+  @@unique([shipmentId, orderItemId], map: "uq_shipment_line_item")
+  @@index([orderItemId], map: "ix_shipment_line_item")
+  @@index([sellerAccountId, shipmentId], map: "ix_shipment_line_seller")
+  @@map("logistics_shipment_lines")
+}
+
+/// What one package holds: this many of this order line, of this batch.
+///
+/// The packages of a consignment together must hold exactly its lines - the
+/// packing list refuses to issue otherwise.
+model LogisticsShipmentPackageLine {
+  id          String @id @db.Char(26)
+  packageId   String @db.Char(26)
+  shipmentId  String @db.Char(26)
+  orderItemId String @db.Char(26)
+  quantity    Int
+
+  /// Batch or lot, where the goods carry one. '' where none, never null, so
+  /// the unique key below holds.
+  batchNumber String    @default("") @db.VarChar(64)
+  expiryDate  DateTime? @db.Date
+  /// Serial numbers, where the goods are serialised. Their count must equal
+  /// the quantity.
+  serialNumbersJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  package LogisticsShipmentPackage @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_package_line_package")
+
+  @@unique([packageId, orderItemId, batchNumber], map: "uq_package_line")
+  @@index([shipmentId], map: "ix_package_line_shipment")
+  @@map("logistics_shipment_package_lines")
+}
+
+/// A seller's tax invoice or credit note, for one consignment.
+model SellerInvoice {
+  id                  String @id @db.Char(26)
+  sellerAccountId     String @db.Char(26)
+  orderId             String @db.Char(26)
+  sellerOrderGroupId  String @db.Char(26)
+  logisticsShipmentId String @db.Char(26)
+
+  kind         SellerInvoiceKind         @default(TAX_INVOICE)
+  status       SellerDocumentStatus      @default(DRAFT)
+  jurisdiction SellerInvoiceJurisdiction
+
+  /// "<shipmentId>:TAX_INVOICE" while this is the consignment's live invoice -
+  /// a draft, ready or issued one - and NULL once it is voided or credited.
+  /// UNIQUE: a consignment has at most one live invoice, however many clicks,
+  /// retries and tabs ask for one.
+  liveKey String? @unique(map: "uq_seller_invoice_live") @db.VarChar(48)
+
+  /// The number, allocated at issue from `number_sequences` under a row lock,
+  /// per seller per series per financial year. Null on a draft.
+  series         String? @db.VarChar(6)
+  financialYear  String? @db.VarChar(9)
+  sequenceNumber Int?
+  number         String? @db.VarChar(20)
+
+  /// A credit note points at the invoice it reverses.
+  creditsInvoiceId String? @db.Char(26)
+
+  templateVersion String @db.VarChar(16)
+
+  issueDate    DateTime? @db.Date
+  issuedAt     DateTime? @db.DateTime(3)
+  issuedByLabel String?  @db.VarChar(160)
+
+  currency String @db.Char(3)
+
+  /// The document's content, frozen. Seller, buyer and delivery identities as
+  /// they stood; every line; the tax per rate and per component; the place of
+  /// supply and why. Rewritten while a draft, never after issue.
+  sellerJson       Json
+  buyerJson        Json
+  shipToJson       Json
+  linesJson        Json
+  taxBreakdownJson Json
+  placeOfSupplyJson Json?
+  /// Any reason this cannot be issued, as `[{ field, message }]`.
+  validationJson   Json?
+
+  /// INTRA_STATE, INTER_STATE, EXPORT_WITH_TAX, EXPORT_UNDER_LUT, EU_DOMESTIC,
+  /// EU_REVERSE_CHARGE, EU_EXPORT, OTHER. A string: a new treatment is a new
+  /// template, not a migration.
+  supplyType    String  @db.VarChar(32)
+  reverseCharge Boolean @default(false)
+
+  // Minor units, in `currency`.
+  taxableMinor    BigInt @default(0)
+  discountMinor   BigInt @default(0)
+  cgstMinor       BigInt @default(0)
+  sgstMinor       BigInt @default(0)
+  igstMinor       BigInt @default(0)
+  cessMinor       BigInt @default(0)
+  /// VAT or any other tax, where the invoice is not GST.
+  otherTaxMinor   BigInt @default(0)
+  freightMinor    BigInt @default(0)
+  totalTaxMinor   BigInt @default(0)
+  grandTotalMinor BigInt @default(0)
+
+  amountInWords String? @db.VarChar(512)
+
+  /// The rendered PDF, in private object storage. Hash and size are of the
+  /// exact bytes stored, so a copy can be shown to be the issued one.
+  storageKey  String? @db.VarChar(512)
+  contentHash String? @db.Char(64)
+  sizeBytes   Int?
+  pageCount   Int?
+  /// The copy attached to the consignment, for the operator.
+  logisticsDocumentId String? @db.Char(26)
+
+  voidedAt   DateTime? @db.DateTime(3)
+  voidReason String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_seller_invoice_seller")
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_seller_invoice_order")
+  sellerOrderGroup SellerOrderGroup  @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_seller_invoice_group")
+  shipment         LogisticsShipment @relation(fields: [logisticsShipmentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_seller_invoice_shipment")
+
+  @@unique([sellerAccountId, number], map: "uq_seller_invoice_number")
+  @@index([sellerAccountId, status, createdAt], map: "ix_seller_invoice_seller")
+  @@index([orderId], map: "ix_seller_invoice_order")
+  @@index([logisticsShipmentId], map: "ix_seller_invoice_shipment")
+  @@map("seller_invoices")
+}
+
+/// A packing list for one consignment - one vehicle, one load.
+model SellerPackingList {
+  id                  String @id @db.Char(26)
+  sellerAccountId     String @db.Char(26)
+  orderId             String @db.Char(26)
+  sellerOrderGroupId  String @db.Char(26)
+  logisticsShipmentId String @db.Char(26)
+
+  status SellerDocumentStatus @default(DRAFT)
+
+  /// "<shipmentId>:PACKING_LIST" while live. See `SellerInvoice.liveKey`.
+  liveKey String? @unique(map: "uq_packing_list_live") @db.VarChar(48)
+
+  /// PL-2026-000123, platform-wide: it is the reference a warehouse, a driver
+  /// and a port all quote. Null on a draft.
+  number String? @unique(map: "uq_packing_list_number") @db.VarChar(24)
+
+  /// The invoice this load travels under, where one is issued.
+  sellerInvoiceId String? @db.Char(26)
+
+  templateVersion String @db.VarChar(16)
+
+  issuedAt      DateTime? @db.DateTime(3)
+  issuedByLabel String?   @db.VarChar(160)
+
+  /// Everything printed, frozen: parties, addresses, packages and what each
+  /// holds, weights, dimensions, handling.
+  snapshotJson   Json
+  validationJson Json?
+
+  packageCount     Int    @default(0)
+  totalBaseUnits   Int    @default(0)
+  netWeightGrams   BigInt @default(0)
+  grossWeightGrams BigInt @default(0)
+  volumeCm3        BigInt @default(0)
+
+  vehicleRegistration String? @db.VarChar(32)
+  /// A driver IDENTIFIER, never a name or a telephone number: the list is
+  /// handed across loading bays.
+  driverReference     String? @db.VarChar(32)
+
+  /// The short code in the QR: an HMAC over the number, so a scanner can
+  /// check the document is genuine without the code carrying anything
+  /// about the buyer.
+  verificationCode String? @db.Char(16)
+
+  storageKey  String? @db.VarChar(512)
+  contentHash String? @db.Char(64)
+  sizeBytes   Int?
+  pageCount   Int?
+  logisticsDocumentId String? @db.Char(26)
+
+  supersededById String?   @db.Char(26)
+  voidedAt       DateTime? @db.DateTime(3)
+  voidReason     String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_packing_list_seller")
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_packing_list_order")
+  sellerOrderGroup SellerOrderGroup  @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_packing_list_group")
+  shipment         LogisticsShipment @relation(fields: [logisticsShipmentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_packing_list_shipment")
+
+  @@index([sellerAccountId, status, createdAt], map: "ix_packing_list_seller")
+  @@index([orderId], map: "ix_packing_list_order")
+  @@index([logisticsShipmentId], map: "ix_packing_list_shipment")
+  @@map("seller_packing_lists")
 }

@@ -702,7 +702,8 @@ export interface DocumentRow {
   fileName: string;
   contentType: string;
   sizeBytes: number;
-  scanState: 'PENDING' | 'CLEAN' | 'INFECTED' | 'FAILED' | 'SKIPPED';
+  /** GENERATED: a PDF this deployment rendered itself (a seller's packing list), never uploaded. */
+  scanState: 'PENDING' | 'CLEAN' | 'INFECTED' | 'FAILED' | 'SKIPPED' | 'GENERATED';
   /** False where this deployment refuses files nothing has scanned. */
   isDownloadable: boolean;
   createdAt: string;

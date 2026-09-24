@@ -68,6 +68,12 @@ export const Permission = {
   LOGISTICS_ASSIGN: 'logistics.assign',
   LOGISTICS_INTEGRATION_WRITE: 'logistics.integration.write',
 
+  // What sellers are charged and the tax on it. Finance's, not a general
+  // administrator's - see backend/src/domain/permissions.ts.
+  FINANCE_POLICY_READ: 'finance.policy.read',
+  FINANCE_POLICY_WRITE: 'finance.policy.write',
+  FINANCE_TAX_VERIFY: 'finance.tax.verify',
+
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',

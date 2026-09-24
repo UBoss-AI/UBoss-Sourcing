@@ -1,8 +1,10 @@
 /**
- * The brand block: the product, and who makes it.
+ * The brand block: the product, and its tagline.
  *
  * Two lines, both from `lib/brand.ts`, which is the one place either string is
- * written in any of the three applications. One component for both places the
+ * written in any of the three applications. The name is set in `font-brand`
+ * (Dancing Script Bold), the wordmark's own face and used for nothing else,
+ * a step larger than an Inter label because a script reads a size smaller. One component for both places the
  * portal shows it — the rail once somebody is through, and the sign-in screen
  * before they are — because a sign-in screen whose mark and wording differ
  * from the application behind it is the first thing a person sees and the
@@ -30,7 +32,7 @@
  */
 import { SidebarLabel } from '@/components/ui/sidebar';
 import { EarthMark } from '@/components/EarthMark';
-import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_INITIAL } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_INITIAL, PRODUCT_TAGLINE } from '@/lib/brand';
 
 export function BrandLockup({
   /**
@@ -44,14 +46,14 @@ export function BrandLockup({
 } = {}): React.JSX.Element {
   const lines = (
     <>
-      <span aria-hidden="true" className="block truncate text-sm font-semibold tracking-tight text-ink">
+      <span aria-hidden="true" className="block truncate font-brand text-lg font-bold leading-6 text-ink">
         {PRODUCT_BRAND}
       </span>
       <span
         aria-hidden="true"
         className="block truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle"
       >
-        {PARENT_ATTRIBUTION}
+        {PRODUCT_TAGLINE}
       </span>
     </>
   );
@@ -59,7 +61,7 @@ export function BrandLockup({
   return (
     <span
       role="img"
-      aria-label={`${PRODUCT_BRAND} — ${PARENT_ATTRIBUTION}`}
+      aria-label={`${PRODUCT_BRAND} — ${PRODUCT_TAGLINE}`}
       className="flex h-10 shrink-0 items-center gap-3 px-2"
     >
       <EarthMark initial={PRODUCT_INITIAL} size="sm" />

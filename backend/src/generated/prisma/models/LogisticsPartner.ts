@@ -464,6 +464,8 @@ export type LogisticsPartnerWhereInput = {
   notifications?: Prisma.LogisticsNotificationListRelationFilter
   auditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   sellerLinks?: Prisma.SellerLogisticsPartnerListRelationFilter
+  levelRates?: Prisma.LogisticsLevelRateListRelationFilter
+  shipmentLegs?: Prisma.ShipmentLegListRelationFilter
 }
 
 export type LogisticsPartnerOrderByWithRelationInput = {
@@ -519,6 +521,8 @@ export type LogisticsPartnerOrderByWithRelationInput = {
   notifications?: Prisma.LogisticsNotificationOrderByRelationAggregateInput
   auditLogs?: Prisma.LogisticsAuditLogOrderByRelationAggregateInput
   sellerLinks?: Prisma.SellerLogisticsPartnerOrderByRelationAggregateInput
+  levelRates?: Prisma.LogisticsLevelRateOrderByRelationAggregateInput
+  shipmentLegs?: Prisma.ShipmentLegOrderByRelationAggregateInput
   _relevance?: Prisma.LogisticsPartnerOrderByRelevanceInput
 }
 
@@ -578,6 +582,8 @@ export type LogisticsPartnerWhereUniqueInput = Prisma.AtLeast<{
   notifications?: Prisma.LogisticsNotificationListRelationFilter
   auditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   sellerLinks?: Prisma.SellerLogisticsPartnerListRelationFilter
+  levelRates?: Prisma.LogisticsLevelRateListRelationFilter
+  shipmentLegs?: Prisma.ShipmentLegListRelationFilter
 }, "id" | "partnerCode" | "displayNameNormalized">
 
 export type LogisticsPartnerOrderByWithAggregationInput = {
@@ -711,6 +717,8 @@ export type LogisticsPartnerCreateInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateInput = {
@@ -764,6 +772,8 @@ export type LogisticsPartnerUncheckedCreateInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUpdateInput = {
@@ -817,6 +827,8 @@ export type LogisticsPartnerUpdateInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateInput = {
@@ -870,6 +882,8 @@ export type LogisticsPartnerUncheckedUpdateInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateManyInput = {
@@ -1464,6 +1478,38 @@ export type LogisticsPartnerUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.LogisticsPartnerUpdateWithoutAuditLogsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type LogisticsPartnerCreateNestedOneWithoutLevelRatesInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedCreateWithoutLevelRatesInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutLevelRatesInput
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+}
+
+export type LogisticsPartnerUpdateOneWithoutLevelRatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedCreateWithoutLevelRatesInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutLevelRatesInput
+  upsert?: Prisma.LogisticsPartnerUpsertWithoutLevelRatesInput
+  disconnect?: Prisma.LogisticsPartnerWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerWhereInput | boolean
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutLevelRatesInput, Prisma.LogisticsPartnerUpdateWithoutLevelRatesInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutLevelRatesInput>
+}
+
+export type LogisticsPartnerCreateNestedOneWithoutShipmentLegsInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutShipmentLegsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutShipmentLegsInput
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+}
+
+export type LogisticsPartnerUpdateOneWithoutShipmentLegsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutShipmentLegsInput>
+  connectOrCreate?: Prisma.LogisticsPartnerCreateOrConnectWithoutShipmentLegsInput
+  upsert?: Prisma.LogisticsPartnerUpsertWithoutShipmentLegsInput
+  disconnect?: Prisma.LogisticsPartnerWhereInput | boolean
+  delete?: Prisma.LogisticsPartnerWhereInput | boolean
+  connect?: Prisma.LogisticsPartnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsPartnerUpdateToOneWithWhereWithoutShipmentLegsInput, Prisma.LogisticsPartnerUpdateWithoutShipmentLegsInput>, Prisma.LogisticsPartnerUncheckedUpdateWithoutShipmentLegsInput>
+}
+
 export type LogisticsPartnerCreateWithoutOwnerSellerAccountInput = {
   id: string
   partnerCode: string
@@ -1514,6 +1560,8 @@ export type LogisticsPartnerCreateWithoutOwnerSellerAccountInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput = {
@@ -1566,6 +1614,8 @@ export type LogisticsPartnerUncheckedCreateWithoutOwnerSellerAccountInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutOwnerSellerAccountInput = {
@@ -1683,6 +1733,8 @@ export type LogisticsPartnerCreateWithoutSellerLinksInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutSellerLinksInput = {
@@ -1735,6 +1787,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSellerLinksInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutSellerLinksInput = {
@@ -1803,6 +1857,8 @@ export type LogisticsPartnerUpdateWithoutSellerLinksInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput = {
@@ -1855,6 +1911,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSellerLinksInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutFulfilmentMethodsInput = {
@@ -1907,6 +1965,8 @@ export type LogisticsPartnerCreateWithoutFulfilmentMethodsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput = {
@@ -1959,6 +2019,8 @@ export type LogisticsPartnerUncheckedCreateWithoutFulfilmentMethodsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutFulfilmentMethodsInput = {
@@ -2027,6 +2089,8 @@ export type LogisticsPartnerUpdateWithoutFulfilmentMethodsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput = {
@@ -2079,6 +2143,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutFulfilmentMethodsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutSellerInvitationsInput = {
@@ -2131,6 +2197,8 @@ export type LogisticsPartnerCreateWithoutSellerInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput = {
@@ -2183,6 +2251,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSellerInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutSellerInvitationsInput = {
@@ -2251,6 +2321,8 @@ export type LogisticsPartnerUpdateWithoutSellerInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput = {
@@ -2303,6 +2375,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSellerInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutUsersInput = {
@@ -2355,6 +2429,8 @@ export type LogisticsPartnerCreateWithoutUsersInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutUsersInput = {
@@ -2407,6 +2483,8 @@ export type LogisticsPartnerUncheckedCreateWithoutUsersInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutUsersInput = {
@@ -2475,6 +2553,8 @@ export type LogisticsPartnerUpdateWithoutUsersInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutUsersInput = {
@@ -2527,6 +2607,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutUsersInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutInvitationsInput = {
@@ -2579,6 +2661,8 @@ export type LogisticsPartnerCreateWithoutInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutInvitationsInput = {
@@ -2631,6 +2715,8 @@ export type LogisticsPartnerUncheckedCreateWithoutInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutInvitationsInput = {
@@ -2699,6 +2785,8 @@ export type LogisticsPartnerUpdateWithoutInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutInvitationsInput = {
@@ -2751,6 +2839,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutInvitationsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutRegionsInput = {
@@ -2803,6 +2893,8 @@ export type LogisticsPartnerCreateWithoutRegionsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutRegionsInput = {
@@ -2855,6 +2947,8 @@ export type LogisticsPartnerUncheckedCreateWithoutRegionsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutRegionsInput = {
@@ -2923,6 +3017,8 @@ export type LogisticsPartnerUpdateWithoutRegionsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutRegionsInput = {
@@ -2975,6 +3071,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutRegionsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutCapabilitiesInput = {
@@ -3027,6 +3125,8 @@ export type LogisticsPartnerCreateWithoutCapabilitiesInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutCapabilitiesInput = {
@@ -3079,6 +3179,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCapabilitiesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutCapabilitiesInput = {
@@ -3147,6 +3249,8 @@ export type LogisticsPartnerUpdateWithoutCapabilitiesInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutCapabilitiesInput = {
@@ -3199,6 +3303,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCapabilitiesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutSlaPoliciesInput = {
@@ -3251,6 +3357,8 @@ export type LogisticsPartnerCreateWithoutSlaPoliciesInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutSlaPoliciesInput = {
@@ -3303,6 +3411,8 @@ export type LogisticsPartnerUncheckedCreateWithoutSlaPoliciesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutSlaPoliciesInput = {
@@ -3371,6 +3481,8 @@ export type LogisticsPartnerUpdateWithoutSlaPoliciesInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutSlaPoliciesInput = {
@@ -3423,6 +3535,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutSlaPoliciesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutShipmentsInput = {
@@ -3475,6 +3589,8 @@ export type LogisticsPartnerCreateWithoutShipmentsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutShipmentsInput = {
@@ -3527,6 +3643,8 @@ export type LogisticsPartnerUncheckedCreateWithoutShipmentsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutShipmentsInput = {
@@ -3595,6 +3713,8 @@ export type LogisticsPartnerUpdateWithoutShipmentsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutShipmentsInput = {
@@ -3647,6 +3767,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutShipmentsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutAssignmentsInput = {
@@ -3699,6 +3821,8 @@ export type LogisticsPartnerCreateWithoutAssignmentsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutAssignmentsInput = {
@@ -3751,6 +3875,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAssignmentsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutAssignmentsInput = {
@@ -3819,6 +3945,8 @@ export type LogisticsPartnerUpdateWithoutAssignmentsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutAssignmentsInput = {
@@ -3871,6 +3999,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutAssignmentsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutExceptionsInput = {
@@ -3923,6 +4053,8 @@ export type LogisticsPartnerCreateWithoutExceptionsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutExceptionsInput = {
@@ -3975,6 +4107,8 @@ export type LogisticsPartnerUncheckedCreateWithoutExceptionsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutExceptionsInput = {
@@ -4043,6 +4177,8 @@ export type LogisticsPartnerUpdateWithoutExceptionsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutExceptionsInput = {
@@ -4095,6 +4231,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutExceptionsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutPickupsInput = {
@@ -4147,6 +4285,8 @@ export type LogisticsPartnerCreateWithoutPickupsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutPickupsInput = {
@@ -4199,6 +4339,8 @@ export type LogisticsPartnerUncheckedCreateWithoutPickupsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutPickupsInput = {
@@ -4267,6 +4409,8 @@ export type LogisticsPartnerUpdateWithoutPickupsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutPickupsInput = {
@@ -4319,6 +4463,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutPickupsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutManifestsInput = {
@@ -4371,6 +4517,8 @@ export type LogisticsPartnerCreateWithoutManifestsInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutManifestsInput = {
@@ -4423,6 +4571,8 @@ export type LogisticsPartnerUncheckedCreateWithoutManifestsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutManifestsInput = {
@@ -4491,6 +4641,8 @@ export type LogisticsPartnerUpdateWithoutManifestsInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutManifestsInput = {
@@ -4543,6 +4695,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutManifestsInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutDriversInput = {
@@ -4595,6 +4749,8 @@ export type LogisticsPartnerCreateWithoutDriversInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutDriversInput = {
@@ -4647,6 +4803,8 @@ export type LogisticsPartnerUncheckedCreateWithoutDriversInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutDriversInput = {
@@ -4715,6 +4873,8 @@ export type LogisticsPartnerUpdateWithoutDriversInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutDriversInput = {
@@ -4767,6 +4927,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutDriversInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutVehiclesInput = {
@@ -4819,6 +4981,8 @@ export type LogisticsPartnerCreateWithoutVehiclesInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutVehiclesInput = {
@@ -4871,6 +5035,8 @@ export type LogisticsPartnerUncheckedCreateWithoutVehiclesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutVehiclesInput = {
@@ -4939,6 +5105,8 @@ export type LogisticsPartnerUpdateWithoutVehiclesInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutVehiclesInput = {
@@ -4991,6 +5159,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutVehiclesInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutCarrierIntegrationInput = {
@@ -5043,6 +5213,8 @@ export type LogisticsPartnerCreateWithoutCarrierIntegrationInput = {
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutCarrierIntegrationInput = {
@@ -5095,6 +5267,8 @@ export type LogisticsPartnerUncheckedCreateWithoutCarrierIntegrationInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutCarrierIntegrationInput = {
@@ -5173,6 +5347,8 @@ export type LogisticsPartnerCreateWithoutNotificationsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutNotificationsInput = {
@@ -5225,6 +5401,8 @@ export type LogisticsPartnerUncheckedCreateWithoutNotificationsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutNotificationsInput = {
@@ -5293,6 +5471,8 @@ export type LogisticsPartnerUpdateWithoutNotificationsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutNotificationsInput = {
@@ -5345,6 +5525,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutNotificationsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateWithoutAuditLogsInput = {
@@ -5397,6 +5579,8 @@ export type LogisticsPartnerCreateWithoutAuditLogsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
   notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerUncheckedCreateWithoutAuditLogsInput = {
@@ -5449,6 +5633,8 @@ export type LogisticsPartnerUncheckedCreateWithoutAuditLogsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
   notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
 }
 
 export type LogisticsPartnerCreateOrConnectWithoutAuditLogsInput = {
@@ -5517,6 +5703,8 @@ export type LogisticsPartnerUpdateWithoutAuditLogsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput = {
@@ -5569,6 +5757,472 @@ export type LogisticsPartnerUncheckedUpdateWithoutAuditLogsInput = {
   exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerCreateWithoutLevelRatesInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerUncheckedCreateWithoutLevelRatesInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerCreateOrConnectWithoutLevelRatesInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedCreateWithoutLevelRatesInput>
+}
+
+export type LogisticsPartnerUpsertWithoutLevelRatesInput = {
+  update: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutLevelRatesInput>
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedCreateWithoutLevelRatesInput>
+  where?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerUpdateToOneWithWhereWithoutLevelRatesInput = {
+  where?: Prisma.LogisticsPartnerWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutLevelRatesInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutLevelRatesInput>
+}
+
+export type LogisticsPartnerUpdateWithoutLevelRatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateWithoutLevelRatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerCreateWithoutShipmentLegsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationCreateNestedOneWithoutPartnersInput
+  ownerSellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutOwnedLogisticsPartnersInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerUncheckedCreateWithoutShipmentLegsInput = {
+  id: string
+  partnerCode: string
+  legalName: string
+  displayName: string
+  displayNameNormalized: string
+  registrationNumber?: string | null
+  taxNumber?: string | null
+  licenceNumber?: string | null
+  licenceExpiresAt?: Date | string | null
+  registrationCountry: string
+  contactEmail: string
+  contactPhone?: string | null
+  emergencyPhone?: string | null
+  websiteUrl?: string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: string | null
+  status?: $Enums.LogisticsPartnerStatus
+  contractStatus?: $Enums.LogisticsContractStatus
+  contractReference?: string | null
+  contractStartsAt?: Date | string | null
+  contractEndsAt?: Date | string | null
+  suspensionReason?: string | null
+  suspendedAt?: Date | string | null
+  maxOpenShipments?: number | null
+  maxDailyAssignments?: number | null
+  autoAssignEnabled?: boolean
+  carrierIntegrationId?: string | null
+  internalNotes?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  users?: Prisma.LogisticsPartnerUserUncheckedCreateNestedManyWithoutPartnerInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedCreateNestedManyWithoutPartnerInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedCreateNestedManyWithoutPartnerInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedCreateNestedManyWithoutPartnerInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedCreateNestedManyWithoutPartnerInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedCreateNestedManyWithoutPartnerInput
+  shipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutAssignedPartnerInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedCreateNestedManyWithoutPartnerInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedCreateNestedManyWithoutPartnerInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedCreateNestedManyWithoutPartnerInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedCreateNestedManyWithoutPartnerInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedCreateNestedManyWithoutPartnerInput
+  notifications?: Prisma.LogisticsNotificationUncheckedCreateNestedManyWithoutPartnerInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutPartnerInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedCreateNestedManyWithoutLogisticsPartnerInput
+}
+
+export type LogisticsPartnerCreateOrConnectWithoutShipmentLegsInput = {
+  where: Prisma.LogisticsPartnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutShipmentLegsInput>
+}
+
+export type LogisticsPartnerUpsertWithoutShipmentLegsInput = {
+  update: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutShipmentLegsInput>
+  create: Prisma.XOR<Prisma.LogisticsPartnerCreateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedCreateWithoutShipmentLegsInput>
+  where?: Prisma.LogisticsPartnerWhereInput
+}
+
+export type LogisticsPartnerUpdateToOneWithWhereWithoutShipmentLegsInput = {
+  where?: Prisma.LogisticsPartnerWhereInput
+  data: Prisma.XOR<Prisma.LogisticsPartnerUpdateWithoutShipmentLegsInput, Prisma.LogisticsPartnerUncheckedUpdateWithoutShipmentLegsInput>
+}
+
+export type LogisticsPartnerUpdateWithoutShipmentLegsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  carrierIntegration?: Prisma.CarrierIntegrationUpdateOneWithoutPartnersNestedInput
+  ownerSellerAccount?: Prisma.SellerAccountUpdateOneWithoutOwnedLogisticsPartnersNestedInput
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+}
+
+export type LogisticsPartnerUncheckedUpdateWithoutShipmentLegsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  partnerCode?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayNameNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  registrationNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  licenceExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registrationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  partnerKind?: Prisma.EnumLogisticsPartnerKindFieldUpdateOperationsInput | $Enums.LogisticsPartnerKind
+  ownerSellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumLogisticsPartnerStatusFieldUpdateOperationsInput | $Enums.LogisticsPartnerStatus
+  contractStatus?: Prisma.EnumLogisticsContractStatusFieldUpdateOperationsInput | $Enums.LogisticsContractStatus
+  contractReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contractStartsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOpenShipments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDailyAssignments?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  autoAssignEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  carrierIntegrationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentMethods?: Prisma.SellerFulfilmentMethodUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  sellerInvitations?: Prisma.SellerLogisticsPartnerInvitationUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  users?: Prisma.LogisticsPartnerUserUncheckedUpdateManyWithoutPartnerNestedInput
+  invitations?: Prisma.LogisticsPartnerInvitationUncheckedUpdateManyWithoutPartnerNestedInput
+  regions?: Prisma.LogisticsServiceRegionUncheckedUpdateManyWithoutPartnerNestedInput
+  capabilities?: Prisma.LogisticsCapabilityUncheckedUpdateManyWithoutPartnerNestedInput
+  slaPolicies?: Prisma.LogisticsSlaPolicyUncheckedUpdateManyWithoutPartnerNestedInput
+  assignments?: Prisma.LogisticsShipmentAssignmentUncheckedUpdateManyWithoutPartnerNestedInput
+  shipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutAssignedPartnerNestedInput
+  pickups?: Prisma.LogisticsPickupRequestUncheckedUpdateManyWithoutPartnerNestedInput
+  manifests?: Prisma.LogisticsDispatchManifestUncheckedUpdateManyWithoutPartnerNestedInput
+  drivers?: Prisma.LogisticsDriverProfileUncheckedUpdateManyWithoutPartnerNestedInput
+  vehicles?: Prisma.LogisticsVehicleUncheckedUpdateManyWithoutPartnerNestedInput
+  exceptions?: Prisma.LogisticsShipmentExceptionUncheckedUpdateManyWithoutPartnerNestedInput
+  notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
+  auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
+  sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerCreateManyOwnerSellerAccountInput = {
@@ -5656,6 +6310,8 @@ export type LogisticsPartnerUpdateWithoutOwnerSellerAccountInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutOwnerSellerAccountInput = {
@@ -5708,6 +6364,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutOwnerSellerAccountInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateManyWithoutOwnerSellerAccountInput = {
@@ -5830,6 +6488,8 @@ export type LogisticsPartnerUpdateWithoutCarrierIntegrationInput = {
   notifications?: Prisma.LogisticsNotificationUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateWithoutCarrierIntegrationInput = {
@@ -5882,6 +6542,8 @@ export type LogisticsPartnerUncheckedUpdateWithoutCarrierIntegrationInput = {
   notifications?: Prisma.LogisticsNotificationUncheckedUpdateManyWithoutPartnerNestedInput
   auditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutPartnerNestedInput
   sellerLinks?: Prisma.SellerLogisticsPartnerUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  levelRates?: Prisma.LogisticsLevelRateUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutLogisticsPartnerNestedInput
 }
 
 export type LogisticsPartnerUncheckedUpdateManyWithoutCarrierIntegrationInput = {
@@ -5942,6 +6604,8 @@ export type LogisticsPartnerCountOutputType = {
   notifications: number
   auditLogs: number
   sellerLinks: number
+  levelRates: number
+  shipmentLegs: number
 }
 
 export type LogisticsPartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5962,6 +6626,8 @@ export type LogisticsPartnerCountOutputTypeSelect<ExtArgs extends runtime.Types.
   notifications?: boolean | LogisticsPartnerCountOutputTypeCountNotificationsArgs
   auditLogs?: boolean | LogisticsPartnerCountOutputTypeCountAuditLogsArgs
   sellerLinks?: boolean | LogisticsPartnerCountOutputTypeCountSellerLinksArgs
+  levelRates?: boolean | LogisticsPartnerCountOutputTypeCountLevelRatesArgs
+  shipmentLegs?: boolean | LogisticsPartnerCountOutputTypeCountShipmentLegsArgs
 }
 
 /**
@@ -6093,6 +6759,20 @@ export type LogisticsPartnerCountOutputTypeCountSellerLinksArgs<ExtArgs extends 
   where?: Prisma.SellerLogisticsPartnerWhereInput
 }
 
+/**
+ * LogisticsPartnerCountOutputType without action
+ */
+export type LogisticsPartnerCountOutputTypeCountLevelRatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogisticsLevelRateWhereInput
+}
+
+/**
+ * LogisticsPartnerCountOutputType without action
+ */
+export type LogisticsPartnerCountOutputTypeCountShipmentLegsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShipmentLegWhereInput
+}
+
 
 export type LogisticsPartnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -6147,6 +6827,8 @@ export type LogisticsPartnerSelect<ExtArgs extends runtime.Types.Extensions.Inte
   notifications?: boolean | Prisma.LogisticsPartner$notificationsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.LogisticsPartner$auditLogsArgs<ExtArgs>
   sellerLinks?: boolean | Prisma.LogisticsPartner$sellerLinksArgs<ExtArgs>
+  levelRates?: boolean | Prisma.LogisticsPartner$levelRatesArgs<ExtArgs>
+  shipmentLegs?: boolean | Prisma.LogisticsPartner$shipmentLegsArgs<ExtArgs>
   _count?: boolean | Prisma.LogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsPartner"]>
 
@@ -6209,6 +6891,8 @@ export type LogisticsPartnerInclude<ExtArgs extends runtime.Types.Extensions.Int
   notifications?: boolean | Prisma.LogisticsPartner$notificationsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.LogisticsPartner$auditLogsArgs<ExtArgs>
   sellerLinks?: boolean | Prisma.LogisticsPartner$sellerLinksArgs<ExtArgs>
+  levelRates?: boolean | Prisma.LogisticsPartner$levelRatesArgs<ExtArgs>
+  shipmentLegs?: boolean | Prisma.LogisticsPartner$shipmentLegsArgs<ExtArgs>
   _count?: boolean | Prisma.LogisticsPartnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -6234,6 +6918,11 @@ export type $LogisticsPartnerPayload<ExtArgs extends runtime.Types.Extensions.In
     notifications: Prisma.$LogisticsNotificationPayload<ExtArgs>[]
     auditLogs: Prisma.$LogisticsAuditLogPayload<ExtArgs>[]
     sellerLinks: Prisma.$SellerLogisticsPartnerPayload<ExtArgs>[]
+    /**
+     * Level prices that name this company as the carrier, and the legs it holds.
+     */
+    levelRates: Prisma.$LogisticsLevelRatePayload<ExtArgs>[]
+    shipmentLegs: Prisma.$ShipmentLegPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -6706,6 +7395,8 @@ export interface Prisma__LogisticsPartnerClient<T, Null = never, ExtArgs extends
   notifications<T extends Prisma.LogisticsPartner$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.LogisticsPartner$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sellerLinks<T extends Prisma.LogisticsPartner$sellerLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$sellerLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerLogisticsPartnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  levelRates<T extends Prisma.LogisticsPartner$levelRatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$levelRatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsLevelRatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shipmentLegs<T extends Prisma.LogisticsPartner$shipmentLegsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsPartner$shipmentLegsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShipmentLegPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7559,6 +8250,54 @@ export type LogisticsPartner$sellerLinksArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.SellerLogisticsPartnerScalarFieldEnum | Prisma.SellerLogisticsPartnerScalarFieldEnum[]
+}
+
+/**
+ * LogisticsPartner.levelRates
+ */
+export type LogisticsPartner$levelRatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsLevelRate
+   */
+  select?: Prisma.LogisticsLevelRateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsLevelRate
+   */
+  omit?: Prisma.LogisticsLevelRateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsLevelRateInclude<ExtArgs> | null
+  where?: Prisma.LogisticsLevelRateWhereInput
+  orderBy?: Prisma.LogisticsLevelRateOrderByWithRelationInput | Prisma.LogisticsLevelRateOrderByWithRelationInput[]
+  cursor?: Prisma.LogisticsLevelRateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogisticsLevelRateScalarFieldEnum | Prisma.LogisticsLevelRateScalarFieldEnum[]
+}
+
+/**
+ * LogisticsPartner.shipmentLegs
+ */
+export type LogisticsPartner$shipmentLegsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShipmentLeg
+   */
+  select?: Prisma.ShipmentLegSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShipmentLeg
+   */
+  omit?: Prisma.ShipmentLegOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShipmentLegInclude<ExtArgs> | null
+  where?: Prisma.ShipmentLegWhereInput
+  orderBy?: Prisma.ShipmentLegOrderByWithRelationInput | Prisma.ShipmentLegOrderByWithRelationInput[]
+  cursor?: Prisma.ShipmentLegWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShipmentLegScalarFieldEnum | Prisma.ShipmentLegScalarFieldEnum[]
 }
 
 /**

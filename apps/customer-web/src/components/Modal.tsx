@@ -14,6 +14,7 @@ import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from './ui';
 import { cx } from '@/lib/cx';
+import { lockPageScroll } from '@/lib/scroll-lock';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface ModalProps {
@@ -52,6 +53,12 @@ export function Modal({
 
     if (isOpen && !dialog.open) dialog.showModal();
     if (!isOpen && dialog.open) dialog.close();
+  }, [isOpen]);
+
+  // The page behind holds still while this is open. See `lib/scroll-lock.ts`.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    return lockPageScroll();
   }, [isOpen]);
 
   // Escape fires `cancel`, and the browser closes the dialog without telling
@@ -96,6 +103,11 @@ export function Modal({
         // it. `dvh` rather than `vh` so a mobile browser's collapsing toolbar
         // is counted rather than guessed at.
         'flex max-h-[calc(100dvh-2rem)] flex-col',
+        // The browser styles a modal dialog `overflow: auto`. With the
+        // header, body and footer a pixel or two taller than the cap (its
+        // border), the dialog itself scrolled too - a second scrollbar beside
+        // the body's. Only the body scrolls.
+        'overflow-hidden',
         /*
          * A closed dialog is hidden. This line is not redundant.
          *
@@ -121,13 +133,13 @@ export function Modal({
         'open:animate-dialog-in backdrop:animate-fade-in',
       )}
     >
-      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-5 sm:px-6">
+      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-5 sm:px-6 [@media(max-height:640px)]:py-3">
         <div className="min-w-0">
           <h2 id={titleId} className="text-title-sm text-ink">
             {title}
           </h2>
           {description !== undefined && (
-            <p id={descriptionId} className="mt-1 text-sm leading-relaxed text-ink-muted">
+            <p id={descriptionId} className="mt-1 text-sm leading-relaxed text-ink-muted [@media(max-height:640px)]:line-clamp-2">
               {description}
             </p>
           )}
@@ -140,7 +152,7 @@ export function Modal({
       {/* `min-h-0` is what makes the cap above work: a flex child's default
           minimum is its content, so without it the body refuses to shrink and
           the dialog grows past the viewport again. */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">{children}</div>
+      <div className="min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">{children}</div>
 
       {footer !== undefined && (
         <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">

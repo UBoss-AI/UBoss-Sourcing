@@ -55,6 +55,7 @@ import { AuthCard } from '@/components/ui/auth-form';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { BrandLockup } from '@/layout/BrandLockup';
+import { PARENT_ATTRIBUTION } from '@/lib/brand';
 
 export function AuthLayout({
   heading,
@@ -120,6 +121,14 @@ export function AuthLayout({
               where a wording complaint is most likely to be worth acting on.
               Renders nothing in English. */}
           <TranslationQualityNotice className="mt-5 text-center" />
+
+          {/* Who makes the portal, as small print at the foot of the column —
+              the same line, in the same place, as the admin sign-in. It used
+              to be the second line of the lockup above; the tagline is there
+              now. `lib/brand.ts` has why it is a constant. */}
+          <p className="mt-5 text-center text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
+            {PARENT_ATTRIBUTION}
+          </p>
         </AuthSplit>
       </main>
     </div>

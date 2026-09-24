@@ -86,6 +86,9 @@ import {
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder } from './VariantStepPanel';
 import { SellerPackagingPanel } from './SellerPackagingPanel';
+import { SellerPreorderTermsPanel } from './SellerPreorderTermsPanel';
+import { SellerTradeCodesPanel } from './SellerTradeCodesPanel';
+import { SellerQuantityTiersPanel } from './SellerQuantityTiersPanel';
 
 /** The inner padding every card body uses. Stated once so they all match. */
 const BODY = 'px-6 py-5';
@@ -730,6 +733,26 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
       <SellerPackagingPanel
         offerId={view.offerId}
         currency={view.currency}
+        currencyExponent={currencyExponent(view.currency)}
+      />
+
+      {/* Preorder terms: minimum, lead time, capacity and price bands for a
+          quantity the seller makes to order. Below packaging, because a
+          minimum set in pallets reads the pallet size configured above. */}
+      <SellerPreorderTermsPanel
+        offerId={view.offerId}
+        currency={view.currency}
+        currencyExponent={currencyExponent(view.currency)}
+      />
+
+      {/* HSN code and country of origin: printed on every invoice and
+          packing list for this product. */}
+      <SellerTradeCodesPanel offerId={view.offerId} />
+
+      {/* Quantity price bands: what the basket charges a loose quantity and
+          what the product page's bulk-savings popover shows buyers. */}
+      <SellerQuantityTiersPanel
+        offerId={view.offerId}
         currencyExponent={currencyExponent(view.currency)}
       />
 

@@ -29,6 +29,7 @@ import {
   OrdersIcon,
   PaymentsIcon,
   ProductsIcon,
+  PreordersIcon,
   RecurringIcon,
   ReportsIcon,
   SellerIcon,
@@ -188,6 +189,15 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Read-only: support and audit of bulk negotiations between buyers
+        // and sellers. Gated on the same permission that reads orders.
+        labelKey: 'nav.preorders',
+        to: '/preorders',
+        icon: PreordersIcon,
+        permissions: [Permission.ORDER_READ],
+        matchPrefix: true,
+      },
+      {
         /*
          * Above Customers and Sellers rather than beside them, because it is
          * the way into both: an operator asking "who is this business" starts
@@ -293,6 +303,37 @@ export const NAVIGATION: NavGroup[] = [
         to: '/logistics/integrations',
         icon: IntegrationsIcon,
         permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        // Who controls L1-L4 for each seller, and the prices UBOSS sets.
+        labelKey: 'nav.managedLevels',
+        to: '/logistics/managed-levels',
+        icon: LogisticsIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.deliveryLegs',
+        to: '/logistics/legs',
+        icon: LogisticsIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
+    /*
+     * Finance is its own group because its authority is its own: a general
+     * administrator does not hold `finance.policy.*` and does not see it.
+     */
+    labelKey: 'nav.group.finance',
+    items: [
+      {
+        labelKey: 'nav.platformFees',
+        to: '/finance/platform-fees',
+        icon: PaymentsIcon,
+        permissions: [Permission.FINANCE_POLICY_READ],
         matchPrefix: true,
       },
     ],

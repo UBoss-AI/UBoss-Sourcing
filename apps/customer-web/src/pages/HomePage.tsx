@@ -50,7 +50,8 @@ import { CollectionShelves } from '@/components/home/CollectionShelves';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { HeroStage } from '@/components/greeting/HeroStage';
 import { FlipWords } from '@/components/ui/flip-words';
-import { PARENT_ATTRIBUTION } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
+import { cx } from '@/lib/cx';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
@@ -142,17 +143,19 @@ function Greeting(): React.JSX.Element {
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
   /*
-   * The two phrases under the headline, in the order they are shown.
+   * The two phrases under the tagline, in the order they are shown.
    *
-   * The first is the strapline and is prose, so it is translated. The second
-   * is the attribution and is a fixed lockup, so it is not — see
-   * `lib/brand.ts`. They alternate whole, rather than one word inside a
-   * sentence changing, because each of them is a complete thought.
+   * The two halves of the strapline — "Source with Intelligence", "Deliver
+   * with Confidence" — each its own key, so each language's approved wording
+   * of the pair survives the split. It used to alternate the whole strapline
+   * with `Powered by UBOSS`; the attribution is the footer's small print now,
+   * and the line under the name is the product's tagline, which does not move.
    *
    * Rebuilt on each render, which costs nothing: `FlipWords` arms its timer
    * off the length of the list, not off the identity of the array.
    */
-  const phrases = [t('greeting.tagline'), PARENT_ATTRIBUTION];
+  const phrases = [t('greeting.taglineSource'), t('greeting.taglineDeliver')];
+  const isProductBrand = business.displayName === PRODUCT_BRAND;
 
   const eyebrow =
     !isLoading && isCustomer
@@ -244,12 +247,36 @@ function Greeting(): React.JSX.Element {
               twice, and with nothing cycling after the name there is nothing
               to collide with.
             */}
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+            <h1
+              className={cx(
+                'mt-3 font-bold text-ink',
+                // The product's own name is the wordmark, in its script face
+                // and a step larger, because a script's short x-height reads a
+                // size smaller than Inter. A deployment's own name is set as
+                // the heading it always was — see the note in `Header.tsx`.
+                isProductBrand
+                  ? 'font-brand text-5xl leading-tight sm:text-6xl lg:text-[4rem]'
+                  : 'text-3xl tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]',
+              )}
+            >
               {business.displayName}
             </h1>
 
             {/*
-             * The strapline, and the attribution, alternating.
+             * The tagline, still. It is the product's slogan rather than a
+             * sentence, so it is a constant and reads the same in every
+             * language — see `lib/brand.ts` — and it belongs to Glovia, so a
+             * deployment greeting its customers under its own name does not
+             * carry it.
+             */}
+            {isProductBrand && (
+              <p className="greeting-tagline mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand sm:text-sm">
+                {PRODUCT_TAGLINE}
+              </p>
+            )}
+
+            {/*
+             * The two halves of the strapline, alternating.
              *
              * It used to be a sentence, and a different sentence for a guest
              * than for a signed-in customer. Both are gone, deliberately: the
@@ -270,8 +297,8 @@ function Greeting(): React.JSX.Element {
              * one `invisible` — so the row is as tall as the taller of them
              * and stays that height for the life of the page. Without it the
              * band grew and shrank by two lines every few seconds on a phone,
-             * where the strapline wraps to three lines and `Powered by UBOSS`
-             * to one, and everything below the hero moved with it. It cannot
+             * where one phrase wraps and the other does not, and everything
+             * below the hero moved with it. It cannot
              * be a `min-height`: the taller phrase is a different phrase in
              * each of the eight languages, and a number measured in English is
              * a number that is wrong in Polish.
@@ -281,9 +308,8 @@ function Greeting(): React.JSX.Element {
              * reader is told the whole message once and is never read to
              * again. See `components/ui/flip-words.tsx`.
              *
-             * 4.2s rather than the component's 3s: these are phrases now
-             * rather than single words, and the longer of them is forty-nine
-             * characters that somebody has to have time to finish.
+             * 4.2s rather than the component's 3s: these are phrases rather
+             * than single words, and somebody has to have time to finish one.
              */}
             <p className="mt-4 grid text-base leading-relaxed text-ink-muted sm:whitespace-nowrap sm:text-lg">
               {phrases.map((phrase) => (
@@ -305,7 +331,7 @@ function Greeting(): React.JSX.Element {
                 <FlipWords
                   words={phrases}
                   duration={4200}
-                  srLabel={`${t('greeting.tagline')}. ${PARENT_ATTRIBUTION}.`}
+                  srLabel={`${t('greeting.taglineSource')}. ${t('greeting.taglineDeliver')}.`}
                 />
               </span>
             </p>

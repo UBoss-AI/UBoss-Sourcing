@@ -1263,6 +1263,13 @@ export type SellerOffer = Prisma.SellerOfferModel
  * A band, not a step: `minQuantity` starts a band that runs until the next
  * one begins. Overlapping bands are refused in the service, because a
  * quantity matching two prices has no answer a buyer would accept.
+ * A price per piece that applies from a quantity: "from 500 pieces, 9.20".
+ * 
+ * Quantities are BASE UNITS (pieces), the same unit the cart line holds, and
+ * the price is the offer's currency in minor units. Applied by
+ * `domain/quantity-tier.ts` and nothing else, from the cart, the checkout and
+ * the preorder price - so the figure the popover promises and the figure the
+ * order is charged are the same function.
  */
 export type SellerPriceTier = Prisma.SellerPriceTierModel
 /**
@@ -2062,3 +2069,211 @@ export type SellerErpExternalReference = Prisma.SellerErpExternalReferenceModel
  * somebody follows after a dispute about what posted into whose books.
  */
 export type SellerErpAuditEvent = Prisma.SellerErpAuditEventModel
+/**
+ * Model SellerLogisticsPolicy
+ * A seller's logistics policy: the DRAFT being edited, and a pointer to the
+ * version in force.
+ * 
+ * Exactly one per seller (`uq_seller_logistics_policy_seller`), and exactly
+ * one version in force, because `activeVersionId` is one column rather than a
+ * flag on many rows. A policy with no published version offers the seller's
+ * goods on no four-level route at all - the storefront behaves for them as it
+ * did before this existed.
+ */
+export type SellerLogisticsPolicy = Prisma.SellerLogisticsPolicyModel
+/**
+ * Model SellerLogisticsPolicyVersion
+ * One published state of a seller's policy. Never updated except to record
+ * when it stopped being in force: an order names the version it was priced
+ * under, and a mode change in March must not rewrite February's orders.
+ */
+export type SellerLogisticsPolicyVersion = Prisma.SellerLogisticsPolicyVersionModel
+/**
+ * Model SellerLogisticsProvider
+ * Which of DHL, FedEx, India Post (and a hand-booked forwarder, `MANUAL`) a
+ * seller has switched on for their own levels.
+ * 
+ * Deliberately NOT a connection. Whether an API account works is decided by
+ * `SellerCarrierConnection` and `carrierSetupStatus`, and only there - this
+ * row records that the seller intends to use the carrier, and how. A seller
+ * with no API credentials enables a carrier as MANUAL_ONLY and books it by
+ * hand; nothing on any screen will then say "Connected".
+ */
+export type SellerLogisticsProvider = Prisma.SellerLogisticsProviderModel
+/**
+ * Model LogisticsLevelRate
+ * What one level costs on one route, and who set it.
+ * 
+ * ROUTE-SCOPED, because one number for the whole world is wrong: moving a
+ * pallet from Mumbai to Rotterdam and from Mumbai to Dubai are not the same
+ * price. Every scope column is optional and a NULL means "any" - a seller who
+ * really does charge one flat price everywhere says so (`isWorldwideFlat`)
+ * rather than getting it by leaving everything blank.
+ * 
+ * L1  originLocationId -> originPortCode
+ * L2  originPortCode   -> destinationPortCode (+ destinationCountry)
+ * L3  destinationPortCode -> destinationHubCode (+ destinationCountry)
+ * L4  destinationHubCode  -> destinationCountry / destinationPostalPrefix
+ * 
+ * `owner` is who set the price, and it must match who controls the level in
+ * the seller's policy when a buyer is quoted - a price the seller typed for a
+ * level UBOSS now controls is kept, and ignored. L1 is never UBOSS's
+ * (`chk_level_rate_l1_seller`).
+ * 
+ * EMPTY IS NOT ZERO. `amountMinor` is NULL until somebody enters a price, and
+ * zero is allowed only as an explicit, confirmed free level
+ * (`chk_level_rate_free`). A blank field silently read as zero is free
+ * international freight nobody agreed to give away.
+ */
+export type LogisticsLevelRate = Prisma.LogisticsLevelRateModel
+/**
+ * Model OrderLogisticsLeg
+ * What one level cost one buyer, frozen at checkout.
+ * 
+ * Copied, never joined: the rate, the policy version, the carrier's name and
+ * the exchange rate are all written here as they stood, so a price published
+ * next week, a mode change or a new rate set changes nothing about this row.
+ * Written once and never updated - the table has no `updatedAt`.
+ */
+export type OrderLogisticsLeg = Prisma.OrderLogisticsLegModel
+/**
+ * Model ShipmentLeg
+ * One leg being carried out, for one seller's part of a confirmed order.
+ * 
+ * Created when the seller confirms their part - never before, because
+ * nobody may be offered work on an order the seller may still refuse - with
+ * the owner copied from the frozen charge, so a later policy change moves
+ * nobody's parcel. The carrier is a COLUMN, not a row per offer: one leg has
+ * at most one carrier at a time by construction, and a reassignment is a
+ * `ShipmentLegEvent`, not a second live row.
+ */
+export type ShipmentLeg = Prisma.ShipmentLegModel
+/**
+ * Model ShipmentLegEvent
+ * Everything that happened to a leg, append-only: who named which carrier,
+ * the partner's yes or no, each handover. The handover record is what a
+ * dispute about "who had it when it broke" is settled from.
+ */
+export type ShipmentLegEvent = Prisma.ShipmentLegEventModel
+/**
+ * Model PlatformFeePolicy
+ * What the marketplace deducts from a seller's proceeds, and the tax charged
+ * on that deduction.
+ * 
+ * A SELLER-SETTLEMENT DEDUCTION, never a buyer charge. No part of this is
+ * added to what a buyer pays, and no seller can write it: every route that
+ * changes it requires `finance.policy.write`.
+ * 
+ * Versioned per scope. A published row is never edited; publishing a new
+ * version retires the old one, and a seller order's settlement names the
+ * version it was calculated on, so a rate change in March leaves February's
+ * settlements exactly as they were. `activeScopeKey` is the scope key while
+ * the row is PUBLISHED and NULL otherwise, so `uq_platform_fee_active` allows
+ * any number of retired versions and exactly one live one per scope.
+ * 
+ * `taxRatePercent` is a CONFIGURED value, and `isTaxRuleVerified` says
+ * whether a person with authority has confirmed it is the legally correct
+ * one. Until they have, no screen or invoice calls it GST.
+ */
+export type PlatformFeePolicy = Prisma.PlatformFeePolicyModel
+/**
+ * Model SellerOrderSettlement
+ * What one seller is owed for one order, and how that was worked out.
+ * 
+ * Calculated once, when the order is confirmed, and kept: the fee policy
+ * version, the rates and every figure are stored, so a later policy leaves
+ * this row alone and a disputed settlement can be recomputed by hand.
+ * 
+ * gross seller proceeds
+ * + seller-controlled delivery proceeds
+ * - platform fee
+ * - tax on platform fee
+ * - refunds and adjustments
+ * = estimated seller settlement
+ */
+export type SellerOrderSettlement = Prisma.SellerOrderSettlementModel
+/**
+ * Model PreorderPolicy
+ * One seller's preorder terms, at one level of the fallback chain.
+ * 
+ * MOQ, increment and maximum are held in `moqUnit` because that is how a
+ * seller thinks ("ten pallets"), and converted to base units whenever they
+ * are used - from the offer's CURRENT packaging, so a policy written for a
+ * whole product is correct for every variant's own pallet size. A policy
+ * whose unit the offer has no active packaging for is incomplete for that
+ * offer, and says so, rather than guessing a pallet size.
+ */
+export type PreorderPolicy = Prisma.PreorderPolicyModel
+/**
+ * Model PreorderPriceTier
+ * "Cheaper per piece if you take fifty thousand."
+ * 
+ * A band, exactly like `SellerPriceTier`: `minBaseUnits` starts a band that
+ * runs until the next one begins. Only read under FIXED pricing, and only as
+ * an INDICATIVE figure - the seller confirms the price in their answer.
+ */
+export type PreorderPriceTier = Prisma.PreorderPriceTierModel
+/**
+ * Model PreorderCapacityBucket
+ * Production capacity already promised, per policy per period.
+ * 
+ * A counter row rather than a SUM over requests, because the check has to be
+ * ONE atomic statement: `UPDATE ... SET reserved = reserved + n WHERE
+ * reserved + n <= capacity`, and an affected-row count of zero means the
+ * capacity was not there. MariaDB 10.4 has no SKIP LOCKED and a
+ * read-then-write loses to the second buyer confirming in the same second.
+ */
+export type PreorderCapacityBucket = Prisma.PreorderCapacityBucketModel
+/**
+ * Model PreorderRequest
+ * One buyer's preorder request, and where the negotiation over it stands.
+ */
+export type PreorderRequest = Prisma.PreorderRequestModel
+/**
+ * Model PreorderOffer
+ * One proposal of terms. Immutable apart from its state.
+ * 
+ * `termsHash` is SHA-256 over the canonical terms. It is what the buyer's
+ * confirmation names, so a confirmation can only ever confirm the terms the
+ * buyer was actually shown - a revision written between the page loading and
+ * the button being pressed has a different hash and is refused.
+ */
+export type PreorderOffer = Prisma.PreorderOfferModel
+/**
+ * Model PreorderStatusHistory
+ * Every status a preorder has been through. Append-only.
+ */
+export type PreorderStatusHistory = Prisma.PreorderStatusHistoryModel
+/**
+ * Model SellerInvoiceSettings
+ * How one seller numbers and signs their invoices.
+ */
+export type SellerInvoiceSettings = Prisma.SellerInvoiceSettingsModel
+/**
+ * Model LogisticsShipmentLine
+ * What one consignment carries: this many of this order line.
+ * 
+ * The sum over a seller order's consignments never exceeds the line's
+ * quantity - enforced in the service, inside the transaction that splits or
+ * allocates. A consignment with no rows yet is given the unallocated
+ * remainder the first time its documents are prepared.
+ */
+export type LogisticsShipmentLine = Prisma.LogisticsShipmentLineModel
+/**
+ * Model LogisticsShipmentPackageLine
+ * What one package holds: this many of this order line, of this batch.
+ * 
+ * The packages of a consignment together must hold exactly its lines - the
+ * packing list refuses to issue otherwise.
+ */
+export type LogisticsShipmentPackageLine = Prisma.LogisticsShipmentPackageLineModel
+/**
+ * Model SellerInvoice
+ * A seller's tax invoice or credit note, for one consignment.
+ */
+export type SellerInvoice = Prisma.SellerInvoiceModel
+/**
+ * Model SellerPackingList
+ * A packing list for one consignment - one vehicle, one load.
+ */
+export type SellerPackingList = Prisma.SellerPackingListModel

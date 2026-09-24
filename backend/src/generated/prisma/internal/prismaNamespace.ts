@@ -601,7 +601,27 @@ export const ModelName = {
   SellerErpSyncJob: 'SellerErpSyncJob',
   SellerErpSyncAttempt: 'SellerErpSyncAttempt',
   SellerErpExternalReference: 'SellerErpExternalReference',
-  SellerErpAuditEvent: 'SellerErpAuditEvent'
+  SellerErpAuditEvent: 'SellerErpAuditEvent',
+  SellerLogisticsPolicy: 'SellerLogisticsPolicy',
+  SellerLogisticsPolicyVersion: 'SellerLogisticsPolicyVersion',
+  SellerLogisticsProvider: 'SellerLogisticsProvider',
+  LogisticsLevelRate: 'LogisticsLevelRate',
+  OrderLogisticsLeg: 'OrderLogisticsLeg',
+  ShipmentLeg: 'ShipmentLeg',
+  ShipmentLegEvent: 'ShipmentLegEvent',
+  PlatformFeePolicy: 'PlatformFeePolicy',
+  SellerOrderSettlement: 'SellerOrderSettlement',
+  PreorderPolicy: 'PreorderPolicy',
+  PreorderPriceTier: 'PreorderPriceTier',
+  PreorderCapacityBucket: 'PreorderCapacityBucket',
+  PreorderRequest: 'PreorderRequest',
+  PreorderOffer: 'PreorderOffer',
+  PreorderStatusHistory: 'PreorderStatusHistory',
+  SellerInvoiceSettings: 'SellerInvoiceSettings',
+  LogisticsShipmentLine: 'LogisticsShipmentLine',
+  LogisticsShipmentPackageLine: 'LogisticsShipmentPackageLine',
+  SellerInvoice: 'SellerInvoice',
+  SellerPackingList: 'SellerPackingList'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -617,7 +637,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -14151,6 +14171,1326 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SellerLogisticsPolicy: {
+      payload: Prisma.$SellerLogisticsPolicyPayload<ExtArgs>
+      fields: Prisma.SellerLogisticsPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerLogisticsPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerLogisticsPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerLogisticsPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerLogisticsPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.SellerLogisticsPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.SellerLogisticsPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.SellerLogisticsPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerLogisticsPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        update: {
+          args: Prisma.SellerLogisticsPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerLogisticsPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerLogisticsPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerLogisticsPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerLogisticsPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerLogisticsPolicy>
+        }
+        groupBy: {
+          args: Prisma.SellerLogisticsPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerLogisticsPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerLogisticsPolicyVersion: {
+      payload: Prisma.$SellerLogisticsPolicyVersionPayload<ExtArgs>
+      fields: Prisma.SellerLogisticsPolicyVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerLogisticsPolicyVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerLogisticsPolicyVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerLogisticsPolicyVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerLogisticsPolicyVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        findMany: {
+          args: Prisma.SellerLogisticsPolicyVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>[]
+        }
+        create: {
+          args: Prisma.SellerLogisticsPolicyVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        createMany: {
+          args: Prisma.SellerLogisticsPolicyVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerLogisticsPolicyVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        update: {
+          args: Prisma.SellerLogisticsPolicyVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerLogisticsPolicyVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerLogisticsPolicyVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerLogisticsPolicyVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsPolicyVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerLogisticsPolicyVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerLogisticsPolicyVersion>
+        }
+        groupBy: {
+          args: Prisma.SellerLogisticsPolicyVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPolicyVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerLogisticsPolicyVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsPolicyVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerLogisticsProvider: {
+      payload: Prisma.$SellerLogisticsProviderPayload<ExtArgs>
+      fields: Prisma.SellerLogisticsProviderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerLogisticsProviderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerLogisticsProviderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerLogisticsProviderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerLogisticsProviderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        findMany: {
+          args: Prisma.SellerLogisticsProviderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>[]
+        }
+        create: {
+          args: Prisma.SellerLogisticsProviderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        createMany: {
+          args: Prisma.SellerLogisticsProviderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerLogisticsProviderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        update: {
+          args: Prisma.SellerLogisticsProviderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerLogisticsProviderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerLogisticsProviderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerLogisticsProviderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerLogisticsProviderPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerLogisticsProviderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerLogisticsProvider>
+        }
+        groupBy: {
+          args: Prisma.SellerLogisticsProviderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsProviderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerLogisticsProviderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerLogisticsProviderCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsLevelRate: {
+      payload: Prisma.$LogisticsLevelRatePayload<ExtArgs>
+      fields: Prisma.LogisticsLevelRateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsLevelRateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsLevelRateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsLevelRateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsLevelRateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsLevelRateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsLevelRateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsLevelRateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsLevelRateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        update: {
+          args: Prisma.LogisticsLevelRateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsLevelRateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsLevelRateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsLevelRateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLevelRatePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsLevelRateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsLevelRate>
+        }
+        groupBy: {
+          args: Prisma.LogisticsLevelRateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsLevelRateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsLevelRateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsLevelRateCountAggregateOutputType> | number
+        }
+      }
+    }
+    OrderLogisticsLeg: {
+      payload: Prisma.$OrderLogisticsLegPayload<ExtArgs>
+      fields: Prisma.OrderLogisticsLegFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OrderLogisticsLegFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OrderLogisticsLegFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        findFirst: {
+          args: Prisma.OrderLogisticsLegFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OrderLogisticsLegFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        findMany: {
+          args: Prisma.OrderLogisticsLegFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>[]
+        }
+        create: {
+          args: Prisma.OrderLogisticsLegCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        createMany: {
+          args: Prisma.OrderLogisticsLegCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.OrderLogisticsLegDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        update: {
+          args: Prisma.OrderLogisticsLegUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        deleteMany: {
+          args: Prisma.OrderLogisticsLegDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OrderLogisticsLegUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.OrderLogisticsLegUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderLogisticsLegPayload>
+        }
+        aggregate: {
+          args: Prisma.OrderLogisticsLegAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOrderLogisticsLeg>
+        }
+        groupBy: {
+          args: Prisma.OrderLogisticsLegGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderLogisticsLegGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OrderLogisticsLegCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderLogisticsLegCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShipmentLeg: {
+      payload: Prisma.$ShipmentLegPayload<ExtArgs>
+      fields: Prisma.ShipmentLegFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShipmentLegFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShipmentLegFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        findFirst: {
+          args: Prisma.ShipmentLegFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShipmentLegFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        findMany: {
+          args: Prisma.ShipmentLegFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>[]
+        }
+        create: {
+          args: Prisma.ShipmentLegCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        createMany: {
+          args: Prisma.ShipmentLegCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ShipmentLegDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        update: {
+          args: Prisma.ShipmentLegUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShipmentLegDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShipmentLegUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ShipmentLegUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegPayload>
+        }
+        aggregate: {
+          args: Prisma.ShipmentLegAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShipmentLeg>
+        }
+        groupBy: {
+          args: Prisma.ShipmentLegGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentLegGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShipmentLegCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentLegCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShipmentLegEvent: {
+      payload: Prisma.$ShipmentLegEventPayload<ExtArgs>
+      fields: Prisma.ShipmentLegEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShipmentLegEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShipmentLegEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ShipmentLegEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShipmentLegEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        findMany: {
+          args: Prisma.ShipmentLegEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>[]
+        }
+        create: {
+          args: Prisma.ShipmentLegEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        createMany: {
+          args: Prisma.ShipmentLegEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ShipmentLegEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        update: {
+          args: Prisma.ShipmentLegEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShipmentLegEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShipmentLegEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ShipmentLegEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentLegEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ShipmentLegEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShipmentLegEvent>
+        }
+        groupBy: {
+          args: Prisma.ShipmentLegEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentLegEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShipmentLegEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentLegEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    PlatformFeePolicy: {
+      payload: Prisma.$PlatformFeePolicyPayload<ExtArgs>
+      fields: Prisma.PlatformFeePolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlatformFeePolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlatformFeePolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.PlatformFeePolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlatformFeePolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        findMany: {
+          args: Prisma.PlatformFeePolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>[]
+        }
+        create: {
+          args: Prisma.PlatformFeePolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        createMany: {
+          args: Prisma.PlatformFeePolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PlatformFeePolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        update: {
+          args: Prisma.PlatformFeePolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlatformFeePolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlatformFeePolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PlatformFeePolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformFeePolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.PlatformFeePolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlatformFeePolicy>
+        }
+        groupBy: {
+          args: Prisma.PlatformFeePolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformFeePolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlatformFeePolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformFeePolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerOrderSettlement: {
+      payload: Prisma.$SellerOrderSettlementPayload<ExtArgs>
+      fields: Prisma.SellerOrderSettlementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerOrderSettlementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerOrderSettlementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerOrderSettlementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerOrderSettlementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        findMany: {
+          args: Prisma.SellerOrderSettlementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>[]
+        }
+        create: {
+          args: Prisma.SellerOrderSettlementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        createMany: {
+          args: Prisma.SellerOrderSettlementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerOrderSettlementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        update: {
+          args: Prisma.SellerOrderSettlementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerOrderSettlementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerOrderSettlementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerOrderSettlementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerOrderSettlementPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerOrderSettlementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerOrderSettlement>
+        }
+        groupBy: {
+          args: Prisma.SellerOrderSettlementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerOrderSettlementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerOrderSettlementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerOrderSettlementCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderPolicy: {
+      payload: Prisma.$PreorderPolicyPayload<ExtArgs>
+      fields: Prisma.PreorderPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        update: {
+          args: Prisma.PreorderPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderPolicy>
+        }
+        groupBy: {
+          args: Prisma.PreorderPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderPolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderPriceTier: {
+      payload: Prisma.$PreorderPriceTierPayload<ExtArgs>
+      fields: Prisma.PreorderPriceTierFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderPriceTierFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderPriceTierFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderPriceTierFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderPriceTierFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderPriceTierFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderPriceTierCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderPriceTierCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderPriceTierDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        update: {
+          args: Prisma.PreorderPriceTierUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderPriceTierDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderPriceTierUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderPriceTierUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderPriceTierPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderPriceTierAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderPriceTier>
+        }
+        groupBy: {
+          args: Prisma.PreorderPriceTierGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderPriceTierGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderPriceTierCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderPriceTierCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderCapacityBucket: {
+      payload: Prisma.$PreorderCapacityBucketPayload<ExtArgs>
+      fields: Prisma.PreorderCapacityBucketFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderCapacityBucketFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderCapacityBucketFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderCapacityBucketFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderCapacityBucketFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderCapacityBucketFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderCapacityBucketCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderCapacityBucketCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderCapacityBucketDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        update: {
+          args: Prisma.PreorderCapacityBucketUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderCapacityBucketDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderCapacityBucketUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderCapacityBucketUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderCapacityBucketPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderCapacityBucketAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderCapacityBucket>
+        }
+        groupBy: {
+          args: Prisma.PreorderCapacityBucketGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderCapacityBucketGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderCapacityBucketCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderCapacityBucketCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderRequest: {
+      payload: Prisma.$PreorderRequestPayload<ExtArgs>
+      fields: Prisma.PreorderRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        update: {
+          args: Prisma.PreorderRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderRequest>
+        }
+        groupBy: {
+          args: Prisma.PreorderRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderOffer: {
+      payload: Prisma.$PreorderOfferPayload<ExtArgs>
+      fields: Prisma.PreorderOfferFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderOfferFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderOfferFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderOfferFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderOfferFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderOfferFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderOfferCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderOfferCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderOfferDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        update: {
+          args: Prisma.PreorderOfferUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderOfferDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderOfferUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderOfferUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderOfferPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderOfferAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderOffer>
+        }
+        groupBy: {
+          args: Prisma.PreorderOfferGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderOfferGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderOfferCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderOfferCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderStatusHistory: {
+      payload: Prisma.$PreorderStatusHistoryPayload<ExtArgs>
+      fields: Prisma.PreorderStatusHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderStatusHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderStatusHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderStatusHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderStatusHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderStatusHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderStatusHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderStatusHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderStatusHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        update: {
+          args: Prisma.PreorderStatusHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderStatusHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderStatusHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderStatusHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStatusHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderStatusHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderStatusHistory>
+        }
+        groupBy: {
+          args: Prisma.PreorderStatusHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderStatusHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderStatusHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderStatusHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerInvoiceSettings: {
+      payload: Prisma.$SellerInvoiceSettingsPayload<ExtArgs>
+      fields: Prisma.SellerInvoiceSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerInvoiceSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerInvoiceSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerInvoiceSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerInvoiceSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.SellerInvoiceSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.SellerInvoiceSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.SellerInvoiceSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerInvoiceSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        update: {
+          args: Prisma.SellerInvoiceSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerInvoiceSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerInvoiceSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerInvoiceSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoiceSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerInvoiceSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerInvoiceSettings>
+        }
+        groupBy: {
+          args: Prisma.SellerInvoiceSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerInvoiceSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerInvoiceSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerInvoiceSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentLine: {
+      payload: Prisma.$LogisticsShipmentLinePayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentLinePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentLine>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentPackageLine: {
+      payload: Prisma.$LogisticsShipmentPackageLinePayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentPackageLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentPackageLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentPackageLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentPackageLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentPackageLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentPackageLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentPackageLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentPackageLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentPackageLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentPackageLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentPackageLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentPackageLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentPackageLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackageLinePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentPackageLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentPackageLine>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentPackageLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentPackageLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentPackageLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentPackageLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerInvoice: {
+      payload: Prisma.$SellerInvoicePayload<ExtArgs>
+      fields: Prisma.SellerInvoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerInvoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerInvoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        findFirst: {
+          args: Prisma.SellerInvoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerInvoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        findMany: {
+          args: Prisma.SellerInvoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>[]
+        }
+        create: {
+          args: Prisma.SellerInvoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        createMany: {
+          args: Prisma.SellerInvoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerInvoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        update: {
+          args: Prisma.SellerInvoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerInvoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerInvoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerInvoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerInvoicePayload>
+        }
+        aggregate: {
+          args: Prisma.SellerInvoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerInvoice>
+        }
+        groupBy: {
+          args: Prisma.SellerInvoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerInvoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerInvoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerInvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    SellerPackingList: {
+      payload: Prisma.$SellerPackingListPayload<ExtArgs>
+      fields: Prisma.SellerPackingListFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerPackingListFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerPackingListFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerPackingListFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerPackingListFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        findMany: {
+          args: Prisma.SellerPackingListFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>[]
+        }
+        create: {
+          args: Prisma.SellerPackingListCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        createMany: {
+          args: Prisma.SellerPackingListCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerPackingListDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        update: {
+          args: Prisma.SellerPackingListUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerPackingListDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerPackingListUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerPackingListUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerPackingListPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerPackingListAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerPackingList>
+        }
+        groupBy: {
+          args: Prisma.SellerPackingListGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerPackingListGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerPackingListCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerPackingListCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -14327,6 +15667,7 @@ export const BusinessProfileScalarFieldEnum = {
   gstin: 'gstin',
   gpsrEnforced: 'gpsrEnforced',
   sellerCommissionBasisPoints: 'sellerCommissionBasisPoints',
+  showLogisticsLevelBreakdown: 'showLogisticsLevelBreakdown',
   mdrEnforced: 'mdrEnforced',
   vatNumber: 'vatNumber',
   vatCountry: 'vatCountry',
@@ -14977,6 +16318,7 @@ export const OrderItemScalarFieldEnum = {
   unitQuantity: 'unitQuantity',
   piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   noteSnapshot: 'noteSnapshot',
+  quantityTierJson: 'quantityTierJson',
   lineSubtotalMinor: 'lineSubtotalMinor',
   taxRatePercent: 'taxRatePercent',
   taxInclusive: 'taxInclusive',
@@ -17060,7 +18402,9 @@ export const SellerOfferScalarFieldEnum = {
   version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  archivedAt: 'archivedAt'
+  archivedAt: 'archivedAt',
+  hsnCode: 'hsnCode',
+  countryOfOrigin: 'countryOfOrigin'
 } as const
 
 export type SellerOfferScalarFieldEnum = (typeof SellerOfferScalarFieldEnum)[keyof typeof SellerOfferScalarFieldEnum]
@@ -17070,7 +18414,14 @@ export const SellerPriceTierScalarFieldEnum = {
   id: 'id',
   offerId: 'offerId',
   minQuantity: 'minQuantity',
+  maxQuantity: 'maxQuantity',
   priceMinor: 'priceMinor',
+  isActive: 'isActive',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  businessBuyersOnly: 'businessBuyersOnly',
+  countryCodes: 'countryCodes',
+  preorderOnly: 'preorderOnly',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -17871,7 +19222,9 @@ export const LogisticsShipmentScalarFieldEnum = {
   version: 'version',
   createdById: 'createdById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  packedAt: 'packedAt',
+  splitFromShipmentId: 'splitFromShipmentId'
 } as const
 
 export type LogisticsShipmentScalarFieldEnum = (typeof LogisticsShipmentScalarFieldEnum)[keyof typeof LogisticsShipmentScalarFieldEnum]
@@ -17893,7 +19246,10 @@ export const LogisticsShipmentPackageScalarFieldEnum = {
   scannedOutAt: 'scannedOutAt',
   scannedInAt: 'scannedInAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  netWeightGrams: 'netWeightGrams',
+  containerNumber: 'containerNumber',
+  sealNumber: 'sealNumber'
 } as const
 
 export type LogisticsShipmentPackageScalarFieldEnum = (typeof LogisticsShipmentPackageScalarFieldEnum)[keyof typeof LogisticsShipmentPackageScalarFieldEnum]
@@ -18814,6 +20170,572 @@ export const SellerErpAuditEventScalarFieldEnum = {
 } as const
 
 export type SellerErpAuditEventScalarFieldEnum = (typeof SellerErpAuditEventScalarFieldEnum)[keyof typeof SellerErpAuditEventScalarFieldEnum]
+
+
+export const SellerLogisticsPolicyScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  mode: 'mode',
+  l2Owner: 'l2Owner',
+  l3Owner: 'l3Owner',
+  l4Owner: 'l4Owner',
+  activeVersionId: 'activeVersionId',
+  version: 'version',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerLogisticsPolicyScalarFieldEnum = (typeof SellerLogisticsPolicyScalarFieldEnum)[keyof typeof SellerLogisticsPolicyScalarFieldEnum]
+
+
+export const SellerLogisticsPolicyVersionScalarFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  sellerAccountId: 'sellerAccountId',
+  versionNumber: 'versionNumber',
+  mode: 'mode',
+  l2Owner: 'l2Owner',
+  l3Owner: 'l3Owner',
+  l4Owner: 'l4Owner',
+  changeNote: 'changeNote',
+  publishedAt: 'publishedAt',
+  publishedByUserId: 'publishedByUserId',
+  supersededAt: 'supersededAt'
+} as const
+
+export type SellerLogisticsPolicyVersionScalarFieldEnum = (typeof SellerLogisticsPolicyVersionScalarFieldEnum)[keyof typeof SellerLogisticsPolicyVersionScalarFieldEnum]
+
+
+export const SellerLogisticsProviderScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  provider: 'provider',
+  connectionMode: 'connectionMode',
+  enabledAt: 'enabledAt',
+  disabledAt: 'disabledAt',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerLogisticsProviderScalarFieldEnum = (typeof SellerLogisticsProviderScalarFieldEnum)[keyof typeof SellerLogisticsProviderScalarFieldEnum]
+
+
+export const LogisticsLevelRateScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  level: 'level',
+  owner: 'owner',
+  originLocationId: 'originLocationId',
+  originPortCode: 'originPortCode',
+  destinationPortCode: 'destinationPortCode',
+  destinationHubCode: 'destinationHubCode',
+  destinationHubName: 'destinationHubName',
+  destinationCountry: 'destinationCountry',
+  destinationPostalPrefix: 'destinationPostalPrefix',
+  packageClass: 'packageClass',
+  minWeightGrams: 'minWeightGrams',
+  maxWeightGrams: 'maxWeightGrams',
+  isWorldwideFlat: 'isWorldwideFlat',
+  transportMode: 'transportMode',
+  provider: 'provider',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  trackingReferenceKind: 'trackingReferenceKind',
+  requiresCustomsRelease: 'requiresCustomsRelease',
+  transitDaysMin: 'transitDaysMin',
+  transitDaysMax: 'transitDaysMax',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  isFree: 'isFree',
+  freeConfirmedAt: 'freeConfirmedAt',
+  taxInclusive: 'taxInclusive',
+  priceSource: 'priceSource',
+  status: 'status',
+  effectiveFrom: 'effectiveFrom',
+  versionNumber: 'versionNumber',
+  supersedesRateId: 'supersedesRateId',
+  publishedAt: 'publishedAt',
+  publishedByUserId: 'publishedByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsLevelRateScalarFieldEnum = (typeof LogisticsLevelRateScalarFieldEnum)[keyof typeof LogisticsLevelRateScalarFieldEnum]
+
+
+export const OrderLogisticsLegScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  level: 'level',
+  owner: 'owner',
+  policyVersionId: 'policyVersionId',
+  rateId: 'rateId',
+  rateVersionNumber: 'rateVersionNumber',
+  transportMode: 'transportMode',
+  provider: 'provider',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  transitDaysMin: 'transitDaysMin',
+  transitDaysMax: 'transitDaysMax',
+  originalAmountMinor: 'originalAmountMinor',
+  originalCurrency: 'originalCurrency',
+  fxRate: 'fxRate',
+  fxProvider: 'fxProvider',
+  fxRateAsOf: 'fxRateAsOf',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  isFree: 'isFree',
+  taxInclusive: 'taxInclusive',
+  priceSource: 'priceSource',
+  createdAt: 'createdAt'
+} as const
+
+export type OrderLogisticsLegScalarFieldEnum = (typeof OrderLogisticsLegScalarFieldEnum)[keyof typeof OrderLogisticsLegScalarFieldEnum]
+
+
+export const ShipmentLegScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  orderLegId: 'orderLegId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  level: 'level',
+  sequence: 'sequence',
+  owner: 'owner',
+  status: 'status',
+  provider: 'provider',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  connectionMode: 'connectionMode',
+  trackingNumber: 'trackingNumber',
+  trackingReferenceKind: 'trackingReferenceKind',
+  pickupReference: 'pickupReference',
+  expectedStartAt: 'expectedStartAt',
+  expectedCompleteAt: 'expectedCompleteAt',
+  driverProfileId: 'driverProfileId',
+  assignedAt: 'assignedAt',
+  assignedByUserId: 'assignedByUserId',
+  assignedByRole: 'assignedByRole',
+  acceptedAt: 'acceptedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentLegScalarFieldEnum = (typeof ShipmentLegScalarFieldEnum)[keyof typeof ShipmentLegScalarFieldEnum]
+
+
+export const ShipmentLegEventScalarFieldEnum = {
+  id: 'id',
+  legId: 'legId',
+  kind: 'kind',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorRole: 'actorRole',
+  performedByUserId: 'performedByUserId',
+  note: 'note',
+  occurredAt: 'occurredAt',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type ShipmentLegEventScalarFieldEnum = (typeof ShipmentLegEventScalarFieldEnum)[keyof typeof ShipmentLegEventScalarFieldEnum]
+
+
+export const PlatformFeePolicyScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  scopeKey: 'scopeKey',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  marketCountry: 'marketCountry',
+  versionNumber: 'versionNumber',
+  status: 'status',
+  activeScopeKey: 'activeScopeKey',
+  name: 'name',
+  feeType: 'feeType',
+  feeBasis: 'feeBasis',
+  percentRate: 'percentRate',
+  flatFeeMinor: 'flatFeeMinor',
+  minFeeMinor: 'minFeeMinor',
+  maxFeeMinor: 'maxFeeMinor',
+  currency: 'currency',
+  taxRatePercent: 'taxRatePercent',
+  taxLabel: 'taxLabel',
+  taxJurisdiction: 'taxJurisdiction',
+  isTaxRuleVerified: 'isTaxRuleVerified',
+  taxVerifiedByUserId: 'taxVerifiedByUserId',
+  taxVerifiedAt: 'taxVerifiedAt',
+  taxVerificationNote: 'taxVerificationNote',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  notes: 'notes',
+  publishedAt: 'publishedAt',
+  publishedByUserId: 'publishedByUserId',
+  retiredAt: 'retiredAt',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformFeePolicyScalarFieldEnum = (typeof PlatformFeePolicyScalarFieldEnum)[keyof typeof PlatformFeePolicyScalarFieldEnum]
+
+
+export const SellerOrderSettlementScalarFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  currency: 'currency',
+  grossProceedsMinor: 'grossProceedsMinor',
+  sellerDeliveryProceedsMinor: 'sellerDeliveryProceedsMinor',
+  ubossDeliveryMinor: 'ubossDeliveryMinor',
+  feeBasisMinor: 'feeBasisMinor',
+  platformFeeMinor: 'platformFeeMinor',
+  platformFeeTaxMinor: 'platformFeeTaxMinor',
+  refundsAdjustmentsMinor: 'refundsAdjustmentsMinor',
+  estimatedSettlementMinor: 'estimatedSettlementMinor',
+  platformFeePolicyId: 'platformFeePolicyId',
+  platformFeePolicyVersion: 'platformFeePolicyVersion',
+  feeTaxRatePercent: 'feeTaxRatePercent',
+  feeTaxLabel: 'feeTaxLabel',
+  feeTaxVerified: 'feeTaxVerified',
+  breakdownJson: 'breakdownJson',
+  computedAt: 'computedAt'
+} as const
+
+export type SellerOrderSettlementScalarFieldEnum = (typeof SellerOrderSettlementScalarFieldEnum)[keyof typeof SellerOrderSettlementScalarFieldEnum]
+
+
+export const PreorderPolicyScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  scope: 'scope',
+  scopeKey: 'scopeKey',
+  offerId: 'offerId',
+  productId: 'productId',
+  isEnabled: 'isEnabled',
+  moqUnit: 'moqUnit',
+  moqQuantity: 'moqQuantity',
+  incrementQuantity: 'incrementQuantity',
+  maxQuantity: 'maxQuantity',
+  capacityBaseUnits: 'capacityBaseUnits',
+  capacityPeriod: 'capacityPeriod',
+  minLeadTimeDays: 'minLeadTimeDays',
+  maxAdvanceDays: 'maxAdvanceDays',
+  deliveryCountriesJson: 'deliveryCountriesJson',
+  eligibleLocationIdsJson: 'eligibleLocationIdsJson',
+  packagingTypesJson: 'packagingTypesJson',
+  pricingMode: 'pricingMode',
+  allowPartialFulfilment: 'allowPartialFulfilment',
+  allowSplitDelivery: 'allowSplitDelivery',
+  requestExpiryHours: 'requestExpiryHours',
+  offerExpiryHours: 'offerExpiryHours',
+  cancellationTerms: 'cancellationTerms',
+  specialInstructions: 'specialInstructions',
+  version: 'version',
+  updatedByLabel: 'updatedByLabel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderPolicyScalarFieldEnum = (typeof PreorderPolicyScalarFieldEnum)[keyof typeof PreorderPolicyScalarFieldEnum]
+
+
+export const PreorderPriceTierScalarFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  minBaseUnits: 'minBaseUnits',
+  unitPriceMinor: 'unitPriceMinor',
+  currency: 'currency',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderPriceTierScalarFieldEnum = (typeof PreorderPriceTierScalarFieldEnum)[keyof typeof PreorderPriceTierScalarFieldEnum]
+
+
+export const PreorderCapacityBucketScalarFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  sellerAccountId: 'sellerAccountId',
+  periodKey: 'periodKey',
+  reservedBaseUnits: 'reservedBaseUnits',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderCapacityBucketScalarFieldEnum = (typeof PreorderCapacityBucketScalarFieldEnum)[keyof typeof PreorderCapacityBucketScalarFieldEnum]
+
+
+export const PreorderRequestScalarFieldEnum = {
+  id: 'id',
+  requestNumber: 'requestNumber',
+  sellerAccountId: 'sellerAccountId',
+  customerProfileId: 'customerProfileId',
+  requestedByUserId: 'requestedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  offerId: 'offerId',
+  policyId: 'policyId',
+  policyVersion: 'policyVersion',
+  policySnapshotJson: 'policySnapshotJson',
+  status: 'status',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  unitsPerPackage: 'unitsPerPackage',
+  requestedBaseUnits: 'requestedBaseUnits',
+  requestedDeliveryDate: 'requestedDeliveryDate',
+  earliestDeliveryDate: 'earliestDeliveryDate',
+  timezone: 'timezone',
+  shippingAddressId: 'shippingAddressId',
+  shippingAddressJson: 'shippingAddressJson',
+  destinationCountry: 'destinationCountry',
+  destinationWarehouseLabel: 'destinationWarehouseLabel',
+  packagingPreference: 'packagingPreference',
+  transportPreference: 'transportPreference',
+  allowPartialDelivery: 'allowPartialDelivery',
+  purchaseOrderReference: 'purchaseOrderReference',
+  customerNotes: 'customerNotes',
+  handlingInstructions: 'handlingInstructions',
+  termsAcceptedAt: 'termsAcceptedAt',
+  pricingMode: 'pricingMode',
+  currency: 'currency',
+  indicativeUnitPriceMinor: 'indicativeUnitPriceMinor',
+  indicativeTotalMinor: 'indicativeTotalMinor',
+  indicativeTierMinBaseUnits: 'indicativeTierMinBaseUnits',
+  displayCurrency: 'displayCurrency',
+  fxSnapshotId: 'fxSnapshotId',
+  fxRate: 'fxRate',
+  fxRateAsOf: 'fxRateAsOf',
+  currentOfferId: 'currentOfferId',
+  acceptedOfferId: 'acceptedOfferId',
+  confirmedTermsJson: 'confirmedTermsJson',
+  confirmedTermsHash: 'confirmedTermsHash',
+  confirmedBaseUnits: 'confirmedBaseUnits',
+  confirmedUnitPriceMinor: 'confirmedUnitPriceMinor',
+  confirmedFreightMinor: 'confirmedFreightMinor',
+  confirmedGoodsTotalMinor: 'confirmedGoodsTotalMinor',
+  committedDeliveryDate: 'committedDeliveryDate',
+  convertedOrderId: 'convertedOrderId',
+  capacityBucketId: 'capacityBucketId',
+  capacityReservedBaseUnits: 'capacityReservedBaseUnits',
+  expiresAt: 'expiresAt',
+  closedReason: 'closedReason',
+  submittedAt: 'submittedAt',
+  sellerRespondedAt: 'sellerRespondedAt',
+  buyerConfirmedAt: 'buyerConfirmedAt',
+  confirmedAt: 'confirmedAt',
+  productionStartedAt: 'productionStartedAt',
+  readyAt: 'readyAt',
+  convertedAt: 'convertedAt',
+  closedAt: 'closedAt',
+  deliveryRiskNotifiedAt: 'deliveryRiskNotifiedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderRequestScalarFieldEnum = (typeof PreorderRequestScalarFieldEnum)[keyof typeof PreorderRequestScalarFieldEnum]
+
+
+export const PreorderOfferScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  revision: 'revision',
+  author: 'author',
+  kind: 'kind',
+  state: 'state',
+  quantityBaseUnits: 'quantityBaseUnits',
+  unitPriceMinor: 'unitPriceMinor',
+  goodsTotalMinor: 'goodsTotalMinor',
+  freightMinor: 'freightMinor',
+  currency: 'currency',
+  committedDeliveryDate: 'committedDeliveryDate',
+  deliverySplitsJson: 'deliverySplitsJson',
+  originLocationId: 'originLocationId',
+  note: 'note',
+  expiresAt: 'expiresAt',
+  termsHash: 'termsHash',
+  createdByUserId: 'createdByUserId',
+  createdByLabel: 'createdByLabel',
+  respondedAt: 'respondedAt',
+  respondedByLabel: 'respondedByLabel',
+  responseNote: 'responseNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderOfferScalarFieldEnum = (typeof PreorderOfferScalarFieldEnum)[keyof typeof PreorderOfferScalarFieldEnum]
+
+
+export const PreorderStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  reason: 'reason',
+  metaJson: 'metaJson',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderStatusHistoryScalarFieldEnum = (typeof PreorderStatusHistoryScalarFieldEnum)[keyof typeof PreorderStatusHistoryScalarFieldEnum]
+
+
+export const SellerInvoiceSettingsScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  jurisdiction: 'jurisdiction',
+  invoiceSeries: 'invoiceSeries',
+  creditNoteSeries: 'creditNoteSeries',
+  financialYearStartMonth: 'financialYearStartMonth',
+  signatoryName: 'signatoryName',
+  signatoryDesignation: 'signatoryDesignation',
+  lutReference: 'lutReference',
+  lutValidFrom: 'lutValidFrom',
+  lutValidTo: 'lutValidTo',
+  footerNotes: 'footerNotes',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerInvoiceSettingsScalarFieldEnum = (typeof SellerInvoiceSettingsScalarFieldEnum)[keyof typeof SellerInvoiceSettingsScalarFieldEnum]
+
+
+export const LogisticsShipmentLineScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sellerAccountId: 'sellerAccountId',
+  orderItemId: 'orderItemId',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentLineScalarFieldEnum = (typeof LogisticsShipmentLineScalarFieldEnum)[keyof typeof LogisticsShipmentLineScalarFieldEnum]
+
+
+export const LogisticsShipmentPackageLineScalarFieldEnum = {
+  id: 'id',
+  packageId: 'packageId',
+  shipmentId: 'shipmentId',
+  orderItemId: 'orderItemId',
+  quantity: 'quantity',
+  batchNumber: 'batchNumber',
+  expiryDate: 'expiryDate',
+  serialNumbersJson: 'serialNumbersJson',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsShipmentPackageLineScalarFieldEnum = (typeof LogisticsShipmentPackageLineScalarFieldEnum)[keyof typeof LogisticsShipmentPackageLineScalarFieldEnum]
+
+
+export const SellerInvoiceScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  kind: 'kind',
+  status: 'status',
+  jurisdiction: 'jurisdiction',
+  liveKey: 'liveKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  sequenceNumber: 'sequenceNumber',
+  number: 'number',
+  creditsInvoiceId: 'creditsInvoiceId',
+  templateVersion: 'templateVersion',
+  issueDate: 'issueDate',
+  issuedAt: 'issuedAt',
+  issuedByLabel: 'issuedByLabel',
+  currency: 'currency',
+  sellerJson: 'sellerJson',
+  buyerJson: 'buyerJson',
+  shipToJson: 'shipToJson',
+  linesJson: 'linesJson',
+  taxBreakdownJson: 'taxBreakdownJson',
+  placeOfSupplyJson: 'placeOfSupplyJson',
+  validationJson: 'validationJson',
+  supplyType: 'supplyType',
+  reverseCharge: 'reverseCharge',
+  taxableMinor: 'taxableMinor',
+  discountMinor: 'discountMinor',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  cessMinor: 'cessMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  freightMinor: 'freightMinor',
+  totalTaxMinor: 'totalTaxMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  amountInWords: 'amountInWords',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  sizeBytes: 'sizeBytes',
+  pageCount: 'pageCount',
+  logisticsDocumentId: 'logisticsDocumentId',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerInvoiceScalarFieldEnum = (typeof SellerInvoiceScalarFieldEnum)[keyof typeof SellerInvoiceScalarFieldEnum]
+
+
+export const SellerPackingListScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  status: 'status',
+  liveKey: 'liveKey',
+  number: 'number',
+  sellerInvoiceId: 'sellerInvoiceId',
+  templateVersion: 'templateVersion',
+  issuedAt: 'issuedAt',
+  issuedByLabel: 'issuedByLabel',
+  snapshotJson: 'snapshotJson',
+  validationJson: 'validationJson',
+  packageCount: 'packageCount',
+  totalBaseUnits: 'totalBaseUnits',
+  netWeightGrams: 'netWeightGrams',
+  grossWeightGrams: 'grossWeightGrams',
+  volumeCm3: 'volumeCm3',
+  vehicleRegistration: 'vehicleRegistration',
+  driverReference: 'driverReference',
+  verificationCode: 'verificationCode',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  sizeBytes: 'sizeBytes',
+  pageCount: 'pageCount',
+  logisticsDocumentId: 'logisticsDocumentId',
+  supersededById: 'supersededById',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerPackingListScalarFieldEnum = (typeof SellerPackingListScalarFieldEnum)[keyof typeof SellerPackingListScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -20731,7 +22653,9 @@ export const SellerOfferOrderByRelevanceFieldEnum = {
   taxClassId: 'taxClassId',
   statusReason: 'statusReason',
   pausedByProfileId: 'pausedByProfileId',
-  sourceDraftId: 'sourceDraftId'
+  sourceDraftId: 'sourceDraftId',
+  hsnCode: 'hsnCode',
+  countryOfOrigin: 'countryOfOrigin'
 } as const
 
 export type SellerOfferOrderByRelevanceFieldEnum = (typeof SellerOfferOrderByRelevanceFieldEnum)[keyof typeof SellerOfferOrderByRelevanceFieldEnum]
@@ -21229,7 +23153,8 @@ export const LogisticsShipmentOrderByRelevanceFieldEnum = {
   handlingNotes: 'handlingNotes',
   currency: 'currency',
   slaPolicyId: 'slaPolicyId',
-  createdById: 'createdById'
+  createdById: 'createdById',
+  splitFromShipmentId: 'splitFromShipmentId'
 } as const
 
 export type LogisticsShipmentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentOrderByRelevanceFieldEnum]
@@ -21240,7 +23165,9 @@ export const LogisticsShipmentPackageOrderByRelevanceFieldEnum = {
   shipmentId: 'shipmentId',
   packageReference: 'packageReference',
   packagingType: 'packagingType',
-  batchReference: 'batchReference'
+  batchReference: 'batchReference',
+  containerNumber: 'containerNumber',
+  sealNumber: 'sealNumber'
 } as const
 
 export type LogisticsShipmentPackageOrderByRelevanceFieldEnum = (typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum]
@@ -21780,6 +23707,324 @@ export const SellerErpAuditEventOrderByRelevanceFieldEnum = {
 } as const
 
 export type SellerErpAuditEventOrderByRelevanceFieldEnum = (typeof SellerErpAuditEventOrderByRelevanceFieldEnum)[keyof typeof SellerErpAuditEventOrderByRelevanceFieldEnum]
+
+
+export const SellerLogisticsPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  activeVersionId: 'activeVersionId',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type SellerLogisticsPolicyOrderByRelevanceFieldEnum = (typeof SellerLogisticsPolicyOrderByRelevanceFieldEnum)[keyof typeof SellerLogisticsPolicyOrderByRelevanceFieldEnum]
+
+
+export const SellerLogisticsPolicyVersionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  sellerAccountId: 'sellerAccountId',
+  changeNote: 'changeNote',
+  publishedByUserId: 'publishedByUserId'
+} as const
+
+export type SellerLogisticsPolicyVersionOrderByRelevanceFieldEnum = (typeof SellerLogisticsPolicyVersionOrderByRelevanceFieldEnum)[keyof typeof SellerLogisticsPolicyVersionOrderByRelevanceFieldEnum]
+
+
+export const SellerLogisticsProviderOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type SellerLogisticsProviderOrderByRelevanceFieldEnum = (typeof SellerLogisticsProviderOrderByRelevanceFieldEnum)[keyof typeof SellerLogisticsProviderOrderByRelevanceFieldEnum]
+
+
+export const LogisticsLevelRateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  originLocationId: 'originLocationId',
+  originPortCode: 'originPortCode',
+  destinationPortCode: 'destinationPortCode',
+  destinationHubCode: 'destinationHubCode',
+  destinationHubName: 'destinationHubName',
+  destinationCountry: 'destinationCountry',
+  destinationPostalPrefix: 'destinationPostalPrefix',
+  packageClass: 'packageClass',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  trackingReferenceKind: 'trackingReferenceKind',
+  currency: 'currency',
+  supersedesRateId: 'supersedesRateId',
+  publishedByUserId: 'publishedByUserId',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type LogisticsLevelRateOrderByRelevanceFieldEnum = (typeof LogisticsLevelRateOrderByRelevanceFieldEnum)[keyof typeof LogisticsLevelRateOrderByRelevanceFieldEnum]
+
+
+export const OrderLogisticsLegOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerAccountId: 'sellerAccountId',
+  policyVersionId: 'policyVersionId',
+  rateId: 'rateId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  originalCurrency: 'originalCurrency',
+  fxProvider: 'fxProvider',
+  currency: 'currency'
+} as const
+
+export type OrderLogisticsLegOrderByRelevanceFieldEnum = (typeof OrderLogisticsLegOrderByRelevanceFieldEnum)[keyof typeof OrderLogisticsLegOrderByRelevanceFieldEnum]
+
+
+export const ShipmentLegOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  orderLegId: 'orderLegId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  providerLabel: 'providerLabel',
+  serviceName: 'serviceName',
+  trackingNumber: 'trackingNumber',
+  trackingReferenceKind: 'trackingReferenceKind',
+  pickupReference: 'pickupReference',
+  driverProfileId: 'driverProfileId',
+  assignedByUserId: 'assignedByUserId',
+  assignedByRole: 'assignedByRole'
+} as const
+
+export type ShipmentLegOrderByRelevanceFieldEnum = (typeof ShipmentLegOrderByRelevanceFieldEnum)[keyof typeof ShipmentLegOrderByRelevanceFieldEnum]
+
+
+export const ShipmentLegEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  legId: 'legId',
+  kind: 'kind',
+  actorRole: 'actorRole',
+  performedByUserId: 'performedByUserId',
+  note: 'note',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type ShipmentLegEventOrderByRelevanceFieldEnum = (typeof ShipmentLegEventOrderByRelevanceFieldEnum)[keyof typeof ShipmentLegEventOrderByRelevanceFieldEnum]
+
+
+export const PlatformFeePolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  scopeKey: 'scopeKey',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  marketCountry: 'marketCountry',
+  activeScopeKey: 'activeScopeKey',
+  name: 'name',
+  currency: 'currency',
+  taxLabel: 'taxLabel',
+  taxJurisdiction: 'taxJurisdiction',
+  taxVerifiedByUserId: 'taxVerifiedByUserId',
+  taxVerificationNote: 'taxVerificationNote',
+  notes: 'notes',
+  publishedByUserId: 'publishedByUserId',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type PlatformFeePolicyOrderByRelevanceFieldEnum = (typeof PlatformFeePolicyOrderByRelevanceFieldEnum)[keyof typeof PlatformFeePolicyOrderByRelevanceFieldEnum]
+
+
+export const SellerOrderSettlementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  sellerAccountId: 'sellerAccountId',
+  currency: 'currency',
+  platformFeePolicyId: 'platformFeePolicyId',
+  feeTaxLabel: 'feeTaxLabel'
+} as const
+
+export type SellerOrderSettlementOrderByRelevanceFieldEnum = (typeof SellerOrderSettlementOrderByRelevanceFieldEnum)[keyof typeof SellerOrderSettlementOrderByRelevanceFieldEnum]
+
+
+export const PreorderPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  scopeKey: 'scopeKey',
+  offerId: 'offerId',
+  productId: 'productId',
+  cancellationTerms: 'cancellationTerms',
+  specialInstructions: 'specialInstructions',
+  updatedByLabel: 'updatedByLabel'
+} as const
+
+export type PreorderPolicyOrderByRelevanceFieldEnum = (typeof PreorderPolicyOrderByRelevanceFieldEnum)[keyof typeof PreorderPolicyOrderByRelevanceFieldEnum]
+
+
+export const PreorderPriceTierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  currency: 'currency'
+} as const
+
+export type PreorderPriceTierOrderByRelevanceFieldEnum = (typeof PreorderPriceTierOrderByRelevanceFieldEnum)[keyof typeof PreorderPriceTierOrderByRelevanceFieldEnum]
+
+
+export const PreorderCapacityBucketOrderByRelevanceFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  sellerAccountId: 'sellerAccountId',
+  periodKey: 'periodKey'
+} as const
+
+export type PreorderCapacityBucketOrderByRelevanceFieldEnum = (typeof PreorderCapacityBucketOrderByRelevanceFieldEnum)[keyof typeof PreorderCapacityBucketOrderByRelevanceFieldEnum]
+
+
+export const PreorderRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestNumber: 'requestNumber',
+  sellerAccountId: 'sellerAccountId',
+  customerProfileId: 'customerProfileId',
+  requestedByUserId: 'requestedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  offerId: 'offerId',
+  policyId: 'policyId',
+  timezone: 'timezone',
+  shippingAddressId: 'shippingAddressId',
+  destinationCountry: 'destinationCountry',
+  destinationWarehouseLabel: 'destinationWarehouseLabel',
+  purchaseOrderReference: 'purchaseOrderReference',
+  customerNotes: 'customerNotes',
+  handlingInstructions: 'handlingInstructions',
+  currency: 'currency',
+  displayCurrency: 'displayCurrency',
+  fxSnapshotId: 'fxSnapshotId',
+  fxRate: 'fxRate',
+  currentOfferId: 'currentOfferId',
+  acceptedOfferId: 'acceptedOfferId',
+  confirmedTermsHash: 'confirmedTermsHash',
+  convertedOrderId: 'convertedOrderId',
+  capacityBucketId: 'capacityBucketId',
+  closedReason: 'closedReason'
+} as const
+
+export type PreorderRequestOrderByRelevanceFieldEnum = (typeof PreorderRequestOrderByRelevanceFieldEnum)[keyof typeof PreorderRequestOrderByRelevanceFieldEnum]
+
+
+export const PreorderOfferOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  currency: 'currency',
+  originLocationId: 'originLocationId',
+  note: 'note',
+  termsHash: 'termsHash',
+  createdByUserId: 'createdByUserId',
+  createdByLabel: 'createdByLabel',
+  respondedByLabel: 'respondedByLabel',
+  responseNote: 'responseNote'
+} as const
+
+export type PreorderOfferOrderByRelevanceFieldEnum = (typeof PreorderOfferOrderByRelevanceFieldEnum)[keyof typeof PreorderOfferOrderByRelevanceFieldEnum]
+
+
+export const PreorderStatusHistoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  reason: 'reason'
+} as const
+
+export type PreorderStatusHistoryOrderByRelevanceFieldEnum = (typeof PreorderStatusHistoryOrderByRelevanceFieldEnum)[keyof typeof PreorderStatusHistoryOrderByRelevanceFieldEnum]
+
+
+export const SellerInvoiceSettingsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  invoiceSeries: 'invoiceSeries',
+  creditNoteSeries: 'creditNoteSeries',
+  signatoryName: 'signatoryName',
+  signatoryDesignation: 'signatoryDesignation',
+  lutReference: 'lutReference',
+  footerNotes: 'footerNotes'
+} as const
+
+export type SellerInvoiceSettingsOrderByRelevanceFieldEnum = (typeof SellerInvoiceSettingsOrderByRelevanceFieldEnum)[keyof typeof SellerInvoiceSettingsOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sellerAccountId: 'sellerAccountId',
+  orderItemId: 'orderItemId'
+} as const
+
+export type LogisticsShipmentLineOrderByRelevanceFieldEnum = (typeof LogisticsShipmentLineOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentLineOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentPackageLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  packageId: 'packageId',
+  shipmentId: 'shipmentId',
+  orderItemId: 'orderItemId',
+  batchNumber: 'batchNumber'
+} as const
+
+export type LogisticsShipmentPackageLineOrderByRelevanceFieldEnum = (typeof LogisticsShipmentPackageLineOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentPackageLineOrderByRelevanceFieldEnum]
+
+
+export const SellerInvoiceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  liveKey: 'liveKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  number: 'number',
+  creditsInvoiceId: 'creditsInvoiceId',
+  templateVersion: 'templateVersion',
+  issuedByLabel: 'issuedByLabel',
+  currency: 'currency',
+  supplyType: 'supplyType',
+  amountInWords: 'amountInWords',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  logisticsDocumentId: 'logisticsDocumentId',
+  voidReason: 'voidReason'
+} as const
+
+export type SellerInvoiceOrderByRelevanceFieldEnum = (typeof SellerInvoiceOrderByRelevanceFieldEnum)[keyof typeof SellerInvoiceOrderByRelevanceFieldEnum]
+
+
+export const SellerPackingListOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  logisticsShipmentId: 'logisticsShipmentId',
+  liveKey: 'liveKey',
+  number: 'number',
+  sellerInvoiceId: 'sellerInvoiceId',
+  templateVersion: 'templateVersion',
+  issuedByLabel: 'issuedByLabel',
+  vehicleRegistration: 'vehicleRegistration',
+  driverReference: 'driverReference',
+  verificationCode: 'verificationCode',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  logisticsDocumentId: 'logisticsDocumentId',
+  supersededById: 'supersededById',
+  voidReason: 'voidReason'
+} as const
+
+export type SellerPackingListOrderByRelevanceFieldEnum = (typeof SellerPackingListOrderByRelevanceFieldEnum)[keyof typeof SellerPackingListOrderByRelevanceFieldEnum]
 
 
 
@@ -23098,6 +25343,174 @@ export type EnumSellerErpSyncTriggerFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'LogisticsControlMode'
+ */
+export type EnumLogisticsControlModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsControlMode'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsControlOwner'
+ */
+export type EnumLogisticsControlOwnerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsControlOwner'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsProviderConnectionMode'
+ */
+export type EnumLogisticsProviderConnectionModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsProviderConnectionMode'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsLevel'
+ */
+export type EnumLogisticsLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsTransportMode'
+ */
+export type EnumLogisticsTransportModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsTransportMode'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsPriceSource'
+ */
+export type EnumLogisticsPriceSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPriceSource'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsLevelRateStatus'
+ */
+export type EnumLogisticsLevelRateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsLevelRateStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ShipmentLegStatus'
+ */
+export type EnumShipmentLegStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShipmentLegStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PlatformFeeScope'
+ */
+export type EnumPlatformFeeScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlatformFeeScope'>
+    
+
+
+/**
+ * Reference to a field of type 'PlatformFeePolicyStatus'
+ */
+export type EnumPlatformFeePolicyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlatformFeePolicyStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PlatformFeeType'
+ */
+export type EnumPlatformFeeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlatformFeeType'>
+    
+
+
+/**
+ * Reference to a field of type 'PlatformFeeBasis'
+ */
+export type EnumPlatformFeeBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlatformFeeBasis'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderPolicyScope'
+ */
+export type EnumPreorderPolicyScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderPolicyScope'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderQuantityUnit'
+ */
+export type EnumPreorderQuantityUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderQuantityUnit'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderCapacityPeriod'
+ */
+export type EnumPreorderCapacityPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderCapacityPeriod'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderPricingMode'
+ */
+export type EnumPreorderPricingModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderPricingMode'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderStatus'
+ */
+export type EnumPreorderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderTransportMode'
+ */
+export type EnumPreorderTransportModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderTransportMode'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderParty'
+ */
+export type EnumPreorderPartyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderParty'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderOfferKind'
+ */
+export type EnumPreorderOfferKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderOfferKind'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderOfferState'
+ */
+export type EnumPreorderOfferStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderOfferState'>
+    
+
+
+/**
+ * Reference to a field of type 'SellerInvoiceJurisdiction'
+ */
+export type EnumSellerInvoiceJurisdictionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerInvoiceJurisdiction'>
+    
+
+
+/**
+ * Reference to a field of type 'SellerInvoiceKind'
+ */
+export type EnumSellerInvoiceKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerInvoiceKind'>
+    
+
+
+/**
+ * Reference to a field of type 'SellerDocumentStatus'
+ */
+export type EnumSellerDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SellerDocumentStatus'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -23459,6 +25872,26 @@ export type GlobalOmitConfig = {
   sellerErpSyncAttempt?: Prisma.SellerErpSyncAttemptOmit
   sellerErpExternalReference?: Prisma.SellerErpExternalReferenceOmit
   sellerErpAuditEvent?: Prisma.SellerErpAuditEventOmit
+  sellerLogisticsPolicy?: Prisma.SellerLogisticsPolicyOmit
+  sellerLogisticsPolicyVersion?: Prisma.SellerLogisticsPolicyVersionOmit
+  sellerLogisticsProvider?: Prisma.SellerLogisticsProviderOmit
+  logisticsLevelRate?: Prisma.LogisticsLevelRateOmit
+  orderLogisticsLeg?: Prisma.OrderLogisticsLegOmit
+  shipmentLeg?: Prisma.ShipmentLegOmit
+  shipmentLegEvent?: Prisma.ShipmentLegEventOmit
+  platformFeePolicy?: Prisma.PlatformFeePolicyOmit
+  sellerOrderSettlement?: Prisma.SellerOrderSettlementOmit
+  preorderPolicy?: Prisma.PreorderPolicyOmit
+  preorderPriceTier?: Prisma.PreorderPriceTierOmit
+  preorderCapacityBucket?: Prisma.PreorderCapacityBucketOmit
+  preorderRequest?: Prisma.PreorderRequestOmit
+  preorderOffer?: Prisma.PreorderOfferOmit
+  preorderStatusHistory?: Prisma.PreorderStatusHistoryOmit
+  sellerInvoiceSettings?: Prisma.SellerInvoiceSettingsOmit
+  logisticsShipmentLine?: Prisma.LogisticsShipmentLineOmit
+  logisticsShipmentPackageLine?: Prisma.LogisticsShipmentPackageLineOmit
+  sellerInvoice?: Prisma.SellerInvoiceOmit
+  sellerPackingList?: Prisma.SellerPackingListOmit
 }
 
 /* Types for Logging */

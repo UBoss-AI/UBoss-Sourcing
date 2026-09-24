@@ -40,6 +40,9 @@ import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { BulkOrderPanel } from '@/components/catalog/BulkOrderPanel';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
+import { PreorderButton } from '@/components/preorder/PreorderButton';
+import { BulkSavingsPopover } from '@/components/BulkSavingsPopover';
+import { BandPriceValue } from '@/components/BandPriceValue';
 import { ProductInstructionsButton } from '@/components/ProductInstructionsButton';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
@@ -1735,6 +1738,28 @@ export function ProductPage(): React.JSX.Element {
                 </p>
               )}
 
+              {/* Bulk savings: what one piece costs at this quantity and in
+                  each way of buying it, and what the next band saves. Renders
+                  nothing for a product no seller bands, and nothing on a
+                  price-on-request page. The suggestion is only pressable where
+                  the box above counts in pieces for one version. */}
+              {!isPriceOnRequest && scheduleLine !== undefined && totalPieces > 0 && (
+                <BulkSavingsPopover
+                  productId={product.id}
+                  variantId={scheduleLine.variantId}
+                  pieces={totalPieces}
+                  displayCurrency={currency}
+                  onSetPieces={
+                    needsVariant || !soldByThePiece
+                      ? undefined
+                      : (next) => {
+                          setQuantity(next);
+                          setAddError(null);
+                        }
+                  }
+                />
+              )}
+
               {/* --- What it comes to --------------------------------------
 
                   Three rows, and each one answers a question a buyer asks out
@@ -1771,7 +1796,18 @@ export function ProductPage(): React.JSX.Element {
                     <div className="flex items-baseline justify-between gap-3">
                       <dt className="text-ink-muted">{t('product.pricePerPiece')}</dt>
                       <dd className="shrink-0 tabular font-medium text-ink">
-                        {formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency)}
+                        {/* The seller's quantity band, where one prices this
+                            quantity - the figure the basket will charge. */}
+                        <BandPriceValue
+                          productId={product.id}
+                          variantId={scheduleLine?.variantId ?? null}
+                          pieces={totalPieces}
+                          displayCurrency={currency}
+                          priceCurrency={priceCurrency}
+                          enabled={scheduleLine !== undefined && soldByThePiece && !isPriceOnRequest}
+                          kind="unit"
+                          fallback={formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency)}
+                        />
                       </dd>
                     </div>
 
@@ -1796,7 +1832,16 @@ export function ProductPage(): React.JSX.Element {
                         aria-live="polite"
                         className="shrink-0 text-base font-semibold tabular text-ink"
                       >
-                        {formatMoneyMinor(goodsSubtotalMinor, priceCurrency)}
+                        <BandPriceValue
+                          productId={product.id}
+                          variantId={scheduleLine?.variantId ?? null}
+                          pieces={totalPieces}
+                          displayCurrency={currency}
+                          priceCurrency={priceCurrency}
+                          enabled={scheduleLine !== undefined && soldByThePiece && !isPriceOnRequest}
+                          kind="total"
+                          fallback={formatMoneyMinor(goodsSubtotalMinor, priceCurrency)}
+                        />
                       </dd>
                     </div>
                   </dl>
@@ -1954,6 +1999,26 @@ export function ProductPage(): React.JSX.Element {
                      * column on a phone, and a half-width button under two
                      * full-width ones reads as unfinished.
                      */}
+                    {/*
+                     * Preorder: the third way to buy, for a quantity the seller has to
+                     * make. On every product page - the server decides whether it is
+                     * open, and it says why underneath when it is not. See the
+                     * component for why it is neither hidden nor a scheduled cart.
+                     */}
+                    <PreorderButton
+                      productId={product.id}
+                      productName={product.name}
+                      imageUrl={product.primaryImage?.url ?? null}
+                      variantId={scheduleLine?.variantId ?? null}
+                      variantName={
+                        scheduleLine?.variantId === null || scheduleLine === undefined
+                          ? null
+                          : (product.variants.find((candidate) => candidate.id === scheduleLine.variantId)?.name ?? null)
+                      }
+                      isReady={scheduleLine !== undefined}
+                      pieces={totalPieces}
+                      className="w-full sm:w-auto"
+                    />
                     <ProductInstructionsButton
                       productId={product.id}
                       productName={product.name}
@@ -2063,6 +2128,30 @@ export function ProductPage(): React.JSX.Element {
                     <ProductInstructionsButton
                       productId={product.id}
                       productName={product.name}
+                    />
+                  </div>
+                  {/* A guest sees Preorder too; pressing it goes to sign-in
+                      and comes back here with the form open. */}
+                  <div className="mt-3">
+                    {/*
+                     * Preorder: the third way to buy, for a quantity the seller has to
+                     * make. On every product page - the server decides whether it is
+                     * open, and it says why underneath when it is not. See the
+                     * component for why it is neither hidden nor a scheduled cart.
+                     */}
+                    <PreorderButton
+                      productId={product.id}
+                      productName={product.name}
+                      imageUrl={product.primaryImage?.url ?? null}
+                      variantId={scheduleLine?.variantId ?? null}
+                      variantName={
+                        scheduleLine?.variantId === null || scheduleLine === undefined
+                          ? null
+                          : (product.variants.find((candidate) => candidate.id === scheduleLine.variantId)?.name ?? null)
+                      }
+                      isReady={scheduleLine !== undefined}
+                      pieces={totalPieces}
+                      className="w-full sm:w-auto"
                     />
                   </div>
                 </div>

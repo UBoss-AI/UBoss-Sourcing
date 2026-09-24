@@ -2,8 +2,9 @@
  * What the portal calls itself — and, more importantly, what it does not.
  *
  * The portal used to be "UBOSS Logistics" on one line. It is Glovia now, over
- * `Powered by UBOSS`: the product, and who makes it. Both strings live in
- * `lib/brand.ts` and nowhere else.
+ * `The Way to the World`: the product, and its tagline. Both strings live in
+ * `lib/brand.ts` and nowhere else, and `Powered by UBOSS` is the sign-in
+ * screen's small print.
  *
  * THE SECOND HALF OF THIS FILE IS THE IMPORTANT HALF.
  *
@@ -24,7 +25,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { SessionProvider } from '@/auth/session';
 import { ThemeProvider } from '@/app/ThemeProvider';
 import { i18n } from '@/i18n/config';
-import { PARENT_ATTRIBUTION, PORTAL_TITLE, PRODUCT_BRAND } from '@/lib/brand';
+import { PARENT_ATTRIBUTION, PORTAL_TITLE, PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
 import type { PortalSession } from '@/lib/types';
 import { BrandLockup } from './BrandLockup';
 import { LoginPage } from '@/pages/LoginPage';
@@ -81,11 +82,21 @@ afterEach(() => {
 });
 
 describe('the portal’s brand lockup', () => {
-  it('is the product over its attribution', () => {
+  it('is the product over its tagline', () => {
     renderBrand();
 
     expect(screen.getByText(PRODUCT_BRAND)).toBeDefined();
-    expect(screen.getByText(PARENT_ATTRIBUTION)).toBeDefined();
+    expect(screen.getByText(PRODUCT_TAGLINE)).toBeDefined();
+    // The attribution is the sign-in screen's small print now, not the
+    // lockup's second line.
+    expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
+  });
+
+  it('sets the name in the wordmark face, and only the name', () => {
+    renderBrand();
+
+    expect(screen.getByText(PRODUCT_BRAND).className).toContain('font-brand');
+    expect(screen.getByText(PRODUCT_TAGLINE).className).not.toContain('font-brand');
   });
 
   it('spells both of them the one way', () => {
@@ -93,14 +104,14 @@ describe('the portal’s brand lockup', () => {
 
     // Written as a sentence and uppercased by CSS, not written in capitals.
     expect(screen.getByText('Glovia').textContent).toBe('Glovia');
-    expect(screen.getByText('Powered by UBOSS').textContent).toBe('Powered by UBOSS');
+    expect(screen.getByText('The Way to the World').textContent).toBe('The Way to the World');
   });
 
   it('is named with both lines, for a rail too narrow to show them', () => {
     renderBrand();
 
     expect(
-      screen.getByRole('img', { name: `${PRODUCT_BRAND} — ${PARENT_ATTRIBUTION}` }),
+      screen.getByRole('img', { name: `${PRODUCT_BRAND} — ${PRODUCT_TAGLINE}` }),
     ).toBeDefined();
   });
 
@@ -149,6 +160,10 @@ describe('the carrier’s own name', () => {
     // The brand is on the same screen, and the two are not the same thing.
     expect(screen.getByText(PRODUCT_BRAND)).toBeDefined();
     expect(screen.queryByText(/signed in as Glovia/i)).toBeNull();
+
+    // Who makes the portal is the column's small print — once, and not the
+    // lockup's second line.
+    expect(screen.getAllByText(PARENT_ATTRIBUTION)).toHaveLength(1);
   });
 
   it('changes with the session, where the brand does not', async () => {

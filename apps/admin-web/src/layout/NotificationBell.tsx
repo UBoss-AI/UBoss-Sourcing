@@ -33,6 +33,7 @@ import { cx } from '@/lib/cx';
 import { formatRelative, humanise } from '@/lib/format';
 import type { ConsoleNotification, ConsoleNotificationFeed } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 /**
  * Kinds this build knows how to phrase. Mirrors `AdminNotificationKind` in
@@ -82,6 +83,25 @@ const LOGISTICS_EXCEPTION_RAISED = 'logistics.exception.raised';
 const SELLER_DOCUMENT_UPLOADED = 'seller.document.uploaded';
 
 /**
+ * A preorder on the store's OWN product needs staff: a new request to answer,
+ * a paid one to start making, or a delivery at risk. An ALERT, closed when
+ * staff act on the preorder. `event` is the step, worded here.
+ */
+const PREORDER_AWAITING_OPERATOR = 'preorder.awaiting_operator';
+
+/** Something happened on a preorder for the store's own product that needs no action. */
+const PREORDER_UPDATE = 'preorder.update';
+
+/** The steps a preorder notification can name. Anything else reads as the generic line. */
+const PREORDER_EVENTS = new Set([
+  'PREORDER_REQUEST_RECEIVED',
+  'PREORDER_BUYER_RESPONSE',
+  'PREORDER_CONFIRMED',
+  'PREORDER_CLOSED',
+  'PREORDER_DELIVERY_RISK',
+]);
+
+/**
  * Somebody exercised a data-subject right.
  *
  * An ALERT rather than news, because a statutory clock is running on it.
@@ -96,6 +116,15 @@ const LOGISTICS_DELIVERY_FAILED = 'logistics.delivery_failed';
 
 /** Nobody has picked a consignment up. The one alert a person may close. */
 const LOGISTICS_SHIPMENT_UNASSIGNED = 'logistics.shipment.unassigned';
+
+/** A UBOSS-managed delivery level has no published price. */
+const LEVEL_PRICE_REQUIRED = 'logistics.level.price_required';
+/** A UBOSS-managed leg of a confirmed order has no carrier. */
+const LEG_NEEDS_ASSIGNMENT = 'logistics.leg.needs_assignment';
+/** A leg was accepted, refused, started or handed over. */
+const LEG_UPDATE = 'logistics.leg.update';
+/** A published platform fee charges a tax nobody has verified. */
+const FEE_TAX_UNVERIFIED = 'finance.fee_tax.unverified';
 
 /** One page of the feed. Deliberately short: this is a bell, not the audit log. */
 const FEED_LIMIT = 20;
@@ -136,10 +165,7 @@ interface Phrase {
   detail: string | null;
 }
 
-function describe(
-  notification: ConsoleNotification,
-  t: ReturnType<typeof useI18n>['t'],
-): Phrase {
+function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18n>['t']): Phrase {
   const variables = notification.variables;
 
   if (notification.kind === ORDER_PLACED) {
@@ -232,6 +258,18 @@ function describe(
     };
   }
 
+  if (notification.kind === PREORDER_AWAITING_OPERATOR || notification.kind === PREORDER_UPDATE) {
+    const event = textVariable(variables, 'event', '');
+    return {
+      title: t('notifications.preorder.title', {
+        requestNumber: textVariable(variables, 'requestNumber', '—'),
+      }),
+      detail: PREORDER_EVENTS.has(event)
+        ? t(`notifications.preorder.${event}` as TranslationKey)
+        : t('notifications.preorder.generic'),
+    };
+  }
+
   if (notification.kind === SELLER_DOCUMENT_UPLOADED) {
     return {
       title: t('notifications.sellerDocumentUploaded.title', {
@@ -277,6 +315,51 @@ function describe(
       detail: t('notifications.shipmentUnassigned.detail', {
         receivingCompany: textVariable(variables, 'receivingCompany', '—'),
         waitingHours: numberVariable(variables, 'waitingHours'),
+      }),
+    };
+  }
+
+  // --- The four delivery levels, and the platform fee ------------------
+
+  if (notification.kind === LEVEL_PRICE_REQUIRED) {
+    return {
+      title: t('notifications.levelPriceRequired.title', {
+        level: textVariable(variables, 'level', '—'),
+      }),
+      detail: t('notifications.levelPriceRequired.detail', {
+        sellerName: textVariable(variables, 'sellerName', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === LEG_NEEDS_ASSIGNMENT) {
+    return {
+      title: t('notifications.legNeedsAssignment.title', {
+        level: textVariable(variables, 'level', '—'),
+      }),
+      detail: t('notifications.legNeedsAssignment.detail', {
+        orderNumber: textVariable(variables, 'orderNumber', '—'),
+        sellerOrderNumber: textVariable(variables, 'sellerOrderNumber', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === LEG_UPDATE) {
+    return {
+      title: t('notifications.legUpdate.title', {
+        level: textVariable(variables, 'level', '—'),
+        orderNumber: textVariable(variables, 'orderNumber', '—'),
+      }),
+      detail: textVariable(variables, 'event', '—').toLowerCase().replace(/_/g, ' '),
+    };
+  }
+
+  if (notification.kind === FEE_TAX_UNVERIFIED) {
+    return {
+      title: t('notifications.feeTaxUnverified.title'),
+      detail: t('notifications.feeTaxUnverified.detail', {
+        policyName: textVariable(variables, 'policyName', '—'),
+        taxRate: textVariable(variables, 'taxRate', '—'),
       }),
     };
   }
@@ -738,9 +821,7 @@ export function NotificationBell(): React.JSX.Element {
             {query.data !== undefined && items.length === 0 && (
               <div className="px-3 py-6 text-center">
                 <p className="text-sm font-medium text-ink">
-                  {view === 'resolved'
-                    ? t('notifications.historyEmpty')
-                    : t('notifications.empty')}
+                  {view === 'resolved' ? t('notifications.historyEmpty') : t('notifications.empty')}
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-ink-muted">
                   {view === 'resolved'

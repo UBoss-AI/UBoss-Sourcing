@@ -188,7 +188,8 @@ export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 export const OrderSource = {
   ONE_TIME: 'ONE_TIME',
-  RECURRING: 'RECURRING'
+  RECURRING: 'RECURRING',
+  PREORDER: 'PREORDER'
 } as const
 
 export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]
@@ -1263,7 +1264,19 @@ export const SellerNotificationKind = {
   ERP_SYNC_RECOVERED: 'ERP_SYNC_RECOVERED',
   ERP_INITIAL_SYNC_COMPLETE: 'ERP_INITIAL_SYNC_COMPLETE',
   CONSIGNMENT_NEEDS_CARRIER: 'CONSIGNMENT_NEEDS_CARRIER',
-  CARRIER_BOOKING_INCOMPLETE: 'CARRIER_BOOKING_INCOMPLETE'
+  CARRIER_BOOKING_INCOMPLETE: 'CARRIER_BOOKING_INCOMPLETE',
+  LOGISTICS_POLICY_UPDATE: 'LOGISTICS_POLICY_UPDATE',
+  LOGISTICS_PRICE_REQUIRED: 'LOGISTICS_PRICE_REQUIRED',
+  LOGISTICS_UBOSS_PRICE_PUBLISHED: 'LOGISTICS_UBOSS_PRICE_PUBLISHED',
+  LOGISTICS_LEG_ASSIGNMENT_REQUIRED: 'LOGISTICS_LEG_ASSIGNMENT_REQUIRED',
+  LOGISTICS_LEG_UPDATE: 'LOGISTICS_LEG_UPDATE',
+  SETTLEMENT_CALCULATED: 'SETTLEMENT_CALCULATED',
+  PREORDER_REQUEST_RECEIVED: 'PREORDER_REQUEST_RECEIVED',
+  PREORDER_BUYER_RESPONSE: 'PREORDER_BUYER_RESPONSE',
+  PREORDER_CONFIRMED: 'PREORDER_CONFIRMED',
+  PREORDER_CLOSED: 'PREORDER_CLOSED',
+  PREORDER_DELIVERY_RISK: 'PREORDER_DELIVERY_RISK',
+  INVOICE_CREDIT_NOTE_REQUIRED: 'INVOICE_CREDIT_NOTE_REQUIRED'
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
@@ -1658,7 +1671,8 @@ export const LogisticsDocumentScanState = {
   CLEAN: 'CLEAN',
   INFECTED: 'INFECTED',
   FAILED: 'FAILED',
-  SKIPPED: 'SKIPPED'
+  SKIPPED: 'SKIPPED',
+  GENERATED: 'GENERATED'
 } as const
 
 export type LogisticsDocumentScanState = (typeof LogisticsDocumentScanState)[keyof typeof LogisticsDocumentScanState]
@@ -1781,7 +1795,9 @@ export const LogisticsNotificationKind = {
   RETURN_INITIATED: 'RETURN_INITIATED',
   INTEGRATION_FAILURE: 'INTEGRATION_FAILURE',
   USER_INVITED: 'USER_INVITED',
-  SECURITY_EVENT: 'SECURITY_EVENT'
+  SECURITY_EVENT: 'SECURITY_EVENT',
+  LEG_ASSIGNED: 'LEG_ASSIGNED',
+  LEG_WITHDRAWN: 'LEG_WITHDRAWN'
 } as const
 
 export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]
@@ -2034,3 +2050,243 @@ export const SellerErpCancellationMode = {
 } as const
 
 export type SellerErpCancellationMode = (typeof SellerErpCancellationMode)[keyof typeof SellerErpCancellationMode]
+
+
+export const LogisticsControlMode = {
+  SELF: 'SELF',
+  UBOSS: 'UBOSS',
+  HYBRID: 'HYBRID'
+} as const
+
+export type LogisticsControlMode = (typeof LogisticsControlMode)[keyof typeof LogisticsControlMode]
+
+
+export const LogisticsLevel = {
+  L1: 'L1',
+  L2: 'L2',
+  L3: 'L3',
+  L4: 'L4'
+} as const
+
+export type LogisticsLevel = (typeof LogisticsLevel)[keyof typeof LogisticsLevel]
+
+
+export const LogisticsControlOwner = {
+  SELLER: 'SELLER',
+  UBOSS: 'UBOSS'
+} as const
+
+export type LogisticsControlOwner = (typeof LogisticsControlOwner)[keyof typeof LogisticsControlOwner]
+
+
+export const LogisticsTransportMode = {
+  ROAD: 'ROAD',
+  AIR: 'AIR',
+  SEA: 'SEA',
+  RAIL: 'RAIL',
+  POSTAL: 'POSTAL'
+} as const
+
+export type LogisticsTransportMode = (typeof LogisticsTransportMode)[keyof typeof LogisticsTransportMode]
+
+
+export const LogisticsPriceSource = {
+  MANUAL: 'MANUAL',
+  PROVIDER_QUOTE: 'PROVIDER_QUOTE',
+  UBOSS_RATE: 'UBOSS_RATE',
+  RATE_CARD: 'RATE_CARD'
+} as const
+
+export type LogisticsPriceSource = (typeof LogisticsPriceSource)[keyof typeof LogisticsPriceSource]
+
+
+export const LogisticsLevelRateStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  SUPERSEDED: 'SUPERSEDED',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type LogisticsLevelRateStatus = (typeof LogisticsLevelRateStatus)[keyof typeof LogisticsLevelRateStatus]
+
+
+export const LogisticsProviderConnectionMode = {
+  MANUAL_ONLY: 'MANUAL_ONLY',
+  API: 'API'
+} as const
+
+export type LogisticsProviderConnectionMode = (typeof LogisticsProviderConnectionMode)[keyof typeof LogisticsProviderConnectionMode]
+
+
+export const ShipmentLegStatus = {
+  PENDING: 'PENDING',
+  AWAITING_ASSIGNMENT: 'AWAITING_ASSIGNMENT',
+  ASSIGNED: 'ASSIGNED',
+  ACCEPTED: 'ACCEPTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ShipmentLegStatus = (typeof ShipmentLegStatus)[keyof typeof ShipmentLegStatus]
+
+
+export const PlatformFeeType = {
+  PERCENT: 'PERCENT',
+  FLAT: 'FLAT',
+  PERCENT_PLUS_FLAT: 'PERCENT_PLUS_FLAT'
+} as const
+
+export type PlatformFeeType = (typeof PlatformFeeType)[keyof typeof PlatformFeeType]
+
+
+export const PlatformFeeBasis = {
+  PRODUCT_SUBTOTAL: 'PRODUCT_SUBTOTAL',
+  PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY: 'PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY'
+} as const
+
+export type PlatformFeeBasis = (typeof PlatformFeeBasis)[keyof typeof PlatformFeeBasis]
+
+
+export const PlatformFeePolicyStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  RETIRED: 'RETIRED'
+} as const
+
+export type PlatformFeePolicyStatus = (typeof PlatformFeePolicyStatus)[keyof typeof PlatformFeePolicyStatus]
+
+
+export const PlatformFeeScope = {
+  GLOBAL: 'GLOBAL',
+  MARKET: 'MARKET',
+  CATEGORY: 'CATEGORY',
+  SELLER: 'SELLER'
+} as const
+
+export type PlatformFeeScope = (typeof PlatformFeeScope)[keyof typeof PlatformFeeScope]
+
+
+export const PreorderPolicyScope = {
+  OFFER: 'OFFER',
+  PRODUCT: 'PRODUCT',
+  SELLER_DEFAULT: 'SELLER_DEFAULT'
+} as const
+
+export type PreorderPolicyScope = (typeof PreorderPolicyScope)[keyof typeof PreorderPolicyScope]
+
+
+export const PreorderQuantityUnit = {
+  PIECE: 'PIECE',
+  CARTON: 'CARTON',
+  UK_PALLET: 'UK_PALLET',
+  US_PALLET: 'US_PALLET',
+  CONTAINER: 'CONTAINER'
+} as const
+
+export type PreorderQuantityUnit = (typeof PreorderQuantityUnit)[keyof typeof PreorderQuantityUnit]
+
+
+export const PreorderCapacityPeriod = {
+  DAY: 'DAY',
+  WEEK: 'WEEK',
+  MONTH: 'MONTH'
+} as const
+
+export type PreorderCapacityPeriod = (typeof PreorderCapacityPeriod)[keyof typeof PreorderCapacityPeriod]
+
+
+export const PreorderPricingMode = {
+  FIXED: 'FIXED',
+  QUOTE_REQUIRED: 'QUOTE_REQUIRED'
+} as const
+
+export type PreorderPricingMode = (typeof PreorderPricingMode)[keyof typeof PreorderPricingMode]
+
+
+export const PreorderTransportMode = {
+  ANY: 'ANY',
+  ROAD: 'ROAD',
+  AIR: 'AIR',
+  SEA: 'SEA',
+  RAIL: 'RAIL'
+} as const
+
+export type PreorderTransportMode = (typeof PreorderTransportMode)[keyof typeof PreorderTransportMode]
+
+
+export const PreorderStatus = {
+  SUBMITTED: 'SUBMITTED',
+  SELLER_REVIEW_REQUIRED: 'SELLER_REVIEW_REQUIRED',
+  SELLER_ACCEPTED: 'SELLER_ACCEPTED',
+  SELLER_COUNTERED: 'SELLER_COUNTERED',
+  BUYER_CONFIRMED: 'BUYER_CONFIRMED',
+  PAYMENT_REQUIRED: 'PAYMENT_REQUIRED',
+  CONFIRMED: 'CONFIRMED',
+  IN_PRODUCTION: 'IN_PRODUCTION',
+  READY_FOR_FULFILLMENT: 'READY_FOR_FULFILLMENT',
+  CONVERTED_TO_ORDER: 'CONVERTED_TO_ORDER',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type PreorderStatus = (typeof PreorderStatus)[keyof typeof PreorderStatus]
+
+
+export const PreorderParty = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER'
+} as const
+
+export type PreorderParty = (typeof PreorderParty)[keyof typeof PreorderParty]
+
+
+export const PreorderOfferKind = {
+  ACCEPT_AS_REQUESTED: 'ACCEPT_AS_REQUESTED',
+  COUNTER: 'COUNTER'
+} as const
+
+export type PreorderOfferKind = (typeof PreorderOfferKind)[keyof typeof PreorderOfferKind]
+
+
+export const PreorderOfferState = {
+  PROPOSED: 'PROPOSED',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  SUPERSEDED: 'SUPERSEDED',
+  EXPIRED: 'EXPIRED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type PreorderOfferState = (typeof PreorderOfferState)[keyof typeof PreorderOfferState]
+
+
+export const SellerInvoiceJurisdiction = {
+  IN_GST: 'IN_GST',
+  EU_VAT: 'EU_VAT',
+  GENERIC: 'GENERIC'
+} as const
+
+export type SellerInvoiceJurisdiction = (typeof SellerInvoiceJurisdiction)[keyof typeof SellerInvoiceJurisdiction]
+
+
+export const SellerDocumentStatus = {
+  DRAFT: 'DRAFT',
+  VALIDATION_REQUIRED: 'VALIDATION_REQUIRED',
+  READY_TO_ISSUE: 'READY_TO_ISSUE',
+  ISSUED: 'ISSUED',
+  VOIDED: 'VOIDED',
+  CREDIT_NOTE_REQUIRED: 'CREDIT_NOTE_REQUIRED',
+  SUPERSEDED: 'SUPERSEDED'
+} as const
+
+export type SellerDocumentStatus = (typeof SellerDocumentStatus)[keyof typeof SellerDocumentStatus]
+
+
+export const SellerInvoiceKind = {
+  TAX_INVOICE: 'TAX_INVOICE',
+  CREDIT_NOTE: 'CREDIT_NOTE'
+} as const
+
+export type SellerInvoiceKind = (typeof SellerInvoiceKind)[keyof typeof SellerInvoiceKind]

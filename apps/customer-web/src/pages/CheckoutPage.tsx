@@ -59,6 +59,7 @@ import type {
   PaymentInstruments,
   SavedCard,
 } from '@/lib/types';
+import { DeliveryBreakdown } from '@/components/DeliveryBreakdown';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -257,9 +258,20 @@ export function CheckoutPage(): React.JSX.Element {
     queryFn: () => api.get<{ addresses: Address[] }>('/account/addresses'),
   });
 
+  /*
+   * Priced to the address being delivered to. A marketplace seller's four
+   * delivery levels are route-scoped - Rotterdam is not Dubai - so the cart the
+   * review screen shows is the cart for THIS address, and its delivery.token`n   * is what the order is submitted with.
+   */
   const cart = useQuery({
-    queryKey: ['cart'],
-    queryFn: () => api.get<{ cart: Cart }>('/cart'),
+    queryKey: ['cart', { shippingAddressId }],
+    queryFn: () =>
+      api.get<{ cart: Cart }>(
+        shippingAddressId === null
+          ? '/cart'
+          : `/cart?shippingAddressId=${encodeURIComponent(shippingAddressId)}`,
+      ),
+    placeholderData: (previous) => previous,
   });
 
   const cartCurrency = cart.data?.cart.currency ?? null;
@@ -591,6 +603,9 @@ export function CheckoutPage(): React.JSX.Element {
             ? { preferredPaymentMethodId: savedCardId }
             : {}),
           customerNote: customerNote.trim() === '' ? null : customerNote.trim(),
+          // The signed L1-L4 quote the buyer is looking at. The server re-prices
+          // every level and refuses the order if this no longer matches.
+          logisticsQuoteToken: cart.data?.cart.delivery?.token ?? null,
         },
         { idempotencyKey },
       );
@@ -1231,6 +1246,9 @@ export function CheckoutPage(): React.JSX.Element {
                 label={t('checkout.delivery')}
                 value={formatMoney(reviewTotals.shipping)}
               />
+              {currentCart.delivery !== undefined && currentCart.delivery !== null && (
+                <DeliveryBreakdown delivery={currentCart.delivery} />
+              )}
               {/* Matches the cart's summary: the same figure gets the same
                   treatment in both places, or the total looks like it changed
                   on the way here. */}

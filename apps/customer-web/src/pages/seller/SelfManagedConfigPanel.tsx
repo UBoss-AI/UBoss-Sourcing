@@ -112,7 +112,7 @@ function DayPicker({
             }}
             className={
               isOn
-                ? 'rounded-md bg-brand px-2.5 py-1 text-xs font-semibold text-on-brand disabled:opacity-50'
+                ? 'rounded-md bg-brand-fill px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50'
                 : 'rounded-md border border-border px-2.5 py-1 text-xs font-medium text-ink-muted disabled:opacity-50'
             }
           >

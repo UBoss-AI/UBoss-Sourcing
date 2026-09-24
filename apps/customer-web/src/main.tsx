@@ -11,6 +11,8 @@ import { ErrorBoundary } from '@/app/ErrorBoundary';
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/app/router';
 import { ToastProvider } from '@/components/toast';
+// The wordmark's face, Latin Bold only: "Glovia" is the one thing set in it.
+import '@fontsource/dancing-script/latin-700.css';
 import './index.css';
 
 const container = document.getElementById('root');

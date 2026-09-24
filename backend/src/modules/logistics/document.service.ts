@@ -321,6 +321,9 @@ export async function listShipmentDocuments(
  */
 function isServable(scanState: LogisticsDocumentScanState): boolean {
   if (scanState === 'CLEAN') return true;
+  // Produced by this server from its own records - an issued packing list.
+  // Nothing was uploaded, so there is nothing a scanner could have looked at.
+  if (scanState === 'GENERATED') return true;
   if (scanState === 'SKIPPED') return env.LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS;
   return false;
 }

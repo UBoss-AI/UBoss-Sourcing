@@ -1,14 +1,16 @@
 /**
  * The product's own name, and the company behind it.
  *
- * Two facts, and the difference between them is the whole reason this file
+ * Three facts, and the difference between them is the whole reason this file
  * exists:
  *
  *   - **`PRODUCT_BRAND` is what this software is called.** It is Glovia. It is
  *     not a per-deployment setting, because a buyer does not get to rename the
  *     product they licensed any more than they get to rename their browser.
- *   - **`PARENT_ATTRIBUTION` is who makes it.** UBOSS. It appears verbatim,
- *     under the brand, on every surface that carries the brand.
+ *   - **`PRODUCT_TAGLINE` is what it says under its name.** `The Way to the
+ *     World`, beside the wordmark wherever the wordmark is shown.
+ *   - **`PARENT_ATTRIBUTION` is who makes it.** UBOSS. It appears verbatim, as
+ *     small print — the storefront's footer, the console's sign-in screens.
  *
  * WHAT THIS IS NOT
  *
@@ -21,13 +23,15 @@
  * software putting the vendor's name over somebody else's shop.
  *
  * Where the product's own identity genuinely belongs — the core of the
- * orchestration hub, the attribution under the lockup, the console and portal
+ * orchestration hub, the tagline under the wordmark, the console and portal
  * chrome — it comes from here and from nowhere else.
  *
  * WHY THESE ARE CONSTANTS AND NOT TRANSLATION KEYS
  *
- * A name is not a string to translate; it is a fact. `greeting.tagline` next
- * to it *is* prose and *is* translated, which is exactly the line this draws.
+ * A name is not a string to translate; it is a fact, and a slogan is a brand
+ * asset rather than a sentence. The greeting's moving line under it —
+ * `greeting.taglineSource` and `greeting.taglineDeliver` — *is* prose and *is*
+ * translated, which is exactly the line this draws.
  * `Powered by UBOSS` is a fixed attribution lockup rather than a sentence, so
  * it reads identically in all eight languages — one spelling, one
  * capitalisation, nothing for a translator to drift. `scripts/check-i18n.mjs`
@@ -44,7 +48,20 @@
 /** The product. Never `GLOVIA`, never `Glovia Sourcing`. */
 export const PRODUCT_BRAND = 'Glovia';
 
-/** The company behind it. Never `Power by UBOSS`, never `Powered By Uboss`. */
+/**
+ * The line under the wordmark. The product's slogan, written once, in English,
+ * in every language — a tagline is a brand asset rather than a sentence to
+ * translate, for the same reason the name is. Never `The way to the world`,
+ * never `The Way To The World`; any uppercasing is CSS.
+ */
+export const PRODUCT_TAGLINE = 'The Way to the World';
+
+/**
+ * The company behind it. Never `Power by UBOSS`, never `Powered By Uboss`.
+ *
+ * It no longer sits under the wordmark — the tagline does. It is the small
+ * print in the storefront's footer and on the sign-in screens.
+ */
 export const PARENT_ATTRIBUTION = 'Powered by UBOSS';
 
 /**

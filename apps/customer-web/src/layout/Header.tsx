@@ -53,11 +53,12 @@ import { AccountMenu } from '@/components/account/AccountMenu';
 import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
 import { EarthMark } from '@/components/EarthMark';
-import { PARENT_ATTRIBUTION } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CartIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import { cx } from '@/lib/cx';
 
 /**
  * The brand lockup.
@@ -65,14 +66,19 @@ import { useI18n } from '@/i18n/i18n-context';
  * A plate and a two-line lockup rather than a mark and a word. The first line
  * is the shop — read from the operator's own configuration, because every
  * buyer runs their own deployment and the header of their storefront is their
- * name and not ours. The second line is the attribution: `Powered by UBOSS`,
- * which is a fact about the software rather than about the shop, so it comes
- * from `lib/brand.ts` and is the same on every deployment in every language.
+ * name and not ours.
  *
- * It used to say what KIND of site this is — "Business purchasing" — which was
- * true of every storefront and therefore told a reader nothing they could not
- * see. The attribution at least says who stands behind the thing they are
- * about to hand a purchase order to.
+ * When that name IS the product's — the marketplace itself, and every fresh
+ * deployment until its business profile is filled in — the first line is the
+ * Glovia wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
+ * own face), and the second is the tagline, `The Way to the World`. Both come from
+ * `lib/brand.ts` and read the same in every language.
+ *
+ * When it is somebody else's name, neither applies. Glovia's face and Glovia's
+ * slogan under Northwind's name would be the software putting its own brand
+ * over another company's shop, so Northwind's name is set like any other
+ * heading and stands alone. `Powered by UBOSS` used to be the second line;
+ * it is the small print in the footer now, on every deployment.
  *
  * On a seller's own shop front the second line stays "Seller storefront"
  * instead. A buyer who followed a link to northwind.example needs to know they
@@ -86,6 +92,9 @@ import { useI18n } from '@/i18n/i18n-context';
 function BrandMark(): React.JSX.Element {
   const { business, seller } = useStorefront();
   const { t } = useI18n();
+  const isProductBrand = business.displayName === PRODUCT_BRAND;
+  const secondLine =
+    seller !== undefined ? t('header.sellerTagline') : isProductBrand ? PRODUCT_TAGLINE : null;
 
   return (
     <Link
@@ -120,20 +129,39 @@ function BrandMark(): React.JSX.Element {
       )}
 
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-base font-semibold tracking-tight text-ink">
+        <span
+          className={cx(
+            'truncate text-ink',
+            // The script wordmark a step up and in its real Bold: its short
+            // x-height reads a size smaller than Inter at the same number.
+            isProductBrand
+              ? 'font-brand text-xl font-bold leading-6'
+              : 'text-base font-semibold tracking-tight',
+          )}
+        >
           {business.displayName}
         </span>
-        <span
-          aria-hidden="true"
-          className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle sm:block"
-        >
-          {/*
-            Not a translation key when it is the attribution: `Powered by
-            UBOSS` is a fixed lockup, and the reasoning is in `lib/brand.ts`.
-            The seller line beside it is ordinary prose and stays translated.
-          */}
-          {seller === undefined ? PARENT_ATTRIBUTION : t('header.sellerTagline')}
-        </span>
+        {secondLine !== null && (
+          <span
+            aria-hidden="true"
+            // The tagline from `lg`, the seller line from `sm` as before. Between
+            // the two the header controls leave the lockup about 110px, and
+            // "The Way to the World" needs 167px at this tracking: shown there
+            // it could only ever read "THE WAY TO T…", and half a slogan is
+            // worse than none. `truncate` stays as the net for a long locale.
+            className={cx(
+              'hidden truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle',
+              seller === undefined ? 'lg:block' : 'sm:block',
+            )}
+          >
+            {/*
+              Not a translation key when it is the tagline: a slogan is a
+              brand asset, and the reasoning is in `lib/brand.ts`. The seller
+              line in its place is ordinary prose and stays translated.
+            */}
+            {secondLine}
+          </span>
+        )}
       </span>
     </Link>
   );

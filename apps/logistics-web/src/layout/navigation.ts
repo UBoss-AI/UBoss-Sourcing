@@ -83,6 +83,12 @@ export const NAVIGATION: readonly NavSection[] = [
         anyOf: [Permission.SHIPMENT_READ],
       },
       {
+        to: '/legs',
+        labelKey: 'nav.legs',
+        icon: OrdersIcon,
+        anyOf: [Permission.SHIPMENT_READ],
+      },
+      {
         to: '/pickups',
         labelKey: 'nav.pickups',
         icon: WarehouseIcon,

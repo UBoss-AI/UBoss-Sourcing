@@ -512,8 +512,12 @@ export async function quoteWarehouseOptions(
   // `calculateShipping` - the same function `priceLines` itself calls - so the
   // free-above threshold behaves identically whether delivery came from a
   // shipping method or from a warehouse lane.
+  // The postcode goes in too: a marketplace seller's L4 price may cover one
+  // part of a country, and checkout prices it against the same address. The
+  // two runs must agree or the quote is refused at Pay as stale.
   const resolved = await resolveCart(input.customerProfileId, {
     destinationCountry: destination.countryCode,
+    destinationPostcode: destination.postalCode,
   });
 
   if (resolved.sourceItems.length === 0) {

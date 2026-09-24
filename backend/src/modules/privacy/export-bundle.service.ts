@@ -87,6 +87,11 @@ export const SECTIONS = Object.freeze({
      * person.
      */
     'freightQuoteRequests',
+    // Bulk preorders this person requested: what they asked for, every set of
+    // terms the seller proposed to them, what they agreed to and the history.
+    // A negotiation a named individual started, and the evidence behind a
+    // committed delivery date, so disclosed whole.
+    'preorderRequests',
     'chatEnquiries',
     'sessions',
     'dataRequests',
@@ -185,7 +190,9 @@ export interface BundleSubject {
  * the caller turns into a failed request rather than a retry - a subject who
  * no longer exists cannot be sent their data.
  */
-export async function buildCustomerBundle(subject: BundleSubject): Promise<Record<string, unknown>> {
+export async function buildCustomerBundle(
+  subject: BundleSubject,
+): Promise<Record<string, unknown>> {
   const user = await prisma.user.findUnique({
     where: { id: subject.userId },
     select: {
@@ -484,7 +491,11 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           createdAt: true,
           updatedAt: true,
           items: {
-            select: { quantity: true, createdAt: true, product: { select: { name: true, sku: true } } },
+          select: {
+            quantity: true,
+            createdAt: true,
+            product: { select: { name: true, sku: true } },
+          },
           },
         },
       }),
@@ -916,7 +927,8 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           // The answer, where there is one. Null throughout while it is still
           // REQUESTED, which is an honest shape rather than a missing row: the
           // question was asked and nobody has answered it.
-          quotedAmountMinor: request.quotedAmountMinor === null ? null : money(request.quotedAmountMinor),
+          quotedAmountMinor:
+            request.quotedAmountMinor === null ? null : money(request.quotedAmountMinor),
           quotedCurrency: request.quotedCurrency,
           serviceName: request.serviceName,
           expectedPickupAt: iso(request.expectedPickupAt),
@@ -928,6 +940,76 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           // one's - the same line `organisationMembership` draws below.
           response: request.responseNote,
           answeredAt: iso(request.quotedAt),
+        })),
+      };
+    })(),
+
+    preorderRequests: await (async () => {
+      const LIMIT = 100;
+      const where = { customerProfileId: profile?.id ?? '' };
+
+      const [rows, total] = await Promise.all([
+        prisma.preorderRequest.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+          include: {
+            offers: { orderBy: { revision: 'asc' } },
+            history: { orderBy: { createdAt: 'asc' } },
+            sellerAccount: { select: { displayName: true } },
+          },
+        }),
+        prisma.preorderRequest.count({ where }),
+      ]);
+
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? {
+              note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.`,
+            }
+          : {}),
+        requests: rows.map((request) => ({
+          requestNumber: request.requestNumber,
+          // Null seller: the operator's own product, answered by the operator.
+          seller: request.sellerAccount?.displayName ?? 'The operator of this store',
+          status: request.status,
+          askedAt: iso(request.submittedAt),
+          baseUnits: request.requestedBaseUnits,
+          orderingUnit: request.orderingUnit,
+          unitQuantity: request.unitQuantity,
+          requestedDeliveryDate: iso(request.requestedDeliveryDate),
+          deliveryAddress: request.shippingAddressJson,
+          purchaseOrderReference: request.purchaseOrderReference,
+          notes: request.customerNotes,
+          handlingInstructions: request.handlingInstructions,
+          currency: request.currency,
+          indicativeTotalMinor:
+            request.indicativeTotalMinor === null ? null : money(request.indicativeTotalMinor),
+          // Every set of terms proposed to this person, and what they said.
+          // Which member of the seller's staff wrote each is that person's
+          // data, so only the seller's name is given.
+          terms: request.offers.map((offer) => ({
+            revision: offer.revision,
+            state: offer.state,
+            quantityBaseUnits: offer.quantityBaseUnits,
+            unitPriceMinor: money(offer.unitPriceMinor),
+            freightMinor: money(offer.freightMinor),
+            committedDeliveryDate: iso(offer.committedDeliveryDate),
+            note: offer.note,
+            proposedAt: iso(offer.createdAt),
+            answeredAt: iso(offer.respondedAt),
+            answer: offer.responseNote,
+          })),
+          confirmedTermsHash: request.confirmedTermsHash,
+          convertedOrderId: request.convertedOrderId,
+          history: request.history.map((entry) => ({
+            from: entry.fromStatus,
+            to: entry.toStatus,
+            at: iso(entry.createdAt),
+            reason: entry.reason,
+          })),
         })),
       };
     })(),

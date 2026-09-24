@@ -107,7 +107,10 @@ page();
 // 1
 h1('1. The Product in Simple Words');
 h2('1.0 What the product is called');
-p('The product is called Glovia. UBOSS is the company behind it, and every screen says so under the name: Powered by UBOSS.');
+p('The product is called Glovia, and its tagline is The Way to the World. Wherever the Glovia name appears in the top-left corner, the tagline sits directly underneath it. The name itself is written in its own flowing script lettering, so it reads as a logo rather than as ordinary text.');
+p('The welcome screen of the shop opens with the Glovia name in that script, the tagline The Way to the World underneath it, and below that a line that gently alternates between Source with Intelligence and Deliver with Confidence, in the customer\'s own language.');
+p('UBOSS is the company behind the product. That is shown as small print: Powered by UBOSS appears once at the bottom of every shop page, and at the foot of the sign-in screens for staff and delivery companies.');
+p('If your business has its own name, your shop shows your name at the top in the normal lettering, on its own. The Glovia tagline and typeface are only used when the shop is called Glovia, so the software never puts its own slogan under your name.');
 p('The product used to be called UBOSS Sourcing. That name is no longer shown to anybody using the system. Where you still see UBOSS on a screen, it is naming the company or the people you deal with — "UBOSS operations", for example, is the team a delivery company contacts — and not the software.');
 p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices and in your emails. Glovia is the name of the software you are running; it never replaces the name of the business running it.');
 p('Some names inside the system were left exactly as they were on purpose: folder names, database names, addresses, file names and settings that other systems already point at. Changing those would break working connections and would change nothing anybody sees.');
@@ -442,6 +445,53 @@ bullets([
   'AutoPay can be enabled only when the required payment provider and feature settings are enabled; the customer controls consent, card and limits.',
 ]);
 note('Repeat-purchase safety', 'A failed automatic charge does not silently cancel a customer’s whole subscription. The plan can pause and ask the customer to fix the payment method.', C.purple);
+
+h2('5.4 Preorder: asking a seller to make a large quantity');
+p('Add to Cart buys what is on the shelf. Buy Later and Subscribe & Reorder buy it later, or again. Preorder is for something different: a quantity so large that the seller has to make it — forty thousand gloves for December, twelve pallets for a new clinic. It asks the seller whether they can, by when, and at what price, and nothing is ordered until both sides agree.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Presses Preorder on the product page, beside Add to Cart.', 'Opens a request form, already filled in with the quantity the customer typed on the product page (raised to the seller’s minimum or next allowed step if needed). If the customer is not signed in, it signs them in first and brings them straight back to the same product and option, with the form open.'],
+  ['2', 'Chooses how many (in pieces, cartons, pallets or containers), where it goes, and the date they need it by.', 'Shows the number of pieces, the seller’s minimum and step, the earliest date that can be asked for, the price per piece from the seller’s own price bands, and an estimated total. The figures come from the system, not from the page.'],
+  ['3', 'Adds a purchase order number and any notes, ticks the box to say they understand this is a request, and sends it.', 'Sends the request to the seller and emails the customer a copy. Nothing is charged and no stock is set aside.'],
+  ['4', 'Waits for the seller’s answer, which arrives by email and in My preorders.', 'Shows the seller’s terms in full: pieces, price per piece, delivery charge, the date the seller commits to, and any split into several deliveries.'],
+  ['5', 'Confirms those terms, or declines and asks the seller to look again, or cancels.', 'Confirming creates one order waiting for payment and holds the seller’s capacity for that period. Declining sends it back to the seller.'],
+  ['6', 'Pays for the order in the usual way.', 'Confirms the preorder only when the payment provider confirms the payment, and tells the seller to start.'],
+  ['7', 'Follows progress: production started, ready for dispatch, then the delivery on the order.', 'Warns both sides if the committed date is close and the goods are not ready.'],
+], [700, 4000, 5300]);
+bullets([
+  'Every product can be preordered. Where the seller has not set their own preorder terms, standard terms apply: the product’s own minimum and price, and the seller still answers every request. Products the shop sells itself are preordered from the shop, and the shop’s staff answer.',
+  'A seller can switch preorders off for a listing; the button then stays visible and greyed out, and says why. The business can also limit preorders to listings whose seller has set terms.',
+  'Preorders are for business accounts. An account without a company name is told so, with a link to add one.',
+  'A request is refused with a specific reason the customer can act on: “Minimum preorder quantity is 1,000 pieces.”, “Preorders must be placed in multiples of 100 pieces.”, “The earliest available delivery date is 15 December 2026.”',
+  'The earliest date is the latest of three things: the shop’s usual notice (normally seven days, and never today), the seller’s production time, and the time to get the goods to that address. It is worked out on the customer’s own calendar.',
+  'If the seller changes their terms while the customer is looking at them, pressing Confirm is refused and the new terms are shown. A customer can only ever agree to terms they have actually seen.',
+  'A request nobody answers in time expires, and the customer is told. An agreed preorder that is not paid for in time is cancelled, and the seller’s capacity is released.',
+]);
+h2('5.4a Paying less per piece for more');
+p('Many sellers charge less per piece when a customer buys more — for example 10.00 each, 9.50 each from 100 pieces, 9.20 each from 500. The product page shows this as the customer chooses a quantity, and the basket charges it.');
+bullets([
+  'Under the quantity box, a small card says how many more pieces reach the next price (“Add 20 more pieces to pay 9.20 each”), and how much the chosen quantity already saves. One press sets the quantity to reach it.',
+  'The card also shows what one piece costs if bought loose, by the carton, by the pallet or by the container, so the customer can see which is cheaper without doing the sums.',
+  'If the customer asks for more than the seller has in stock, the card says so and offers a preorder instead.',
+  'The price the card shows is exactly the price the basket and the order charge. The basket line says which price applied and how many more pieces would reach the next one.',
+  'Some prices are only for business accounts, only for deliveries to certain countries, or only for a limited time. A customer only sees the prices that apply to them.',
+  'A price shown in another currency is marked as approximate; the customer pays in the seller’s currency.',
+  'Every time the customer raises the quantity, a small spinning galaxy appears under the quantity box for about a second while the new price is worked out, then turns into the card: the saving if there is one, or otherwise the price per piece and the total, with a note that this product has no bulk discount yet. Lowering the quantity goes straight to the figures.',
+  'The card can be hidden, and stays hidden for that product until the customer closes the browser tab. It moves gently into view, and nothing moves at all for people who have asked their device to reduce motion.',
+]);
+
+h2('5.5 Invoices from the seller');
+p('On the marketplace, each seller sells their own goods, so each seller gives the customer their own tax invoice. It appears on the order page, under Invoices, as soon as the seller packs the goods.');
+bullets([
+  'The customer can download each invoice as a PDF. The download link works once and only for the person who asked for it.',
+  'An order sent in two loads has two invoices, and together they add up to exactly what the customer paid.',
+  'If an order is cancelled, returned or refunded after the invoice was issued, the seller issues a credit note. The customer sees both: the original invoice, marked as cancelled, and the credit note.',
+  'The customer does not see the packing list — that is for the delivery company. They see how many packages to expect.',
+]);
+h3('Checking that a document is genuine');
+p('Every invoice and packing list has a QR code. Anyone holding the paper — a receiving clerk, a customs officer, a driver — can scan it and see who issued it, when, and whether it still stands. The check shows nothing about the customer or the price.');
+p('This is a check for this marketplace’s own documents. It is not the government’s e-invoice system, and the document says so.');
+
+note('Nothing is charged until the customer says yes', 'A seller accepting a preorder is an offer, not a sale. The customer is charged only after they have confirmed the seller’s terms and paid for the order — and the order is confirmed only when the payment provider says the payment went through, never because a page was reached.', C.orange);
 page();
 
 // 6
@@ -897,6 +947,71 @@ bullets([
   'A mixed order takes the heavier answer: one pallet among forty loose items is a pallet delivery, because the pallet still has to go on a lorry.',
 ]);
 
+
+h2('6a.10c Answering a preorder');
+p('A preorder is a buyer asking whether the seller can make a large quantity by a date. It arrives in Seller Hub under Orders → Preorders, and it stays at the top of the list until the seller answers, because a request nobody answers expires and the buyer goes elsewhere.');
+table(['The seller can', 'What happens'], [
+  ['Accept it as asked', 'The seller states the delivery charge (and the price per piece, if their prices are quoted per request). The buyer is asked to confirm.'],
+  ['Send a counter-offer', 'A different quantity, price per piece, committed date, or a split into several deliveries on different dates. The buyer is asked to confirm or decline.'],
+  ['Reject it', 'With a reason the buyer is shown. Nothing is charged.'],
+  ['Mark production started, then ready', 'Once the buyer has confirmed and paid. The buyer is told at each step.'],
+  ['Accept the order when the goods are in stock', 'The preorder is handed over to ordinary order fulfilment — packing, delivery and the rest work exactly as for any order.'],
+], [3200, 6800]);
+bullets([
+  'Beside every request the seller sees their own production capacity for that period, with this request included, drawn as a bar. A request that would go over it is refused before the seller can promise it.',
+  'None of the seller’s answers charges the buyer. The buyer confirms the terms and then pays.',
+  'Once the buyer has confirmed, the terms cannot be changed by either side. A change after that is a new request.',
+]);
+h3('Setting preorder terms');
+p('On every listing there is a Preorder terms panel. The seller can set terms for one version only, for every version of the product, or as their default for everything they sell. The most specific one that exists is the one that applies, and the panel says which one applies today and what a buyer is held to in pieces.');
+bullets([
+  'Minimum quantity — in pieces or in cartons, pallets or containers — the step after it, and a maximum.',
+  'Production capacity per day, week or month, the production lead time, and how far ahead a delivery may be booked.',
+  'Which countries preorders are delivered to, whether partial or split deliveries are allowed, and how long each side has to answer.',
+  'Fixed price bands (“from 10,000 pieces, ₹80 per piece”) or “quoted per request”. A larger quantity can never be priced higher per piece than a smaller one.',
+  'Cancellation terms and instructions for buyers.',
+  'A minimum set in pallets is converted to pieces using that listing’s own pallet size, and the panel shows the piece figure buyers will see.',
+  'If the seller sets no terms at all, buyers can still preorder on standard terms — the listing’s own minimum and price — and the panel says so. The seller still accepts, counters or refuses every request. To stop preorders on a listing, the seller switches them off.',
+]);
+
+h2('6a.10c-i Quantity prices');
+p('On each listing, under Quantity prices, the seller can charge less per piece for larger quantities. These prices are what buyers are charged in the basket, and what the product page shows them.');
+table(['The seller sets', 'What it does'], [
+  ['From, and optionally up to, a number of pieces', 'The quantities the price applies to.'],
+  ['A price per piece', 'Must be lower than the listing’s normal price, or it would never apply.'],
+  ['A start and end time', 'For a promotion that runs for a limited time.'],
+  ['Active or paused', 'Stops a price for now without deleting it.'],
+  ['Business accounts only', 'Only buyers with a company account get this price.'],
+  ['Delivery countries', 'Only deliveries to these countries get this price.'],
+  ['Preorders only', 'The price applies only when a buyer asks the seller to make the quantity with a preorder, never in the basket.'],
+], [4200, 5800]);
+bullets([
+  'All the prices on a listing are checked together when the seller saves them. A larger quantity can never cost more per piece than a smaller one, and two prices cannot cover the same quantities. Each problem is shown beside the price it belongs to.',
+  'A price applies to pieces bought loose. Cartons, pallets and containers keep the package price the seller set for them.',
+  'Every order remembers the price that applied, so changing prices later never changes what an earlier order says it cost.',
+]);
+
+h2('6a.10d Packing, and the invoice and packing list');
+p('When a seller packs an order, the system makes the two documents that travel with it: the seller’s own tax invoice, and a packing list. Both are made for each load that leaves, not for the whole order, so a seller who sends one order in two lorries gets two of each.');
+table(['The seller does', 'What the system does'], [
+  ['Lists the packages: cartons, pallets or containers, their size and weight, and what is in each, with batch and expiry', 'Counts every item and shows, as the seller types, how many are packed against how many the load carries.'],
+  ['Splits the order into two loads, if it is leaving in more than one', 'Creates a second load with the pieces the seller moved. Each load gets its own documents.'],
+  ['Presses Check', 'Shows the invoice and packing list as they would be, with a list of anything missing — for example “Your GSTIN is not valid” or “Nitrile gloves has no HSN code” — each saying what to fix. A draft PDF can be opened, marked DRAFT.'],
+  ['Presses Mark as packed', 'Issues the invoice and the packing list, gives each its number, and marks the load packed — all together. If anything is missing, or the PDF cannot be made, nothing is issued, no number is used, and the load stays unpacked.'],
+  ['Downloads the documents', 'One at a time, or all of an order’s documents together in one ZIP file.'],
+], [4200, 5800]);
+bullets([
+  'The invoice is issued in the seller’s own legal name, under their own tax number, with their own numbering — for example INV/26-27/00001, starting again at 1 each financial year.',
+  'For India, the system works out the tax the way GST requires: CGST and SGST when the goods stay in the seller’s state, IGST when they cross a state border, and an export declaration when they leave India. The tax on the invoices always adds up to the tax the customer paid.',
+  'An issued invoice can never be changed. To correct one, the seller issues a credit note, which has its own number and cancels the original in full; the seller can then issue a new invoice.',
+  'If an order is cancelled, returned or refunded after its invoice was issued, the seller is told that a credit note is needed.',
+  'A packing list can be replaced if the packages change. The old one is kept on record, marked as replaced, and the new one gets a new number.',
+  'The packing list shows no prices. It goes to the delivery company; the invoice does not.',
+]);
+h3('Invoicing settings and trade codes');
+p('In Seller Hub, under Invoicing, the seller sets how their invoices are numbered (the letters at the start, and when their financial year begins), who signs them, and — for exporters — their Letter of Undertaking. Their legal name and tax number are shown from their business profile, with a warning if the tax number is not valid.');
+p('On each listing, the seller gives the product’s HSN code and country of origin. Both are printed on every invoice and packing list, and an Indian tax invoice cannot be issued without the HSN code.');
+
 h2('6a.12 Sending your sales into TallyPrime');
 p('A seller who keeps their books in TallyPrime can have their orders appear there automatically, instead of being typed in again at the end of the month. It is set up in the Seller Hub under ERP integrations, and it is switched on by the marketplace — a seller who does not see it should ask whether their marketplace offers it.');
 p('TallyPrime runs on a computer in the seller’s own office. Nothing in this system ever connects to that computer. Instead a small program — the Glovia Tally Bridge — runs on the same machine as Tally, and it connects outwards to fetch whatever is waiting to be sent. The seller’s books are never exposed to the internet.');
@@ -1254,6 +1369,23 @@ bullets([
   'Support customers when schedules pause, need authentication, run out of stock or cross a price-tolerance rule.',
   'Understand that each occurrence is independently checked before it becomes an order.',
 ]);
+
+h2('10.4 Preorders');
+bullets([
+  'See every bulk preorder between buyers and sellers, filtered by status, under Sales → Preorders.',
+  'Open one to see what was asked, every set of terms the seller proposed with its reference, what the buyer agreed to, the order it became and the full history.',
+  'On a seller’s preorder, staff cannot answer for either side or change its terms. It is a negotiation between the buyer and the seller, and the screen is for support and audit.',
+  'On a product the shop sells itself, the shop is the supplier: staff with permission to fulfil orders answer the preorder here — accept, counter, refuse, then mark production started and ready. A new request rings the bell, and the buyer is told the shop’s name, not the staff member’s.',
+  'When the buyer has paid and the goods are ready, staff start fulfilling the order as usual, which hands the preorder over to delivery.',
+  'A filter shows only the preorders the shop answers itself.',
+]);
+
+h2('10.5 Sellers’ invoices and packing lists');
+bullets([
+  'On any order, staff with permission to read invoices can see and download every invoice, credit note and packing list the sellers issued for it.',
+  'Staff cannot change, cancel or reissue a seller’s invoice. It is the seller’s legal document, and only the seller can correct it, with a credit note.',
+  'The business’s own invoice for its own sales is separate, and works as before.',
+]);
 page();
 
 // 11
@@ -1417,7 +1549,8 @@ p('A carrier sees what it needs to move the goods and nothing beyond it.');
 table(['Shown to the carrier', 'Never shown to the carrier'], [
   ['The reference, the tracking number and the current status', 'What the order was worth, and what anything in it cost'],
   ['Both addresses, and the dates that were promised', 'What the business charges, and what the seller is paid'],
-  ['How many boxes, how heavy, and what kind of goods they are', 'The product names and how many of each'],
+  ['How many boxes, how heavy, and what kind of goods they are', 'The seller’s tax invoice, and every price on it'],
+  ['The seller’s packing list, once the seller issues it: what is in each box, batch numbers, weights — with no prices', 'The product names and quantities before the seller has packed and issued that list'],
   ['Handling requirements — refrigerated, sterile, fragile, dangerous', 'Any payment detail, and any other company’s credentials'],
   ['Their own documents and their own proof of delivery', 'Anything at all belonging to a different haulage company'],
 ], [5000, 5000]);
@@ -1723,6 +1856,49 @@ table(['Step', 'Who acts', 'What happens'], [
   ['6', 'The system', 'Attaches that seller to the cart line, so the price shown is the price charged, the order reaches the seller who has to pack it, and the commission is worked out against the right agreement.'],
   ['7', 'The seller', 'Pauses the listing later — to restock, or because it is withdrawn.'],
   ['8', 'The system', 'Takes it out of every category at once. A buyer cannot find or order something nobody is selling.'],
+], [700, 2300, 7000]);
+
+
+h2('Example H — A hospital group preorders forty thousand gloves');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer', 'Presses Preorder on a glove listing, asks for 40,000 pieces for 15 December, and sends the request with their purchase order number.'],
+  ['2', 'The system', 'Checks the seller’s minimum, step and earliest date, shows the price per piece from the seller’s price bands, and sends the request to the seller. Nothing is charged.'],
+  ['3', 'The seller', 'Sees the request with their December capacity beside it, and sends a counter-offer: 40,000 pieces in two deliveries, 20,000 on 1 December and 20,000 on 15 December, at a slightly lower price.'],
+  ['4', 'The buyer', 'Reads the counter-offer and confirms it.'],
+  ['5', 'The system', 'Creates one order waiting for payment and holds 40,000 pieces of the seller’s December capacity, so nobody else can be promised the same capacity.'],
+  ['6', 'The buyer', 'Pays for the order.'],
+  ['7', 'The system', 'Confirms the preorder when the payment provider confirms the payment, and tells the seller.'],
+  ['8', 'The seller', 'Marks production started and, when the gloves are made and booked into stock, ready — then accepts the order, which hands it to ordinary delivery.'],
+], [700, 2300, 7000]);
+
+h2('Example K — A hospital preorders a product the shop makes itself');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A hospital buyer', 'Presses Preorder on the shop’s own gauze and asks for 20,000 pieces in six weeks.'],
+  ['2', 'The system', 'Accepts the request on standard terms, shows the shop’s price per piece, and rings the bell in the admin panel.'],
+  ['3', 'A member of staff', 'Opens the preorder, accepts it with a delivery charge, and the buyer is emailed the shop’s terms.'],
+  ['4', 'The buyer', 'Confirms and pays. The preorder is confirmed when the payment provider confirms the payment.'],
+  ['5', 'Staff', 'Mark production started, then ready, and start fulfilling the order, which hands it over to delivery.'],
+], [700, 2300, 7000]);
+
+h2('Example J — A clinic buys enough to reach a lower price');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A seller', 'Sets quantity prices on silicone tubing: 10.00 each, 9.50 from 100 pieces, 9.20 from 500.'],
+  ['2', 'A clinic buyer', 'Types 480 pieces on the product page.'],
+  ['3', 'The system', 'Shows that 480 pieces already cost 9.50 each, and that 20 more would bring every piece down to 9.20.'],
+  ['4', 'The buyer', 'Presses the suggestion. The quantity becomes 500.'],
+  ['5', 'The system', 'Charges 9.20 a piece in the basket and at checkout, and the order records that the 500-piece price applied.'],
+], [700, 2300, 7000]);
+
+h2('Example I — A seller packs an order and sends it in two lorries');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A seller', 'Opens a paid order for 100 cartons of gloves, and splits it: 60 cartons now, 40 cartons on a second lorry tomorrow.'],
+  ['2', 'The seller', 'Lists the pallets on the first load, what is on each, and the batch numbers, then presses Check.'],
+  ['3', 'The system', 'Says one product has no HSN code. The seller adds it to the listing and checks again — everything is ready.'],
+  ['4', 'The seller', 'Presses Mark as packed.'],
+  ['5', 'The system', 'Issues invoice INV/26-27/00041 and packing list PL-2026-000318 together, and marks the load packed.'],
+  ['6', 'The delivery company', 'Sees the packing list on the load in its own portal — boxes, contents and weights, no prices.'],
+  ['7', 'The customer', 'Finds the invoice on their order page and downloads it. The next day a second invoice appears for the second lorry; the two add up to exactly what they paid.'],
+  ['8', 'A receiving clerk', 'Scans the QR code on the packing list and sees that it is genuine and who issued it.'],
 ], [700, 2300, 7000]);
 
 note('Document status', 'This guide is based on the current Glovia codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);

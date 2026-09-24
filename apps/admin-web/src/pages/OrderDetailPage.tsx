@@ -43,6 +43,7 @@ import { Permission } from '@/lib/permissions';
 import type { AvailableTransition, OrderDetail, OrderTotals } from '@/lib/orders';
 import type { Money } from '@/lib/types';
 import { InvoicePanel } from '@/pages/order/InvoicePanel';
+import { SellerDocumentsPanel } from '@/pages/order/SellerDocumentsPanel';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 
@@ -714,6 +715,8 @@ export function OrderDetailPage(): React.JSX.Element {
           {/* Above the customer card: an invoice is about the order, and it
               is the thing somebody comes to this page to raise or to send. */}
           <InvoicePanel orderId={order.id} />
+          {/* Each seller's own invoice and packing list: read and download only. */}
+          <SellerDocumentsPanel orderId={order.id} />
 
           <Card title={t('orderDetail.customer')}>
             <div className="px-5 py-4 text-sm">

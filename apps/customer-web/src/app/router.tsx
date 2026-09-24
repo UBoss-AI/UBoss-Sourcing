@@ -138,6 +138,14 @@ export const router = createBrowserRouter([
         path: 'verify-email',
         ...publicRoute(() => import('@/pages/VerifyEmailPage').then((m) => m.VerifyEmailPage)),
       },
+      {
+        // Where the QR on a seller's invoice or packing list lands. Public:
+        // it is read by whoever holds the carton. The path is printed into
+        // every issued PDF by the backend's `verificationUrl`, so it must
+        // never move.
+        path: 'verify-document',
+        ...publicRoute(() => import('@/pages/VerifyDocumentPage').then((m) => m.VerifyDocumentPage)),
+      },
 
       // --- AI Mode ----------------------------------------------------------
       //
@@ -284,6 +292,16 @@ export const router = createBrowserRouter([
             path: 'schedules/:id',
             ...accountPage(() =>
               import('@/pages/ScheduleDetailPage').then((m) => m.ScheduleDetailPage),
+            ),
+          },
+          {
+            path: 'preorders',
+            ...accountPage(() => import('@/pages/PreordersPage').then((m) => m.PreordersPage)),
+          },
+          {
+            path: 'preorders/:id',
+            ...accountPage(() =>
+              import('@/pages/PreorderDetailPage').then((m) => m.PreorderDetailPage),
             ),
           },
           {
@@ -558,9 +576,28 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'preorders',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerPreordersPage').then((m) => m.SellerPreordersPage),
+        ),
+      },
+      {
+        path: 'preorders/:id',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerPreorderDetailPage').then((m) => m.SellerPreorderDetailPage),
+        ),
+      },
+      {
         path: 'payments',
         ...accountPage(() =>
           import('@/pages/seller/SellerPaymentsPage').then((m) => m.SellerPaymentsPage),
+        ),
+      },
+      {
+        // How this seller numbers and signs the invoices issued in their name.
+        path: 'invoicing',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerInvoiceSettingsPage').then((m) => m.SellerInvoiceSettingsPage),
         ),
       },
       {
@@ -570,9 +607,15 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        // The onboarding step's panel, at a URL that outlives the application.
-        // An approved seller's application is read-only, so without this there
-        // is no way to change how goods ship after the day you applied.
+        // Seller Hub -> Logistics: carriers, who manages L1-L4, level prices
+        // and the settlement preview. The only place logistics is set up.
+        path: 'logistics',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerLogisticsPage').then((m) => m.SellerLogisticsPage),
+        ),
+      },
+      {
+        // Carrier accounts and delivery methods, reached from Logistics.
         path: 'fulfilment',
         ...accountPage(() =>
           import('@/pages/seller/SellerFulfilmentPage').then((m) => m.SellerFulfilmentPage),

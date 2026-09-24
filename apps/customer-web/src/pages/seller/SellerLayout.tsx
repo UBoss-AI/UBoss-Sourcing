@@ -41,6 +41,7 @@ import {
   type SellerIdentity,
 } from '@/lib/seller';
 import { SellerNotificationBell } from './SellerNotificationBell';
+import { DocumentIcon } from '@/components/icons';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -141,6 +142,17 @@ function CarrierIcon({ className }: IconProps): React.JSX.Element {
       />
       <circle cx="7" cy="17" r="1.7" stroke="currentColor" strokeWidth="1.6" />
       <circle cx="16.5" cy="17" r="1.7" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function PreordersIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path d="M3 9.5 7.5 7 12 9.5 7.5 12 3 9.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M12 9.5 16.5 7 21 9.5 16.5 12 12 9.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M3 9.5V15l4.5 2.5V12M12 9.5V15l-4.5 2.5M12 9.5V15l4.5 2.5V12M21 9.5V15l-4.5 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M16 3.5h4v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -332,20 +344,26 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     needsApproval: true,
   },
   { to: '/seller/orders', labelKey: 'seller.nav.orders', icon: OrdersIcon, needsApproval: true },
+  // Bulk requests that are not orders yet: a buyer asking whether this seller
+  // can make a quantity by a date. Beside Orders, because an accepted and paid
+  // preorder becomes one.
+  { to: '/seller/preorders', labelKey: 'seller.nav.preorders', icon: PreordersIcon, needsApproval: true },
   // Beside orders, because that is where a seller is standing when they need
   // it: a paid order is the reason to go looking for who will carry it.
   {
     // Above Carriers on purpose. This is the decision - how do my goods get
-    // delivered at all - and Carriers is one of the answers to it. A seller
-    // who meets the narrower screen first has to work out that the broader
-    // one exists.
-    to: '/seller/fulfilment',
-    labelKey: 'seller.nav.fulfilment',
+    // delivered at all, who manages each of the four levels, and what each
+    // costs - and Carriers is one of the answers to it.
+    //
+    // The ONE place logistics is configured. It used to be an onboarding
+    // step; it is not any more, and a seller finishes their application
+    // without it. The carrier-account screens (`/seller/fulfilment`) are
+    // reached from this page rather than from a second nav entry.
+    to: '/seller/logistics',
+    labelKey: 'seller.nav.logistics',
     icon: FulfilmentIcon,
-    // FALSE, unlike Carriers. A seller still going through onboarding needs
-    // this screen most of all - it is the step they are being asked to
-    // finish - and hiding it until approval would put the only editable copy
-    // behind the approval it helps them reach.
+    // FALSE, unlike Carriers: a seller may set up how they deliver while
+    // their application is still being reviewed.
     needsApproval: false,
   },
   {
@@ -360,6 +378,9 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     icon: PaymentsIcon,
     needsApproval: false,
   },
+  // Beside Payments: the invoice series, signatory and LUT the seller's own
+  // tax invoices are issued under.
+  { to: '/seller/invoicing', labelKey: 'seller.nav.invoicing', icon: DocumentIcon, needsApproval: false },
   {
     /*
      * The seller's own accounting system.

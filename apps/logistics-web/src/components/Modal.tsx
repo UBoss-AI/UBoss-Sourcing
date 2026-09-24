@@ -14,6 +14,7 @@ import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from './ui';
 import { cx } from '@/lib/cx';
+import { lockPageScroll } from '@/lib/scroll-lock';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface ModalProps {
@@ -62,6 +63,12 @@ export function Modal({
     if (!isOpen && dialog.open) dialog.close();
   }, [isOpen]);
 
+  // The page behind holds still while this is open. See `lib/scroll-lock.ts`.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    return lockPageScroll();
+  }, [isOpen]);
+
   // Escape fires `cancel`, and the browser closes the dialog without telling
   // React. Intercepting it keeps the component's state and the DOM in step.
   useEffect(() => {
@@ -104,6 +111,11 @@ export function Modal({
         // `dvh` rather than `vh` so a mobile browser's collapsing toolbar is
         // counted rather than guessed at.
         'flex max-h-[calc(100dvh-2rem)] flex-col',
+        // The browser styles a modal dialog `overflow: auto`. With the
+        // header, body and footer a pixel or two taller than the cap (its
+        // border), the dialog itself scrolled too - a second scrollbar beside
+        // the body's. Only the body scrolls.
+        'overflow-hidden',
         /*
          * A closed dialog is hidden. This line is not redundant.
          *
@@ -128,13 +140,13 @@ export function Modal({
         'open:animate-dialog-in backdrop:animate-fade-in',
       )}
     >
-      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-4 sm:px-6">
+      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-4 sm:px-6 [@media(max-height:640px)]:py-3">
         <div className="min-w-0">
           <h2 id={titleId} className="text-title-xs text-ink">
             {title}
           </h2>
           {description !== undefined && (
-            <p id={descriptionId} className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+            <p id={descriptionId} className="mt-0.5 text-xs leading-relaxed text-ink-muted [@media(max-height:640px)]:line-clamp-2">
               {description}
             </p>
           )}
@@ -154,7 +166,10 @@ export function Modal({
           nobody reports and everybody notices. An attribute rather than a
           forwarded ref, so a caller ten components deep can find it without
           every layer in between having to pass one down. */}
-      <div data-dialog-body className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+      <div
+        data-dialog-body
+        className="min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
+      >
         {children}
       </div>
 

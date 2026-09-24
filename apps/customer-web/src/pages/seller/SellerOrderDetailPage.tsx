@@ -19,8 +19,10 @@
  */
 import { useState } from 'react';
 import { ConsignmentLogisticsPanel } from './ConsignmentLogisticsPanel';
+import { SellerOrderLegsPanel } from './SellerOrderLegsPanel';
 import { raiseConsignment } from '@/lib/consignment-logistics';
 import { ConsignmentCarrierPurchasePanel } from './ConsignmentCarrierPurchasePanel';
+import { ConsignmentDocumentsPanel } from './ConsignmentDocumentsPanel';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
@@ -121,7 +123,15 @@ export function SellerOrderDetailPage(): React.JSX.Element {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
           <Lines order={order} />
+          {/* L1-L4, where this order was priced on four delivery levels. */}
+          <SellerOrderLegsPanel sellerOrderId={order.id} canAct={order.status !== 'NEW' && order.status !== 'CANCELLED'} />
           <Consignments order={order} />
+          {/* Invoice, packing list and Mark packed, per consignment. Open on a
+              cancelled order too: that is when a credit note is owed. */}
+          <ConsignmentDocumentsPanel
+            sellerOrderId={order.id}
+            canAct={order.status !== 'NEW'}
+          />
           <Shipments order={order} />
           <Returns order={order} />
         </div>

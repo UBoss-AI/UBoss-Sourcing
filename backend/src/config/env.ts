@@ -436,6 +436,43 @@ const envSchema = z
     /// nothing about the figure is hard-coded in a browser.
     SCHEDULE_MIN_NOTICE_DAYS: intFromString(0, 365).default(7),
 
+    // --- Bulk preorders ---
+    //
+    // The PLATFORM level of the preorder fallback chain (offer -> product ->
+    // seller default -> these). Deliberately none of them is a minimum
+    // quantity, a price or a capacity: those are the seller's commercial
+    // terms, and a product whose seller has stated none is not open for
+    // preorder rather than open at a figure this file made up.
+
+    /// Notice for a preorder delivery, calendar days on the buyer's clock.
+    /// Never below 1 (today is never bookable) and never below the Schedule
+    /// Cart's own notice - a preorder is not faster than a scheduled order.
+    PREORDER_MIN_NOTICE_DAYS: intFromString(1, 365).default(7),
+    /// How long a seller has to answer a request, when their policy says
+    /// nothing. The request EXPIRES after it, and the buyer is told.
+    PREORDER_REQUEST_EXPIRY_HOURS: intFromString(1, 2160).default(72),
+    /// How long a buyer has to confirm the seller's terms.
+    PREORDER_OFFER_EXPIRY_HOURS: intFromString(1, 2160).default(120),
+    /// How long a confirmed preorder may wait for payment before its capacity
+    /// is released and its order cancelled.
+    PREORDER_PAYMENT_EXPIRY_HOURS: intFromString(1, 2160).default(168),
+    /// Days before the committed date at which a preorder not yet ready for
+    /// fulfilment is flagged to both parties as at risk.
+    PREORDER_RISK_WINDOW_DAYS: intFromString(0, 90).default(3),
+    /**
+     * Preorders on every product. On, a seller listing with no preorder terms
+     * is preorderable under the platform default below (the seller answers and
+     * sets the price), and the operator's own products are preorderable with
+     * the operator's staff answering in the admin console. A seller who has
+     * explicitly switched preorders off for a listing stays off. Off, only
+     * listings whose seller configured terms take preorders.
+     */
+    PREORDER_OPEN_TO_ALL: booleanFromString.default(true),
+    /** Production lead time assumed under the platform default terms. */
+    PREORDER_DEFAULT_LEAD_DAYS: intFromString(0, 365).default(14),
+    /** How far ahead a delivery may be booked under the platform default terms. */
+    PREORDER_DEFAULT_MAX_ADVANCE_DAYS: intFromString(1, 1095).default(365),
+
     // --- The selling unit ---
     //
     // How many pieces are in one carton.

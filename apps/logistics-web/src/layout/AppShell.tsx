@@ -22,7 +22,7 @@
  *     work stopped.
  */
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, NavigationType, useLocation, useNavigationType } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { MenuIcon, SignOutIcon } from '@/components/icons';
 import { Button } from '@/components/ui';
@@ -47,15 +47,21 @@ export function AppShell(): React.JSX.Element {
   const { t } = useI18n();
   const { session, signOut, canAny } = useSession();
   const location = useLocation();
+  const navigationType = useNavigationType();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
   // Close the drawer on navigation. Leaving it open over the new screen is the
   // single most common mobile-navigation bug.
+  //
+  // And start a new page at the top: a single-page app keeps the old scroll
+  // position otherwise, so a consignment opened from far down a list opened
+  // halfway down. Back and forward (POP) are left to the browser.
   useEffect(() => {
     setDrawerOpen(false);
-  }, [location.pathname]);
+    if (navigationType !== NavigationType.Pop) window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname, navigationType]);
 
   const sections = visibleNavigation(canAny);
   const active = locateRoute(location.pathname);

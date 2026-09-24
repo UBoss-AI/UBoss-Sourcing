@@ -487,7 +487,7 @@ export function ErpWizardPage(): React.JSX.Element {
                 className={cx(
                   'rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors',
                   current
-                    ? 'bg-brand text-on-brand'
+                    ? 'bg-brand-fill text-white'
                     : done
                       ? 'bg-brand-soft text-brand hover:bg-brand-soft/80'
                       : 'text-ink-subtle',

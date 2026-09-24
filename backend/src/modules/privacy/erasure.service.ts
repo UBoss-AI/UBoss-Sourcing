@@ -311,6 +311,26 @@ export async function executeErasure(input: {
         await tx.productInstruction.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
+      /*
+       * Bulk preorders that never became an order.
+       *
+       * Deleted, with their proposals and history (cascade), on the same line
+       * as the instructions above: a negotiation that ended without a sale is
+       * not a record anything requires keeping, and every row carries the
+       * subject's delivery address. None of them holds seller capacity:
+       * capacity is taken in the same transaction that creates the order, so
+       * a request without an order has never held any.
+       *
+       * A preorder that DID become an order is retained with that order under
+       * Art. 17(3)(b): its confirmed terms are what the order was built from,
+       * and the order is anonymised rather than removed.
+       */
+      deleted.preorderRequests = (
+        await tx.preorderRequest.deleteMany({
+          where: { customerProfileId: profile.id, convertedOrderId: null },
+        })
+      ).count;
+
       /**
        * Their place in a buyer organisation.
        *

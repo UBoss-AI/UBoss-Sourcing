@@ -63,6 +63,10 @@ export const JobType = {
   INTEGRATION_EVENT_RETRY: 'integration_event.retry',
   PAYMENT_RECONCILE: 'payment.reconcile',
   PAYMENT_LINK_EXPIRE: 'payment_link.expire',
+  /// Bulk preorders whose waiting party ran out of time, and paid preorders
+  /// close to their committed date that are not ready.
+  PREORDER_EXPIRE: 'preorder.expire',
+  PREORDER_RISK_SWEEP: 'preorder.risk_sweep',
   REFUND_POLL: 'refund.poll',
   IMPORT_PROCESS: 'import.process',
   EXPORT_GENERATE: 'export.generate',

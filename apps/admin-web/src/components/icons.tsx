@@ -191,6 +191,18 @@ export function RecurringIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** Bulk preorders: stacked cartons, and an arrow for 'ahead of time'. */
+export function PreordersIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M3 9.5 7.5 7 12 9.5 7.5 12 3 9.5Z" />
+      <path d="M12 9.5 16.5 7 21 9.5 16.5 12 12 9.5Z" />
+      <path d="M3 9.5V15l4.5 2.5V12M12 9.5V15l-4.5 2.5M12 9.5V15l4.5 2.5V12M21 9.5V15l-4.5 2.5" />
+      <path d="M16 3.5h4v4" />
+    </Icon>
+  );
+}
+
 export function CustomersIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

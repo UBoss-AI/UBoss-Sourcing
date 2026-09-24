@@ -28,6 +28,9 @@ have to read separately — this *is* the explanation.
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
    - [9.5.1 Autopay: charging a card nobody is looking at](#951-autopay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
+   - [9.5.3 Bulk preorders](#953-bulk-preorders)
+   - [9.5.4 Seller invoices and packing lists](#954-seller-invoices-and-packing-lists)
+   - [9.5.5 Quantity prices and the bulk-savings popover](#955-quantity-prices-and-the-bulk-savings-popover)
    - [9.8 The ERP connection, and Autopay](#98-the-erp-connection-and-autopay)
    - [9.8.1 The customer’s own ERP](#981-the-customers-own-erp)
    - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
@@ -47,8 +50,39 @@ have to read separately — this *is* the explanation.
 
 ## What the product is called
 
-The product is **Glovia**. The company behind it is **UBOSS**, and every surface
-that carries the brand carries the attribution under it: **Powered by UBOSS**.
+The product is **Glovia**, and its tagline is **The Way to the World**. The
+company behind it is **UBOSS**, and that is said as small print:
+**Powered by UBOSS**.
+
+Where each one appears:
+
+| Surface | Top-left brand block | `Powered by UBOSS` |
+|---|---|---|
+| Storefront and Seller Hub | Earth mark, **Glovia** over **The Way to the World** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
+| Admin console | The rail: earth mark, **Glovia** over **The Way to the World** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
+| Logistics portal | The rail and the sign-in header: the same lockup | Small print at the foot of the sign-in column |
+| Greeting page hero | **Glovia** in the script face, then **The Way to the World** standing still, then a line alternating "Source with Intelligence" and "Deliver with Confidence" | — (it used to be one of the two alternating phrases) |
+
+**The wordmark has its own face: Dancing Script Bold (700), a connected
+script.** It is used for the word "Glovia" wherever it is the brand — the
+storefront header and footer, the greeting headline, the label on the hub's
+globe, the admin and logistics rails and the logistics sign-in — and for
+nothing else. Body text, headings, the tagline, and prose that merely contains
+the word ("Sell on Glovia", "Glovia AI Insights") stay in Inter. It is set a
+step larger than the Inter it replaced, because a script's short x-height reads
+a size smaller at the same number. It is bundled from the
+`@fontsource/dancing-script` package (Latin subset only, SIL Open Font
+License) rather than fetched from Google Fonts, because the production CSP is
+`font-src 'self' data:`. The Tailwind utility is `font-brand`. While it
+loads, the fallback face `Dancing Script Fallback` — Arial Bold resized to
+Dancing Script's metrics, declared in each app's `index.css` — sets "Glovia"
+at the same width and height, so nothing moves when the script arrives.
+
+**On a deployment with its own name, neither the face nor the tagline
+applies.** The storefront header and footer only use `font-brand` and the
+tagline when the business display name *is* "Glovia". Northwind Industrial's
+header says Northwind Industrial in the ordinary heading face, alone: Glovia's
+slogan under another company's name would be the software claiming their shop.
 
 It used to be called *UBOSS Sourcing*. That name is gone from every screen a
 customer, a member of staff or a carrier reads.
@@ -58,21 +92,23 @@ Three names are involved and they are not interchangeable:
 | Name | What it is | Where it comes from |
 |---|---|---|
 | **Glovia** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
+| **The Way to the World** | The product's tagline — under the wordmark | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
 | **Powered by UBOSS** | The attribution — who makes it | `lib/brand.ts`, the same constant module |
 | The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` |
 
 **The third one is the one to be careful with.** Every buyer runs their own
 deployment, so the storefront header, the footer, the e-mails, the invoices and
 the browser tab name *their* business, not ours. A storefront belonging to
-Northwind Industrial says Northwind Industrial at the top of it, under an
-attribution that says the software is Glovia and UBOSS makes it. The seed and
+Northwind Industrial says Northwind Industrial at the top of it, and its footer
+says the software is powered by UBOSS. The seed and
 the fallback name a shop "Glovia" only because a fresh install has no business
 profile to read a name from, and naming the software is the one honest thing to
 put there until somebody fills that in.
 
-**Neither brand name is a translation key.** A name is a fact, not a string to
-translate, and `Powered by UBOSS` is a fixed attribution lockup rather than a
-sentence — so both read identically in all eight languages. `scripts/check-i18n.mjs`
+**None of the three brand strings is a translation key.** A name is a fact, not
+a string to translate; the tagline is a brand asset rather than a sentence; and
+`Powered by UBOSS` is a fixed attribution lockup — so all three read
+identically in all eight languages, and the auto-translator never sees them. `scripts/check-i18n.mjs`
 carries the same reasoning for the handful of catalogue entries that name the
 product, such as `aiInsights.title` ("Glovia AI Insights").
 
@@ -1395,7 +1431,8 @@ The greeting opens on three lines, and the moving one is the third:
 | Line | What it is |
 |---|---|
 | The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
-| The headline | The shop's configured name. Fixed. Nothing cycles after it |
+| The headline | The shop's configured name. Fixed. Nothing cycles after it. In the script wordmark face when the name is "Glovia" |
+| The tagline | **The Way to the World** — `PRODUCT_TAGLINE` from `lib/brand.ts`. Fixed. Only when the name is "Glovia" |
 | The strapline | Two whole phrases, alternating every 4.2 seconds |
 
 **The headline is the name, still.** It reads "Glovia" on a deployment that has
@@ -1416,23 +1453,28 @@ cycling after the name there is nothing left to collide with.
 
 **What alternates now is the line below, and each entry is a whole thought:**
 
-1. `greeting.tagline` — "Source with Intelligence | Deliver with Confidence",
-   which is prose and is translated into all eight languages;
-2. **Powered by UBOSS** — the attribution, from `lib/brand.ts`, identical in
-   every language.
+1. `greeting.taglineSource` — "Source with Intelligence";
+2. `greeting.taglineDeliver` — "Deliver with Confidence".
+
+Both are prose and translated into all eight languages. They are the two halves
+of what used to be one key, `greeting.tagline` ("Source with Intelligence |
+Deliver with Confidence"), split at the bar in every language so each
+translation kept its approved wording. The line used to alternate that whole
+strapline with **Powered by UBOSS**; the attribution is the footer's small
+print now, and the product's tagline stands still above the line.
 
 **The line does not change height when it changes.** Both phrases sit in the
 flow in the same CSS grid cell, one visible and one `invisible`, so the row is
 as tall as the taller of them and stays that height for the life of the page.
 Without it the band grew and shrank by two lines every few seconds on a phone —
-where the strapline wraps to three lines and the attribution to one — and
+where one phrase wraps and the other does not — and
 everything below the hero moved with it. It cannot be a `min-height`: the
 taller phrase is a different phrase in each of the eight languages, and a number
 measured in English is a number that is wrong in Polish.
 
 **A screen reader is told one sentence, once.** `FlipWords` takes an `srLabel`
-covering both phrases — "Source with Intelligence | Deliver with Confidence.
-Powered by UBOSS." — and reads it in place of the rotation. Nothing on the line
+covering both phrases — "Source with Intelligence. Deliver with Confidence." —
+and reads it in place of the rotation. Nothing on the line
 is in an `aria-live` region, which is the whole point: a phrase swapping itself
 inside one would interrupt whatever a screen-reader user is doing, every four
 seconds, for as long as the page is open. Under `prefers-reduced-motion:
@@ -1465,7 +1507,7 @@ shortest of them and clipping it would be worse.
 ## The sourcing hub
 
 Beside the search module, `/` carries one large animated graphic: a central
-glass orb labelled **Glovia** — the product, at the centre of the four
+glass orb labelled **Glovia**, in the script wordmark face — the product, at the centre of the four
 capabilities that orbit it, from `lib/brand.ts` rather than the phrase book —
 two orbital rings turning in opposite
 directions, and **four** capabilities riding those rings around it.
@@ -7340,6 +7382,17 @@ invoice and is *composed* from the two parts; the parts are nullable and are
 null for every account created by invitation or by import, which is correct
 rather than a gap to backfill.
 
+**Bulk preorders**
+`preorder_policies`, `preorder_price_tiers`, `preorder_capacity_buckets`,
+`preorder_requests`, `preorder_offers`, `preorder_status_history` - a
+negotiation before an order exists. See 9.5.3. `orders.source` gained
+`PREORDER`, appended.
+
+**Seller invoices and packing lists**
+`seller_invoice_settings`, `logistics_shipment_lines`,
+`logistics_shipment_package_lines`, `seller_invoices`, `seller_packing_lists` -
+the seller's own tax invoice and packing list, per consignment. See 9.5.4.
+
 **Saved for later**
 `wishlist_items` — a link to a person, a link to a product, a `variantKey` and
 a timestamp. Nothing else, and see section 4 for why there is no quantity
@@ -9659,6 +9712,492 @@ keyed on `inventory_movements.dedupeKey` so a retried reconciliation collides on
 the unique index rather than posting a second delta. The ledger is append-only
 and has no reversal, so a double post would silently corrupt on-hand for ever.
 
+## 9.5.3 Bulk preorders
+
+A hospital group that needs forty thousand gloves in December is not buying
+from a shelf. It is asking a manufacturer whether they can **make** forty
+thousand by then, at what price, and it will not commit until the answer is in
+writing. Add to Cart cannot express that (it sells what is in stock), and
+Schedule Cart cannot either (it buys an ordinary basket later, or again). So a
+product page has a third button, **Preorder**, and behind it a negotiation with
+its own records.
+
+### The one rule everything else follows from
+
+**Nothing is charged, reserved or ordered until the buyer has agreed to the
+seller's terms.** A seller accepting is an offer. The buyer's confirmation is
+the obligation. The signed payment webhook is the payment. Those are three
+different events, and the state machine in `domain/preorder-state.ts` has no
+edge that lets any of them happen out of order: there is no SELLER transition
+into anything the buyer pays for, and only SYSTEM - the order's own
+confirmation, inside the webhook's transaction - reaches CONFIRMED.
+
+### The records
+
+| Table | What it holds |
+|---|---|
+| `preorder_policies` | A seller's terms at one level of the fallback chain |
+| `preorder_price_tiers` | Price bands under a policy, per piece, for FIXED pricing |
+| `preorder_requests` | One buyer's request, the policy it was judged under (frozen), and where the negotiation stands |
+| `preorder_offers` | Each set of terms the seller proposed, numbered, hashed and never edited |
+| `preorder_status_history` | Every status the request has been through, and who moved it |
+| `preorder_capacity_buckets` | Pieces of capacity already promised, per policy per period |
+
+### The fallback chain
+
+```
+the offer's own policy  ->  the product's  ->  the seller's default  ->  platform defaults (config)
+```
+
+The **first that exists applies whole** (`resolvePolicy`), never field by
+field. Merging a variant's minimum with a product's capacity and a seller
+default's price bands would produce terms nobody wrote, and the seller could not
+answer "where did that figure come from?" from any one screen. A variant whose
+own policy says *disabled* is disabled, and does not fall through to an enabled
+product policy.
+
+The platform level supplies the notice period and how long each party has to
+answer. When **nobody configured terms** and `PREORDER_OPEN_TO_ALL` is on (the
+default), it also supplies whole **default terms** (`platformDefaultPolicy`,
+scope `PLATFORM_DEFAULT`, never stored as a row, `policyId` NULL on the
+request): the listing's own ordering minimum and step, no capacity limit,
+`PREORDER_DEFAULT_LEAD_DAYS` production, `PREORDER_DEFAULT_MAX_ADVANCE_DAYS`
+horizon, and one FIXED band at the list price (QUOTE_REQUIRED when there is no
+price). No minimum is invented - it is the listing's own. A policy row with
+`isEnabled: false` still wins: a seller who switched preorders off stays off.
+With the flag off, a product with no seller terms is refused `NOT_CONFIGURED`.
+
+### The operator's own products
+
+A product the operator sells itself has no seller offer. Under
+`PREORDER_OPEN_TO_ALL` it is preorderable on the default terms, priced from
+`products.basePriceMinor` (or the variant's price), carton size from
+`piecesPerCarton`, stock from the default warehouse. The request carries
+`sellerAccountId` and `offerId` NULL together
+(`chk_preorder_request_supplier`, migration
+`20260925090000_preorders_for_every_product`; `preorder_offers.sellerAccountId`
+is nullable too).
+
+Every supplier action takes a `Responder` (`modules/preorders/supplier.ts`): a
+seller, or staff (`operatorResponder`). The one access rule is
+`request.sellerAccountId === responder.sellerAccountId` - NULL for staff - so a
+seller never reaches the operator's preorders and staff never answer a
+seller's. Staff act in the supplier role for the state machine (actor kind
+SELLER) and are recorded as ADMIN in the history and the audit log
+(`PREORDER_STATUS_CHANGED`); the buyer is told the store's name
+(`businessProfile.displayName`), never the staff member's. Notifications that
+would go to a seller go to the admin bell instead (`notifySupplier`): kind
+`preorder.awaiting_operator` (ALERT, resolution key `preorder:<id>:seller`,
+closed when staff act or the preorder closes) or `preorder.update`
+(information), carrying `requestNumber` and `event`, gated on `order.read`.
+The buyer's confirmation makes an ordinary operator order (no `sellerOfferId`);
+staff moving it to PROCESSING (`onPreorderOperatorOrderProcessing` in
+`transitionOrder`) converts the preorder, the equivalent of a seller accepting
+their part.
+
+A policy's minimum, step and maximum are stored in the seller's unit ("ten
+pallets") and converted to pieces **through that offer's current, active
+packaging** every time they are used. A product-level policy written in pallets
+is correct for every variant's own pallet size, and a policy in a unit the offer
+has no active packaging for is reported as incomplete rather than guessed at.
+
+### The lifecycle
+
+| Status | Waiting on | What it means |
+|---|---|---|
+| `SUBMITTED` | Seller | The buyer asked |
+| `SELLER_REVIEW_REQUIRED` | Seller | The buyer declined the seller's terms and asked again |
+| `SELLER_ACCEPTED` | Buyer | The seller agreed to exactly what was asked, with a committed date |
+| `SELLER_COUNTERED` | Buyer | The seller proposed something different |
+| `BUYER_CONFIRMED` | — | Transient; recorded in the history so it says the buyer agreed before an order existed |
+| `PAYMENT_REQUIRED` | Buyer | One order exists, awaiting payment. Capacity is held |
+| `CONFIRMED` | Seller | The order was paid |
+| `IN_PRODUCTION`, `READY_FOR_FULFILLMENT` | Seller | Progress the buyer is told about |
+| `CONVERTED_TO_ORDER` | — | The seller accepted the order; ordinary fulfilment has it |
+| `REJECTED`, `CANCELLED`, `EXPIRED` | — | Ended without an order, or with the order cancelled |
+
+There is no DRAFT (nothing is saved until the buyer submits) and no separate
+BUYER_CONFIRMATION_REQUIRED (SELLER_ACCEPTED and SELLER_COUNTERED already mean
+exactly that).
+
+### The terms cannot change under the buyer
+
+Each proposal is a `preorder_offers` row whose `termsHash` is SHA-256 over its
+canonical terms - quantity, price per piece, goods total, freight, currency,
+committed date and any split. The buyer's **Confirm** sends the revision and the
+hash. If the seller revised the terms while the page was open, the hash names a
+superseded revision and the confirmation is refused with
+`PREORDER_TERMS_CHANGED`. The confirmed terms are then copied onto the request
+(`confirmedTermsJson`, `confirmedTermsHash`) and that pair is what the order is
+built from. Nothing edits a proposal's terms after it is written; a change is a
+new revision.
+
+### One order, and only one
+
+The buyer's confirmation runs one transaction: move to BUYER_CONFIRMED (a
+conditional write on the status and version it read), accept the revision by id
+and state, hold capacity, write the order and its line, and move to
+PAYMENT_REQUIRED with `convertedOrderId` set. That column is **UNIQUE**, so a
+double click, a retried request or two tabs produce one order; the second finds
+the request has already moved and is refused before writing anything. The route
+also takes an `Idempotency-Key`.
+
+The order is `source = PREORDER`, `paymentMode = ONLINE`, priced through
+`priceLines` with the seller's quoted freight as seller delivery - the same path
+every seller's delivery charge takes at checkout - and taxed through
+`applyLineTax` against the buyer's delivery country, exactly as a basket line
+is. It carries the seller's offer id, so the payment webhook's confirmation
+splits it to the seller like any marketplace order. Where the buyer's account
+requires order approval, it starts in PENDING_APPROVAL, as a checkout would.
+
+It reserves **no stock**. The goods do not exist yet. The seller books them in
+once made and accepts the order, which reserves them at a named location exactly
+as for any marketplace order - and that acceptance is what moves the preorder to
+CONVERTED_TO_ORDER.
+
+### Capacity is one statement
+
+A policy may state capacity in pieces per day, ISO week or month, counted
+against the period of the **committed delivery date**. The hold is:
+
+```sql
+UPDATE preorder_capacity_buckets
+   SET reservedBaseUnits = reservedBaseUnits + ?
+ WHERE id = ? AND reservedBaseUnits + ? <= <capacity>
+```
+
+and an affected-row count of zero means the capacity was not there. Two buyers
+confirming the last ten thousand of a month in the same second both run it, and
+exactly one succeeds - MariaDB 10.4 has no SKIP LOCKED, and a read-then-write
+loses that race. The seller's accept and counter check the same figure first,
+so they are told "you have 8,000 left" before promising what they cannot keep.
+
+Capacity is released by an expiry, a cancellation, or the order being
+cancelled; it is kept (as used) on CONVERTED_TO_ORDER.
+
+### The earliest date
+
+`preorderDeliveryWindow` in `domain/preorder.ts`:
+
+```
+earliest = max( today + max(PREORDER_MIN_NOTICE_DAYS, SCHEDULE_MIN_NOTICE_DAYS, 1),
+                today + the policy's production lead time,
+                today + the offer's handling time + the slowest PUBLISHED transit per delivery level )
+```
+
+In calendar days on the buyer's own clock (the address's timezone), with the same
+functions as the Schedule Cart's notice, so a preorder can never be booked sooner
+than a scheduled order could. Today is never allowed. A seller with no published
+transit to that country contributes nothing to the third line, and the form says
+the seller confirms the final date.
+
+### Who may
+
+The **eligibility** endpoint is public: a guest sees the button live, and pressing
+it goes to sign-in with `?next=` carrying the product, the variant query and
+`preorder=1`, which reopens the form on return. Submitting requires an ACTIVE
+account with a company name on its profile - there is no separate
+buyer-approval workflow in this product to defer to, and a seller must know
+which business they are negotiating with.
+
+### Refusals
+
+Each has its own code and its figure in `details[0].meta`, and both frontends
+render it in the reader's language: `PREORDER_BELOW_MINIMUM`,
+`PREORDER_INCREMENT_MISMATCH` (counted from the minimum, not from zero),
+`PREORDER_ABOVE_MAXIMUM`, `PREORDER_UNIT_NOT_AVAILABLE`,
+`PREORDER_DATE_TOO_EARLY` (with `meta.earliest`), `PREORDER_DATE_TOO_FAR`,
+`PREORDER_DESTINATION_NOT_SERVED`, `PREORDER_BUYER_NOT_ELIGIBLE`,
+`PREORDER_NOT_AVAILABLE` (with the reason), `PREORDER_CAPACITY_EXCEEDED`,
+`PREORDER_TERMS_CHANGED`, `PREORDER_EXPIRED`, `PREORDER_TRANSITION_NOT_ALLOWED`,
+`PREORDER_POLICY_INVALID`.
+
+### Notifications
+
+Buyer emails (`preorder.*` events, each deduplicated per request per event):
+submitted, seller accepted, seller countered, rejected, payment required,
+confirmed, production started, ready, expired, cancelled, delivery at risk.
+
+Seller in-app notices: `PREORDER_REQUEST_RECEIVED` (an ALERT that stays until they
+answer), `PREORDER_BUYER_RESPONSE`, `PREORDER_CONFIRMED`, `PREORDER_CLOSED`,
+`PREORDER_DELIVERY_RISK` (an ALERT, closed when marked ready).
+
+### The worker
+
+`preorder.expire` runs on the ordinary one-minute beat. A request whose waiting
+party ran out of time expires, one row per transaction, each conditional on the
+status it was read in; an unpaid confirmed preorder is expired by cancelling its
+**order**, whose cancellation closes the preorder - and an order that was paid in
+the meantime refuses the cancellation, which is the right outcome.
+`preorder.risk_sweep` runs hourly and warns both parties, once, about a paid
+preorder within `PREORDER_RISK_WINDOW_DAYS` of its committed date that is not
+ready.
+
+### The endpoints
+
+| What | Endpoint |
+|---|---|
+| Can this be preordered, on what terms (public) | `GET /preorders/eligibility?productId&variantId&addressId` |
+| The server's figures for a draft request | `POST /preorders/preview` |
+| Send a request (Idempotency-Key) | `POST /preorders` |
+| My preorders / one | `GET /preorders`, `GET /preorders/:id` |
+| Confirm the seller's terms (Idempotency-Key) | `POST /preorders/:id/confirm` |
+| Decline and ask again / cancel | `POST /preorders/:id/decline`, `POST /preorders/:id/cancel` |
+| The seller's inbox / one | `GET /seller/preorders?filter=`, `GET /seller/preorders/:id` |
+| Accept / counter / reject | `POST /seller/preorders/:id/accept`, `…/counter`, `…/reject` |
+| Production | `POST /seller/preorders/:id/start-production`, `…/ready` |
+| Terms | `GET /seller/preorder-policies?offerId=`, `PUT /seller/preorder-policies`, `DELETE /seller/preorder-policies/:id` |
+| Operator: list / one | `GET /admin/preorders?status&supplier=OPERATOR|SELLER`, `GET /admin/preorders/:id` (`order.read`) |
+| Operator answers its own products | `POST /admin/preorders/:id/accept`, `…/counter`, `…/reject`, `…/start-production`, `…/ready` (`order.fulfil`; 404 on a seller's preorder) |
+
+### Screens
+
+- **Storefront.** The Preorder button on every product page; the request form (a
+  modal) whose summary is the server's preview. The form opens on the quantity
+  typed on the product page, rounded up to a whole unit and onto the seller's
+  steps and capped at their maximum (`openingQuantity` in
+  `apps/customer-web/src/lib/preorders.ts`), or on the minimum when less was
+  typed; *Account → Preorders* for the
+  list and each request, where the buyer confirms, declines, cancels and goes to
+  pay.
+- **Seller Hub.** *Orders → Preorders* (filters: awaiting your answer, new,
+  countered, awaiting buyer, confirmed, in production, handed to fulfilment,
+  rejected, expired, cancelled); the decision screen with the capacity bar; the
+  **Preorder terms** panel on every listing.
+- **Admin panel.** *Sales → Preorders*, gated on `order.read`, with a
+  *Supplied by* filter. A seller's preorder is read-only: staff see every
+  revision with its terms reference and cannot answer for either party. On the
+  operator's own product the page shows **Answer this preorder** (accept,
+  counter, refuse, production started, ready) for staff with `order.fulfil`.
+
+### Personal data
+
+`preorder_requests` is in the Art. 15 export as `preorderRequests` (every set of
+terms put to the buyer, and the history). An Art. 17 erasure deletes the requests
+that never became an order; one that did is retained with the order it became.
+
+### What it does not do
+
+No **deposit** - this software captures an order's whole amount and its payment
+integration cannot express a partial capture. No **proforma invoice** - the
+confirmed terms and their reference are the quotation. No **amendment** of
+confirmed terms - a change after confirmation is a new request.
+
+## 9.5.4 Seller invoices and packing lists
+
+### Whose document it is
+
+On a marketplace order the goods belong to the **seller**, so the tax invoice is
+the seller's: their legal name, their GSTIN (read from
+`seller_business_profiles.taxRegistrationNumber`, the one place it is kept),
+their number series. The operator's own invoice (the `invoices` table) is for the
+operator's own sales and is untouched by this.
+
+Documents are made **per consignment** (`logistics_shipments`), not per order: a
+seller order that leaves in two lorries has two invoices and two packing lists.
+
+### The tables
+
+| Table | What it holds |
+|---|---|
+| `seller_invoice_settings` | One row per seller: jurisdiction (`IN_GST`, `EU_VAT`, `GENERIC`), invoice and credit-note series, financial-year start month, signatory, LUT reference and dates, footer notes |
+| `logistics_shipment_lines` | Which order items, and how many, a consignment carries. Unique on (consignment, order item). Created from the seller order when first needed; a split moves quantity between two rows |
+| `logistics_shipment_package_lines` | What is inside each package: order item, quantity, batch, expiry, serial numbers. Unique on (package, order item, batch) |
+| `seller_invoices` | A tax invoice or credit note: frozen seller, buyer and ship-to snapshots, lines, tax breakdown, every total as BigInt minor units, number, financial year, PDF storage key, SHA-256, page count |
+| `seller_packing_lists` | A packing list: number, verification code, package and piece totals, weights, volume, vehicle and driver reference, snapshot, PDF |
+
+New columns: `seller_offers.hsnCode` and `countryOfOrigin`;
+`logistics_shipments.packedAt` and `splitFromShipmentId`;
+`logistics_shipment_packages.netWeightGrams`, `containerNumber`, `sealNumber`.
+`logistics_document_scan_state` gained `GENERATED`, appended: a PDF this
+deployment rendered itself, never uploaded, and therefore servable without a
+malware scan. Migrations: `20260924180000_seller_documents`,
+`20260924181000_invoice_credit_note_alert`.
+
+### Statuses
+
+`DRAFT`, `VALIDATION_REQUIRED`, `READY_TO_ISSUE` are working states of the one
+live draft per consignment. `ISSUED` has a number and a PDF and never changes
+again. `CREDIT_NOTE_REQUIRED` is an issued invoice whose order was cancelled,
+returned or refunded. `VOIDED` is an invoice a credit note has reversed. A
+packing list that was replaced is `SUPERSEDED`. A CHECK constraint holds
+`number` NULL exactly while the status is a working one.
+
+### The flow
+
+1. The seller lists packages and their contents
+   (`PUT /seller/consignments/:id/packages`). Refused once a package is scanned
+   out, a carrier label is bought, or the packing list is issued
+   (`SHIPMENT_PACKAGES_LOCKED`, detail code names which).
+2. Optionally splits the consignment (`POST .../split`): a new
+   `logistics_shipments` row through `createShipment`, lines moved, refused once
+   invoiced.
+3. `POST .../invoice/preview` and `.../packing-list/preview` build the document
+   and store the checklist. Each issue is `{ field, code, message, meta }`; both
+   frontends translate `field` + `code` (`sellerDocs.issue.*`), the English
+   `message` is for API clients.
+4. `POST .../pack` issues the invoice (if not already), the packing list, and
+   sets `packedAt`, in one transaction (45 s timeout). Any failure rolls all of
+   it back, deletes any file already stored, and returns the numbers to their
+   counters.
+
+Issuing alone is also possible (`.../invoice/issue`, `.../packing-list/issue`).
+
+### Numbers
+
+Invoice: `{series}/{fy}/{00001}` from `number_sequences` key
+`seller-invoice:{seller}:{series}:{fy}` - unique per seller, restarting each
+financial year, at most 16 characters (GST rule 46). Credit notes use the
+credit-note series. Packing list: `PL-{year}-{000001}`, global. Both are taken
+inside the issuing transaction; `liveKey` (UNIQUE) makes a retry return the
+document already issued rather than a second number.
+
+### Tax
+
+`domain/gst.ts` checks the GSTIN's mod-36 check character and state code, maps
+a delivery state to its GST state code, and decides the supply: same state -
+CGST + SGST (the state half takes an odd paisa); different state - IGST; outside
+India - export, under LUT when no tax was charged. Place of supply is the
+delivery address (IGST Act s.10(1)(a)). `domain/seller-invoice.ts` apportions
+each order line to a consignment by `floor(amount × q / Q)`, and the consignment
+that completes the line takes the remainder, so split invoices add up to the
+order exactly. Freight goes on the seller order's first invoice.
+
+### PDFs
+
+Rendered with pdfkit and the DejaVu fonts from `dejavu-fonts-ttf` (₹ and every
+European script). Deterministic: the creation date is the issue time, so the
+same document renders to the same bytes and `contentHash` names the exact file.
+Stored privately through the storage driver. Each carries a QR to
+`{CUSTOMER_WEB_PUBLIC_URL}/verify-document?kind&number&code`, where `code` is an
+HMAC keyed from `SESSION_COOKIE_SECRET` over the kind, the number and - for an
+invoice - the issuing seller, because invoice numbers repeat across sellers.
+The public check (`GET /documents/verify`, rate limited) answers issuer,
+status and date only. It is **not** a GST e-invoice (IRN) QR, and the PDF says
+so; e-invoice registration with the IRP is outside this software.
+
+### Corrections
+
+`transitionOrder` to CANCELLED, RETURNED or REFUNDED, and the seller group's
+own cancel/return/refund, call `flagInvoicesForCredit`: issued invoices become
+`CREDIT_NOTE_REQUIRED` and the seller gets `INVOICE_CREDIT_NOTE_REQUIRED`.
+`POST /seller/invoices/:id/credit` issues the credit note (negative totals,
+own number) and voids the original, whose number, PDF and hash stay as they
+were. A packing list is replaced with `.../packing-list/supersede`.
+
+### Who sees what
+
+- **Seller** - everything for their own consignments; another seller's answers
+  404. Download links: `POST /seller/document-links/:kind/:id`, batch ZIP
+  `POST /seller/document-links/batch` (stateless: the link carries the list and
+  its digest).
+- **Buyer** - `GET /documents/orders/:orderId`: issued, voided and
+  credit-note-required invoices; packing lists only as counts. A packing list
+  download is refused (404).
+- **Carrier** - each issued document is also a `logistics_shipment_documents`
+  row: invoice with audience `OPERATOR` (the carrier never sees prices),
+  packing list with audience `BOTH`.
+- **Operator** - `GET /admin/orders/:id/seller-documents` and admin links,
+  under `invoice.read`. Read only.
+
+Every link is single use (`auth_tokens`), for the person it was minted for,
+valid `LOGISTICS_DOCUMENT_URL_TTL_SECONDS`; PDFs are served `no-store`.
+
+### Error codes (appended)
+
+`SELLER_DOCUMENT_NOT_ELIGIBLE`, `SELLER_DOCUMENT_VALIDATION_FAILED`,
+`SELLER_DOCUMENT_IMMUTABLE`, `SHIPMENT_PACKAGES_LOCKED`,
+`SHIPMENT_CONTENTS_MISMATCH`, `SHIPMENT_SPLIT_INVALID`, `DOCUMENT_RENDER_FAILED`.
+
+### Screens
+
+- **Seller Hub** - *Orders → an order → Invoices and packing lists*;
+  *Invoicing* (settings); *Listing → Trade codes* (HSN, origin).
+- **Storefront** - *Account → Orders → an order → Invoices*; public
+  `/verify-document`.
+- **Admin** - *Orders → an order → Seller invoices and packing lists*.
+- **Logistics portal** - the packing list in the consignment's documents.
+
+### References
+
+CBIC GST invoice guidance (CGST Rules 46 and 53); Flipkart Marketplace Seller
+API order flow (pack → invoice → label); Amazon Business quantity discounts.
+
+## 9.5.5 Quantity prices and the bulk-savings popover
+
+### The gap this closed
+
+`seller_price_tiers` existed and was editable through the listing APIs, and the
+cart never read it: a loose line of 5,000 pieces was charged `seller_offers.priceMinor`.
+It is now applied by `domain/quantity-tier.ts` `priceForQuantity`, called from
+`resolveCart` (so the checkout, which prices from the cart, gets it too), from
+the preorder price, and from the popover's endpoint.
+
+### Schema
+
+Migration `20260924200000_quantity_price_tiers`, additive:
+`seller_price_tiers` gained `maxQuantity`, `isActive`, `startsAt`, `endsAt`,
+`businessBuyersOnly`, `countryCodes` (JSON array of alpha-2 codes, null = all)
+and `preorderOnly`, with CHECKs (min >= 1, price > 0, max >= min, end > start).
+`order_items.quantityTierJson` freezes the band that priced a line (id, range,
+list price, price charged).
+
+### The rules
+
+- Quantities are base units (pieces). Money is BigInt minor units.
+- A band applies when active, inside its window, the quantity is in range, and
+  the buyer matches: business account (active + organization, the preorder
+  definition, `isBusinessBuyer`), delivery country (unknown country = not
+  applied), preorder-only bands only on the `PREORDER` channel.
+- The cheapest applicable band wins, only if cheaper than list.
+- Only **loose** lines: a packaged line keeps its package price.
+- A preorder's FIXED price is the lower of the preorder policy band and the
+  quantity band for that quantity (`indicativePrice`): ordering more by
+  preorder never costs more per piece than the basket.
+
+### Endpoints
+
+| Method and path | Who | What |
+|---|---|---|
+| `GET /seller/offers/:id/quantity-tiers` | Seller, `listing.read` | The bands, with savings in basis points |
+| `PUT /seller/offers/:id/quantity-tiers` | Seller, `listing.write` | Replace the set. Validated as a set (`validateTiers`), written under a row lock on the offer, audited `listing.quantity_tiers_saved` |
+| `GET /catalog/bulk-pricing?productId&variantId&offerId&quantity&displayCurrency` | Public, optional session | Price per piece now and at the next band, the band ladder this buyer can reach, preorder-only bands, per-piece price for piece/carton/pallet/container, stock, whether the quantity exceeds it, whether preorders are open, and an approximate conversion with its rate set. `Cache-Control: private, no-store` |
+
+New error code (appended): `QUANTITY_TIERS_INVALID`, details
+`{ field: "tiers.N", code, meta: { index, otherIndex } }` with codes
+MIN_TOO_LOW, RANGE_INVERTED, PRICE_NOT_POSITIVE, NOT_A_DISCOUNT,
+WINDOW_INVERTED, COUNTRY_INVALID, DUPLICATE_MINIMUM, OVERLAP,
+PRICE_NOT_DECREASING, TOO_MANY.
+
+The cart line gained `quantityTier` and `nextQuantityTier`.
+
+### Screens
+
+- **Seller Hub** - *Listing → Quantity prices* (`SellerQuantityTiersPanel`).
+- **Storefront** - `BulkSavingsPopover` under the product page's quantity box;
+  the basket line's band note.
+
+On EVERY quantity increase (on any purchasable product), a galaxy card
+(`components/ui/galaxy-canvas.tsx`: ~700 stars on logarithmic spiral arms,
+tilted disc, perspective projection, rAF paused on a hidden tab, DPR capped at
+2) plays for 0.9-2.6 s while the new price is fetched, then hands over to the
+card (AnimatePresence `mode="wait"`). After an increase the card always
+shows - the saving, or the price per piece and total with "no bulk discount on
+this product yet". No galaxy on a decrease or under reduced motion (the card
+still appears). The popover: debounced 350 ms, non-modal, `aria-live="polite"` headline,
+spring/cross-fade via `motion` and none under reduced motion, dismissed per
+product+variant in `sessionStorage`, over-stock routes to the preorder dialog
+(`?preorder=1`). Original code in the manner of Aceternity UI's animated
+tooltip; no Aceternity or React Bits source is included (React Bits is MIT +
+Commons Clause; Aceternity forbids redistributing source; this product is
+redistributed to every operator).
+
+### Known limits
+
+The older listing writers (`offer.service.ts`, `offer-edit.service.ts`) still
+accept `priceTiers` as `{ minQuantity, priceMinor }` and replace the set; bands
+written that way are active and unconditional.
+
 ## 9.8 The ERP connection, and Autopay
 
 ### The distinction everything here rests on
@@ -11771,6 +12310,8 @@ server.
 | `integration_event.retry` | Retries other integration operations whose failure looked transient |
 | `payment.reconcile` | Re-checks a payment whose outcome is unclear |
 | `payment_link.expire` | Closes payment links nobody used |
+| `preorder.expire` | Expires bulk preorders whose waiting party ran out of time, releasing any capacity. See 9.5.3 |
+| `preorder.risk_sweep` | Warns buyer and seller, once, about a paid preorder near its committed date that is not ready |
 | `refund.poll` | Chases a refund's final state |
 | `import.process` | Processes an uploaded product spreadsheet |
 | `export.generate` | Builds a report file |
@@ -13748,6 +14289,20 @@ before that answer lands.
 Neither has a feature flag, and neither needs one. A deployment that has drawn
 no delivery zones gets no warehouse options, the checkout section says nothing,
 and orders are fulfilled the way they were before any of this existed.
+
+Bulk preorders (9.5.3) add the platform level of their fallback chain. None of
+these is a minimum, a price or a capacity - those are each seller's own terms:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `PREORDER_MIN_NOTICE_DAYS` | `7` | Notice for a preorder delivery, calendar days on the buyer's clock. The larger of this and `SCHEDULE_MIN_NOTICE_DAYS` applies, and never less than one day |
+| `PREORDER_REQUEST_EXPIRY_HOURS` | `72` | How long a seller has to answer, where their policy says nothing. The request then expires and the buyer is told |
+| `PREORDER_OFFER_EXPIRY_HOURS` | `120` | How long a buyer has to confirm the seller's terms |
+| `PREORDER_PAYMENT_EXPIRY_HOURS` | `168` | How long a confirmed preorder may wait for payment before its order is cancelled and its capacity released |
+| `PREORDER_RISK_WINDOW_DAYS` | `3` | Days before the committed date at which a paid preorder that is not ready is flagged to both parties |
+| `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product: unconfigured listings use the platform default terms, and the operator's own products are answered by staff. `false`: only listings with seller terms |
+| `PREORDER_DEFAULT_LEAD_DAYS` | `14` | Production lead time under the platform default terms |
+| `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` | `365` | How far ahead a delivery may be booked under the platform default terms |
 
 ## A seller's evidence
 

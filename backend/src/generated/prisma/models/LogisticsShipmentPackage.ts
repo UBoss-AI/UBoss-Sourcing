@@ -37,6 +37,7 @@ export type LogisticsShipmentPackageAvgAggregateOutputType = {
   lengthMm: number | null
   widthMm: number | null
   heightMm: number | null
+  netWeightGrams: number | null
 }
 
 export type LogisticsShipmentPackageSumAggregateOutputType = {
@@ -45,6 +46,7 @@ export type LogisticsShipmentPackageSumAggregateOutputType = {
   lengthMm: number | null
   widthMm: number | null
   heightMm: number | null
+  netWeightGrams: number | null
 }
 
 export type LogisticsShipmentPackageMinAggregateOutputType = {
@@ -64,6 +66,9 @@ export type LogisticsShipmentPackageMinAggregateOutputType = {
   scannedInAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  netWeightGrams: number | null
+  containerNumber: string | null
+  sealNumber: string | null
 }
 
 export type LogisticsShipmentPackageMaxAggregateOutputType = {
@@ -83,6 +88,9 @@ export type LogisticsShipmentPackageMaxAggregateOutputType = {
   scannedInAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  netWeightGrams: number | null
+  containerNumber: string | null
+  sealNumber: string | null
 }
 
 export type LogisticsShipmentPackageCountAggregateOutputType = {
@@ -102,6 +110,9 @@ export type LogisticsShipmentPackageCountAggregateOutputType = {
   scannedInAt: number
   createdAt: number
   updatedAt: number
+  netWeightGrams: number
+  containerNumber: number
+  sealNumber: number
   _all: number
 }
 
@@ -112,6 +123,7 @@ export type LogisticsShipmentPackageAvgAggregateInputType = {
   lengthMm?: true
   widthMm?: true
   heightMm?: true
+  netWeightGrams?: true
 }
 
 export type LogisticsShipmentPackageSumAggregateInputType = {
@@ -120,6 +132,7 @@ export type LogisticsShipmentPackageSumAggregateInputType = {
   lengthMm?: true
   widthMm?: true
   heightMm?: true
+  netWeightGrams?: true
 }
 
 export type LogisticsShipmentPackageMinAggregateInputType = {
@@ -139,6 +152,9 @@ export type LogisticsShipmentPackageMinAggregateInputType = {
   scannedInAt?: true
   createdAt?: true
   updatedAt?: true
+  netWeightGrams?: true
+  containerNumber?: true
+  sealNumber?: true
 }
 
 export type LogisticsShipmentPackageMaxAggregateInputType = {
@@ -158,6 +174,9 @@ export type LogisticsShipmentPackageMaxAggregateInputType = {
   scannedInAt?: true
   createdAt?: true
   updatedAt?: true
+  netWeightGrams?: true
+  containerNumber?: true
+  sealNumber?: true
 }
 
 export type LogisticsShipmentPackageCountAggregateInputType = {
@@ -177,6 +196,9 @@ export type LogisticsShipmentPackageCountAggregateInputType = {
   scannedInAt?: true
   createdAt?: true
   updatedAt?: true
+  netWeightGrams?: true
+  containerNumber?: true
+  sealNumber?: true
   _all?: true
 }
 
@@ -283,6 +305,9 @@ export type LogisticsShipmentPackageGroupByOutputType = {
   scannedInAt: Date | null
   createdAt: Date
   updatedAt: Date
+  netWeightGrams: number | null
+  containerNumber: string | null
+  sealNumber: string | null
   _count: LogisticsShipmentPackageCountAggregateOutputType | null
   _avg: LogisticsShipmentPackageAvgAggregateOutputType | null
   _sum: LogisticsShipmentPackageSumAggregateOutputType | null
@@ -325,7 +350,11 @@ export type LogisticsShipmentPackageWhereInput = {
   scannedInAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
+  netWeightGrams?: Prisma.IntNullableFilter<"LogisticsShipmentPackage"> | number | null
+  containerNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
+  sealNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
+  contents?: Prisma.LogisticsShipmentPackageLineListRelationFilter
 }
 
 export type LogisticsShipmentPackageOrderByWithRelationInput = {
@@ -345,7 +374,11 @@ export type LogisticsShipmentPackageOrderByWithRelationInput = {
   scannedInAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
+  containerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  sealNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   shipment?: Prisma.LogisticsShipmentOrderByWithRelationInput
+  contents?: Prisma.LogisticsShipmentPackageLineOrderByRelationAggregateInput
   _relevance?: Prisma.LogisticsShipmentPackageOrderByRelevanceInput
 }
 
@@ -370,7 +403,11 @@ export type LogisticsShipmentPackageWhereUniqueInput = Prisma.AtLeast<{
   scannedInAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
+  netWeightGrams?: Prisma.IntNullableFilter<"LogisticsShipmentPackage"> | number | null
+  containerNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
+  sealNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
   shipment?: Prisma.XOR<Prisma.LogisticsShipmentScalarRelationFilter, Prisma.LogisticsShipmentWhereInput>
+  contents?: Prisma.LogisticsShipmentPackageLineListRelationFilter
 }, "id" | "packageReference" | "shipmentId_sequence">
 
 export type LogisticsShipmentPackageOrderByWithAggregationInput = {
@@ -390,6 +427,9 @@ export type LogisticsShipmentPackageOrderByWithAggregationInput = {
   scannedInAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
+  containerNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  sealNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.LogisticsShipmentPackageCountOrderByAggregateInput
   _avg?: Prisma.LogisticsShipmentPackageAvgOrderByAggregateInput
   _max?: Prisma.LogisticsShipmentPackageMaxOrderByAggregateInput
@@ -417,6 +457,9 @@ export type LogisticsShipmentPackageScalarWhereWithAggregatesInput = {
   scannedInAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LogisticsShipmentPackage"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentPackage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LogisticsShipmentPackage"> | Date | string
+  netWeightGrams?: Prisma.IntNullableWithAggregatesFilter<"LogisticsShipmentPackage"> | number | null
+  containerNumber?: Prisma.StringNullableWithAggregatesFilter<"LogisticsShipmentPackage"> | string | null
+  sealNumber?: Prisma.StringNullableWithAggregatesFilter<"LogisticsShipmentPackage"> | string | null
 }
 
 export type LogisticsShipmentPackageCreateInput = {
@@ -435,7 +478,11 @@ export type LogisticsShipmentPackageCreateInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
   shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutPackagesInput
+  contents?: Prisma.LogisticsShipmentPackageLineCreateNestedManyWithoutPackageInput
 }
 
 export type LogisticsShipmentPackageUncheckedCreateInput = {
@@ -455,6 +502,10 @@ export type LogisticsShipmentPackageUncheckedCreateInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
+  contents?: Prisma.LogisticsShipmentPackageLineUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type LogisticsShipmentPackageUpdateInput = {
@@ -473,7 +524,11 @@ export type LogisticsShipmentPackageUpdateInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutPackagesNestedInput
+  contents?: Prisma.LogisticsShipmentPackageLineUpdateManyWithoutPackageNestedInput
 }
 
 export type LogisticsShipmentPackageUncheckedUpdateInput = {
@@ -493,6 +548,10 @@ export type LogisticsShipmentPackageUncheckedUpdateInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contents?: Prisma.LogisticsShipmentPackageLineUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type LogisticsShipmentPackageCreateManyInput = {
@@ -512,6 +571,9 @@ export type LogisticsShipmentPackageCreateManyInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
 }
 
 export type LogisticsShipmentPackageUpdateManyMutationInput = {
@@ -530,6 +592,9 @@ export type LogisticsShipmentPackageUpdateManyMutationInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LogisticsShipmentPackageUncheckedUpdateManyInput = {
@@ -549,6 +614,9 @@ export type LogisticsShipmentPackageUncheckedUpdateManyInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LogisticsShipmentPackageListRelationFilter = {
@@ -589,6 +657,9 @@ export type LogisticsShipmentPackageCountOrderByAggregateInput = {
   scannedInAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrder
+  containerNumber?: Prisma.SortOrder
+  sealNumber?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageAvgOrderByAggregateInput = {
@@ -597,6 +668,7 @@ export type LogisticsShipmentPackageAvgOrderByAggregateInput = {
   lengthMm?: Prisma.SortOrder
   widthMm?: Prisma.SortOrder
   heightMm?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageMaxOrderByAggregateInput = {
@@ -616,6 +688,9 @@ export type LogisticsShipmentPackageMaxOrderByAggregateInput = {
   scannedInAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrder
+  containerNumber?: Prisma.SortOrder
+  sealNumber?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageMinOrderByAggregateInput = {
@@ -635,6 +710,9 @@ export type LogisticsShipmentPackageMinOrderByAggregateInput = {
   scannedInAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrder
+  containerNumber?: Prisma.SortOrder
+  sealNumber?: Prisma.SortOrder
 }
 
 export type LogisticsShipmentPackageSumOrderByAggregateInput = {
@@ -643,6 +721,12 @@ export type LogisticsShipmentPackageSumOrderByAggregateInput = {
   lengthMm?: Prisma.SortOrder
   widthMm?: Prisma.SortOrder
   heightMm?: Prisma.SortOrder
+  netWeightGrams?: Prisma.SortOrder
+}
+
+export type LogisticsShipmentPackageScalarRelationFilter = {
+  is?: Prisma.LogisticsShipmentPackageWhereInput
+  isNot?: Prisma.LogisticsShipmentPackageWhereInput
 }
 
 export type LogisticsShipmentPackageCreateNestedManyWithoutShipmentInput = {
@@ -687,6 +771,20 @@ export type LogisticsShipmentPackageUncheckedUpdateManyWithoutShipmentNestedInpu
   deleteMany?: Prisma.LogisticsShipmentPackageScalarWhereInput | Prisma.LogisticsShipmentPackageScalarWhereInput[]
 }
 
+export type LogisticsShipmentPackageCreateNestedOneWithoutContentsInput = {
+  create?: Prisma.XOR<Prisma.LogisticsShipmentPackageCreateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedCreateWithoutContentsInput>
+  connectOrCreate?: Prisma.LogisticsShipmentPackageCreateOrConnectWithoutContentsInput
+  connect?: Prisma.LogisticsShipmentPackageWhereUniqueInput
+}
+
+export type LogisticsShipmentPackageUpdateOneRequiredWithoutContentsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogisticsShipmentPackageCreateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedCreateWithoutContentsInput>
+  connectOrCreate?: Prisma.LogisticsShipmentPackageCreateOrConnectWithoutContentsInput
+  upsert?: Prisma.LogisticsShipmentPackageUpsertWithoutContentsInput
+  connect?: Prisma.LogisticsShipmentPackageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogisticsShipmentPackageUpdateToOneWithWhereWithoutContentsInput, Prisma.LogisticsShipmentPackageUpdateWithoutContentsInput>, Prisma.LogisticsShipmentPackageUncheckedUpdateWithoutContentsInput>
+}
+
 export type LogisticsShipmentPackageCreateWithoutShipmentInput = {
   id: string
   packageReference: string
@@ -703,6 +801,10 @@ export type LogisticsShipmentPackageCreateWithoutShipmentInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
+  contents?: Prisma.LogisticsShipmentPackageLineCreateNestedManyWithoutPackageInput
 }
 
 export type LogisticsShipmentPackageUncheckedCreateWithoutShipmentInput = {
@@ -721,6 +823,10 @@ export type LogisticsShipmentPackageUncheckedCreateWithoutShipmentInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
+  contents?: Prisma.LogisticsShipmentPackageLineUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type LogisticsShipmentPackageCreateOrConnectWithoutShipmentInput = {
@@ -769,6 +875,113 @@ export type LogisticsShipmentPackageScalarWhereInput = {
   scannedInAt?: Prisma.DateTimeNullableFilter<"LogisticsShipmentPackage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LogisticsShipmentPackage"> | Date | string
+  netWeightGrams?: Prisma.IntNullableFilter<"LogisticsShipmentPackage"> | number | null
+  containerNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
+  sealNumber?: Prisma.StringNullableFilter<"LogisticsShipmentPackage"> | string | null
+}
+
+export type LogisticsShipmentPackageCreateWithoutContentsInput = {
+  id: string
+  packageReference: string
+  sequence?: number
+  weightGrams?: number
+  lengthMm?: number | null
+  widthMm?: number | null
+  heightMm?: number | null
+  packagingType?: string | null
+  isFragile?: boolean
+  requiresColdChain?: boolean
+  batchReference?: string | null
+  scannedOutAt?: Date | string | null
+  scannedInAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
+  shipment: Prisma.LogisticsShipmentCreateNestedOneWithoutPackagesInput
+}
+
+export type LogisticsShipmentPackageUncheckedCreateWithoutContentsInput = {
+  id: string
+  shipmentId: string
+  packageReference: string
+  sequence?: number
+  weightGrams?: number
+  lengthMm?: number | null
+  widthMm?: number | null
+  heightMm?: number | null
+  packagingType?: string | null
+  isFragile?: boolean
+  requiresColdChain?: boolean
+  batchReference?: string | null
+  scannedOutAt?: Date | string | null
+  scannedInAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
+}
+
+export type LogisticsShipmentPackageCreateOrConnectWithoutContentsInput = {
+  where: Prisma.LogisticsShipmentPackageWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogisticsShipmentPackageCreateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedCreateWithoutContentsInput>
+}
+
+export type LogisticsShipmentPackageUpsertWithoutContentsInput = {
+  update: Prisma.XOR<Prisma.LogisticsShipmentPackageUpdateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedUpdateWithoutContentsInput>
+  create: Prisma.XOR<Prisma.LogisticsShipmentPackageCreateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedCreateWithoutContentsInput>
+  where?: Prisma.LogisticsShipmentPackageWhereInput
+}
+
+export type LogisticsShipmentPackageUpdateToOneWithWhereWithoutContentsInput = {
+  where?: Prisma.LogisticsShipmentPackageWhereInput
+  data: Prisma.XOR<Prisma.LogisticsShipmentPackageUpdateWithoutContentsInput, Prisma.LogisticsShipmentPackageUncheckedUpdateWithoutContentsInput>
+}
+
+export type LogisticsShipmentPackageUpdateWithoutContentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  packageReference?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  weightGrams?: Prisma.IntFieldUpdateOperationsInput | number
+  lengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  widthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packagingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFragile?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scannedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shipment?: Prisma.LogisticsShipmentUpdateOneRequiredWithoutPackagesNestedInput
+}
+
+export type LogisticsShipmentPackageUncheckedUpdateWithoutContentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shipmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageReference?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  weightGrams?: Prisma.IntFieldUpdateOperationsInput | number
+  lengthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  widthMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heightMm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packagingType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFragile?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batchReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scannedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type LogisticsShipmentPackageCreateManyShipmentInput = {
@@ -787,6 +1000,9 @@ export type LogisticsShipmentPackageCreateManyShipmentInput = {
   scannedInAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  netWeightGrams?: number | null
+  containerNumber?: string | null
+  sealNumber?: string | null
 }
 
 export type LogisticsShipmentPackageUpdateWithoutShipmentInput = {
@@ -805,6 +1021,10 @@ export type LogisticsShipmentPackageUpdateWithoutShipmentInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contents?: Prisma.LogisticsShipmentPackageLineUpdateManyWithoutPackageNestedInput
 }
 
 export type LogisticsShipmentPackageUncheckedUpdateWithoutShipmentInput = {
@@ -823,6 +1043,10 @@ export type LogisticsShipmentPackageUncheckedUpdateWithoutShipmentInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contents?: Prisma.LogisticsShipmentPackageLineUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type LogisticsShipmentPackageUncheckedUpdateManyWithoutShipmentInput = {
@@ -841,8 +1065,40 @@ export type LogisticsShipmentPackageUncheckedUpdateManyWithoutShipmentInput = {
   scannedInAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  netWeightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  containerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sealNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+
+/**
+ * Count Type LogisticsShipmentPackageCountOutputType
+ */
+
+export type LogisticsShipmentPackageCountOutputType = {
+  contents: number
+}
+
+export type LogisticsShipmentPackageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  contents?: boolean | LogisticsShipmentPackageCountOutputTypeCountContentsArgs
+}
+
+/**
+ * LogisticsShipmentPackageCountOutputType without action
+ */
+export type LogisticsShipmentPackageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsShipmentPackageCountOutputType
+   */
+  select?: Prisma.LogisticsShipmentPackageCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LogisticsShipmentPackageCountOutputType without action
+ */
+export type LogisticsShipmentPackageCountOutputTypeCountContentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogisticsShipmentPackageLineWhereInput
+}
 
 
 export type LogisticsShipmentPackageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -862,7 +1118,12 @@ export type LogisticsShipmentPackageSelect<ExtArgs extends runtime.Types.Extensi
   scannedInAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  netWeightGrams?: boolean
+  containerNumber?: boolean
+  sealNumber?: boolean
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
+  contents?: boolean | Prisma.LogisticsShipmentPackage$contentsArgs<ExtArgs>
+  _count?: boolean | Prisma.LogisticsShipmentPackageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logisticsShipmentPackage"]>
 
 
@@ -884,17 +1145,23 @@ export type LogisticsShipmentPackageSelectScalar = {
   scannedInAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  netWeightGrams?: boolean
+  containerNumber?: boolean
+  sealNumber?: boolean
 }
 
-export type LogisticsShipmentPackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "packageReference" | "sequence" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "packagingType" | "isFragile" | "requiresColdChain" | "batchReference" | "scannedOutAt" | "scannedInAt" | "createdAt" | "updatedAt", ExtArgs["result"]["logisticsShipmentPackage"]>
+export type LogisticsShipmentPackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "shipmentId" | "packageReference" | "sequence" | "weightGrams" | "lengthMm" | "widthMm" | "heightMm" | "packagingType" | "isFragile" | "requiresColdChain" | "batchReference" | "scannedOutAt" | "scannedInAt" | "createdAt" | "updatedAt" | "netWeightGrams" | "containerNumber" | "sealNumber", ExtArgs["result"]["logisticsShipmentPackage"]>
 export type LogisticsShipmentPackageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shipment?: boolean | Prisma.LogisticsShipmentDefaultArgs<ExtArgs>
+  contents?: boolean | Prisma.LogisticsShipmentPackage$contentsArgs<ExtArgs>
+  _count?: boolean | Prisma.LogisticsShipmentPackageCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $LogisticsShipmentPackagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LogisticsShipmentPackage"
   objects: {
     shipment: Prisma.$LogisticsShipmentPayload<ExtArgs>
+    contents: Prisma.$LogisticsShipmentPackageLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -937,6 +1204,17 @@ export type $LogisticsShipmentPackagePayload<ExtArgs extends runtime.Types.Exten
     scannedInAt: Date | null
     createdAt: Date
     updatedAt: Date
+    /**
+     * Net of packaging, where the seller weighed it. `weightGrams` above is the
+     * gross figure a carrier needs.
+     */
+    netWeightGrams: number | null
+    /**
+     * A container's own number (ISO 6346) and the seal on it, as printed on a
+     * packing list and checked at the port.
+     */
+    containerNumber: string | null
+    sealNumber: string | null
   }, ExtArgs["result"]["logisticsShipmentPackage"]>
   composites: {}
 }
@@ -1278,6 +1556,7 @@ readonly fields: LogisticsShipmentPackageFieldRefs;
 export interface Prisma__LogisticsShipmentPackageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   shipment<T extends Prisma.LogisticsShipmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipmentDefaultArgs<ExtArgs>>): Prisma.Prisma__LogisticsShipmentClient<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  contents<T extends Prisma.LogisticsShipmentPackage$contentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogisticsShipmentPackage$contentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentPackageLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1323,6 +1602,9 @@ export interface LogisticsShipmentPackageFieldRefs {
   readonly scannedInAt: Prisma.FieldRef<"LogisticsShipmentPackage", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"LogisticsShipmentPackage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"LogisticsShipmentPackage", 'DateTime'>
+  readonly netWeightGrams: Prisma.FieldRef<"LogisticsShipmentPackage", 'Int'>
+  readonly containerNumber: Prisma.FieldRef<"LogisticsShipmentPackage", 'String'>
+  readonly sealNumber: Prisma.FieldRef<"LogisticsShipmentPackage", 'String'>
 }
     
 
@@ -1668,6 +1950,30 @@ export type LogisticsShipmentPackageDeleteManyArgs<ExtArgs extends runtime.Types
    * Limit how many LogisticsShipmentPackages to delete.
    */
   limit?: number
+}
+
+/**
+ * LogisticsShipmentPackage.contents
+ */
+export type LogisticsShipmentPackage$contentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsShipmentPackageLine
+   */
+  select?: Prisma.LogisticsShipmentPackageLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsShipmentPackageLine
+   */
+  omit?: Prisma.LogisticsShipmentPackageLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsShipmentPackageLineInclude<ExtArgs> | null
+  where?: Prisma.LogisticsShipmentPackageLineWhereInput
+  orderBy?: Prisma.LogisticsShipmentPackageLineOrderByWithRelationInput | Prisma.LogisticsShipmentPackageLineOrderByWithRelationInput[]
+  cursor?: Prisma.LogisticsShipmentPackageLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogisticsShipmentPackageLineScalarFieldEnum | Prisma.LogisticsShipmentPackageLineScalarFieldEnum[]
 }
 
 /**

@@ -41,6 +41,8 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { notifySeller } from './notification.service.js';
 import { enqueueIfConnected } from '../seller-erp/job.service.js';
+import { calculateSettlement } from '../settings/platform-fee.service.js';
+import { serialiseMoney, sumMinor } from '../../domain/money.js';
 
 type Tx = Prisma.TransactionClient;
 
@@ -131,6 +133,7 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
       lineTotalMinor: true,
       taxAmountMinor: true,
       sellerOffer: { select: { sellerAccountId: true } },
+      product: { select: { categoryId: true } },
       /*
        * The frozen bulk breakdown, where the line has one.
        *
@@ -155,8 +158,19 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
 
   const order = await tx.order.findUniqueOrThrow({
     where: { id: orderId },
-    select: { currency: true, orderNumber: true },
+    select: { currency: true, orderNumber: true, shippingAddressJson: true },
   });
+
+  // The four-level delivery each seller's buyer paid for, frozen at checkout.
+  // Empty for every order that had no seller with a published policy.
+  const legCharges = await tx.orderLogisticsLeg.findMany({
+    where: { orderId },
+    select: { sellerAccountId: true, owner: true, amountMinor: true },
+  });
+  const marketCountry = (() => {
+    const address = order.shippingAddressJson as { country?: unknown } | null;
+    return typeof address?.country === 'string' ? address.country.toUpperCase() : null;
+  })();
 
   // Already split? A resent webhook is the normal reason, not a bug.
   const existing = await tx.sellerOrderGroup.findFirst({
@@ -200,25 +214,51 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
   let lines = 0;
 
   for (const [sellerAccountId, sellerItems] of bySeller) {
-    const basisPoints = rateBySeller.get(sellerAccountId) ?? 0;
+    const legacyBasisPoints = rateBySeller.get(sellerAccountId) ?? 0;
     const groupId = newId();
     const sellerOrderNumber = await nextSellerOrderNumber(tx, sellerAccountId);
 
     /*
-     * Commission is taken on the GOODS, not on tax and not on shipping.
+     * The platform fee is taken on the GOODS, not on tax and - unless a fee
+     * policy's basis says otherwise - not on delivery.
      *
      * Tax is not the seller's revenue — it is money passing through them to a
      * tax authority — and charging a percentage of it would mean the
      * marketplace's take moved with the VAT rate of the country the buyer
-     * happened to be in. Shipping is excluded for the same reason: it is
-     * recovery of a cost, not margin.
+     * happened to be in. Delivery is excluded by default for the same reason:
+     * it is recovery of a cost, not margin.
+     *
+     * The fee comes from `calculateSettlement`: the platform-fee policy in
+     * force for this seller, category and market, or - where finance has
+     * published none - the commission rate below, rounded per line exactly as
+     * this split always did. The tax on the fee is a SELLER deduction and
+     * never touches what the buyer paid.
      */
+    const sellerLegs = legCharges.filter((leg) => leg.sellerAccountId === sellerAccountId);
+    const sellerDeliveryMinor = sumMinor(sellerLegs.filter((leg) => leg.owner === 'SELLER').map((leg) => leg.amountMinor));
+    const ubossDeliveryMinor = sumMinor(sellerLegs.filter((leg) => leg.owner === 'UBOSS').map((leg) => leg.amountMinor));
+
+    const settlement = await calculateSettlement(tx, {
+      sellerAccountId,
+      currency: order.currency,
+      marketCountry,
+      lines: sellerItems.map((item) => ({
+        orderItemId: item.id,
+        categoryId: item.product.categoryId,
+        goodsMinor: item.lineSubtotalMinor,
+      })),
+      sellerDeliveryMinor,
+      ubossDeliveryMinor,
+    });
+    const basisPoints =
+      settlement.primaryPolicy === null ? legacyBasisPoints : settlement.basisPointsApplied;
+
     let goodsTotalMinor = 0n;
     let taxTotalMinor = 0n;
     let commissionMinor = 0n;
 
-    const lineRows = sellerItems.map((item) => {
-      const lineCommission = commissionOn(item.lineSubtotalMinor, basisPoints);
+    const lineRows = sellerItems.map((item, index) => {
+      const lineCommission = settlement.lineFeesMinor[index] ?? commissionOn(item.lineSubtotalMinor, legacyBasisPoints);
 
       goodsTotalMinor += item.lineSubtotalMinor;
       taxTotalMinor += item.taxAmountMinor;
@@ -248,10 +288,12 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
         status: 'NEW',
         goodsTotalMinor,
         taxTotalMinor,
-        // Marketplace shipping is not apportioned per seller yet — there is no
-        // per-seller shipping quote to apportion. Zero is the honest figure,
-        // not a guess at a share of the buyer's delivery charge.
-        shippingTotalMinor: 0n,
+        // The L1-L4 delivery this seller's buyer paid for, where the seller
+        // has a published logistics policy - frozen per level at checkout, so
+        // this is a sum of real charges and not a share of anything. Zero for
+        // every other seller, which is still the honest figure: the operator's
+        // own shipping method is not apportioned to sellers.
+        shippingTotalMinor: sumMinor(sellerLegs.map((leg) => leg.amountMinor)),
         commissionMinor,
         sellerNetMinor: goodsTotalMinor - commissionMinor,
         currency: order.currency,
@@ -265,6 +307,44 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
     });
 
     await tx.sellerOrderLine.createMany({ data: lineRows });
+
+    // What the seller is owed, and on which policy version - kept, so a fee
+    // change next month leaves this order's settlement exactly as it is.
+    await tx.sellerOrderSettlement.create({
+      data: {
+        id: newId(),
+        sellerOrderGroupId: groupId,
+        sellerAccountId,
+        currency: order.currency,
+        grossProceedsMinor: settlement.grossProceedsMinor,
+        sellerDeliveryProceedsMinor: settlement.sellerDeliveryProceedsMinor,
+        ubossDeliveryMinor: settlement.ubossDeliveryMinor,
+        feeBasisMinor: settlement.feeBasisMinor,
+        platformFeeMinor: commissionMinor,
+        platformFeeTaxMinor: settlement.platformFeeTaxMinor,
+        refundsAdjustmentsMinor: 0n,
+        estimatedSettlementMinor: settlement.estimatedSettlementMinor,
+        platformFeePolicyId: settlement.primaryPolicy?.id ?? null,
+        platformFeePolicyVersion: settlement.primaryPolicy?.versionNumber ?? null,
+        feeTaxRatePercent: settlement.feeTaxRatePercent,
+        feeTaxLabel: settlement.feeTaxLabel.slice(0, 64),
+        feeTaxVerified: settlement.feeTaxVerified,
+        breakdownJson: settlement.breakdown as never,
+      },
+    });
+
+    await notifySeller({
+      sellerAccountId,
+      kind: 'SETTLEMENT_CALCULATED',
+      title: `Settlement estimated for ${sellerOrderNumber}`,
+      body: `Estimated settlement ${serialiseMoney(settlement.estimatedSettlementMinor, order.currency).formatted} after the platform fee and ${settlement.feeTaxLabel.toLowerCase()}.`,
+      linkPath: `/seller/orders/${groupId}`,
+      severity: 'INFO',
+      subjectType: 'seller_order_group',
+      subjectId: groupId,
+      dedupeKey: `settlement-calculated:${groupId}`,
+      tx,
+    });
 
     /*
      * A BULK order is announced as one.

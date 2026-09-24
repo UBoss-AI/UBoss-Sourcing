@@ -1,15 +1,18 @@
 /**
  * A seller choosing how their goods get delivered.
  *
- * The Logistics Partner onboarding step and the rules behind it, against a
- * real database - because most of what can go wrong here is a constraint, a
- * transaction or a tenant boundary, and none of those exist in a unit test.
+ * The delivery methods behind Seller Hub -> Logistics and the rules behind
+ * them, against a real database - because most of what can go wrong here is a
+ * constraint, a transaction or a tenant boundary, and none of those exist in a
+ * unit test.
  *
  * The four that matter most, and why each is here:
  *
- *   - **A required step has to be answerable.** The step blocks submission, so
- *     a seller who cannot finish it cannot sell. "The marketplace arranges
- *     delivery" must take one call and go green.
+ *   - **Delivery is not an onboarding step any more.** It used to be a
+ *     required one. A seller now finishes their application without choosing
+ *     a carrier, and everything they chose before is kept and shown under
+ *     Logistics - so nothing here may block submission, and nothing may be
+ *     lost.
  *   - **One primary, enforced by the database.** Two dispatchers pressing save
  *     in the same second must not produce two defaults, and the check that
  *     prevents it is a UNIQUE index rather than a read-then-write.
@@ -201,18 +204,18 @@ function stepState(steps: { key: string; state: string }[], key: string): string
 
 // ---------------------------------------------------------------------------
 
-describe('the onboarding step', () => {
-  it('starts not started, and says what to do', async () => {
+describe('delivery, outside onboarding', () => {
+  it('is no longer a step of the seller application', async () => {
     const view = await readOnboarding(membership(sellerA, SLUG_A, 'Fulfilment Method Co'));
 
-    expect(stepState(view.steps, 'logistics_partner')).toBe('NOT_STARTED');
+    expect(view.steps.map((step) => step.key as string)).not.toContain('logistics_partner');
+    expect(stepState(view.steps, 'logistics_partner')).toBe('MISSING');
   });
 
-  it('is in the list of steps that block submission', async () => {
+  it('never blocks submission, whatever the seller has or has not chosen', async () => {
     const view = await readOnboarding(membership(sellerA, SLUG_A, 'Fulfilment Method Co'));
-    const step = view.steps.find((candidate) => candidate.key === 'logistics_partner');
 
-    expect(step?.isRequiredForSubmission).toBe(true);
+    expect(view.blockingSteps.map((step) => step.key as string)).not.toContain('logistics_partner');
   });
 
   it('offers five ways of delivering plus the marketplace default', async () => {
@@ -246,10 +249,7 @@ describe('the onboarding step', () => {
     expect(indiaPost?.trackingMode).toBe('EXTERNAL_LINK');
   });
 
-  it('is finished in one call by choosing marketplace delivery', async () => {
-    // THE REASON THE STEP CAN BE REQUIRED AT ALL. Whatever the operator has or
-    // has not configured, a seller can always answer this - so blocking
-    // submission on it never blocks them on somebody else's task.
+  it('still approves marketplace delivery in one call', async () => {
     const method = await chooseFulfilmentMethod({
       sellerAccountId: sellerA,
       actor: ACTOR,
@@ -258,8 +258,9 @@ describe('the onboarding step', () => {
 
     expect(method.status).toBe('APPROVED');
 
+    // Choosing a method writes no onboarding step, for either answer.
     const view = await readOnboarding(membership(sellerA, SLUG_A, 'Fulfilment Method Co'));
-    expect(stepState(view.steps, 'logistics_partner')).toBe('COMPLETE');
+    expect(stepState(view.steps, 'logistics_partner')).toBe('MISSING');
   });
 
   it('makes the first approved method the default without being asked', async () => {
@@ -283,15 +284,16 @@ describe('the onboarding step', () => {
     // configured none of it. No credential exists, so nothing can ship.
     expect(method.status).toBe('PENDING_SETUP');
 
+    // An unfinished carrier does not hold the application back.
     const view = await readOnboarding(membership(sellerB, SLUG_B, 'Fulfilment Rival Co'));
-    expect(stepState(view.steps, 'logistics_partner')).toBe('IN_PROGRESS');
+    expect(view.blockingSteps.map((step) => step.key as string)).not.toContain('logistics_partner');
   });
 
-  it('names what is outstanding rather than saying only "in progress"', async () => {
-    const view = await readOnboarding(membership(sellerB, SLUG_B, 'Fulfilment Rival Co'));
-    const step = view.steps.find((candidate) => candidate.key === 'logistics_partner');
+  it('keeps what the seller chose before, after reading the application', async () => {
+    await readOnboarding(membership(sellerB, SLUG_B, 'Fulfilment Rival Co'));
+    const methods = await listFulfilmentMethods(sellerB);
 
-    expect(step?.message).toContain('DHL');
+    expect(methods.some((method) => method.mode === 'INTEGRATED_CARRIER')).toBe(true);
   });
 
   it('treats pressing the same card twice as one method', async () => {

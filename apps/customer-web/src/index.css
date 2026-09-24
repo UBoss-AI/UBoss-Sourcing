@@ -3,6 +3,29 @@
 @tailwind utilities;
 
 /*
+ * The wordmark's stand-in while Dancing Script loads.
+ *
+ * `font-display: swap` on the real face means the first paint uses whatever
+ * comes next in `font-brand`. Left alone that is Inter or the system face,
+ * which set "Glovia" at a different width and height, so the tagline and
+ * everything beside the lockup would jump when the script arrived. This is
+ * Arial Bold scaled so that "Glovia" occupies the same advance and the same
+ * line box as Dancing Script Bold: size-adjust from the two fonts' advance
+ * widths for that word (2.300 / 3.057 em), and the ascent and descent from
+ * Dancing Script's own table divided by the same factor. It is only ever
+ * asked to draw that one word.
+ */
+@font-face {
+  font-family: 'Dancing Script Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT');
+  font-weight: 700;
+  size-adjust: 75.25%;
+  ascent-override: 122.26%;
+  descent-override: 37.21%;
+  line-gap-override: 0%;
+}
+
+/*
  * UBOSS design tokens — storefront.
  *
  * This block is deliberately identical to the one in apps/admin-web. One
@@ -559,6 +582,40 @@
     scroll-padding-top: 5rem;
   }
 
+  /*
+   * Nothing behind an open modal scrolls.
+   *
+   * A modal <dialog> makes the page inert but leaves it scrollable: a wheel
+   * over the backdrop, or a flick that reaches the end of the dialog's body,
+   * moved the page underneath. The gutter stays reserved while the page's own
+   * scrollbar is gone, so the content does not jump sideways by its width.
+   */
+  html:has(dialog:modal) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
+  /*
+   * Every scroll area contains what is inside it.
+   *
+   * `overflow` only clips a descendant whose containing block is inside the
+   * clipper, and `.sr-only` text is `position: absolute`. With no positioned
+   * ancestor, the screen-reader labels inside a table ("Actions", "stock for
+   * DEMO-...") were laid out against the page, passed straight through the
+   * table's sideways-scrolling box, and stretched the phone layout to 1,121px
+   * wide on a 375px screen. Making every scroll area a containing block keeps
+   * them inside it. In the base layer, so an explicit `absolute`, `fixed` or
+   * `sticky` utility on the same element still wins.
+   */
+  .overflow-auto,
+  .overflow-scroll,
+  .overflow-x-auto,
+  .overflow-x-scroll,
+  .overflow-y-auto,
+  .overflow-y-scroll {
+    position: relative;
+  }
+
   /* An explicit choice pins what the browser draws for itself. */
   html[data-theme='light'] {
     color-scheme: light;
@@ -667,6 +724,40 @@
 }
 
 @layer components {
+  /*
+   * A pane that scrolls inside the page - a dialog's body, a long list in a
+   * card.
+   *
+   * Two things a bare `overflow-y-auto` does not do. It draws a slim scrollbar
+   * in the page's own colours instead of the operating system's grey gutter
+   * with arrow buttons, which on the dark theme was a light stripe down the
+   * middle of the dialog. And it shades the edge where there is more to see:
+   * a soft shadow at the top once the reader has scrolled down, and at the
+   * bottom until they reach the end, so a form that continues below the fold
+   * looks like it continues.
+   *
+   * The shadows are pure CSS (the "scroll shadows" technique): two covers in
+   * the pane's own colour scroll WITH the content and hide each shadow when
+   * the reader is at that end; two shadows stay fixed to the pane. No script,
+   * no layout, and nothing for a screen reader to read.
+   */
+  .scroll-pane {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border)) transparent;
+    background:
+      linear-gradient(rgb(var(--surface)) 30%, rgb(var(--surface) / 0)) center top,
+      linear-gradient(rgb(var(--surface) / 0), rgb(var(--surface)) 70%) center bottom,
+      radial-gradient(farthest-side at 50% 0, rgb(var(--ink) / 0.16), rgb(var(--ink) / 0)) center top,
+      radial-gradient(farthest-side at 50% 100%, rgb(var(--ink) / 0.16), rgb(var(--ink) / 0)) center bottom;
+    background-repeat: no-repeat;
+    background-size:
+      100% 2.5rem,
+      100% 2.5rem,
+      100% 0.75rem,
+      100% 0.75rem;
+    background-attachment: local, local, scroll, scroll;
+    background-color: rgb(var(--surface));
+  }
 
   /* ===========================================================================
    * The console layer

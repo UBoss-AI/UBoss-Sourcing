@@ -29,6 +29,10 @@ export const IdempotencyScope = {
   REFUND_CREATE: 'refund.create',
   SCHEDULE_OCCURRENCE: 'schedule.occurrence',
   IMPORT_CONFIRM: 'import.confirm',
+  /** A buyer sending a preorder request. A double-click sends one request. */
+  PREORDER_SUBMIT: 'preorder.submit',
+  /** A buyer confirming the seller's terms, which creates the order. */
+  PREORDER_CONFIRM: 'preorder.confirm',
 } as const;
 
 export type IdempotencyScopeValue = (typeof IdempotencyScope)[keyof typeof IdempotencyScope];

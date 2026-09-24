@@ -49,6 +49,7 @@
  * hairline so it can be found without being read. The prose description is
  * deliberately NOT on it; see the note where it used to be.
  */
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { BackgroundGradient } from './ui/background-gradient';
@@ -113,6 +114,9 @@ function specification(product: Product, name: string): string | null {
 
 export function ProductCard({ product }: { product: Product }): React.JSX.Element {
   const { t } = useI18n();
+  // A photograph that fails to load shows the placeholder, not alt text
+  // wrapped inside the frame.
+  const [imageFailed, setImageFailed] = useState(false);
 
   const { purchaseRules: rules } = product;
   const hasDiscount =
@@ -217,7 +221,7 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             which on a white card has no edge at all — the frame is what makes it
             read as a photograph of a thing rather than as floating shapes. */}
         <div className="relative aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
-          {product.primaryImage === null ? (
+          {product.primaryImage === null || imageFailed ? (
             <ImageFallback />
           ) : (
             /*
@@ -244,6 +248,9 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
               height={400}
               loading="lazy"
               decoding="async"
+              onError={() => {
+                setImageFailed(true);
+              }}
               className="h-full w-full object-contain p-5 transition-transform duration-200 group-hover:scale-[1.03]"
             />
           )}

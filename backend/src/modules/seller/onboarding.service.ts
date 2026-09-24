@@ -14,7 +14,7 @@
  * the same percentage on a page that loads none of the underlying rows; two
  * implementations of "how far along" is how those two numbers disagree.
  */
-import type { SellerFulfilmentMethodStatus, SellerKind } from '../../generated/prisma/enums.js';
+import type { SellerKind } from '../../generated/prisma/enums.js';
 import { ErrorCode, badRequest, conflict } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { newId } from '../../infra/ids.js';
@@ -37,7 +37,6 @@ export const ONBOARDING_STEPS = [
   'kyb_kyc',
   'store_profile',
   'locations',
-  'logistics_partner',
   'payout',
   'compliance',
   'agreements',
@@ -98,29 +97,6 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = Object.freeze([
     key: 'locations',
     title: 'Pickup and returns',
     summary: 'Where orders are dispatched from and where returns go back to.',
-    isRequiredForSubmission: true,
-  },
-  {
-    key: 'logistics_partner',
-    title: 'Logistics Partner',
-    summary: 'How your orders reach the people who buy them.',
-    /*
-     * REQUIRED, unlike `payout` immediately below - and the difference is
-     * worth stating because the two look alike.
-     *
-     * `payout` is not required because a seller cannot finish it on a
-     * deployment where the operator has not configured a payout provider:
-     * blocking them there blocks them on somebody else's task. This step has
-     * no such dependency. Whatever the operator has or has not set up, the
-     * seller can always answer it in one click by choosing "the marketplace
-     * arranges delivery", which is exactly what happens today and needs
-     * nothing from anybody.
-     *
-     * So it is a question every seller can answer, and it is one every seller
-     * should have to answer: an application that reaches the marketplace
-     * without saying how the goods will move is an application somebody has to
-     * ring up about.
-     */
     isRequiredForSubmission: true,
   },
   {
@@ -335,120 +311,6 @@ async function deriveStandingSteps(membership: SellerMembership): Promise<void> 
     registrationCountry: membership.registrationCountry,
   });
 
-  // --- Logistics Partner ---------------------------------------------------
-
-  await markLogisticsPartnerStep({ membership, isResumePoint: false });
-}
-
-/**
- * Decide whether the delivery step is finished, and record the answer.
- *
- * A THIRD standing step, derived rather than written by a form, and for a
- * reason the other two share: what this step is waiting for changes without
- * the seller touching it. The marketplace approves a self-managed operation, a
- * dedicated partner accepts an invitation, a carrier connection fails its
- * test - all three happen outside any request the seller makes, and a step
- * written by a form would still be showing whatever it said last Tuesday.
- *
- * WHAT COUNTS AS FINISHED
- *
- * One approved method. Not all of them, and not the one the seller happens to
- * be looking at: a seller who has their own vans approved and is still waiting
- * on a DHL connection can ship, and telling them their application is
- * incomplete would be wrong.
- *
- * The four states it can land in, and what each means to the seller:
- *
- *   COMPLETE      something approved. They can ship.
- *   UNDER_REVIEW  submitted, and it is with us. Nothing for them to do.
- *   IN_PROGRESS   started and not finished. Waiting on THEM, and the message
- *                 says what is outstanding.
- *   ERROR         everything they tried was refused or disconnected. Needs a
- *                 different answer rather than more patience.
- */
-export async function markLogisticsPartnerStep(input: {
-  membership: StepSubject;
-  isResumePoint: boolean;
-  correlationId?: string | null;
-  tx?: PrismaTransaction;
-}): Promise<{ state: OnboardingStepState; message: string | null }> {
-  const client = input.tx ?? prisma;
-
-  const methods = await client.sellerFulfilmentMethod.findMany({
-    where: { sellerAccountId: input.membership.sellerAccountId, archivedAt: null },
-    select: { mode: true, status: true, publicDisplayName: true },
-  });
-
-  const outcome = summariseFulfilmentMethods(methods);
-
-  await markStep({
-    membership: input.membership,
-    stepKey: 'logistics_partner',
-    state: outcome.state,
-    message: outcome.message,
-    isResumePoint: input.isResumePoint,
-    correlationId: input.correlationId,
-    tx: input.tx,
-  });
-
-  return outcome;
-}
-
-/**
- * The step's state, from the methods alone.
- *
- * Split out as a pure function so the same reasoning can be asserted without a
- * database, and so the service that saves a method can reuse it to tell the
- * seller where they now stand in the same breath as the save.
- */
-export function summariseFulfilmentMethods(
-  methods: readonly { status: SellerFulfilmentMethodStatus; publicDisplayName: string }[],
-): { state: OnboardingStepState; message: string | null } {
-  if (methods.length === 0) {
-    return {
-      state: 'NOT_STARTED',
-      message: 'Choose how your orders will be delivered.',
-    };
-  }
-
-  if (methods.some((method) => method.status === 'APPROVED')) {
-    return { state: 'COMPLETE', message: null };
-  }
-
-  if (methods.some((method) => method.status === 'PENDING_APPROVAL')) {
-    return {
-      state: 'UNDER_REVIEW',
-      message: 'We are reviewing the delivery method you set up. Nothing for you to do.',
-    };
-  }
-
-  const unfinished = methods.filter(
-    (method) =>
-      method.status === 'DRAFT' ||
-      method.status === 'PENDING_SETUP' ||
-      method.status === 'CHANGES_REQUESTED',
-  );
-
-  if (unfinished.length > 0) {
-    // Names them, because "finish setting up your delivery method" against a
-    // seller who started three is a message they cannot act on.
-    const names = unfinished.map((method) => method.publicDisplayName).join(', ');
-
-    return {
-      state: 'IN_PROGRESS',
-      message: `Finish setting up ${names}, or choose a different way to deliver.`,
-    };
-  }
-
-  /*
-   * Everything they have is REJECTED, PAUSED or DISCONNECTED. ERROR rather
-   * than IN_PROGRESS: there is nothing left to finish, and a seller shown "in
-   * progress" waits instead of choosing something else.
-   */
-  return {
-    state: 'ERROR',
-    message: 'None of the delivery methods you set up can be used. Choose another way to deliver.',
-  };
 }
 
 /**

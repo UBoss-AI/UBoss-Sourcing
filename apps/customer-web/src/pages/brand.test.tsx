@@ -6,8 +6,9 @@
  * Intelligence, Optimism, Innovation — so the headline read "UBOSS Sourcing",
  * then "UBOSS Intelligence", then "UBOSS Optimism". The product is Glovia now
  * and the headline does not rotate at all. What rotates is the line beneath
- * it, between the strapline and `Powered by UBOSS`, which are two complete
- * thoughts rather than two spellings of a name.
+ * the static tagline under it, between "Source with Intelligence" and
+ * "Deliver with Confidence", which are two complete thoughts rather than two
+ * spellings of a name.
  *
  * Three things here are worth more than the rest, because all three are the
  * kind of thing that comes back:
@@ -36,7 +37,7 @@ import { HomePage } from './HomePage';
 import { Header } from '@/layout/Header';
 import { Footer } from '@/layout/Footer';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
-import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
+import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
 import type { StorefrontConfig } from '@/lib/types';
 
@@ -56,8 +57,9 @@ const NBSP = String.fromCharCode(0xa0);
 
 const GUEST = makeSession({ user: null, isCustomer: false });
 
-/** The English strapline, which is the first of the two phrases. */
-const STRAPLINE = 'Source with Intelligence | Deliver with Confidence';
+/** The two halves of the English strapline, in the order the line shows them. */
+const SOURCE = 'Source with Intelligence';
+const DELIVER = 'Deliver with Confidence';
 
 /** Every name the headline used to be able to show, and must not again. */
 const RETIRED_HEADLINES = [
@@ -111,16 +113,26 @@ describe('the header lockup', () => {
     expect(screen.getByText(PRODUCT_BRAND)).toBeInTheDocument();
   });
 
-  it('attributes the product on the second', () => {
+  it('carries the tagline on the second', () => {
     renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
 
-    const attribution = screen.getByText(PARENT_ATTRIBUTION);
+    const tagline = screen.getByText(PRODUCT_TAGLINE);
 
-    expect(attribution).toBeInTheDocument();
+    expect(tagline).toBeInTheDocument();
     // Written as a sentence and uppercased by CSS, not written in capitals.
     // A reader with a stylesheet that does not load, and anything reading the
-    // markup, gets `Powered by UBOSS` and not `POWERED BY UBOSS`.
-    expect(attribution.textContent).toBe('Powered by UBOSS');
+    // markup, gets `The Way to the World` and not `THE WAY TO THE WORLD`.
+    expect(tagline.textContent).toBe('The Way to the World');
+
+    // The attribution moved to the footer; the header does not repeat it.
+    expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
+  });
+
+  it('sets the product name in the wordmark face, and only the name', () => {
+    renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
+
+    expect(screen.getByText(PRODUCT_BRAND).className).toContain('font-brand');
+    expect(screen.getByText(PRODUCT_TAGLINE).className).not.toContain('font-brand');
   });
 
   it('shows the operator their own name and not the product name', () => {
@@ -132,11 +144,14 @@ describe('the header lockup', () => {
       session: GUEST,
     });
 
-    expect(screen.getByText('Northwind Industrial')).toBeInTheDocument();
+    const name = screen.getByText('Northwind Industrial');
+    expect(name).toBeInTheDocument();
     expect(screen.queryByText(PRODUCT_BRAND)).toBeNull();
 
-    // The attribution is a fact about the software, so it is there either way.
-    expect(screen.getByText(PARENT_ATTRIBUTION)).toBeInTheDocument();
+    // Glovia's face and Glovia's slogan belong to Glovia. Under somebody
+    // else's name they would be the software claiming that company's shop.
+    expect(name.className).not.toContain('font-brand');
+    expect(screen.queryByText(PRODUCT_TAGLINE)).toBeNull();
   });
 
   it('never says what the header used to say', () => {
@@ -165,6 +180,12 @@ describe('the footer', () => {
 
     expect(copyright?.textContent).toContain('Northwind Industrial');
     expect(copyright?.textContent).toContain(PARENT_ATTRIBUTION);
+  });
+
+  it('says it exactly once', () => {
+    renderWithProviders(<Footer />, { config: makeConfig(), session: GUEST });
+
+    expect(screen.getAllByText(PARENT_ATTRIBUTION, { exact: false })).toHaveLength(1);
   });
 });
 
@@ -196,6 +217,18 @@ describe('the greeting headline', () => {
     renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
 
     expect(headline().textContent).toBe(PRODUCT_BRAND);
+  });
+
+  it('is the wordmark when it is the product’s name, and a heading when it is not', () => {
+    const { unmount } = renderWithProviders(<HomePage />, { config: makeConfig(), session: GUEST });
+    expect(headline().className).toContain('font-brand');
+    unmount();
+
+    renderWithProviders(<HomePage />, {
+      config: makeConfig({ displayName: 'Northwind Industrial' }),
+      session: GUEST,
+    });
+    expect(headline().className).not.toContain('font-brand');
   });
 
   it('is the operator’s name where there is one', () => {
@@ -232,14 +265,49 @@ describe('the greeting headline', () => {
   });
 });
 
-describe('the line under the headline', () => {
-  it('opens on the strapline', () => {
+describe('the tagline under the headline', () => {
+  it('is the product’s slogan, and it does not move', () => {
     const { container } = renderWithProviders(<HomePage />, {
       config: makeConfig(),
       session: GUEST,
     });
 
-    expect(strapline(container)).toBe(STRAPLINE);
+    const tagline = container.querySelector('.greeting-tagline');
+
+    expect(tagline?.textContent).toBe(PRODUCT_TAGLINE);
+    // Static: not inside the moving line, and not animated itself.
+    expect(tagline?.closest('.greeting-strapline')).toBeNull();
+  });
+
+  it('belongs to Glovia, so another company’s greeting does not carry it', () => {
+    const { container } = renderWithProviders(<HomePage />, {
+      config: makeConfig({ displayName: 'Northwind Industrial' }),
+      session: GUEST,
+    });
+
+    expect(container.querySelector('.greeting-tagline')).toBeNull();
+  });
+});
+
+describe('the line under the tagline', () => {
+  it('opens on the first half of the strapline', () => {
+    const { container } = renderWithProviders(<HomePage />, {
+      config: makeConfig(),
+      session: GUEST,
+    });
+
+    expect(strapline(container)).toBe(SOURCE);
+  });
+
+  it('no longer carries the attribution — the footer does', () => {
+    const { container } = renderWithProviders(<HomePage />, {
+      config: makeConfig(),
+      session: GUEST,
+    });
+
+    const line = container.querySelector('.greeting-strapline')?.parentElement;
+
+    expect(line?.textContent).not.toContain(PARENT_ATTRIBUTION);
   });
 
   it('reserves the height of both phrases so nothing moves when it changes', () => {
@@ -260,7 +328,7 @@ describe('the line under the headline', () => {
       (span) => span.textContent,
     );
 
-    expect(measured).toEqual([STRAPLINE, PARENT_ATTRIBUTION]);
+    expect(measured).toEqual([SOURCE, DELIVER]);
     expect(line?.className).toContain('grid');
     for (const span of line?.querySelectorAll(':scope > .invisible') ?? []) {
       expect(span.className).toContain('col-start-1');

@@ -29,6 +29,8 @@ import {
 } from '@/components/ui';
 import { Modal } from '@/components/Modal';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
+import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
 import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
@@ -395,6 +397,7 @@ export function OrderDetailPage(): React.JSX.Element {
                 label={t('orderDetail.delivery')}
                 value={formatMoney(order.totals.shipping)}
               />
+              <OrderDeliveryLevels orderId={order.id} />
               <GrandTotalRow
                 label={t('orderDetail.total')}
                 value={formatMoney(order.totals.grandTotal)}
@@ -602,6 +605,8 @@ export function OrderDetailPage(): React.JSX.Element {
 
         {/* --- Actions --------------------------------------------------------- */}
         <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+          {/* The sellers' tax invoices, once issued. Renders nothing before. */}
+          <OrderSellerInvoices orderId={order.id} />
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 className="text-title-sm text-ink">{t('orderDetail.needSomething')}</h2>
 

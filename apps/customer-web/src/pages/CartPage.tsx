@@ -41,6 +41,7 @@ import { CartModeTabs } from '@/components/CartModeTabs';
 import { CART_STEPS } from '@/lib/checkout-steps';
 import { StickyBottomBar } from '@/components/StickyBottomBar';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { DeliveryBreakdown } from '@/components/DeliveryBreakdown';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { AlertIcon, TrashIcon } from '@/components/icons';
 import { clampToRules } from '@/lib/quantity-rules';
@@ -49,6 +50,7 @@ import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } 
 import { api } from '@/lib/api';
 import { autoPayApi, autoPayKeys } from '@/lib/autopay';
 import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import { formatBasisPoints } from '@/lib/bulk-pricing';
 import { cartonPriceMinor, lineIsSoldByThePiece } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -312,7 +314,7 @@ function LineRow({
   onRemove: () => void;
   isBusy: boolean;
 }): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
 
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
@@ -469,6 +471,25 @@ function LineRow({
                 ? ` ${t('cart.taxIncludedNote')}`
                 : ` ${t('cart.plusTaxRate', { rate: line.taxRatePercent })}`}
             </span>
+            {/* The seller's quantity band: what this quantity saves, and what
+                a few more would. Both figures are the server's, from the same
+                function that priced the line. */}
+            {line.quantityTier != null && (
+              <span className="mt-0.5 block text-xxs font-medium text-success">
+                {t('cart.bandApplied', {
+                  list: formatMoney(line.quantityTier.listUnitPrice),
+                  percent: formatBasisPoints(line.quantityTier.savingBasisPoints, intlLocale),
+                })}
+              </span>
+            )}
+            {line.nextQuantityTier != null && (
+              <span className="mt-0.5 block text-xxs text-ink-muted">
+                {t('cart.bandNext', {
+                  more: formatNumber(line.nextQuantityTier.addQuantity),
+                  price: formatMoney(line.nextQuantityTier.unitPrice),
+                })}
+              </span>
+            )}
           </p>
         </div>
 
@@ -1088,6 +1109,10 @@ export function CartPage(): React.JSX.Element {
                   )
                 }
               />
+
+              {/* The sellers' L1-L4 delivery, estimated to the buyer's own country
+                  until an address is chosen at checkout. */}
+              {cart.delivery !== undefined && cart.delivery !== null && <DeliveryBreakdown delivery={cart.delivery} />}
 
               <GrandTotalRow
                 label={t('cart.estimatedTotal')}

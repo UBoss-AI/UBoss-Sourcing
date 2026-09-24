@@ -31,6 +31,7 @@ import {
   ChartIcon,
   GlobeIcon,
   HeartIcon,
+  LayersIcon,
   LinkIcon,
   LocationIcon,
   ReceiptIcon,
@@ -44,6 +45,7 @@ export type AccountNavId =
   | 'dashboard'
   | 'orders'
   | 'schedules'
+  | 'preorders'
   | 'profile'
   | 'company'
   | 'addresses'
@@ -101,6 +103,16 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     menuLabelKey: 'account.nav.scheduledOrders',
     icon: CalendarIcon,
     feature: 'recurringOrders',
+  },
+  // Bulk preorders: a negotiation with a seller before an order exists. Not
+  // behind a feature flag - the product page offers Preorder everywhere, so
+  // the place to follow one has to exist everywhere too.
+  preorders: {
+    id: 'preorders',
+    to: '/account/preorders',
+    labelKey: 'account.nav.preorders',
+    menuLabelKey: 'account.nav.preorders',
+    icon: LayersIcon,
   },
   profile: {
     id: 'profile',
@@ -224,7 +236,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     {
       titleKey: 'account.group.orders',
-      items: include(['dashboard', 'orders', 'schedules'], flags),
+      items: include(['dashboard', 'orders', 'schedules', 'preorders'], flags),
     },
     {
       titleKey: 'account.group.accountSettings',
@@ -258,7 +270,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
 export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile'], flags) },
-    { titleKey: 'account.group.orders', items: include(['orders', 'schedules'], flags) },
+    { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders'], flags) },
     {
       titleKey: 'account.group.payments',
       items: include(['paymentMethods', 'autopay', 'coupons'], flags),

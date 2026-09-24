@@ -122,6 +122,16 @@ export const router = createBrowserRouter([
         ...lazyRoute(() => import('@/pages/OrdersPage').then((m) => m.OrdersPage), [Permission.ORDER_READ]),
       },
       {
+        path: 'preorders',
+        ...lazyRoute(() => import('@/pages/PreordersPage').then((m) => m.PreordersPage), [Permission.ORDER_READ]),
+      },
+      {
+        path: 'preorders/:id',
+        ...lazyRoute(() => import('@/pages/PreorderDetailPage').then((m) => m.PreorderDetailPage), [
+          Permission.ORDER_READ,
+        ]),
+      },
+      {
         path: 'orders/:id',
         ...lazyRoute(() => import('@/pages/OrderDetailPage').then((m) => m.OrderDetailPage), [
           Permission.ORDER_READ,
@@ -341,6 +351,44 @@ export const router = createBrowserRouter([
           () =>
             import('@/pages/logistics/IntegrationsPage').then((m) => m.LogisticsIntegrationsPage),
           [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        // Every seller's L1-L4 ownership, and the UBOSS-managed prices.
+        path: 'logistics/managed-levels',
+        ...lazyRoute(
+          () => import('@/pages/logistics/ManagedLevelsPage').then((m) => m.ManagedLevelsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/managed-levels/:sellerAccountId',
+        ...lazyRoute(
+          () => import('@/pages/logistics/ManagedLevelSellerPage').then((m) => m.ManagedLevelSellerPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        // The four legs of confirmed seller orders.
+        path: 'logistics/legs',
+        ...lazyRoute(
+          () => import('@/pages/logistics/LegsPage').then((m) => m.LegsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/legs/:legId',
+        ...lazyRoute(
+          () => import('@/pages/logistics/LegsPage').then((m) => m.LegDetailPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        // What sellers are charged and the tax on it. Finance only.
+        path: 'finance/platform-fees',
+        ...lazyRoute(
+          () => import('@/pages/finance/PlatformFeesPage').then((m) => m.PlatformFeesPage),
+          [Permission.FINANCE_POLICY_READ],
         ),
       },
       {

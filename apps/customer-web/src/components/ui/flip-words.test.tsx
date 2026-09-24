@@ -25,7 +25,8 @@
  * WHOLE PHRASES, AND THE LABEL THAT COVERS THEM
  *
  * The greeting no longer cycles one word after the shop's name. It alternates
- * two complete phrases under it — the strapline, and `Powered by UBOSS` — and
+ * two complete phrases under it — "Source with Intelligence" and "Deliver with
+ * Confidence" — and
  * that changes what "told once" has to mean: announcing only the first would
  * leave the other unreachable, and announcing them as they change would re-read
  * the line every four seconds. The second half of this file is that case.
@@ -177,8 +178,8 @@ describe('the flipping word', () => {
 // Whole phrases
 // ---------------------------------------------------------------------------
 
-const STRAPLINE = 'Source with Intelligence | Deliver with Confidence';
-const ATTRIBUTION = 'Powered by UBOSS';
+const STRAPLINE = 'Source with Intelligence';
+const ATTRIBUTION = 'Deliver with Confidence';
 const LABEL = `${STRAPLINE}. ${ATTRIBUTION}.`;
 
 /** The non-breaking space the animation puts between a phrase's words. */

@@ -15,7 +15,67 @@
  * line, which is more useful than a generic one.
  */
 import { ApiError, NetworkError } from './api';
-import type { Translate } from '@/i18n/i18n-context';
+import { formatIsoDate } from './calendar-date';
+import { formatNumber } from './format';
+import type { Translate, TranslationKey } from '@/i18n/i18n-context';
+
+/** Logistics refusals with a sentence of their own under `errors.logistics.*`. */
+const LOGISTICS_CODES = new Set([
+  'LOGISTICS_L1_OWNER_FIXED',
+  'LOGISTICS_HYBRID_ALL_SELLER',
+  'LOGISTICS_MODE_OWNERS_MISMATCH',
+  'LOGISTICS_CHANGE_NOT_CONFIRMED',
+  'LOGISTICS_POLICY_VERSION_CONFLICT',
+  'LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED',
+  'LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED',
+  'LOGISTICS_PRICE_INVALID',
+  'LOGISTICS_FREE_NOT_CONFIRMED',
+  'LOGISTICS_PROVIDER_NOT_ENABLED',
+  'LOGISTICS_CARRIER_UNSUITABLE',
+  'LOGISTICS_RATE_INCOMPLETE',
+  'LOGISTICS_RATE_NOT_EDITABLE',
+  'LOGISTICS_QUOTE_REQUIRED',
+  'LOGISTICS_PRICE_CHANGED',
+  'LOGISTICS_LEG_NOT_ASSIGNABLE',
+  'LOGISTICS_LEG_TRANSITION_INVALID',
+  'LOGISTICS_LEG_TRACKING_REQUIRED',
+  'LOGISTICS_PARTNER_NOT_ELIGIBLE',
+]);
+
+const PREORDER_CODES = new Set([
+  'PREORDER_NOT_AVAILABLE',
+  'PREORDER_BUYER_NOT_ELIGIBLE',
+  'PREORDER_BELOW_MINIMUM',
+  'PREORDER_INCREMENT_MISMATCH',
+  'PREORDER_ABOVE_MAXIMUM',
+  'PREORDER_UNIT_NOT_AVAILABLE',
+  'PREORDER_DATE_TOO_EARLY',
+  'PREORDER_DATE_TOO_FAR',
+  'PREORDER_DESTINATION_NOT_SERVED',
+  'PREORDER_TRANSITION_NOT_ALLOWED',
+  'PREORDER_TERMS_CHANGED',
+  'PREORDER_CAPACITY_EXCEEDED',
+  'PREORDER_EXPIRED',
+  'PREORDER_POLICY_INVALID',
+]);
+
+/** Seller invoices and packing lists. */
+const SELLER_DOCUMENT_CODES = new Set([
+  'SELLER_DOCUMENT_NOT_ELIGIBLE',
+  'SELLER_DOCUMENT_VALIDATION_FAILED',
+  'SELLER_DOCUMENT_IMMUTABLE',
+  'SHIPMENT_PACKAGES_LOCKED',
+  'SHIPMENT_CONTENTS_MISMATCH',
+  'SHIPMENT_SPLIT_INVALID',
+  'DOCUMENT_RENDER_FAILED',
+]);
+
+/** The reader's locale for a date inside an error sentence. */
+function navigatorLocale(): string {
+  return typeof document !== 'undefined' && document.documentElement.lang !== ''
+    ? document.documentElement.lang
+    : 'en';
+}
 
 export function errorMessage(t: Translate, error: unknown, fallback?: string): string {
   if (error instanceof NetworkError) {
@@ -61,6 +121,50 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');
+
+    /*
+     * The four delivery levels. Reached from Seller Hub -> Logistics and from
+     * the checkout, mid-task, so the answer is given in the reader's language.
+     * Each code has its own sentence because each sends the reader somewhere
+     * different - the Self tab, the carriers list, the confirmation box.
+     */
+    if (LOGISTICS_CODES.has(error.code)) return t(`errors.logistics.${error.code}` as TranslationKey);
+
+    /*
+     * Bulk preorders. Each refusal names its figure - the minimum, the step,
+     * the earliest date - because "Minimum preorder quantity is 1,000
+     * pieces" is something a buyer can act on and "the request failed" is
+     * not. The figures come from the error's own details, never from the
+     * page, so the sentence cannot disagree with the rule that refused it.
+     */
+    if (PREORDER_CODES.has(error.code)) {
+      const meta = error.details[0]?.meta ?? {};
+      const count = (key: string): string =>
+        typeof meta[key] === 'number' ? formatNumber(meta[key]) : '';
+      const day = (key: string): string =>
+        typeof meta[key] === 'string' ? formatIsoDate(meta[key], navigatorLocale(), { dateStyle: 'long' }) : '';
+
+      return t(`errors.preorder.${error.code}` as TranslationKey, {
+        minimum: count('minimumBaseUnits'),
+        increment: count('incrementBaseUnits'),
+        maximum: count('maximumBaseUnits'),
+        available: count('availableBaseUnits'),
+        earliest: day('earliest'),
+        latest: day('latest'),
+      });
+    }
+
+    /*
+     * Seller invoices and packing lists. A seller meets these pressing Issue
+     * or Mark packed; the checklist on the page names each field, and this is
+     * the one-line summary above it.
+     */
+    // Quantity price bands: the panel marks each band; this is the summary.
+    if (error.code === 'QUANTITY_TIERS_INVALID') return t('errors.quantityTiersInvalid');
+
+    if (SELLER_DOCUMENT_CODES.has(error.code)) {
+      return t(`errors.sellerDocument.${error.code}` as TranslationKey);
+    }
 
     if (error.message.length > 0) return error.message;
   }

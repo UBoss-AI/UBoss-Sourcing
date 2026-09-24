@@ -26,6 +26,7 @@ import { archiveOrphanedShipmentAlerts } from '../modules/notifications/admin-no
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
+import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
 import { runSync } from '../modules/integrations/connector.service.js';
 import { generateExport, markExportFailed } from '../modules/reports/export.service.js';
 import {
@@ -431,6 +432,21 @@ const integrationEventRetry: JobHandler = async () => {
 };
 
 /** Mark links that quietly aged out, so an admin can see why they stopped working. */
+/**
+ * Expire preorders nobody answered in time, releasing any capacity they held.
+ * Each row is its own conditional transaction, so a sweep that races a
+ * seller's answer loses cleanly and the answer stands.
+ */
+const expirePreorders: JobHandler = async () => {
+  const expired = await expireStalePreorders();
+  if (expired > 0) logger.info({ expired }, 'expired stale preorders');
+};
+
+const preorderRiskSweep: JobHandler = async () => {
+  const flagged = await flagPreorderDeliveryRisks();
+  if (flagged > 0) logger.info({ flagged }, 'flagged preorders at risk of missing their committed date');
+};
+
 const expireLinks: JobHandler = async () => {
   const expired = await expirePaymentLinks();
   if (expired > 0) logger.info({ expired }, 'expired payment links');
@@ -842,6 +858,8 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.ERP_PUSH_RETRY]: erpPushRetry,
   [JobType.INTEGRATION_EVENT_RETRY]: integrationEventRetry,
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
+  [JobType.PREORDER_EXPIRE]: expirePreorders,
+  [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,

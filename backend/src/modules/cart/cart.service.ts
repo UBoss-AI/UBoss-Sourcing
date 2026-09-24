@@ -70,6 +70,27 @@ import { checkPurchasingLimits, type LimitCheckResult } from '../customers/limit
 import { getAvailabilityMap } from '../inventory/inventory.service.js';
 import { resolveCurrencyFor } from '../settings/currency.service.js';
 import { applyLineTax, loadTaxContext, type TaxSetup } from '../tax/vat.service.js';
+import {
+  nextSaving,
+  priceForQuantity,
+  savingBasisPoints,
+  type TierBuyer,
+} from '../../domain/quantity-tier.js';
+import {
+  TIER_SELECT,
+  isBusinessBuyer,
+  snapshotTier,
+  toQuantityTier,
+  type QuantityTierSnapshot,
+} from '../catalog/quantity-tier.service.js';
+import {
+  packageClassFor,
+  quoteDelivery,
+  serialiseDeliveryQuote,
+  showLevelBreakdown,
+  type DeliveryQuote,
+  type SerialisedDeliveryQuote,
+} from '../logistics/level-pricing.service.js';
 
 /** Abandoned carts are swept after this long. */
 const CART_TTL_DAYS = 30;
@@ -138,6 +159,26 @@ export interface CartLine {
   availableQty: number | null;
   isRecurringEligible: boolean;
   purchaseRules: { minOrderQty: number; maxOrderQty: number | null; qtyIncrement: number };
+  /**
+   * The seller's quantity band that priced this line, or null at list price.
+   *
+   * `listUnitPrice` is what one piece costs without it, so the basket can show
+   * the saving; `snapshot` is what checkout freezes onto the order item.
+   */
+  quantityTier: {
+    minQuantity: number;
+    maxQuantity: number | null;
+    listUnitPrice: ReturnType<typeof serialiseMoney>;
+    savingBasisPoints: number;
+    snapshot: QuantityTierSnapshot;
+  } | null;
+  /** The nearest band above this quantity that lowers the price per piece. */
+  nextQuantityTier: {
+    minQuantity: number;
+    addQuantity: number;
+    unitPrice: ReturnType<typeof serialiseMoney>;
+    savingPerPiece: ReturnType<typeof serialiseMoney>;
+  } | null;
   /**
    * What the buyer chose to count in, and the conversion they were shown.
    *
@@ -373,6 +414,12 @@ export interface CartView {
    * over it would make container ordering impossible.
    */
   requiresFreightQuote: boolean;
+  /**
+   * The sellers' four-level delivery charges, or null when no seller in the
+   * basket has a published logistics policy. Included in `totals.shipping`.
+   * `token` is what checkout must send back unchanged.
+   */
+  delivery: SerialisedDeliveryQuote | null;
 }
 
 export interface AppliedCouponView {
@@ -498,6 +545,16 @@ export interface ResolvedCart {
    * charge against a rate the customer was never shown.
    */
   fxContext: ConversionContext | null;
+
+  /**
+   * L1-L4 for each marketplace seller with a published logistics policy, or
+   * null when there is none. Its total is already inside
+   * `pricing.totals.shippingMinor`; this is the breakdown checkout freezes
+   * onto the order, level by level, and signs.
+   */
+  delivery: DeliveryQuote | null;
+  /** Whether the buyer is shown each level or one delivery line. */
+  deliveryShowLevels: boolean;
 }
 
 /**
@@ -562,6 +619,15 @@ export async function resolveCart(
     shippingMethodCode?: string | null;
     destinationCountry?: string | null;
     /**
+     * The delivery address's postcode, where one is known.
+     *
+     * Only the four-level delivery prices read it - an L4 price may be for
+     * one postcode area of a country and not the rest. Checkout passes the
+     * chosen address's; a basket being browsed has none, and an L4 price
+     * narrower than a whole country then does not match, which is honest.
+     */
+    destinationPostcode?: string | null;
+    /**
      * Delivery priced by a warehouse lane rather than by a shipping method.
      *
      * Wins over `shippingMethodCode` when both are given, and it is the whole
@@ -611,8 +677,24 @@ export async function resolveCart(
   // two indexed queries and nothing below behaves differently.
   const taxProfile = await prisma.customerProfile.findUnique({
     where: { id: customerProfileId },
-    select: { preferredCountry: true, vatNumber: true, vatNumberValid: true },
+    select: {
+      preferredCountry: true,
+      vatNumber: true,
+      vatNumberValid: true,
+      // Whether a band "for business accounts" applies. See `isBusinessBuyer`.
+      organization: true,
+      user: { select: { status: true } },
+    },
   });
+
+  // Who a seller's quantity band is judged against. The same destination the
+  // tax treatment uses, so a band for one country and the VAT for it agree.
+  const tierBuyer: TierBuyer = {
+    now: new Date(),
+    isBusinessBuyer: isBusinessBuyer(taxProfile),
+    country: options.destinationCountry ?? taxProfile?.preferredCountry ?? null,
+    channel: 'BASKET',
+  };
 
   const taxSetup = await loadTaxContext({
     destinationCountry: options.destinationCountry ?? taxProfile?.preferredCountry ?? null,
@@ -653,6 +735,9 @@ export async function resolveCart(
           priceMinor: true,
           currency: true,
           availableQuantity: true,
+          // Quantity bands: a loose line of 5,000 pieces is priced at the
+          // band it reaches, through `priceForQuantity` and nothing else.
+          priceTiers: { select: TIER_SELECT },
           // The terms the buyer is stepped by. Read from the offer rather than
           // from the line, so a seller who has raised their minimum since the
           // line was added is telling the buyer so in the basket rather than
@@ -764,6 +849,10 @@ export async function resolveCart(
     packaging: CartLinePackaging | null;
     /** The storage shape, for checkout to copy across. See `sourceItems`. */
     rawPackaging: CartPackagingSnapshot | null;
+    /** The whole line's shipping weight, or null where nobody recorded one. */
+    weightGrams: number | null;
+    quantityTier: CartLine['quantityTier'];
+    nextQuantityTier: CartLine['nextQuantityTier'];
   }[] = [];
 
   for (const item of items) {
@@ -895,11 +984,26 @@ export async function resolveCart(
      * `unitPrice x quantity` is the package price times the package count, to
      * the paise. See `validatePackagingOption`.
      */
+    /*
+     * A LOOSE seller line is priced at the seller's quantity band, where one
+     * applies. Not a bulk (packaged) line: a package already has its own
+     * price, and applying a piece band on top would discount it twice.
+     */
+    const tiers = offer?.priceTiers.map(toQuantityTier) ?? [];
+    const tierPrice =
+      item.packaging === null && offer !== null && offer.currency === currency && tiers.length > 0
+        ? priceForQuantity(offer.priceMinor, tiers, item.quantity, tierBuyer)
+        : null;
+    const upcoming =
+      item.packaging === null && offer !== null && offer.currency === currency && tiers.length > 0
+        ? nextSaving(offer.priceMinor, tiers, item.quantity, tierBuyer)
+        : null;
+
     const listedPriceMinor: Minor =
       item.packaging !== null && item.packaging.currency === currency
         ? item.packaging.unitPriceMinor
         : offer !== null && offer.currency === currency
-          ? offer.priceMinor
+          ? (tierPrice?.unitPriceMinor ?? offer.priceMinor)
           : (price?.basePriceMinor ?? 0n);
 
     if (item.packaging !== null) {
@@ -1002,6 +1106,25 @@ export async function resolveCart(
     });
 
     lineMeta.push({
+      quantityTier:
+        tierPrice?.tier === undefined || tierPrice.tier === null || offer === null
+          ? null
+          : {
+              minQuantity: tierPrice.tier.minQuantity,
+              maxQuantity: tierPrice.tier.maxQuantity,
+              listUnitPrice: serialiseMoney(offer.priceMinor, currency),
+              savingBasisPoints: savingBasisPoints(offer.priceMinor, tierPrice.unitPriceMinor),
+              snapshot: snapshotTier(tierPrice.tier, offer.priceMinor),
+            },
+      nextQuantityTier:
+        upcoming === null
+          ? null
+          : {
+              minQuantity: upcoming.tier.minQuantity,
+              addQuantity: upcoming.addQuantity,
+              unitPrice: serialiseMoney(upcoming.unitPriceMinor, currency),
+              savingPerPiece: serialiseMoney(upcoming.savingPerPieceMinor, currency),
+            },
       itemId: item.id,
       productId: product.id,
       variantId: item.variantId,
@@ -1061,6 +1184,17 @@ export async function resolveCart(
         ) ?? null,
       ),
       rawPackaging: item.packaging,
+      // What the delivery levels are weighed on. A bulk line's packages carry
+      // their own gross weight; otherwise the variant's shipping weight, then
+      // the product's. Null - never zero - when none is recorded, so a weight
+      // band cannot be matched on a guess.
+      weightGrams: (() => {
+        if (item.packaging !== null && item.packaging.grossWeightGrams !== null) {
+          return Number(item.packaging.grossWeightGrams) * item.packaging.packageQuantity;
+        }
+        const each = item.variant?.shippingWeightGrams ?? product.weightGrams ?? null;
+        return each === null ? null : each * item.quantity;
+      })(),
     });
   }
 
@@ -1125,7 +1259,39 @@ export async function resolveCart(
   // to.
   const shipping =
     options.shippingOverride ?? (await resolveShipping(options.shippingMethodCode));
-  const pricing = priceLines(pricingInputs, shipping === null ? {} : { shipping });
+
+  /*
+   * The marketplace sellers' own delivery: L1 + L2 + L3 + L4 for each seller
+   * who has published a logistics policy. Null for every other basket, and
+   * then nothing below changes.
+   *
+   * It goes INTO the same pricing run, as its own input next to the
+   * shipping method, rather than being added to a finished total - there is
+   * one answer to "what does this basket cost", and `assertTotalsConsistent`
+   * checks it. It is not subject to the shipping method's free-above
+   * threshold: that is the operator's offer on the operator's own carriage,
+   * and it must not quietly make a seller's international freight free.
+   */
+  const delivery = await quoteDelivery({
+    lines: lineMeta
+      .filter((meta) => meta.sellerOfferId !== null)
+      .map((meta) => ({
+        sellerOfferId: meta.sellerOfferId ?? '',
+        quantity: meta.quantity,
+        weightGrams: meta.weightGrams,
+        packageClass: packageClassFor(meta.rawPackaging?.packageType),
+      })),
+    currency,
+    destinationCountry: options.destinationCountry ?? taxProfile?.preferredCountry ?? null,
+    destinationPostcode: options.destinationPostcode ?? null,
+    fxPurpose: options.fxPurpose ?? 'display',
+  });
+  const deliveryShowLevels = delivery === null ? true : await showLevelBreakdown();
+
+  const pricing = priceLines(pricingInputs, {
+    ...(shipping === null ? {} : { shipping }),
+    ...(delivery === null ? {} : { sellerDeliveryMinor: delivery.totalMinor }),
+  });
 
   // Purchasing limits, using the freshly computed total.
   const limits = await checkPurchasingLimits({
@@ -1195,6 +1361,8 @@ export async function resolveCart(
       note: meta.note,
       packaging: meta.packaging,
       issues: meta.issues,
+      quantityTier: meta.quantityTier,
+      nextQuantityTier: meta.nextQuantityTier,
     };
   });
 
@@ -1206,6 +1374,25 @@ export async function resolveCart(
       message: violation.message ?? 'This order does not meet the purchasing rules.',
       ...(violation.meta !== undefined ? { meta: violation.meta } : {}),
     }));
+
+  // A seller's delivery with a level nobody has priced for this route. The
+  // basket cannot be bought until it is - never at zero, never at another
+  // route's price - and the buyer is told whose delivery it is.
+  for (const seller of delivery?.sellers ?? []) {
+    if (seller.status !== 'QUOTE_REQUIRED') continue;
+    blockingIssues.push({
+      code: ErrorCode.LOGISTICS_QUOTE_REQUIRED,
+      message: `Delivery from ${seller.sellerName} needs a quote for this address before it can be ordered.`,
+      meta: {
+        sellerAccountId: seller.sellerAccountId,
+        sellerName: seller.sellerName,
+        levels: seller.levels
+          .filter((level) => level.leg === null)
+          .map((level) => level.level)
+          .join(','),
+      },
+    });
+  }
 
   return {
     cartId,
@@ -1229,6 +1416,8 @@ export async function resolveCart(
     availableCoupons,
     taxSetup,
     fxContext,
+    delivery,
+    deliveryShowLevels,
   };
 }
 
@@ -1290,6 +1479,10 @@ export function toCartView(resolved: ResolvedCart): CartView {
     approvalReason: resolved.limits.approvalReason,
     itemCount: resolved.lines.reduce((total, line) => total + line.quantity, 0),
     requiresFreightQuote,
+    delivery:
+      resolved.delivery === null
+        ? null
+        : serialiseDeliveryQuote(resolved.delivery, { showLevels: resolved.deliveryShowLevels }),
   };
 }
 

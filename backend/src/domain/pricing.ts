@@ -89,6 +89,13 @@ export interface PricingOptions {
    */
   orderDiscountMinor?: Minor;
   shipping?: ShippingInput;
+  /**
+   * The marketplace sellers' own delivery, L1 + L2 + L3 + L4 summed across
+   * sellers. Added to `shippingMinor` AFTER the shipping method's free-above
+   * rule, which is the operator's offer on its own carriage and must never
+   * make a seller's freight free.
+   */
+  sellerDeliveryMinor?: Minor;
 }
 
 /**
@@ -196,7 +203,10 @@ export function priceLines(
   const taxMinor = sumMinor(lines.map((line) => line.taxAmountMinor));
   const lineTotalsMinor = sumMinor(lines.map((line) => line.lineTotalMinor));
 
-  const shippingMinor = calculateShipping(options.shipping, subtotalMinor - discountMinor);
+  const sellerDeliveryMinor = options.sellerDeliveryMinor ?? 0n;
+  assertNonNegative(sellerDeliveryMinor, 'Seller delivery');
+  const shippingMinor =
+    calculateShipping(options.shipping, subtotalMinor - discountMinor) + sellerDeliveryMinor;
 
   return {
     lines,

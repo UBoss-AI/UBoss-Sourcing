@@ -189,6 +189,12 @@ const checkoutSchema = z.object({
    * lane, the basket and the stock behind it before anything is written.
    */
   fulfilmentQuoteId: z.string().length(26).optional(),
+  /**
+   * The signed L1-L4 delivery quote from `cart.delivery.token`, sent back
+   * unchanged. Never read for a figure - checkout re-prices every level and
+   * refuses the order when this is not the token that pricing produces now.
+   */
+  logisticsQuoteToken: z.string().max(200).nullable().optional(),
   customerNote: z.string().max(2000).nullable().optional(),
 });
 
@@ -200,6 +206,12 @@ const couponSchema = z.object({
 
 const shippingQuerySchema = z.object({
   shippingMethodCode: z.string().max(32).optional(),
+  /**
+   * One of the customer's own addresses, to price delivery to. The four-level
+   * delivery prices are route-scoped - Rotterdam is not Dubai - so the
+   * checkout asks for the cart priced to the address it has selected.
+   */
+  shippingAddressId: z.string().length(26).optional(),
 });
 
 /**
@@ -246,6 +258,31 @@ async function withStorefrontSeller<T extends { productId: string; variantId?: s
   return { ...item, sellerOfferId: offer.id };
 }
 
+/**
+ * The country and postcode of one of THIS customer's addresses.
+ *
+ * Scoped by `customerProfileId` in the query itself, so an address id from
+ * somebody else's account finds nothing and is refused like one that does not
+ * exist.
+ */
+export async function destinationOf(
+  customerProfileId: string,
+  addressId: string | undefined,
+): Promise<{ destinationCountry?: string; destinationPostcode?: string }> {
+  if (addressId === undefined) return {};
+
+  const address = await prisma.address.findFirst({
+    where: { id: addressId, customerProfileId, archivedAt: null },
+    select: { country: true, postalCode: true },
+  });
+  if (address === null) {
+    throw badRequest(ErrorCode.ADDRESS_REQUIRED, 'Select a valid delivery address.', [
+      { field: 'shippingAddressId', code: 'NOT_FOUND' },
+    ]);
+  }
+  return { destinationCountry: address.country, destinationPostcode: address.postalCode };
+}
+
 export function registerCartRoutes(app: FastifyInstance): Promise<void> {
   /** Every cart route requires an activated customer; guest checkout is off. */
   app.addHook('preHandler', requireCustomer);
@@ -253,9 +290,11 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', async (request, reply) => {
     const auth = currentUser(request);
     const query = shippingQuerySchema.parse(request.query);
+    const destination = await destinationOf(auth.customerProfileId ?? '', query.shippingAddressId);
 
     const resolved = await resolveCart(auth.customerProfileId ?? '', {
       shippingMethodCode: query.shippingMethodCode ?? null,
+      ...destination,
     });
 
     return reply.status(200).send({ cart: toCartView(resolved) });
@@ -461,6 +500,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
             ...(body.fulfilmentQuoteId === undefined
               ? {}
               : { fulfilmentQuoteId: body.fulfilmentQuoteId }),
+            logisticsQuoteToken: body.logisticsQuoteToken ?? null,
             customerNote: body.customerNote ?? null,
             actor: {
               userId: auth.id,

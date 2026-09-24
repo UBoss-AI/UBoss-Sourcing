@@ -98,6 +98,11 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // The legs of four-level journeys given to this company. Its own, only.
+        path: 'legs',
+        ...lazyRoute(() => import('@/pages/LegsPage').then((m) => m.LegsPage), [Permission.SHIPMENT_READ]),
+      },
+      {
         path: 'pickups',
         ...lazyRoute(
           () => import('@/pages/OperationsPages').then((m) => m.PickupsPage),

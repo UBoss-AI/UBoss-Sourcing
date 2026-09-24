@@ -44,6 +44,7 @@ export type BusinessProfileMinAggregateOutputType = {
   gstin: string | null
   gpsrEnforced: boolean | null
   sellerCommissionBasisPoints: number | null
+  showLogisticsLevelBreakdown: boolean | null
   mdrEnforced: boolean | null
   vatNumber: string | null
   vatCountry: string | null
@@ -66,6 +67,7 @@ export type BusinessProfileMaxAggregateOutputType = {
   gstin: string | null
   gpsrEnforced: boolean | null
   sellerCommissionBasisPoints: number | null
+  showLogisticsLevelBreakdown: boolean | null
   mdrEnforced: boolean | null
   vatNumber: string | null
   vatCountry: string | null
@@ -88,6 +90,7 @@ export type BusinessProfileCountAggregateOutputType = {
   gstin: number
   gpsrEnforced: number
   sellerCommissionBasisPoints: number
+  showLogisticsLevelBreakdown: number
   mdrEnforced: number
   vatNumber: number
   vatCountry: number
@@ -122,6 +125,7 @@ export type BusinessProfileMinAggregateInputType = {
   gstin?: true
   gpsrEnforced?: true
   sellerCommissionBasisPoints?: true
+  showLogisticsLevelBreakdown?: true
   mdrEnforced?: true
   vatNumber?: true
   vatCountry?: true
@@ -144,6 +148,7 @@ export type BusinessProfileMaxAggregateInputType = {
   gstin?: true
   gpsrEnforced?: true
   sellerCommissionBasisPoints?: true
+  showLogisticsLevelBreakdown?: true
   mdrEnforced?: true
   vatNumber?: true
   vatCountry?: true
@@ -166,6 +171,7 @@ export type BusinessProfileCountAggregateInputType = {
   gstin?: true
   gpsrEnforced?: true
   sellerCommissionBasisPoints?: true
+  showLogisticsLevelBreakdown?: true
   mdrEnforced?: true
   vatNumber?: true
   vatCountry?: true
@@ -277,6 +283,7 @@ export type BusinessProfileGroupByOutputType = {
   gstin: string | null
   gpsrEnforced: boolean
   sellerCommissionBasisPoints: number
+  showLogisticsLevelBreakdown: boolean
   mdrEnforced: boolean
   vatNumber: string | null
   vatCountry: string | null
@@ -324,6 +331,7 @@ export type BusinessProfileWhereInput = {
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   sellerCommissionBasisPoints?: Prisma.IntFilter<"BusinessProfile"> | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
@@ -349,6 +357,7 @@ export type BusinessProfileOrderByWithRelationInput = {
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsrEnforced?: Prisma.SortOrder
   sellerCommissionBasisPoints?: Prisma.SortOrder
+  showLogisticsLevelBreakdown?: Prisma.SortOrder
   mdrEnforced?: Prisma.SortOrder
   vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   vatCountry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,6 +387,7 @@ export type BusinessProfileWhereUniqueInput = Prisma.AtLeast<{
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   sellerCommissionBasisPoints?: Prisma.IntFilter<"BusinessProfile"> | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
@@ -403,6 +413,7 @@ export type BusinessProfileOrderByWithAggregationInput = {
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsrEnforced?: Prisma.SortOrder
   sellerCommissionBasisPoints?: Prisma.SortOrder
+  showLogisticsLevelBreakdown?: Prisma.SortOrder
   mdrEnforced?: Prisma.SortOrder
   vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   vatCountry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -435,6 +446,7 @@ export type BusinessProfileScalarWhereWithAggregatesInput = {
   gstin?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
   gpsrEnforced?: Prisma.BoolWithAggregatesFilter<"BusinessProfile"> | boolean
   sellerCommissionBasisPoints?: Prisma.IntWithAggregatesFilter<"BusinessProfile"> | number
+  showLogisticsLevelBreakdown?: Prisma.BoolWithAggregatesFilter<"BusinessProfile"> | boolean
   mdrEnforced?: Prisma.BoolWithAggregatesFilter<"BusinessProfile"> | boolean
   vatNumber?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
   vatCountry?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
@@ -458,6 +470,7 @@ export type BusinessProfileCreateInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -483,6 +496,7 @@ export type BusinessProfileUncheckedCreateInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -506,6 +520,7 @@ export type BusinessProfileUpdateInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -531,6 +546,7 @@ export type BusinessProfileUncheckedUpdateInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -555,6 +571,7 @@ export type BusinessProfileCreateManyInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -578,6 +595,7 @@ export type BusinessProfileUpdateManyMutationInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -602,6 +620,7 @@ export type BusinessProfileUncheckedUpdateManyInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -632,6 +651,7 @@ export type BusinessProfileCountOrderByAggregateInput = {
   gstin?: Prisma.SortOrder
   gpsrEnforced?: Prisma.SortOrder
   sellerCommissionBasisPoints?: Prisma.SortOrder
+  showLogisticsLevelBreakdown?: Prisma.SortOrder
   mdrEnforced?: Prisma.SortOrder
   vatNumber?: Prisma.SortOrder
   vatCountry?: Prisma.SortOrder
@@ -660,6 +680,7 @@ export type BusinessProfileMaxOrderByAggregateInput = {
   gstin?: Prisma.SortOrder
   gpsrEnforced?: Prisma.SortOrder
   sellerCommissionBasisPoints?: Prisma.SortOrder
+  showLogisticsLevelBreakdown?: Prisma.SortOrder
   mdrEnforced?: Prisma.SortOrder
   vatNumber?: Prisma.SortOrder
   vatCountry?: Prisma.SortOrder
@@ -682,6 +703,7 @@ export type BusinessProfileMinOrderByAggregateInput = {
   gstin?: Prisma.SortOrder
   gpsrEnforced?: Prisma.SortOrder
   sellerCommissionBasisPoints?: Prisma.SortOrder
+  showLogisticsLevelBreakdown?: Prisma.SortOrder
   mdrEnforced?: Prisma.SortOrder
   vatNumber?: Prisma.SortOrder
   vatCountry?: Prisma.SortOrder
@@ -759,6 +781,7 @@ export type BusinessProfileCreateWithoutLogoMediaInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -782,6 +805,7 @@ export type BusinessProfileUncheckedCreateWithoutLogoMediaInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -835,6 +859,7 @@ export type BusinessProfileScalarWhereInput = {
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   sellerCommissionBasisPoints?: Prisma.IntFilter<"BusinessProfile"> | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
   vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
@@ -858,6 +883,7 @@ export type BusinessProfileCreateManyLogoMediaInput = {
   gstin?: string | null
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: number
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: string | null
   vatCountry?: string | null
@@ -881,6 +907,7 @@ export type BusinessProfileUpdateWithoutLogoMediaInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -904,6 +931,7 @@ export type BusinessProfileUncheckedUpdateWithoutLogoMediaInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -927,6 +955,7 @@ export type BusinessProfileUncheckedUpdateManyWithoutLogoMediaInput = {
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sellerCommissionBasisPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  showLogisticsLevelBreakdown?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -953,6 +982,7 @@ export type BusinessProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   gstin?: boolean
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: boolean
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: boolean
   vatCountry?: boolean
@@ -980,6 +1010,7 @@ export type BusinessProfileSelectScalar = {
   gstin?: boolean
   gpsrEnforced?: boolean
   sellerCommissionBasisPoints?: boolean
+  showLogisticsLevelBreakdown?: boolean
   mdrEnforced?: boolean
   vatNumber?: boolean
   vatCountry?: boolean
@@ -994,7 +1025,7 @@ export type BusinessProfileSelectScalar = {
   updatedById?: boolean
 }
 
-export type BusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "logoMediaId" | "supportEmail" | "supportPhone" | "gstin" | "gpsrEnforced" | "sellerCommissionBasisPoints" | "mdrEnforced" | "vatNumber" | "vatCountry" | "addressJson" | "currency" | "timezone" | "invoicePrefix" | "orderPrefix" | "policyLinksJson" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["businessProfile"]>
+export type BusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "logoMediaId" | "supportEmail" | "supportPhone" | "gstin" | "gpsrEnforced" | "sellerCommissionBasisPoints" | "showLogisticsLevelBreakdown" | "mdrEnforced" | "vatNumber" | "vatCountry" | "addressJson" | "currency" | "timezone" | "invoicePrefix" | "orderPrefix" | "policyLinksJson" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["businessProfile"]>
 export type BusinessProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   logoMedia?: boolean | Prisma.BusinessProfile$logoMediaArgs<ExtArgs>
 }
@@ -1045,6 +1076,12 @@ export type $BusinessProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
      * negotiated onto their own schedule keeps it when this moves.
      */
     sellerCommissionBasisPoints: number
+    /**
+     * Whether a buyer sees L1-L4 as separate delivery lines, or one delivery
+     * total. A presentation choice only: the order keeps every level's amount
+     * either way, because a disputed delivery charge is answered from them.
+     */
+    showLogisticsLevelBreakdown: boolean
     /**
      * Whether a product marked as a medical device must carry its MDR
      * identification before it publishes.
@@ -1462,6 +1499,7 @@ export interface BusinessProfileFieldRefs {
   readonly gstin: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly gpsrEnforced: Prisma.FieldRef<"BusinessProfile", 'Boolean'>
   readonly sellerCommissionBasisPoints: Prisma.FieldRef<"BusinessProfile", 'Int'>
+  readonly showLogisticsLevelBreakdown: Prisma.FieldRef<"BusinessProfile", 'Boolean'>
   readonly mdrEnforced: Prisma.FieldRef<"BusinessProfile", 'Boolean'>
   readonly vatNumber: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly vatCountry: Prisma.FieldRef<"BusinessProfile", 'String'>

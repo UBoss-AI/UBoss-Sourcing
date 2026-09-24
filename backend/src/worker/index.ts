@@ -183,6 +183,17 @@ async function maintenance(): Promise<void> {
       { dedupeKey: `payment_link_expire:${slot}` },
     );
 
+    // Preorder expiry on the ordinary beat: a buyer waiting on an answer, or
+    // capacity held for an unpaid order, should not wait an hour to be freed.
+    await queue.enqueue(JobType.PREORDER_EXPIRE, {}, { dedupeKey: `preorder_expire:${slot}` });
+
+    // Delivery risk is measured in days, so hourly is plenty.
+    await queue.enqueue(
+      JobType.PREORDER_RISK_SWEEP,
+      {},
+      { dedupeKey: `preorder_risk:${String(Math.floor(Date.now() / 3_600_000))}` },
+    );
+
     // The exit from PAID_ERP_PENDING. On the ordinary beat rather than an
     // hourly one because every row it retries is an order somebody has already
     // paid for and cannot yet be dispatched; each row carries its own

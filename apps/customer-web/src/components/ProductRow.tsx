@@ -45,6 +45,7 @@
  * the purchase rules, which are the facts this catalogue actually holds and
  * the ones a purchasing decision turns on.
  */
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { SaveForLaterButton } from './SaveForLaterButton';
@@ -146,6 +147,9 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
    * without the hook's lean.
    */
   const tilt = useTilt();
+  // A photograph that fails to load shows the placeholder, not the browser's
+  // broken-image glyph and a paragraph of alt text wrapped inside the frame.
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     /*
@@ -170,7 +174,7 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
 
           `relative`, so the specular below is clipped to this frame. */}
       <div className="relative h-40 w-40 shrink-0 self-center overflow-hidden rounded-lg border border-border-subtle bg-surface-sunken sm:h-44 sm:w-44 sm:self-start">
-        {product.primaryImage === null ? (
+        {product.primaryImage === null || imageFailed ? (
           <ImageFallback />
         ) : (
           <img
@@ -182,6 +186,9 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
             height={400}
             loading="lazy"
             decoding="async"
+            onError={() => {
+              setImageFailed(true);
+            }}
             className="h-full w-full object-contain p-3 transition-transform duration-200 group-hover:scale-[1.04]"
           />
         )}
@@ -196,7 +203,10 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="text-base font-semibold leading-snug text-ink">
+            {/* `overflow-wrap: anywhere`: on a phone this column sits beside
+                "Save for later", and one long word ("Monocrystalline") ran
+                out of it and under the button. */}
+            <h3 className="text-base font-semibold leading-snug text-ink [overflow-wrap:anywhere]">
               <Link
                 to={`/product/${product.slug}`}
                 // The stretched link. See ProductCard for the long version of

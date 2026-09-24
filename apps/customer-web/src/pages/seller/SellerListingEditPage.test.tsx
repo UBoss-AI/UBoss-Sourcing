@@ -139,10 +139,28 @@ function view(over: Partial<ListingEditView> = {}): ListingEditView {
   };
 }
 
-/** The page fetches its listing and the seller's warehouses. */
+/**
+ * The page fetches its listing and the seller's warehouses, and its trade-code
+ * and quantity-price panels fetch their own.
+ */
 function serve(current: ListingEditView): void {
   fetchMock.mockImplementation((url) => {
     const href = typeof url === 'string' ? url : '';
+
+    if (href.includes('/quantity-tiers')) {
+      return Promise.resolve(
+        jsonResponse({
+          offerId: 'offer',
+          currency: 'INR',
+          listUnitPrice: { minor: '1000', currency: 'INR', formatted: '₹10.00' },
+          tiers: [],
+        }),
+      );
+    }
+
+    if (href.includes('/trade-codes')) {
+      return Promise.resolve(jsonResponse({ id: 'offer', hsnCode: null, countryOfOrigin: null }));
+    }
 
     if (href.includes('/seller/locations')) {
       return Promise.resolve(

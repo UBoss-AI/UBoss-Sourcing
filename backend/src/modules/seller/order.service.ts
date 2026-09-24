@@ -449,6 +449,11 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
         });
       }
 
+      // A preorder's goods now exist and are held against it, so the preorder
+      // has done its job and hands over to ordinary fulfilment.
+      const preorders = await import('../preorders/request.service.js');
+      await preorders.onPreorderSellerGroupAccepted(group.orderId, tx);
+
       /*
        * And where the clock starts.
        *
@@ -466,6 +471,17 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
           handlingTimeDays: location.handlingTimeDays,
         },
         new Date(),
+      );
+    }
+
+    // Goods that were invoiced and then cancelled or returned owe a credit
+    // note; the seller is told, in this transaction.
+    if (input.to === 'CANCELLED' || input.to === 'RETURNED' || input.to === 'REFUNDED') {
+      const invoices = await import('../documents/seller-invoice.service.js');
+      await invoices.flagInvoicesForCredit(
+        { orderId: group.orderId, sellerOrderGroupId: group.id },
+        `Seller order moved to ${input.to.toLowerCase()}${input.reason === null || input.reason === undefined ? '' : ': ' + input.reason}`,
+        tx,
       );
     }
 
@@ -615,6 +631,24 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
         { err: error, orderId, groupId: input.groupId },
         'could not raise the consignment for an accepted seller order; it can be raised from the admin panel',
       );
+    }
+  }
+
+  /*
+   * The four delivery legs, where this part was priced on four levels.
+   *
+   * Confirmation is the first moment anybody may be asked to carry it, so it
+   * is the moment the legs appear - L1 the seller's turn at once, the rest
+   * waiting theirs. Idempotent, and never allowed to undo the acceptance; a
+   * failure here is repaired by the next read of the order's legs.
+   */
+  if (input.to === 'ACCEPTED' || input.to === 'CANCELLED') {
+    try {
+      const legs = await import('../logistics/shipment-leg.service.js');
+      if (input.to === 'ACCEPTED') await legs.createLegsForSellerOrder(input.groupId);
+      else await legs.cancelLegsForSellerOrder(input.groupId, input.reason ?? null);
+    } catch (error: unknown) {
+      logger.warn({ err: error, orderId, groupId: input.groupId }, 'could not update the delivery legs of a seller order');
     }
   }
 }

@@ -639,6 +639,8 @@ export type OrderWhereInput = {
   fulfilmentLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   fulfilmentQuote?: Prisma.XOR<Prisma.FulfilmentQuoteNullableScalarRelationFilter, Prisma.FulfilmentQuoteWhereInput> | null
   logisticsShipments?: Prisma.LogisticsShipmentListRelationFilter
+  logisticsLegCharges?: Prisma.OrderLogisticsLegListRelationFilter
+  shipmentLegs?: Prisma.ShipmentLegListRelationFilter
   items?: Prisma.OrderItemListRelationFilter
   statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
   approvals?: Prisma.OrderApprovalListRelationFilter
@@ -654,6 +656,9 @@ export type OrderWhereInput = {
   invoices?: Prisma.InvoiceListRelationFilter
   erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
   sellerOrderGroups?: Prisma.SellerOrderGroupListRelationFilter
+  preorderRequest?: Prisma.XOR<Prisma.PreorderRequestNullableScalarRelationFilter, Prisma.PreorderRequestWhereInput> | null
+  sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
+  packingLists?: Prisma.SellerPackingListListRelationFilter
 }
 
 export type OrderOrderByWithRelationInput = {
@@ -717,6 +722,8 @@ export type OrderOrderByWithRelationInput = {
   fulfilmentLocation?: Prisma.InventoryLocationOrderByWithRelationInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteOrderByWithRelationInput
   logisticsShipments?: Prisma.LogisticsShipmentOrderByRelationAggregateInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegOrderByRelationAggregateInput
+  shipmentLegs?: Prisma.ShipmentLegOrderByRelationAggregateInput
   items?: Prisma.OrderItemOrderByRelationAggregateInput
   statusHistory?: Prisma.OrderStatusHistoryOrderByRelationAggregateInput
   approvals?: Prisma.OrderApprovalOrderByRelationAggregateInput
@@ -732,6 +739,9 @@ export type OrderOrderByWithRelationInput = {
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   erpPush?: Prisma.ErpOrderPushOrderByWithRelationInput
   sellerOrderGroups?: Prisma.SellerOrderGroupOrderByRelationAggregateInput
+  preorderRequest?: Prisma.PreorderRequestOrderByWithRelationInput
+  sellerInvoices?: Prisma.SellerInvoiceOrderByRelationAggregateInput
+  packingLists?: Prisma.SellerPackingListOrderByRelationAggregateInput
   _relevance?: Prisma.OrderOrderByRelevanceInput
 }
 
@@ -799,6 +809,8 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   fulfilmentLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   fulfilmentQuote?: Prisma.XOR<Prisma.FulfilmentQuoteNullableScalarRelationFilter, Prisma.FulfilmentQuoteWhereInput> | null
   logisticsShipments?: Prisma.LogisticsShipmentListRelationFilter
+  logisticsLegCharges?: Prisma.OrderLogisticsLegListRelationFilter
+  shipmentLegs?: Prisma.ShipmentLegListRelationFilter
   items?: Prisma.OrderItemListRelationFilter
   statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
   approvals?: Prisma.OrderApprovalListRelationFilter
@@ -814,6 +826,9 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   invoices?: Prisma.InvoiceListRelationFilter
   erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
   sellerOrderGroups?: Prisma.SellerOrderGroupListRelationFilter
+  preorderRequest?: Prisma.XOR<Prisma.PreorderRequestNullableScalarRelationFilter, Prisma.PreorderRequestWhereInput> | null
+  sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
+  packingLists?: Prisma.SellerPackingListListRelationFilter
 }, "id" | "orderNumber" | "scheduleOccurrenceId">
 
 export type OrderOrderByWithAggregationInput = {
@@ -990,6 +1005,8 @@ export type OrderCreateInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -1005,6 +1022,9 @@ export type OrderCreateInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateInput = {
@@ -1062,6 +1082,8 @@ export type OrderUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -1076,6 +1098,9 @@ export type OrderUncheckedCreateInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUpdateInput = {
@@ -1132,6 +1157,8 @@ export type OrderUpdateInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -1147,6 +1174,9 @@ export type OrderUpdateInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateInput = {
@@ -1204,6 +1234,8 @@ export type OrderUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -1218,6 +1250,9 @@ export type OrderUncheckedUpdateInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateManyInput = {
@@ -2131,6 +2166,78 @@ export type OrderUpdateOneWithoutLogisticsShipmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutLogisticsShipmentsInput, Prisma.OrderUpdateWithoutLogisticsShipmentsInput>, Prisma.OrderUncheckedUpdateWithoutLogisticsShipmentsInput>
 }
 
+export type OrderCreateNestedOneWithoutLogisticsLegChargesInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedCreateWithoutLogisticsLegChargesInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutLogisticsLegChargesInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneRequiredWithoutLogisticsLegChargesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedCreateWithoutLogisticsLegChargesInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutLogisticsLegChargesInput
+  upsert?: Prisma.OrderUpsertWithoutLogisticsLegChargesInput
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutLogisticsLegChargesInput, Prisma.OrderUpdateWithoutLogisticsLegChargesInput>, Prisma.OrderUncheckedUpdateWithoutLogisticsLegChargesInput>
+}
+
+export type OrderCreateNestedOneWithoutShipmentLegsInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutShipmentLegsInput, Prisma.OrderUncheckedCreateWithoutShipmentLegsInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutShipmentLegsInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneRequiredWithoutShipmentLegsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutShipmentLegsInput, Prisma.OrderUncheckedCreateWithoutShipmentLegsInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutShipmentLegsInput
+  upsert?: Prisma.OrderUpsertWithoutShipmentLegsInput
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutShipmentLegsInput, Prisma.OrderUpdateWithoutShipmentLegsInput>, Prisma.OrderUncheckedUpdateWithoutShipmentLegsInput>
+}
+
+export type OrderCreateNestedOneWithoutPreorderRequestInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreorderRequestInput, Prisma.OrderUncheckedCreateWithoutPreorderRequestInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreorderRequestInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneWithoutPreorderRequestNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreorderRequestInput, Prisma.OrderUncheckedCreateWithoutPreorderRequestInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreorderRequestInput
+  upsert?: Prisma.OrderUpsertWithoutPreorderRequestInput
+  disconnect?: Prisma.OrderWhereInput | boolean
+  delete?: Prisma.OrderWhereInput | boolean
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutPreorderRequestInput, Prisma.OrderUpdateWithoutPreorderRequestInput>, Prisma.OrderUncheckedUpdateWithoutPreorderRequestInput>
+}
+
+export type OrderCreateNestedOneWithoutSellerInvoicesInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutSellerInvoicesInput, Prisma.OrderUncheckedCreateWithoutSellerInvoicesInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutSellerInvoicesInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneRequiredWithoutSellerInvoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutSellerInvoicesInput, Prisma.OrderUncheckedCreateWithoutSellerInvoicesInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutSellerInvoicesInput
+  upsert?: Prisma.OrderUpsertWithoutSellerInvoicesInput
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutSellerInvoicesInput, Prisma.OrderUpdateWithoutSellerInvoicesInput>, Prisma.OrderUncheckedUpdateWithoutSellerInvoicesInput>
+}
+
+export type OrderCreateNestedOneWithoutPackingListsInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPackingListsInput, Prisma.OrderUncheckedCreateWithoutPackingListsInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPackingListsInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneRequiredWithoutPackingListsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPackingListsInput, Prisma.OrderUncheckedCreateWithoutPackingListsInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPackingListsInput
+  upsert?: Prisma.OrderUpsertWithoutPackingListsInput
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutPackingListsInput, Prisma.OrderUpdateWithoutPackingListsInput>, Prisma.OrderUncheckedUpdateWithoutPackingListsInput>
+}
+
 export type OrderCreateWithoutFulfilmentLocationInput = {
   id: string
   orderNumber: string
@@ -2184,6 +2291,8 @@ export type OrderCreateWithoutFulfilmentLocationInput = {
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2199,6 +2308,9 @@ export type OrderCreateWithoutFulfilmentLocationInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutFulfilmentLocationInput = {
@@ -2255,6 +2367,8 @@ export type OrderUncheckedCreateWithoutFulfilmentLocationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -2269,6 +2383,9 @@ export type OrderUncheckedCreateWithoutFulfilmentLocationInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutFulfilmentLocationInput = {
@@ -2410,6 +2527,8 @@ export type OrderCreateWithoutReservationsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2424,6 +2543,9 @@ export type OrderCreateWithoutReservationsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutReservationsInput = {
@@ -2481,6 +2603,8 @@ export type OrderUncheckedCreateWithoutReservationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -2494,6 +2618,9 @@ export type OrderUncheckedCreateWithoutReservationsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutReservationsInput = {
@@ -2566,6 +2693,8 @@ export type OrderUpdateWithoutReservationsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -2580,6 +2709,9 @@ export type OrderUpdateWithoutReservationsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutReservationsInput = {
@@ -2637,6 +2769,8 @@ export type OrderUncheckedUpdateWithoutReservationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -2650,6 +2784,9 @@ export type OrderUncheckedUpdateWithoutReservationsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutCustomerProfileInput = {
@@ -2705,6 +2842,8 @@ export type OrderCreateWithoutCustomerProfileInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2720,6 +2859,9 @@ export type OrderCreateWithoutCustomerProfileInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutCustomerProfileInput = {
@@ -2776,6 +2918,8 @@ export type OrderUncheckedCreateWithoutCustomerProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -2790,6 +2934,9 @@ export type OrderUncheckedCreateWithoutCustomerProfileInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutCustomerProfileInput = {
@@ -2871,6 +3018,8 @@ export type OrderCreateWithoutCartInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2886,6 +3035,9 @@ export type OrderCreateWithoutCartInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutCartInput = {
@@ -2942,6 +3094,8 @@ export type OrderUncheckedCreateWithoutCartInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -2956,6 +3110,9 @@ export type OrderUncheckedCreateWithoutCartInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutCartInput = {
@@ -3038,6 +3195,8 @@ export type OrderCreateWithoutItemsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -3052,6 +3211,9 @@ export type OrderCreateWithoutItemsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutItemsInput = {
@@ -3109,6 +3271,8 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
@@ -3122,6 +3286,9 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutItemsInput = {
@@ -3194,6 +3361,8 @@ export type OrderUpdateWithoutItemsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -3208,6 +3377,9 @@ export type OrderUpdateWithoutItemsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutItemsInput = {
@@ -3265,6 +3437,8 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
@@ -3278,6 +3452,9 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutStatusHistoryInput = {
@@ -3334,6 +3511,8 @@ export type OrderCreateWithoutStatusHistoryInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -3348,6 +3527,9 @@ export type OrderCreateWithoutStatusHistoryInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutStatusHistoryInput = {
@@ -3405,6 +3587,8 @@ export type OrderUncheckedCreateWithoutStatusHistoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
@@ -3418,6 +3602,9 @@ export type OrderUncheckedCreateWithoutStatusHistoryInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutStatusHistoryInput = {
@@ -3490,6 +3677,8 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -3504,6 +3693,9 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
@@ -3561,6 +3753,8 @@ export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
@@ -3574,6 +3768,9 @@ export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutApprovalsInput = {
@@ -3630,6 +3827,8 @@ export type OrderCreateWithoutApprovalsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -3644,6 +3843,9 @@ export type OrderCreateWithoutApprovalsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutApprovalsInput = {
@@ -3701,6 +3903,8 @@ export type OrderUncheckedCreateWithoutApprovalsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
@@ -3714,6 +3918,9 @@ export type OrderUncheckedCreateWithoutApprovalsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutApprovalsInput = {
@@ -3786,6 +3993,8 @@ export type OrderUpdateWithoutApprovalsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -3800,6 +4009,9 @@ export type OrderUpdateWithoutApprovalsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutApprovalsInput = {
@@ -3857,6 +4069,8 @@ export type OrderUncheckedUpdateWithoutApprovalsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
@@ -3870,6 +4084,9 @@ export type OrderUncheckedUpdateWithoutApprovalsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutPaymentsInput = {
@@ -3926,6 +4143,8 @@ export type OrderCreateWithoutPaymentsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3940,6 +4159,9 @@ export type OrderCreateWithoutPaymentsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutPaymentsInput = {
@@ -3997,6 +4219,8 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -4010,6 +4234,9 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutPaymentsInput = {
@@ -4082,6 +4309,8 @@ export type OrderUpdateWithoutPaymentsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4096,6 +4325,9 @@ export type OrderUpdateWithoutPaymentsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutPaymentsInput = {
@@ -4153,6 +4385,8 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -4166,6 +4400,9 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutPaymentEventsInput = {
@@ -4222,6 +4459,8 @@ export type OrderCreateWithoutPaymentEventsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4236,6 +4475,9 @@ export type OrderCreateWithoutPaymentEventsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutPaymentEventsInput = {
@@ -4293,6 +4535,8 @@ export type OrderUncheckedCreateWithoutPaymentEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -4306,6 +4550,9 @@ export type OrderUncheckedCreateWithoutPaymentEventsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutPaymentEventsInput = {
@@ -4378,6 +4625,8 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4392,6 +4641,9 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
@@ -4449,6 +4701,8 @@ export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -4462,6 +4716,9 @@ export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutPaymentLinksInput = {
@@ -4518,6 +4775,8 @@ export type OrderCreateWithoutPaymentLinksInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4532,6 +4791,9 @@ export type OrderCreateWithoutPaymentLinksInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutPaymentLinksInput = {
@@ -4589,6 +4851,8 @@ export type OrderUncheckedCreateWithoutPaymentLinksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -4602,6 +4866,9 @@ export type OrderUncheckedCreateWithoutPaymentLinksInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutPaymentLinksInput = {
@@ -4674,6 +4941,8 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4688,6 +4957,9 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
@@ -4745,6 +5017,8 @@ export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -4758,6 +5032,9 @@ export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutRefundsInput = {
@@ -4814,6 +5091,8 @@ export type OrderCreateWithoutRefundsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4828,6 +5107,9 @@ export type OrderCreateWithoutRefundsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutRefundsInput = {
@@ -4885,6 +5167,8 @@ export type OrderUncheckedCreateWithoutRefundsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -4898,6 +5182,9 @@ export type OrderUncheckedCreateWithoutRefundsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutRefundsInput = {
@@ -4970,6 +5257,8 @@ export type OrderUpdateWithoutRefundsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4984,6 +5273,9 @@ export type OrderUpdateWithoutRefundsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutRefundsInput = {
@@ -5041,6 +5333,8 @@ export type OrderUncheckedUpdateWithoutRefundsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -5054,6 +5348,9 @@ export type OrderUncheckedUpdateWithoutRefundsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutOccurrenceInput = {
@@ -5110,6 +5407,8 @@ export type OrderCreateWithoutOccurrenceInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -5124,6 +5423,9 @@ export type OrderCreateWithoutOccurrenceInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutOccurrenceInput = {
@@ -5180,6 +5482,8 @@ export type OrderUncheckedCreateWithoutOccurrenceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -5194,6 +5498,9 @@ export type OrderUncheckedCreateWithoutOccurrenceInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutOccurrenceInput = {
@@ -5266,6 +5573,8 @@ export type OrderUpdateWithoutOccurrenceInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5280,6 +5589,9 @@ export type OrderUpdateWithoutOccurrenceInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutOccurrenceInput = {
@@ -5336,6 +5648,8 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -5350,6 +5664,9 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutPreferredPaymentCardInput = {
@@ -5405,6 +5722,8 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -5420,6 +5739,9 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
@@ -5476,6 +5798,8 @@ export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -5490,6 +5814,9 @@ export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutPreferredPaymentCardInput = {
@@ -5572,6 +5899,8 @@ export type OrderCreateWithoutErpPushInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -5586,6 +5915,9 @@ export type OrderCreateWithoutErpPushInput = {
   couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutErpPushInput = {
@@ -5643,6 +5975,8 @@ export type OrderUncheckedCreateWithoutErpPushInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -5656,6 +5990,9 @@ export type OrderUncheckedCreateWithoutErpPushInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutErpPushInput = {
@@ -5728,6 +6065,8 @@ export type OrderUpdateWithoutErpPushInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5742,6 +6081,9 @@ export type OrderUpdateWithoutErpPushInput = {
   couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutErpPushInput = {
@@ -5799,6 +6141,8 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -5812,6 +6156,9 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutFulfilmentQuoteInput = {
@@ -5867,6 +6214,8 @@ export type OrderCreateWithoutFulfilmentQuoteInput = {
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -5882,6 +6231,9 @@ export type OrderCreateWithoutFulfilmentQuoteInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutFulfilmentQuoteInput = {
@@ -5938,6 +6290,8 @@ export type OrderUncheckedCreateWithoutFulfilmentQuoteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -5952,6 +6306,9 @@ export type OrderUncheckedCreateWithoutFulfilmentQuoteInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutFulfilmentQuoteInput = {
@@ -6034,6 +6391,8 @@ export type OrderCreateWithoutShipmentsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -6048,6 +6407,9 @@ export type OrderCreateWithoutShipmentsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutShipmentsInput = {
@@ -6105,6 +6467,8 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -6118,6 +6482,9 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutShipmentsInput = {
@@ -6190,6 +6557,8 @@ export type OrderUpdateWithoutShipmentsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -6204,6 +6573,9 @@ export type OrderUpdateWithoutShipmentsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutShipmentsInput = {
@@ -6261,6 +6633,8 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -6274,6 +6648,9 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutReturnRequestsInput = {
@@ -6330,6 +6707,8 @@ export type OrderCreateWithoutReturnRequestsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -6344,6 +6723,9 @@ export type OrderCreateWithoutReturnRequestsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutReturnRequestsInput = {
@@ -6401,6 +6783,8 @@ export type OrderUncheckedCreateWithoutReturnRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -6414,6 +6798,9 @@ export type OrderUncheckedCreateWithoutReturnRequestsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutReturnRequestsInput = {
@@ -6486,6 +6873,8 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -6500,6 +6889,9 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
@@ -6557,6 +6949,8 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -6570,6 +6964,9 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutFxSnapshotInput = {
@@ -6625,6 +7022,8 @@ export type OrderCreateWithoutFxSnapshotInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -6640,6 +7039,9 @@ export type OrderCreateWithoutFxSnapshotInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutFxSnapshotInput = {
@@ -6696,6 +7098,8 @@ export type OrderUncheckedCreateWithoutFxSnapshotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -6710,6 +7114,9 @@ export type OrderUncheckedCreateWithoutFxSnapshotInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutFxSnapshotInput = {
@@ -6792,6 +7199,8 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -6806,6 +7215,9 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
@@ -6863,6 +7275,8 @@ export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -6876,6 +7290,9 @@ export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutCouponRedemptionInput = {
@@ -6948,6 +7365,8 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -6962,6 +7381,9 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
@@ -7019,6 +7441,8 @@ export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -7032,6 +7456,9 @@ export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutInvoicesInput = {
@@ -7088,6 +7515,8 @@ export type OrderCreateWithoutInvoicesInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -7102,6 +7531,9 @@ export type OrderCreateWithoutInvoicesInput = {
   couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutInvoicesInput = {
@@ -7159,6 +7591,8 @@ export type OrderUncheckedCreateWithoutInvoicesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -7172,6 +7606,9 @@ export type OrderUncheckedCreateWithoutInvoicesInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutInvoicesInput = {
@@ -7244,6 +7681,8 @@ export type OrderUpdateWithoutInvoicesInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -7258,6 +7697,9 @@ export type OrderUpdateWithoutInvoicesInput = {
   couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutInvoicesInput = {
@@ -7315,6 +7757,8 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -7328,6 +7772,9 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutSellerOrderGroupsInput = {
@@ -7384,6 +7831,8 @@ export type OrderCreateWithoutSellerOrderGroupsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -7398,6 +7847,9 @@ export type OrderCreateWithoutSellerOrderGroupsInput = {
   couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutSellerOrderGroupsInput = {
@@ -7455,6 +7907,8 @@ export type OrderUncheckedCreateWithoutSellerOrderGroupsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -7468,6 +7922,9 @@ export type OrderUncheckedCreateWithoutSellerOrderGroupsInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutSellerOrderGroupsInput = {
@@ -7540,6 +7997,8 @@ export type OrderUpdateWithoutSellerOrderGroupsInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -7554,6 +8013,9 @@ export type OrderUpdateWithoutSellerOrderGroupsInput = {
   couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutSellerOrderGroupsInput = {
@@ -7611,6 +8073,8 @@ export type OrderUncheckedUpdateWithoutSellerOrderGroupsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -7624,6 +8088,9 @@ export type OrderUncheckedUpdateWithoutSellerOrderGroupsInput = {
   couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutLogisticsShipmentsInput = {
@@ -7679,6 +8146,8 @@ export type OrderCreateWithoutLogisticsShipmentsInput = {
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -7694,6 +8163,9 @@ export type OrderCreateWithoutLogisticsShipmentsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutLogisticsShipmentsInput = {
@@ -7750,6 +8222,8 @@ export type OrderUncheckedCreateWithoutLogisticsShipmentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
@@ -7764,6 +8238,9 @@ export type OrderUncheckedCreateWithoutLogisticsShipmentsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
   erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutLogisticsShipmentsInput = {
@@ -7835,6 +8312,8 @@ export type OrderUpdateWithoutLogisticsShipmentsInput = {
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -7850,6 +8329,9 @@ export type OrderUpdateWithoutLogisticsShipmentsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutLogisticsShipmentsInput = {
@@ -7906,6 +8388,8 @@ export type OrderUncheckedUpdateWithoutLogisticsShipmentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -7920,6 +8404,1589 @@ export type OrderUncheckedUpdateWithoutLogisticsShipmentsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutLogisticsLegChargesInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutLogisticsLegChargesInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutLogisticsLegChargesInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedCreateWithoutLogisticsLegChargesInput>
+}
+
+export type OrderUpsertWithoutLogisticsLegChargesInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedUpdateWithoutLogisticsLegChargesInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedCreateWithoutLogisticsLegChargesInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutLogisticsLegChargesInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutLogisticsLegChargesInput, Prisma.OrderUncheckedUpdateWithoutLogisticsLegChargesInput>
+}
+
+export type OrderUpdateWithoutLogisticsLegChargesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutLogisticsLegChargesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutShipmentLegsInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutShipmentLegsInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutShipmentLegsInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutShipmentLegsInput, Prisma.OrderUncheckedCreateWithoutShipmentLegsInput>
+}
+
+export type OrderUpsertWithoutShipmentLegsInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutShipmentLegsInput, Prisma.OrderUncheckedUpdateWithoutShipmentLegsInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutShipmentLegsInput, Prisma.OrderUncheckedCreateWithoutShipmentLegsInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutShipmentLegsInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutShipmentLegsInput, Prisma.OrderUncheckedUpdateWithoutShipmentLegsInput>
+}
+
+export type OrderUpdateWithoutShipmentLegsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutShipmentLegsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutPreorderRequestInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutPreorderRequestInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutPreorderRequestInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPreorderRequestInput, Prisma.OrderUncheckedCreateWithoutPreorderRequestInput>
+}
+
+export type OrderUpsertWithoutPreorderRequestInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutPreorderRequestInput, Prisma.OrderUncheckedUpdateWithoutPreorderRequestInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPreorderRequestInput, Prisma.OrderUncheckedCreateWithoutPreorderRequestInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutPreorderRequestInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutPreorderRequestInput, Prisma.OrderUncheckedUpdateWithoutPreorderRequestInput>
+}
+
+export type OrderUpdateWithoutPreorderRequestInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutPreorderRequestInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutSellerInvoicesInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutSellerInvoicesInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutSellerInvoicesInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutSellerInvoicesInput, Prisma.OrderUncheckedCreateWithoutSellerInvoicesInput>
+}
+
+export type OrderUpsertWithoutSellerInvoicesInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutSellerInvoicesInput, Prisma.OrderUncheckedUpdateWithoutSellerInvoicesInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutSellerInvoicesInput, Prisma.OrderUncheckedCreateWithoutSellerInvoicesInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutSellerInvoicesInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutSellerInvoicesInput, Prisma.OrderUncheckedUpdateWithoutSellerInvoicesInput>
+}
+
+export type OrderUpdateWithoutSellerInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutSellerInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutPackingListsInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotCreateNestedOneWithoutOrdersInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutPackingListsInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  fxPriceSource?: $Enums.FxPriceSource | null
+  fxSnapshotId?: string | null
+  fxBaseCurrency?: string | null
+  fxBaseGrandTotalMinor?: bigint | number | null
+  fxMidRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Date | string | null
+  fxProvider?: string | null
+  fxPolicyVersion?: string | null
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutOrderInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedCreateNestedManyWithoutOrderInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutOrderInput
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedCreateNestedManyWithoutOrderInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedCreateNestedOneWithoutConvertedOrderInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutPackingListsInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPackingListsInput, Prisma.OrderUncheckedCreateWithoutPackingListsInput>
+}
+
+export type OrderUpsertWithoutPackingListsInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutPackingListsInput, Prisma.OrderUncheckedUpdateWithoutPackingListsInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPackingListsInput, Prisma.OrderUncheckedCreateWithoutPackingListsInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutPackingListsInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutPackingListsInput, Prisma.OrderUncheckedUpdateWithoutPackingListsInput>
+}
+
+export type OrderUpdateWithoutPackingListsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fxSnapshot?: Prisma.ExchangeRateSnapshotUpdateOneWithoutOrdersNestedInput
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutPackingListsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  fxPriceSource?: Prisma.NullableEnumFxPriceSourceFieldUpdateOperationsInput | $Enums.FxPriceSource | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxBaseGrandTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  fxMidRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateUsed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxAdjustmentPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fxProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxPolicyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+  sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderCreateManyFulfilmentLocationInput = {
@@ -8030,6 +10097,8 @@ export type OrderUpdateWithoutFulfilmentLocationInput = {
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -8045,6 +10114,9 @@ export type OrderUpdateWithoutFulfilmentLocationInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutFulfilmentLocationInput = {
@@ -8101,6 +10173,8 @@ export type OrderUncheckedUpdateWithoutFulfilmentLocationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -8115,6 +10189,9 @@ export type OrderUncheckedUpdateWithoutFulfilmentLocationInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutFulfilmentLocationInput = {
@@ -8280,6 +10357,8 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -8295,6 +10374,9 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
@@ -8351,6 +10433,8 @@ export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -8365,6 +10449,9 @@ export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -8530,6 +10617,8 @@ export type OrderUpdateWithoutCartInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -8545,6 +10634,9 @@ export type OrderUpdateWithoutCartInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutCartInput = {
@@ -8601,6 +10693,8 @@ export type OrderUncheckedUpdateWithoutCartInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -8615,6 +10709,9 @@ export type OrderUncheckedUpdateWithoutCartInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutCartInput = {
@@ -8780,6 +10877,8 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -8795,6 +10894,9 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
@@ -8851,6 +10953,8 @@ export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -8865,6 +10969,9 @@ export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutPreferredPaymentCardInput = {
@@ -9030,6 +11137,8 @@ export type OrderUpdateWithoutFulfilmentQuoteInput = {
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -9045,6 +11154,9 @@ export type OrderUpdateWithoutFulfilmentQuoteInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutFulfilmentQuoteInput = {
@@ -9101,6 +11213,8 @@ export type OrderUncheckedUpdateWithoutFulfilmentQuoteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -9115,6 +11229,9 @@ export type OrderUncheckedUpdateWithoutFulfilmentQuoteInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutFulfilmentQuoteInput = {
@@ -9280,6 +11397,8 @@ export type OrderUpdateWithoutFxSnapshotInput = {
   fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
   fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -9295,6 +11414,9 @@ export type OrderUpdateWithoutFxSnapshotInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutFxSnapshotInput = {
@@ -9351,6 +11473,8 @@ export type OrderUncheckedUpdateWithoutFxSnapshotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  logisticsLegCharges?: Prisma.OrderLogisticsLegUncheckedUpdateManyWithoutOrderNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutOrderNestedInput
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
@@ -9365,6 +11489,9 @@ export type OrderUncheckedUpdateWithoutFxSnapshotInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
   sellerOrderGroups?: Prisma.SellerOrderGroupUncheckedUpdateManyWithoutOrderNestedInput
+  preorderRequest?: Prisma.PreorderRequestUncheckedUpdateOneWithoutConvertedOrderNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutFxSnapshotInput = {
@@ -9429,6 +11556,8 @@ export type OrderUncheckedUpdateManyWithoutFxSnapshotInput = {
 
 export type OrderCountOutputType = {
   logisticsShipments: number
+  logisticsLegCharges: number
+  shipmentLegs: number
   items: number
   statusHistory: number
   approvals: number
@@ -9441,10 +11570,14 @@ export type OrderCountOutputType = {
   paymentEvents: number
   invoices: number
   sellerOrderGroups: number
+  sellerInvoices: number
+  packingLists: number
 }
 
 export type OrderCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   logisticsShipments?: boolean | OrderCountOutputTypeCountLogisticsShipmentsArgs
+  logisticsLegCharges?: boolean | OrderCountOutputTypeCountLogisticsLegChargesArgs
+  shipmentLegs?: boolean | OrderCountOutputTypeCountShipmentLegsArgs
   items?: boolean | OrderCountOutputTypeCountItemsArgs
   statusHistory?: boolean | OrderCountOutputTypeCountStatusHistoryArgs
   approvals?: boolean | OrderCountOutputTypeCountApprovalsArgs
@@ -9457,6 +11590,8 @@ export type OrderCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   paymentEvents?: boolean | OrderCountOutputTypeCountPaymentEventsArgs
   invoices?: boolean | OrderCountOutputTypeCountInvoicesArgs
   sellerOrderGroups?: boolean | OrderCountOutputTypeCountSellerOrderGroupsArgs
+  sellerInvoices?: boolean | OrderCountOutputTypeCountSellerInvoicesArgs
+  packingLists?: boolean | OrderCountOutputTypeCountPackingListsArgs
 }
 
 /**
@@ -9474,6 +11609,20 @@ export type OrderCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
  */
 export type OrderCountOutputTypeCountLogisticsShipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LogisticsShipmentWhereInput
+}
+
+/**
+ * OrderCountOutputType without action
+ */
+export type OrderCountOutputTypeCountLogisticsLegChargesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderLogisticsLegWhereInput
+}
+
+/**
+ * OrderCountOutputType without action
+ */
+export type OrderCountOutputTypeCountShipmentLegsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShipmentLegWhereInput
 }
 
 /**
@@ -9560,6 +11709,20 @@ export type OrderCountOutputTypeCountSellerOrderGroupsArgs<ExtArgs extends runti
   where?: Prisma.SellerOrderGroupWhereInput
 }
 
+/**
+ * OrderCountOutputType without action
+ */
+export type OrderCountOutputTypeCountSellerInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerInvoiceWhereInput
+}
+
+/**
+ * OrderCountOutputType without action
+ */
+export type OrderCountOutputTypeCountPackingListsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SellerPackingListWhereInput
+}
+
 
 export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -9622,6 +11785,8 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   fulfilmentLocation?: boolean | Prisma.Order$fulfilmentLocationArgs<ExtArgs>
   fulfilmentQuote?: boolean | Prisma.Order$fulfilmentQuoteArgs<ExtArgs>
   logisticsShipments?: boolean | Prisma.Order$logisticsShipmentsArgs<ExtArgs>
+  logisticsLegCharges?: boolean | Prisma.Order$logisticsLegChargesArgs<ExtArgs>
+  shipmentLegs?: boolean | Prisma.Order$shipmentLegsArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   statusHistory?: boolean | Prisma.Order$statusHistoryArgs<ExtArgs>
   approvals?: boolean | Prisma.Order$approvalsArgs<ExtArgs>
@@ -9637,6 +11802,9 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   invoices?: boolean | Prisma.Order$invoicesArgs<ExtArgs>
   erpPush?: boolean | Prisma.Order$erpPushArgs<ExtArgs>
   sellerOrderGroups?: boolean | Prisma.Order$sellerOrderGroupsArgs<ExtArgs>
+  preorderRequest?: boolean | Prisma.Order$preorderRequestArgs<ExtArgs>
+  sellerInvoices?: boolean | Prisma.Order$sellerInvoicesArgs<ExtArgs>
+  packingLists?: boolean | Prisma.Order$packingListsArgs<ExtArgs>
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
@@ -9707,6 +11875,8 @@ export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   fulfilmentLocation?: boolean | Prisma.Order$fulfilmentLocationArgs<ExtArgs>
   fulfilmentQuote?: boolean | Prisma.Order$fulfilmentQuoteArgs<ExtArgs>
   logisticsShipments?: boolean | Prisma.Order$logisticsShipmentsArgs<ExtArgs>
+  logisticsLegCharges?: boolean | Prisma.Order$logisticsLegChargesArgs<ExtArgs>
+  shipmentLegs?: boolean | Prisma.Order$shipmentLegsArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   statusHistory?: boolean | Prisma.Order$statusHistoryArgs<ExtArgs>
   approvals?: boolean | Prisma.Order$approvalsArgs<ExtArgs>
@@ -9722,6 +11892,9 @@ export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   invoices?: boolean | Prisma.Order$invoicesArgs<ExtArgs>
   erpPush?: boolean | Prisma.Order$erpPushArgs<ExtArgs>
   sellerOrderGroups?: boolean | Prisma.Order$sellerOrderGroupsArgs<ExtArgs>
+  preorderRequest?: boolean | Prisma.Order$preorderRequestArgs<ExtArgs>
+  sellerInvoices?: boolean | Prisma.Order$sellerInvoicesArgs<ExtArgs>
+  packingLists?: boolean | Prisma.Order$packingListsArgs<ExtArgs>
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -9743,6 +11916,15 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      * partner independently.
      */
     logisticsShipments: Prisma.$LogisticsShipmentPayload<ExtArgs>[]
+    /**
+     * What each of L1-L4 cost this buyer, frozen at checkout. See the SELLER
+     * LOGISTICS POLICY block at the end of this file.
+     */
+    logisticsLegCharges: Prisma.$OrderLogisticsLegPayload<ExtArgs>[]
+    /**
+     * The four legs being carried out, one set per seller part.
+     */
+    shipmentLegs: Prisma.$ShipmentLegPayload<ExtArgs>[]
     items: Prisma.$OrderItemPayload<ExtArgs>[]
     statusHistory: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
     approvals: Prisma.$OrderApprovalPayload<ExtArgs>[]
@@ -9764,6 +11946,19 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      * SPLIT BY SELLER block at the end of this file.
      */
     sellerOrderGroups: Prisma.$SellerOrderGroupPayload<ExtArgs>[]
+    /**
+     * The bulk preorder this order was converted from, where it was one. The
+     * unique column lives on the request, which is what makes "a preorder
+     * becomes an order at most once" a database fact.
+     */
+    preorderRequest: Prisma.$PreorderRequestPayload<ExtArgs> | null
+    /**
+     * Invoices and packing lists the SELLERS issued for their parts of this
+     * order - several of each, one per consignment. Not the operator's own
+     * `invoices` above, which cover goods the operator sold.
+     */
+    sellerInvoices: Prisma.$SellerInvoicePayload<ExtArgs>[]
+    packingLists: Prisma.$SellerPackingListPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -10288,6 +12483,8 @@ export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Ty
   fulfilmentLocation<T extends Prisma.Order$fulfilmentLocationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$fulfilmentLocationArgs<ExtArgs>>): Prisma.Prisma__InventoryLocationClient<runtime.Types.Result.GetResult<Prisma.$InventoryLocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   fulfilmentQuote<T extends Prisma.Order$fulfilmentQuoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$fulfilmentQuoteArgs<ExtArgs>>): Prisma.Prisma__FulfilmentQuoteClient<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   logisticsShipments<T extends Prisma.Order$logisticsShipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$logisticsShipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  logisticsLegCharges<T extends Prisma.Order$logisticsLegChargesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$logisticsLegChargesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderLogisticsLegPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shipmentLegs<T extends Prisma.Order$shipmentLegsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$shipmentLegsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShipmentLegPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   items<T extends Prisma.Order$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   statusHistory<T extends Prisma.Order$statusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$statusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvals<T extends Prisma.Order$approvalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10303,6 +12500,9 @@ export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Ty
   invoices<T extends Prisma.Order$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   erpPush<T extends Prisma.Order$erpPushArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$erpPushArgs<ExtArgs>>): Prisma.Prisma__ErpOrderPushClient<runtime.Types.Result.GetResult<Prisma.$ErpOrderPushPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sellerOrderGroups<T extends Prisma.Order$sellerOrderGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$sellerOrderGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOrderGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preorderRequest<T extends Prisma.Order$preorderRequestArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$preorderRequestArgs<ExtArgs>>): Prisma.Prisma__PreorderRequestClient<runtime.Types.Result.GetResult<Prisma.$PreorderRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sellerInvoices<T extends Prisma.Order$sellerInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$sellerInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  packingLists<T extends Prisma.Order$packingListsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$packingListsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerPackingListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10852,6 +13052,54 @@ export type Order$logisticsShipmentsArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
+ * Order.logisticsLegCharges
+ */
+export type Order$logisticsLegChargesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderLogisticsLeg
+   */
+  select?: Prisma.OrderLogisticsLegSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderLogisticsLeg
+   */
+  omit?: Prisma.OrderLogisticsLegOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderLogisticsLegInclude<ExtArgs> | null
+  where?: Prisma.OrderLogisticsLegWhereInput
+  orderBy?: Prisma.OrderLogisticsLegOrderByWithRelationInput | Prisma.OrderLogisticsLegOrderByWithRelationInput[]
+  cursor?: Prisma.OrderLogisticsLegWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderLogisticsLegScalarFieldEnum | Prisma.OrderLogisticsLegScalarFieldEnum[]
+}
+
+/**
+ * Order.shipmentLegs
+ */
+export type Order$shipmentLegsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShipmentLeg
+   */
+  select?: Prisma.ShipmentLegSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShipmentLeg
+   */
+  omit?: Prisma.ShipmentLegOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShipmentLegInclude<ExtArgs> | null
+  where?: Prisma.ShipmentLegWhereInput
+  orderBy?: Prisma.ShipmentLegOrderByWithRelationInput | Prisma.ShipmentLegOrderByWithRelationInput[]
+  cursor?: Prisma.ShipmentLegWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShipmentLegScalarFieldEnum | Prisma.ShipmentLegScalarFieldEnum[]
+}
+
+/**
  * Order.items
  */
 export type Order$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -11194,6 +13442,73 @@ export type Order$sellerOrderGroupsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.SellerOrderGroupScalarFieldEnum | Prisma.SellerOrderGroupScalarFieldEnum[]
+}
+
+/**
+ * Order.preorderRequest
+ */
+export type Order$preorderRequestArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderRequest
+   */
+  select?: Prisma.PreorderRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderRequest
+   */
+  omit?: Prisma.PreorderRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderRequestInclude<ExtArgs> | null
+  where?: Prisma.PreorderRequestWhereInput
+}
+
+/**
+ * Order.sellerInvoices
+ */
+export type Order$sellerInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerInvoice
+   */
+  select?: Prisma.SellerInvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerInvoice
+   */
+  omit?: Prisma.SellerInvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerInvoiceInclude<ExtArgs> | null
+  where?: Prisma.SellerInvoiceWhereInput
+  orderBy?: Prisma.SellerInvoiceOrderByWithRelationInput | Prisma.SellerInvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.SellerInvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerInvoiceScalarFieldEnum | Prisma.SellerInvoiceScalarFieldEnum[]
+}
+
+/**
+ * Order.packingLists
+ */
+export type Order$packingListsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerPackingList
+   */
+  select?: Prisma.SellerPackingListSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerPackingList
+   */
+  omit?: Prisma.SellerPackingListOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerPackingListInclude<ExtArgs> | null
+  where?: Prisma.SellerPackingListWhereInput
+  orderBy?: Prisma.SellerPackingListOrderByWithRelationInput | Prisma.SellerPackingListOrderByWithRelationInput[]
+  cursor?: Prisma.SellerPackingListWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SellerPackingListScalarFieldEnum | Prisma.SellerPackingListScalarFieldEnum[]
 }
 
 /**

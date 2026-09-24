@@ -318,6 +318,53 @@ export const AuditAction = {
   /// sees. Anything that can make a problem stop being visible has to leave a
   /// record of who made it stop and what they said about it.
   NOTIFICATION_RESOLVED: 'notification.resolved',
+
+  // The four delivery levels (L1-L4)
+  //
+  // Every change of mode, owner, carrier and price, with before and after.
+  // A buyer disputing a delivery charge and a seller disputing who controlled
+  // a level are both answered from these rows.
+  LOGISTICS_POLICY_SAVED: 'logistics_policy.saved',
+  LOGISTICS_POLICY_PUBLISHED: 'logistics_policy.published',
+  LOGISTICS_PROVIDER_CHANGED: 'logistics_provider.changed',
+  LOGISTICS_LEVEL_RATE_SAVED: 'logistics_level_rate.saved',
+  LOGISTICS_LEVEL_RATE_PUBLISHED: 'logistics_level_rate.published',
+  LOGISTICS_LEVEL_RATE_DEACTIVATED: 'logistics_level_rate.deactivated',
+  LOGISTICS_LEG_ASSIGNED: 'logistics_leg.assigned',
+  LOGISTICS_LEG_STATUS_CHANGED: 'logistics_leg.status_changed',
+  LOGISTICS_PRESENTATION_CHANGED: 'logistics_presentation.changed',
+
+  // Platform fee and the tax on it
+  PLATFORM_FEE_POLICY_SAVED: 'platform_fee_policy.saved',
+  PLATFORM_FEE_POLICY_PUBLISHED: 'platform_fee_policy.published',
+  PLATFORM_FEE_POLICY_RETIRED: 'platform_fee_policy.retired',
+  PLATFORM_FEE_TAX_VERIFIED: 'platform_fee_policy.tax_verified',
+  /// Bulk preorders. One action per decision, with the terms hash in `after`
+  /// wherever terms were proposed or confirmed, so the trail names exactly
+  /// what each party agreed to.
+  PREORDER_SUBMITTED: 'preorder.submitted',
+  PREORDER_SELLER_ACCEPTED: 'preorder.seller_accepted',
+  PREORDER_SELLER_COUNTERED: 'preorder.seller_countered',
+  PREORDER_REJECTED: 'preorder.rejected',
+  PREORDER_BUYER_DECLINED: 'preorder.buyer_declined',
+  PREORDER_BUYER_CONFIRMED: 'preorder.buyer_confirmed',
+  PREORDER_CONFIRMED: 'preorder.confirmed',
+  PREORDER_STATUS_CHANGED: 'preorder.status_changed',
+  PREORDER_CANCELLED: 'preorder.cancelled',
+  PREORDER_EXPIRED: 'preorder.expired',
+  PREORDER_POLICY_SAVED: 'preorder.policy_saved',
+  /// A seller's invoices and packing lists. Every preview, issue, download,
+  /// credit and supersession is recorded, with the document number and the
+  /// SHA-256 of the PDF where one exists.
+  SELLER_INVOICE_PREVIEWED: 'seller_invoice.previewed',
+  SELLER_INVOICE_ISSUED: 'seller_invoice.issued',
+  SELLER_INVOICE_CREDITED: 'seller_invoice.credited',
+  SELLER_INVOICE_FLAGGED: 'seller_invoice.credit_note_required',
+  PACKING_LIST_PREVIEWED: 'packing_list.previewed',
+  PACKING_LIST_ISSUED: 'packing_list.issued',
+  PACKING_LIST_SUPERSEDED: 'packing_list.superseded',
+  CONSIGNMENT_PACKED: 'consignment.packed',
+  SELLER_DOCUMENT_DOWNLOADED: 'seller_document.downloaded',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

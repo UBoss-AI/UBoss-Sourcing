@@ -160,6 +160,33 @@ export const AdminNotificationKind = {
   /// An ALERT resolved the moment a carrier accepts it. Carries
   /// `logistics.read`.
   LOGISTICS_SHIPMENT_UNASSIGNED: 'logistics.shipment.unassigned',
+  /// A seller's policy puts a delivery level under UBOSS and UBOSS has no
+  /// published price for it, so the seller's route cannot be sold. The
+  /// variables are sellerName and level. An ALERT, closed by a price being
+  /// published for that level. Carries `logistics.read`.
+  LOGISTICS_LEVEL_PRICE_REQUIRED: 'logistics.level.price_required',
+  /// A UBOSS-controlled leg of a confirmed order has no carrier. The variables
+  /// are orderNumber, sellerOrderNumber and level. An ALERT, closed by a
+  /// carrier being named. Carries `logistics.read`.
+  LOGISTICS_LEG_NEEDS_ASSIGNMENT: 'logistics.leg.needs_assignment',
+  /// Something happened on a leg: accepted, refused, handed over, or an
+  /// exception. The variables are orderNumber, level and event.
+  LOGISTICS_LEG_UPDATE: 'logistics.leg.update',
+  /// A published platform-fee policy charges a tax nobody has verified is the
+  /// legally correct one. The variables are policyName and taxRate. An ALERT,
+  /// closed by verification or by the policy being retired. Carries
+  /// `finance.policy.read`.
+  PLATFORM_FEE_TAX_UNVERIFIED: 'finance.fee_tax.unverified',
+  /// A preorder on one of the OPERATOR's own products needs staff to act:
+  /// answer a new request, start production once it is paid, or deal with a
+  /// delivery at risk. The variables are requestNumber and event (the seller
+  /// notification kind it stands in for). An ALERT, closed by staff acting on
+  /// the preorder or by it closing. Carries `order.read`.
+  PREORDER_AWAITING_OPERATOR: 'preorder.awaiting_operator',
+  /// Something happened on a preorder for the operator's own product that
+  /// needs no action: the buyer confirmed or declined, or it closed. The
+  /// variables are requestNumber and event.
+  PREORDER_UPDATE: 'preorder.update',
 } as const;
 
 export type AdminNotificationKindKey =
@@ -257,6 +284,34 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
     resolutionPolicy: 'MANUAL_ALLOWED',
     resolvePermission: Permission.LOGISTICS_ASSIGN,
   }),
+
+  [AdminNotificationKind.LOGISTICS_LEVEL_PRICE_REQUIRED]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the managed level price',
+  }),
+
+  [AdminNotificationKind.LOGISTICS_LEG_NEEDS_ASSIGNMENT]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the leg',
+  }),
+
+  [AdminNotificationKind.LOGISTICS_LEG_UPDATE]: INFORMATION,
+
+  [AdminNotificationKind.PLATFORM_FEE_TAX_UNVERIFIED]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the platform fee policy',
+  }),
+
+  [AdminNotificationKind.PREORDER_AWAITING_OPERATOR]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'the preorder',
+  }),
+
+  [AdminNotificationKind.PREORDER_UPDATE]: INFORMATION,
 });
 
 function policyFor(kind: string): KindPolicy {
@@ -284,6 +339,13 @@ export const ResolutionKey = {
   shipmentAssignment: (shipmentId: string): string => `shipment-assignment:${shipmentId}`,
   sellerDocument: (documentId: string): string => `seller-document:${documentId}`,
   dataRequest: (requestId: string): string => `data-request:${requestId}`,
+  /** A UBOSS-controlled level of one seller with no published price. */
+  levelPrice: (sellerAccountId: string, level: string): string =>
+    `level-price:${sellerAccountId}:${level}`,
+  /** A UBOSS-controlled leg with no carrier. */
+  legAssignment: (legId: string): string => `leg-assignment:${legId}`,
+  /** A fee policy whose tax rule nobody has verified. */
+  feeTaxVerification: (policyId: string): string => `fee-tax:${policyId}`,
 } as const;
 
 /**
@@ -497,7 +559,9 @@ export async function createAdminNotification(
     // alert nothing can ever close, which is worse than no alert at all - and
     // a default assembled here would be a second spelling of a key the
     // resolving service has to match exactly.
-    throw new Error(`admin notification kind "${input.kind}" is an alert and needs a resolutionKey`);
+    throw new Error(
+      `admin notification kind "${input.kind}" is an alert and needs a resolutionKey`,
+    );
   }
 
   const write = async (): Promise<void> => {
@@ -742,9 +806,7 @@ export async function archiveOrphanedShipmentAlerts(): Promise<number> {
 
   if (live.length === 0) return 0;
 
-  const ids = live
-    .map((row) => row.relatedId)
-    .filter((id): id is string => id !== null);
+  const ids = live.map((row) => row.relatedId).filter((id): id is string => id !== null);
 
   const surviving = new Set(
     (

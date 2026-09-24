@@ -61,7 +61,6 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { recordSellerAudit } from './audit.service.js';
 import { notifyMethodDecision } from './fulfilment-notification.service.js';
-import { markLogisticsPartnerStep } from './onboarding.service.js';
 
 /** Who is acting, for the audit trail. Never used for authorisation. */
 export interface SellerActor {
@@ -628,11 +627,6 @@ export async function chooseFulfilmentMethod(
     }
   }
 
-  await markLogisticsPartnerStep({
-    membership: { sellerAccountId: input.sellerAccountId },
-    isResumePoint: true,
-  });
-
   const view = await findMethod(input.sellerAccountId, created.id);
   if (view === null) throw notFound('Delivery method');
   return view;
@@ -846,11 +840,6 @@ export async function changeMethodStatus(
     summary: `${method.publicDisplayName} is now ${describeMethodStatus(input.status)}.`,
   });
 
-  await markLogisticsPartnerStep({
-    membership: { sellerAccountId: input.sellerAccountId },
-    isResumePoint: true,
-  });
-
   const view = await findMethod(input.sellerAccountId, method.id);
   if (view === null) throw notFound('Delivery method');
   return view;
@@ -956,13 +945,6 @@ export async function decideFulfilmentMethod(
     methodName: method.publicDisplayName,
     status: input.to,
     reason: input.reason,
-  });
-
-  await markLogisticsPartnerStep({
-    membership: { sellerAccountId: method.sellerAccountId },
-    // A decision by the marketplace is not where the SELLER left off, so the
-    // bookmark stays where they put it.
-    isResumePoint: false,
   });
 
   const view = await findMethod(method.sellerAccountId, method.id);

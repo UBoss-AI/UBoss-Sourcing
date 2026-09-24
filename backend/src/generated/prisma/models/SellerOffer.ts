@@ -94,6 +94,8 @@ export type SellerOfferMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   archivedAt: Date | null
+  hsnCode: string | null
+  countryOfOrigin: string | null
 }
 
 export type SellerOfferMaxAggregateOutputType = {
@@ -128,6 +130,8 @@ export type SellerOfferMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   archivedAt: Date | null
+  hsnCode: string | null
+  countryOfOrigin: string | null
 }
 
 export type SellerOfferCountAggregateOutputType = {
@@ -163,6 +167,8 @@ export type SellerOfferCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   archivedAt: number
+  hsnCode: number
+  countryOfOrigin: number
   _all: number
 }
 
@@ -229,6 +235,8 @@ export type SellerOfferMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  hsnCode?: true
+  countryOfOrigin?: true
 }
 
 export type SellerOfferMaxAggregateInputType = {
@@ -263,6 +271,8 @@ export type SellerOfferMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  hsnCode?: true
+  countryOfOrigin?: true
 }
 
 export type SellerOfferCountAggregateInputType = {
@@ -298,6 +308,8 @@ export type SellerOfferCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   archivedAt?: true
+  hsnCode?: true
+  countryOfOrigin?: true
   _all?: true
 }
 
@@ -420,6 +432,8 @@ export type SellerOfferGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   archivedAt: Date | null
+  hsnCode: string | null
+  countryOfOrigin: string | null
   _count: SellerOfferCountAggregateOutputType | null
   _avg: SellerOfferAvgAggregateOutputType | null
   _sum: SellerOfferSumAggregateOutputType | null
@@ -478,6 +492,8 @@ export type SellerOfferWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   fulfilmentRules?: Prisma.SellerFulfilmentRuleListRelationFilter
@@ -489,6 +505,7 @@ export type SellerOfferWhereInput = {
   packagingProfile?: Prisma.XOR<Prisma.SellerPackagingProfileNullableScalarRelationFilter, Prisma.SellerPackagingProfileWhereInput> | null
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
+  preorderRequests?: Prisma.PreorderRequestListRelationFilter
 }
 
 export type SellerOfferOrderByWithRelationInput = {
@@ -524,6 +541,8 @@ export type SellerOfferOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  countryOfOrigin?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleOrderByRelationAggregateInput
@@ -535,6 +554,7 @@ export type SellerOfferOrderByWithRelationInput = {
   packagingProfile?: Prisma.SellerPackagingProfileOrderByWithRelationInput
   cartItems?: Prisma.CartItemOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
+  preorderRequests?: Prisma.PreorderRequestOrderByRelationAggregateInput
   _relevance?: Prisma.SellerOfferOrderByRelevanceInput
 }
 
@@ -576,6 +596,8 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   fulfilmentRules?: Prisma.SellerFulfilmentRuleListRelationFilter
@@ -587,6 +609,7 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   packagingProfile?: Prisma.XOR<Prisma.SellerPackagingProfileNullableScalarRelationFilter, Prisma.SellerPackagingProfileWhereInput> | null
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
+  preorderRequests?: Prisma.PreorderRequestListRelationFilter
 }, "id" | "sellerAccountId_productId_variantKey" | "sellerAccountId_sellerSku">
 
 export type SellerOfferOrderByWithAggregationInput = {
@@ -622,6 +645,8 @@ export type SellerOfferOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hsnCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  countryOfOrigin?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SellerOfferCountOrderByAggregateInput
   _avg?: Prisma.SellerOfferAvgOrderByAggregateInput
   _max?: Prisma.SellerOfferMaxOrderByAggregateInput
@@ -665,6 +690,8 @@ export type SellerOfferScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOffer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerOffer"> | Date | string
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerOffer"> | Date | string | null
+  hsnCode?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
+  countryOfOrigin?: Prisma.StringNullableWithAggregatesFilter<"SellerOffer"> | string | null
 }
 
 export type SellerOfferCreateInput = {
@@ -696,6 +723,8 @@ export type SellerOfferCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -707,6 +736,7 @@ export type SellerOfferCreateInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateInput = {
@@ -742,6 +772,8 @@ export type SellerOfferUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -749,6 +781,7 @@ export type SellerOfferUncheckedCreateInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUpdateInput = {
@@ -780,6 +813,8 @@ export type SellerOfferUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -791,6 +826,7 @@ export type SellerOfferUpdateInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateInput = {
@@ -826,6 +862,8 @@ export type SellerOfferUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -833,6 +871,7 @@ export type SellerOfferUncheckedUpdateInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateManyInput = {
@@ -868,6 +907,8 @@ export type SellerOfferCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
 }
 
 export type SellerOfferUpdateManyMutationInput = {
@@ -899,6 +940,8 @@ export type SellerOfferUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerOfferUncheckedUpdateManyInput = {
@@ -934,6 +977,8 @@ export type SellerOfferUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerOfferListRelationFilter = {
@@ -1001,6 +1046,8 @@ export type SellerOfferCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
+  countryOfOrigin?: Prisma.SortOrder
 }
 
 export type SellerOfferAvgOrderByAggregateInput = {
@@ -1050,6 +1097,8 @@ export type SellerOfferMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
+  countryOfOrigin?: Prisma.SortOrder
 }
 
 export type SellerOfferMinOrderByAggregateInput = {
@@ -1084,6 +1133,8 @@ export type SellerOfferMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  hsnCode?: Prisma.SortOrder
+  countryOfOrigin?: Prisma.SortOrder
 }
 
 export type SellerOfferSumOrderByAggregateInput = {
@@ -1382,6 +1433,22 @@ export type SellerOfferUpdateOneRequiredWithoutPackagingProfileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutPackagingProfileInput, Prisma.SellerOfferUpdateWithoutPackagingProfileInput>, Prisma.SellerOfferUncheckedUpdateWithoutPackagingProfileInput>
 }
 
+export type SellerOfferCreateNestedOneWithoutPreorderRequestsInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedCreateWithoutPreorderRequestsInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutPreorderRequestsInput
+  connect?: Prisma.SellerOfferWhereUniqueInput
+}
+
+export type SellerOfferUpdateOneWithoutPreorderRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedCreateWithoutPreorderRequestsInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutPreorderRequestsInput
+  upsert?: Prisma.SellerOfferUpsertWithoutPreorderRequestsInput
+  disconnect?: Prisma.SellerOfferWhereInput | boolean
+  delete?: Prisma.SellerOfferWhereInput | boolean
+  connect?: Prisma.SellerOfferWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutPreorderRequestsInput, Prisma.SellerOfferUpdateWithoutPreorderRequestsInput>, Prisma.SellerOfferUncheckedUpdateWithoutPreorderRequestsInput>
+}
+
 export type SellerOfferCreateWithoutProductInput = {
   id: string
   variantKey?: string
@@ -1411,6 +1478,8 @@ export type SellerOfferCreateWithoutProductInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -1421,6 +1490,7 @@ export type SellerOfferCreateWithoutProductInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutProductInput = {
@@ -1455,6 +1525,8 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -1462,6 +1534,7 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutProductInput = {
@@ -1526,6 +1599,8 @@ export type SellerOfferScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerOffer"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"SellerOffer"> | Date | string | null
+  hsnCode?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
+  countryOfOrigin?: Prisma.StringNullableFilter<"SellerOffer"> | string | null
 }
 
 export type SellerOfferCreateWithoutVariantInput = {
@@ -1557,6 +1632,8 @@ export type SellerOfferCreateWithoutVariantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -1567,6 +1644,7 @@ export type SellerOfferCreateWithoutVariantInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutVariantInput = {
@@ -1601,6 +1679,8 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -1608,6 +1688,7 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutVariantInput = {
@@ -1665,6 +1746,8 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -1675,6 +1758,7 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
@@ -1710,12 +1794,15 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutCartItemsInput = {
@@ -1763,6 +1850,8 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -1773,6 +1862,7 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
@@ -1808,12 +1898,15 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutOrderItemsInput = {
@@ -1845,6 +1938,8 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -1855,6 +1950,7 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
@@ -1890,12 +1986,15 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutOrderItemsInput = {
@@ -1943,6 +2042,8 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -1953,6 +2054,7 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
@@ -1988,12 +2090,15 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutSellerAccountInput = {
@@ -2025,6 +2130,8 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -2035,6 +2142,7 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
@@ -2069,6 +2177,8 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2076,6 +2186,7 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutSellerAccountInput = {
@@ -2133,6 +2244,8 @@ export type SellerOfferCreateWithoutBrandInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2143,6 +2256,7 @@ export type SellerOfferCreateWithoutBrandInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutBrandInput = {
@@ -2177,6 +2291,8 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
@@ -2184,6 +2300,7 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutBrandInput = {
@@ -2241,6 +2358,8 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2251,6 +2370,7 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
@@ -2286,12 +2406,15 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutPriceTiersInput = {
@@ -2339,6 +2462,8 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2349,6 +2474,7 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
@@ -2384,12 +2510,15 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutInventoryInput = {
@@ -2421,6 +2550,8 @@ export type SellerOfferCreateWithoutInventoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2431,6 +2562,7 @@ export type SellerOfferCreateWithoutInventoryInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutInventoryInput = {
@@ -2466,12 +2598,15 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutInventoryInput = {
@@ -2519,6 +2654,8 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2529,6 +2666,7 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
@@ -2564,12 +2702,15 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutOrderLinesInput = {
@@ -2601,6 +2742,8 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2611,6 +2754,7 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
@@ -2646,12 +2790,15 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutOrderLinesInput = {
@@ -2699,6 +2846,8 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -2709,6 +2858,7 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
@@ -2744,12 +2894,15 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutFulfilmentRulesInput = {
@@ -2781,6 +2934,8 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
@@ -2791,6 +2946,7 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
@@ -2826,12 +2982,15 @@ export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutFulfilmentRulesInput = {
@@ -2879,6 +3038,8 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -2889,6 +3050,7 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
@@ -2924,12 +3086,15 @@ export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferCreateWithoutPackagingProfileInput = {
@@ -2961,6 +3126,8 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
   product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
@@ -2971,6 +3138,7 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
@@ -3006,12 +3174,15 @@ export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
 
 export type SellerOfferCreateOrConnectWithoutPackagingProfileInput = {
@@ -3059,6 +3230,8 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3069,6 +3242,7 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
@@ -3104,10 +3278,205 @@ export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+}
+
+export type SellerOfferCreateWithoutPreorderRequestsInput = {
+  id: string
+  variantKey?: string
+  sellerSku: string
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
+  product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
+  brand?: Prisma.BrandCreateNestedOneWithoutOffersInput
+  priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+}
+
+export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
+  id: string
+  sellerAccountId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  sellerSku: string
+  brandId?: string | null
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+}
+
+export type SellerOfferCreateOrConnectWithoutPreorderRequestsInput = {
+  where: Prisma.SellerOfferWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedCreateWithoutPreorderRequestsInput>
+}
+
+export type SellerOfferUpsertWithoutPreorderRequestsInput = {
+  update: Prisma.XOR<Prisma.SellerOfferUpdateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedUpdateWithoutPreorderRequestsInput>
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedCreateWithoutPreorderRequestsInput>
+  where?: Prisma.SellerOfferWhereInput
+}
+
+export type SellerOfferUpdateToOneWithWhereWithoutPreorderRequestsInput = {
+  where?: Prisma.SellerOfferWhereInput
+  data: Prisma.XOR<Prisma.SellerOfferUpdateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedUpdateWithoutPreorderRequestsInput>
+}
+
+export type SellerOfferUpdateWithoutPreorderRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
+  brand?: Prisma.BrandUpdateOneWithoutOffersNestedInput
+  priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+}
+
+export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  brandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
 }
@@ -3144,6 +3513,8 @@ export type SellerOfferCreateManyProductInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
 }
 
 export type SellerOfferUpdateWithoutProductInput = {
@@ -3175,6 +3546,8 @@ export type SellerOfferUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -3185,6 +3558,7 @@ export type SellerOfferUpdateWithoutProductInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutProductInput = {
@@ -3219,6 +3593,8 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3226,6 +3602,7 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
@@ -3260,6 +3637,8 @@ export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerOfferCreateManyVariantInput = {
@@ -3294,6 +3673,8 @@ export type SellerOfferCreateManyVariantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
 }
 
 export type SellerOfferUpdateWithoutVariantInput = {
@@ -3325,6 +3706,8 @@ export type SellerOfferUpdateWithoutVariantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3335,6 +3718,7 @@ export type SellerOfferUpdateWithoutVariantInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutVariantInput = {
@@ -3369,6 +3753,8 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3376,6 +3762,7 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
@@ -3410,6 +3797,8 @@ export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerOfferCreateManySellerAccountInput = {
@@ -3444,6 +3833,8 @@ export type SellerOfferCreateManySellerAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
 }
 
 export type SellerOfferUpdateWithoutSellerAccountInput = {
@@ -3475,6 +3866,8 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
@@ -3485,6 +3878,7 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
@@ -3519,6 +3913,8 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3526,6 +3922,7 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -3560,6 +3957,8 @@ export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SellerOfferCreateManyBrandInput = {
@@ -3594,6 +3993,8 @@ export type SellerOfferCreateManyBrandInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
 }
 
 export type SellerOfferUpdateWithoutBrandInput = {
@@ -3625,6 +4026,8 @@ export type SellerOfferUpdateWithoutBrandInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
@@ -3635,6 +4038,7 @@ export type SellerOfferUpdateWithoutBrandInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateWithoutBrandInput = {
@@ -3669,6 +4073,8 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
@@ -3676,6 +4082,7 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
 
 export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
@@ -3710,6 +4117,8 @@ export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -3724,6 +4133,7 @@ export type SellerOfferCountOutputType = {
   orderLines: number
   cartItems: number
   orderItems: number
+  preorderRequests: number
 }
 
 export type SellerOfferCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3733,6 +4143,7 @@ export type SellerOfferCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   orderLines?: boolean | SellerOfferCountOutputTypeCountOrderLinesArgs
   cartItems?: boolean | SellerOfferCountOutputTypeCountCartItemsArgs
   orderItems?: boolean | SellerOfferCountOutputTypeCountOrderItemsArgs
+  preorderRequests?: boolean | SellerOfferCountOutputTypeCountPreorderRequestsArgs
 }
 
 /**
@@ -3787,6 +4198,13 @@ export type SellerOfferCountOutputTypeCountOrderItemsArgs<ExtArgs extends runtim
   where?: Prisma.OrderItemWhereInput
 }
 
+/**
+ * SellerOfferCountOutputType without action
+ */
+export type SellerOfferCountOutputTypeCountPreorderRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderRequestWhereInput
+}
+
 
 export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3821,6 +4239,8 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   createdAt?: boolean
   updatedAt?: boolean
   archivedAt?: boolean
+  hsnCode?: boolean
+  countryOfOrigin?: boolean
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   fulfilmentRules?: boolean | Prisma.SellerOffer$fulfilmentRulesArgs<ExtArgs>
@@ -3832,6 +4252,7 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   packagingProfile?: boolean | Prisma.SellerOffer$packagingProfileArgs<ExtArgs>
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
+  preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOfferCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOffer"]>
 
@@ -3870,9 +4291,11 @@ export type SellerOfferSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   archivedAt?: boolean
+  hsnCode?: boolean
+  countryOfOrigin?: boolean
 }
 
-export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["sellerOffer"]>
+export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt" | "hsnCode" | "countryOfOrigin", ExtArgs["result"]["sellerOffer"]>
 export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -3885,6 +4308,7 @@ export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.Internal
   packagingProfile?: boolean | Prisma.SellerOffer$packagingProfileArgs<ExtArgs>
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
+  preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOfferCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3912,6 +4336,11 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     cartItems: Prisma.$CartItemPayload<ExtArgs>[]
     orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
+    /**
+     * Bulk preorders asked for against this offer. RESTRICT, like the order
+     * lines above: a request is evidence of what was negotiated.
+     */
+    preorderRequests: Prisma.$PreorderRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4020,6 +4449,17 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
     createdAt: Date
     updatedAt: Date
     archivedAt: Date | null
+    /**
+     * The goods' tariff code: an Indian HSN (4, 6 or 8 digits) or an
+     * international HS code. The seller's statement about their own goods, and
+     * required on a GST tax invoice - so it is on the seller's offer rather than
+     * on the shared catalogue product, where two sellers could disagree.
+     */
+    hsnCode: string | null
+    /**
+     * ISO-3166 alpha-2. Printed on an export invoice and a packing list.
+     */
+    countryOfOrigin: string | null
   }, ExtArgs["result"]["sellerOffer"]>
   composites: {}
 }
@@ -4371,6 +4811,7 @@ export interface Prisma__SellerOfferClient<T, Null = never, ExtArgs extends runt
   packagingProfile<T extends Prisma.SellerOffer$packagingProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$packagingProfileArgs<ExtArgs>>): Prisma.Prisma__SellerPackagingProfileClient<runtime.Types.Result.GetResult<Prisma.$SellerPackagingProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   cartItems<T extends Prisma.SellerOffer$cartItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$cartItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.SellerOffer$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preorderRequests<T extends Prisma.SellerOffer$preorderRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4432,6 +4873,8 @@ export interface SellerOfferFieldRefs {
   readonly createdAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
   readonly archivedAt: Prisma.FieldRef<"SellerOffer", 'DateTime'>
+  readonly hsnCode: Prisma.FieldRef<"SellerOffer", 'String'>
+  readonly countryOfOrigin: Prisma.FieldRef<"SellerOffer", 'String'>
 }
     
 
@@ -4978,6 +5421,30 @@ export type SellerOffer$orderItemsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.OrderItemScalarFieldEnum | Prisma.OrderItemScalarFieldEnum[]
+}
+
+/**
+ * SellerOffer.preorderRequests
+ */
+export type SellerOffer$preorderRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderRequest
+   */
+  select?: Prisma.PreorderRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderRequest
+   */
+  omit?: Prisma.PreorderRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderRequestInclude<ExtArgs> | null
+  where?: Prisma.PreorderRequestWhereInput
+  orderBy?: Prisma.PreorderRequestOrderByWithRelationInput | Prisma.PreorderRequestOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderRequestScalarFieldEnum | Prisma.PreorderRequestScalarFieldEnum[]
 }
 
 /**

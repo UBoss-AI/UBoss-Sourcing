@@ -37,6 +37,9 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
 | [Languages](#languages) | Eight languages, and how to add or translate one |
 | [Buying by the carton, the pallet or the container](#buying-by-the-carton-the-pallet-or-the-container) | Bulk packaging, freight quotes, and the base-unit rule |
+| [Bulk preorders](#bulk-preorders) | Request, seller answer, buyer confirmation, and one order |
+| [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
+| [Quantity prices and the bulk-savings popover](#quantity-prices-and-the-bulk-savings-popover) | Price bands per piece, charged in the basket and shown on the product page |
 | [A seller's own accounting system: TallyPrime](#a-sellers-own-accounting-system-tallyprime) | The bridge, what "Connected" means, and what posts |
 | [Going live](#going-live) | The ordered checklist |
 | [Verifying a change](#verifying-a-change) | What each project gates on |
@@ -67,7 +70,8 @@ part of the branding worth being precise about:
 | Name | What it is | Where it comes from |
 |---|---|---|
 | **Glovia** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
-| **Powered by UBOSS** | The attribution — who makes it | the same module |
+| **The Way to the World** | The product's tagline, under the wordmark | the same module |
+| **Powered by UBOSS** | The attribution — who makes it; small print in the storefront footer and on the console and portal sign-in screens | the same module |
 | Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` |
 
 Your customers read **your** name in the header, the footer, the browser tab,
@@ -76,9 +80,13 @@ running; it never stands in for the name of the business running it. A fresh
 install shows "Glovia" there only until you fill in a business profile, because
 there is no other honest thing to put in a header before you have.
 
-Neither brand name is translated. A name is a fact rather than a string, and
-`Powered by UBOSS` is a fixed attribution lockup, so both read identically in
-all eight languages.
+None of the brand strings is translated. A name is a fact rather than a string,
+the tagline is a brand asset, and `Powered by UBOSS` is a fixed attribution
+lockup, so all three read identically in all eight languages. The word "Glovia"
+wherever it is the brand is set in its own bundled script face, Dancing
+Script Bold; on a
+deployment with its own business name, that name is set in the ordinary face
+and carries no Glovia tagline.
 
 **Inside, UBOSS is unchanged and that is deliberate.** Package names, the
 database, Prisma models, migration history, API routes, cookie names, session
@@ -2011,6 +2019,266 @@ offer with no packaging profile — which is every offer until a seller fills on
 in — sells exactly as it did before any of this existed.
 
 ---
+## Bulk preorders
+
+Add to Cart buys what is on the shelf. Schedule Cart buys it later, or again.
+**Preorder** is the third button on every product page, and it is neither: it
+asks a seller whether they can **make** a quantity — ten thousand pieces, forty
+pallets — by a date, at what price, and it is a negotiation before it is an
+order.
+
+### What happens, in order
+
+1. The buyer presses **Preorder**, chooses the quantity (in pieces, cartons,
+   pallets or containers), the delivery address and a date, and sends a
+   request. Nothing is charged and no stock is reserved.
+2. The seller sees it at *Seller Hub → Orders → Preorders*, with their own
+   capacity for that period drawn beside it, and **accepts** it as asked,
+   **counters** with a different quantity, price, committed date or a split
+   into several deliveries, or **rejects** it with a reason. Every answer
+   carries a committed delivery date and the delivery charge.
+3. The buyer sees those terms and **confirms** or declines them. Confirming
+   names the exact revision by its SHA-256, so terms that changed while the
+   page was open are refused rather than accepted unseen.
+4. Only then is **one** order created, awaiting payment, and the seller's
+   capacity for that period is held. The buyer pays through the ordinary
+   order payment; the order — and with it the preorder — is confirmed by the
+   signed payment webhook, never by the redirect.
+5. The seller marks production started and ready. Once the goods are in stock
+   they accept the order as usual, and the preorder is handed to ordinary
+   fulfilment.
+
+A request nobody answers **expires** (the worker checks every minute); an unpaid
+confirmed preorder expires, cancels its order and gives the capacity back.
+
+### What a seller configures
+
+At *Seller Hub → Listings → (a listing) → Preorder terms*, at one of three
+levels — this version, every version of the product, or their default for
+everything. The most specific level that exists applies **whole**; a version
+switched off is off, whatever the product level says.
+
+Minimum quantity (in pieces or in a package unit, converted through that
+listing's own active packaging), the step, a maximum, production capacity per
+day, week or month, production lead time, how far ahead a delivery may be
+booked, delivery countries, fixed price bands or "quoted per request", whether
+partial and split deliveries are allowed, how long each side has to answer,
+cancellation terms and instructions.
+
+### Every product can be preordered
+
+With `PREORDER_OPEN_TO_ALL` on (the default), the button is live on **every**
+product:
+
+- **A seller's listing with no terms** takes preorders on the platform's
+  standard terms: the listing's own ordering minimum and step, its list price
+  as an indicative price (or "quoted" where it has none), no capacity limit,
+  `PREORDER_DEFAULT_LEAD_DAYS` of production and bookable
+  `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` ahead. The seller still accepts,
+  counters or refuses every request and sets the final price and date; their
+  Preorder terms panel says the standard terms apply. A seller who **switches
+  preorders off** for a listing keeps it off — the default never overrides that.
+- **The operator's own products** are preordered from the store itself, and
+  the operator's staff answer them at *Sales → Preorders* in the admin panel
+  (filter *Supplied by → The store*), with the same accept / counter / refuse
+  / production / ready steps a seller has, gated on `order.fulfil`. A new
+  request raises an alert on the admin bell that closes when staff act. The
+  buyer is told the store's name, never the staff member's. The resulting
+  order is an ordinary operator order; staff moving it to *Processing* hands
+  the preorder over to fulfilment.
+
+With `PREORDER_OPEN_TO_ALL=false`, only listings whose seller configured terms
+take preorders, and everything else shows the button disabled with *"Bulk
+preorder configuration is not currently available for this product."* No
+minimum is invented in either case: the default minimum is the listing's own.
+
+### The earliest date
+
+```
+earliest = the latest of   today + platform notice   (at least one day)
+                           today + seller production lead time
+                           today + handling + published transit to the address
+```
+
+Counted in calendar days on the buyer's own clock, like the Schedule Cart's
+seven-day rule, which a preorder can never be faster than. A seller with no
+published transit time to that country contributes nothing to the last line,
+and the form says the seller confirms the final date.
+
+### Who may
+
+A guest sees the button, and pressing it signs them in and returns them to the
+same product, the same variant, with the form open. Submitting needs an active
+**business** account — one with a company name on its profile.
+
+### Configuration
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PREORDER_MIN_NOTICE_DAYS` | `7` | Platform notice for a preorder delivery. Never below `SCHEDULE_MIN_NOTICE_DAYS`. |
+| `PREORDER_REQUEST_EXPIRY_HOURS` | `72` | How long a seller has to answer, where their terms say nothing. |
+| `PREORDER_OFFER_EXPIRY_HOURS` | `120` | How long a buyer has to confirm the seller's terms. |
+| `PREORDER_PAYMENT_EXPIRY_HOURS` | `168` | How long a confirmed preorder may wait for payment. |
+| `PREORDER_RISK_WINDOW_DAYS` | `3` | Days before the committed date at which an unready preorder is flagged to both parties. |
+| `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product: unconfigured listings use the platform default, and the operator's own products are answered by staff. `false` limits preorders to listings with seller terms. |
+| `PREORDER_DEFAULT_LEAD_DAYS` | `14` | Production lead time under the platform default terms. |
+| `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` | `365` | How far ahead a delivery may be booked under the platform default terms. |
+
+The button is on every product page; whether it is live is decided by
+`PREORDER_OPEN_TO_ALL` and, on a listing with its own terms, by the seller.
+
+### What it does not do
+
+It takes no **deposit**: this software captures an order's whole amount, and a
+partial capture is not something its payment integration can express. It does
+not issue a **proforma invoice**; the terms the buyer confirms, with their
+reference, are the quotation.
+
+---
+## Seller invoices and packing lists
+
+On a marketplace order the goods are the **seller's**, so the tax invoice is
+the seller's too: issued in their legal name, under their GSTIN, from their own
+number series. The operator's own invoice (*Orders → an order → Invoice*) is for
+the operator's own sales and is unchanged.
+
+Documents are made **per consignment** — per vehicle load — not per order. A
+seller who sends an order in two lorries issues two invoices and two packing
+lists, and the two invoices add up to the order exactly, to the paisa.
+
+### What a seller does
+
+At *Seller Hub → Orders → (an order) → Invoices and packing lists*:
+
+1. **Packages.** Say what goes in each carton, pallet or container: dimensions,
+   gross and net weight, batch and expiry, container and seal number. Each item
+   must be packed exactly as many times as the consignment carries it.
+2. **Split**, if the order leaves in more than one load. The split consignment
+   gets its own documents.
+3. **Check** shows the invoice and packing list as they would be issued, with a
+   checklist of anything missing — a GSTIN whose check character is wrong, a
+   product without an HSN code, a package without a weight — each naming what
+   to fix. **Preview PDF** opens the draft, watermarked.
+4. **Mark as packed** issues the invoice and the packing list and marks the
+   consignment packed, **in one transaction**. If anything fails — a missing
+   field, a PDF that will not render, storage that will not take the file —
+   nothing is issued, no number is used and the consignment stays unpacked.
+
+HSN code and country of origin are set per listing (*Listing → Trade codes*).
+The invoice series, signatory and Letter of Undertaking are set at
+*Seller Hub → Invoicing*. The GSTIN itself is read from the business profile,
+the one place it is kept.
+
+### Who sees what
+
+| Who | Tax invoice | Packing list |
+|---|---|---|
+| The seller | Draft, issued, credit notes; batch ZIP download | Draft and issued |
+| The buyer (*Account → Orders → an order*) | Issued only | Never — only "*N* packages packed" |
+| The assigned carrier (logistics portal) | Never | Issued, on the consignment's documents |
+| The operator (*Orders → an order*) | Read and download, under `invoice.read` | Read and download |
+
+Every download is a **single-use link** for the signed-in person, valid for
+`LOGISTICS_DOCUMENT_URL_TTL_SECONDS`, served with `Cache-Control: no-store`.
+
+### Correcting an issued invoice
+
+It cannot be edited. An order cancelled, returned or refunded after its
+invoice was issued flags that invoice **Credit note needed** and tells the
+seller. The seller issues a **credit note** — its own number, from the credit
+note series, equal and opposite — and the original becomes *Voided*, its
+number and PDF unchanged. A packing list is corrected by **replacing** it: the
+old one is kept as *Replaced* and the new one gets a new number.
+
+### The QR code
+
+Every issued document carries a QR that opens `/verify-document` on the
+storefront (built from `CUSTOMER_WEB_PUBLIC_URL`). Anyone holding the carton
+can see who issued it, when, and whether it still stands — nothing about the
+buyer or the price. It is an authenticity check for this marketplace and says
+so on the PDF: **it is not a GST e-invoice QR.** This software does not
+register invoices with the Invoice Registration Portal, so a seller above the
+e-invoicing turnover threshold must still generate an IRN for each invoice
+through the IRP.
+
+### What the invoice follows
+
+The fields of an Indian tax invoice follow CGST Rules, rule 46, as summarised
+in the CBIC GST invoice guidance: supplier and recipient GSTIN, a consecutive
+number unique within the financial year of at most 16 characters
+(`INV/26-27/00001`), HSN per line, taxable value, CGST and SGST inside one
+state or IGST between states (place of supply is where the goods are
+delivered), amount in words, and the signatory. An export without IGST prints
+the LUT declaration. The PDFs are rendered with the DejaVu fonts bundled from
+npm (for the ₹ sign and every European script) and are byte-for-byte
+reproducible: the stored SHA-256 identifies the exact file issued.
+
+References used in designing the flow, recorded so the decisions can be
+checked: CBIC, *GST — Tax invoice, credit and debit notes* (rules 46 and 53);
+Flipkart Marketplace Seller APIs (Pack / Invoice / Label order-fulfilment
+flow); Amazon Business bulk and quantity-discount buying.
+
+---
+## Quantity prices and the bulk-savings popover
+
+A seller can charge less per piece for more pieces: *from 100 pieces, 9.50;
+from 500, 9.20*. These **price bands** are set at
+*Seller Hub → Listings → (a listing) → Quantity prices*, and they are what the
+basket actually charges — the same function (`priceForQuantity`) prices the
+basket, the checkout, a bulk preorder and the popover, so the saving a buyer is
+promised is the saving they are charged.
+
+### What a band can say
+
+| Setting | Effect |
+|---|---|
+| From / up to (pieces) | The quantity range. "Up to" empty means no upper limit. |
+| Price per piece | Must be lower than the listing's own price, or it would never apply. |
+| Starts / ends | A scheduled promotion. Outside the window the band does nothing. |
+| Active | Pause a band without deleting it. |
+| Business accounts only | Only for an active account with a company name — the same test a preorder uses. |
+| Delivery countries | Only when the delivery country is one of these. Not applied until the country is known. |
+| Preorders only | Never in the basket; applies only to a bulk preorder's price. |
+
+The whole set is saved at once and checked as a set: among bands for the same
+buyers a larger quantity can never cost more per piece, two bounded bands may
+not cover the same quantity, and each problem is shown against its band. A
+listing may have up to 20.
+
+### What the buyer sees
+
+- **On the product page**, a card under the quantity box: how much more
+  reaches the next band ("Add 20 more pieces to pay ₹9.20 each"), what this
+  quantity already saves, and what one piece costs loose, by the carton, by the
+  pallet and by the container. Past the seller's stock it says so and offers a
+  **preorder** instead. **Every time the buyer raises the quantity**, a small
+  rotating 3-D galaxy springs out of the quantity box first while the new price
+  is worked out (0.9–2.6 s), then gives way to the card — the saving where
+  there is one, otherwise the price per piece and line total with *"No bulk
+  discount on this product yet"*. Lowering the quantity goes straight to the
+  figures, and a product nobody has banded shows no card until the buyer
+  raises the quantity. It springs in and cross-fades its figures, shows no galaxy
+  and no movement under *prefers-reduced-motion*, announces changes politely
+  to screen readers, and can be hidden for the product for the session. A converted figure in the
+  buyer's currency is labelled approximate; they are charged in the seller's.
+- **In the basket**, the line says which band priced it and how many more
+  reach the next one.
+- **On the order**, each line keeps the band that priced it
+  (`order_items.quantityTierJson`), so a band changed later never rewrites what
+  an order says it cost.
+
+A band prices a **loose** line. A carton, pallet or container line already has
+the seller's own package price and is not discounted twice.
+
+The popover and its galaxy are original code: the card follows the pattern of
+Aceternity UI's *animated tooltip*, and the galaxy (a canvas of stars on
+spiral arms, projected in perspective) is in the spirit of React Bits'
+*Galaxy*. No component source from Aceternity UI or React Bits is included. That is deliberate: React Bits is MIT + Commons Clause (no
+redistributing the components, alone or in a bundle) and Aceternity's licence
+forbids redistributing its source, and this software is itself redistributed
+to every company that runs it.
+
+---
 ## A seller's own accounting system: TallyPrime
 
 This is the **third** ERP feature in this software, and it is neither of the
@@ -2581,6 +2849,22 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   rejected completely. A job succeeds only when its own counters say something
   was created or altered and nothing errored, and those counters are evaluated
   on the server rather than by the agent on the seller's machine.
+- **A preorder becomes an order only when the buyer confirms, and only once.**
+  A seller accepting charges nobody and reserves nothing. The buyer's
+  confirmation names the exact terms by hash, creates one order awaiting
+  payment (`preorder_requests.convertedOrderId` is UNIQUE) and holds the
+  seller's capacity with one conditional UPDATE, so two buyers confirming the
+  last of a month cannot both succeed. Every status change goes through
+  `assertPreorderTransition`.
+- **A quantity band is applied by `priceForQuantity` and nothing else.** The
+  basket, the checkout, a preorder and the product page's popover all call it,
+  a band can never make a line dearer than list, and the band that priced a
+  line is frozen onto the order item.
+- **An issued seller invoice is never edited.** Its number comes from a
+  per-seller, per-series, per-financial-year counter inside the same
+  transaction that stores the PDF, so a failure returns the number; a retry
+  returns the invoice already issued (one live invoice per consignment is a
+  UNIQUE key); and the only correction is a credit note with its own number.
 - **A scheduled cart is priced by `quoteSchedule` and nothing else.** The
   review screen the customer confirms and the worker that charges them weeks
   later both call it, so the number agreed and the number charged come from one

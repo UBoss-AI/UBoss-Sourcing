@@ -56,7 +56,6 @@ import { nextPartnerCode } from '../logistics/admin.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import type { SellerActor } from './fulfilment-method.service.js';
 import { notifyInvitationResult } from './fulfilment-notification.service.js';
-import { markLogisticsPartnerStep } from './onboarding.service.js';
 
 type Tx = Prisma.TransactionClient;
 
@@ -343,11 +342,6 @@ export async function createSelfManagedOrganisation(
     after: { partnerCode, displayName: input.displayName },
     summary: `Created ${input.displayName} as their own delivery operation.`,
     correlationId: input.correlationId ?? null,
-  });
-
-  await markLogisticsPartnerStep({
-    membership: { sellerAccountId: input.sellerAccountId },
-    isResumePoint: true,
   });
 
   return {
@@ -1043,11 +1037,6 @@ export async function requestExistingPartner(input: {
     resourceId: linkId,
     after: { logisticsPartnerId: partner.id, status: 'REQUESTED' },
     summary: `Asked ${partner.displayName} to deliver for them.`,
-  });
-
-  await markLogisticsPartnerStep({
-    membership: { sellerAccountId: input.sellerAccountId },
-    isResumePoint: true,
   });
 
   return { linkId, status: 'REQUESTED' };

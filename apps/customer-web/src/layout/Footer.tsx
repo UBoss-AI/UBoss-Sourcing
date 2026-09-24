@@ -16,7 +16,7 @@
 import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
-import { PARENT_ATTRIBUTION } from '@/lib/brand';
+import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
 import { DocumentIcon, MailIcon, PhoneIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 
@@ -124,7 +124,18 @@ export function Footer({
                 className="h-10 w-10 shrink-0 rounded-md border border-border bg-surface-media object-contain p-1"
               />
             )}
-            <h2 className="min-w-0 text-title-xs text-ink">{business.displayName}</h2>
+            {/* The wordmark face only when the name is the product's own; see the
+                note on the lockup in `Header.tsx`. */}
+            <h2
+              className={cx(
+                'min-w-0 text-ink',
+                business.displayName === PRODUCT_BRAND
+                  ? 'font-brand text-xl font-bold leading-6'
+                  : 'text-title-xs',
+              )}
+            >
+              {business.displayName}
+            </h2>
           </div>
 
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-muted">

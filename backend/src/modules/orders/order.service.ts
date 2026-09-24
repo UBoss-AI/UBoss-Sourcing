@@ -18,10 +18,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { serialiseMoney } from '../../domain/money.js';
 import { SELLING_UNIT, cartonsForPieces } from '../../domain/ordering-unit.js';
 import type { PaymentInstrument } from '../../domain/payment-instrument.js';
-import {
-  assertTotalsConsistent,
-  type PricedLine,
-} from '../../domain/pricing.js';
+import { assertTotalsConsistent, type PricedLine } from '../../domain/pricing.js';
 import {
   allowedTransitions,
   assertTransition,
@@ -58,6 +55,7 @@ import {
   createAdminNotification,
 } from '../notifications/admin-notification.service.js';
 import { splitOrderToSellers } from '../seller/order-split.service.js';
+import { tokenMatches } from '../logistics/level-pricing.service.js';
 import { QUOTE_DP, invertRate } from '../../domain/fx.js';
 import { conversionFor, convert } from '../catalog/bulk-price.service.js';
 import { orderFxSnapshotFrom } from '../catalog/derived-price.service.js';
@@ -85,7 +83,7 @@ export interface OrderActor {
  * cannot receive the same number. Gaps are acceptable (a rolled-back checkout
  * consumes one); duplicates are not.
  */
-async function nextOrderNumber(tx: PrismaTransaction): Promise<string> {
+export async function nextOrderNumber(tx: PrismaTransaction): Promise<string> {
   const business = await tx.businessProfile.findFirst({ select: { orderPrefix: true } });
   const prefix = business?.orderPrefix ?? 'UB';
   const year = new Date().getUTCFullYear();
@@ -189,6 +187,17 @@ export interface CheckoutInput {
    * any of that happens.
    */
   fulfilmentQuoteId?: string;
+  /**
+   * The signed four-level delivery quote the buyer reviewed, exactly as the
+   * cart returned it (`delivery.token`).
+   *
+   * Required when the basket holds a seller with a published logistics
+   * policy, and never trusted for a figure: checkout re-prices every level
+   * from the database and refuses the order when the token is not the one
+   * that pricing produces now. That catches a delivery price changing between
+   * review and Pay, and a browser that edited a figure, with the same check.
+   */
+  logisticsQuoteToken?: string | null;
   customerNote?: string | null;
   actor: OrderActor;
 }
@@ -318,11 +327,13 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     resolved = await resolveCart(input.customerProfileId, {
       shippingMethodCode: input.shippingMethodCode ?? null,
       destinationCountry: shippingSnapshot.country,
+      destinationPostcode: shippingSnapshot.postalCode,
       fxPurpose: 'checkout',
     });
   } else {
     const preliminary = await resolveCart(input.customerProfileId, {
       destinationCountry: shippingSnapshot.country,
+      destinationPostcode: shippingSnapshot.postalCode,
       fxPurpose: 'checkout',
     });
 
@@ -336,6 +347,7 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
 
     resolved = await resolveCart(input.customerProfileId, {
       destinationCountry: shippingSnapshot.country,
+      destinationPostcode: shippingSnapshot.postalCode,
       shippingOverride: {
         priceMinor: fulfilmentQuote.shippingMinor,
         freeAboveMinor: fulfilmentQuote.freeAboveMinor,
@@ -378,6 +390,36 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   }
 
   assertCheckoutReady(resolved);
+
+  /*
+   * The four-level delivery the buyer agreed to, checked against the delivery
+   * this pricing run just produced.
+   *
+   * The token is an HMAC over each seller's policy version, each level's price
+   * row and amount, the currency and the destination. It is never read for a
+   * number - every figure charged comes from the run above - so the only
+   * thing a tampered or stale token can do is be refused. Refused, not
+   * absorbed: a buyer is never charged a delivery total nobody showed them.
+   */
+  if (resolved.delivery !== null) {
+    const carried = input.logisticsQuoteToken ?? '';
+    if (carried === '' || !tokenMatches(resolved.delivery, carried)) {
+      throw conflict(
+        ErrorCode.LOGISTICS_PRICE_CHANGED,
+        'The delivery charges for this order changed while you were checking out. Review them and try again.',
+        [
+          {
+            field: 'logisticsQuoteToken',
+            code: carried === '' ? 'REQUIRED' : 'MISMATCH',
+            meta: {
+              currentDeliveryMinor: resolved.delivery.totalMinor.toString(),
+              currency: resolved.currency,
+            },
+          },
+        ],
+      );
+    }
+  }
 
   // Belt and braces against an arithmetic regression: totals must equal the sum
   // of their lines before anything is written or charged.
@@ -589,6 +631,11 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         // pass, so the index IS the join. The basket is emptied the moment
         // this commits, so if the words are not copied here they are gone.
         noteSnapshot: resolved.lines[index]?.note ?? null,
+        // The quantity band that priced this line, frozen with its list price,
+        // so the order can say why it cost what it did after the band changes.
+        ...((resolved.lines[index]?.quantityTier ?? null) === null
+          ? {}
+          : { quantityTierJson: resolved.lines[index]?.quantityTier?.snapshot as never }),
         nameSnapshot: line.nameSnapshot,
         skuSnapshot: line.skuSnapshot,
         variantNameSnapshot: line.variantNameSnapshot,
@@ -680,6 +727,60 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
 
     if (packagingRows.length > 0) {
       await tx.orderItemPackaging.createMany({ data: packagingRows as never });
+    }
+
+    /*
+     * What each of L1-L4 cost, frozen per seller.
+     *
+     * Copied from the pricing run, never joined back to the price rows: the
+     * owner, the carrier, the policy version, the original amount and currency
+     * and the exchange rate that converted it are all written here as they
+     * stood. A price published next week, a mode change or tomorrow's rates
+     * change nothing about this order. The rows have no `updatedAt` because
+     * nothing ever writes them again.
+     */
+    if (resolved.delivery !== null) {
+      const legRows = resolved.delivery.sellers.flatMap((seller) =>
+        seller.levels.flatMap((level) =>
+          level.leg === null
+            ? []
+            : [
+                {
+                  id: newId(),
+                  orderId,
+                  sellerAccountId: seller.sellerAccountId,
+                  level: level.level,
+                  owner: level.owner,
+                  policyVersionId: seller.policyVersionId,
+                  rateId: level.leg.rateId,
+                  rateVersionNumber: level.leg.rateVersionNumber,
+                  transportMode: level.leg.transportMode as never,
+                  provider: (level.leg.provider ?? null) as never,
+                  logisticsPartnerId: level.leg.logisticsPartnerId,
+                  providerLabel: level.leg.providerLabel,
+                  serviceName: level.leg.serviceName,
+                  originLabel: level.leg.originLabel.slice(0, 160),
+                  destinationLabel: level.leg.destinationLabel.slice(0, 160),
+                  transitDaysMin: level.leg.transitDaysMin,
+                  transitDaysMax: level.leg.transitDaysMax,
+                  originalAmountMinor: level.leg.originalAmountMinor,
+                  originalCurrency: level.leg.originalCurrency,
+                  fxRate: level.leg.fxRate,
+                  fxProvider: level.leg.fxProvider,
+                  fxRateAsOf: level.leg.fxRateAsOf,
+                  amountMinor: level.leg.amountMinor,
+                  currency: resolved.currency,
+                  isFree: level.leg.isFree,
+                  taxInclusive: level.leg.taxInclusive,
+                  priceSource: level.leg.priceSource as never,
+                },
+              ],
+        ),
+      );
+
+      if (legRows.length > 0) {
+        await tx.orderLogisticsLeg.createMany({ data: legRows });
+      }
     }
 
     // Reserved inside the same transaction and AFTER the order row exists:
@@ -815,6 +916,20 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
           ...(fulfilmentQuote === null
             ? {}
             : { fulfilment: serialiseQuoteForAudit(fulfilmentQuote) }),
+          ...(resolved.delivery === null
+            ? {}
+            : {
+                sellerDelivery: resolved.delivery.sellers.map((seller) => ({
+                  sellerAccountId: seller.sellerAccountId,
+                  policyVersionId: seller.policyVersionId,
+                  levels: seller.levels.map((level) => ({
+                    level: level.level,
+                    owner: level.owner,
+                    rateId: level.leg?.rateId ?? null,
+                    amountMinor: level.leg?.amountMinor.toString() ?? null,
+                  })),
+                })),
+              }),
         },
         ipAddress: input.actor.ipAddress ?? null,
         correlationId: input.actor.correlationId ?? null,
@@ -874,9 +989,7 @@ async function raiseConsignments(orderId: string, correlationId: string): Promis
   if (!env.FEATURE_LOGISTICS_PORTAL) return;
 
   try {
-    const { createShipmentsForOrder } = await import(
-      '../logistics/shipment-create.service.js'
-    );
+    const { createShipmentsForOrder } = await import('../logistics/shipment-create.service.js');
 
     // SYSTEM, not a person: the authority here is the confirmed order.
     const raised = await createShipmentsForOrder(orderId, null);
@@ -908,7 +1021,9 @@ export interface TransitionInput {
  * inventory consequence, appends history and audits - all in one transaction,
  * so an order cannot end up CONFIRMED with its stock uncommitted.
  */
-export async function transitionOrder(input: TransitionInput): Promise<{ status: OrderStatusName }> {
+export async function transitionOrder(
+  input: TransitionInput,
+): Promise<{ status: OrderStatusName }> {
   const result = await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
       where: { id: input.orderId },
@@ -950,6 +1065,27 @@ export async function transitionOrder(input: TransitionInput): Promise<{ status:
        * which is the correct answer and the common one.
        */
       await splitOrderToSellers(input.orderId, tx);
+
+      /*
+       * The preorder this order was converted from, if it was one.
+       *
+       * The only way a preorder becomes CONFIRMED, and it is here - inside the
+       * transaction the payment webhook's confirmation runs in - so a paid
+       * order and a confirmed preorder cannot disagree. A no-op for every
+       * other order.
+       */
+      const preorders = await import('../preorders/request.service.js');
+      await preorders.onPreorderOrderConfirmed(input.orderId, tx);
+    }
+
+    /*
+     * Staff starting to fulfil an order converted from a preorder on the
+     * operator's own product: the operator's equivalent of a seller accepting
+     * their part, and what hands the preorder to ordinary fulfilment.
+     */
+    if (input.to === 'PROCESSING') {
+      const preorders = await import('../preorders/request.service.js');
+      await preorders.onPreorderOperatorOrderProcessing(input.orderId, tx);
     }
 
     if (input.to === 'CANCELLED') {
@@ -972,6 +1108,22 @@ export async function transitionOrder(input: TransitionInput): Promise<{ status:
       } else {
         await releaseReservations({ orderId: input.orderId }, 'order_cancelled', tx);
       }
+
+      // A cancelled order closes the preorder behind it and gives the seller
+      // their capacity back, in the same transaction.
+      const preorders = await import('../preorders/request.service.js');
+      await preorders.onPreorderOrderCancelled(input.orderId, input.reason ?? null, tx);
+    }
+
+    // A seller invoice issued for goods now cancelled, returned or refunded
+    // owes a credit note. A no-op for an order no seller has invoiced.
+    if (input.to === 'CANCELLED' || input.to === 'RETURNED' || input.to === 'REFUNDED') {
+      const invoices = await import('../documents/seller-invoice.service.js');
+      await invoices.flagInvoicesForCredit(
+        { orderId: input.orderId },
+        `Order moved to ${input.to.toLowerCase()}`,
+        tx,
+      );
     }
 
     if (input.to === 'RETURNED') {
@@ -1111,10 +1263,7 @@ export async function decideApproval(
   });
 
   if (approval === null) {
-    throw conflict(
-      ErrorCode.ORDER_APPROVAL_ALREADY_DECIDED,
-      'This order has no pending approval.',
-    );
+    throw conflict(ErrorCode.ORDER_APPROVAL_ALREADY_DECIDED, 'This order has no pending approval.');
   }
 
   await prisma.orderApproval.update({
@@ -1131,9 +1280,7 @@ export async function decideApproval(
     orderId,
     to: approved ? 'PENDING_PAYMENT' : 'CANCELLED',
     actor,
-    reason: approved
-      ? (comment ?? 'Approved')
-      : (comment ?? 'Rejected by approver'),
+    reason: approved ? (comment ?? 'Approved') : (comment ?? 'Rejected by approver'),
   });
 }
 
@@ -1149,9 +1296,5 @@ export async function availableTransitions(
 
   if (order === null) throw notFound('Order');
 
-  return allowedTransitions(
-    order.status,
-    actor.type,
-    actor.permissions ?? [],
-  );
+  return allowedTransitions(order.status, actor.type, actor.permissions ?? []);
 }

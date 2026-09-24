@@ -18,7 +18,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, NavigationType, useLocation, useNavigationType } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
 import {
@@ -377,6 +377,7 @@ export function AppShell(): React.JSX.Element {
   // keeps that to itself. See `components/ui/sidebar.tsx`.
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const location = useLocation();
+  const navigationType = useNavigationType();
   const mainRef = useRef<HTMLElement>(null);
 
   // A single-page app does not reload, so focus stays where it was and a
@@ -386,10 +387,16 @@ export function AppShell(): React.JSX.Element {
   // Closing the drawer here is also what dismisses it after a row is followed;
   // focus is not handed back to the menu button in that case, because the line
   // below has already sent it to the new page, which is where it belongs.
+  //
+  // A new page also starts at the TOP. Moving focus alone kept the old scroll
+  // position, so a page opened from far down a list opened halfway down.
+  // Back and forward (POP) are left to the browser, which restores where the
+  // reader was.
   useEffect(() => {
     setIsDrawerOpen(false);
-    mainRef.current?.focus();
-  }, [location.pathname]);
+    if (navigationType !== NavigationType.Pop) window.scrollTo({ top: 0, behavior: 'instant' });
+    mainRef.current?.focus({ preventScroll: true });
+  }, [location.pathname, navigationType]);
 
   return (
     <div className="min-h-screen">

@@ -323,7 +323,8 @@ function HubCore({ label }: { label: string }): React.JSX.Element {
       {/* The fixed layer. Not inside `.orch-orb`, which rotates and clips. */}
       <div className="orch-hub-label">
         <BoxIcon className="h-4 w-4 text-sky-100 lg:h-6 lg:w-6" />
-        <span className="text-sm font-semibold tracking-tight text-white lg:text-2xl">{label}</span>
+        {/* The wordmark face: this label is always the product's name. */}
+        <span className="font-brand text-lg font-bold text-white lg:text-4xl">{label}</span>
       </div>
     </div>
   );

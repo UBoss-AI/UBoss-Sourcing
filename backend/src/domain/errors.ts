@@ -1142,6 +1142,174 @@ export const ErrorCode = {
   /// A direct-mode address was rejected by the outbound guard, or direct mode
   /// is not permitted on this deployment at all.
   SELLER_ERP_DIRECT_MODE_REFUSED: 'SELLER_ERP_DIRECT_MODE_REFUSED',
+
+  // --- The four delivery levels (L1-L4) --------------------------------------
+
+  /// Somebody tried to give L1 to UBOSS. L1 - plant to port of loading - is
+  /// the seller's in every mode.
+  LOGISTICS_L1_OWNER_FIXED: 'LOGISTICS_L1_OWNER_FIXED',
+
+  /// Self + UBOSS with the seller on all three of L2, L3 and L4. That is the
+  /// Self mode; at least one of them must stay UBOSS-managed.
+  LOGISTICS_HYBRID_ALL_SELLER: 'LOGISTICS_HYBRID_ALL_SELLER',
+
+  /// Owners the chosen mode does not allow - Self with a UBOSS level, or
+  /// UBOSS with a seller level. Only reachable by a hand-made request.
+  LOGISTICS_MODE_OWNERS_MISMATCH: 'LOGISTICS_MODE_OWNERS_MISMATCH',
+
+  /// The change moves a level to a different owner, or changes the mode, of a
+  /// policy that is already published, and the request did not confirm it.
+  LOGISTICS_CHANGE_NOT_CONFIRMED: 'LOGISTICS_CHANGE_NOT_CONFIRMED',
+
+  /// The policy changed since it was read. Reload and try again.
+  LOGISTICS_POLICY_VERSION_CONFLICT: 'LOGISTICS_POLICY_VERSION_CONFLICT',
+
+  /// A seller tried to price or assign a level UBOSS controls.
+  LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED: 'LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED',
+
+  /// Marketplace staff tried to price or assign a level the seller controls.
+  LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED: 'LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED',
+
+  /// The price is not a whole number of minor units, is negative, or is zero
+  /// without being marked free. `details[0].code` says which. An EMPTY price
+  /// is never this error - it is simply not priced yet.
+  LOGISTICS_PRICE_INVALID: 'LOGISTICS_PRICE_INVALID',
+
+  /// A level was marked free without the explicit confirmation free needs.
+  LOGISTICS_FREE_NOT_CONFIRMED: 'LOGISTICS_FREE_NOT_CONFIRMED',
+
+  /// The carrier is not switched on under Seller Hub -> Logistics.
+  LOGISTICS_PROVIDER_NOT_ENABLED: 'LOGISTICS_PROVIDER_NOT_ENABLED',
+
+  /// That carrier cannot move goods that way on that level - DHL by sea, a
+  /// pallet by India Post. `details[0].code` names the reason.
+  LOGISTICS_CARRIER_UNSUITABLE: 'LOGISTICS_CARRIER_UNSUITABLE',
+
+  /// A price cannot be published without an amount (or a confirmed free) and
+  /// a carrier.
+  LOGISTICS_RATE_INCOMPLETE: 'LOGISTICS_RATE_INCOMPLETE',
+
+  /// A published price is never edited. Change it by saving a new version.
+  LOGISTICS_RATE_NOT_EDITABLE: 'LOGISTICS_RATE_NOT_EDITABLE',
+
+  /// No approved price exists for this route on at least one level, so it
+  /// cannot be bought yet. `details` names the seller and the levels.
+  LOGISTICS_QUOTE_REQUIRED: 'LOGISTICS_QUOTE_REQUIRED',
+
+  /// The delivery charges changed since the buyer was shown them, or the
+  /// quote the checkout carried was not the one this server issued.
+  LOGISTICS_PRICE_CHANGED: 'LOGISTICS_PRICE_CHANGED',
+
+  /// The leg is past the point where a carrier can be named or changed.
+  LOGISTICS_LEG_NOT_ASSIGNABLE: 'LOGISTICS_LEG_NOT_ASSIGNABLE',
+
+  /// The leg cannot move to that status from where it is, or not by you -
+  /// including starting a leg before the one ahead of it was handed over.
+  LOGISTICS_LEG_TRANSITION_INVALID: 'LOGISTICS_LEG_TRANSITION_INVALID',
+
+  /// A carrier booked by hand needs its real tracking reference before the
+  /// leg can start. Never generated here.
+  LOGISTICS_LEG_TRACKING_REQUIRED: 'LOGISTICS_LEG_TRACKING_REQUIRED',
+
+  // --- Platform fee ----------------------------------------------------------
+
+  /// A platform-fee policy is inconsistent - a PERCENT fee with no rate, a
+  /// minimum above the maximum, a scope with nothing to apply to.
+  PLATFORM_FEE_POLICY_INVALID: 'PLATFORM_FEE_POLICY_INVALID',
+
+  /// A published or retired fee policy is never edited; draft a new version.
+  PLATFORM_FEE_POLICY_NOT_EDITABLE: 'PLATFORM_FEE_POLICY_NOT_EDITABLE',
+
+  // --- Bulk preorders ----------------------------------------------------------
+  //
+  // Each of these is a specific reason with its figures in `details[0].meta`,
+  // so the storefront can say "Minimum preorder quantity is 1,000 pieces"
+  // rather than "something went wrong".
+
+  /// The seller has not configured preorders for this product, has switched
+  /// them off, or left a figure a preorder cannot be taken without.
+  PREORDER_NOT_AVAILABLE: 'PREORDER_NOT_AVAILABLE',
+
+  /// Preorders are for business accounts, and this account has no company.
+  PREORDER_BUYER_NOT_ELIGIBLE: 'PREORDER_BUYER_NOT_ELIGIBLE',
+
+  /// The requested quantity is below the seller's minimum. meta.minimumBaseUnits.
+  PREORDER_BELOW_MINIMUM: 'PREORDER_BELOW_MINIMUM',
+
+  /// The requested quantity is not a whole multiple of the increment.
+  /// meta.incrementBaseUnits.
+  PREORDER_INCREMENT_MISMATCH: 'PREORDER_INCREMENT_MISMATCH',
+
+  /// The requested quantity is above the seller's preorder maximum.
+  PREORDER_ABOVE_MAXIMUM: 'PREORDER_ABOVE_MAXIMUM',
+
+  /// The unit asked for (a pallet, a container) is not one this seller takes
+  /// preorders in for this product.
+  PREORDER_UNIT_NOT_AVAILABLE: 'PREORDER_UNIT_NOT_AVAILABLE',
+
+  /// The requested delivery date is earlier than the lead time allows.
+  /// meta.earliest is a YYYY-MM-DD calendar day.
+  PREORDER_DATE_TOO_EARLY: 'PREORDER_DATE_TOO_EARLY',
+
+  /// The requested delivery date is beyond the seller's advance-booking
+  /// window. meta.latest.
+  PREORDER_DATE_TOO_FAR: 'PREORDER_DATE_TOO_FAR',
+
+  /// The seller does not deliver preorders of this product to that country.
+  PREORDER_DESTINATION_NOT_SERVED: 'PREORDER_DESTINATION_NOT_SERVED',
+
+  /// The preorder cannot move that way from where it is, or not by you.
+  PREORDER_TRANSITION_NOT_ALLOWED: 'PREORDER_TRANSITION_NOT_ALLOWED',
+
+  /// The terms being confirmed are not the seller's current terms - a newer
+  /// revision exists, or the page was open while they changed.
+  PREORDER_TERMS_CHANGED: 'PREORDER_TERMS_CHANGED',
+
+  /// Confirming this would promise more than the seller can make in that
+  /// period. meta.availableBaseUnits.
+  PREORDER_CAPACITY_EXCEEDED: 'PREORDER_CAPACITY_EXCEEDED',
+
+  /// The window to answer has passed.
+  PREORDER_EXPIRED: 'PREORDER_EXPIRED',
+
+  /// A preorder policy a seller tried to save does not hold together - an
+  /// increment larger than the maximum, a band below the minimum.
+  PREORDER_POLICY_INVALID: 'PREORDER_POLICY_INVALID',
+
+  // --- Seller invoices and packing lists -----------------------------------------
+
+  /// This consignment cannot have that document yet - the order is not paid,
+  /// the seller has not accepted it, or the consignment was cancelled.
+  SELLER_DOCUMENT_NOT_ELIGIBLE: 'SELLER_DOCUMENT_NOT_ELIGIBLE',
+
+  /// The document cannot be issued until the listed fields are fixed.
+  /// `details` lists each one - a missing GSTIN, a line with no HSN code.
+  SELLER_DOCUMENT_VALIDATION_FAILED: 'SELLER_DOCUMENT_VALIDATION_FAILED',
+
+  /// An issued document is never edited. Void it with a credit note, or
+  /// supersede the packing list with a new version.
+  SELLER_DOCUMENT_IMMUTABLE: 'SELLER_DOCUMENT_IMMUTABLE',
+
+  /// The packages cannot change: one has been scanned, a carrier label was
+  /// bought, or the packing list is issued.
+  SHIPMENT_PACKAGES_LOCKED: 'SHIPMENT_PACKAGES_LOCKED',
+
+  /// What the packages hold does not add up to what the consignment carries.
+  SHIPMENT_CONTENTS_MISMATCH: 'SHIPMENT_CONTENTS_MISMATCH',
+
+  /// A split asked for more than the consignment carries, or would leave it
+  /// empty.
+  SHIPMENT_SPLIT_INVALID: 'SHIPMENT_SPLIT_INVALID',
+
+  /// The PDF could not be produced. Nothing was issued and nothing was marked
+  /// packed; try again.
+  DOCUMENT_RENDER_FAILED: 'DOCUMENT_RENDER_FAILED',
+
+  // --- Quantity price bands -------------------------------------------------
+
+  /// The seller's quantity bands contradict themselves or the list price. The
+  /// details name each band by index and what is wrong (`domain/quantity-tier.ts`).
+  QUANTITY_TIERS_INVALID: 'QUANTITY_TIERS_INVALID',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
