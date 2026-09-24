@@ -105,6 +105,11 @@ const feePolicyBody = z
 export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise<void> {
   // --- Managed levels ------------------------------------------------------
 
+  /**
+   * Every seller's delivery-level policy in force: who runs each of the four
+   * levels and which still have no published price. Can be narrowed to sellers
+   * with a UBOSS-run level, those missing a UBOSS price, or by seller name.
+   */
   app.get('/logistics/managed-levels', { preHandler: requireAdmin(Permission.LOGISTICS_READ) }, async (request, reply) => {
     const query = z
       .object({
@@ -121,6 +126,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     return reply.status(200).send({ sellers: rows });
   });
 
+  /**
+   * One seller's delivery-level policy as UBOSS sees it, with its version and
+   * change history and the marketplace carriers that can be named on it.
+   */
   app.get(
     '/logistics/managed-levels/sellers/:sellerAccountId',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -139,6 +148,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Add a draft price for a delivery level UBOSS controls for this seller.
+   * Refused on a level the seller controls. Recorded in both the admin audit
+   * log and the seller's own history.
+   */
   app.post(
     '/logistics/managed-levels/sellers/:sellerAccountId/rates',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -150,6 +164,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Edit a delivery-level price UBOSS sets for a seller. Editing a published
+   * price creates a new draft that replaces it once published. Refused on a
+   * level the seller controls. Recorded in both audit logs.
+   */
   app.put(
     '/logistics/managed-levels/rates/:rateId',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -167,6 +186,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Publish a draft delivery-level price for a seller, replacing the price it
+   * supersedes. Recorded in both the admin audit log and the seller's own
+   * history.
+   */
   app.post(
     '/logistics/managed-levels/rates/:rateId/publish-price',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -179,6 +203,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Switch off a delivery-level price that UBOSS sets for a seller. It stays on
+   * record, and orders already charged at it keep it. Recorded in both the
+   * admin audit log and the seller's own history.
+   */
   app.post(
     '/logistics/managed-levels/rates/:rateId/deactivate',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -197,6 +226,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     return reply.status(200).send({ showLevelBreakdown: profile?.showLogisticsLevelBreakdown ?? true });
   });
 
+  /**
+   * Choose whether buyers see a price for each delivery level or a single
+   * delivery line. Writes an audit entry.
+   */
   app.put(
     '/logistics/presentation',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -227,6 +260,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
 
   // --- Legs ------------------------------------------------------------------
 
+  /**
+   * Every delivery leg across all orders, newest first, filterable by who runs
+   * it, its status, one order, or only the legs still waiting for a carrier.
+   */
   app.get('/logistics/legs', { preHandler: requireAdmin(Permission.LOGISTICS_READ) }, async (request, reply) => {
     const query = z
       .object({
@@ -245,6 +282,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     return reply.status(200).send({ legs });
   });
 
+  /**
+   * One delivery leg with the rest of its order's journey beside it, and the
+   * marketplace carriers it could be given to.
+   */
   app.get('/logistics/legs/:id', { preHandler: requireAdmin(Permission.LOGISTICS_READ) }, async (request, reply) => {
     const params = idParam.parse(request.params);
     const detail = await legForAdmin(params.id);
@@ -256,6 +297,12 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     return reply.status(200).send({ ...detail, marketplaceCarriers });
   });
 
+  /**
+   * Name who carries a UBOSS-run leg: an outside carrier or a delivery company
+   * on the platform. The company gets a notification, the seller is told, and
+   * a company that loses the leg is told why. Refused once the leg is moving;
+   * a leg the seller runs can only be assigned by the seller.
+   */
   app.post(
     '/logistics/legs/:id/assign',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -267,6 +314,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Enter the carrier's tracking number, pickup reference or expected dates on
+   * a UBOSS-run leg. Refused until a carrier is named, and once the leg is
+   * finished. Writes an audit entry.
+   */
   app.patch(
     '/logistics/legs/:id',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -278,6 +330,12 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Move a UBOSS-run leg on: accept, start, hand over, or take it back from a
+   * delivery company. Handing over makes the next leg ready; the seller is
+   * told and an audit entry is written. A leg a delivery company holds is
+   * progressed by that company, not here.
+   */
   app.post(
     '/logistics/legs/:id/transition',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -291,11 +349,20 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
 
   // --- Platform fee (finance) -----------------------------------------------
 
+  /**
+   * List the platform fee policies, every version, optionally only drafts,
+   * published or retired ones, with how many seller orders each has settled.
+   */
   app.get('/platform-fees', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => {
     const query = z.object({ status: z.enum(['DRAFT', 'PUBLISHED', 'RETIRED']).optional() }).parse(request.query);
     return reply.status(200).send({ policies: await listPolicies({ status: query.status ?? null }) });
   });
 
+  /**
+   * Create a new draft platform fee policy: what sellers are charged, for the
+   * whole marketplace or one market, category or seller, and the tax on it.
+   * Nothing is charged until it is published. Writes an audit entry.
+   */
   app.post(
     '/platform-fees',
     { preHandler: requireAdmin(Permission.FINANCE_POLICY_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -305,6 +372,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Change a draft platform fee policy. Refused once it is published or
+   * retired, or if the change would move it to a different scope. Writes an
+   * audit entry.
+   */
   app.put(
     '/platform-fees/:id',
     { preHandler: requireAdmin(Permission.FINANCE_POLICY_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -315,6 +387,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Make a draft platform fee policy the live one for its scope, retiring the
+   * version it replaces. Writes an audit entry, and alerts finance staff when
+   * the policy charges tax whose rule nobody has verified yet.
+   */
   app.post(
     '/platform-fees/:id/publish',
     { preHandler: requireAdmin(Permission.FINANCE_POLICY_WRITE), config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
@@ -324,6 +401,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Retire a platform fee policy so it no longer applies to new orders.
+   * Retiring one that is already retired changes nothing. Writes an audit
+   * entry.
+   */
   app.post(
     '/platform-fees/:id/retire',
     { preHandler: requireAdmin(Permission.FINANCE_POLICY_WRITE), config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
@@ -333,6 +415,11 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Record, with a note, that the tax rule on a platform fee policy is the
+   * legally correct one. Changes no figure. Refused on a retired policy.
+   * Writes an audit entry.
+   */
   app.post(
     '/platform-fees/:id/verify-tax',
     { preHandler: requireAdmin(Permission.FINANCE_TAX_VERIFY), config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
@@ -343,11 +430,19 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * The seller orders that were settled on one platform fee policy version,
+   * newest first, with the fee and fee tax charged on each.
+   */
   app.get('/platform-fees/:id/orders', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => {
     const params = idParam.parse(request.params);
     return reply.status(200).send(await ordersUsingPolicy(params.id));
   });
 
+  /**
+   * Work out what a seller would be charged and paid on a given sale, using
+   * the platform fee policies in force now. Read-only: nothing is saved.
+   */
   app.post('/platform-fees/preview', { preHandler: requireAdmin(Permission.FINANCE_POLICY_READ) }, async (request, reply) => {
     const body = z
       .object({
@@ -356,6 +451,10 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
         sellerDeliveryMinor: z.string().regex(/^\d{1,18}$/).default('0'),
         currency: z.string().length(3).optional(),
         marketCountry: z.string().length(2).optional(),
+        // The category whose fee policy applies, directly or from one of the
+        // seller's listings - so a category policy is previewed as it charges.
+        categoryId: z.string().length(26).optional(),
+        offerId: z.string().length(26).optional(),
       })
       .strict()
       .parse(request.body);
@@ -365,6 +464,8 @@ export function registerAdminLogisticsLevelRoutes(app: FastifyInstance): Promise
       sellerDeliveryMinor: BigInt(body.sellerDeliveryMinor),
       currency: body.currency ?? null,
       marketCountry: body.marketCountry ?? null,
+      categoryId: body.categoryId ?? null,
+      offerId: body.offerId ?? null,
     });
     return reply.status(200).send({ estimate });
   });
@@ -399,6 +500,11 @@ export function registerCustomerLogisticsPricingRoutes(app: FastifyInstance): Pr
 export function registerCustomerOrderBreakdownRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireCustomer);
 
+  /**
+   * What the signed-in customer paid on one of their own orders, including
+   * delivery level by level and where each level has got to. Another
+   * customer's order is not found.
+   */
   app.get('/:id/price-breakdown', async (request, reply) => {
     const auth = currentUser(request);
     const params = idParam.parse(request.params);
@@ -426,15 +532,21 @@ export function registerLogisticsPortalLegRoutes(app: FastifyInstance): Promise<
     };
   }
 
+  /** The delivery legs this company holds, most recently changed first. */
   app.get('/legs', { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) }, async (request, reply) => {
     return reply.status(200).send({ legs: await legsForPartner(currentLogistics(request).logisticsPartnerId) });
   });
 
+  /** One leg this delivery company holds. A leg held by another company is not found. */
   app.get('/legs/:id', { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) }, async (request, reply) => {
     const params = idParam.parse(request.params);
     return reply.status(200).send({ leg: await legForPartner(currentLogistics(request).logisticsPartnerId, params.id) });
   });
 
+  /**
+   * Accept a leg offered to this delivery company, confirming it will carry
+   * it. The seller is told, and it is recorded in their history.
+   */
   app.post(
     '/legs/:id/accept',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_ACCEPT), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -445,6 +557,10 @@ export function registerLogisticsPortalLegRoutes(app: FastifyInstance): Promise<
     },
   );
 
+  /**
+   * Refuse a leg offered to this delivery company, with a reason. The leg goes
+   * back to waiting for a carrier, and the seller is told it needs a new one.
+   */
   app.post(
     '/legs/:id/reject',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_ACCEPT), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -456,6 +572,12 @@ export function registerLogisticsPortalLegRoutes(app: FastifyInstance): Promise<
     },
   );
 
+  /**
+   * Mark a leg this delivery company holds as started or handed over. Handing
+   * it over makes the next leg of the journey ready. The seller is told and it
+   * is recorded in their history; a repeated request with the same
+   * idempotency key changes nothing.
+   */
   app.post(
     '/legs/:id/progress',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_STATUS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -474,6 +596,11 @@ export function registerLogisticsPortalLegRoutes(app: FastifyInstance): Promise<
     },
   );
 
+  /**
+   * Enter the tracking number, pickup reference or expected dates on a leg
+   * this delivery company holds. Refused once the leg is finished or
+   * cancelled. Recorded in the seller's history.
+   */
   app.patch(
     '/legs/:id',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_STATUS_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -485,6 +612,11 @@ export function registerLogisticsPortalLegRoutes(app: FastifyInstance): Promise<
     },
   );
 
+  /**
+   * Put one of this delivery company's own drivers on a leg it holds, or take
+   * the driver off. Refused when the leg is finished or cancelled, or the
+   * driver is not this company's.
+   */
   app.post(
     '/legs/:id/driver',
     { preHandler: requireLogistics(LogisticsPermission.DRIVER_ASSIGN), config: { rateLimit: WRITE_RATE_LIMIT } },

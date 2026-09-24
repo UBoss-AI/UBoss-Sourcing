@@ -97,7 +97,7 @@ export function LoginPage(): React.JSX.Element {
   // The person signed in on this screen a moment ago. Take them where they
   // were going; they know perfectly well who they signed in as.
   if (stage !== 'SIGNED_OUT' && signedInHere.current) {
-    return <Navigate to={from ?? '/dashboard'} replace />;
+    return <Navigate to={from ?? '/'} replace />;
   }
 
   /*
@@ -122,7 +122,7 @@ export function LoginPage(): React.JSX.Element {
           <Button
             className="w-full"
             onClick={() => {
-              void navigate(from ?? '/dashboard', { replace: true });
+              void navigate(from ?? '/', { replace: true });
             }}
           >
             {t('auth.existing.continue', { company })}
@@ -156,7 +156,7 @@ export function LoginPage(): React.JSX.Element {
     try {
       await signIn(values.email, values.password);
 
-      void navigate(from ?? '/dashboard', { replace: true });
+      void navigate(from ?? '/', { replace: true });
     } catch (error) {
       signedInHere.current = false;
 

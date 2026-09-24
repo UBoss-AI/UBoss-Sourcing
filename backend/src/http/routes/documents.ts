@@ -49,6 +49,10 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
     return reply.send(await listBuyerOrderDocuments(auth.customerProfileId ?? '', orderId));
   });
 
+  /**
+   * Get a short-lived, single-use download link for one of the buyer's own
+   * invoices or credit notes. A packing list is never offered to a buyer.
+   */
   app.post(
     '/buyer/:kind/:id/link',
     { preHandler: requireCustomer, config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
@@ -59,6 +63,11 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Download several of a seller's own issued documents as one ZIP file, using
+   * a link from the seller's batch-link request. Works once, only for the person
+   * the link was made for, and records each document download in the audit log.
+   */
   app.get('/batch/:id/download', { preHandler: requireCustomer }, async (request, reply) => {
     const { id } = z.object({ id: z.string().min(10).max(40) }).parse(request.params);
     const { token, docs } = z
@@ -81,6 +90,11 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
       .send(file.bytes);
   });
 
+  /**
+   * Download one invoice or packing list as a PDF, for the seller who issued it
+   * or the buyer it was issued to. The link works once, only for the person it
+   * was made for, and the download is recorded in the audit log.
+   */
   app.get('/:kind/:id/download', { preHandler: requireCustomer }, async (request, reply) => {
     const { kind, id } = kindParam.parse(request.params);
     const { token } = z.object({ token: z.string().min(20).max(200) }).parse(request.query);

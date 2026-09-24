@@ -47,7 +47,16 @@ import { ProductInstructionsButton } from '@/components/ProductInstructionsButto
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import { MAX_LINE_NOTE_CHARS, noteForWire } from '@/lib/line-note';
-import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  ButtonAnchor,
+  ButtonLink,
+  ErrorState,
+  Field,
+  LoadingState,
+  Textarea,
+} from '@/components/ui';
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
@@ -1319,6 +1328,15 @@ export function ProductPage(): React.JSX.Element {
   const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
   const isUnavailable = purchasability !== null && !purchasability.isOrderable;
 
+  // Where "Request a quote" goes. The subject names the product and its SKU so
+  // whoever reads the inbox knows what is being asked about.
+  const quoteHref =
+    business.supportEmail !== null
+      ? `mailto:${business.supportEmail}?subject=${encodeURIComponent(`${product.name} (${product.sku})`)}`
+      : business.supportPhone !== null
+        ? `tel:${business.supportPhone.replace(/[^\d+]/g, '')}`
+        : null;
+
   /**
    * What the chosen quantity comes to, in goods.
    *
@@ -1914,15 +1932,22 @@ export function ProductPage(): React.JSX.Element {
                         is no figure to charge - so the button is replaced
                         rather than disabled. A greyed-out Add to Cart invites
                         somebody to keep clicking it looking for the reason. */}
+                    {/* A quote goes to the store's own support address, or its
+                        phone when there is no address, because that is where a
+                        person reads it. With neither configured the button is
+                        left out; Preorder and Add instructions in this row
+                        still let the buyer ask. */}
                     {isPriceOnRequest ? (
-                      <ButtonLink
-                        to={`/contact?product=${encodeURIComponent(product.sku)}`}
-                        variant="action"
-                        size="lg"
-                        className="w-full sm:w-auto"
-                      >
-                        {t('product.requestAQuote')}
-                      </ButtonLink>
+                      quoteHref !== null && (
+                        <ButtonAnchor
+                          href={quoteHref}
+                          variant="action"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          {t('product.requestAQuote')}
+                        </ButtonAnchor>
+                      )
                     ) : (
                       <Button
                         variant="action"

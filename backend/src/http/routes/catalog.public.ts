@@ -1200,6 +1200,10 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send({ categories: tree });
   });
 
+  /**
+   * Look up one category by its web address name and return its name and
+   * description. Hidden or archived categories answer "not found".
+   */
   app.get('/categories/:slug', async (request, reply) => {
     const { slug } = z.object({ slug: z.string().trim().max(255) }).parse(request.params);
 

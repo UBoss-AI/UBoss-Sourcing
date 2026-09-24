@@ -667,8 +667,9 @@ export async function createManifest(
 /**
  * Hand a load over, and say who signed for it.
  *
- * Idempotent through the state guard: a second handover finds the manifest
- * already HANDED_OVER and changes nothing.
+ * Guarded by state: only an OPEN or CLOSED manifest can be handed over, so a
+ * second handover changes nothing and is refused with
+ * LOGISTICS_MANIFEST_NOT_ACTIONABLE rather than silently accepted.
  */
 export async function handOverManifest(
   membership: LogisticsMembership,

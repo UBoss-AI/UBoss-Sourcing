@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { SessionProvider } from '@/auth/session';
 import { I18nProvider } from '@/i18n/I18nProvider';
+import { MarketplaceName } from '@/i18n/MarketplaceName';
 import { ToastProvider } from '@/components/toast';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
 import { ThemeProvider } from '@/app/ThemeProvider';
@@ -36,6 +37,8 @@ createRoot(container).render(
                   the sign-in page included — is already translated on first
                   paint. */}
               <I18nProvider>
+                {/* Fills `{{marketplace}}` in every string with the operator's name. */}
+                <MarketplaceName />
                 <RouterProvider router={router} />
               </I18nProvider>
             </SessionProvider>

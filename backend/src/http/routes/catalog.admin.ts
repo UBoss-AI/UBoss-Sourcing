@@ -365,6 +365,10 @@ function actorFrom(request: FastifyRequest): {
 export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> {
   // --- Categories ----------------------------------------------------------
 
+  /**
+   * The full category tree, including inactive categories the storefront
+   * hides.
+   */
   app.get(
     '/categories',
     { preHandler: requireAdmin(Permission.CATEGORY_READ) },
@@ -375,6 +379,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Create a category, optionally under a parent. Its web address is made
+   * from the name unless one is given, and must be unused. Writes an audit
+   * entry.
+   */
   app.post(
     '/categories',
     { preHandler: requireAdmin(Permission.CATEGORY_WRITE) },
@@ -385,6 +394,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Change a category - its name, web address, parent, description, images,
+   * order, visibility or search-engine text. Moving it moves its whole
+   * branch. Writes an audit entry.
+   */
   app.patch(
     '/categories/:id',
     { preHandler: requireAdmin(Permission.CATEGORY_WRITE) },
@@ -396,6 +410,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Archive a category. Refused while products are still in it, and while it
+   * has subcategories unless `force=true` is passed, which archives those too
+   * (never the products). Writes an audit entry.
+   */
   app.delete(
     '/categories/:id',
     { preHandler: requireAdmin(Permission.CATEGORY_ARCHIVE) },
@@ -647,6 +666,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * One product in full for the editor: category, tax class, images,
+   * specifications, variants, packing details and where it was imported from,
+   * including internal notes customers never see.
+   */
   app.get(
     '/products/:id',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
@@ -757,6 +781,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Change any of a product's details - name, SKU, category, descriptions,
+   * price, order quantities, product-safety information, specifications and
+   * so on. Writes an audit entry, and a separate one for a price change.
+   */
   app.patch(
     '/products/:id',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1041,6 +1070,10 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Set a product to draft, active or inactive. Anything other than active
+   * also takes it off the storefront. Writes an audit entry.
+   */
   app.patch(
     '/products/:id/status',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1055,6 +1088,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Archive a product: it is unpublished, switched off and taken out of every
+   * shopping cart, but kept so past orders still make sense. Writes an audit
+   * entry.
+   */
   app.delete(
     '/products/:id',
     { preHandler: requireAdmin(Permission.PRODUCT_ARCHIVE) },
@@ -1128,6 +1166,10 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Add a variant to a product, such as one size or colour, with its own SKU
+   * and optionally its own price. Writes an audit entry.
+   */
   app.post(
     '/products/:id/variants',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1138,6 +1180,10 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Change a variant - its SKU, name, options, price, order quantities,
+   * shipping details and so on. A price change gets its own audit entry.
+   */
   app.patch(
     '/products/:id/variants/:variantId',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1157,6 +1203,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Remove a variant. One that was ever ordered, scheduled or still has stock
+   * is archived instead of deleted, so history keeps working. Writes an audit
+   * entry.
+   */
   app.delete(
     '/products/:id/variants/:variantId',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1210,6 +1261,12 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Choose which options (size, colour and so on) a product's variants are
+   * chosen by, from those its category offers. Removing one leaves existing
+   * variants untouched and returns a warning with how many use it. Writes an
+   * audit entry.
+   */
   app.put(
     '/products/:id/variant-axes',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1263,6 +1320,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Create the variants approved from the preview table. Combinations that
+   * already exist are skipped, not overwritten, and a duplicate SKU refuses
+   * the whole batch. Writes an audit entry.
+   */
   app.post(
     '/products/:id/variants/generate',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1291,6 +1353,11 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Set the same price, compare-at price, order quantities, lead time or
+   * on/off state across many of one product's variants at once. Writes an
+   * audit entry.
+   */
   app.post(
     '/products/:id/variants/bulk',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1420,6 +1487,10 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Remove an image from a product and delete the stored file. If it was the
+   * main image, the next one takes its place.
+   */
   app.delete(
     '/products/:id/media/:mediaId',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -1542,6 +1613,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /** The most recent product imports and where each one stands. */
   app.get(
     '/products/import',
     { preHandler: requireAdmin(Permission.PRODUCT_IMPORT) },
@@ -1554,6 +1626,10 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * One product import - its status and row counts - with the problems found
+   * in the spreadsheet, a page at a time, each naming its row and column.
+   */
   app.get(
     '/products/import/:id',
     { preHandler: requireAdmin(Permission.PRODUCT_IMPORT) },

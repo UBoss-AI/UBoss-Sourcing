@@ -87,7 +87,7 @@ export function Footer({
 }: {
   className?: string;
 } = {}): React.JSX.Element {
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
   const { t } = useI18n();
   const policies = Object.entries(business.policyLinks ?? {});
   const hasSupport = business.supportEmail !== null || business.supportPhone !== null;
@@ -157,11 +157,15 @@ export function Footer({
                   {t('header.myOrders')}
                 </Link>
               </li>
-              <li>
-                <Link to="/account/schedules" className={LINK_CLASS}>
-                  {t('header.repeatPurchases')}
-                </Link>
-              </li>
+              {/* Hidden, like the account menu's entry, where repeat
+                  purchases are switched off. */}
+              {features.recurringOrders && (
+                <li>
+                  <Link to="/account/schedules" className={LINK_CLASS}>
+                    {t('header.repeatPurchases')}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

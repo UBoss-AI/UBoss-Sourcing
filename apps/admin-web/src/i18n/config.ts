@@ -33,6 +33,7 @@ import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next';
 import { DEFAULT_LANGUAGE, LANGUAGE_CODES, type LanguageCode } from './languages';
 import en from './locales/en.json';
+import { PRODUCT_BRAND } from '../lib/brand';
 
 /** One namespace. A second would buy nothing at this size and cost a prefix on every key. */
 export const NAMESPACE = 'app';
@@ -90,15 +91,57 @@ void i18n
       // React escapes for us. Leaving i18next's own escaping on would
       // double-encode an apostrophe in a name into `&#39;`.
       escapeValue: false,
+      // `{{marketplace}}`: the name this deployment trades under. The product's
+      // own name until `setMarketplaceName` is handed the operator's.
+      defaultVariables: { marketplace: PRODUCT_BRAND },
     },
 
     react: {
       // Keep the previous language on screen while the next chunk downloads.
       useSuspense: false,
+      // Redraw on the marketplace's name as well as on the language. See
+      // `MARKETPLACE_CHANGED` below.
+      bindI18n: 'languageChanged marketplaceChanged',
     },
   });
 
 /** Narrow a stored or server-sent value before handing it to i18next. */
 export function isLanguageCode(value: unknown): value is LanguageCode {
   return typeof value === 'string' && (LANGUAGE_CODES as readonly string[]).includes(value);
+}
+
+/**
+ * The event every translated screen re-renders on when the name changes.
+ *
+ * Bound through `react.bindI18n` above, beside `languageChanged`, so a
+ * screen drawn before `GET /config` answered is redrawn with the real name
+ * rather than keeping the fallback until something else happens to it.
+ */
+export const MARKETPLACE_CHANGED = 'marketplaceChanged';
+
+/**
+ * Fill `{{marketplace}}` in every string with the name this deployment trades
+ * under.
+ *
+ * Every buyer of this software runs their own marketplace under their own
+ * name, so a sentence such as "Northwind manages L2" cannot carry a name of its
+ * own. The catalogues say `{{marketplace}}` and the name arrives with
+ * `GET /config` as `marketplace.displayName`, from the operator's business
+ * profile.
+ *
+ * It is a default interpolation variable rather than an option passed at each
+ * call site, because many of these strings are reached by a key built at run
+ * time - an error code, a mode, a pricing state - from helpers with no
+ * component around them. A call site that does pass its own `marketplace`
+ * still wins. Until the name arrives, and if it never does, the product's own
+ * name stands in, as it does in the header: never the software vendor's.
+ */
+export function setMarketplaceName(name: string | null | undefined): void {
+  const trimmed = (name ?? '').trim();
+  const next = trimmed.length > 0 ? trimmed : PRODUCT_BRAND;
+  const interpolation = (i18n.options.interpolation ??= {});
+  const variables = (interpolation.defaultVariables ??= {}) as Record<string, unknown>;
+  if (variables['marketplace'] === next) return;
+  variables['marketplace'] = next;
+  i18n.emit(MARKETPLACE_CHANGED);
 }

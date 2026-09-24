@@ -287,7 +287,7 @@ order whose amount does not match** — a mismatch is alerted to Finance instead
 | Payment events | Retained. They are dispute evidence. Retention period is `<APPROVE>`. |
 | Audit log | Retained. Retention period is `<APPROVE>`; see §7 for the access rule. |
 | Chat enquiries | Retained, with no automatic purge. Each row holds a name, a mobile number, an email address and the transcript — all typed by a visitor into the storefront chat widget and none of it verified. Readable by any role holding `assistant_chat.read`. Retention period is `<APPROVE>`. |
-| Customer deletion / anonymisation | **Not implemented.** Requires a business decision on what "delete" means for an account with orders — SOP §17 requires an approved policy first. |
+| Customer deletion / anonymisation | **Implemented** as an erasure data request (Admin Panel → Data requests), approved by staff holding `data_request.action`. It deletes what nothing requires, pseudonymises the user and customer profile, and keeps the address on invoiced orders because tax law requires it. Open obligations block it with `ERASURE_BLOCKED_BY_OBLIGATION`. The operator still needs a written retention policy, and backups coherent with it. Details: `DATA-PROTECTION.md`. |
 
 Backups contain personal data. Encrypt them at rest and restrict access to the
 same people who may read the production database.

@@ -725,6 +725,25 @@ export async function calculateSettlement(
         lineFeesMinor[lineIndex] = lineFee;
         fee += lineFee;
       }
+      /*
+       * The delivery part of the basis is charged at the same rate.
+       *
+       * A negotiated rate keeps the basis of the policy it stands in for, and
+       * `basis` above already includes the seller's own delivery when that
+       * basis says so. Charging only the goods would store one basis and
+       * charge on another - a settlement nobody could recompute from its own
+       * figures. The delivery fee is spread over the lines by value, so the
+       * line fees still add up to the fee exactly.
+       */
+      const deliveryInBasis = basis - group.goodsMinor;
+      if (deliveryInBasis > 0n) {
+        const deliveryFee = platformFeeOn(rule, deliveryInBasis);
+        const shares = apportion(deliveryFee, group.indexes.map((index) => input.lines[index]?.goodsMinor ?? 0n));
+        group.indexes.forEach((lineIndex, position) => {
+          lineFeesMinor[lineIndex] = (lineFeesMinor[lineIndex] ?? 0n) + (shares[position] ?? 0n);
+        });
+        fee += deliveryFee;
+      }
     }
     const tax = taxOnPlatformFee(fee, rule.taxRatePercent);
 
@@ -827,6 +846,13 @@ export function serialiseSettlement(calc: {
  * "If you sold this much, with this much of your own delivery, this is what
  * you would be paid" - worked out by the same calculation a real order uses,
  * on the policies in force now. Read-only: nothing here can change a fee.
+ *
+ * The policy is resolved the way a real order resolves it: the buyer's market
+ * (`marketCountry`, the country an order ships to) and the category of the
+ * goods. The category comes from one of the seller's own listings
+ * (`offerId`) - never a listing of somebody else's - or, for staff, directly
+ * as `categoryId`. Without them, market- and category-scoped policies cannot
+ * match, exactly as they could not match an order with no market or category.
  */
 export async function previewSettlement(input: {
   sellerAccountId: string;
@@ -834,15 +860,27 @@ export async function previewSettlement(input: {
   sellerDeliveryMinor: Minor;
   currency?: string | null;
   marketCountry?: string | null;
+  offerId?: string | null;
+  categoryId?: string | null;
 }) {
   const currency = await assertSellableCurrency(
     (input.currency ?? '').trim() === '' ? await getBaseCurrency() : (input.currency ?? '').trim().toUpperCase(),
   );
+  let categoryId = (input.categoryId ?? '').trim() === '' ? null : (input.categoryId ?? '').trim();
+  if ((input.offerId ?? '') !== '') {
+    const offer = await prisma.sellerOffer.findFirst({
+      where: { id: input.offerId ?? '', sellerAccountId: input.sellerAccountId },
+      select: { product: { select: { categoryId: true } } },
+    });
+    if (offer === null) throw notFound('Listing');
+    categoryId = offer.product.categoryId;
+  }
+  const market = (input.marketCountry ?? '').trim() === '' ? null : (input.marketCountry ?? '').trim().toUpperCase();
   const calc = await calculateSettlement(prisma, {
     sellerAccountId: input.sellerAccountId,
     currency,
-    marketCountry: input.marketCountry ?? null,
-    lines: [{ categoryId: null, goodsMinor: input.goodsMinor }],
+    marketCountry: market,
+    lines: [{ categoryId, goodsMinor: input.goodsMinor }],
     sellerDeliveryMinor: input.sellerDeliveryMinor,
     ubossDeliveryMinor: 0n,
   });

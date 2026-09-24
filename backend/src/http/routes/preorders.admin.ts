@@ -39,6 +39,10 @@ const noteBody = z.object({ note: z.string().trim().max(1000).nullable().default
 const WRITE_RATE_LIMIT = { max: 60, timeWindow: '1 minute' } as const;
 
 export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List bulk preorders, optionally filtered by status and by who supplies
+   * them (the store itself or a seller).
+   */
   app.get(
     '/preorders',
     { preHandler: requireAdmin(Permission.ORDER_READ) },
@@ -55,6 +59,10 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * One preorder in full - what was asked, proposed and agreed - whether it
+   * is a seller's or the store's own.
+   */
   app.get(
     '/preorders/:id',
     { preHandler: requireAdmin(Permission.ORDER_READ) },
@@ -69,6 +77,15 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     config: { rateLimit: WRITE_RATE_LIMIT },
   };
 
+  /**
+   * Accept a preorder for the store's own product exactly as the buyer asked.
+   * Refused if the price or date differs from the request - that must be sent
+   * as a counter-offer. Tells the buyer and writes an audit entry.
+   *
+   * Only reaches preorders with no seller; a seller's preorder answers 404.
+   * `expectedVersion` guards against answering a request that changed since it
+   * was opened.
+   */
   app.post('/preorders/:id/accept', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const input = sellerAcceptSchema.parse(request.body);
@@ -76,6 +93,11 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send({ preorder: await sellerAccept(responder, id, input) });
   });
 
+  /**
+   * Answer a preorder for the store's own product with different terms -
+   * quantity, price, freight, delivery date or split deliveries. Tells the
+   * buyer and writes an audit entry.
+   */
   app.post('/preorders/:id/counter', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const input = sellerCounterSchema.parse(request.body);
@@ -83,6 +105,10 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send({ preorder: await sellerCounter(responder, id, input) });
   });
 
+  /**
+   * Turn down a preorder for the store's own product, giving a reason. Closes
+   * the request, releases any capacity it held and tells the buyer.
+   */
   app.post('/preorders/:id/reject', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const input = reasonSchema.parse(request.body);
@@ -90,6 +116,11 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send({ preorder: await sellerReject(responder, id, input) });
   });
 
+  /**
+   * Record that production has started on a confirmed preorder for the
+   * store's own product, with an optional note. Emails the buyer and writes an
+   * audit entry.
+   */
   app.post('/preorders/:id/start-production', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const { note } = noteBody.parse(request.body ?? {});
@@ -99,6 +130,10 @@ export function registerAdminPreorderRoutes(app: FastifyInstance): Promise<void>
     });
   });
 
+  /**
+   * Mark a preorder on the store's own product as ready to ship, with an
+   * optional note. Emails the buyer and writes an audit entry.
+   */
   app.post('/preorders/:id/ready', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const { note } = noteBody.parse(request.body ?? {});

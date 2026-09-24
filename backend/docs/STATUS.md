@@ -2,6 +2,27 @@
 
 Last updated: 2026-09-02. Verified against MariaDB 10.4.32 on `127.0.0.1:3306`.
 
+> **This is a historical record of the first backend milestone, kept as it was
+> written.** The numbers and gaps below describe the backend on 2026-09-02, not
+> today. For what is built now, read `docs/PRODUCT-READINESS.md` and
+> `docs/PRD.md`; for the current tables, endpoints and error codes, read
+> `docs/reference/`.
+>
+> What has changed since (checked against the code on 2026-09-24):
+>
+> | Said here | Now |
+> |---|---|
+> | 54 models, 2 migrations, 55 tables | 226 models and 203 enums across 81 migrations (`docs/reference/DATABASE-TABLES.md`) |
+> | 6 roles, 40 permission keys | 5 staff roles plus the customer role, 56 staff permissions (`domain/permissions.ts`); sellers and logistics partners have their own role sets |
+> | 98 paths / 119 OpenAPI operations | About 800 operations (`docs/reference/API-ENDPOINTS.md`) |
+> | MFA schema-ready, TOTP enrolment not built | TOTP enrolment and verification are built for staff, behind `FEATURE_ADMIN_MFA` |
+> | CSV/XLSX import not built | Product import is built (`/api/v1/admin/products/import`) |
+> | Admin inventory routes never written | Built (`routes/inventory.admin.ts`) |
+> | Customer deletion / anonymisation not implemented | Built as an erasure data request (`modules/privacy/erasure.service.ts`) |
+> | Auto-pay mandate charging deliberately not implemented | Off-session card charging through Stripe is built, off by default behind `FEATURE_SUBSCRIPTION_AUTOPAY` (`PROJECT-GUIDE.md` §9.5.1) |
+> | No mock payment success path anywhere | `PAYMENT_MOCK_SUCCESS` now exists for development. It is refused at boot in production and whenever a live payment credential is configured |
+> | No OpenAPI document yet | `cd backend; npm run openapi:export` writes it from the live route table |
+
 ## Verification evidence
 
 | Gate | Command | Result |

@@ -321,6 +321,12 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Get a short written summary of the buyer's own purchasing figures for a
+   * chosen date range, with findings and suggested next steps, optionally
+   * answering a question they typed. Written by the AI provider when one is set
+   * up, otherwise by a fixed rule-based summary.
+   */
   app.post(
     '/dashboard/insights',
     { preHandler: requireCustomer, config: { rateLimit: INSIGHT_RATE_LIMIT } },
@@ -464,6 +470,11 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     });
   });
 
+  /**
+   * Update the customer's own profile details, such as name, organisation,
+   * job title and phone. Writes an audit entry recorded as the customer's own
+   * change.
+   */
   app.patch('/profile', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const body = profileUpdateSchema.parse(request.body);
@@ -479,6 +490,7 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ updated: true });
   });
 
+  /** List the customer's saved addresses, default delivery address first. */
   app.get('/addresses', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
 
@@ -490,6 +502,11 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ addresses });
   });
 
+  /**
+   * Save a new address to the customer's account and place it on the map when
+   * possible. The first address becomes the default; making a later one the
+   * default clears the previous default. Writes an audit entry.
+   */
   app.post('/addresses', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const body = addressSchema.parse(request.body);
@@ -534,6 +551,11 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.header('cache-control', 'no-store').status(200).send({ suggestions });
   });
 
+  /**
+   * Change one of the customer's saved addresses. Making it the default
+   * clears the previous default, and the map position is looked up again only
+   * when the place itself changed.
+   */
   app.patch('/addresses/:addressId', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const { addressId } = z.object({ addressId: z.string().length(26) }).parse(request.params);
@@ -551,6 +573,11 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ updated: true });
   });
 
+  /**
+   * Remove one of the customer's saved addresses. Past orders keep their own
+   * copy of it; refused while an active or paused recurring order still
+   * delivers to it or bills to it.
+   */
   app.delete('/addresses/:addressId', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const { addressId } = z.object({ addressId: z.string().length(26) }).parse(request.params);
@@ -572,6 +599,11 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ locale });
   });
 
+  /**
+   * Save the shopper's country and the currency they want prices in. Refused
+   * for a country this store does not ship to or a currency it does not sell
+   * in; with no currency given, the country's own currency is used.
+   */
   app.put('/locale', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const body = localeSchema.parse(request.body);
@@ -1033,6 +1065,10 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Tell the storefront whether shoppers may create their own accounts, so it
+   * knows whether to show the sign-up option. Needs no sign-in.
+   */
   app.get('/config', (_request, reply) =>
     reply.status(200).send({ selfRegistrationEnabled: selfRegistrationEnabled() }),
   );

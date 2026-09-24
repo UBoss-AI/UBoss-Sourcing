@@ -440,6 +440,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send({ requirements });
   });
 
+  /**
+   * The seller's company details and business profile as entered in the
+   * application, with their logo. The marketplace's private notes on the
+   * seller are never included.
+   */
   app.get('/business-profile', async (request, reply) => {
     const seller = currentSeller(request);
 
@@ -477,6 +482,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     });
   });
 
+  /**
+   * Save the business details step of the seller application - contacts,
+   * registration and tax numbers, address - and return what is still missing.
+   * Refused once the application is under review. Writes an audit entry.
+   */
   app.patch('/business-profile', async (request, reply) => {
     const body = businessProfileSchema.parse(request.body);
 
@@ -518,6 +528,7 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** Remove the seller's shop logo. Writes an audit entry. */
   app.delete(
     '/logo',
     { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
@@ -671,6 +682,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
       .send(file.body);
   });
 
+  /**
+   * Accept one of the marketplace's seller agreements at a given version, by
+   * typed name or drawn signature. Only the account owner may do this. The time,
+   * IP address and browser are kept as evidence. Writes an audit entry.
+   */
   app.post('/agreements', async (request, reply) => {
     const body = agreementSchema.parse(request.body);
 
@@ -690,6 +706,7 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     return reply.status(204).send();
   });
 
+  /** Every agreement the seller has accepted, newest first: which one, which version, by whom and when. */
   app.get('/agreements', async (request, reply) => {
     const seller = currentSeller(request);
 
@@ -950,6 +967,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
   // four-character hint; there is no route that could be asked for more,
   // because there is no service function that would answer.
 
+  /**
+   * The seller's own carrier accounts (DHL, FedEx and others) connected here,
+   * with the state of each. Never returns a key - only its last few characters.
+   */
   app.get(
     '/fulfilment/connections',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -961,6 +982,12 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Add one of the seller's own carrier accounts, for testing or live use, with
+   * its account numbers and defaults. It starts unconfigured, with no key
+   * stored; refused if the seller already has that carrier for that
+   * environment. Writes an audit entry.
+   */
   app.post(
     '/fulfilment/connections',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
@@ -1105,6 +1132,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Stop using one of the seller's carrier accounts without deleting its key,
+   * or put it back into service. Resuming is refused until the connection has
+   * passed a test. Writes an audit entry.
+   */
   app.post(
     '/fulfilment/connections/:connectionId/pause',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
@@ -1365,6 +1397,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
   // dedicated courier this seller contracts with, which sets its own coverage
   // in its own portal.
 
+  /**
+   * The collection set-up for each of the seller's buildings under one of their
+   * delivery methods: days, time window, cut-off, contact and limits.
+   */
   app.get(
     '/fulfilment/methods/:methodId/pickup-profiles',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -1421,6 +1457,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * The countries and regions a delivery method covers or excludes, with
+   * delivery days, transit times and any remote-area surcharge.
+   */
   app.get(
     '/fulfilment/methods/:methodId/service-areas',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -1434,6 +1474,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Add or update a country or region that a delivery method the seller runs
+   * themselves covers - or excludes, since an exclusion beats any overlapping
+   * area. Writes an audit entry.
+   */
   app.put(
     '/fulfilment/methods/:methodId/service-areas',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
@@ -1475,6 +1520,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Remove a country or region from a delivery method the seller runs
+   * themselves. Writes an audit entry.
+   */
   app.delete(
     '/fulfilment/methods/:methodId/service-areas/:areaId',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
@@ -1496,6 +1545,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * What a delivery method has asked to be allowed to carry (for example
+   * chilled goods), and whether the marketplace approved each request.
+   */
   app.get(
     '/fulfilment/methods/:methodId/capabilities',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -1552,6 +1605,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Every price list published for one of the seller's delivery methods, with
+   * all its versions and price bands.
+   */
   app.get(
     '/fulfilment/methods/:methodId/rate-cards',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -1632,6 +1689,7 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   // --- The team -----------------------------------------------------------
 
+  /** The seller's current team members, with each one's name, email, role and joining date. */
   app.get('/members', { preHandler: requireSeller(SellerPermission.MEMBER_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
 
@@ -1657,6 +1715,11 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     });
   });
 
+  /**
+   * Change a team member's role. Refused if it would leave the business with no
+   * owner, or would grant a role the person making the change does not hold.
+   * Writes an audit entry.
+   */
   app.patch(
     '/members/:memberId',
     { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
@@ -1687,6 +1750,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Remove someone from the seller's team. Their past actions still show their
+   * name, and removing the last owner is refused. Writes an audit entry.
+   */
   app.delete(
     '/members/:memberId',
     { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
@@ -1699,6 +1766,10 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
 
   // --- The seller's own record of what happened --------------------------
 
+  /**
+   * The seller's own activity log, newest first: who did what, to what, and
+   * when. Shows a short summary of each change, not the full before-and-after.
+   */
   app.get(
     '/audit',
     { preHandler: requireSeller(SellerPermission.AUDIT_READ) },

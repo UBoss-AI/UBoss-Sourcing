@@ -256,6 +256,11 @@ export function authRoutes(kind: UserKind) {
       },
     };
 
+    /**
+     * Sign in with email and password and start a session (set as cookies).
+     * Refused for an account that belongs to a different part of the system,
+     * and for an account temporarily locked after too many failed attempts.
+     */
     app.post('/login', { config: loginRateLimit }, async (request, reply) => {
       const body = loginSchema.parse(request.body);
       const context = requestContext(request);
@@ -306,6 +311,11 @@ export function authRoutes(kind: UserKind) {
       });
     });
 
+    /**
+     * Swap the session's refresh cookie for fresh sign-in tokens so the person
+     * stays signed in. If the session is no longer valid its cookies are cleared
+     * and the caller must sign in again.
+     */
     app.post('/refresh', { config: loginRateLimit }, async (request, reply) => {
       const refreshToken = request.cookies[cookieNamesFor(kind).refresh];
 
@@ -333,6 +343,12 @@ export function authRoutes(kind: UserKind) {
     });
 
     if (kind === 'ADMIN' && env.FEATURE_ADMIN_MFA) {
+      /**
+       * Start setting up two-step sign-in for a staff account: returns a new
+       * authenticator secret and a set of recovery codes. Refused while the
+       * person is still on a temporary password, and, when replacing an existing
+       * setup, until this session has passed the current two-step check.
+       */
       app.post('/mfa/setup', { preHandler: requireAuthenticated('ADMIN') }, async (request, reply) => {
         const auth = currentUser(request);
         if (auth.mustChangePassword) {
@@ -350,6 +366,12 @@ export function authRoutes(kind: UserKind) {
         return reply.header('cache-control', 'no-store').status(200).send(enrolment);
       });
 
+      /**
+       * Check a two-step sign-in code. In setup mode it switches two-step
+       * sign-in on for the account and writes an audit entry; otherwise it
+       * confirms this session, accepting either an authenticator code or a
+       * one-time recovery code.
+       */
       app.post('/mfa/verify', { preHandler: requireAuthenticated('ADMIN') }, async (request, reply) => {
         const body = z
           .object({
@@ -384,12 +406,17 @@ export function authRoutes(kind: UserKind) {
       });
     }
 
+    /** Sign out of this session only and clear its cookies. */
     app.post('/logout', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       await revokeSession(currentUser(request).sessionId, 'logout');
       clearSessionCookies(reply, kind);
       return reply.status(204).send();
     });
 
+    /**
+     * Sign the person out on every device at once. Replies with how many
+     * sessions were ended.
+     */
     app.post('/logout-all', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       const auth = currentUser(request);
       const revoked = await revokeAllUserSessions(auth.id, 'logout_all');
@@ -559,6 +586,7 @@ export function authRoutes(kind: UserKind) {
       return reply.status(200).send({ language });
     });
 
+    /** Save the interface language the signed-in person wants to read. */
     app.put('/language', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       const auth = currentUser(request);
       const body = languageSchema.parse(request.body);
@@ -568,6 +596,11 @@ export function authRoutes(kind: UserKind) {
       return reply.status(200).send({ language });
     });
 
+    /**
+     * Change the signed-in person's password, given their current one. Signs
+     * the account out of every session, including this one, and writes an
+     * audit entry.
+     */
     app.post(
       '/password/change',
       { preHandler: requireAuthenticated(kind) },
@@ -590,6 +623,11 @@ export function authRoutes(kind: UserKind) {
       },
     );
 
+    /**
+     * Ask for a password-reset link. If an active account exists for the email
+     * address, a reset link is emailed to it; the reply is the same either way,
+     * so nobody can use it to find out who has an account.
+     */
     app.post(
       '/password/forgot',
       { config: { rateLimit: { max: 5, timeWindow: '15 minutes' } } },
@@ -625,6 +663,11 @@ export function authRoutes(kind: UserKind) {
       },
     );
 
+    /**
+     * Set a new password using the link from a "forgot password" email. Signs
+     * the account out everywhere and writes an audit entry; refused if the
+     * link has expired or was already used.
+     */
     app.post(
       '/password/reset',
       { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
@@ -664,6 +707,12 @@ export function authRoutes(kind: UserKind) {
      * writes down that it happened.
      */
     if (kind === 'LOGISTICS') {
+      /**
+       * Accept an emailed invitation to the logistics portal: the person chooses
+       * their own password and their carrier account becomes active. Refused if
+       * the link has expired, was already used, or was issued for another part
+       * of the system.
+       */
       app.post(
         '/invitations/accept',
         { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },

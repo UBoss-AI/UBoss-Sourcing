@@ -35,6 +35,7 @@ import {
   totpUri,
   verifyTotp,
 } from '../../infra/totp.js';
+import { marketplaceNameFrom } from '../settings/marketplace-name.js';
 import { recordLogisticsAudit } from './audit.service.js';
 import type { LogisticsMembership } from './partner.service.js';
 
@@ -403,7 +404,9 @@ export function mfaIssuerName(businessName: string | null): string {
   const trimmed = (businessName ?? '').trim();
   // The DEPLOYMENT's own name, so a driver's authenticator shows the company
   // that employs them rather than the name of the software they were given.
-  return trimmed.length > 0 ? `${trimmed} Logistics` : 'UBOSS Logistics';
+  // With no profile yet, the product's own portal name - the same title the
+  // portal's tab carries - rather than the software vendor's.
+  return `${marketplaceNameFrom(trimmed)} Logistics`;
 }
 
 /** Whether the portal is even offering this, for the boot response. */

@@ -144,6 +144,10 @@ function staffActorFrom(request: FastifyRequest): {
 export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void> {
   // --- Business profile ----------------------------------------------------
 
+  /**
+   * The store's business profile: its names, contacts, tax numbers, currency
+   * and other store-wide settings.
+   */
   app.get(
     '/settings/business',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
@@ -151,6 +155,14 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
       reply.status(200).send({ business: await getBusinessProfile() }),
   );
 
+  /**
+   * Change the business profile: names, support contacts, tax numbers, the
+   * standard seller commission, logo, address, currency, time zone and
+   * invoice and order number prefixes. The currency cannot change once any
+   * order exists. Writes an audit entry.
+   *
+   * Setting `vatCountry` switches EU VAT on for the whole deployment.
+   */
   app.patch(
     '/settings/business',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -186,6 +198,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Replace the policy links shown in the storefront footer (terms, privacy
+   * and so on). Every link must start with http:// or https://; empty ones are
+   * dropped. Writes an audit entry.
+   */
   app.patch(
     '/settings/policy-links',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -198,6 +215,7 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Tax ------------------------------------------------------------------
 
+  /** List the tax classes, the default first, with each one's rate. */
   app.get(
     '/settings/tax-classes',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
@@ -236,6 +254,10 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     isActive: z.boolean().optional(),
   });
 
+  /**
+   * Add a tax class with its rate and, optionally, its EU VAT band. Making it
+   * the default takes that from the previous default. Writes an audit entry.
+   */
   app.post(
     '/settings/tax-classes',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -245,6 +267,10 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change a tax class. Refused if it would switch off a class products still
+   * use, or leave the store without a default. Writes an audit entry.
+   */
   app.patch(
     '/settings/tax-classes/:id',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -257,6 +283,7 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Shipping -------------------------------------------------------------
 
+  /** List the store's delivery methods and their prices. */
   app.get(
     '/settings/shipping-methods',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
@@ -277,6 +304,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     sortOrder: z.number().int().min(0).max(10_000).optional(),
   });
 
+  /**
+   * Add a delivery method with its price, free-delivery threshold, delivery
+   * time estimate and regions. Refused if the code is already used. Writes an
+   * audit entry.
+   */
   app.post(
     '/settings/shipping-methods',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -286,6 +318,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change a delivery method. Switching one off reports how many active or
+   * paused recurring schedules use it, so staff can be warned. Writes an
+   * audit entry.
+   */
   app.patch(
     '/settings/shipping-methods/:id',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -306,6 +343,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Notifications --------------------------------------------------------
 
+  /**
+   * List the notifications staff have customised, with their templates,
+   * recipients and whether each is switched on. Events not listed use the
+   * built-in wording.
+   */
   app.get(
     '/settings/notifications',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
@@ -313,6 +355,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
       reply.status(200).send({ notifications: await listNotificationSettings() }),
   );
 
+  /**
+   * Customise one notification: its email subject and body, the staff
+   * addresses that receive internal alerts, and whether it is sent. Writes an
+   * audit entry.
+   */
   app.put(
     '/settings/notifications',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -338,6 +385,7 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Feature flags --------------------------------------------------------
 
+  /** List the store's feature switches and whether each is on. */
   app.get(
     '/settings/feature-flags',
     { preHandler: requireAdmin(Permission.SETTINGS_READ) },
@@ -360,6 +408,9 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Switch one feature on or off for the whole store. Writes an audit entry.
+   */
   app.patch(
     '/settings/feature-flags/:key',
     { preHandler: requireAdmin(Permission.FEATURE_FLAG_WRITE) },
@@ -417,6 +468,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change the automatic exchange-rate settings: on or off, the rate feed,
+   * the margin added, price rounding, how far a rate may jump, and how old a
+   * rate may be before it stops being used. Writes an audit entry.
+   */
   app.put(
     '/settings/exchange-rates',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -501,6 +557,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
       }),
   );
 
+  /**
+   * Store or remove the API key used to machine-translate product copy. The
+   * key is kept encrypted and only its last four characters are ever shown.
+   * Writes an audit entry, without the key.
+   */
   app.put(
     '/settings/catalogue-translation',
     { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
@@ -579,6 +640,10 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Staff ----------------------------------------------------------------
 
+  /**
+   * List every staff account with its status, roles, the permissions those
+   * roles add up to, and whether it is still waiting for its first sign-in.
+   */
   app.get(
     '/staff',
     { preHandler: requireAdmin(Permission.STAFF_READ) },
@@ -650,6 +715,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Replace a staff member's roles. Only roles within your own authority can
+   * be added or removed, and the last Business Owner cannot drop that role.
+   * Removing access signs the person out. Writes an audit entry.
+   */
   app.patch(
     '/staff/:id/roles',
     { preHandler: requireAdmin(Permission.ROLE_ASSIGN) },
@@ -664,6 +734,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Deactivate a staff account, signing it out everywhere, or reactivate it.
+   * Refused for your own account, for someone with more access than you, and
+   * for the last active Business Owner. Writes an audit entry.
+   */
   app.patch(
     '/staff/:id/status',
     { preHandler: requireAdmin(Permission.STAFF_WRITE) },
@@ -690,6 +765,12 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Record a shipment of some or all of a confirmed order's items, with the
+   * carrier and tracking details. The order moves to processing, and to
+   * shipped once everything has gone (unless told not to). Writes an audit
+   * entry.
+   */
   app.post(
     '/orders/:id/shipments',
     { preHandler: requireAdmin(Permission.ORDER_FULFIL) },
@@ -731,6 +812,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Update where a shipment is: in transit, delivered, failed or returned to
+   * the sender. When the last outstanding shipment of a shipped order is
+   * delivered, the order is marked delivered.
+   */
   app.patch(
     '/shipments/:id/status',
     { preHandler: requireAdmin(Permission.ORDER_FULFIL) },
@@ -758,6 +844,11 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
   // --- Returns --------------------------------------------------------------
 
+  /**
+   * Record a return request for some or all items on a shipped or delivered
+   * order, with a reason. Quantities may not exceed what was ordered. Writes
+   * an audit entry.
+   */
   app.post(
     '/orders/:id/returns',
     { preHandler: requireAdmin(Permission.ORDER_RETURN) },
@@ -840,6 +931,10 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Refuse a return, with a note saying why. Refused if the return has
+   * already been decided. Writes an audit entry.
+   */
   app.post(
     '/returns/:id/reject',
     { preHandler: requireAdmin(Permission.ORDER_RETURN) },
@@ -861,6 +956,10 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * List return requests, newest first, a page at a time, optionally filtered
+   * by status. Each shows its order, reason, items and any decision note.
+   */
   app.get(
     '/returns',
     { preHandler: requireAdmin(Permission.ORDER_READ) },

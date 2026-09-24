@@ -95,7 +95,7 @@ export interface LogisticsAuditEntry {
   /**
    * How the actor is shown to the carrier.
    *
-   * For an operator action this is a ROLE - "UBOSS operations" - and never a
+   * For an operator action this is a ROLE - "Marketplace operations" - and never a
    * member of staff's name, the same line `SellerAuditLog.actorLabel` draws. A
    * carrier arguing about a suspension does not get an individual to chase.
    */
@@ -121,7 +121,7 @@ export interface LogisticsAuditEntry {
 }
 
 /** The label an operator action is shown to a carrier under. */
-export const OPERATOR_LABEL = 'UBOSS operations';
+export const OPERATOR_LABEL = 'Marketplace operations';
 
 /**
  * Write one row.

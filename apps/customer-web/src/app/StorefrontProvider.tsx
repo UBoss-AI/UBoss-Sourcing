@@ -6,9 +6,15 @@
  * the fallback while the request is in flight, because a spinner covering the
  * entire site while a branding call completes is a worse first impression than
  * a neutral name for 200ms.
+ *
+ * It also hands the marketplace's own name to the translator, which fills
+ * `{{marketplace}}` in every catalogue string with it - see
+ * `setMarketplaceName`. That is `marketplace.displayName`, not
+ * `business.displayName`: on a seller's shop front the second is the seller.
  */
 import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { setMarketplaceName } from '@/i18n/config';
 import { api } from '@/lib/api';
 import type { StorefrontConfig } from '@/lib/types';
 import { FALLBACK_CONFIG, StorefrontContext } from './storefront-context';
@@ -22,6 +28,11 @@ export function StorefrontProvider({ children }: { children: ReactNode }): React
     staleTime: 5 * 60_000,
     retry: 1,
   });
+
+  const marketplaceName = query.data?.marketplace?.displayName;
+  useEffect(() => {
+    setMarketplaceName(marketplaceName);
+  }, [marketplaceName]);
 
   return (
     <StorefrontContext.Provider value={query.data ?? FALLBACK_CONFIG}>

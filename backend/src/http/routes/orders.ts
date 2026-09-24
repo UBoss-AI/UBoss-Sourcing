@@ -875,6 +875,11 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Approve or reject an order that is waiting for staff approval, with an
+   * optional comment. Approving moves it on to waiting for payment; rejecting
+   * cancels it. Refused if the order has no approval still pending.
+   */
   app.post(
     '/orders/:id/approval',
     { preHandler: requireAdmin(Permission.ORDER_APPROVE) },
@@ -904,6 +909,10 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Replace, or clear, the staff-only internal note on an order. Customers
+   * never see it.
+   */
   app.patch(
     '/orders/:id/note',
     { preHandler: requireAdmin(Permission.ORDER_NOTE_WRITE) },

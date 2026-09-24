@@ -58,6 +58,14 @@ const slugParam = z.object({
 });
 
 export function registerErpWebhookRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Where a customer's ERP system sends stock updates. The update is applied
+   * only when its signature checks out against the connection's secret; a
+   * repeat of an update already received is accepted and ignored.
+   *
+   * No session: the signature and the unguessable address stand in for sign-in.
+   * Answers 404 while the ERP feature is switched off.
+   */
   app.post(
     '/erp/webhooks/:slug',
     {

@@ -61,6 +61,11 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     }
   };
 
+  /**
+   * List the customer's saved cards, default first, including expired ones.
+   * Removed cards are not shown. Available even when automatic payments are
+   * switched off.
+   */
   app.get('/', async (request, reply) => {
     const auth = currentUser(request);
     const methods = await listPaymentMethods(auth.customerProfileId ?? '');
@@ -134,6 +139,10 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     },
   );
 
+  /**
+   * Make one of the customer's saved cards their default. Refused for a card
+   * that is no longer usable; writes an audit entry.
+   */
   app.post('/:id/default', async (request, reply) => {
     const auth = currentUser(request);
     const { id } = idParam.parse(request.params);

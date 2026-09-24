@@ -79,22 +79,34 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     config: { rateLimit: ISSUE },
   };
 
+  /** Every consignment of one of the seller's orders, with its packages, invoices and packing lists. */
   app.get('/orders/:id/documents', read, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send(await readSellerOrderDocuments(currentSeller(request), id));
   });
 
+  /** One of the seller's consignments, with its packages, invoices and packing lists. */
   app.get('/consignments/:id/documents', read, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send({ consignment: await readConsignmentDocuments(currentSeller(request), id) });
   });
 
+  /**
+   * Replace the list of packages in a consignment and what each one holds.
+   * Refused once a package has been scanned out, a shipping label bought or a
+   * packing list issued.
+   */
   app.put('/consignments/:id/packages', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     await savePackages(currentSeller(request), id, packagesInputSchema.parse(request.body));
     return reply.send({ consignment: await readConsignmentDocuments(currentSeller(request), id) });
   });
 
+  /**
+   * Move some of a consignment's items onto a new consignment, for example a
+   * second vehicle or a second day. Refused once an invoice or packing list is
+   * issued or the packages are locked.
+   */
   app.post('/consignments/:id/split', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const created = await splitConsignment(
@@ -107,11 +119,17 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
 
   // --- Invoice ---------------------------------------------------------------
 
+  /**
+   * Prepare or refresh the draft invoice for a consignment and say whether it
+   * can be issued, listing anything that must be fixed first. Never changes an
+   * issued invoice.
+   */
   app.post('/consignments/:id/invoice/preview', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send({ invoice: await prepareInvoice(currentSeller(request), id) });
   });
 
+  /** The consignment's invoice as a PDF: the issued one if there is one, otherwise a watermarked draft. */
   app.get('/consignments/:id/invoice/pdf', read, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return sendPdf(
@@ -120,6 +138,11 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     );
   });
 
+  /**
+   * Issue the consignment's tax invoice: give it its number, store the final
+   * PDF and email the buyer. Refused while the draft still has problems; asking
+   * again after it is issued returns the same invoice. Writes an audit entry.
+   */
   app.post('/consignments/:id/invoice/issue', issue, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send({
@@ -127,6 +150,11 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     });
   });
 
+  /**
+   * Cancel an issued invoice by issuing a credit note for the same amount, with
+   * a reason. The original is kept and marked void, and the consignment can then
+   * be invoiced again under a new number. Writes an audit entry.
+   */
   app.post('/invoices/:id/credit', issue, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.status(201).send({
@@ -141,11 +169,16 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
 
   // --- Packing list ----------------------------------------------------------------
 
+  /**
+   * Prepare or refresh the draft packing list for a consignment and say whether
+   * it can be issued, listing anything that must be fixed first.
+   */
   app.post('/consignments/:id/packing-list/preview', write, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send({ packingList: await preparePackingList(currentSeller(request), id) });
   });
 
+  /** The consignment's packing list as a PDF: the issued one if there is one, otherwise a watermarked draft. */
   app.get('/consignments/:id/packing-list/pdf', read, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return sendPdf(
@@ -154,6 +187,11 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     );
   });
 
+  /**
+   * Issue the consignment's packing list: give it its number and store the
+   * final PDF. Refused while the draft still has problems; asking again after it
+   * is issued returns the same list. Writes an audit entry.
+   */
   app.post('/consignments/:id/packing-list/issue', issue, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     return reply.send({
@@ -161,6 +199,11 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     });
   });
 
+  /**
+   * Withdraw an issued packing list, with a reason, so the load can be re-packed
+   * and a new list issued. Only allowed before the carrier has scanned anything
+   * out. Writes an audit entry.
+   */
   app.post('/consignments/:id/packing-list/supersede', issue, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     await supersedePackingList(
@@ -182,6 +225,7 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
 
   // --- Downloads -----------------------------------------------------------------------
 
+  /** Get a short-lived, single-use download link for one of the seller's own invoices or packing lists. */
   app.post('/document-links/:kind/:id', read, async (request, reply) => {
     const { kind, id } = kindParam.parse(request.params);
     return reply.send(
@@ -189,6 +233,10 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     );
   });
 
+  /**
+   * Get a short-lived, single-use link that downloads up to 100 of the seller's
+   * own documents as one ZIP file.
+   */
   app.post('/document-links/batch', read, async (request, reply) => {
     return reply.send(
       await sellerBatchLink(
@@ -201,6 +249,11 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
 
   // --- Settings and trade codes ------------------------------------------------------------
 
+  /**
+   * The seller's invoice settings (number series, financial year, signatory,
+   * export bond reference, footer), plus the legal name and tax number invoices
+   * will be issued under.
+   */
   app.get(
     '/invoice-settings',
     { preHandler: requireSeller(SellerPermission.ACCOUNT_READ) },
@@ -209,6 +262,7 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /** Save the seller's invoice settings. Writes an entry in the seller's activity log. */
   app.put(
     '/invoice-settings',
     { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE), config: { rateLimit: WRITE } },
@@ -222,6 +276,7 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /** The HSN (customs) code and country of origin saved on one of the seller's listings. */
   app.get(
     '/offers/:id/trade-codes',
     { preHandler: requireSeller(SellerPermission.LISTING_READ) },
@@ -231,6 +286,10 @@ export function registerSellerDocumentRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Save the HSN (customs) code and country of origin on one of the seller's
+   * listings, which its invoices print. Writes an entry in the seller's activity log.
+   */
   app.put(
     '/offers/:id/trade-codes',
     { preHandler: requireSeller(SellerPermission.LISTING_WRITE), config: { rateLimit: WRITE } },

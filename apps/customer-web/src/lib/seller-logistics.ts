@@ -316,11 +316,17 @@ export function fetchSettlementEstimate(input: {
   goodsMinor: string;
   sellerDeliveryMinor: string;
   currency?: string;
+  /** The buyer's country, so a market fee policy applies as it would on an order. */
+  marketCountry?: string;
+  /** One of the seller's listings, so its category's fee policy applies. */
+  offerId?: string;
 }): Promise<{ estimate: SettlementEstimate }> {
   const query = new URLSearchParams({
     goodsMinor: input.goodsMinor,
     sellerDeliveryMinor: input.sellerDeliveryMinor,
     ...(input.currency === undefined ? {} : { currency: input.currency }),
+    ...(input.marketCountry === undefined || input.marketCountry === '' ? {} : { marketCountry: input.marketCountry }),
+    ...(input.offerId === undefined || input.offerId === '' ? {} : { offerId: input.offerId }),
   });
   return api.get<{ estimate: SettlementEstimate }>(`/seller/settlements/estimate?${query.toString()}`);
 }

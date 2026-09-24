@@ -398,6 +398,28 @@ jobs:
         run: node scripts/check-i18n.mjs
 
   # ---------------------------------------------------------------------------
+  # Reference docs
+  #
+  # docs/reference/ lists every table, endpoint and error code, and is
+  # generated from the schema, the route files and errors.ts. A change to any
+  # of those without `cd scripts; npm run docs` leaves the list quietly wrong,
+  # and people trust it. Node built-ins only, so no install step.
+  # ---------------------------------------------------------------------------
+  reference-docs:
+    name: Reference docs match the code
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: docs/reference is up to date
+        run: node scripts/build-reference-docs.mjs --check
+
+  # ---------------------------------------------------------------------------
   # Supply chain
   #
   # Separate from the build so that a new advisory published overnight shows as

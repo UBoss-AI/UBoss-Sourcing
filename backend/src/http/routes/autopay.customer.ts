@@ -91,6 +91,14 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
     });
   });
 
+  /**
+   * Switch on automatic payment: the customer gives explicit permission for a
+   * saved card to be charged while they are away, with optional spending
+   * limits. Refused without that permission or without a card that can be
+   * charged today; the permission is recorded with an audit entry.
+   *
+   * Only available when the store has the automatic-payment feature switched on.
+   */
   app.post(
     '/',
     {
@@ -130,6 +138,11 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Change the card, spending limits, retry choice or notification settings of
+   * automatic payment, without asking for permission again. Writes an audit
+   * entry recording the before and after.
+   */
   app.patch('/', { preHandler: requireFeature }, async (request, reply) => {
     const body = z
       .object({
@@ -160,6 +173,11 @@ export function registerCustomerAutoPayRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ autoPay: settings });
   });
 
+  /**
+   * Pause or resume automatic payment without withdrawing the customer's
+   * permission. Resuming checks the saved card can still be charged; refused
+   * when automatic payment is switched off. Writes an audit entry.
+   */
   app.post('/pause', { preHandler: requireFeature }, async (request, reply) => {
     const { paused } = z.object({ paused: z.boolean() }).parse(request.body);
     const settings = await setAutoPayPaused(actorFor(request), paused);

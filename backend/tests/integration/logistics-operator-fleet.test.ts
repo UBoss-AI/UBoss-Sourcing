@@ -425,7 +425,7 @@ describe('the desk adding somebody to a fleet', () => {
     // their own trail should see that the operator did this, not the name of
     // somebody on another company's staff. The individual is recorded in the
     // marketplace's own `audit_log`, which the carrier cannot read.
-    expect(entry?.actorLabel).toBe('UBOSS operations');
+    expect(entry?.actorLabel).toBe('Marketplace operations');
     expect(entry?.actorUserId).not.toBeNull();
     expect(entry?.summary).toContain('by the marketplace');
   });
@@ -541,7 +541,7 @@ describe('the desk putting a driver on a consignment', () => {
     // The label carries who acted. `assignedByPartnerUserId` stays null
     // because an operator has no row in the carrier's own team, and the chain
     // would otherwise lose who moved it.
-    expect(live?.assignedByLabel).toBe('UBOSS operations');
+    expect(live?.assignedByLabel).toBe('Marketplace operations');
     expect(live?.assignedByPartnerUserId).toBeNull();
   });
 

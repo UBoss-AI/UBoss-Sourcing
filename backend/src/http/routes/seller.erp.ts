@@ -119,6 +119,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Connections --------------------------------------------------------
 
+  /**
+   * The seller's TallyPrime connections, with whether the feature is switched
+   * on for this marketplace. When it is off the list is empty and the flag says so.
+   */
   app.get(
     '/erp/connections',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -138,6 +142,11 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Create a new TallyPrime connection for the seller. It starts with nothing
+   * switched on: no company chosen and nothing posted to the seller's accounts
+   * until each step is set up.
+   */
   app.post(
     '/erp/connections',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -162,6 +171,7 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** One of the seller's TallyPrime connections, with its current state worked out fresh. */
   app.get(
     '/erp/connections/:id',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -172,6 +182,11 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Switch a connection off or back on. Off stops all sending and the paired
+   * computer's access; settings, history and queued work are kept for when it
+   * is switched back on.
+   */
   app.post(
     '/erp/connections/:id/enabled',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -228,6 +243,7 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** Every computer ever paired to this connection, newest first, and whether each is currently online. */
   app.get(
     '/erp/connections/:id/devices',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -238,6 +254,11 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Remove a paired computer's access immediately, for example after a laptop
+   * is lost. Work it had picked up is handed back for another paired computer.
+   * Recorded in the connection's security trail.
+   */
   app.post(
     '/erp/devices/:id/revoke',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -285,6 +306,7 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** The Tally companies the last connection test found open, to choose from. */
   app.get(
     '/erp/connections/:id/companies',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -295,6 +317,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Choose which Tally company this connection posts into. Only a company the
+   * last test actually found is accepted; a typed-in name is refused.
+   */
   app.post(
     '/erp/connections/:id/company',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -316,6 +342,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Mapping ------------------------------------------------------------
 
+  /**
+   * How the seller's products, buyers, taxes and so on are matched to names in
+   * Tally, plus the matches the seller's settings still need before syncing.
+   */
   app.get(
     '/erp/connections/:id/mappings',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -332,6 +362,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Save up to 500 matches between the seller's records and names in Tally.
+   * They are saved all together or not at all.
+   */
   app.put(
     '/erp/connections/:id/mappings',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -432,6 +466,7 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Policy -------------------------------------------------------------
 
+  /** What this connection sends to Tally (orders, invoices, receipts, credit notes), how cancellations and stock are handled, and its retry settings. */
   app.get(
     '/erp/connections/:id/policy',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -442,6 +477,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Change some of this connection's sync settings. Only the fields sent are
+   * changed, and each change is recorded with its previous value.
+   */
   app.patch(
     '/erp/connections/:id/policy',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -609,6 +648,7 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- History ------------------------------------------------------------
 
+  /** The connection's sync jobs, page by page, optionally filtered by status. */
   app.get(
     '/erp/connections/:id/jobs',
     { preHandler: requireSeller(SellerPermission.INTEGRATION_READ) },
@@ -646,6 +686,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Try a failed sync job again. Only a job that has failed can be retried; one
+   * that already succeeded is refused, so nothing is posted twice.
+   */
   app.post(
     '/erp/jobs/:id/retry',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },
@@ -662,6 +706,10 @@ export function registerSellerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Cancel a sync job that should not be sent. Refused while it is running and
+   * for anything already posted to Tally, which is undone with a credit note instead.
+   */
   app.post(
     '/erp/jobs/:id/cancel',
     { preHandler: [requireFeature, requireSeller(SellerPermission.INTEGRATION_WRITE)] },

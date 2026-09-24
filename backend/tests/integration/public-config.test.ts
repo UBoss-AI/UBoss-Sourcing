@@ -25,6 +25,7 @@ interface ConfigResponse {
   business: Record<string, unknown>;
   features: Record<string, unknown>;
   localisation: Record<string, unknown>;
+  marketplace: Record<string, unknown>;
   assistant: Record<string, unknown>;
   fulfilment: Record<string, unknown>;
   ordering: Record<string, unknown>;
@@ -54,6 +55,10 @@ describe('GET /api/v1/config', () => {
       // change.
       'fulfilment',
       'localisation',
+      // Who runs the marketplace. Unlike `business`, never replaced by a
+      // seller's name on a seller's shop front, so a sentence about the
+      // marketplace names the operator on every host.
+      'marketplace',
       // The selling unit. Every price the storefront prints is the price of
       // one carton, worked out from the catalogue's piece price and this
       // figure, so the browser cannot render a price without it.
@@ -61,6 +66,8 @@ describe('GET /api/v1/config', () => {
     ]);
 
     expect(Object.keys(body.ordering).sort()).toEqual(['piecesPerCarton']);
+
+    expect(Object.keys(body.marketplace).sort()).toEqual(['displayName']);
 
     expect(Object.keys(body.fulfilment).sort()).toEqual([
       // How long a warehouse option stays an offer, so the checkout page can
@@ -188,6 +195,16 @@ describe('GET /api/v1/config', () => {
     if (profile !== null) {
       expect(body.business.displayName).toBe(profile.displayName);
     }
+  });
+
+  it('names the operator as the marketplace, from the same profile', async () => {
+    const profile = await prisma.businessProfile.findFirst({ select: { displayName: true } });
+    const response = await app.inject({ method: 'GET', url: '/api/v1/config' });
+    const body = response.json<ConfigResponse>();
+
+    // Screens that say who manages a delivery level or who assigned a
+    // consignment read this, so it must be the operator's own name.
+    expect(body.marketplace.displayName).toBe(profile?.displayName.trim() || 'Glovia');
   });
 
   it('never carries the product’s former name', async () => {

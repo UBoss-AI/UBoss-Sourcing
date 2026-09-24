@@ -43,6 +43,19 @@ export interface StorefrontConfig {
     legalName: string;
     description: string | null;
   };
+  /**
+   * The marketplace itself - the operator - which `business` is not on a
+   * seller's shop front.
+   *
+   * Never replaced by a seller's name, so a sentence about who runs the
+   * marketplace ("{{marketplace}} manages L2") names the operator on every
+   * host. It fills `{{marketplace}}` in every catalogue through
+   * `setMarketplaceName`. Optional because a backend older than this field
+   * does not send it; the product's own name stands in.
+   */
+  marketplace?: {
+    displayName: string;
+  };
   business: {
     displayName: string;
     /** The registered name behind the trading name. Only on a seller's shop. */

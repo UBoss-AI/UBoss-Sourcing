@@ -12,6 +12,8 @@ import {
   levelPricingStatus,
   ownersForMode,
   ownershipChanged,
+  partnerMayCarryLevel,
+  policyForLevelChange,
   policyShapeProblem,
   providerConnectionState,
   rateIsComplete,
@@ -305,5 +307,96 @@ describe('the order the legs move in', () => {
   it('never moves a finished leg', () => {
     expect(() => assertLegTransition('COMPLETED', 'IN_PROGRESS', 'OWNER')).toThrow();
     expect(() => assertLegTransition('CANCELLED', 'ASSIGNED', 'OWNER')).toThrow();
+  });
+});
+
+describe('who may carry a level', () => {
+  const SELLER_ID = 'S'.repeat(26);
+  const partner = (overrides: Partial<Parameters<typeof partnerMayCarryLevel>[2] & object> = {}) => ({
+    status: 'ACTIVE',
+    archivedAt: null,
+    partnerKind: 'MARKETPLACE_CARRIER' as const,
+    ownerSellerAccountId: null,
+    sellerLinkStatuses: [] as string[],
+    ...overrides,
+  });
+
+  it('gives a UBOSS level only to a marketplace carrier, never a seller’s own fleet', () => {
+    expect(partnerMayCarryLevel('UBOSS', SELLER_ID, partner())).toBe(true);
+    expect(
+      partnerMayCarryLevel('UBOSS', SELLER_ID, partner({ partnerKind: 'SELLER_SELF_MANAGED', ownerSellerAccountId: SELLER_ID })),
+    ).toBe(false);
+    expect(
+      partnerMayCarryLevel('UBOSS', SELLER_ID, partner({ partnerKind: 'SELLER_DEDICATED', sellerLinkStatuses: ['APPROVED'] })),
+    ).toBe(false);
+  });
+
+  it('gives a seller level to the seller’s own operation or an approved company only', () => {
+    expect(partnerMayCarryLevel('SELLER', SELLER_ID, partner({ partnerKind: 'SELLER_SELF_MANAGED', ownerSellerAccountId: SELLER_ID }))).toBe(true);
+    expect(partnerMayCarryLevel('SELLER', SELLER_ID, partner({ sellerLinkStatuses: ['APPROVED'] }))).toBe(true);
+    expect(partnerMayCarryLevel('SELLER', SELLER_ID, partner({ sellerLinkStatuses: ['PENDING'] }))).toBe(false);
+    expect(partnerMayCarryLevel('SELLER', SELLER_ID, partner())).toBe(false);
+  });
+
+  it('never names a suspended, archived or missing company', () => {
+    expect(partnerMayCarryLevel('UBOSS', SELLER_ID, partner({ status: 'SUSPENDED' }))).toBe(false);
+    expect(partnerMayCarryLevel('UBOSS', SELLER_ID, partner({ archivedAt: new Date() }))).toBe(false);
+    expect(partnerMayCarryLevel('SELLER', SELLER_ID, null)).toBe(false);
+  });
+});
+
+describe('one level’s checkbox', () => {
+  const SELF_OWNERS: LevelOwners = { L1: 'SELLER', L2: 'SELLER', L3: 'SELLER', L4: 'SELLER' };
+  const UBOSS_OWNERS: LevelOwners = { L1: 'SELLER', L2: 'UBOSS', L3: 'UBOSS', L4: 'UBOSS' };
+
+  it('keeps a Self or UBOSS policy in its mode when the box already says so', () => {
+    expect(policyForLevelChange({ mode: 'SELF', owners: SELF_OWNERS }, 'L3', 'SELLER')).toEqual({
+      mode: 'SELF',
+      l2Owner: 'SELLER',
+      l3Owner: 'SELLER',
+      l4Owner: 'SELLER',
+    });
+    expect(policyForLevelChange({ mode: 'UBOSS', owners: UBOSS_OWNERS }, 'L2', 'UBOSS').mode).toBe('UBOSS');
+  });
+
+  it('keeps the mode for L1 too, so ticking L1 never changes a published mode', () => {
+    expect(policyForLevelChange({ mode: 'SELF', owners: SELF_OWNERS }, 'L1', 'SELLER')).toEqual({
+      mode: 'SELF',
+      l1Owner: 'SELLER',
+      l2Owner: 'SELLER',
+      l3Owner: 'SELLER',
+      l4Owner: 'SELLER',
+    });
+    expect(policyForLevelChange({ mode: 'UBOSS', owners: UBOSS_OWNERS }, 'L1', 'SELLER').mode).toBe('UBOSS');
+  });
+
+  it('passes an L1 hand-over to UBOSS through, to be refused', () => {
+    const shape = policyForLevelChange({ mode: 'UBOSS', owners: UBOSS_OWNERS }, 'L1', 'UBOSS');
+    expect(policyShapeProblem(shape)).toBe('L1_OWNER_FIXED');
+  });
+
+  it('makes a level moved out of Self or UBOSS the mixed mode', () => {
+    expect(policyForLevelChange({ mode: 'SELF', owners: SELF_OWNERS }, 'L3', 'UBOSS')).toEqual({
+      mode: 'HYBRID',
+      l2Owner: 'SELLER',
+      l3Owner: 'UBOSS',
+      l4Owner: 'SELLER',
+    });
+    expect(policyForLevelChange({ mode: 'UBOSS', owners: UBOSS_OWNERS }, 'L4', 'SELLER')).toEqual({
+      mode: 'HYBRID',
+      l2Owner: 'UBOSS',
+      l3Owner: 'UBOSS',
+      l4Owner: 'SELLER',
+    });
+  });
+
+  it('keeps a mixed policy mixed, so the seller on all three is still refused', () => {
+    const shape = policyForLevelChange(
+      { mode: 'HYBRID', owners: { L1: 'SELLER', L2: 'SELLER', L3: 'UBOSS', L4: 'SELLER' } },
+      'L3',
+      'SELLER',
+    );
+    expect(shape.mode).toBe('HYBRID');
+    expect(policyShapeProblem(shape)).toBe('HYBRID_ALL_SELLER');
   });
 });

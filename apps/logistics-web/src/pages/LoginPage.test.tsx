@@ -28,7 +28,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SessionProvider } from '@/auth/session';
 import { ThemeProvider } from '@/app/ThemeProvider';
 import { i18n } from '@/i18n/config';
+import { HomeRedirect } from '@/app/HomeRedirect';
 import { ApiError } from '@/lib/api';
+import { Permission } from '@/lib/permissions';
 import type { PortalSession } from '@/lib/types';
 import { LoginPage } from './LoginPage';
 
@@ -80,7 +82,9 @@ function renderPortal(entry = '/login'): void {
           <SessionProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<HomeRedirect />} />
               <Route path="/dashboard" element={<p>the dashboard</p>} />
+              <Route path="/driver/tasks" element={<p>the driver's tasks</p>} />
             </Routes>
           </SessionProvider>
         </MemoryRouter>
@@ -279,5 +283,35 @@ describe('filling the form in again after the server refused the credentials', (
 
     expect(document.activeElement).toBe(password);
     expect((email as HTMLInputElement).value).toBe('dispatch@sahyadri.example');
+  });
+});
+
+describe('where a sign-in lands', () => {
+  /**
+   * A driver holds no permission the dashboard needs. Sign-in used to go
+   * straight to `/dashboard`, skipping the role-aware redirect at `/`, so a
+   * driver's first screen was the one they could not open.
+   */
+  it('takes a driver to their task list, not the dashboard', async () => {
+    const driver = sessionFor('Sahyadri Express', 'partner-a', 'driver@sahyadri.example');
+    driver.user.role = 'DRIVER';
+    driver.user.isDriver = true;
+    driver.user.permissions = [Permission.DRIVER_TASK_READ];
+
+    fetchSession
+      .mockRejectedValueOnce(new ApiError(401, { code: 'UNAUTHENTICATED', message: 'Not signed in.' }))
+      .mockResolvedValue(driver);
+    signIn.mockResolvedValue(undefined);
+
+    renderPortal();
+
+    fireEvent.change(await screen.findByLabelText('Work email'), {
+      target: { value: 'driver@sahyadri.example' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'a-password' } });
+    fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
+
+    expect(await screen.findByText("the driver's tasks")).toBeDefined();
+    expect(screen.queryByText('the dashboard')).toBeNull();
   });
 });

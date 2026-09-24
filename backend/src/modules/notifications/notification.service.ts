@@ -17,6 +17,8 @@ import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { JobType, queue } from '../../infra/queue/index.js';
+import { env } from '../../config/env.js';
+import { marketplaceNameFrom } from '../settings/marketplace-name.js';
 
 /** Notification events. Each maps to a `notification_settings.eventKey` row. */
 export const NotificationEvent = {
@@ -814,7 +816,9 @@ export async function enqueueNotification(
   input: EnqueueNotificationInput,
   tx?: unknown,
 ): Promise<string | null> {
-  const client = (tx as Pick<typeof prisma, 'notificationOutbox' | 'notificationSetting'> | undefined) ?? prisma;
+  const client =
+    (tx as Pick<typeof prisma, 'notificationOutbox' | 'notificationSetting' | 'businessProfile'> | undefined) ??
+    prisma;
 
   const setting = await client.notificationSetting.findUnique({
     where: { eventKey: input.eventKey },
@@ -830,14 +834,24 @@ export async function enqueueNotification(
       ? { subject: setting.subjectTemplate, body: setting.bodyTemplate }
       : (DEFAULT_TEMPLATES[input.eventKey] ?? FALLBACK_TEMPLATE);
 
+  /*
+   * Who the e-mail is from and where to write back, from the operator's own
+   * business profile - every buyer of this software runs their own
+   * deployment, so neither may be a literal. A caller may still pass its own
+   * in `input.variables` (a seller's shop, say), which wins below. With no
+   * profile row at all the name is the product's, because there is no shop's
+   * name to be had, and the address is the one this deployment sends from.
+   */
+  const needsProfile =
+    input.variables?.['businessName'] === undefined || input.variables['supportEmail'] === undefined;
+  const profile = needsProfile
+    ? await client.businessProfile.findFirst({ select: { displayName: true, supportEmail: true } })
+    : null;
+
   const variables: TemplateVariables = {
     recipientName: input.recipientName ?? 'there',
-    // Every real send passes the operator's own business name in
-    // `input.variables` and overwrites this. It is what `{{businessName}}`
-    // renders as when nothing did — the product's name, because there is no
-    // shop's name to be had.
-    businessName: 'Glovia',
-    supportEmail: 'support@uboss.example',
+    businessName: marketplaceNameFrom(profile?.displayName),
+    supportEmail: profile?.supportEmail ?? env.EMAIL_FROM_ADDRESS,
     ...input.variables,
   };
 

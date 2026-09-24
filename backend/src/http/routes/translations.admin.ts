@@ -65,6 +65,10 @@ const categoryTranslationSchema = z.object({
 export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<void> {
   // --- products ------------------------------------------------------------
 
+  /**
+   * A product's English text together with every translation saved for it,
+   * so a translator can work with the source in front of them.
+   */
   app.get(
     '/products/:id/translations',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
@@ -116,6 +120,11 @@ export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Save a product's name, descriptions and search-engine text in one
+   * language other than English. A save from the panel is marked as reviewed
+   * by a person unless the caller says otherwise.
+   */
   app.put(
     '/products/:id/translations/:language',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -156,6 +165,10 @@ export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Remove a product's copy in one language, so shoppers in that language see
+   * the English text again.
+   */
   app.delete(
     '/products/:id/translations/:language',
     { preHandler: requireAdmin(Permission.PRODUCT_WRITE) },
@@ -174,6 +187,10 @@ export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<vo
 
   // --- categories ----------------------------------------------------------
 
+  /**
+   * A category's English text together with every translation saved for it,
+   * so a translator can work with the source in front of them.
+   */
   app.get(
     '/categories/:id/translations',
     { preHandler: requireAdmin(Permission.CATEGORY_READ) },
@@ -220,6 +237,11 @@ export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Save a category's name, description and search-engine text in one
+   * language other than English. A save from the panel is marked as reviewed
+   * by a person unless the caller says otherwise.
+   */
   app.put(
     '/categories/:id/translations/:language',
     { preHandler: requireAdmin(Permission.CATEGORY_WRITE) },
@@ -257,6 +279,10 @@ export function registerAdminTranslationRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Remove a category's copy in one language, so shoppers in that language
+   * see the English text again.
+   */
   app.delete(
     '/categories/:id/translations/:language',
     { preHandler: requireAdmin(Permission.CATEGORY_WRITE) },

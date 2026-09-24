@@ -10,6 +10,7 @@ import {
   verifyTotp,
 } from '../../infra/totp.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { getMarketplaceName } from '../settings/marketplace-name.js';
 
 function secretAad(userId: string): string {
   return `admin_mfa:${userId}`;
@@ -51,7 +52,13 @@ export async function beginAdminMfaEnrolment(userId: string): Promise<AdminMfaEn
 
   return {
     secret,
-    uri: totpUri({ secretBase32: secret, accountName: user.email, issuer: 'UBOSS Admin' }),
+    // The operator's own name in the authenticator app, so a member of staff
+    // sees the business that employs them rather than the software's vendor.
+    uri: totpUri({
+      secretBase32: secret,
+      accountName: user.email,
+      issuer: `${await getMarketplaceName(prisma)} Admin`,
+    }),
     recoveryCodes,
   };
 }

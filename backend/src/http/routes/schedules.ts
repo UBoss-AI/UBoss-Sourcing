@@ -567,6 +567,12 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
     });
   });
 
+  /**
+   * Show one of the customer's own scheduled orders: its products with their
+   * quantity rules, the addresses, and its 20 most recent deliveries with the
+   * order each one became. A plan the customer removed, or someone else's,
+   * answers "not found".
+   */
   app.get('/:id', async (request, reply) => {
     const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
@@ -792,6 +798,13 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
     return reply.status(200).send({ status: 'PAUSED' });
   });
 
+  /**
+   * Restart one of the customer's own paused scheduled orders. The next
+   * delivery date is worked out afresh from today, so missed deliveries are not
+   * caught up. Refused if the card it pays with automatically can no longer be
+   * charged, or a one-off delivery date has already passed; writes an audit
+   * entry.
+   */
   app.post('/:id/resume', async (request, reply) => {
     const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
@@ -1060,6 +1073,11 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
 // --- Admin routes ----------------------------------------------------------
 
 export function registerAdminScheduleRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List every customer's scheduled orders, soonest next delivery first, a
+   * page at a time. Can be narrowed by status, one-off or repeating, customer,
+   * or "due within the next N hours".
+   */
   app.get(
     '/schedules',
     { preHandler: requireAdmin(Permission.SCHEDULE_READ) },
@@ -1122,6 +1140,11 @@ export function registerAdminScheduleRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Show one scheduled order in full for staff: the customer, the products,
+   * the addresses and its 50 most recent deliveries with the order each one
+   * produced and any failure.
+   */
   app.get(
     '/schedules/:id',
     { preHandler: requireAdmin(Permission.SCHEDULE_READ) },
@@ -1190,6 +1213,11 @@ export function registerAdminScheduleRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Pause any customer's scheduled order, with an optional reason. Upcoming
+   * deliveries that have not started are withdrawn until it is resumed.
+   * Writes an audit entry.
+   */
   app.post(
     '/schedules/:id/pause',
     { preHandler: requireAdmin(Permission.SCHEDULE_WRITE) },
@@ -1216,6 +1244,12 @@ export function registerAdminScheduleRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Restart any customer's paused scheduled order. The next delivery date is
+   * worked out afresh from today, so missed deliveries are not caught up.
+   * Refused if the card it pays with automatically can no longer be charged,
+   * or a one-off delivery date has already passed; writes an audit entry.
+   */
   app.post(
     '/schedules/:id/resume',
     { preHandler: requireAdmin(Permission.SCHEDULE_WRITE) },
@@ -1292,6 +1326,11 @@ export function registerAdminScheduleRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Cancel any customer's scheduled order, with an optional reason. Only
+   * deliveries that have not started are cancelled; orders already created
+   * carry on as normal. Writes an audit entry.
+   */
   app.delete(
     '/schedules/:id',
     { preHandler: requireAdmin(Permission.SCHEDULE_WRITE) },

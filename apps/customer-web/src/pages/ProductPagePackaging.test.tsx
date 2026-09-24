@@ -23,8 +23,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import { ProductPage } from './ProductPage';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
+import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import { makeProduct, money } from '@/test/fixtures';
-import type { Product, ProductPackaging } from '@/lib/types';
+import type { Product, ProductPackaging, StorefrontConfig } from '@/lib/types';
 
 const fetchMock = vi.fn();
 
@@ -65,7 +66,7 @@ function packing(overrides: Partial<ProductPackaging> = {}): ProductPackaging {
 
 const bodies: string[] = [];
 
-function renderProduct(product: Product): void {
+function renderProduct(product: Product, config?: StorefrontConfig): void {
   bodies.length = 0;
 
   fetchMock.mockImplementation((url: string, init?: RequestInit) => {
@@ -80,7 +81,11 @@ function renderProduct(product: Product): void {
     <Routes>
       <Route path="/product/:slug" element={<ProductPage />} />
     </Routes>,
-    { route: '/product/hex-bolt-m12-x-60mm', session: makeSession() },
+    {
+      route: '/product/hex-bolt-m12-x-60mm',
+      session: makeSession(),
+      ...(config !== undefined ? { config } : {}),
+    },
   );
 }
 
@@ -286,11 +291,49 @@ describe('a product priced per account', () => {
     expect(screen.queryByText(/0\.00/)).not.toBeInTheDocument();
   });
 
+  /** A store that has told the storefront where its enquiries go. */
+  function withSupport(business: Partial<StorefrontConfig['business']>): StorefrontConfig {
+    return { ...FALLBACK_CONFIG, business: { ...FALLBACK_CONFIG.business, ...business } };
+  }
+
   it('replaces the buy button rather than greying it out', async () => {
-    renderProduct(makeProduct({ purchasability: onRequest }));
+    renderProduct(
+      makeProduct({ purchasability: onRequest }),
+      withSupport({ supportEmail: 'sales@shop.example' }),
+    );
 
     expect(await screen.findByRole('link', { name: /request a quote/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /add to cart/i })).not.toBeInTheDocument();
+  });
+
+  // It used to link to `/contact`, a page that does not exist, so every
+  // quotation request ended on the 404 page.
+  it('sends the quote request to the store, naming the product', async () => {
+    const product = makeProduct({ purchasability: onRequest });
+    renderProduct(product, withSupport({ supportEmail: 'sales@shop.example' }));
+
+    const link = await screen.findByRole('link', { name: /request a quote/i });
+    const href = link.getAttribute('href') ?? '';
+
+    expect(href.startsWith('mailto:sales@shop.example?subject=')).toBe(true);
+    expect(decodeURIComponent(href)).toContain(product.sku);
+  });
+
+  it('falls back to the store telephone when there is no address', async () => {
+    renderProduct(
+      makeProduct({ purchasability: onRequest }),
+      withSupport({ supportEmail: null, supportPhone: '+91 22 1234 5678' }),
+    );
+
+    const link = await screen.findByRole('link', { name: /request a quote/i });
+    expect(link.getAttribute('href')).toBe('tel:+912212345678');
+  });
+
+  it('offers no dead-end button when the store has given no way to reach it', async () => {
+    renderProduct(makeProduct({ purchasability: onRequest }));
+
+    expect(await screen.findByText('Price on request')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /request a quote/i })).not.toBeInTheDocument();
   });
 });
 

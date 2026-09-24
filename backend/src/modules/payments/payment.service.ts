@@ -36,6 +36,8 @@ import {
 import { transitionOrder } from '../orders/order.service.js';
 import { RazorpayAdapter } from './razorpay.adapter.js';
 import { StripeAdapter } from './stripe.adapter.js';
+import { getMarketplaceName } from '../settings/marketplace-name.js';
+import { syncSettlementRefunds } from '../seller/settlement-refund.service.js';
 import {
   assertChargeable,
   markPaymentMethodExpired,
@@ -951,6 +953,9 @@ export async function createOrderPayment(
       ? await ensureVaultCustomerFor(provider, order, savedCard?.providerCustomerId ?? null)
       : null;
 
+  // The name on the gateway's sheet. The operator's own, never a literal.
+  const merchantName = await getMarketplaceName(prisma);
+
   /**
    * An earlier attempt with this same key.
    *
@@ -997,6 +1002,7 @@ export async function createOrderPayment(
         // customer's saved cards missing from the sheet.
         providerCustomerId,
         saveCard: input.saveCard === true,
+        merchantName,
       });
     } catch (error) {
       if (error instanceof PaymentProviderError) {
@@ -1078,6 +1084,7 @@ export async function createOrderPayment(
       methodHint,
       providerCustomerId,
       saveCard: input.saveCard === true,
+      merchantName,
       idempotencyKey: input.idempotencyKey,
     });
   } catch (error) {
@@ -2276,12 +2283,20 @@ async function applyEvent(
   }
 
   if (event.intent === 'REFUND_PROCESSED' && event.providerRefundId !== null) {
-    await prisma.refund.updateMany({
-      where: { providerRefundId: event.providerRefundId },
-      data: {
-        status: event.eventType === 'refund.failed' ? 'FAILED' : 'SUCCEEDED',
-        completedAt: new Date(),
-      },
+    // The provider's verified word is what moves the sellers' settlements:
+    // the refund's final status and the settlement figures change together,
+    // and they are re-derived from every succeeded refund, so a resent event
+    // lands on the same numbers rather than subtracting twice.
+    const providerRefundId = event.providerRefundId;
+    await prisma.$transaction(async (tx) => {
+      await tx.refund.updateMany({
+        where: { providerRefundId },
+        data: {
+          status: event.eventType === 'refund.failed' ? 'FAILED' : 'SUCCEEDED',
+          completedAt: new Date(),
+        },
+      });
+      await syncSettlementRefunds(order.id, tx);
     });
 
     await prisma.paymentEvent.update({

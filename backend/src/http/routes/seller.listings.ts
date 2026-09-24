@@ -259,6 +259,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
 
   // --- The listings table -------------------------------------------------
 
+  /**
+   * One page of the seller's listings, with a count for each status tab.
+   * Can be filtered by status, text, category, brand, warehouse or stock level,
+   * and sorted by date, price, stock or quality score.
+   */
   app.get('/listings', async (request, reply) => {
     const query = z
       .object({
@@ -280,12 +285,18 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'no-store').status(200).send(result);
   });
 
+  /** One of the seller's listings in full, for its detail screen. */
   app.get('/listings/:id', async (request, reply) => {
     const params = idParam.parse(request.params);
     const offer = await readOffer(currentSeller(request), params.id);
     return reply.header('cache-control', 'no-store').status(200).send(offer);
   });
 
+  /**
+   * Put a listing on sale, pause it (with an optional private note) or archive
+   * it. Putting it back on sale is refused while the marketplace has flagged it
+   * as needing changes. Writes an audit entry.
+   */
   app.patch(
     '/listings/:id/status',
     { preHandler: requireSeller(SellerPermission.OFFER_PUBLISH) },
@@ -310,6 +321,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change a listing's price, "was" price, order quantity limits and simple
+   * quantity discounts. Needs the pricing permission and writes an audit entry,
+   * so a disputed price change can be traced to who made it and when.
+   */
   app.patch(
     '/listings/:id/price',
     { preHandler: requireSeller(SellerPermission.OFFER_PRICE_WRITE) },
@@ -400,6 +416,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'no-store').status(200).send({ instructions });
   });
 
+  /**
+   * Show which versions (for example sizes or colours) a set of options would
+   * produce on an existing listing, marking the ones already on sale. Creates
+   * nothing.
+   */
   app.post(
     '/listings/:id/variants/preview',
     { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
@@ -417,6 +438,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Add new versions to an existing listing as real, sellable items, each with
+   * its own price and opening stock. Versions already on sale are skipped, so
+   * sending the same request twice adds nothing. Writes an audit entry.
+   */
   app.post(
     '/listings/:id/variants',
     {
@@ -468,6 +494,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'no-store').status(200).send(view);
   });
 
+  /**
+   * Take a live listing off sale so its structure can be edited, recording that
+   * it was paused for editing. Does nothing if it is already paused. Writes an
+   * audit entry.
+   */
   app.post(
     '/listings/:id/pause-for-edit',
     { preHandler: requireSeller(SellerPermission.OFFER_PUBLISH) },
@@ -484,6 +515,12 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Save an edit to an existing listing - terms, versions and their stock - all
+   * at once, then leave it paused or put it back on sale. Structural changes are
+   * refused while the listing is on sale, and so is an edit made from an out-of-
+   * date copy. Writes an audit entry.
+   */
   app.patch(
     '/listings/:id/edit',
     {
@@ -572,6 +609,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** Make one of a listing's photos the one buyers see first. Writes an audit entry. */
   app.patch(
     '/listings/:id/photos/:mediaId',
     { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
@@ -596,6 +634,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Take a photo off a listing. The picture file itself is kept, since other
+   * listings may use it. Writes an audit entry.
+   */
   app.delete(
     '/listings/:id/photos/:mediaId',
     { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
@@ -615,6 +657,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Copy a listing's terms into a new, not-yet-live listing under a new SKU.
+   * Stock is not copied. Writes an audit entry.
+   */
   app.post(
     '/listings/:id/duplicate',
     { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
@@ -651,6 +697,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'public, max-age=60').status(200).send(schema);
   });
 
+  /**
+   * One page of the seller's listings still in the wizard or in review,
+   * filterable by status, text, category and brand.
+   */
   app.get('/listing-drafts', async (request, reply) => {
     const query = z
       .object({
@@ -678,6 +728,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'no-store').status(200).send(result);
   });
 
+  /**
+   * Start a new listing in the wizard, optionally with its category, brand or
+   * matching catalogue product already chosen. Writes an audit entry.
+   */
   app.post(
     '/listing-drafts',
     { preHandler: requireTradingSeller(SellerPermission.LISTING_WRITE) },
@@ -695,6 +749,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** One listing in the wizard, with everything entered so far. */
   app.get('/listing-drafts/:id', async (request, reply) => {
     const params = idParam.parse(request.params);
     const draft = await readDraft(currentSeller(request), params.id);
@@ -769,6 +824,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Re-run every check on a wizard listing and return what is still missing or
+   * wrong. Its status moves to match: ready to submit once everything passes.
+   */
   app.post('/listing-drafts/:id/validate', async (request, reply) => {
     const params = idParam.parse(request.params);
     const draft = await validateDraft(currentSeller(request), params.id);
@@ -788,6 +847,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     return reply.header('cache-control', 'no-store').status(200).send(preview);
   });
 
+  /**
+   * Send a finished listing to the marketplace's quality review. Refused, with
+   * each blocking problem listed, if anything is still missing. It goes on sale
+   * only once a moderator approves it. Writes an audit entry.
+   */
   app.post(
     '/listing-drafts/:id/submit',
     {
@@ -801,6 +865,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Take a listing back out of the review queue and return it to the wizard,
+   * before a moderator has decided on it. Writes an audit entry.
+   */
   app.post(
     '/listing-drafts/:id/withdraw',
     { preHandler: requireSeller(SellerPermission.LISTING_SUBMIT) },
@@ -813,6 +881,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
 
   // --- Photographs and videos ---------------------------------------------
 
+  /** The photos and videos uploaded to a listing in the wizard. */
   app.get('/listing-drafts/:id/media', async (request, reply) => {
     const params = idParam.parse(request.params);
     const media = await listListingMedia(currentSeller(request), params.id);
@@ -877,6 +946,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change a wizard photo or video's slot, description, order, or whether it is
+   * the main picture. Making one the main picture clears it from the others; a
+   * video cannot be the main picture.
+   */
   app.patch(
     '/listing-drafts/:id/media/:mediaId',
     { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
@@ -905,6 +979,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Delete a photo or video from a wizard listing, including the stored file.
+   * If it was the main picture, another photo takes its place.
+   */
   app.delete(
     '/listing-drafts/:id/media/:mediaId',
     { preHandler: requireSeller(SellerPermission.MEDIA_UPLOAD) },
@@ -926,6 +1004,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
 
   // --- Brands -------------------------------------------------------------
 
+  /**
+   * Search the brands this seller is allowed to list under, plus the brands on
+   * their recent listings. Also returns advisory warnings about the name typed,
+   * which never block anything.
+   */
   app.get('/brands', async (request, reply) => {
     const query = z
       .object({
@@ -951,6 +1034,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     });
   });
 
+  /**
+   * Ask the marketplace to add a brand that is not in the catalogue yet. Only a
+   * duplicate is refused; an unusual name is accepted and flagged for the
+   * operator. Writes an audit entry.
+   */
   app.post(
     '/brand-requests',
     {
@@ -977,11 +1065,13 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** The seller's own brand requests and what happened to each. */
   app.get('/brand-requests', async (request, reply) => {
     const requests = await listBrandRequests(currentSeller(request));
     return reply.status(200).send({ requests });
   });
 
+  /** Withdraw a brand request the marketplace has not decided on yet. */
   app.delete(
     '/brand-requests/:id',
     { preHandler: requireSeller(SellerPermission.BRAND_REQUEST) },
@@ -1031,6 +1121,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     }),
   );
 
+  /**
+   * How a listing can be bought in bulk - by carton, pallet or container - with
+   * the details and prices of each. Returns an empty set-up if none has been
+   * saved yet.
+   */
   app.get(
     '/offers/:id/packaging',
     { preHandler: requireSeller(SellerPermission.LISTING_READ) },
@@ -1041,6 +1136,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** Save the name of a listing's base unit and the seller's packaging notes. */
   app.put(
     '/offers/:id/packaging/profile',
     { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
@@ -1058,6 +1154,13 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Save one bulk packaging option for a listing - a carton, a UK or US pallet,
+   * or a container - with its contents, size, weight, price and order limits.
+   * Writes an audit entry.
+   *
+   * Measurements are converted to millimetres and grams on the server.
+   */
   app.put(
     '/offers/:id/packaging/options',
     { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
@@ -1152,6 +1255,10 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Switch buying by one package type on or off for a listing, keeping what was
+   * entered for it. Writes an audit entry.
+   */
   app.post(
     '/offers/:id/packaging/options/:packageType/enabled',
     { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },

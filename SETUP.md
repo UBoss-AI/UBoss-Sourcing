@@ -587,7 +587,10 @@ npm run verify              # Type-check, lint and test the backend
 npm test                    # Backend tests only
 npm run db:studio           # Browse the database in a web page
 npm run db:migrate:deploy   # Apply existing migrations safely
-npm run db:migrate          # Create a new migration (asks questions)
+npx prisma migrate status   # See which migrations are applied
+# Never `npm run db:migrate` (prisma migrate dev) - it rewrites this repository's
+# hand-named constraints and offers to drop the database. How to write a new
+# migration: docs/DATABASE-DESIGN.md, "How a schema change is made".
 npm run db:seed             # Restore or update the sample data
 npm run seed:demo-catalog   # A demonstration catalogue across every department
 npm run db:rotate-seed-passwords   # Fresh random passwords for the nine seeded accounts

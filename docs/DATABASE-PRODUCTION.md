@@ -32,7 +32,7 @@ there is.
 | Installed by | XAMPP | `deploy/scripts/bootstrap.sh` |
 | `sql_mode` | `NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION` — **not strict** | strict, pinned in `deploy/mariadb/uboss.cnf` |
 | Server collation | `utf8mb4_general_ci` | `utf8mb4_unicode_ci`, pinned |
-| Table collation | `utf8mb4_unicode_ci` on all 171 tables | same |
+| Table collation | `utf8mb4_unicode_ci` on every table | same |
 | Timezone | `SYSTEM` → `Asia/Calcutta` | `+00:00` |
 | Binary log | off | on |
 | Accounts | four, **all without passwords** | four, all with generated passwords, none of them root |
@@ -52,7 +52,7 @@ JSON copy under `.dev-logs/db-audit/`.
 
 | | Count | Why it matters |
 |---|---|---|
-| Tables | 171 (170 models + `_prisma_migrations`) | |
+| Tables | 171 (170 models + `_prisma_migrations`) at the time of this audit. The schema has since grown to 226 models, so a fresh run reports 227 | Re-run the audit script for today's figures; `docs/reference/DATABASE-TABLES.md` lists every table |
 | Size | 80.7 MB with a seeded catalogue | A logical dump is the right tool at this size; see section 14 for when it stops being |
 | Foreign keys | 241 | |
 | CHECK constraints | 216 | A restore that loses these accepts rows the real database refuses |

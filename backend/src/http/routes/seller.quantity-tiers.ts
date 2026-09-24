@@ -16,6 +16,10 @@ import { currentSeller, requireSeller } from '../plugins/seller.js';
 const idParam = z.object({ id: z.string().length(26) });
 
 export function registerSellerQuantityTierRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Show a listing's quantity price bands ("buy 100 or more, pay less"),
+   * beside its normal price and the saving each band gives.
+   */
   app.get(
     '/offers/:id/quantity-tiers',
     { preHandler: requireSeller(SellerPermission.LISTING_READ) },
@@ -25,6 +29,11 @@ export function registerSellerQuantityTierRoutes(app: FastifyInstance): Promise<
     },
   );
 
+  /**
+   * Replace all of a listing's quantity price bands in one go. Refused if the
+   * bands overlap or contradict each other or the normal price. Writes an audit
+   * entry.
+   */
   app.put(
     '/offers/:id/quantity-tiers',
     {

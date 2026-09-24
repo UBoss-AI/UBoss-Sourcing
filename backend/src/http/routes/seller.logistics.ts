@@ -13,7 +13,7 @@
  */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { LOGISTICS_LEVELS } from '../../domain/logistics-levels.js';
+import { LOGISTICS_LEVELS, policyForLevelChange } from '../../domain/logistics-levels.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { notFound } from '../../domain/errors.js';
 import { prisma } from '../../infra/prisma.js';
@@ -166,11 +166,21 @@ async function legOf(sellerAccountId: string, groupId: string, levelKey: string)
 export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<void> {
   // --- The policy --------------------------------------------------------
 
+  /**
+   * The seller's delivery policy: who handles each of the four delivery stages,
+   * both as published and as in the unpublished draft, with the carriers and
+   * prices set on each.
+   */
   app.get('/logistics/policy', { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     return reply.status(200).send({ policy: await readPolicy(seller.sellerAccountId, 'SELLER') });
   });
 
+  /**
+   * Save the draft delivery policy: self-managed, UBOSS-managed or a mix, and who
+   * handles each stage. Buyers see no change until it is published; changing
+   * who handles a stage of a published policy must be confirmed.
+   */
   app.put(
     '/logistics/policy',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -194,8 +204,11 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
   );
 
   /**
-   * One level's owner, in the Self + UBOSS draft. The checkbox "I will manage
-   * this level": checked is SELLER, unchecked is UBOSS. L1 is refused.
+   * One level's owner in the draft. The checkbox "I will manage this level":
+   * checked is SELLER, unchecked is UBOSS. The draft keeps its mode unless the
+   * change takes it out of Self or UBOSS, which makes it Self + UBOSS. Handing
+   * L1 to UBOSS is refused. Against a published policy a change of owner must
+   * be confirmed, and a stale version is refused.
    */
   app.put(
     '/logistics/levels/:level',
@@ -213,25 +226,14 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
 
       const who = editor(request);
       const current = await readPolicy(who.sellerAccountId, 'SELLER');
-      const owners = { ...current.draft.owners };
 
-      if (params.level === 'L1') {
-        const policy = await savePolicyDraft(who, {
-          mode: 'HYBRID',
-          l1Owner: body.owner,
-          l2Owner: owners.L2,
-          l3Owner: owners.L3,
-          l4Owner: owners.L4,
-        });
-        return reply.status(200).send({ policy });
-      }
-
-      owners[params.level] = body.owner;
+      // The draft's own mode is kept wherever the change still fits it, and
+      // every level - L1 included - carries the version and the confirmation,
+      // so a stale screen and an unconfirmed change are refused the same way
+      // as on PUT /logistics/policy.
+      const shape = policyForLevelChange(current.draft, params.level, body.owner);
       const policy = await savePolicyDraft(who, {
-        mode: 'HYBRID',
-        l2Owner: owners.L2,
-        l3Owner: owners.L3,
-        l4Owner: owners.L4,
+        ...shape,
         ...(body.expectedVersion === undefined ? {} : { expectedVersion: body.expectedVersion }),
         ...(body.confirmOwnershipChange === undefined ? {} : { confirmOwnershipChange: body.confirmOwnershipChange }),
       });
@@ -239,6 +241,10 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Publish the draft delivery policy so it applies to new carts and orders.
+   * The previous version is kept, because orders already placed still refer to it.
+   */
   app.post(
     '/logistics/policy/publish',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
@@ -255,6 +261,7 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /** The seller's past delivery policy versions and the log of changes to its policy, carriers, prices and stage assignments. */
   app.get('/logistics/history', { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     return reply.status(200).send(await readPolicyHistory(seller.sellerAccountId));
@@ -262,11 +269,17 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
 
   // --- Carriers ---------------------------------------------------------
 
+  /** The carriers the seller can use on their own delivery stages, whether each is switched on, and the state of any carrier account connection. */
   app.get('/logistics/providers', { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     return reply.status(200).send({ providers: await listProviders(seller.sellerAccountId) });
   });
 
+  /**
+   * Switch a carrier on for the seller's own delivery stages, either booked by
+   * hand or marked for an account connection. This does not connect an account;
+   * that is done in carrier setup.
+   */
   app.post(
     '/logistics/providers/:provider/enable',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -286,6 +299,7 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /** Switch a carrier off for the seller's own delivery stages. */
   app.post(
     '/logistics/providers/:provider/disable',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -321,6 +335,7 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
 
   // --- Level prices ------------------------------------------------------
 
+  /** The seller's delivery prices, optionally for one stage only. */
   app.get('/logistics/rates', { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     const query = z.object({ level: level.optional() }).parse(request.query);
@@ -331,6 +346,10 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ rates });
   });
 
+  /**
+   * Add a draft delivery price for one of the seller's stages. Buyers are not
+   * charged it until it is published. Refused for a stage UBOSS handles.
+   */
   app.post(
     '/logistics/rates',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -342,6 +361,10 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Change a delivery price. Editing a published price creates a new draft that
+   * replaces it once published; the published one is never altered.
+   */
   app.put(
     '/logistics/rates/:rateId',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -354,6 +377,7 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /** Publish a draft delivery price so buyers are charged it, replacing the price it supersedes. */
   app.post(
     '/logistics/rates/:rateId/publish',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -365,6 +389,10 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Switch a delivery price off. It stays on record, and orders already charged
+   * at it keep it.
+   */
   app.post(
     '/logistics/rates/:rateId/deactivate',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE), config: { rateLimit: WRITE_RATE_LIMIT } },
@@ -378,12 +406,19 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
 
   // --- Legs of confirmed orders -----------------------------------------------
 
+  /** The four delivery stages of one of the seller's confirmed orders, with who carries each and how far it has got. */
   app.get('/orders/:id/legs', { preHandler: requireSeller(SellerPermission.ORDER_READ) }, async (request, reply) => {
     const params = idParam.parse(request.params);
     const seller = currentSeller(request);
     return reply.status(200).send({ legs: await legsForSellerOrder(seller.sellerAccountId, params.id) });
   });
 
+  /**
+   * Name the carrier for one of the seller's own delivery stages on an order:
+   * a carrier booked by hand or a delivery company on the platform. Changing
+   * the carrier after one is named needs a reason, and the company that loses
+   * the work is told.
+   */
   app.post(
     '/orders/:id/legs/:level/assign',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: ASSIGN_RATE_LIMIT } },
@@ -400,6 +435,7 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /** Enter the tracking number, pickup reference and expected dates on a delivery stage that already has a carrier. */
   app.patch(
     '/orders/:id/legs/:level',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: ASSIGN_RATE_LIMIT } },
@@ -413,6 +449,13 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Move one of the seller's delivery stages on an order forward: accepted,
+   * started or handed over. A stage can start only once the one before it has
+   * been handed over.
+   *
+   * An `idempotencyKey` makes a retried request return the earlier answer instead of moving the stage twice.
+   */
   app.post(
     '/orders/:id/legs/:level/transition',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL), config: { rateLimit: ASSIGN_RATE_LIMIT } },
@@ -428,6 +471,11 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
 
   // --- Settlement, read-only ---------------------------------------------------
 
+  /**
+   * Estimate what the seller would be paid for a given sale amount and
+   * delivery charge, after platform fees and the tax on them, using the fee
+   * rules in force today. Read-only.
+   */
   app.get('/settlements/estimate', { preHandler: requireSeller(SellerPermission.FINANCE_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     const query = z
@@ -436,6 +484,8 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
         sellerDeliveryMinor: z.string().regex(/^\d{1,18}$/).default('0'),
         currency: z.string().length(3).optional(),
         marketCountry: z.string().length(2).optional(),
+        // One of the seller's own listings, for its category's fee policy.
+        offerId: z.string().length(26).optional(),
       })
       .parse(request.query);
     const estimate = await previewSettlement({
@@ -444,10 +494,12 @@ export function registerSellerLogisticsRoutes(app: FastifyInstance): Promise<voi
       sellerDeliveryMinor: BigInt(query.sellerDeliveryMinor),
       currency: query.currency ?? null,
       marketCountry: query.marketCountry ?? null,
+      offerId: query.offerId ?? null,
     });
     return reply.status(200).send({ estimate });
   });
 
+  /** The payouts already worked out for the seller's orders, newest first. */
   app.get('/settlements/orders', { preHandler: requireSeller(SellerPermission.FINANCE_READ) }, async (request, reply) => {
     const seller = currentSeller(request);
     return reply.status(200).send({ settlements: await listSellerSettlements(seller.sellerAccountId) });

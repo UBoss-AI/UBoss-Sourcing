@@ -111,8 +111,9 @@ p('The product is called Glovia, and its tagline is The Way to the World. Wherev
 p('The welcome screen of the shop opens with the Glovia name in that script, the tagline The Way to the World underneath it, and below that a line that gently alternates between Source with Intelligence and Deliver with Confidence, in the customer\'s own language.');
 p('UBOSS is the company behind the product. That is shown as small print: Powered by UBOSS appears once at the bottom of every shop page, and at the foot of the sign-in screens for staff and delivery companies.');
 p('If your business has its own name, your shop shows your name at the top in the normal lettering, on its own. The Glovia tagline and typeface are only used when the shop is called Glovia, so the software never puts its own slogan under your name.');
-p('The product used to be called UBOSS Sourcing. That name is no longer shown to anybody using the system. Where you still see UBOSS on a screen, it is naming the company or the people you deal with — "UBOSS operations", for example, is the team a delivery company contacts — and not the software.');
-p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices and in your emails. Glovia is the name of the software you are running; it never replaces the name of the business running it.');
+p('The product used to be called UBOSS Sourcing. That name is no longer shown to anybody using the system. Apart from the small Powered by UBOSS line, no screen, message or email calls the marketplace UBOSS.');
+p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices, in your emails and on the payment screen they pay through. Glovia is the name of the software you are running; it never replaces the name of the business running it.');
+p('Your name is also used wherever the system has to say who runs the marketplace. A seller choosing who handles their deliveries sees your name on the choice, for example "Self + Northwind". A delivery company is told to contact "Northwind operations". Your staff and delivery companies see your name in their authenticator app. This works in all eight languages. Records that are kept for later, such as the history of a delivery, say "Marketplace operations" instead, so they stay correct if you ever change your name.');
 p('Some names inside the system were left exactly as they were on purpose: folder names, database names, addresses, file names and settings that other systems already point at. Changing those would break working connections and would change nothing anybody sees.');
 h2('1.1 The four working parts');
 p('The project has four working parts. They are separate so customers can shop safely while staff run the business without exposing internal tools to buyers.');
@@ -410,6 +411,8 @@ bullets([
   'Select or add a delivery address and choose whether the billing address is the same.',
   'Choose a customer-friendly payment method, such as pay now, saved card, another card, debit card, UPI where offered, or a payment link.',
   'Review exact order totals before submitting.',
+  'Where a seller has priced delivery in stages, see what delivery from that seller costs — stage by stage, or as one delivery line, as the business prefers. If a stage has no price for the chosen address, the order waits until that seller has one, rather than being charged a guess.',
+  'If a delivery price changes while the buyer is checking out, the order is not placed; the buyer is shown the new figure and asked to review it.',
   'Place the order using an idempotency key, which prevents the same browser action from creating duplicate orders.',
   'Move to an order-specific payment page with the created order number.',
   'Use “pay securely now” or, where shown, use a later payment path.',
@@ -1059,6 +1062,48 @@ bullets([
 ]);
 p('A seller delivering with their own team, or through a company that works for them, is not in this table at all, because nothing is being asked of an outside carrier. The job appears on that company’s own screen and their driver moves it along.');
 
+h2('6a.11j Splitting a long delivery into four stages');
+p('A seller who sends goods abroad rarely has one delivery. The goods go from the factory to a port, across the sea or by air, inland at the other end, and finally to the buyer’s door, and a different company often carries each part. On the Logistics screen in the Seller Hub, a seller can split the journey into four stages, say who looks after each one, and set what each one costs. The buyer then pays for all four at checkout.');
+table(['Stage', 'From', 'To'], [
+  ['1 — First mile', 'The seller’s factory or warehouse', 'The port or airport the goods leave from'],
+  ['2 — International', 'That port or airport', 'The port or airport in the buyer’s country'],
+  ['3 — Inland at the other end', 'The arrival port', 'A warehouse in the buyer’s country'],
+  ['4 — Last mile', 'That warehouse', 'The buyer'],
+], [2600, 3700, 3700]);
+p('The seller chooses one of three ways of working:');
+table(['Choice', 'What it means'], [
+  ['Self', 'The seller looks after all four stages: they choose the carrier and set the price for each.'],
+  ['The marketplace', 'The seller looks after the first stage. The marketplace chooses the carrier and sets the price for the other three, and the seller can see them.'],
+  ['Self and the marketplace', 'The seller looks after the first stage and ticks which of the other three they will also look after. The marketplace looks after the rest. At least one of the three has to stay with the marketplace — otherwise it is simply “Self”.'],
+], [3000, 7000]);
+bullets([
+  'The first stage is always the seller’s, whichever choice they make. The goods start in their building.',
+  'Only the seller decides who looks after which stage. Marketplace staff can price and carry the stages they are given, but cannot change the seller’s choice.',
+  'Changes are saved as a draft first, and buyers see nothing until the seller publishes. Changing who looks after a stage that is already live asks the seller to confirm, and orders already placed keep the arrangement they were placed under.',
+  'Each stage has its own prices: from where to where, for what size and weight of load, by road, air, sea, rail or post, with which carrier, and how many days it takes. A seller can have different prices for different destinations.',
+  'A blank price is never treated as free. A stage is only free when the seller marks it free and confirms it.',
+  'A live price is never changed in place. Changing one makes a new version that replaces it when published, so a charge a buyer queries later can be shown as it stood.',
+  'Before a carrier can be used, the seller switches it on: DHL, FedEx, India Post, or a forwarder they book themselves. Without an account connected, the seller books the carrier on its own website and types in the tracking number. Each carrier is only offered for what it can really do — DHL and FedEx by road or air, India Post by post, and a container by sea through a forwarder.',
+  'A seller who never publishes any of this is not affected at all. Their delivery works exactly as it did before.',
+]);
+note('A missing price stops the sale, it is never guessed', 'If any stage has no price for the buyer’s address, the buyer is told that delivery from this seller needs a quote, and the order cannot be placed yet. Nothing is charged at zero, and nothing is borrowed from another route. Whoever looks after that stage is reminded until a price is published.', C.orange);
+p('Once the seller accepts a paid order, the four stages appear on the order and are carried one after another. The first stage is the seller’s turn straight away; each later stage becomes ready when the one before it has been handed over, and whoever looks after it is told. Each stage already carries the carrier named on the price the buyer paid, so nobody has to choose it again; if that carrier can no longer be used, the stage waits for one to be chosen. On their own stages the seller can change the carrier (saying why); they type in the carrier’s own tracking number before the goods move, and record each handover. The stages the marketplace looks after are shown to the seller too, so they can follow the whole journey, but only the marketplace can change them. A delivery company given a stage accepts or refuses it and records its progress in its own portal.');
+
+h2('6a.11k What you are paid after the marketplace fee');
+p('The marketplace keeps a fee from what each seller sells. The buyer never pays this fee — it comes out of the seller’s share. The fee, what it is charged on, and any tax on it are set by the marketplace’s finance team, never by the seller.');
+p('On the Logistics screen the seller can see a settlement preview. They type in a sale amount and the delivery they would charge on their own stages, choose the buyer’s country and, if they like, one of their own products. The fee can be different for different countries and kinds of product, so the system then works out, with today’s rules and exactly as it would for a real order, what they would be paid:');
+bullets([
+  'What the goods sold for',
+  'plus the delivery money for the stages the seller looks after',
+  'minus the marketplace fee',
+  'minus the tax on that fee',
+  'minus any refunds and adjustments',
+  'equals what the seller can expect to be paid.',
+]);
+note('Delivery the marketplace carries is never the seller’s', 'Money for the stages the marketplace looks after goes to the marketplace, so it is never counted in the seller’s share and the fee is never charged on it. Depending on the marketplace’s rules, the fee is charged either on the goods alone or on the goods plus the seller’s own delivery money.', C.teal);
+p('The preview cannot change anything. The real figure for an order is worked out once, when the order is confirmed, and kept with the version of the rules it used, so a change to the fee next month does not change what the seller was owed this month.');
+p('When the buyer gets money back, the seller’s figure goes down once the payment company confirms the refund — not when it is only asked for, and never twice for the same refund. If the whole order is refunded, each seller gives back what they were owed for it. If only part of an order from one seller is refunded, that seller gives back their fair share of it, but not the tax or the marketplace’s delivery. If only part of an order shared by several sellers is refunded, the system cannot tell whose goods it was for, so it changes no seller’s figure and leaves it to the finance team. The marketplace fee is not given back on a refund.');
+
 page();
 
 
@@ -1166,7 +1211,7 @@ note('What is not one of the ways a product varies', 'Country of origin, warrant
 h2('8.2 Price on request, and taking something off sale');
 p('Two switches decide whether a customer may buy a product. They are separate from publishing, which decides whether a customer may see it at all.');
 table(['Setting', 'What the customer sees', 'When to use it'], [
-  ['Price on request', 'The listing shows “Request a quote” where the price would be. Nothing can be added to a cart.', 'A range the business quotes per account, or per volume, rather than at a list price.'],
+  ['Price on request', 'The listing shows “Request a quote” where the price would be. Pressing it opens an email to the business’s support address naming the product, or calls its support number. Nothing can be added to a cart.', 'A range the business quotes per account, or per volume, rather than at a list price.'],
   ['Available to order (off)', 'The listing, the specifications and the packaging stay readable. A notice says it cannot be ordered, in the words the business chose.', 'A product that is made but held this month. Unpublishing would make the page disappear entirely.'],
 ], [2200, 4400, 3400]);
 bullets([
@@ -1402,6 +1447,27 @@ bullets([
   'Staff cannot change, cancel or reissue a seller’s invoice. It is the seller’s legal document, and only the seller can correct it, with a credit note.',
   'The business’s own invoice for its own sales is separate, and works as before.',
 ]);
+
+h2('10.6 Delivery stages the marketplace looks after for sellers');
+p('When a seller gives the marketplace some of the four delivery stages (see 6a.11j), staff price and carry those stages. Two screens under Logistics carry this.');
+table(['Screen', 'What staff can do', 'What the system does'], [
+  ['Delivery levels', 'See every seller who has published their delivery stages, who looks after each stage, and which stages still have no price. Filter to the sellers waiting on a marketplace price. Open a seller to add, publish or switch off the marketplace’s prices for their stages, and see every change made to the seller’s arrangement.', 'Refuses a price on a stage the seller looks after. Tells the seller when the marketplace publishes a new price, and records every change in both the business’s and the seller’s history.'],
+  ['Delivery legs', 'See every stage of every confirmed order, filtered by who looks after it, how far it has got, or only the ones still waiting for a carrier. Each stage already shows the carrier on the price the buyer paid. Change the carrier for a stage the marketplace looks after, enter its tracking number and dates, and record it starting and being handed over.', 'Only lets the marketplace give its stages, and name on its prices, a delivery company it works with directly, never a seller’s own fleet. Makes the next stage ready when one is handed over, and tells the seller at each step.'],
+], [1900, 4300, 3800]);
+p('On the same Delivery levels screen, the business chooses whether buyers see a price for each stage or one delivery line. The order keeps every stage’s price either way.');
+note('Different staff, different keys', 'Seeing all of this, pricing the marketplace’s stages, and putting a carrier on a stage are three separate permissions, so the person who agrees prices is not automatically the person who dispatches.', C.blue);
+
+h2('10.7 Platform fees');
+p('The finance team sets what the marketplace keeps from each seller’s sales, under Finance → Platform fees. Other administrators do not see this screen, and cannot change it.');
+bullets([
+  'A fee can be a percentage, a fixed amount, or both, with an optional lowest and highest amount.',
+  'It can apply to the whole marketplace, to one country, to one category of products, or to one seller. The most specific one wins: a seller’s own terms, then the category, then the country, then the marketplace as a whole. A seller with an agreed commission rate keeps that rate unless a fee is set for that seller specifically.',
+  'Each fee says what it is charged on: the goods alone, or the goods plus the delivery money for the stages the seller looks after. It is never charged on stages the marketplace carries.',
+  'A tax can be set on the fee. It is shown as a configured rate until somebody with the authority to do so records that it is the correct legal rule. Only then is it called by its tax name, such as GST.',
+  'Fees are drafted, then published. A published fee is never changed; publishing a new one replaces it, and every order already settled keeps the version it was settled on. Staff can see which orders were settled on each version.',
+  'A preview shows what a chosen seller would be paid on a given sale under today’s fees, without saving anything.',
+  'Nothing is set out of the box. Until the finance team publishes a fee, sellers are charged the marketplace commission exactly as before.',
+]);
 page();
 
 // 11
@@ -1479,7 +1545,7 @@ page();
 // 13
 h1('12a. Logistics Features — Carriers, Consignments and Delivery Tracking');
 p('This chapter is about the companies that actually carry the goods. It is an optional part of the product: a business that arranges its own delivery never switches it on, and then nothing in this chapter exists for them. A business that uses haulage companies switches it on, and each of those companies gets its own place to work.');
-note('Off unless it is turned on', 'Until the business enables the logistics portal there is no carrier sign-in, no carrier can be created, and the Logistics section is absent from the admin console.', C.orange);
+note('Off unless it is turned on', 'Until the business enables the logistics portal, a carrier cannot use it: every carrier screen refuses, and messages from carriers’ own systems are turned away. The Logistics section of the business’s own console is still there, so staff can set carriers up in advance and switch the portal on when they are ready.', C.orange);
 
 h2('12a.0 Where a delivery comes from');
 p('Nobody types a delivery in. As soon as an order is paid for, the system raises one for each place the goods have to leave from, and it is waiting in the list before anybody looks at it. Goods the business sells itself leave the warehouse the order was priced against. Goods an outside seller sells leave that seller’s own place. An order with both raises one of each, because two lots of goods in two buildings cannot be collected as one.');
@@ -1762,7 +1828,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Dashboard insights panel', 'Present on all three dashboards whether or not an AI provider is configured, and it is half of what a dashboard is: the chart, and this. With a provider, the summary is written by the provider. Without one — which is how the software arrives — the panel builds the same summary from the figures itself and says so on screen. See 15.1.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
-  ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
+  ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing. Once the finance team publishes a platform fee (see 10.7), that fee is used instead for the sellers, countries or categories it covers — except that a seller with an agreed rate keeps it unless a fee is set for that seller specifically.'],
   ['Certificates a seller must supply', 'Nothing is demanded out of the box. The business running the marketplace decides, per country and per kind of seller, which certificates and documents are required — and a step only has to be answered once something on it has been marked required.'],
   ['Opening a document nobody has checked for viruses', 'Uploaded documents are scanned with ClamAV before storage. A clean result is required before staff or sellers can open one; an infected or failed scan is refused. Production will not start without the scanner, and the live host still needs an operational scan test.'],
   ['Sign-in details printed on the sign-in page', 'For a demonstration only. Where the business has listed demonstration accounts for a site, that site’s sign-in page shows them, so anybody given the address can look around without being sent a password first. Nothing is listed unless the business lists it, and nothing is listed by default, so an ordinary installation shows an ordinary sign-in page. A site set up this way is open to everybody who has the address, so it must hold made-up information and its passwords must be changed to ones used nowhere else.'],
@@ -1915,6 +1981,18 @@ table(['Step', 'Who acts', 'What happens'], [
   ['6', 'The delivery company', 'Sees the packing list on the load in its own portal — boxes, contents and weights, no prices.'],
   ['7', 'The customer', 'Finds the invoice on their order page and downloads it. The next day a second invoice appears for the second lorry; the two add up to exactly what they paid.'],
   ['8', 'A receiving clerk', 'Scans the QR code on the packing list and sees that it is genuine and who issued it.'],
+], [700, 2300, 7000]);
+
+h2('Example L — A seller in India sends gloves to a buyer in Rotterdam in four stages');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'The seller', 'Opens Logistics in the Seller Hub, switches on the forwarder they book by hand, and chooses “Self and the marketplace”: they will look after stages 1 and 2, the marketplace stages 3 and 4.'],
+  ['2', 'The seller', 'Prices stage 1 (their warehouse to Mumbai port, by road) and stage 2 (Mumbai to Rotterdam, by sea, through their forwarder), then publishes.'],
+  ['3', 'The system', 'Tells marketplace staff that stages 3 and 4 for this seller have no price yet. Until they do, a buyer in the Netherlands is told delivery from this seller needs a quote.'],
+  ['4', 'Marketplace staff', 'Open Delivery levels, price stage 3 (Rotterdam port to a Dutch warehouse) and stage 4 (to the buyer), and publish. The seller is told.'],
+  ['5', 'The buyer', 'Sees delivery from this seller priced at checkout, pays, and the order records exactly what each stage cost.'],
+  ['6', 'The seller', 'Accepts the order. Stage 1 is their turn and already carries the carrier from their price; they type in its tracking number and record the handover at the port. Stage 2 becomes their turn next, and they do the same.'],
+  ['7', 'Marketplace staff', 'Are told stage 3 is ready, already with the delivery company from their price (they can change it, saying why), and that company accepts it and records its progress. Stage 4 follows the same way, ending at the buyer’s door.'],
+  ['8', 'The system', 'Works out, when the order is confirmed, what the seller is owed: the goods plus the delivery for stages 1 and 2, minus the marketplace fee and the tax on it. The money for stages 3 and 4 is the marketplace’s.'],
 ], [700, 2300, 7000]);
 
 note('Document status', 'This guide is based on the current Glovia codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);

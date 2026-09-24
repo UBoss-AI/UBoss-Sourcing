@@ -103,6 +103,35 @@ export function ownersForMode(
   return { L1: 'SELLER', L2: chosen.l2Owner, L3: chosen.l3Owner, L4: chosen.l4Owner };
 }
 
+/**
+ * The policy one level's checkbox means: `current` with `level` given to
+ * `owner`, under the mode it was already in wherever that mode still fits.
+ *
+ * Ticking a box to the value it already has changes nothing - a published
+ * Self or UBOSS policy is not quietly re-saved as the mixed mode, which would
+ * be a change of mode needing a confirmation nobody asked for. Moving a level
+ * out of what Self or UBOSS means is, by definition, the mixed mode. A mixed
+ * policy stays mixed, so putting the seller on all three of L2-L4 there is
+ * still `HYBRID_ALL_SELLER`, not a silent switch of tab.
+ *
+ * L1 is passed through as asked, so a request to hand it to UBOSS reaches
+ * `policyShapeProblem` and is refused as `L1_OWNER_FIXED`.
+ */
+export function policyForLevelChange(
+  current: { mode: LogisticsControlMode; owners: LevelOwners },
+  level: LogisticsLevel,
+  owner: LogisticsControlOwner,
+): PolicyShapeInput {
+  const next = {
+    l2Owner: level === 'L2' ? owner : current.owners.L2,
+    l3Owner: level === 'L3' ? owner : current.owners.L3,
+    l4Owner: level === 'L4' ? owner : current.owners.L4,
+  };
+  const keeps = policyShapeProblem({ mode: current.mode, ...next }) === null;
+  const mode: LogisticsControlMode = current.mode === 'HYBRID' || keeps ? current.mode : 'HYBRID';
+  return { mode, ...(level === 'L1' ? { l1Owner: owner } : {}), ...next };
+}
+
 export function ownerOf(owners: LevelOwners, level: LogisticsLevel): LogisticsControlOwner {
   return owners[level];
 }
@@ -179,6 +208,40 @@ export function carrierProblem(input: {
 
 export function carrierModes(carrier: LevelCarrier): readonly LogisticsTransportMode[] {
   return CARRIER_CAPABILITY[carrier].modes;
+}
+
+/** A delivery company as the eligibility rule needs it. */
+export interface PartnerEligibilityInput {
+  status: string;
+  archivedAt: Date | null;
+  partnerKind: 'MARKETPLACE_CARRIER' | 'SELLER_SELF_MANAGED' | 'SELLER_DEDICATED';
+  ownerSellerAccountId: string | null;
+  /** The partner's links to THIS seller only. */
+  sellerLinkStatuses: readonly string[];
+}
+
+/**
+ * Whether a delivery company may carry one of this seller's levels, for
+ * whoever controls it. The ONE rule, used for a level's price and for an
+ * order's leg alike, so staff cannot name on a price a company they could
+ * not then give the leg to.
+ *
+ *  - A SELLER level: the seller's own operation, or a company with an
+ *    APPROVED link to that seller.
+ *  - A UBOSS level: a marketplace carrier only. UBOSS carries its levels with
+ *    carriers it contracts itself, never with a seller's private fleet it has
+ *    no arrangement with.
+ *
+ * Either way the company must be ACTIVE and not archived.
+ */
+export function partnerMayCarryLevel(
+  controller: LogisticsControlOwner,
+  sellerAccountId: string,
+  partner: PartnerEligibilityInput | null,
+): boolean {
+  if (partner === null || partner.status !== 'ACTIVE' || partner.archivedAt !== null) return false;
+  if (controller === 'UBOSS') return partner.partnerKind === 'MARKETPLACE_CARRIER';
+  return partner.ownerSellerAccountId === sellerAccountId || partner.sellerLinkStatuses.includes('APPROVED');
 }
 
 /**

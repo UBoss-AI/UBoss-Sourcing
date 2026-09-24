@@ -24,6 +24,11 @@ import { readDirectory } from '../../modules/directory/directory.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 export function registerAdminDirectoryRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Search the directory of companies on the platform - sellers, buyers and
+   * carriers - a page at a time. Staff see only the kinds their permissions
+   * allow, and are refused if they may read neither customers nor carriers.
+   */
   app.get(
     '/directory',
     // No permission argument: the handler below checks the two it accepts,

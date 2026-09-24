@@ -18,9 +18,11 @@
  */
 import { useEffect, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Card, ErrorState, Field, Input, LoadingState } from '@/components/ui';
+import { Card, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
+import { useLocale } from '@/app/locale-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { currencyExponent, formatMoney, majorToMinor } from '@/lib/format';
+import { fetchOffers } from '@/lib/seller';
 import { fetchSettlementEstimate } from '@/lib/seller-logistics';
 
 /** Wait this long after the last keystroke before asking for a new estimate. */
@@ -44,6 +46,23 @@ export function SettlementPreviewCard({ currency }: { currency: string }): React
   const [goods, setGoods] = useState('10000');
   const [delivery, setDelivery] = useState('0');
 
+  /*
+   * The buyer's market and the listing, because a real order's fee policy is
+   * chosen by both: a market or category policy applies only when the
+   * preview says which market and which category it is about. The market
+   * starts at the seller's own, the likeliest buyer; the listing list is the
+   * seller's own, and is simply absent for a member who cannot read listings.
+   */
+  const { countries, country } = useLocale();
+  const [market, setMarket] = useState(country ?? '');
+  const [offerId, setOfferId] = useState('');
+  const listings = useQuery({
+    queryKey: ['seller', 'settlement-estimate', 'listings'],
+    queryFn: () => fetchOffers(new URLSearchParams({ pageSize: '100' })),
+    retry: false,
+  });
+  const listingRows = listings.data?.rows ?? [];
+
   const exponent = currencyExponent(currency);
   const goodsMinor = majorToMinor(goods, exponent);
   const deliveryMinor = majorToMinor(delivery === '' ? '0' : delivery, exponent);
@@ -57,8 +76,15 @@ export function SettlementPreviewCard({ currency }: { currency: string }): React
   const settledValid = settledGoods !== null && settledDelivery !== null;
 
   const query = useQuery({
-    queryKey: ['seller', 'settlement-estimate', settledGoods, settledDelivery, currency],
-    queryFn: () => fetchSettlementEstimate({ goodsMinor: settledGoods ?? '0', sellerDeliveryMinor: settledDelivery ?? '0', currency }),
+    queryKey: ['seller', 'settlement-estimate', settledGoods, settledDelivery, currency, market, offerId],
+    queryFn: () =>
+      fetchSettlementEstimate({
+        goodsMinor: settledGoods ?? '0',
+        sellerDeliveryMinor: settledDelivery ?? '0',
+        currency,
+        marketCountry: market,
+        offerId,
+      }),
     enabled: settledValid,
     placeholderData: keepPreviousData,
   });
@@ -80,7 +106,36 @@ export function SettlementPreviewCard({ currency }: { currency: string }): React
               <Input id={inputId} aria-describedby={describedBy} inputMode="decimal" value={delivery} onChange={(event) => { setDelivery(event.target.value); }} />
             )}
           </Field>
+          {countries.length > 0 && (
+            <Field label={t('sellerLogistics.settlementMarket')}>
+              {({ inputId, describedBy }) => (
+                <Select id={inputId} aria-describedby={describedBy} value={market} onChange={(event) => { setMarket(event.target.value); }}>
+                  <option value="">{t('sellerLogistics.settlementMarketAny')}</option>
+                  {countries.map((entry) => (
+                    <option key={entry.code} value={entry.code}>
+                      {entry.name}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          )}
+          {listingRows.length > 0 && (
+            <Field label={t('sellerLogistics.settlementListing')}>
+              {({ inputId, describedBy }) => (
+                <Select id={inputId} aria-describedby={describedBy} value={offerId} onChange={(event) => { setOfferId(event.target.value); }}>
+                  <option value="">{t('sellerLogistics.settlementListingAny')}</option>
+                  {listingRows.map((row) => (
+                    <option key={row.id} value={row.id}>
+                      {`${row.productName} (${row.sellerSku})`}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          )}
         </div>
+        <p className="text-xs leading-relaxed text-ink-muted">{t('sellerLogistics.settlementScopeHint')}</p>
 
         {estimate === undefined && query.isPending && valid && <LoadingState label={t('sellerLogistics.loading')} />}
         {query.isError && (

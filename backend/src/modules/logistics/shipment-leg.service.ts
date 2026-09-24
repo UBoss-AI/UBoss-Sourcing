@@ -36,6 +36,7 @@ import {
   levelAt,
   levelSequence,
   LOGISTICS_LEVELS,
+  partnerMayCarryLevel,
   TERMINAL_LEG_STATUSES,
   type LegActor,
   type LogisticsControlOwner,
@@ -58,7 +59,7 @@ import {
 import { recordSellerAudit } from '../seller/audit.service.js';
 import { notifySeller, resolveSellerNotifications } from '../seller/notification.service.js';
 import { createLogisticsNotification } from './notification.service.js';
-import { listProviders, type ManagedProvider } from './level-policy.service.js';
+import { listProviders, MANAGED_PROVIDERS, partnerForEligibility, type ManagedProvider } from './level-policy.service.js';
 
 export type LegEditor =
   | { kind: 'SELLER'; sellerAccountId: string; userId: string | null; label: string; correlationId?: string | null }
@@ -113,6 +114,11 @@ export async function createLegsForSellerOrder(sellerOrderGroupId: string): Prom
     const charge = charges.find((row) => row.level === level);
     if (charge === undefined) continue;
 
+    const carrier = await carrierFromCharge(charge, group.sellerAccountId);
+    const initialStatus: ShipmentLegStatus =
+      level === 'L1' ? (carrier === null ? 'AWAITING_ASSIGNMENT' : 'ASSIGNED') : 'PENDING';
+    const carrierWords = carrier === null ? null : (carrier.provider ?? carrier.partnerName ?? 'the carrier');
+
     try {
       const leg = await prisma.shipmentLeg.create({
         data: {
@@ -125,21 +131,55 @@ export async function createLegsForSellerOrder(sellerOrderGroupId: string): Prom
           level,
           sequence: levelSequence(level),
           owner: charge.owner,
-          // L1 is the seller's turn straight away; the rest wait their turn.
-          status: level === 'L1' ? 'AWAITING_ASSIGNMENT' : 'PENDING',
+          // L1 is the seller's turn straight away - already ASSIGNED when the
+          // price named its carrier; the rest wait their turn.
+          status: initialStatus,
+          // The carrier on the price the buyer paid, carried over so nobody
+          // has to name it again. Whoever controls the leg may still change
+          // it through `assignLeg` (a reassignment, with a reason).
+          ...(carrier === null
+            ? {}
+            : {
+                provider: carrier.provider,
+                logisticsPartnerId: carrier.logisticsPartnerId,
+                providerLabel: carrier.providerLabel,
+                serviceName: carrier.serviceName,
+                connectionMode: carrier.provider === null ? null : 'MANUAL_ONLY',
+                assignedAt: new Date(),
+                assignedByUserId: null,
+                assignedByRole: 'SYSTEM',
+              }),
           events: {
             create: {
               id: newId(),
               kind: 'CREATED',
               fromStatus: null,
-              toStatus: level === 'L1' ? 'AWAITING_ASSIGNMENT' : 'PENDING',
+              toStatus: initialStatus,
               actorRole: 'SYSTEM',
-              note: 'Created when the seller confirmed the order.',
+              note:
+                carrierWords === null
+                  ? 'Created when the seller confirmed the order.'
+                  : `Created when the seller confirmed the order, with ${carrierWords} from the price the customer paid.`.slice(0, 512),
             },
           },
         },
       });
       created += 1;
+      if (carrier !== null) {
+        // Planned already, so nobody is asked to name a carrier. A delivery
+        // company is told the work is coming, as `assignLeg` would tell it.
+        if (carrier.logisticsPartnerId !== null) {
+          await createLogisticsNotification({
+            logisticsPartnerId: carrier.logisticsPartnerId,
+            kind: 'LEG_ASSIGNED',
+            title: `${level} of order ${group.order.orderNumber} is yours`,
+            body: `${levelRouteWords(level)}. Accept it to confirm you will carry it.`,
+            variables: { level, orderNumber: group.order.orderNumber },
+            dedupeKey: `leg-assigned:${leg.id}:${String(leg.version)}`,
+          });
+        }
+        continue;
+      }
       await raiseAssignmentAlert(leg.id, {
         owner: charge.owner,
         level,
@@ -155,6 +195,58 @@ export async function createLegsForSellerOrder(sellerOrderGroupId: string): Prom
     }
   }
   return created;
+}
+
+/**
+ * The carrier named on a frozen charge, if it may still carry the leg.
+ *
+ * Checked again rather than trusted: between checkout and the seller's
+ * confirmation a delivery company can be suspended or lose its link, and a
+ * seller can switch a carrier off. A carrier that no longer passes the rule
+ * `assignLeg` applies is not carried over, and the leg waits for its owner
+ * to name one, exactly as if the price had named none.
+ */
+async function carrierFromCharge(
+  charge: {
+    owner: LogisticsControlOwner;
+    provider: string | null;
+    logisticsPartnerId: string | null;
+    providerLabel: string | null;
+    serviceName: string | null;
+  },
+  sellerAccountId: string,
+): Promise<{
+  provider: ManagedProvider | null;
+  logisticsPartnerId: string | null;
+  providerLabel: string | null;
+  serviceName: string | null;
+  partnerName: string | null;
+} | null> {
+  if (charge.logisticsPartnerId !== null) {
+    const partner = await partnerForEligibility(charge.logisticsPartnerId, sellerAccountId);
+    if (partner === null || !partnerMayCarryLevel(charge.owner, sellerAccountId, partner)) return null;
+    return {
+      provider: null,
+      logisticsPartnerId: charge.logisticsPartnerId,
+      providerLabel: charge.providerLabel ?? partner.displayName,
+      serviceName: charge.serviceName,
+      partnerName: partner.displayName,
+    };
+  }
+  if (charge.provider === null) return null;
+  if (!(MANAGED_PROVIDERS as readonly string[]).includes(charge.provider)) return null;
+  const provider = charge.provider as ManagedProvider;
+  if (charge.owner === 'SELLER') {
+    const providers = await listProviders(sellerAccountId);
+    if (providers.find((row) => row.provider === provider)?.enabled !== true) return null;
+  }
+  return {
+    provider,
+    logisticsPartnerId: null,
+    providerLabel: charge.providerLabel,
+    serviceName: charge.serviceName,
+    partnerName: null,
+  };
 }
 
 async function raiseAssignmentAlert(
@@ -272,7 +364,7 @@ function assertOwnerEditor(editor: LegEditor, owner: LogisticsControlOwner, leve
   if (editor.kind === 'SELLER' && owner !== 'SELLER') {
     throw forbidden(
       ErrorCode.LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED,
-      `${level} of this order is managed by UBOSS. UBOSS names its carrier.`,
+      `${level} of this order is managed by the marketplace. The marketplace names its carrier.`,
     );
   }
   if (editor.kind === 'UBOSS' && owner !== 'UBOSS') {
@@ -343,23 +435,9 @@ export async function assignLeg(editor: LegEditor, legId: string, input: AssignL
 
   let partnerName: string | null = null;
   if (partnerId !== null) {
-    const partner = await prisma.logisticsPartner.findUnique({
-      where: { id: partnerId },
-      select: {
-        status: true,
-        displayName: true,
-        ownerSellerAccountId: true,
-        partnerKind: true,
-        sellerLinks: { where: { sellerAccountId: leg.sellerAccountId }, select: { status: true } },
-      },
-    });
-    const sellerMayUse =
-      partner !== null &&
-      (partner.ownerSellerAccountId === leg.sellerAccountId || partner.sellerLinks.some((link) => link.status === 'APPROVED'));
-    // UBOSS carries its own levels with marketplace carriers, never with a
-    // seller's private fleet it has no arrangement with.
-    const ubossMayUse = partner !== null && partner.partnerKind === 'MARKETPLACE_CARRIER';
-    if (partner === null || partner.status !== 'ACTIVE' || (editor.kind === 'SELLER' ? !sellerMayUse : !ubossMayUse)) {
+    // The same rule a level's price is held to - see `partnerMayCarryLevel`.
+    const partner = await partnerForEligibility(partnerId, leg.sellerAccountId);
+    if (partner === null || !partnerMayCarryLevel(leg.owner, leg.sellerAccountId, partner)) {
       throw badRequest(ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE, 'That delivery company cannot be given this leg.', [
         { field: 'logisticsPartnerId', code: 'NOT_ELIGIBLE' },
       ]);
@@ -435,7 +513,7 @@ export async function assignLeg(editor: LegEditor, legId: string, input: AssignL
   });
 
   await auditLeg(editor, leg.sellerAccountId, AuditAction.LOGISTICS_LEG_ASSIGNED, leg, updated,
-    `${leg.level} of ${leg.sellerOrderGroup.sellerOrderNumber} ${isReassignment ? 'moved' : 'given'} to ${provider ?? partnerName ?? 'a carrier'} by ${editor.kind === 'SELLER' ? editor.label : 'UBOSS'}.`);
+    `${leg.level} of ${leg.sellerOrderGroup.sellerOrderNumber} ${isReassignment ? 'moved' : 'given'} to ${provider ?? partnerName ?? 'a carrier'} by ${editor.kind === 'SELLER' ? editor.label : 'the marketplace'}.`);
   await resolveAssignmentAlert(leg.id, leg.owner, editor.userId);
 
   if (partnerId !== null) {
@@ -462,7 +540,7 @@ export async function assignLeg(editor: LegEditor, legId: string, input: AssignL
     await notifySeller({
       sellerAccountId: leg.sellerAccountId,
       kind: 'LOGISTICS_LEG_UPDATE',
-      title: `UBOSS named the ${leg.level} carrier for ${leg.sellerOrderGroup.sellerOrderNumber}`,
+      title: `The marketplace named the ${leg.level} carrier for ${leg.sellerOrderGroup.sellerOrderNumber}`,
       body: `${leg.level} will be carried by ${provider ?? partnerName ?? 'a carrier'}.`,
       linkPath: `/seller/orders/${leg.sellerOrderGroupId}`,
       severity: 'INFO',
@@ -817,7 +895,7 @@ async function auditLeg(
       editor.kind === 'SELLER'
         ? { type: 'CUSTOMER', userId: editor.userId, label: editor.label }
         : editor.kind === 'UBOSS'
-          ? { type: 'ADMIN', userId: editor.userId, label: 'UBOSS logistics' }
+          ? { type: 'ADMIN', userId: editor.userId, label: 'Marketplace logistics' }
           : { type: 'LOGISTICS', userId: editor.userId, label: editor.label },
     resourceType: 'shipment_leg',
     resourceId: after.id,

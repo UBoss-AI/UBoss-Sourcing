@@ -20,6 +20,7 @@
 import { forwardRef, useCallback, useId } from 'react';
 import { Link } from 'react-router-dom';
 import type {
+  AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
@@ -217,6 +218,43 @@ export function ButtonLink({
       )}
       {...rest}
     />
+  );
+}
+
+/**
+ * A plain anchor that looks like a button, for a destination outside the app.
+ *
+ * `ButtonLink` is a router `Link`, which is the right thing for a page in this
+ * storefront and the wrong one for `mailto:` or `tel:`: the router would try to
+ * resolve those as paths.
+ */
+export interface ButtonAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+}
+
+export function ButtonAnchor({
+  variant = 'secondary',
+  size = 'md',
+  fullWidth,
+  className,
+  children,
+  ...rest
+}: ButtonAnchorProps): React.JSX.Element {
+  return (
+    <a
+      className={cx(
+        BUTTON_BASE,
+        BUTTON_VARIANTS[variant],
+        BUTTON_SIZES[size],
+        fullWidth === true && 'w-full',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </a>
   );
 }
 

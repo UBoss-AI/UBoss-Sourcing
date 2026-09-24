@@ -59,6 +59,10 @@ function safeFileName(name: string): string {
 export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   // --- Applications -------------------------------------------------------
 
+  /**
+   * List seller applications a page at a time, filtered by status or searched
+   * by business name.
+   */
   app.get(
     '/sellers',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -87,6 +91,10 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * One seller application in full, including internal notes the seller
+   * never sees.
+   */
   app.get(
     '/sellers/:id',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -208,6 +216,10 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   // certificate is part of deciding whether a business may sell here, which is
   // not work a catalogue assistant does.
 
+  /**
+   * The current certificates and licences a seller has uploaded, with the
+   * review status of each.
+   */
   app.get(
     '/sellers/:id/documents',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -304,6 +316,10 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Listing moderation -------------------------------------------------
 
+  /**
+   * Seller listings submitted for review and waiting for a decision, a page
+   * at a time.
+   */
   app.get(
     '/seller-listings/review-queue',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
@@ -410,6 +426,10 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Brands -------------------------------------------------------------
 
+  /**
+   * Sellers' requests for new brands still awaiting a decision, oldest first,
+   * with how many listings are waiting on each.
+   */
   app.get(
     '/brand-requests',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
@@ -419,6 +439,11 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Approve, refuse or ask for more information about a seller's request to
+   * add a brand, optionally approving it under a corrected spelling. Refused
+   * if already decided. Notifies the seller and writes an audit entry.
+   */
   app.post(
     '/brand-requests/:id/decision',
     { preHandler: requireAdmin(Permission.PRODUCT_PUBLISH) },
@@ -465,6 +490,9 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   // seller take on work they could otherwise not.
   // -------------------------------------------------------------------------
 
+  /**
+   * Sellers' delivery methods waiting for approval, oldest submission first.
+   */
   app.get(
     '/fulfilment-methods/pending',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -478,6 +506,11 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Approve, refuse or ask for changes to a seller's own delivery method, and
+   * decide whether it may ship across borders. Tells the seller and writes an
+   * audit entry.
+   */
   app.patch(
     '/fulfilment-methods/:methodId',
     { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
@@ -524,6 +557,11 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
   // service refuses an adverse decision that has no reason attached.
   // -------------------------------------------------------------------------
 
+  /**
+   * List the arrangements between sellers and carriers, filtered by status,
+   * seller or carrier. Requests awaiting a decision are what this queue is
+   * for.
+   */
   app.get(
     '/seller-carriers',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -578,6 +616,11 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Approve, refuse, suspend or end a seller's request to use a carrier, and
+   * optionally narrow the countries, capabilities and dates it covers. An
+   * adverse decision needs a reason. Writes an audit entry.
+   */
   app.patch(
     '/seller-carriers/:id',
     { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },

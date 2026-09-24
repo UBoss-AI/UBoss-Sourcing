@@ -20,6 +20,10 @@ const kindParam = z.object({
 });
 
 export function registerAdminDocumentRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List the invoices, credit notes and packing lists sellers have issued for
+   * one order. Drafts are left out.
+   */
   app.get(
     '/orders/:id/seller-documents',
     { preHandler: requireAdmin(Permission.INVOICE_READ) },
@@ -29,6 +33,7 @@ export function registerAdminDocumentRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /** Get a short-lived, single-use download link for a seller's invoice or packing list. */
   app.post(
     '/documents/:kind/:id/link',
     { preHandler: requireAdmin(Permission.INVOICE_READ) },
@@ -38,6 +43,11 @@ export function registerAdminDocumentRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Download a seller's invoice or packing list as a PDF, using a link from the
+   * request above. The link works once, only for the admin it was made for, and
+   * the download is recorded in the audit log.
+   */
   app.get(
     '/documents/:kind/:id/download',
     { preHandler: requireAdmin(Permission.INVOICE_READ) },

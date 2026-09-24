@@ -22,6 +22,7 @@ import { prisma } from '../../src/infra/prisma.js';
 import type { SellerMembership } from '../../src/modules/seller/account.service.js';
 import { addItem, resolveCart, toCartView } from '../../src/modules/cart/cart.service.js';
 import { submitCheckout, transitionOrder } from '../../src/modules/orders/order.service.js';
+import { policyForLevelChange } from '../../src/domain/logistics-levels.js';
 import { transitionSellerOrder } from '../../src/modules/seller/order.service.js';
 import {
   listProviders,
@@ -51,6 +52,8 @@ import {
 const SLUG_A = 'lvl-seller-a';
 const SLUG_B = 'lvl-seller-b';
 const PARTNER_CODE = 'LP-TEST-LEVELS';
+/** The seller's own fleet: a delivery company UBOSS may never name. */
+const FLEET_CODE = 'LP-TEST-LEVELS-FLEET';
 const EMAIL_DOMAIN = '@levels.test.local';
 const PRODUCT_SLUG = 'lvl-test-gloves';
 
@@ -102,7 +105,7 @@ async function cleanUp(): Promise<void> {
       select: { id: true },
     })
   ).map((row) => row.id);
-  const partners = (await prisma.logisticsPartner.findMany({ where: { partnerCode: PARTNER_CODE }, select: { id: true } })).map(
+  const partners = (await prisma.logisticsPartner.findMany({ where: { partnerCode: { in: [PARTNER_CODE, FLEET_CODE] } }, select: { id: true } })).map(
     (row) => row.id,
   );
 
@@ -617,12 +620,31 @@ describe('carrying the order, level by level', () => {
     await transitionSellerOrder({ membership: membership(sellerA, SLUG_A), groupId, to: 'ACCEPTED', locationId: locationA });
 
     const legs = await legsForSellerOrder(sellerA, groupId);
+    // Every price named its carrier, so each leg arrives with it: L1 is
+    // ASSIGNED straight away, the rest are planned and wait their turn.
     expect(legs.map((leg) => [leg.level, leg.owner, leg.status])).toEqual([
-      ['L1', 'SELLER', 'AWAITING_ASSIGNMENT'],
+      ['L1', 'SELLER', 'ASSIGNED'],
       ['L2', 'SELLER', 'PENDING'],
       ['L3', 'SELLER', 'PENDING'],
       ['L4', 'SELLER', 'PENDING'],
     ]);
+  });
+
+  it('carries the carrier on the price the buyer paid onto each leg', async () => {
+    const rows = await prisma.shipmentLeg.findMany({ where: { sellerOrderGroupId: groupId }, orderBy: { sequence: 'asc' } });
+    expect(rows.map((leg) => [leg.level, leg.provider, leg.logisticsPartnerId, leg.connectionMode])).toEqual([
+      ['L1', 'DHL', null, 'MANUAL_ONLY'],
+      ['L2', 'MANUAL', null, 'MANUAL_ONLY'],
+      ['L3', 'DHL', null, 'MANUAL_ONLY'],
+      ['L4', 'FEDEX', null, 'MANUAL_ONLY'],
+    ]);
+    expect(rows[1]?.providerLabel).toBe('Sea forwarder');
+    expect(rows.every((leg) => leg.assignedByRole === 'SYSTEM' && leg.assignedAt !== null)).toBe(true);
+    // Nobody is asked to name a carrier that is already named.
+    const asked = await prisma.sellerNotification.count({
+      where: { sellerAccountId: sellerA, kind: 'LOGISTICS_LEG_ASSIGNMENT_REQUIRED', subjectId: { in: rows.map((leg) => leg.id) } },
+    });
+    expect(asked).toBe(0);
   });
 
   it('keeps another seller away from these legs', async () => {
@@ -650,8 +672,8 @@ describe('carrying the order, level by level', () => {
 
     const legs = await legsForSellerOrder(sellerA, groupId);
     expect(legs[0]?.status).toBe('COMPLETED');
-    // The handover makes L2 its owner's turn.
-    expect(legs[1]?.status).toBe('AWAITING_ASSIGNMENT');
+    // The handover makes L2 its owner's turn - with its carrier already on it.
+    expect(legs[1]?.status).toBe('ASSIGNED');
     expect(legs[2]?.status).toBe('PENDING');
   });
 
@@ -711,6 +733,42 @@ describe('UBOSS mode', () => {
   });
 });
 
+describe('one level’s checkbox against a published policy', () => {
+  it('keeps a published UBOSS policy in UBOSS mode, with its version checked, for L1 as for any level', async () => {
+    const current = await readPolicy(sellerA, 'SELLER');
+    expect(current.active?.mode).toBe('UBOSS');
+
+    // Ticking L1 as the seller's changes nothing, so it needs no confirmation
+    // and must not turn the policy into the mixed mode.
+    const saved = await savePolicyDraft(sellerEditor, {
+      ...policyForLevelChange(current.draft, 'L1', 'SELLER'),
+      expectedVersion: current.draft.version,
+    });
+    expect(saved.draft.mode).toBe('UBOSS');
+    expect(saved.hasUnpublishedChanges).toBe(false);
+
+    // The version the screen read is enforced for L1 too.
+    await expect(
+      savePolicyDraft(sellerEditor, { ...policyForLevelChange(saved.draft, 'L1', 'SELLER'), expectedVersion: current.draft.version }),
+    ).rejects.toMatchObject({ code: 'LOGISTICS_POLICY_VERSION_CONFLICT' });
+
+    // Moving L4 back to the seller is a real change: mixed mode, confirmed.
+    await expect(
+      savePolicyDraft(sellerEditor, { ...policyForLevelChange(saved.draft, 'L4', 'SELLER'), expectedVersion: saved.draft.version }),
+    ).rejects.toMatchObject({ code: 'LOGISTICS_CHANGE_NOT_CONFIRMED' });
+    const moved = await savePolicyDraft(sellerEditor, {
+      ...policyForLevelChange(saved.draft, 'L4', 'SELLER'),
+      expectedVersion: saved.draft.version,
+      confirmOwnershipChange: true,
+    });
+    expect(moved.draft.mode).toBe('HYBRID');
+    expect(moved.draft.owners).toEqual({ L1: 'SELLER', L2: 'UBOSS', L3: 'UBOSS', L4: 'SELLER' });
+
+    // Put the draft back as published, for the tests that follow.
+    await savePolicyDraft(sellerEditor, { mode: 'UBOSS', confirmOwnershipChange: true });
+  });
+});
+
 describe('Self + UBOSS mode', () => {
   it('refuses the seller on all three of L2, L3 and L4', async () => {
     await expect(
@@ -741,6 +799,32 @@ describe('Self + UBOSS mode', () => {
     await expect(
       saveRate(uboss, { sellerAccountId: sellerA, level: 'L1', transportMode: 'ROAD', provider: 'DHL', amountMinor: '1' }),
     ).rejects.toMatchObject({ code: 'LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED' });
+  });
+
+  it('holds a UBOSS price to the rule a UBOSS leg is held to: marketplace carriers only', async () => {
+    const fleet = await prisma.logisticsPartner.create({
+      data: {
+        id: newId(),
+        partnerCode: FLEET_CODE,
+        legalName: 'Levels Own Fleet Pvt Ltd',
+        displayName: 'Levels Own Fleet',
+        displayNameNormalized: 'levelsownfleet',
+        registrationCountry: 'IN',
+        contactEmail: `fleet${EMAIL_DOMAIN}`,
+        status: 'ACTIVE',
+        contractStatus: 'ACTIVE',
+        partnerKind: 'SELLER_SELF_MANAGED',
+        ownerSellerAccountId: sellerA,
+      },
+    });
+    const l3 = { sellerAccountId: sellerA, level: 'L3' as const, transportMode: 'ROAD' as const, amountMinor: '1', currency: 'INR' };
+    await expect(saveRate(uboss, { ...l3, logisticsPartnerId: fleet.id })).rejects.toMatchObject({
+      code: 'LOGISTICS_PARTNER_NOT_ELIGIBLE',
+    });
+    // A marketplace carrier is fine; the draft is left unpublished.
+    const draft = await saveRate(uboss, { ...l3, logisticsPartnerId: partnerId });
+    expect(draft.logisticsPartnerId).toBe(partnerId);
+    await prisma.logisticsLevelRate.delete({ where: { id: draft.id } });
   });
 
   it('prices the mixed route from each owner’s own prices', async () => {
@@ -776,7 +860,16 @@ describe('Self + UBOSS mode', () => {
 
     await expect(assignLeg(sellerEditor, l3.id, { provider: 'DHL' })).rejects.toMatchObject({ code: 'LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED' });
     await expect(assignLeg(uboss, l2.id, { logisticsPartnerId: partnerId })).rejects.toMatchObject({ code: 'LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED' });
-    await assignLeg(uboss, l3.id, { logisticsPartnerId: partnerId });
+
+    // L3 arrived with the carrier on UBOSS's price. Staff may still change it,
+    // as a reassignment: with a reason, and never to the seller's own fleet.
+    expect(l3.provider).toBe('DHL');
+    const fleet = await prisma.logisticsPartner.findFirstOrThrow({ where: { partnerCode: FLEET_CODE } });
+    await expect(assignLeg(uboss, l3.id, { logisticsPartnerId: fleet.id, reason: 'Try the fleet' })).rejects.toMatchObject({
+      code: 'LOGISTICS_PARTNER_NOT_ELIGIBLE',
+    });
+    await expect(assignLeg(uboss, l3.id, { logisticsPartnerId: partnerId })).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    await assignLeg(uboss, l3.id, { logisticsPartnerId: partnerId, reason: 'Our own marketplace haulier' });
 
     const held = await legsForPartner(partnerId);
     expect(held.map((leg) => leg.id)).toEqual([l3.id]);

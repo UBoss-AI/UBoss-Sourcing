@@ -25,6 +25,7 @@ import {
   enqueueNotification,
 } from '../notifications/notification.service.js';
 import { loadActiveProvider } from './payment.service.js';
+import { syncSettlementRefunds } from '../seller/settlement-refund.service.js';
 import { PaymentProviderError } from './provider.js';
 
 export interface RefundQuote {
@@ -218,6 +219,10 @@ export async function createRefund(input: CreateRefundInput): Promise<CreatedRef
         where: { id: order.id },
         data: { refundedMinor: { increment: amountMinor } },
       });
+
+      // A refund the provider has already confirmed comes out of the
+      // sellers' settlements now; one still processing waits for its webhook.
+      if (result.status === 'SUCCEEDED') await syncSettlementRefunds(order.id, tx);
     });
 
     await enqueueNotification({

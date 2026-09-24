@@ -43,6 +43,10 @@ const isoDate = z.coerce.date();
 export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise<void> {
   // --- Collections --------------------------------------------------------
 
+  /**
+   * The pickup board: this carrier's collections in window order, filterable
+   * by state, date range, driver or warehouse.
+   */
   app.get(
     '/pickups',
     { preHandler: requireLogistics(LogisticsPermission.PICKUP_READ) },
@@ -81,6 +85,12 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Book a collection window for a shipment, optionally with a driver and
+   * vehicle, and move the shipment to "pickup scheduled". Refused when the
+   * window ends before it starts, or the driver or vehicle is not this
+   * carrier's.
+   */
   app.post(
     '/pickups',
     { preHandler: requireLogistics(LogisticsPermission.PICKUP_WRITE) },
@@ -115,6 +125,10 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Confirm that the goods are ready on the dock for a booked collection.
+   * Refused when the collection is no longer waiting to be confirmed.
+   */
   app.post(
     '/pickups/:id/confirm',
     { preHandler: requireLogistics(LogisticsPermission.PICKUP_WRITE) },
@@ -162,6 +176,11 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Record that a collection could not be made, with the reason. Raises a
+   * high-severity missed-collection problem on the shipment. Refused once the
+   * collection is already completed or cancelled.
+   */
   app.post(
     '/pickups/:id/fail',
     { preHandler: requireLogistics(LogisticsPermission.PICKUP_WRITE) },
@@ -176,6 +195,10 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
 
   // --- Dispatch -----------------------------------------------------------
 
+  /**
+   * List this carrier's load lists, newest first, with the driver, vehicle and
+   * how many consignments and packages each carries. Can be filtered by state.
+   */
   app.get(
     '/dispatch-manifests',
     { preHandler: requireLogistics(LogisticsPermission.DISPATCH_READ) },
@@ -246,6 +269,11 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * One load list ready to print: driver, vehicle, route and a line per
+   * consignment with its packages, weight and any cold-chain or dangerous-goods
+   * flag.
+   */
   app.get(
     '/dispatch-manifests/:id',
     { preHandler: requireLogistics(LogisticsPermission.DISPATCH_READ) },
@@ -256,6 +284,10 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Mark a load as handed over and record the name of whoever signed for it.
+   * Refused when the manifest has already been handed over or cancelled.
+   */
   app.post(
     '/dispatch-manifests/:id/handover',
     { preHandler: requireLogistics(LogisticsPermission.DISPATCH_WRITE) },
@@ -270,6 +302,11 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
 
   // --- Exceptions ---------------------------------------------------------
 
+  /**
+   * This carrier's queue of delivery problems, most severe and oldest first, a
+   * page at a time. Shows only open ones unless asked otherwise, and can be
+   * narrowed by severity or shipment.
+   */
   app.get(
     '/exceptions',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -308,6 +345,12 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Work a delivery problem: change its state, severity or owner, add notes,
+   * or record that the customer has been told. Resolving needs a note, a
+   * severity cannot be lowered below its floor, and a revised arrival date
+   * also moves the shipment's own expected date.
+   */
   app.patch(
     '/exceptions/:id',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_EXCEPTION_WRITE) },
@@ -341,6 +384,11 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
 
   // --- The fleet ----------------------------------------------------------
 
+  /**
+   * List this carrier's drivers, those on the rota first, with their
+   * certifications, whether they can use the phone app, whether they have
+   * agreed to location sharing and how many open tasks they hold.
+   */
   app.get(
     '/drivers',
     { preHandler: requireLogistics(LogisticsPermission.DRIVER_READ) },
@@ -433,6 +481,10 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * List this carrier's vehicles, in-service ones first, with their
+   * refrigeration, tail lift and weight limits.
+   */
   app.get(
     '/vehicles',
     { preHandler: requireLogistics(LogisticsPermission.VEHICLE_READ) },
@@ -442,6 +494,10 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     },
   );
 
+  /**
+   * Add a vehicle to this carrier's fleet list. Refused when a vehicle with the
+   * same registration is already on it. Writes an audit entry.
+   */
   app.post(
     '/vehicles',
     { preHandler: requireLogistics(LogisticsPermission.VEHICLE_WRITE) },
@@ -574,6 +630,11 @@ export function registerLogisticsOperationsRoutes(app: FastifyInstance): Promise
     return reply.status(200).send(found);
   });
 
+  /**
+   * Record that a carton went onto the van, or came off it. Only the first
+   * scan in each direction is kept, so scanning the same carton again changes
+   * nothing; a carton on a consignment this carrier does not hold is not found.
+   */
   app.post('/packages/:id/scan', { preHandler: requireLogistics() }, async (request, reply) => {
     const params = idParam.parse(request.params);
     const body = z.object({ direction: z.enum(['OUT', 'IN']) }).parse(request.body);

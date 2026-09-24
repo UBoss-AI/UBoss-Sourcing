@@ -136,6 +136,12 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * A short written explanation of what is waiting across the platform for
+   * this member of staff, optionally answering a question. Uses the AI
+   * provider where one is set up and a plain summary otherwise; only queues
+   * the caller may see are included.
+   */
   app.post(
     '/dashboard/insights',
     { preHandler: requireAdmin(), config: { rateLimit: INSIGHT_RATE_LIMIT } },
@@ -177,6 +183,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Sales ---------------------------------------------------------------
 
+  /**
+   * The sales report for a date range: totals (sales, tax, shipping,
+   * discounts, refunds, net revenue), sales by day or month, top products,
+   * top customers and sales by category.
+   */
   app.get(
     '/reports/sales',
     { preHandler: requireAdmin(Permission.REPORT_READ) },
@@ -210,6 +221,10 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Orders --------------------------------------------------------------
 
+  /**
+   * The orders report: how many orders, and of what value, are in each status
+   * for a date range, and how long confirmed orders have been waiting to ship.
+   */
   app.get(
     '/reports/orders',
     { preHandler: requireAdmin(Permission.REPORT_READ) },
@@ -224,6 +239,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Payments ------------------------------------------------------------
 
+  /**
+   * The payments report for a date range: payments by status, amounts
+   * captured, failed and refunded, rejected payment notifications and
+   * payments not yet reconciled.
+   */
   app.get(
     '/reports/payments',
     // Financial reporting sits behind payment.read, not the general
@@ -237,6 +257,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Inventory -----------------------------------------------------------
 
+  /**
+   * The inventory report: stock on hand valued at the current selling price
+   * (optionally only low-stock items), and a summary of stock movements in a
+   * date range.
+   */
   app.get(
     '/reports/inventory',
     { preHandler: requireAdmin(Permission.INVENTORY_READ) },
@@ -258,6 +283,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Customers and recurring --------------------------------------------
 
+  /**
+   * The customer report for a date range: how many customers there are by
+   * status, and how many signed up, activated their account and ordered in
+   * that range.
+   */
   app.get(
     '/reports/customers',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -267,6 +297,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The recurring-orders report: schedules by status, the runs due in the
+   * next few days (7 unless asked otherwise), failed runs, and schedules
+   * paused after repeated failures that need somebody to look at them.
+   */
   app.get(
     '/reports/recurring',
     { preHandler: requireAdmin(Permission.SCHEDULE_READ) },
@@ -318,6 +353,10 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The caller's own 50 most recent exports, with the status of each. Other
+   * staff members' exports are never shown.
+   */
   app.get(
     '/exports',
     { preHandler: requireAdmin(Permission.EXPORT_CREATE) },
@@ -354,6 +393,10 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Check on one export the caller requested. Once it is ready, and until the
+   * link expires, it includes the download token.
+   */
   app.get(
     '/exports/:id',
     { preHandler: requireAdmin(Permission.EXPORT_CREATE) },
@@ -367,12 +410,24 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Integrations --------------------------------------------------------
 
+  /**
+   * List the integrations set up with outside systems, each with its latest
+   * sync. Credentials are never included.
+   */
   app.get(
     '/integrations',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
     async (_request, reply) => reply.status(200).send({ connectors: await listConnectors() }),
   );
 
+  /**
+   * Set up a connection to an outside system's product feed: its address,
+   * how to sign in to it, and which of its fields map to SKU, name, price and
+   * stock. It starts switched off. Writes an audit entry.
+   *
+   * The address must be HTTPS unless it is local. Credentials are stored
+   * encrypted and are never returned.
+   */
   app.post(
     '/integrations',
     { preHandler: requireAdmin(Permission.INTEGRATION_WRITE) },
@@ -454,6 +509,10 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Switch an integration on or off. Switching on is refused until its last
+   * connection test passed. Writes an audit entry.
+   */
   app.patch(
     '/integrations/:id/status',
     { preHandler: requireAdmin(Permission.INTEGRATION_WRITE) },
@@ -466,6 +525,10 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The result of one integration sync: whether it was a trial run, how many
+   * records it handled and the errors it hit (up to 200).
+   */
   app.get(
     '/integrations/sync-runs/:id',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
@@ -477,6 +540,11 @@ export function registerAdminReportRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Audit ---------------------------------------------------------------
 
+  /**
+   * Search the audit trail, newest first, a page at a time: who did what, to
+   * which record, when and from where. Filter by action, record, person or
+   * date range. Secrets were already blanked out when each entry was written.
+   */
   app.get(
     '/audit-logs',
     { preHandler: requireAdmin(Permission.AUDIT_READ) },

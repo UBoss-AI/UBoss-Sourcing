@@ -27,6 +27,7 @@ import {
   LOGISTICS_LEVELS,
   ownersForMode,
   ownershipChanged,
+  partnerMayCarryLevel,
   policyShapeProblem,
   providerConnectionState,
   rateIsComplete,
@@ -38,6 +39,7 @@ import {
   type LogisticsLevel,
   type LogisticsTransportMode,
   type PackageClass,
+  type PartnerEligibilityInput,
   type PolicyShapeProblem,
   type ProviderConnectionState,
 } from '../../domain/logistics-levels.js';
@@ -547,7 +549,7 @@ function shapeError(problem: PolicyShapeProblem): AppError {
     case 'HYBRID_ALL_SELLER':
       return badRequest(
         ErrorCode.LOGISTICS_HYBRID_ALL_SELLER,
-        'In Self + UBOSS at least one of L2, L3 and L4 must be managed by UBOSS. To manage all of them yourself, use the Self tab.',
+        'In Self + marketplace at least one of L2, L3 and L4 must be managed by the marketplace. To manage all of them yourself, use the Self tab.',
         [{ field: 'l4Owner', code: 'HYBRID_ALL_SELLER' }],
       );
     case 'MODE_OWNERS_MISMATCH':
@@ -671,9 +673,9 @@ export async function savePolicyDraft(
 }
 
 function describeMode(mode: LogisticsControlMode, owners: LevelOwners): string {
-  const who = (owner: LogisticsControlOwner): string => (owner === 'SELLER' ? 'you' : 'UBOSS');
+  const who = (owner: LogisticsControlOwner): string => (owner === 'SELLER' ? 'you' : 'the marketplace');
   if (mode === 'SELF') return 'you manage L1 to L4';
-  if (mode === 'UBOSS') return 'you manage L1, UBOSS manages L2 to L4';
+  if (mode === 'UBOSS') return 'you manage L1, the marketplace manages L2 to L4';
   return `you manage L1; L2 ${who(owners.L2)}, L3 ${who(owners.L3)}, L4 ${who(owners.L4)}`;
 }
 
@@ -924,7 +926,7 @@ async function assertEditorControlsLevel(
     if (draft[level] !== 'SELLER') {
       throw forbidden(
         ErrorCode.LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED,
-        `${level} is managed by UBOSS. Its carrier and price are set by UBOSS.`,
+        `${level} is managed by the marketplace. Its carrier and price are set by the marketplace.`,
       );
     }
     return;
@@ -1006,14 +1008,10 @@ async function validateRate(
   }
 
   if (partnerId !== null) {
-    const partner = await prisma.logisticsPartner.findUnique({
-      where: { id: partnerId },
-      select: { status: true, ownerSellerAccountId: true, sellerLinks: { where: { sellerAccountId }, select: { status: true } } },
-    });
-    const linked =
-      partner !== null &&
-      (partner.ownerSellerAccountId === sellerAccountId || partner.sellerLinks.some((link) => link.status === 'APPROVED'));
-    if (partner === null || partner.status !== 'ACTIVE' || (editor.kind === 'SELLER' && !linked)) {
+    // The same rule the leg is held to: a UBOSS price names a marketplace
+    // carrier, never a seller's private fleet - see `partnerMayCarryLevel`.
+    const partner = await partnerForEligibility(partnerId, sellerAccountId);
+    if (partner === null || !partnerMayCarryLevel(editorOwner(editor), sellerAccountId, partner)) {
       throw badRequest(
         ErrorCode.LOGISTICS_PARTNER_NOT_ELIGIBLE,
         'That delivery company cannot carry this level for you.',
@@ -1110,6 +1108,37 @@ async function validateRate(
     priceSource: input.priceSource ?? (editor.kind === 'UBOSS' ? 'UBOSS_RATE' : 'MANUAL'),
     effectiveFrom: input.effectiveFrom ?? new Date(),
     updatedByUserId: editor.userId,
+  };
+}
+
+/**
+ * A delivery company in the shape `partnerMayCarryLevel` judges, with its
+ * links to this one seller only. Null when there is no such company.
+ */
+export async function partnerForEligibility(
+  partnerId: string,
+  sellerAccountId: string,
+  client: Tx | typeof prisma = prisma,
+): Promise<(PartnerEligibilityInput & { displayName: string }) | null> {
+  const partner = await client.logisticsPartner.findUnique({
+    where: { id: partnerId },
+    select: {
+      status: true,
+      archivedAt: true,
+      partnerKind: true,
+      displayName: true,
+      ownerSellerAccountId: true,
+      sellerLinks: { where: { sellerAccountId }, select: { status: true } },
+    },
+  });
+  if (partner === null) return null;
+  return {
+    status: partner.status,
+    archivedAt: partner.archivedAt,
+    partnerKind: partner.partnerKind,
+    displayName: partner.displayName,
+    ownerSellerAccountId: partner.ownerSellerAccountId,
+    sellerLinkStatuses: partner.sellerLinks.map((link) => link.status),
   };
 }
 
@@ -1227,8 +1256,8 @@ export async function publishRate(
     await notifySeller({
       sellerAccountId: input.sellerAccountId,
       kind: 'LOGISTICS_UBOSS_PRICE_PUBLISHED',
-      title: `UBOSS published the ${rate.level} price`,
-      body: `${rate.level} is managed by UBOSS. The new price applies to new orders only.`,
+      title: `The marketplace published the ${rate.level} price`,
+      body: `${rate.level} is managed by the marketplace. The new price applies to new orders only.`,
       linkPath: '/seller/logistics',
       severity: 'INFO',
       subjectType: 'logistics_level_rate',
@@ -1298,7 +1327,7 @@ async function auditRate(
   after: RateRow,
 ): Promise<void> {
   const price = after.amountMinor === null ? 'no price yet' : serialiseMoney(after.amountMinor, after.currency).formatted;
-  const summary = `${after.level} price ${action.endsWith('published') ? 'published' : action.endsWith('deactivated') ? 'switched off' : 'saved'} by ${editor.kind === 'SELLER' ? editor.label : 'UBOSS'}: ${after.isFree ? 'free' : price}.`;
+  const summary = `${after.level} price ${action.endsWith('published') ? 'published' : action.endsWith('deactivated') ? 'switched off' : 'saved'} by ${editor.kind === 'SELLER' ? editor.label : 'the marketplace'}: ${after.isFree ? 'free' : price}.`;
 
   // The seller's own trail always hears about their levels - including a
   // UBOSS price on one of them, which is exactly what they will ask about.
@@ -1308,7 +1337,7 @@ async function auditRate(
     actor:
       editor.kind === 'SELLER'
         ? { type: 'CUSTOMER', userId: editor.userId, label: editor.label }
-        : { type: 'ADMIN', userId: editor.userId, label: 'UBOSS logistics' },
+        : { type: 'ADMIN', userId: editor.userId, label: 'Marketplace logistics' },
     resourceType: 'logistics_level_rate',
     resourceId: after.id,
     before: rateAuditShape(before),

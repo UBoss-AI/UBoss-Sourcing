@@ -124,6 +124,10 @@ function toWriteInput(body: z.infer<typeof couponBodySchema>): CouponWriteInput 
 }
 
 export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List coupons a page at a time, filtered by status or a search term.
+   * Archived coupons are left out unless asked for.
+   */
   app.get(
     '/coupons',
     { preHandler: requireAdmin(Permission.COUPON_READ) },
@@ -162,6 +166,7 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** One coupon with its categories, minimum cart values and usage so far. */
   app.get(
     '/coupons/:couponId',
     { preHandler: requireAdmin(Permission.COUPON_READ) },
@@ -175,6 +180,11 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Create a percentage-off coupon, optionally limited to some categories,
+   * with a minimum cart value per currency. A code is generated if none is
+   * given. Writes an audit entry.
+   */
   app.post(
     '/coupons',
     { preHandler: requireAdmin(Permission.COUPON_WRITE) },
@@ -205,6 +215,10 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Change a coupon - its code, discount, categories, minimum cart values,
+   * status, dates or usage limits. Writes an audit entry.
+   */
   app.put(
     '/coupons/:couponId',
     { preHandler: requireAdmin(Permission.COUPON_WRITE) },
@@ -243,6 +257,10 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Archive a coupon: it leaves every list and can no longer be used, but is
+   * kept so past orders that used it still make sense. Writes an audit entry.
+   */
   app.delete(
     '/coupons/:couponId',
     { preHandler: requireAdmin(Permission.COUPON_ARCHIVE) },
@@ -281,6 +299,10 @@ export function registerAdminCouponRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Replace the whole set of store-wide quantity discounts with the list
+   * sent. Refused if the rules contradict each other. Writes an audit entry.
+   */
   app.put(
     '/quantity-discounts',
     { preHandler: requireAdmin(Permission.COUPON_WRITE) },

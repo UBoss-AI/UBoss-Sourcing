@@ -172,6 +172,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     });
   });
 
+  /**
+   * Start setting up two-step sign-in: returns a new secret for an
+   * authenticator app and a set of recovery codes, shown this once only.
+   * Replaces any earlier secret and codes. Writes an audit entry.
+   */
   app.post('/auth/mfa/setup', { preHandler: requireLogisticsSession }, async (request, reply) => {
     const membership = currentLogistics(request);
 
@@ -192,6 +197,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     return reply.header('cache-control', 'no-store').status(200).send(enrolment);
   });
 
+  /**
+   * Check a two-step sign-in code: either to finish setting it up, or to pass
+   * this session's challenge. A recovery code also works for a challenge and
+   * is used up. On success this session counts as verified.
+   */
   app.post('/auth/mfa/verify', { preHandler: requireLogisticsSession }, async (request, reply) => {
     const body = z
       .object({
@@ -244,6 +254,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * The delivery company's dashboard in one call: its shipment figures for a
+   * date range, optionally narrowed by warehouse, seller, destination country
+   * or one of its own drivers.
+   */
   app.get(
     '/dashboard',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -347,6 +362,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * A written explanation of this delivery company's dashboard figures, with
+   * findings and suggested actions, optionally answering a question. Uses the
+   * AI assistant when one is configured and a plain summary when it is not.
+   */
   app.post(
     '/dashboard/insights',
     {
@@ -397,6 +417,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   // --- Shipments ----------------------------------------------------------
 
+  /**
+   * One page of this delivery company's shipments, searchable and filterable
+   * by reference, company, place, status, delivery deadline, driver, problems,
+   * proof of delivery and dates, and sortable.
+   */
   app.get(
     '/shipments',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -537,6 +562,10 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * One shipment this delivery company holds, with contact details masked to
+   * what the caller is entitled to see.
+   */
   app.get(
     '/shipments/:id',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -547,6 +576,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * The event history of one shipment. People who can update a shipment's
+   * status also see the internal operations notes; read-only viewers see the
+   * public history only.
+   */
   app.get(
     '/shipments/:id/timeline',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -573,6 +607,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Accept a shipment offered to this delivery company. The seller is told and
+   * an audit entry is written. Refused when the offer has already been
+   * answered or withdrawn.
+   */
   app.post(
     '/shipments/:id/accept',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_ACCEPT) },
@@ -587,6 +626,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Decline a shipment offered to this delivery company, with a reason. The
+   * shipment goes back to waiting for a carrier, the seller is told, and the
+   * refusal is recorded against this company.
+   */
   app.post(
     '/shipments/:id/reject',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_ACCEPT) },
@@ -668,6 +712,12 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Report a delivery problem on a shipment this company holds, such as a
+   * missed pickup, damage or a temperature excursion. Some problem types have
+   * a minimum severity; a critical one also alerts the marketplace's
+   * operations team. Writes an audit entry.
+   */
   app.post(
     '/shipments/:id/exceptions',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_EXCEPTION_WRITE) },
@@ -717,6 +767,10 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   // --- Documents and proof ------------------------------------------------
 
+  /**
+   * The files on a shipment that a delivery company is allowed to see.
+   * Documents meant only for the marketplace are never included.
+   */
   app.get(
     '/shipments/:id/documents',
     { preHandler: requireLogistics(LogisticsPermission.DOCUMENT_READ) },
@@ -727,6 +781,12 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Attach a photo to a shipment this company holds, such as a delivery photo,
+   * signature or damage evidence. Only images up to 10 MB are accepted, and a
+   * delivery company cannot attach commercial paperwork. Writes an audit
+   * entry.
+   */
   app.post(
     '/shipments/:id/documents',
     { preHandler: requireLogistics(LogisticsPermission.DOCUMENT_WRITE) },
@@ -799,6 +859,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * The proof of delivery recorded for a shipment, if any. Signature and photo
+   * files are referred to by id; a separate request gets a short-lived link to
+   * view them.
+   */
   app.get(
     '/shipments/:id/proof-of-delivery',
     { preHandler: requireLogistics(LogisticsPermission.SHIPMENT_READ) },
@@ -809,6 +874,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Record proof of delivery (recipient, time, place, signature or photo) and
+   * mark the shipment delivered. A shipment is delivered once: a repeat call
+   * returns the proof already recorded instead of failing.
+   */
   app.post(
     '/shipments/:id/proof-of-delivery',
     { preHandler: requireLogistics(LogisticsPermission.POD_WRITE) },
@@ -878,6 +948,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   // --- Who we carry for ---------------------------------------------------
 
+  /**
+   * The companies this delivery company carries for, either the senders or
+   * the receivers, with shipment counts for each. Built only from its own
+   * shipments; nothing about what those companies buy or pay is shown.
+   */
   app.get(
     '/companies',
     { preHandler: requireLogistics(LogisticsPermission.COMPANY_READ) },
@@ -893,6 +968,12 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   // --- The organisation ---------------------------------------------------
 
+  /**
+   * This delivery company's own record as it sees it: registration and
+   * licence, contact details, status, contract, approved regions, services
+   * and delivery-time commitments. The marketplace's private notes about it
+   * are never included.
+   */
   app.get(
     '/organisation',
     { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_READ) },
@@ -902,6 +983,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Update this delivery company's contact email, phones or website. Only
+   * contact details can be changed here; regions, services and contract terms
+   * are set by the marketplace. Writes an audit entry.
+   */
   app.patch(
     '/organisation',
     { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE) },
@@ -925,6 +1011,7 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /** The people on this delivery company's team, with their roles and status. */
   app.get(
     '/members',
     { preHandler: requireLogistics(LogisticsPermission.MEMBER_READ) },
@@ -934,6 +1021,12 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Change a colleague's role, job title or phone, or switch their access off,
+   * which also signs them out everywhere. Refused when granting a role the
+   * caller does not hold, or when changing one's own role or access. Writes
+   * an audit entry.
+   */
   app.patch(
     '/members/:id',
     { preHandler: requireLogistics(LogisticsPermission.MEMBER_WRITE) },
@@ -971,6 +1064,10 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
 
   // --- Notifications and the trail ---------------------------------------
 
+  /**
+   * The signed-in person's notifications: their own plus those addressed to
+   * the whole company. Shows live items by default, or the resolved record.
+   */
   app.get('/notifications', { preHandler: requireLogistics() }, async (request, reply) => {
     const query = z
       .object({
@@ -995,6 +1092,10 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     return reply.header('cache-control', 'no-store').status(200).send(feed);
   });
 
+  /**
+   * Mark the listed notifications as read, or all of them when no list is
+   * given. Ids from another company's feed are ignored.
+   */
   app.post('/notifications/read', { preHandler: requireLogistics() }, async (request, reply) => {
     const body = z
       .object({ ids: z.array(z.string().length(26)).max(100).optional() })
@@ -1011,6 +1112,11 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ marked });
   });
 
+  /**
+   * This delivery company's own activity log, newest first, a page at a time,
+   * optionally narrowed to one kind of action. Lists who did what; the
+   * before-and-after detail is not included.
+   */
   app.get(
     '/audit',
     { preHandler: requireLogistics(LogisticsPermission.AUDIT_READ) },

@@ -16,6 +16,11 @@ import type { FastifyInstance } from 'fastify';
 import { getStorefrontConfig } from '../../modules/settings/settings.service.js';
 
 export function registerPublicConfigRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * The storefront's public settings - business name, contact details, logo,
+   * currency and similar - needed before anyone signs in. On a seller's own shop
+   * the seller's name, contact details and logo replace the marketplace's.
+   */
   app.get('/config', async (request, reply) => {
     const config = await getStorefrontConfig();
 

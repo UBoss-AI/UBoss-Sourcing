@@ -22,6 +22,7 @@ import { stripHtml } from '../../infra/sanitize.js';
 import { isValidTimeZone } from '../../domain/recurrence.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { listActiveCountries, listActiveCurrencies } from './currency.service.js';
+import { marketplaceNameFrom } from './marketplace-name.js';
 
 export interface SettingsActor {
   userId: string;
@@ -813,6 +814,20 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
   ]);
 
   return {
+    /*
+     * The marketplace itself, which is not always the `business` below.
+     *
+     * On a seller's own shop front `GET /config` replaces `business` with the
+     * seller's name, which is right for the header and wrong for a sentence
+     * about the marketplace: a seller reading "Northwind manages L2" about
+     * their own delivery would be told they manage something they do not.
+     * This block is never replaced, so every screen that says who runs the
+     * marketplace - the delivery levels, the carrier portal, the console -
+     * names the operator on every host.
+     */
+    marketplace: {
+      displayName: marketplaceNameFrom(profile?.displayName),
+    },
     business: {
       // The product's own name where a deployment has not yet said what its
       // shop is called. Not a shop's name, because at this point there is no

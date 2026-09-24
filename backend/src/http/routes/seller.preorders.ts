@@ -35,6 +35,11 @@ const idParam = z.object({ id: z.string().length(26) });
 const noteBody = z.object({ note: z.string().trim().max(1000).nullable().default(null) }).strict();
 
 export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List the seller's bulk preorder requests, newest activity first, with a
+   * count for each filter tab. An optional filter narrows the list, such as
+   * new, awaiting the buyer or in production.
+   */
   app.get(
     '/preorders',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -47,6 +52,7 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /** Show one of the seller's preorder requests in full. */
   app.get(
     '/preorders/:id',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -59,6 +65,11 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Accept a preorder on exactly the quantity, price and date the buyer asked
+   * for, and email the buyer the terms to confirm. Refused if the price or date
+   * differs; that has to be sent as a counter-offer. Writes an audit entry.
+   */
   app.post(
     '/preorders/:id/accept',
     {
@@ -74,6 +85,11 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Send the buyer a counter-offer on a preorder: a different quantity, price,
+   * delivery date or split deliveries. Emails the buyer and writes an audit
+   * entry.
+   */
   app.post(
     '/preorders/:id/counter',
     {
@@ -91,6 +107,10 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Turn down a preorder with a reason. Releases any capacity it was holding,
+   * withdraws open offers, emails the buyer and writes an audit entry.
+   */
   app.post(
     '/preorders/:id/reject',
     {
@@ -106,6 +126,10 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Mark a confirmed preorder as in production, with an optional note. Emails
+   * the buyer and writes an audit entry.
+   */
   app.post(
     '/preorders/:id/start-production',
     {
@@ -126,6 +150,10 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Mark a preorder as made and ready to ship, with an optional note. Emails
+   * the buyer and writes an audit entry.
+   */
   app.post(
     '/preorders/:id/ready',
     {
@@ -163,6 +191,11 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Save the seller's preorder terms for one listing, one product, or as their
+   * default. Refused if the terms would turn away every request. Writes an
+   * audit entry.
+   */
   app.put(
     '/preorder-policies',
     {
@@ -175,6 +208,10 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Remove a set of preorder terms. Refused while a confirmed preorder still
+   * depends on them; switch them off instead. Writes an audit entry.
+   */
   app.delete(
     '/preorder-policies/:id',
     {

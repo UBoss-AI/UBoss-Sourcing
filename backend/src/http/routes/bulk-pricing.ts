@@ -11,6 +11,12 @@ import { bulkPricing } from '../../modules/catalog/bulk-pricing.service.js';
 import { optionalCustomer } from '../plugins/auth.js';
 
 export function registerBulkPricingRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Show what one piece of a product costs at a given quantity, for each way of
+   * buying it, so the shopper can see the price drop as the quantity goes up.
+   * Anyone can ask; a signed-in business buyer also sees prices kept for
+   * business accounts and for their delivery country.
+   */
   app.get(
     '/bulk-pricing',
     { preHandler: optionalCustomer, config: { rateLimit: { max: 240, timeWindow: '1 minute' } } },

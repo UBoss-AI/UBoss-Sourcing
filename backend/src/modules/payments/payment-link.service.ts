@@ -27,6 +27,7 @@ import {
   dispatchPendingNotifications,
   enqueueNotification,
 } from '../notifications/notification.service.js';
+import { getMarketplaceName } from '../settings/marketplace-name.js';
 import { loadActiveProvider } from './payment.service.js';
 import { PaymentProviderError } from './provider.js';
 
@@ -319,6 +320,7 @@ export async function redeemPaymentLink(
       customerEmail: link.recipientEmail,
       customerName: link.recipientName ?? link.order.customerProfile.fullName,
       customerPhone: null,
+      merchantName: await getMarketplaceName(prisma),
       idempotencyKey: `link:${link.id}`,
     });
 

@@ -25,6 +25,7 @@
  */
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { logger } from '../../infra/logger.js';
+import { PRODUCT_NAME } from '../settings/marketplace-name.js';
 import {
   PaymentProviderError,
   modeForCredential,
@@ -580,7 +581,7 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
       payment_intent_id: intent.id,
       amount: Number(input.amountMinor),
       currency: input.currency,
-      name: 'UBOSS Sourcing',
+      name: input.merchantName ?? PRODUCT_NAME,
       description: `Order ${input.orderNumber}`,
       prefill_email: input.customerEmail ?? '',
       prefill_name: input.customerName ?? '',

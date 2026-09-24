@@ -87,6 +87,15 @@ export interface CreatePaymentInput {
    * GDPR, and a pre-ticked or implied consent is not one.
    */
   saveCard?: boolean;
+  /**
+   * Who the customer is paying, as the gateway's own sheet names it.
+   *
+   * The deployment's trading name from the business profile - every buyer of
+   * this software runs their own marketplace, so a literal here would show
+   * every operator's customers somebody else's name above the amount. Left
+   * out, the adapter falls back to the product's own name.
+   */
+  merchantName?: string;
   /** Idempotency key passed through where the provider supports one. */
   idempotencyKey: string;
 }

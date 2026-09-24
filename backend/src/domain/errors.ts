@@ -9,9 +9,9 @@
  * Wire shape (identical for every failure, including 500s):
  *   {
  *     "error": {
- *       "code": "CART_QUANTITY_BELOW_MINIMUM",
- *       "message": "Minimum order quantity for this product is 10.",
- *       "details": [{ "field": "items.0.quantity", "code": "...", "meta": {...} }],
+ *       "code": "CART_ITEM_UNAVAILABLE",
+ *       "message": "Some items need attention before you can check out.",
+ *       "details": [{ "code": "QUANTITY_BELOW_MINIMUM", "message": "...", "meta": {...} }],
  *       "correlationId": "01J..."
  *     }
  *   }

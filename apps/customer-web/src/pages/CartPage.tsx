@@ -798,7 +798,7 @@ export function CartPage(): React.JSX.Element {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const toast = useToast();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
   // The shopper's market, which is the destination the delivery options are
   // measured to. Null until they have answered the country question, and the
   // panel has a state that says so rather than guessing one.
@@ -1190,7 +1190,9 @@ export function CartPage(): React.JSX.Element {
             </ButtonLink>
           </div>
 
-          {recurringEligibleCount > 0 && (
+          {/* Only where repeat purchases are switched on: the panel's buttons
+              lead to Schedule Cart, which refuses when they are off. */}
+          {features.recurringOrders && recurringEligibleCount > 0 && (
             <RepeatPurchasePanel eligibleCount={recurringEligibleCount} />
           )}
         </aside>

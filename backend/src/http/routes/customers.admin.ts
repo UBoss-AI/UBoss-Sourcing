@@ -112,6 +112,10 @@ function actorFrom(request: FastifyRequest): {
 }
 
 export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List customers a page at a time, searchable and filterable by account
+   * status or organisation.
+   */
   app.get(
     '/customers',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -133,6 +137,11 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * One customer's full record - account status, details, addresses and
+   * purchasing limits - with how much they have spent this month against
+   * their cap.
+   */
   app.get(
     '/customers/:id',
     { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
@@ -158,6 +167,10 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change a customer's details - name, organisation, department, phone, tax
+   * numbers, customer code or internal notes. Writes an audit entry.
+   */
   app.patch(
     '/customers/:id',
     { preHandler: requireAdmin(Permission.CUSTOMER_WRITE) },
@@ -194,6 +207,11 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Deactivate a customer's account, signing them out everywhere, or
+   * reactivate it. An account that never finished setting up goes back to
+   * waiting for its invitation. Writes an audit entry with the reason given.
+   */
   app.patch(
     '/customers/:id/status',
     { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
@@ -230,6 +248,11 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Email the customer a fresh invitation link to set up their account; any
+   * earlier link stops working. Refused if the account is already active or
+   * deactivated. Writes an audit entry.
+   */
   app.post(
     '/customers/:id/invite',
     {
@@ -313,6 +336,10 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
 
   // --- Addresses -----------------------------------------------------------
 
+  /**
+   * Add a saved address to a customer's account. Their first address becomes
+   * the default for both billing and shipping. Writes an audit entry.
+   */
   app.post(
     '/customers/:id/addresses',
     { preHandler: requireAdmin(Permission.CUSTOMER_WRITE) },
@@ -324,6 +351,11 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Change one of a customer's saved addresses, or make it their default
+   * billing or shipping address. Moving the address looks up its map position
+   * again where a geocoder is set up.
+   */
   app.patch(
     '/customers/:id/addresses/:addressId',
     { preHandler: requireAdmin(Permission.CUSTOMER_WRITE) },
@@ -338,6 +370,12 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * Remove one of a customer's saved addresses. Refused while an active or
+   * paused recurring schedule still delivers to or bills it.
+   *
+   * A soft delete: the row is archived, never erased.
+   */
   app.delete(
     '/customers/:id/addresses/:addressId',
     { preHandler: requireAdmin(Permission.CUSTOMER_WRITE) },

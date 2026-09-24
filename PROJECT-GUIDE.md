@@ -31,6 +31,7 @@ have to read separately — this *is* the explanation.
    - [9.5.3 Bulk preorders](#953-bulk-preorders)
    - [9.5.4 Seller invoices and packing lists](#954-seller-invoices-and-packing-lists)
    - [9.5.5 Quantity prices and the bulk-savings popover](#955-quantity-prices-and-the-bulk-savings-popover)
+   - [9.5.6 Seller delivery levels (L1–L4) and the platform fee](#956-seller-delivery-levels-l1l4-and-the-platform-fee)
    - [9.8 The ERP connection, and Autopay](#98-the-erp-connection-and-autopay)
    - [9.8.1 The customer’s own ERP](#981-the-customers-own-erp)
    - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
@@ -94,7 +95,7 @@ Three names are involved and they are not interchangeable:
 | **Glovia** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
 | **The Way to the World** | The product's tagline — under the wordmark | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
 | **Powered by UBOSS** | The attribution — who makes it | `lib/brand.ts`, the same constant module |
-| The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` |
+| The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` — and `marketplace.displayName`, the same name, which a seller's shop front never replaces |
 
 **The third one is the one to be careful with.** Every buyer runs their own
 deployment, so the storefront header, the footer, the e-mails, the invoices and
@@ -121,17 +122,40 @@ using the product, and every one of them is something another system, another
 machine or a registrar already points at. Renaming them would break working
 connections and change nothing anybody sees.
 
-**And where a screen still says UBOSS, read it carefully.** In the carrier
-portal, "UBOSS operations", "Escalate to UBOSS" and "Call through UBOSS" name
-the *people* a carrier deals with, not the software they are looking at. Those
-stayed. "Sell on Glovia", "Glovia Marketplace" and "Disagrees with Glovia" name
-the *product*, and those changed.
+**No screen names UBOSS as the marketplace any more.** The carrier portal used
+to say "UBOSS operations" and "Escalate to UBOSS", and the seller's delivery
+levels "Self + UBOSS" and "UBOSS price" — on every buyer's deployment, where
+the people a carrier or a seller deals with are the *buyer's* team, not ours.
+Those sentences now carry `{{marketplace}}` in all eight catalogues of all three
+applications, filled with the operator's name:
+
+- **In the browsers**, `setMarketplaceName` in each app's `i18n/config.ts` sets
+  it as an i18next *default variable*, from `marketplace.displayName` on
+  `GET /config` (`StorefrontProvider` in the storefront, `<MarketplaceName />`
+  in the console and the portal). A default variable rather than an option at
+  each call site, because many of these strings are reached by a key built at
+  run time — an error code, a mode, a pricing state. The event it fires is
+  bound through `react.bindI18n`, so a screen drawn before the name arrived is
+  redrawn with it. Until then the product's name, "Glovia", stands in.
+- **`marketplace`, not `business`**: on a seller's shop front `business` is the
+  seller, and "Northwind manages L2" said to Northwind about its own delivery
+  would be wrong.
+- **On the server**, `modules/settings/marketplace-name.ts` reads the name for
+  the Razorpay/Stripe payment sheet, the console's authenticator issuer and
+  every e-mail's `{{businessName}}`. Text that is **stored** — audit labels,
+  notification rows, error messages — says "the marketplace" or "Marketplace
+  operations" instead, so it stays true after a rename.
+
+"Sell on Glovia", "Glovia Marketplace" and "Disagrees with Glovia" name the
+*product*, and those changed to Glovia.
 
 ## The one-sentence version
 
 Glovia is **a shop on the internet for businesses** — a company sells
-medical supplies to other companies, and this software runs everything from the
-product page to the invoice.
+supplies to other companies, and other businesses can sell through it too, and
+this software runs everything from the product page to the invoice. It sells
+anything a business buys: fasteners, cables, packaging, tools, electronics,
+medical devices.
 
 ## The slightly longer version
 
@@ -166,8 +190,8 @@ almost every design decision in the codebase:
 | Pay now, every time | Some customers get **credit terms** and purchasing limits |
 | One-off orders | Customers can set up **repeating orders** (every month, automatically) |
 
-It also sells **medical devices**, which brings legal duties that ordinary
-shops do not have — European product-safety rules (GPSR), medical-device rules
+Some of what it can sell is **regulated** — medical devices, for one — and
+that brings legal duties that ordinary shops do not have — European product-safety rules (GPSR), medical-device rules
 (MDR), VAT handling across EU member states, and data-protection rules (GDPR).
 Those are not decorations; they are built into the database and the code.
 
@@ -223,7 +247,7 @@ The fourth is optional: the logistics portal only exists on a deployment where
    ┌────────────────────┐      ┌────────────────────┐
    │     DATABASE       │      │      WORKER        │
    │   MariaDB :3306    │      │  backend/src/worker│
-   │ 170 tables         │      │  "the night staff" │
+   │ 226 tables         │      │  "the night staff" │
    │ "filing cabinet"   │      │                    │
    └────────────────────┘      └────────────────────┘
 ```
@@ -668,8 +692,8 @@ Backend checks the password (Argon2id — see Security)
         │
         ▼
 Sets three cookies:
-   uboss_shop_access    — proves who you are, short-lived (1 hour)
-   uboss_shop_refresh   — used to get a fresh access cookie (30 days)
+   uboss_shop_at        — proves who you are, short-lived (1 hour)
+   uboss_shop_rt        — used to get a fresh access cookie (30 days)
    uboss_shop_csrf      — anti-forgery token (explained below)
 ```
 
@@ -762,16 +786,16 @@ comes back in the exact same shape:
 ```json
 {
   "error": {
-    "code": "CART_QUANTITY_BELOW_MINIMUM",
-    "message": "Minimum order quantity for this product is 10.",
-    "details": [{ "field": "items.0.quantity", "code": "..." }],
+    "code": "CART_ITEM_UNAVAILABLE",
+    "message": "Some items need attention before you can check out.",
+    "details": [{ "code": "QUANTITY_BELOW_MINIMUM", "message": "...", "meta": { "minimum": 10 } }],
     "correlationId": "01J8XR..."
   }
 }
 ```
 
-- **`code`** is a stable machine-readable name. There are about 106 of them,
-  listed in `backend/src/domain/errors.ts`. The frontends map each one to a
+- **`code`** is a stable machine-readable name. There are 341 of them,
+  listed in `backend/src/domain/errors.ts` and in `docs/reference/ERROR-CODES.md`. The frontends map each one to a
   precise message in eight languages. **Renaming a code silently degrades both
   frontends to a generic error toast**, so codes are added, never repurposed.
 - **`details`** points at the exact field that was wrong, so a form can put a
@@ -824,7 +848,8 @@ on the layout route rather than on each page:
 
 | Path | Page | Sidebar group |
 |---|---|---|
-| `/account` | Redirects to `/account/profile` | — |
+| `/account` | Redirects to `/account/dashboard` | — |
+| `/account/dashboard` | The buyer's own orders as one ring, with the AI panel beside it | — |
 | `/account/orders` | Order history | Orders |
 | `/account/orders/:id` | One order | Orders |
 | `/account/schedules` | Repeating orders | Orders |
@@ -4869,6 +4894,17 @@ looked up when the settlement runs. A seller's earnings must not move because
 somebody edited a rate in between, and a disputed settlement has to be
 recomputable from what was in force on the day.
 
+### Logistics
+
+*Seller Hub → Logistics* is where a seller who ships across borders splits a
+delivery into four levels — L1 first mile, L2 international haul, L3
+destination inland, L4 last mile — says whether each is run by them or by the
+marketplace, prices each one, switches on the carriers they use, and previews
+what they would be paid after the platform fee. L1 is always the seller's. A
+seller who never publishes a policy is priced exactly as before. The whole
+flow, from the policy to the legs of a confirmed order and the settlement, is
+[9.5.6](#956-seller-delivery-levels-l1l4-and-the-platform-fee).
+
 ### Money
 
 Two tables, because they answer different questions and go wrong separately. A
@@ -4997,6 +5033,13 @@ it a disputed settlement cannot even be recomputed to show it was right.
   `BusinessProfile.sellerCommissionBasisPoints` moves. Both default to zero,
   which is the honest default — a deployment that has not decided what it
   charges must not quietly start charging something.
+
+These rates are what a seller is charged **when finance has published no
+platform-fee policy**. A published policy (*Finance → Platform fees*) takes
+over for the scope it covers, may add a tax on the fee, and may be charged on
+the goods **plus the delivery levels the seller controls** — see
+[9.5.6](#956-seller-delivery-levels-l1l4-and-the-platform-fee). A seller with a
+negotiated rate keeps it unless a policy is set for that seller specifically.
 
 ##### Where an operator sets it
 
@@ -6278,7 +6321,7 @@ controls.
 ## The five staff roles
 
 A member of staff has a role, and a role is a fixed bundle of permissions.
-There are about 50 permission keys, like `product.write` or `order.approve`.
+There are 56 staff permission keys, like `product.write` or `order.approve`.
 
 | Role | Can do |
 |---|---|
@@ -6947,7 +6990,7 @@ differs is only:
 |---|---|---|
 | How authority is proved | its own logistics permissions, per action | an admin grant the route named |
 | Which fleet | its own, always | **derived from the consignment**, never taken from the request |
-| What the carrier’s audit trail says | the member’s name | “UBOSS operations” |
+| What the carrier’s audit trail says | the member’s name | “Marketplace operations” |
 | `assignedByPartnerUserId` | the member | null — an operator has no row in the carrier’s team, which is why `assignedByLabel` exists |
 
 The derived fleet is the important row. A request that could name the carrier
@@ -7318,7 +7361,7 @@ captured before anything touches it.
 
 # 7. The database
 
-MariaDB, reached through Prisma. **170 tables, 136 enums, 49 migrations.**
+MariaDB, reached through Prisma. **226 tables, 203 enums, 81 migrations.** Every one is listed in `docs/reference/DATABASE-TABLES.md`.
 
 Two versions, and the gap matters more than it sounds. Development runs XAMPP's
 **10.4**; production runs **11.4 LTS**. 10.4 went out of support in June 2024
@@ -7343,12 +7386,21 @@ Changes are never applied by hand. Instead:
 ```
 edit schema.prisma
       ▼
-npm run db:migrate        ← generates a numbered SQL migration file
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script
+      │                    ← prints the SQL the change needs; nothing is applied
       ▼
-prisma/migrations/2026..._add_something/migration.sql   ← committed to git
+prisma/migrations/2026..._add_something/migration.sql   ← reviewed, constraints
+      │                      named by hand, LF line endings, committed to git
       ▼
 npm run db:migrate:deploy ← applies pending migrations on any machine
+                            (and once more with PRISMA_TARGET_TEST_DB = '1'
+                            for the test database)
 ```
+
+**Never `npm run db:migrate`.** It is `prisma migrate dev`, and in this
+repository it renames eighteen hand-named foreign keys, drops defaults, and
+offers to reset the database. The full procedure, including recovering a
+half-applied migration, is in `docs/DATABASE-DESIGN.md` §7.
 
 **Why?** So every machine — your laptop, a colleague's, the customer's server —
 reaches exactly the same shape by running exactly the same steps in the same
@@ -10258,6 +10310,412 @@ The older listing writers (`offer.service.ts`, `offer-edit.service.ts`) still
 accept `priceTiers` as `{ minQuantity, priceMinor }` and replace the set; bands
 written that way are active and unconditional.
 
+## 9.5.6 Seller delivery levels (L1–L4) and the platform fee
+
+### The problem it solves
+
+Everything else in this guide treats a seller's delivery as one journey with one
+carrier. A seller shipping from a plant in India to a buyer in the Netherlands
+does not have one journey. The goods go by lorry to a port, by sea to
+Rotterdam, by lorry to a warehouse, and by van to the buyer — four parts, often
+four companies, and sometimes the marketplace (called **UBOSS** throughout the
+code and the screens) wants to run the middle parts itself.
+
+This feature lets a seller split the journey into four **levels**, say who
+controls each, and price each. The buyer is charged the sum, and after the
+order is confirmed each level becomes a **leg** that is carried one after the
+other.
+
+| Level | From | To | Moves by |
+|---|---|---|---|
+| L1 first mile | Seller's plant or warehouse | Port or airport of loading | Road, rail |
+| L2 international haul | Port of loading | Destination port or airport | Air, sea, road, rail, post |
+| L3 destination inland | Destination port | Destination warehouse | Road, rail |
+| L4 last mile | Destination warehouse | The buyer | Road, post |
+
+**A seller who never publishes a policy is untouched.** `quoteDelivery` returns
+`null` for a basket with no such seller, and the cart then behaves exactly as it
+did before this existed. There is no feature flag; publishing is the opt-in.
+
+### Words you will meet
+
+- **Mode** — `SELF`, `UBOSS` or `HYBRID` (shown as *Self*, the operator's own
+  business name, and *Self +* that name — `{{marketplace}}` in the catalogues,
+  never the word UBOSS). It says **who is in control** of L2–L4. It is not a
+  carrier.
+- **Owner** — `SELLER` or `UBOSS`, per level. L1 is always `SELLER`.
+- **Rate** — one price row for one level (`logistics_level_rates`). The carrier
+  is on the rate, not on the policy.
+- **Leg** — one level of one confirmed seller order, moving
+  (`shipment_legs`).
+
+### The rules, and where they live
+
+`backend/src/domain/logistics-levels.ts` holds every rule as a pure function, so
+the Seller Hub, the admin panel, checkout and the worker cannot come to
+different answers. Migration `20260924090000_seller_logistics_levels` says the
+same things again as CHECK constraints.
+
+- **L1 is the seller's in every mode** (`policyShapeProblem` →
+  `LOGISTICS_L1_OWNER_FIXED`; CHECKs `chk_level_rate_l1_seller`,
+  `chk_order_logistics_leg_l1_seller`, `chk_shipment_leg_l1_seller` and the two
+  policy mode CHECKs).
+- **SELF** puts the seller on L2–L4, **UBOSS** puts UBOSS on L2–L4, and
+  **HYBRID** keeps what the seller ticked — but not the seller on all three
+  (`LOGISTICS_HYBRID_ALL_SELLER`; that is Self). Owners that do not match the
+  mode are `LOGISTICS_MODE_OWNERS_MISMATCH`, reachable only by a hand-made
+  request. `ownersForMode` fills in what SELF and UBOSS decide on their own, so a
+  stray value cannot reach the database.
+- **Only the seller changes the policy.** There is no admin route that writes a
+  seller's mode or owners.
+- **Carrier capability** (`carrierProblem`): DHL and FedEx road or air, parcels
+  and pallets; India Post post, parcels only; a forwarder booked by hand
+  (`MANUAL`) anything; a delivery company on the platform (`PARTNER`) road or
+  rail, any load. A level also refuses a mode it does not use. Either failure
+  is `LOGISTICS_CARRIER_UNSUITABLE` — so a container by sea names a forwarder.
+- **Empty is not zero** (`checkEnteredPrice`). A blank amount stays `NULL`
+  (*price required*). Zero is accepted only with `isFree` and `confirmFree`
+  (`LOGISTICS_FREE_NOT_CONFIRMED`); a plain zero is `LOGISTICS_PRICE_INVALID`.
+  CHECK `chk_level_rate_published_priced` refuses a published row with no
+  amount.
+- **Legs move only through `assertLegTransition`**, the same idea as
+  `assertTransition` for orders:
+
+  | From | To | By |
+  |---|---|---|
+  | `PENDING` | `AWAITING_ASSIGNMENT`, `ASSIGNED`, `CANCELLED` | System |
+  | `AWAITING_ASSIGNMENT` | `ASSIGNED` | Owner |
+  | `ASSIGNED` | `ACCEPTED` | Partner |
+  | `ASSIGNED` | `AWAITING_ASSIGNMENT` | Partner (refuses) or owner (takes back) |
+  | `ASSIGNED` | `IN_PROGRESS` | Owner (a carrier booked by hand has no "accept") |
+  | `ACCEPTED` | `IN_PROGRESS` | Partner or owner |
+  | `ACCEPTED` | `AWAITING_ASSIGNMENT` | Owner |
+  | `IN_PROGRESS` | `COMPLETED` | Partner or owner |
+  | anything live | `CANCELLED` | System |
+
+### The records
+
+| Table | What it holds |
+|---|---|
+| `seller_logistics_policies` | One per seller: the **draft** mode and owners, an optimistic `version`, and `activeVersionId` pointing at the version in force (null until the first publish) |
+| `seller_logistics_policy_versions` | Every published version, immutable: mode, owners, number, change note, `supersededAt` |
+| `seller_logistics_providers` | Which of DHL, FedEx, India Post and `MANUAL` the seller switched on, and whether booked by hand (`MANUAL_ONLY`) or meant for an API account (`API`). The migration fills it from carrier delivery methods sellers already had |
+| `logistics_level_rates` | One price: level, owner, status (`DRAFT`, `PUBLISHED`, `SUPERSEDED`, `INACTIVE`), version number and the row it supersedes, route fields (origin warehouse, origin port, destination port, destination hub, country, postcode prefix, worldwide-flat flag), load (package class, weight band), transport mode, carrier (`provider` **or** `logisticsPartnerId`), transit days, `amountMinor` (BigInt, nullable), currency, free flag, tax-inclusive flag, price source |
+| `order_logistics_legs` | What an order was charged per seller per level, frozen at checkout: owner, policy version, rate id and version, carrier, labels, original amount and currency, FX rate, provider and date, amount charged. Never updated |
+| `shipment_legs` | A confirmed seller order's leg: level, `sequence` 1–4, owner, status, carrier, tracking and pickup references, driver, dates, `version`. `uq_shipment_leg_group_level` holds one per level per seller order |
+| `shipment_leg_events` | Every change to a leg, with who did it; `idempotencyKey` is UNIQUE so a retried handover is not recorded twice |
+| `platform_fee_policies` | Fee policies: scope and scope key, fee type, basis, rates, flat/min/max, currency, tax rate and label, whether the tax rule is verified, status, `activeScopeKey` (one live version per scope) |
+| `seller_order_settlements` | What each seller order settled at: gross proceeds, seller delivery, UBOSS delivery, fee basis, fee, fee tax, refunds, settlement, and the fee policy version used |
+
+`business_profiles.showLogisticsLevelBreakdown` (default true) decides whether
+buyers see each level or one delivery line.
+
+### Step 1 — the seller sets up the policy
+
+At *Seller Hub → Logistics* (`SellerLogisticsPage`):
+
+1. **Carriers.** `POST /seller/logistics/providers/:provider/enable` with
+   `MANUAL_ONLY` or `API`. India Post and `MANUAL` are always `MANUAL_ONLY`.
+   This never connects anything: the card's state comes from
+   `providerConnectionState`, which can only say `CONNECTED` when the carrier
+   setup (`carrierSetupStatus`) says a real test passed and a person confirmed
+   it for live parcels.
+2. **Who manages what.** `PUT /seller/logistics/policy` saves the **draft**
+   (`savePolicyDraft`). Nothing a buyer sees changes. Against a published
+   policy, a change of mode or owner needs `confirmOwnershipChange: true`
+   (`LOGISTICS_CHANGE_NOT_CONFIRMED`), so the screen's "are you sure?" is also
+   the API's. A stale `expectedVersion` is `LOGISTICS_POLICY_VERSION_CONFLICT`.
+   `PUT /seller/logistics/levels/:level` is the "I will manage this level"
+   checkbox for one level. It keeps the draft's mode wherever the change still
+   fits it (`policyForLevelChange`): ticking a box to the value it already has
+   leaves a Self or UBOSS policy as it is, and moving a level out of Self or
+   UBOSS makes it Self + UBOSS. It carries `expectedVersion` and
+   `confirmOwnershipChange` for every level, L1 included, so it is refused
+   exactly as `PUT /seller/logistics/policy` would be.
+3. **Prices.** `POST /seller/logistics/rates` adds a draft; `PUT
+   .../rates/:rateId` edits a draft, or — for a published price — creates a new
+   draft version that supersedes it. `POST .../rates/:rateId/publish` needs an
+   amount (or confirmed free) and a carrier (`LOGISTICS_RATE_INCOMPLETE`), and
+   marks the superseded row `SUPERSEDED` in the same transaction. `POST
+   .../deactivate` switches one off; it stays on record.
+4. **Publish.** `POST /seller/logistics/policy/publish` creates the next
+   `seller_logistics_policy_versions` row, marks the old one superseded and moves
+   `activeVersionId`, in one transaction. Publishing a draft identical to the
+   version in force is an answer, not a second version.
+
+The seller's price checks (`assertEditorControlsLevel`, `validateRate`): the
+level must be the seller's **in the draft**, so they can prepare a price before
+publishing; a named carrier must be switched on
+(`LOGISTICS_PROVIDER_NOT_ENABLED`); a delivery company must be the seller's own
+or have an `APPROVED` link (`LOGISTICS_PARTNER_NOT_ELIGIBLE`); an origin warehouse
+must be one of theirs; port codes are three-letter airport codes or
+five-character UN/LOCODEs; a UBOSS level is `LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED`.
+The currency defaults to the seller's registration country's currency, else the
+base currency, and must be sellable.
+
+After a publish, and after a price is switched off, `raiseMissingPriceAlerts`
+raises an ALERT for every level in force with no published price: a seller
+notification (`LOGISTICS_PRICE_REQUIRED`) for the seller's, an admin
+notification (`LOGISTICS_LEVEL_PRICE_REQUIRED`) for UBOSS's. Publishing a price
+on that level resolves it.
+
+### Step 2 — UBOSS prices its levels
+
+At *Logistics → Delivery levels* (`ManagedLevelsPage`, `logistics.read`): one row
+per seller with a published policy, filterable to sellers with a UBOSS level or
+to those missing a UBOSS price. Opening a seller (`ManagedLevelSellerPage`)
+shows each level, its prices, a *change pending* badge where the draft moves a
+level, and the version and change history.
+
+The same `saveRate` / `publishRate` / `deactivateRate` run behind
+`/admin/logistics/managed-levels/...` with `logistics.write`. Staff may price a
+level that **either** the draft or the version in force gives UBOSS, never L1
+and never a seller level (`LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED`). Every UBOSS
+write goes to both the admin audit log and the seller's own history, and a
+UBOSS price being published notifies the seller
+(`LOGISTICS_UBOSS_PRICE_PUBLISHED`).
+
+A delivery company named on a UBOSS price must be an active
+`MARKETPLACE_CARRIER` (`LOGISTICS_PARTNER_NOT_ELIGIBLE`), never a seller's own
+fleet or dedicated company. It is the same rule a UBOSS leg is held to:
+`partnerMayCarryLevel` in `domain/logistics-levels.ts` decides both, for the
+seller's side too, so a price can never name a company its leg could not then
+be given to.
+
+The same page holds the presentation switch (`GET`/`PUT
+/admin/logistics/presentation`, `settings.read` / `settings.write`, audited).
+
+### Step 3 — a buyer's basket is priced
+
+`resolveCart` calls `quoteDelivery` (`modules/logistics/level-pricing.service.ts`)
+**inside the one pricing run**, and passes the result to `priceLines` as
+`sellerDeliveryMinor`. Nothing else prices this. For each seller with a
+published policy:
+
+1. The seller's lines give a total weight (unknown if any line has none), the
+   heaviest package class (container over pallet over parcel), and the dispatch
+   warehouse — the one holding stock of every offer in the basket, else the one
+   holding the most.
+2. `resolveRoute` walks L1 → L4. Only published, in-effect rates whose `owner`
+   is the level's current owner count — an old seller price on a level UBOSS now
+   controls is ignored. Each level is chosen among prices that **join** the level
+   before it (L2 starts at the port L1 ended at, and so on). The most specific
+   wins; ties go to the most recently published. A price with no destination
+   country matches only if `isWorldwideFlat`. An unknown weight matches only an
+   unbounded price.
+3. Each price is converted to the buyer's currency with `resolveDerivation` and
+   **exact** rounding. No usable rate: that level is unpriced
+   (`CURRENCY_NOT_CONVERTIBLE`).
+4. All four priced: the seller's delivery is `PRICED` and has a total. Any
+   missing (no address yet, no price for the route, UBOSS has not priced, no
+   rate): `QUOTE_REQUIRED`, no total, and the cart gets a blocking
+   `LOGISTICS_QUOTE_REQUIRED` naming the seller and the missing levels. Never a
+   zero, never another route's price.
+5. The whole quote is **signed** (`token`: HMAC-SHA256 under
+   `SESSION_COOKIE_SECRET:logistics-delivery-quote:logistics-levels-1`) over
+   each seller's policy version and status, each level's owner, rate id and
+   amount, the currency, destination country, postcode and total.
+
+The seller delivery is **not** covered by the shipping method's free-above
+threshold. The cart returns `delivery` (`serialiseDeliveryQuote`); with the
+breakdown switched off, per-level amounts, carriers and places are omitted and
+only totals are sent. `DeliveryBreakdown` draws it on the cart and checkout;
+an unpriced level says *Quote required*.
+
+`POST /pricing/logistics/quote` returns the same answer for one of the
+customer's saved addresses.
+
+### Step 4 — checkout
+
+`submitCheckout` re-runs the cart and compares the `logisticsQuoteToken` the browser
+carried with the token it would issue now. Missing or different:
+`LOGISTICS_PRICE_CHANGED` (409), with the current delivery total, and nothing is
+charged. The token is never read for a number — every figure charged comes from
+the fresh run.
+
+The order transaction writes one `order_logistics_legs` row per priced level,
+copied from the quote: owner, carrier, policy version, rate, original amount
+and currency, FX rate. `GET /orders/:id/price-breakdown` (the buyer's own order
+only) reads these back, with each leg's progress, for `OrderDeliveryLevels` on
+the order page.
+
+### Step 5 — the seller confirms, and the legs appear
+
+When the seller accepts their part (`SellerOrderGroup` → `ACCEPTED`),
+`createLegsForSellerOrder` creates one `shipment_legs` row per charged level,
+copying the **owner** from the frozen charge — a policy published afterwards
+moves nobody's parcel.
+
+The **carrier** on the charged price is copied onto the leg as well
+(`provider` or `logisticsPartnerId`, label and service, `assignedByRole =
+SYSTEM`), so nobody names it twice. It is checked again first, against the
+rule `assignLeg` applies: a delivery company that is no longer eligible, or a
+carrier the seller has since switched off on their own level, is not carried
+over. With a carrier, L1 starts `ASSIGNED` and L2–L4 `PENDING` with the
+carrier planned; a delivery company named is told the work is coming. Without
+one, L1 starts `AWAITING_ASSIGNMENT` and the leg raises an assignment alert for
+its owner (a seller notification or an admin notification). Whoever controls
+the leg can still change a carried-over carrier through `assignLeg`: that is
+a reassignment, so it needs a reason. A failure here never undoes the
+acceptance. Cancelling the seller order cancels every unfinished leg.
+
+- **Seller** (`SellerOrderLegsPanel` on the seller order page): `POST
+  /seller/orders/:id/legs/:level/assign`, `PATCH .../legs/:level` for tracking
+  and pickup references and dates, `POST .../legs/:level/transition` with an
+  optional `idempotencyKey`. Needs `seller.order.fulfil` and a seller that is
+  trading (`requireTradingSeller`). A
+  carrier must be switched on; a delivery company must be theirs or approved.
+- **UBOSS** (`LegsPage` / `LegDetailPage` at *Logistics → Delivery legs*):
+  `POST /admin/logistics/legs/:id/assign`, `PATCH`, `.../transition`, with
+  `logistics.assign`. Only a `MARKETPLACE_CARRIER` delivery company may be
+  named.
+- **Delivery company** (logistics portal *Legs*): `POST
+  /logistics/legs/:id/accept`, `.../reject` with a reason, `.../progress` to
+  `IN_PROGRESS` or `COMPLETED`, `PATCH` for references, `.../driver` for one of
+  its own drivers.
+
+`assignLeg` rules: exactly one of carrier or delivery company; allowed while the
+leg is `PENDING`, `AWAITING_ASSIGNMENT`, `ASSIGNED` or `ACCEPTED`
+(`LOGISTICS_LEG_NOT_ASSIGNABLE` once moving); changing an already named carrier
+needs a reason and tells the company that lost it. A leg a delivery company
+holds is progressed by that company. A hand-booked carrier cannot start until
+its real tracking reference is entered (`LOGISTICS_LEG_TRACKING_REQUIRED`) —
+nothing generates one, and nothing on this path calls a carrier's API.
+
+`transitionLeg` to `COMPLETED` moves the next leg from `PENDING` to `ASSIGNED`
+(a carrier was already planned) or `AWAITING_ASSIGNMENT`, in the same
+transaction, and tells its owner. The seller is told about every leg of their
+own order; UBOSS about UBOSS legs.
+
+### Step 6 — what the seller is owed
+
+`domain/platform-fee.ts` is the arithmetic; `modules/settings/platform-fee.service.ts`
+the policies and `calculateSettlement`. **Nothing here is ever added to what a
+buyer pays.** The fee is what the marketplace keeps from the seller's share.
+
+`order-split.service.ts`, on confirmation, sums the seller's frozen charges into
+`sellerDeliveryMinor` (levels the seller controls) and `ubossDeliveryMinor`
+(levels UBOSS controls), calls `calculateSettlement`, and writes a
+`seller_order_settlements` row with the policy version used.
+
+Per line, `candidateScopeKeys` looks up `SELLER:<id>`, `CATEGORY:<id>`,
+`MARKET:<country>`, then `GLOBAL`, and the first live policy wins. Then:
+
+- a SELLER-scope policy, or any policy for a seller with no negotiated rate,
+  applies as written;
+- a seller with a negotiated `commissionBasisPoints` and no seller-scope policy
+  keeps that percentage, charged on the matched policy's basis (so on their
+  own delivery too when that basis includes it — the basis stored and the fee
+  charged are one rule) and taxed at the rate of the policy that matched;
+- no policy at all: the legacy commission rate, rounded per line, no tax —
+  exactly what the split charged before policies existed.
+
+The **basis** is `PRODUCT_SUBTOTAL` (goods after discount, before tax) or
+`PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY` (plus the seller-controlled levels,
+added once, to the group holding most of the goods). UBOSS-controlled levels
+are never in it. The fee is percent, flat or both, held between min and max,
+never more than the basis; flat, min and max apply only when the policy is in
+the order's currency. The tax is on the **fee**, never on the goods.
+
+```
+  gross seller proceeds
++ seller-controlled delivery proceeds
+- platform fee
+- tax on platform fee
+- refunds and adjustments
+= estimated seller settlement
+```
+
+`feeTaxWording` writes *Tax on platform fee - configured 15%* until every policy
+used has `isTaxRuleVerified`; only then its own label (for example GST). The 15%
+is a row, not code, and **no policy is seeded**.
+
+**Refunds reach the settlement when the provider confirms them.** When a
+refund becomes `SUCCEEDED` (the provider's answer to `createRefund`, or its
+verified webhook) — or a webhook reports it `FAILED` —
+`syncSettlementRefunds` (`modules/seller/settlement-refund.service.ts`)
+re-derives `refundsAdjustmentsMinor` on every seller settlement of the order,
+in the same transaction, and rewrites `estimatedSettlementMinor` from the
+stored parts. It is derived from every succeeded refund on the order rather
+than incremented, so a resent event subtracts nothing twice. A refund names no
+lines, so `attributeRefundsToSellers` (`domain/settlement-refunds.ts`) charges a
+seller only where that is certain: a **full** refund takes back every seller's
+proceeds (goods plus the delivery they controlled); on an order with **one
+seller and no operator lines** the seller carries the refund in proportion to
+their proceeds out of the order total (tax and marketplace delivery are not
+theirs), never more than their proceeds. A **partial refund of a shared order**
+is left unattributed and logged. The fee and its tax are not reversed.
+
+Finance staff work at *Finance → Platform fees* (`PlatformFeesPage`):
+`/admin/platform-fees` list, create, edit a draft, publish (retires the version
+live for that scope in the same transaction; an unverified non-zero tax raises
+`PLATFORM_FEE_TAX_UNVERIFIED`), retire, `verify-tax` with a note
+(`finance.tax.verify`), the orders settled on a version, and a preview. Needs
+`finance.policy.read` / `finance.policy.write` — not held by a general
+administrator.
+
+The seller's **settlement preview** (`SettlementPreviewCard`, `GET
+/seller/settlements/estimate`, `seller.finance.read`) runs `calculateSettlement` on a
+product value and a delivery amount the seller types, in their settlement
+currency, on today's policies. It resolves the policy the way an order does:
+`marketCountry` is the buyer's country (the card starts at the seller's own)
+and `offerId`, one of the seller's own listings, gives the category — another
+seller's listing is *not found*. The admin preview (`POST
+/admin/platform-fees/preview`) takes `marketCountry`, `categoryId` or
+`offerId` the same way. Read-only; no seller route writes a fee.
+
+### Who may do what
+
+| Who | May |
+|---|---|
+| Seller (`seller.fulfilment.read` / `seller.fulfilment.write`) | Their own policy, carriers and prices on their own levels |
+| Seller (`seller.order.read` / `seller.order.fulfil`) | Read and move their own legs |
+| Seller (`seller.finance.read`) | The settlement preview |
+| Staff `logistics.read` | Every policy, price and leg |
+| Staff `logistics.write` | Prices on UBOSS levels |
+| Staff `logistics.assign` | Carriers and progress on UBOSS legs |
+| Staff `settings.write` | The per-level / one-line switch |
+| Staff `finance.policy.*`, `finance.tax.verify` | Platform fees and the tax on them |
+| Delivery company | Legs it holds, in its own portal |
+
+The seller is always taken from the session; no seller route has a seller id in
+it, and another seller's order or leg is *not found*.
+
+### Error codes (appended)
+
+`LOGISTICS_L1_OWNER_FIXED`, `LOGISTICS_HYBRID_ALL_SELLER`,
+`LOGISTICS_MODE_OWNERS_MISMATCH`, `LOGISTICS_CHANGE_NOT_CONFIRMED`,
+`LOGISTICS_POLICY_VERSION_CONFLICT`, `LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED`,
+`LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED`, `LOGISTICS_PRICE_INVALID`,
+`LOGISTICS_FREE_NOT_CONFIRMED`, `LOGISTICS_PROVIDER_NOT_ENABLED`,
+`LOGISTICS_CARRIER_UNSUITABLE`, `LOGISTICS_RATE_INCOMPLETE`,
+`LOGISTICS_RATE_NOT_EDITABLE`, `LOGISTICS_QUOTE_REQUIRED`,
+`LOGISTICS_PRICE_CHANGED`, `LOGISTICS_LEG_NOT_ASSIGNABLE`,
+`LOGISTICS_LEG_TRANSITION_INVALID`, `LOGISTICS_LEG_TRACKING_REQUIRED`,
+`PLATFORM_FEE_POLICY_INVALID`, `PLATFORM_FEE_POLICY_NOT_EDITABLE`.
+
+### Screens
+
+- **Seller Hub** — *Logistics* (carriers, the three tabs drawn as one journey,
+  prices, settlement preview); *Orders → an order* (the four legs).
+- **Storefront** — cart and checkout (`DeliveryBreakdown`); the order page
+  (`OrderDeliveryLevels`).
+- **Admin** — *Logistics → Delivery levels*, *Logistics → Delivery legs*,
+  *Finance → Platform fees*.
+- **Logistics portal** — *Legs*.
+
+### Known limits
+
+- A partial refund on an order shared between sellers (or with the operator's
+  own stock) is not put on any seller's settlement, because a refund names no
+  lines. A refund does not give back any of the platform fee.
+- `GET /seller/settlements/orders` (the seller's computed settlements) has no
+  screen yet.
+- `POST /pricing/logistics/quote` is not called by the storefront, which reads
+  the same quote from the cart.
+- Nothing books a carrier, prints a label or calls a carrier API for a leg, even
+  where the seller has an API account connected.
+
 ## 9.8 The ERP connection, and Autopay
 
 ### The distinction everything here rests on
@@ -11417,7 +11875,7 @@ A refund is money leaving, so it is guarded in three separate places:
    over-refunding **impossible at the database level**, independent of any
    application logic.
 3. Only the Finance / Approver role and the Business Owner hold
-   `payment.refund`.
+   `refund.create`.
 
 The refund's real outcome comes back the same way a payment does — from a
 signature-verified provider event, plus a `refund.poll` job for gateways that
@@ -11722,7 +12180,9 @@ answers.
 
 `isPriceOnRequest` says the price is negotiated per account. The storefront
 shows **Request a quote** where the figure would be, the buy button is replaced
-rather than greyed out, and the publication check accepts a zero price and the
+rather than greyed out (the button emails the store's support address, naming
+the product and SKU, or calls its support telephone; with neither set in
+Settings it is left out), and the publication check accepts a zero price and the
 neutral placeholder image. Nothing priced on request can reach a cart — there
 is no figure to charge.
 
@@ -14180,7 +14640,7 @@ the carrier portal does not sign a member of staff out of the console.
 | `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Settles any order awaiting payment on request, with no gateway and no webhook, through the same code a real capture runs. **Development only — `env.ts` refuses to start a production process with it on, and refuses to start at all beside a live payment key**, because it confirms orders nobody has paid for |
-| `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means the third application has nothing to sign in to, every `/api/v1/logistics/*` route refuses, no carrier can be created, and the Logistics group is absent from the admin sidebar |
+| `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means every guarded `/api/v1/logistics/*` route refuses with `FEATURE_DISABLED`, so the third application has nothing a carrier can use, and carrier webhooks are refused. The admin panel's Logistics group **stays**, and staff can still create carriers and prepare them before the switch is turned on |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 — and the value is **published in `/config`**, so the page offers the way in where the composer would be rather than letting somebody type a paragraph and then refusing it. On, and a visitor may ask before signing up; understand what that costs first, because an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
 
@@ -14203,9 +14663,10 @@ Only read when `FEATURE_LOGISTICS_PORTAL` is on.
 | `RETENTION_LOGISTICS_LOCATION_PING_DAYS` | `30` | How long positions are kept before the worker deletes them. `0` keeps them forever, which is almost certainly the wrong answer |
 
 Carrier API credentials are **not** in this table, because they are not
-configuration in the ordinary sense. `DHL_API_KEY`, `FEDEX_CLIENT_ID`,
-`UPS_CLIENT_SECRET` and the rest belong in a secrets manager, and with none of
-them set the affected provider says so on screen rather than pretending.
+configuration in the ordinary sense. Each seller enters their own carrier account in the Seller Hub, where it is
+stored encrypted and per seller. The names `DHL_API_KEY`, `FEDEX_CLIENT_ID` and
+`UPS_CLIENT_SECRET` still appear in `.env.example`, but nothing reads them and
+there is nothing for an operator to set.
 
 ## The warehouse map
 
@@ -14646,22 +15107,31 @@ UBoss-Software/
 ├── PROJECT-GUIDE.hinglish.md       Same thing in Hinglish (not committed)
 ├── README.md                       Configuration, markets, payments, languages
 │
+├── docs/
+│   ├── README.md                   ← Start here: which document answers what
+│   ├── PRD.md                      What the product must do, for whom, and why
+│   ├── DATABASE-DESIGN.md          Why the database is shaped the way it is
+│   ├── API.md                      How to call the API, with worked examples
+│   ├── UI-SCREENS.md               Every screen in the three front ends
+│   └── reference/                  ← GENERATED: every table, endpoint, error code
+│
 ├── scripts/
 │   ├── dev-stack.ps1               ← Start, stop and check the whole dev stack
 │   ├── pack-netlify.ps1            ← Build all three front ends, one zip per site
 │   ├── build-feature-guide-doc.mjs ← The plain-language feature guide, as code
+│   ├── build-reference-docs.mjs    ← Writes docs/reference/ from the code
 │   └── auto-translate.mjs          New i18n keys into the other seven languages
 │
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 170 models.
-│   │   └── migrations/             49 numbered, committed SQL steps
+│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 226 models.
+│   │   └── migrations/             81 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O
 │   │   │   ├── money.ts            BigInt arithmetic, rounding
-│   │   │   ├── errors.ts           ← The 152 error codes
-│   │   │   ├── permissions.ts      ← Roles and ~50 permissions
+│   │   │   ├── errors.ts           ← The 341 error codes
+│   │   │   ├── permissions.ts      ← Roles and 56 staff permissions
 │   │   │   ├── order-state-machine.ts  ← Legal order transitions
 │   │   │   ├── schedule-state.ts   ← Legal plan and occurrence transitions
 │   │   │   ├── ordering-unit.ts    ← Packs to pieces, done on the server
@@ -14675,7 +15145,7 @@ UBoss-Software/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
 │   │   │   ├── server.ts           Entry point
 │   │   │   ├── openapi.ts          Hand-written summaries over the live route table
-│   │   │   └── routes/             27 route files
+│   │   │   └── routes/             56 route files
 │   │   ├── modules/                ← The business logic
 │   │   │   ├── catalog/
 │   │   │   │   ├── purchasability.ts   ← The one "may this be bought" rule
@@ -14909,6 +15379,26 @@ section is added to the other.
 > repository. It exists for reading, not for shipping. Keeping it out of git is
 > deliberate: the committed documentation of a product sold to other companies
 > stays in one language.
+
+## The `docs/` folder follows the same rule
+
+`docs/` holds the product's formal documents, and they go stale the same way
+this one does:
+
+| Document | Update it when |
+|---|---|
+| `docs/PRD.md` | A feature, role, flow, business rule, feature flag or integration changes |
+| `docs/DATABASE-DESIGN.md` | A table, relationship, constraint or state model changes in a way that alters the design story |
+| `docs/API.md` | Sign-in, cookies, headers, the error shape, money format, webhooks, or an important endpoint changes |
+| `docs/UI-SCREENS.md` | A page is added, moved or removed, or what a screen does changes |
+| `docs/reference/*` | **Never by hand.** Run `cd scripts; npm run docs` after changing the schema, a route file or `errors.ts` |
+
+The three files in `docs/reference/` — every table, every endpoint, every error
+code — are written by `scripts/build-reference-docs.mjs` straight from
+`schema.prisma`, the route files and `errors.ts`. CI runs `npm run docs:check`
+and goes red when they no longer match the code, so they cannot quietly fall
+behind. The four hand-written documents have no such check, which is exactly
+why they belong in the same piece of work as the change.
 
 ---
 

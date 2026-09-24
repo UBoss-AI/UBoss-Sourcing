@@ -22,6 +22,11 @@ import {
 import { requireAdmin } from '../plugins/auth.js';
 
 export function registerAdminAssistantRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List chat enquiries made through the shopping assistant, a page at a time.
+   * Can be searched by name, email or phone, or narrowed to conversations
+   * linked to a customer account.
+   */
   app.get(
     '/assistant/conversations',
     { preHandler: requireAdmin(Permission.ASSISTANT_CHAT_READ) },
@@ -47,6 +52,10 @@ export function registerAdminAssistantRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * One chat conversation with the shopping assistant: the visitor's
+   * self-declared contact details and the full transcript. Read-only.
+   */
   app.get(
     '/assistant/conversations/:id',
     { preHandler: requireAdmin(Permission.ASSISTANT_CHAT_READ) },

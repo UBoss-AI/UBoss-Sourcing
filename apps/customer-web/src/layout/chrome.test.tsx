@@ -15,6 +15,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Footer } from './Footer';
 import { Header } from './Header';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import { jsonResponse, makeLocale, makeSession, renderWithProviders } from '@/test/harness';
@@ -286,5 +287,25 @@ describe('the account control', () => {
       within(screen.getByRole('dialog')).getByRole('button', { name: 'Sign out' }),
     );
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('the footer', () => {
+  it('links to repeat purchases where they are switched on', () => {
+    renderWithProviders(<Footer />, { config: makeConfig({ recurringOrders: true }) });
+
+    expect(screen.getByRole('link', { name: 'Repeat purchases' })).toHaveAttribute(
+      'href',
+      '/account/schedules',
+    );
+  });
+
+  // Like the account menu: a link to a switched-off feature is a link to a
+  // page that says "not available".
+  it('drops the repeat-purchases link where they are switched off', () => {
+    renderWithProviders(<Footer />, { config: makeConfig({ recurringOrders: false }) });
+
+    expect(screen.getByRole('link', { name: 'My orders' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Repeat purchases' })).not.toBeInTheDocument();
   });
 });

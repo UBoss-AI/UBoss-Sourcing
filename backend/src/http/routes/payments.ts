@@ -154,6 +154,15 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Start paying an order through an emailed payment link: the link is used
+   * up and a payment is opened with the payment provider, returning what the
+   * checkout screen needs. Needs no sign-in; refused if the link has expired,
+   * was withdrawn, or has already been used.
+   *
+   * This call never marks the order paid; that happens later, from the
+   * provider's signed webhook or a reconciliation against the provider.
+   */
   app.post(
     '/links/:token/pay',
     { config: { rateLimit: { max: 15, timeWindow: '15 minutes' } } },
@@ -378,6 +387,10 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
 // --- Admin payment routes -------------------------------------------------
 
 export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * List payment attempts, newest first, a page at a time. Can be narrowed to
+   * one status or one order.
+   */
   app.get(
     '/payments',
     { preHandler: requireAdmin(Permission.PAYMENT_READ) },
@@ -673,6 +686,12 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Switch a payment-provider connection on or off. Switching on is refused
+   * until the connection has passed a test and has its webhook signing secret,
+   * and it switches off any other connection for the same provider or in the
+   * other mode (live versus test). Writes an audit entry.
+   */
   app.patch(
     '/payments/connections/:id/status',
     { preHandler: requireAdmin(Permission.PAYMENT_GATEWAY_WRITE) },
@@ -788,6 +807,15 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Email a one-time payment link for an order's outstanding balance to
+   * someone who can pay it, such as a finance team, without them needing an
+   * account. Writes an audit entry; refused unless the order is waiting for
+   * payment and still has something left to pay.
+   *
+   * The link itself is never returned in the response - it only goes to the
+   * recipient's inbox.
+   */
   app.post(
     '/orders/:id/payment-links',
     {
@@ -829,6 +857,11 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Withdraw a payment link that has not been used yet, giving a reason, so it
+   * can no longer be paid. Writes an audit entry; refused if the link was
+   * already used or withdrawn.
+   */
   app.delete(
     '/payment-links/:linkId',
     { preHandler: requireAdmin(Permission.PAYMENT_LINK_CREATE) },
@@ -914,6 +947,12 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
     },
   );
 
+  /**
+   * Ask the payment provider what really happened to one payment and bring the
+   * records into line. If the provider says the money was taken and the amount
+   * matches, the payment is recorded and a waiting order is confirmed; an
+   * amount mismatch is refused and finance is alerted.
+   */
   app.post(
     '/payments/:paymentId/reconcile',
     { preHandler: requireAdmin(Permission.PAYMENT_READ) },

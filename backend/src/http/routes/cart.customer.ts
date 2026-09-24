@@ -385,6 +385,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
+  /** Remove one line from the cart. Replies with the repriced cart. */
   app.delete('/items/:itemId', async (request, reply) => {
     const auth = currentUser(request);
     const { itemId } = itemParam.parse(request.params);
@@ -436,6 +437,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** Take the applied coupon off the cart. Replies with the repriced cart. */
   app.delete('/coupon', async (request, reply) => {
     const auth = currentUser(request);
 

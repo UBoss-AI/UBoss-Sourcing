@@ -77,6 +77,12 @@ export function registerLogisticsDriverRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * Start a trip for the signed-in driver, optionally tied to one shipment and
+   * vehicle, and hand back the one-time device token the phone uses to report
+   * positions. Refused unless the driver is active and has agreed to location
+   * sharing; any trip already live for that driver is abandoned.
+   */
   app.post(
     '/driver/trips',
     { preHandler: requireLogistics(LogisticsPermission.TRIP_WRITE) },
@@ -103,6 +109,11 @@ export function registerLogisticsDriverRoutes(app: FastifyInstance): Promise<voi
     },
   );
 
+  /**
+   * End or pause the driver's own live trip, which stops its device token being
+   * accepted for position reports. Refused as not found when the trip is not
+   * this driver's, or is not live.
+   */
   app.post(
     '/driver/trips/:id/end',
     { preHandler: requireLogistics(LogisticsPermission.TRIP_WRITE) },

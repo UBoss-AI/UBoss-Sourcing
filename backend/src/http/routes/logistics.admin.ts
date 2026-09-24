@@ -241,6 +241,10 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * The list of carriers, filterable by status or a name or code search, with
+   * team size, region count and how many open shipments each holds.
+   */
   app.get(
     '/logistics/partners',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -313,6 +317,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Everything about one carrier: registration, contacts, contract, limits,
+   * regions, capabilities, delivery-time commitments, team members and the
+   * marketplace's private notes about it.
+   */
   app.get(
     '/logistics/partners/:id',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -425,6 +434,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Add a new carrier and invite its first owner, who is emailed a one-time
+   * link to set a password. The carrier starts as pending and only becomes
+   * active when the marketplace activates it. Writes an audit entry.
+   */
   app.post(
     '/logistics/partners',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -480,6 +494,12 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Activate, suspend or close a carrier. Suspending or closing needs a
+   * reason. A suspended carrier gets no new work but can finish what it holds,
+   * unless its open shipments are also asked to be taken back. Writes an
+   * audit entry.
+   */
   app.post(
     '/logistics/partners/:id/status',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -505,6 +525,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Replace a carrier's approved service regions (countries, states, cities or
+   * postcode areas, for pickup and delivery) with the list given. Only the
+   * marketplace can set these. Writes an audit entry.
+   */
   app.put(
     '/logistics/partners/:id/regions',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -531,6 +556,12 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Approve, refuse or suspend one special-handling capability for a carrier,
+   * such as cold chain or dangerous goods, with its evidence. Only approved
+   * capabilities make a carrier eligible for shipments that need them.
+   * Writes an audit entry.
+   */
   app.post(
     '/logistics/partners/:id/capabilities',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -570,6 +601,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Create or replace one of a carrier's delivery-time commitments: pickup and
+   * delivery hours for a service type, delivery attempts, and what proof of
+   * delivery must include. Writes an audit entry.
+   */
   app.put(
     '/logistics/partners/:id/sla-policies',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -606,6 +642,10 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Invite a person to join a carrier's portal team with a given role. Emails
+   * them a one-time link to set a password; the link itself is never returned.
+   */
   app.post(
     '/logistics/partners/:id/invitations',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -1225,6 +1265,10 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Which carriers could take this shipment, and for those that cannot, the
+   * reason (no coverage, missing approval, over capacity and so on).
+   */
   app.get(
     '/logistics/shipments/:id/eligible-partners',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
@@ -1235,6 +1279,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Offer a shipment to a carrier, with an optional deadline for it to answer.
+   * The carrier is notified. Refused when the carrier is not active, or the
+   * shipment is already with a carrier.
+   */
   app.post(
     '/logistics/shipments/:id/assign',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
@@ -1262,6 +1311,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Take a shipment back from the carrier it was offered to or accepted by,
+   * with a reason. The shipment goes back to waiting for a carrier, and the
+   * carrier is notified and sees the reason in its activity log.
+   */
   app.post(
     '/logistics/shipments/:id/withdraw',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
@@ -1322,6 +1376,10 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
   // authority is proved - a carrier by its own permissions, the marketplace
   // by an admin grant - and which name lands in the carrier’s audit trail.
 
+  /**
+   * One carrier's drivers, those on the rota first, with their certifications,
+   * app access, location-sharing consent and open tasks.
+   */
   app.get(
     '/logistics/partners/:id/drivers',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -1371,6 +1429,10 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Change a carrier's driver details, or take them off the rota, on the
+   * carrier's behalf. Only the fields supplied are changed.
+   */
   app.patch(
     '/logistics/partners/:id/drivers/:driverId',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -1405,6 +1467,7 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /** One carrier's vehicles, in-service ones first. */
   app.get(
     '/logistics/partners/:id/vehicles',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -1415,6 +1478,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Add a vehicle to a carrier's fleet list on its behalf. Refused when that
+   * registration is already on the list. Recorded in the carrier's activity
+   * log.
+   */
   app.post(
     '/logistics/partners/:id/vehicles',
     { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
@@ -1491,6 +1559,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Take the driver off a shipment without putting another one on, with a
+   * reason, on behalf of the carrier that holds it. Refused when the shipment
+   * is not with a carrier yet.
+   */
   app.post(
     '/logistics/shipments/:id/unassign-driver',
     { preHandler: requireAdmin(Permission.LOGISTICS_ASSIGN) },
@@ -1559,6 +1632,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Delivery problems across every carrier, most severe and oldest first, a
+   * page at a time. Shows only open ones unless asked otherwise, and can be
+   * narrowed by severity.
+   */
   app.get(
     '/logistics/exceptions',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -1616,6 +1694,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
 
   // --- Integrations -------------------------------------------------------
 
+  /**
+   * The carrier connections, with what each provider needs to be set up.
+   * Credentials are never returned, only a masked hint of which key is
+   * configured.
+   */
   app.get(
     '/logistics/integrations',
     { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
@@ -1631,6 +1714,12 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Create or update a carrier connection: provider, name, address,
+   * credentials, polling and webhook settings. Credentials are stored
+   * encrypted, and the connection counts as configured only once it has some.
+   * Writes an audit entry.
+   */
   app.put(
     '/logistics/integrations',
     { preHandler: requireAdmin(Permission.LOGISTICS_INTEGRATION_WRITE) },
@@ -1658,6 +1747,11 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Try a carrier connection and record the result. An unconfigured one fails
+   * and says which settings it still needs; success is only reported for a
+   * carrier that was actually reached.
+   */
   app.post(
     '/logistics/integrations/:id/test',
     { preHandler: requireAdmin(Permission.LOGISTICS_INTEGRATION_WRITE) },
@@ -1697,6 +1791,12 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
     },
   );
 
+  /**
+   * Say what one of a carrier's own status codes means here: which shipment
+   * status it moves to, and optionally which kind of delivery problem it
+   * raises. Adds the mapping, or replaces the existing one for that code.
+   * Writes an audit entry.
+   */
   app.put(
     '/logistics/integrations/:id/status-mappings',
     { preHandler: requireAdmin(Permission.LOGISTICS_INTEGRATION_WRITE) },

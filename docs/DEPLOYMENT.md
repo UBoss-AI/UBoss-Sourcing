@@ -274,9 +274,9 @@ graph TD
 
   subgraph "Hostinger KVM 4 — Germany or Lithuania"
     N[nginx<br/>TLS · gzip · edge rate limits<br/>static SPA serving]
-    N --> A0[uboss-api@4000]
-    N --> A1[uboss-api@4001]
-    N --> A2[uboss-api@4002]
+    N --> A0["uboss-api@4000"]
+    N --> A1["uboss-api@4001"]
+    N --> A2["uboss-api@4002"]
     A0 --> M[(MariaDB 11.4 LTS<br/>bind 127.0.0.1<br/>6 GB buffer pool)]
     A1 --> M
     A2 --> M
@@ -1013,9 +1013,15 @@ the declared MIME type or the extension **[VR]**, and served with
 `Content-Security-Policy: default-src 'none'; sandbox`. Two env flags exist to
 weaken this and **must stay off**:
 `SELLER_ALLOW_UNSCANNED_DOCUMENTS`, `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS` **[VR]**.
-An antivirus scan of seller certificate uploads is **[OD]** — if required, a
-ClamAV daemon plus a worker job is the shape, and it costs memory this box does
-not have to spare (§4.6).
+Both default to `false`, and production refuses to start with either on.
+**Every upload is scanned by ClamAV before it is stored** — product images,
+seller logos, listing media, seller and logistics documents **[VR]**
+(`infra/malware-scan.ts`). Production refuses to start unless
+`MALWARE_SCANNER_DRIVER=clamav`, and an unreachable scanner refuses the upload
+rather than accepting it. So ClamAV is **required** on this box, not optional;
+budget its memory (roughly 1 GB resident for the signature database) in §4.6.
+It has not yet been exercised live — see `SECURITY-AUDIT-REPORT.md` B-04 for the
+three checks to record.
 
 ### 10.7 systemd hardening already present
 
@@ -2604,7 +2610,7 @@ payments and personal data but not classified data.
 - [ ] **RBAC** — every admin route requires a permission, not just a session
 - [ ] **Tenant isolation** — a seller cannot read another seller's orders, stock, payouts or customers; a carrier cannot read another carrier's consignments. **Test explicitly, with real ids**
 - [ ] **Rate limiting** ✅ two layers (fix S5) · **Brute force** ✅
-- [ ] **File uploads** ✅ magic bytes, size, count; `*_ALLOW_UNSCANNED_DOCUMENTS` off; malware scanning **[OD]**
+- [ ] **File uploads** ✅ magic bytes, size, count; `*_ALLOW_UNSCANNED_DOCUMENTS` off; ClamAV on every upload path ✅ in code — **prove it live** (clean file accepted, EICAR rejected, daemon stopped → 503)
 - [ ] **SSRF** ✅ — re-test after any change to `outbound-http.ts`
 - [ ] **Webhooks** ✅ signature + freshness + dedupe
 - [ ] **Idempotency** ✅ orders, payments, ERP push, scheduled occurrences
@@ -3061,7 +3067,7 @@ must be resolved before deployment.
 | D20 | **Operational and on-call owner**, including who answers an S1 at 03:00 CET | §6.3 | **Yes** |
 | D21 | Retention windows for each `RETENTION_*` setting | §12.3 — each is a legal decision | **Yes** |
 | D22 | MFA mandatory for admin accounts? | S7 | Recommended |
-| D23 | Malware scanning for seller document uploads? | Costs memory this box has little of | No |
+| D23 | ~~Malware scanning for seller document uploads?~~ **Decided in code:** every upload is scanned and production will not start without ClamAV | Budget ClamAV's memory in §4.6 | No |
 | D24 | Log retention (`MaxRetentionSec`) | §10.6 — privacy as well as disk | **Yes** |
 | D25 | Vulnerability remediation SLA | §19.4 proposes; the owner decides | **Yes** |
 

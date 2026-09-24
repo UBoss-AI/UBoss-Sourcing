@@ -241,8 +241,10 @@ liability.
   rule is a question for your accountant.
 - **No OSS or Intrastat returns.** Orders carry `taxTreatment` and `taxCountry`
   so the figures can be extracted per member state, but filing is yours.
-- **No PDF rendering.** The invoice is structured data; the panel and the
-  storefront render it.
+- **No PDF of the operator's own invoice.** The `Invoice` row is structured
+  data; the panel and the storefront render it. (Marketplace sellers' own
+  invoices and packing lists are a separate feature and do render as PDF —
+  `PROJECT-GUIDE.md` §9.5.4.)
 - **No distance-selling threshold.** See §2.
 - **No proof-of-export capture.** An `EXPORT` order is zero-rated on the
   condition that you can show the goods left the Union. The software records

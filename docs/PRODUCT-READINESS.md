@@ -7,6 +7,9 @@ Version 1.1 · 2026-09-16 · Repository at `28b89fe`
 *1.1 — `ASSISTANT_ALLOW_GUESTS` now defaults to `false`, which closes the one
 deviation from the brief that was a setting rather than a decision. §2.3, §3.*
 
+*1.2 (2026-09-24) — M4 (erasure) and M7 (malware scanning) were built after
+this audit and are marked as such in §4. The rest of the audit is unchanged.*
+
 ---
 
 ## What this document is for
@@ -129,7 +132,7 @@ three and it decides whose prices they are charged **[VR]**.
 | **A listing cannot go on sale before approval** | **Built** | |
 | Seller inventory, orders, order splitting | **Built** | `SellerInventory`, `order-split.service.ts` |
 | Seller audit history | **Built** | `audit.service.ts`, `LogisticsAuditLog` equivalent for sellers |
-| Settlements and commission | **Built** as records — commission is taken on goods only, never on tax, never on delivery |
+| Settlements and commission | **Built** as records — commission is never taken on tax. By default it is taken on goods only; a platform-fee policy (Admin Panel → platform fees) can instead be set to goods **plus the seller's own delivery** (`PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY`, `domain/platform-fee.ts`). Delivery the marketplace itself carries is never part of the base |
 | **Payouts — actually moving money** | **Unconfigured by design** | `payout.service.ts` has exactly one adapter, `unconfigured`, returning `PROVIDER_UNCONFIGURED`. It deliberately **does not collect bank details**: a marketplace needs a connected-account id at a regulated provider, not an account number. **Stripe Connect or equivalent is not wired up.** See §4 |
 
 ### 2.6 Warehouses and fulfilment
@@ -326,10 +329,10 @@ on any of them was done as part of the deployment-readiness task.
 | **M1** | **More than one user per buying business.** `CustomerProfile.userId` is `@unique` — one account, one buyer. `organization` and `department` are free-text fields on that profile, not a membership model. There is no buyer-side equivalent of `SellerMember` | A procurement team where three people order against one business account, shared addresses and shared purchasing limits. The brief asks specifically that this be verified | `backend/prisma/schema.prisma` **[VR]** |
 | **M2** | **"Continue with Google".** No OAuth sign-in of any kind for people; the only OAuth is for customer-ERP connectors | Sign-up friction, and anything that assumes Google as an identity provider | **[VR]** |
 | **M3** | **Seller payouts.** The model, settlements, commission and idempotency are all there; the provider is not | Paying third-party sellers at all. Needs D13 (marketplace role) answered first, then Stripe Connect or equivalent | `payout.service.ts` **[VR]** |
-| **M4** | **Customer deletion / anonymisation.** Export is built; erasure is not | GDPR Art. 17 requests on an account that has orders. It is not a coding problem — it needs an approved policy for what "delete" means when invoices must be retained | `RUNBOOK.md` §6 **[VR]** |
+| ~~**M4**~~ | **Customer deletion / anonymisation — built since this audit.** An erasure data request, approved by staff holding `data_request.action`, runs `executeErasure`: addresses, carts, sessions, reset tokens and chat enquiries are deleted; the user and customer profile are pseudonymised; the billing and delivery address on a placed, invoiced order is kept, because tax law requires the invoice to be kept. Open orders, returns and similar obligations block it with `ERASURE_BLOCKED_BY_OBLIGATION` until they close | Nothing in code. What remains is organisational: the operator's written retention policy, and backups that stay coherent with the erasure promise | `modules/privacy/erasure.service.ts`, `backend/docs/DATA-PROTECTION.md` **[VR]** |
 | **M5** | **Invoicing into KSeF.** Polish structured e-invoicing is analysed in `DEPLOYMENT.md` §7.2 and not implemented | Selling into Poland from a Polish establishment. Whether it applies at all follows from D1 and is a tax-adviser determination, not a code one | **[VR]** |
 | **M6** | **SMS delivery.** `NotificationChannel` names SMS and nothing sends it; phone-change codes go to the verified email address instead | Anything that assumes a phone as a second factor or a delivery channel. Stated plainly in the schema rather than left to be discovered | **[VR]** |
-| **M7** | **Malware scanning of uploads.** Type is decided by magic bytes and size is capped, but nothing scans content. Two flags exist to allow unscanned documents and default to allowing them | A policy that requires scanning before a reviewer opens a seller's certificate. ClamAV plus a worker job is the shape; it costs memory a KVM 4 does not have spare | `DEPLOYMENT.md` §10.6 **[VR]** |
+| ~~**M7**~~ | **Malware scanning of uploads — built since this audit.** Every upload path (product images, seller logos, listing media, seller and logistics documents) is scanned by ClamAV before it is stored. Production refuses to start unless `MALWARE_SCANNER_DRIVER=clamav`, an unavailable scanner fails the upload closed, and both `*_ALLOW_UNSCANNED_DOCUMENTS` flags default to `false` and are refused in production | Nothing in code. **No live ClamAV has been exercised yet**: the host needs ClamAV installed, and a clean file, an EICAR file and a stopped daemon each tested (`SECURITY-AUDIT-REPORT.md` B-04) | `infra/malware-scan.ts`, `config/env.ts` **[VR]** |
 
 ---
 

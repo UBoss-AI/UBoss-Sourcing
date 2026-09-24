@@ -680,7 +680,8 @@ export async function buildApp() {
   await app.register(registerSellerPreorderRoutes, { prefix: `${API_PREFIX}/seller` });
   // The buyer's side of bulk preorders, and the public eligibility check.
   await app.register(registerPreorderRoutes, { prefix: `${API_PREFIX}/preorders` });
-  // Read-only for the operator.
+  // The operator's side: read every preorder, and answer the ones on the
+  // operator's own products (sellers' preorders stay read-only for staff).
   await app.register(registerAdminPreorderRoutes, { prefix: `${API_PREFIX}/admin` });
   // Seller invoices and packing lists: the seller's side, the buyer's and the
   // public check, and read-only for the operator.

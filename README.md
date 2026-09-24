@@ -36,6 +36,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Markets, currencies and prices](#markets-currencies-and-prices) | Opening a market, and keeping converted prices current |
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
 | [Languages](#languages) | Eight languages, and how to add or translate one |
+| [The four delivery levels: L1 to L4](#the-four-delivery-levels-l1-to-l4) | Who runs and prices each leg of a seller's delivery, and the platform fee on the seller's side |
 | [Buying by the carton, the pallet or the container](#buying-by-the-carton-the-pallet-or-the-container) | Bulk packaging, freight quotes, and the base-unit rule |
 | [Bulk preorders](#bulk-preorders) | Request, seller answer, buyer confirmation, and one order |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
@@ -72,10 +73,12 @@ part of the branding worth being precise about:
 | **Glovia** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
 | **The Way to the World** | The product's tagline, under the wordmark | the same module |
 | **Powered by UBOSS** | The attribution — who makes it; small print in the storefront footer and on the console and portal sign-in screens | the same module |
-| Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` |
+| Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` as `business.displayName` and as `marketplace.displayName` (the second is never replaced by a seller's name on a seller's shop front) |
 
 Your customers read **your** name in the header, the footer, the browser tab,
-your e-mails and your invoices. Glovia is the name of the software you are
+your e-mails, your invoices and the payment sheet they pay through; your staff
+and your carriers read it in their authenticator apps and on every screen that
+says who runs the marketplace. Glovia is the name of the software you are
 running; it never stands in for the name of the business running it. A fresh
 install shows "Glovia" there only until you fill in a business profile, because
 there is no other honest thing to put in a header before you have.
@@ -95,9 +98,13 @@ such as `X-UBOSS-Signature`, user agents, deployment paths and the registered
 legal entity all kept their names. Nobody using the product reads any of them,
 and each one is something another system, another machine or a registrar
 already points at. Renaming them would break working connections and change
-nothing anybody sees. Where a *screen* still says UBOSS — "UBOSS operations" in
-the carrier portal, for instance — it is naming the people a carrier deals with
-rather than the software they are looking at.
+nothing anybody sees. **No screen, message or e-mail names UBOSS as the
+marketplace**, apart from the `Powered by UBOSS` attribution. Where a sentence
+has to say who runs the marketplace — "Self + Northwind" on a seller's delivery
+levels, "Contact Northwind operations" in the carrier portal — the translation
+says `{{marketplace}}` and the name comes from your business profile. Text that
+is stored and read later, such as an audit entry, says "Marketplace operations"
+instead, so it stays true if you rename your business.
 
 Two capabilities are optional and off until switched on:
 
@@ -465,9 +472,11 @@ Optionally the customer's own ERP can collect orders and post back receipts.
 <details>
 <summary><b>Seller Hub</b> — other businesses selling through the same shop</summary>
 
-Off unless enabled. A business applies, is reviewed and approved, and then has
-its own console inside the storefront: listings, offers, stock, orders to pack,
-shipments, returns and settlements.
+Always available — there is no switch that hides it. "Become a seller" is
+offered on the marketplace's own domain (never on a seller's own shop front),
+but nothing is sold until staff approve: a business applies, is reviewed and
+approved, and only then has its own console inside the storefront: listings,
+offers, stock, orders to pack, shipments, returns and settlements.
 
 **Buyer requests** is the only signal in the Hub from somebody who did not buy.
 Instructions shoppers left on products this seller sells, without ordering them,
@@ -1872,6 +1881,246 @@ is stored with the service it belongs to. Buying is idempotent: a retry or a
 double click collides in the database rather than booking a second parcel, and
 the answer says which of the two happened.
 
+---
+
+## The four delivery levels: L1 to L4
+
+Everything above treats a delivery as one journey with one carrier. A seller
+sending goods across a border does not have one: the goods go from the plant to
+a port, across the sea or through the air, inland at the other end, and finally
+to the buyer's door, and a different company can carry each part. *Seller Hub →
+Logistics* lets a seller split the journey into four levels, say who runs each
+one, and price each one — and the buyer is charged the sum at checkout.
+
+| Level | From | To |
+|---|---|---|
+| **L1** first mile | The seller's plant or warehouse | Port or airport of loading |
+| **L2** international haul | Port of loading | Destination port or airport |
+| **L3** destination inland | Destination port | Destination warehouse |
+| **L4** last mile | Destination warehouse | The buyer |
+
+**Nothing changes for a seller who never publishes a policy.** Their lines are
+priced exactly as they were before this existed, which is every seller on a
+fresh installation. There is no flag: the feature is always there, and a seller
+opts in by publishing.
+
+### Who controls each level
+
+Three tabs, and they say **who is in control**, not which carrier. On screen the
+second and third carry your own business name ("Northwind", "Self + Northwind");
+UBOSS is only the internal name of the mode:
+
+| Mode | L1 | L2, L3, L4 |
+|---|---|---|
+| **Self** | Seller | Seller |
+| **UBOSS** | Seller | The marketplace |
+| **Self + UBOSS** | Seller | Ticked level by level; at least one stays with the marketplace |
+
+- **L1 is always the seller's**, in every mode. The service refuses anything
+  else (`LOGISTICS_L1_OWNER_FIXED`) and so do CHECK constraints on four tables.
+- **Self + UBOSS cannot give the seller all three** of L2–L4
+  (`LOGISTICS_HYBRID_ALL_SELLER`) — that is the Self tab, and two tabs meaning
+  the same thing is how a support call starts.
+- **Only the seller decides who controls what.** Staff have no route that
+  changes a seller's policy; they price and carry the levels the policy gives
+  the marketplace.
+- **A draft changes nothing.** Publishing makes a new, numbered version that is
+  never edited, and the previous one is kept because orders placed under it
+  name it. Changing who controls a level of a published policy has to be
+  confirmed (`LOGISTICS_CHANGE_NOT_CONFIRMED`), and orders already placed keep
+  the arrangement they were placed under.
+
+### What each level costs
+
+A price is a row for one level: where it starts and ends (a warehouse, a port or
+airport code, a destination hub, a destination country and optionally a postcode
+prefix), what it carries (parcel, pallet or container; a weight band), how it
+moves, who carries it, the transit days, and the amount — in the seller's
+currency by default, which is their registration country's currency or else
+the base currency.
+
+- **Empty is not zero.** A blank price is *price required*, never a free level.
+  Zero is accepted only when the level is marked free and that is confirmed
+  (`LOGISTICS_FREE_NOT_CONFIRMED`).
+- **A published price is never edited.** Changing one makes a new draft version
+  that replaces it when published; switching one off keeps it on record.
+  Publishing needs both an amount and a carrier (`LOGISTICS_RATE_INCOMPLETE`).
+- **Whoever controls the level prices it**, and the check is made on every
+  write, against the database, not by a disabled input. A seller pricing a
+  marketplace level is refused with `LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED`;
+  staff pricing a seller level with `LOGISTICS_LEVEL_NOT_UBOSS_CONTROLLED`.
+  Staff may prepare a price for a level the seller's *draft* is about to give
+  them, so it is waiting when the change is published.
+
+A basket is priced as **one chained journey**: L2 is chosen among prices that
+start where L1 ended, L3 where L2 ended, L4 where L3 ended. The most specific
+price wins — an exact port over any port, a postcode prefix over the whole
+country, a longer prefix over a shorter one — and among equals the most
+recently published. **One number for the whole world is not a default**: a
+price with no destination country matches only when it was marked *worldwide
+flat*. A basket nobody weighed matches only a price with no weight band. A
+price in another currency is converted at the current rate with exact
+rounding; with no usable rate the level is unpriced rather than guessed.
+
+**A level with no price for this route stops checkout.** The seller's delivery
+is *quote required*, the cart carries `LOGISTICS_QUOTE_REQUIRED` naming the
+seller and the levels, and nothing is charged at zero or at another route's
+price. Publishing a policy, or switching a price off, raises an alert for every
+level left without one — to the seller for theirs, to staff for the
+marketplace's — and publishing a price there closes it.
+
+### Which carriers can be picked
+
+| Carrier | Moves goods by | Takes |
+|---|---|---|
+| DHL, FedEx | Road, air | Parcels, pallets |
+| India Post | Post | Parcels |
+| A forwarder booked by hand | Road, air, sea, rail, post | Parcels, pallets, containers |
+| A delivery company on the platform | Road, rail | Parcels, pallets, containers |
+
+And each level moves goods only some ways: L1 and L3 by road or rail, L2 by
+air, sea, road, rail or post, L4 by road or post. A combination outside both
+tables is refused (`LOGISTICS_CARRIER_UNSUITABLE`) — so a container by sea
+names its forwarder rather than DHL.
+
+**A seller's carrier has to be switched on first**, in the *Carriers* card at
+the top of the same page (`LOGISTICS_PROVIDER_NOT_ENABLED`). Switched on
+without an API account, a carrier is *booked by hand*: the seller books it on
+the carrier's own site and types the tracking number in. The card shows
+*Connected* only when the carrier setup itself says the account passed a real
+test and went live; nothing on this path books a parcel, prints a label or
+calls a carrier. A seller may name a delivery company they own or have an
+approved arrangement with; staff, on a marketplace leg, only a marketplace
+carrier.
+
+### Checkout, and what the buyer sees
+
+The four levels are priced **inside the cart's one pricing run**, not added to a
+finished total, so the review screen and the charge come from one place. They
+are not covered by a shipping method's free-above threshold — that is the
+operator's offer on the operator's own carriage.
+
+The delivery quote is **signed**: an HMAC, keyed from `SESSION_COOKIE_SECRET`,
+over each seller's policy version, each level's price row and amount, the
+currency and the destination. Checkout prices again from scratch and refuses a
+token that no longer matches (`LOGISTICS_PRICE_CHANGED`), so a price published
+while a buyer was at checkout is shown to them rather than charged.
+
+The order then **freezes each level**: who controlled it, the carrier, the
+policy version, the original amount and currency, and the exchange rate. A
+policy published next week changes nothing about it.
+
+The buyer sees either a price per level or **one delivery line** — the
+operator's choice, the switch on *Logistics → Delivery levels* (`settings.write`).
+The order keeps every level's amount either way, and the buyer's order page
+shows what each level cost and how far it has got.
+
+### After the seller confirms: the legs
+
+**Legs are created when the seller confirms their part of the order**, never
+before, one per level, each carrying the owner frozen at checkout and the
+carrier named on the price the buyer paid. L1 is the seller's turn at once; the
+others wait.
+
+- **A leg starts only when the one before it has been handed over.** The
+  handover makes the next leg its owner's turn, and they are told.
+- **The carrier on the price the buyer was charged is already on the leg**,
+  checked again when the leg is created: a delivery company no longer eligible,
+  or a carrier the seller has since switched off, is left for the owner to name.
+  Whoever controls the leg can change it: the seller on *Seller Hub → Orders →
+  (an order)*, staff on *Logistics → Delivery legs* (`logistics.assign`), where
+  only a marketplace carrier may be named, on a UBOSS price and on a UBOSS leg
+  alike. Changing it needs a reason, and a delivery company that loses a leg is
+  told.
+- **A delivery company holding a leg** accepts or refuses it, puts its own
+  driver on it, and records it starting and being handed over, in the logistics
+  portal (`FEATURE_LOGISTICS_PORTAL`).
+- **A carrier booked by hand** is moved by whoever controls the leg, and cannot
+  start until the carrier's own tracking reference is typed in
+  (`LOGISTICS_LEG_TRACKING_REQUIRED`). None is ever generated.
+
+Every change is on the seller's own history; a marketplace change is on the
+admin audit log as well. The seller can follow every leg of their own order and
+change only their own.
+
+### The platform fee, and what the seller is owed
+
+The platform fee is **a deduction from the seller, never a charge to the
+buyer**. Finance staff set it at *Finance → Platform fees*: percent, flat, or
+both, with an optional minimum and maximum, for the whole marketplace, one
+market, one category or one seller, and with a configured tax on the fee.
+Policies are versioned — a draft is edited, a published one never is, and
+publishing retires the version it replaces.
+
+Each policy says what the fee is charged on:
+
+| Basis | Charged on |
+|---|---|
+| `PRODUCT_SUBTOTAL` (default) | The seller's goods, after discounts, before tax |
+| `PRODUCT_SUBTOTAL_PLUS_SELLER_DELIVERY` | The goods **plus the levels the seller controls** |
+
+**Marketplace-controlled levels are never in a seller's fee basis**: that money
+was never the seller's. Per line, the most specific policy wins — the seller's,
+then the category's, then the market's, then the platform's. A seller with a
+negotiated rate and no seller-scope policy keeps that rate, charged on the
+basis and taxed as the policy in force says; with no policy at all, the
+marketplace commission rate applies exactly as it did before, with no tax.
+
+The **tax on the fee is data, not law.** Until somebody holding
+`finance.tax.verify` records that the rule is the legally correct one, every
+screen and settlement calls it *Tax on platform fee - configured 15%* (or
+whatever rate is set), never GST; publishing a policy with an unverified,
+non-zero rate raises an alert for finance. **No fee policy is seeded**: until
+finance publishes one, nothing here changes what a seller is charged.
+
+The seller's **settlement preview**, on *Seller Hub → Logistics*, is read-only.
+The seller types a product value and the delivery on the levels they manage,
+chooses the buyer's country and, optionally, one of their listings (for its
+category), and the server answers with the same calculation a real order uses,
+on the policies in force today — so a market or category fee shows exactly as
+an order would be charged it:
+
+```
+  gross seller proceeds
++ seller-controlled delivery proceeds
+- platform fee
+- tax on platform fee
+- refunds and adjustments
+= estimated seller settlement
+```
+
+Nothing on that card can change the fee, what it is charged on or the tax on
+it. The real figure is worked out once, when the order is confirmed, and stored
+with the policy version it used, so a rate change in March leaves every
+February settlement exactly as it was.
+
+**Refunds come off the settlement once the payment provider confirms them** —
+never when one is merely requested — and a resent confirmation is not
+subtracted twice. A refund is recorded against the order, not against lines,
+so it is charged to a seller only where that is certain: a full refund takes
+back every seller's proceeds; on an order with one seller and none of the
+operator's own stock, the seller carries their proportional share (not the tax
+or the marketplace's delivery). A partial refund of an order shared between
+sellers is left for finance and changes no seller's settlement. The platform
+fee is not given back on a refund.
+
+### Who manages it on the marketplace's side
+
+| Screen | Permission | What it is for |
+|---|---|---|
+| *Logistics → Delivery levels* | `logistics.read`, `logistics.write` to price | Every seller's published policy, filtered to marketplace levels or to those missing a marketplace price; opening a seller prices their marketplace levels and shows the policy's version and change history. Also the per-level / one-line switch (`settings.write`) |
+| *Logistics → Delivery legs* | `logistics.read`, `logistics.assign` to act | Every leg across all orders; name the carrier on a marketplace leg, enter its references, move it on |
+| *Finance → Platform fees* | `finance.policy.read`, `finance.policy.write`, `finance.tax.verify` | Fee policies, the orders settled on each version, and a preview of what a seller would be paid |
+
+The Owner holds all of them. The Order Manager holds `logistics.read` and
+`logistics.assign`; the Finance Approver holds the three `finance.*` keys. A
+general administrator with `settings.write` cannot change what sellers are
+charged.
+
+No environment variable belongs to this feature. The quote signature reuses
+`SESSION_COOKIE_SECRET`, and delivery companies on the platform need the
+logistics portal switched on (`FEATURE_LOGISTICS_PORTAL`) to receive legs.
+
 
 ---
 ## Buying by the carton, the pallet or the container
@@ -3063,6 +3312,12 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | **[`PROJECT-GUIDE.md`](PROJECT-GUIDE.md)** | What every piece does, and how a request travels from a click to a row. No prior knowledge assumed |
 | `PROJECT-GUIDE.hinglish.md` | The same document in Hinglish (not committed; gitignored on purpose) |
 | **This file** | Features, configuration, markets, payments, languages, going live |
+| **[`docs/README.md`](docs/README.md)** | The index of the `docs/` folder: which document answers which question |
+| **[`docs/PRD.md`](docs/PRD.md)** | The product requirements: who it is for, every feature as a numbered requirement with its status, the journeys, the rules and the gaps |
+| **[`docs/DATABASE-DESIGN.md`](docs/DATABASE-DESIGN.md)** | Why the database is shaped as it is: the principles, each domain with its diagram, and the life of an order in rows |
+| **[`docs/API.md`](docs/API.md)** | How to call the API: signing in, permissions, money, errors, webhooks, and worked examples |
+| **[`docs/UI-SCREENS.md`](docs/UI-SCREENS.md)** | Every screen in the storefront, the Seller Hub, the admin panel and the logistics portal: who sees it and what it does |
+| `docs/reference/` | Every table, endpoint and error code. Generated from the code — run `cd scripts; npm run docs`, never edit by hand |
 | `backend/README.md` | Backend architecture, schema and migration notes |
 | `backend/docs/HANDOFF.md` | Environment details, the MariaDB constraints that shaped the schema, the full endpoint map, and what is deliberately not built |
 | **[`docs/DATABASE-PRODUCTION.md`](docs/DATABASE-PRODUCTION.md)** | Which MariaDB and why, how it is configured, its four accounts and why they are four, the connection budget, collation and time, and when one VPS stops being enough |
@@ -3096,6 +3351,11 @@ causes it, not a task for later:
 - **`SETUP.md`** is updated whenever the way the project is started changes.
 - **The feature guide** is regenerated from its script (`cd scripts && npm run
   guide`) whenever a feature is added, changed or removed.
+- **`docs/`** — the PRD, database design, API guide and screens guide — is
+  updated in the same piece of work as the change it describes, and
+  `docs/reference/` is regenerated with `cd scripts; npm run docs` after any
+  change to the schema, a route file or the error codes. CI fails when that
+  generated reference no longer matches the code.
 
 One command is worth running on a schedule rather than on a change: `cd scripts
 ; npm run check:ai` asks whether the AI provider is still answering. Nothing

@@ -582,7 +582,7 @@ function DashboardBody({
             <HealthRow
               label={t('seller.dashboard.liveListings')}
               value={String(data.activeListings)}
-              to="/seller/listings?status=ACTIVE"
+              to="/seller/listings?tab=ACTIVE"
             />
             <HealthRow
               label={t('seller.dashboard.beingReviewed')}
@@ -593,7 +593,7 @@ function DashboardBody({
               label={t('seller.dashboard.needChanges')}
               value={String(data.listingsNeedingChanges)}
               {...(data.listingsNeedingChanges > 0 ? { tone: 'warning' as const } : {})}
-              to="/seller/listings?status=NEEDS_CHANGES"
+              to="/seller/listings?tab=NEEDS_CHANGES"
             />
             <HealthRow
               label={t('seller.dashboard.drafts')}
@@ -640,7 +640,7 @@ function DashboardBody({
                 title={t('seller.dashboard.action.changesTitle')}
                 detail={t('seller.dashboard.action.changesDetail')}
                 count={data.listingsNeedingChanges}
-                to="/seller/listings?status=NEEDS_CHANGES"
+                to="/seller/listings?tab=NEEDS_CHANGES"
                 tone="warning"
               />
               <ActionRow

@@ -14,6 +14,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CartPage } from './CartPage';
 import { jsonResponse, renderWithProviders } from '@/test/harness';
+import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import { makeCart, makeCartLine, money } from '@/test/fixtures';
 import type { Cart } from '@/lib/types';
 
@@ -381,6 +382,22 @@ describe('CartPage', () => {
    * simply broken without taking checkout down with it.
    */
   describe('repeat purchase', () => {
+    /** The panel only exists where repeat purchases are switched on. */
+    const RECURRING_ON = {
+      ...FALLBACK_CONFIG,
+      features: { ...FALLBACK_CONFIG.features, recurringOrders: true },
+    };
+
+    it('is not offered where repeat purchases are switched off', async () => {
+      serveCart(makeCart());
+
+      renderWithProviders(<CartPage />);
+
+      // Wait for the cart itself, so this is an absence rather than a race.
+      expect(await screen.findByRole('button', { name: /proceed to checkout/i })).toBeEnabled();
+      expect(screen.queryByRole('link', { name: /schedule your cart/i })).toBeNull();
+    });
+
     /** Answer /cart with `cart`, and /account/autopay with `autoPay`. */
     function serveCartAndAutoPay(cart: Cart, autoPay: unknown): void {
       fetchMock.mockImplementation((url: string) =>
@@ -393,7 +410,7 @@ describe('CartPage', () => {
     it('offers the schedule when a line can be repeated', async () => {
       serveCart(makeCart());
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       expect(await screen.findByRole('link', { name: /schedule your cart/i })).toHaveAttribute(
         'href',
@@ -405,7 +422,7 @@ describe('CartPage', () => {
     it('stays out of the way when nothing in the cart can be repeated', async () => {
       serveCart(makeCart({ lines: [makeCartLine({ isRecurringEligible: false })] }));
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       // Wait for the cart itself, so this is an absence rather than a race.
       expect(await screen.findByRole('button', { name: /proceed to checkout/i })).toBeEnabled();
@@ -423,7 +440,7 @@ describe('CartPage', () => {
         },
       });
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       expect(await screen.findByText('Autopay')).toBeInTheDocument();
       expect(screen.getByText('On')).toBeInTheDocument();
@@ -441,7 +458,7 @@ describe('CartPage', () => {
         autoPay: { status: 'DISABLED', enabled: false, paymentMethodLabel: null },
       });
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       expect(await screen.findByText('Off')).toBeInTheDocument();
       expect(screen.getByText(/each delivery will email a payment link/i)).toBeInTheDocument();
@@ -450,7 +467,7 @@ describe('CartPage', () => {
     it('omits the auto-pay line when the store does not offer it', async () => {
       serveCartAndAutoPay(makeCart(), { available: false, consentVersion: '1', autoPay: null });
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       expect(await screen.findByRole('link', { name: /schedule your cart/i })).toBeVisible();
       expect(screen.queryByText('Autopay')).toBeNull();
@@ -462,7 +479,7 @@ describe('CartPage', () => {
         return Promise.resolve(jsonResponse({ cart: makeCart() }));
       });
 
-      renderWithProviders(<CartPage />);
+      renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
       // Checkout still works, and the schedule is still offered — only the
       // line about auto-pay is missing, which is the half that could not be
@@ -499,7 +516,7 @@ describe('CartPage', () => {
       it('offers the card step first when no card is on file', async () => {
         serveCartAndAutoPay(makeCart(), offWithCard(false));
 
-        renderWithProviders(<CartPage />);
+        renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
         // The label names the first step rather than the destination. A
         // customer promised "turn on Autopay" and handed a card form
@@ -513,7 +530,7 @@ describe('CartPage', () => {
       it('goes straight to consent when a card is already on file', async () => {
         serveCartAndAutoPay(makeCart(), offWithCard(true));
 
-        renderWithProviders(<CartPage />);
+        renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
         expect(
           await screen.findByRole('button', { name: /turn on Autopay/i }),
@@ -537,7 +554,7 @@ describe('CartPage', () => {
           return Promise.resolve(jsonResponse({ cart: makeCart() }));
         });
 
-        renderWithProviders(<CartPage />);
+        renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
         await user.click(await screen.findByRole('button', { name: /turn on Autopay/i }));
 
@@ -566,7 +583,7 @@ describe('CartPage', () => {
           autoPay: { status: 'PAUSED', enabled: false, paymentMethodLabel: null },
         });
 
-        renderWithProviders(<CartPage />);
+        renderWithProviders(<CartPage />, { config: RECURRING_ON });
 
         expect(
           await screen.findByRole('button', { name: /resume Autopay/i }),

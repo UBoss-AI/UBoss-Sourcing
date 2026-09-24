@@ -389,6 +389,15 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(204).send();
   });
 
+  /**
+   * Ask the shopping assistant a question in an existing conversation and
+   * receive its answer as it is written, word by word. A guest is asked to sign
+   * in after a set number of free questions, a conversation is refused once it
+   * reaches its length limit, and the whole feature answers "not found" when no
+   * AI provider is set up.
+   *
+   * The reply is a server-sent event stream (`delta`, `error`, `done`), not JSON.
+   */
   app.post(
     '/chat',
     {

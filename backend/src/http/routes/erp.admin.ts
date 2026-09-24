@@ -196,12 +196,19 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Connections --------------------------------------------------------
 
+  /** Every connection to this installation's own ERP system, oldest first. Stored passwords and keys are never shown. */
   app.get(
     '/erp/connections',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
     async (_request, reply) => reply.status(200).send({ connections: await listConnections() }),
   );
 
+  /**
+   * Add a connection to the installation's ERP system. It starts as a draft
+   * that carries no orders until tested and switched on. Refused past the
+   * configured maximum number of connections, or when the name is taken.
+   * Writes an audit entry.
+   */
   app.post(
     '/erp/connections',
     {
@@ -216,6 +223,7 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** One ERP connection's settings and status. Stored passwords and keys are never shown. */
   app.get(
     '/erp/connections/:id',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
@@ -225,6 +233,12 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Save changes to an ERP connection. This puts it back to draft, so it must
+   * be tested again before it carries orders. Writes an audit entry.
+   *
+   * A credential field left out keeps what is stored; an empty string clears it.
+   */
   app.put(
     '/erp/connections/:id',
     {
@@ -241,6 +255,10 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Retire an ERP connection. Its history is kept. Refused while it still has
+   * operations waiting to go through. Writes an audit entry.
+   */
   app.delete(
     '/erp/connections/:id',
     { preHandler: [requireAdmin(Permission.INTEGRATION_WRITE), requireFeature] },
@@ -317,6 +335,10 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Inventory ----------------------------------------------------------
 
+  /**
+   * Pull stock figures from the ERP now. Refused unless the connection is
+   * switched on; a dry run, which changes nothing, works at any time.
+   */
   app.post(
     '/erp/connections/:id/sync',
     {
@@ -335,6 +357,7 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** The connection's recent stock syncs, newest first, with how many records each applied, skipped or failed. */
   app.get(
     '/erp/connections/:id/sync-runs',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
@@ -348,6 +371,7 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** The individual records one stock sync could not apply, and why. */
   app.get(
     '/erp/sync-runs/:id/errors',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
@@ -357,6 +381,11 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The stock figures last received from the ERP, per product code and
+   * warehouse, including any figure set by hand. Can be narrowed to one
+   * connection, a product code, or only the figures that disagree with the platform.
+   */
   app.get(
     '/erp/inventory',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },
@@ -400,6 +429,10 @@ export function registerAdminErpRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Activity -----------------------------------------------------------
 
+  /**
+   * The ERP activity log, newest first: connection tests, dry runs, orders
+   * sent, stock syncs and more. Can be filtered by connection, kind, status or order.
+   */
   app.get(
     '/erp/events',
     { preHandler: requireAdmin(Permission.INTEGRATION_READ) },

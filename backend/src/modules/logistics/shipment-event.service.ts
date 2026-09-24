@@ -855,7 +855,7 @@ function sourceLabel(source: LogisticsEventSource): string {
     case 'DRIVER_APP':
       return 'Driver app';
     case 'UBOSS_ADMIN':
-      return 'UBOSS operations';
+      return 'Marketplace operations';
     case 'CARRIER_API':
       return 'Carrier API';
     case 'INBOUND_WEBHOOK':

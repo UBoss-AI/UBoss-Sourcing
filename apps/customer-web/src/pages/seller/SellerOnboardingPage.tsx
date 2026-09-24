@@ -2163,7 +2163,7 @@ function GenericStep({ step }: { step: OnboardingStep }): React.JSX.Element {
 
         {step.key === 'account_verification' && (
           <p className="text-sm leading-relaxed text-ink-muted">
-            Your email address and mobile number are confirmed through your UBOSS account. Confirm
+            Your email address and mobile number are confirmed through your account here. Confirm
             or change either in{' '}
             <Link to="/account/profile" className="font-medium text-brand hover:text-brand-hover">
               your account details

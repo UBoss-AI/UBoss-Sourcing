@@ -129,6 +129,10 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Work out what a preorder would look like - price, delivery window and
+   * quantity - before the buyer sends it. Nothing is saved.
+   */
   app.post(
     '/preview',
     { preHandler: requireCustomer, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
@@ -141,6 +145,14 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Send a bulk preorder request to the seller for a product, quantity and
+   * delivery date. The buyer must accept the preorder terms; the seller is
+   * notified and the request expires if nobody answers in time.
+   *
+   * Requires an `Idempotency-Key` header, so a repeated submit creates one
+   * request, not two.
+   */
   app.post(
     '/',
     { preHandler: requireCustomer, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
@@ -160,11 +172,16 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** List the buyer's own preorders, newest first, with who supplies each one. */
   app.get('/', { preHandler: requireCustomer }, async (request, reply) => {
     const actor = buyerActor(request);
     return reply.status(200).send(await listBuyerPreorders(actor.customerProfileId));
   });
 
+  /**
+   * Show one of the buyer's own preorders in full, including its history.
+   * Another buyer's preorder answers "not found".
+   */
   app.get('/:id', { preHandler: requireCustomer }, async (request, reply) => {
     const { id } = idParam.parse(request.params);
     const actor = buyerActor(request);
@@ -199,6 +216,11 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The buyer turns down the seller's proposed terms, with an optional note,
+   * and sends the preorder back to the seller to look at again. The seller is
+   * alerted.
+   */
   app.post(
     '/:id/decline',
     { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
@@ -211,6 +233,12 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * The buyer withdraws their preorder, giving a reason. If an order has
+   * already been created and is waiting for payment, that order is cancelled
+   * too; otherwise the request is simply closed and any reserved production
+   * capacity is released.
+   */
   app.post(
     '/:id/cancel',
     { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },

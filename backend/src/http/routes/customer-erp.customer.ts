@@ -782,6 +782,11 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
   // the two catalogues shared no identifier at all, so the sync read 708
   // records and recorded one. See `product-code.service.ts`.
 
+  /**
+   * The buyer's list of their own ERP product codes matched to products in
+   * this store. A match whose product has since been removed is still listed,
+   * without a SKU, so it can be fixed.
+   */
   app.get('/connections/:id/product-codes', async (request, reply) => {
     const { id } = connectionIdParam.parse(request.params);
     const membership = await membershipFor(request);
@@ -791,6 +796,11 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(200).send({ productCodes: await listProductCodes(membership, id) });
   });
 
+  /**
+   * Match one of the buyer's ERP product codes to a product in this store.
+   * Matching a code that is already matched replaces the old match; a product
+   * that does not exist is refused.
+   */
   app.post(
     '/connections/:id/product-codes',
     { preHandler: requireFeature },
@@ -820,6 +830,7 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /** Remove one product-code match. That code then matches by SKU again, or not at all. */
   app.delete(
     '/connections/:id/product-codes/:mappingId',
     { preHandler: requireFeature },

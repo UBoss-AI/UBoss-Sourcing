@@ -33,6 +33,16 @@ import { ErrorCode } from '../../domain/errors.js';
 import { ingestCarrierWebhook } from '../../modules/logistics/carrier/webhook.service.js';
 
 export function registerCarrierWebhookRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Receive a tracking event pushed by a carrier and record it against the
+   * matching shipment. Only accepted when the signature over the raw body
+   * checks out; a duplicate or an event code nobody has mapped yet is still
+   * answered as accepted, so the carrier does not keep retrying it.
+   *
+   * No session: the unguessable path token picks the integration, and the
+   * HMAC authenticates the sender. Answers 404 while the logistics portal
+   * feature is off.
+   */
   app.post(
     '/carriers/:pathToken/webhook',
     {

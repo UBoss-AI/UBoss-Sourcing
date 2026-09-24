@@ -164,6 +164,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Add a dispatch address (a warehouse, shop or pickup point) for the seller.
+   * Refused if the seller already has a place with the same code. Writes an
+   * audit entry.
+   */
   app.post(
     '/locations',
     { preHandler: requireSeller(SellerPermission.LOCATION_WRITE) },
@@ -232,6 +237,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Change one of the seller's dispatch addresses, including marking it as not
+   * operating, with a reason. Writes an audit entry.
+   */
   app.patch(
     '/locations/:id',
     { preHandler: requireSeller(SellerPermission.LOCATION_WRITE) },
@@ -256,6 +265,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Close a dispatch address for good. It is archived, not deleted, so past
+   * stock records still make sense. Refused while stock is still held there.
+   * Writes an audit entry.
+   */
   app.delete(
     '/locations/:id',
     { preHandler: requireSeller(SellerPermission.LOCATION_WRITE) },
@@ -268,6 +282,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
   // --- Stock --------------------------------------------------------------
 
+  /**
+   * One page of the seller's stock, per listing and per place. Can be narrowed
+   * to one place, a search, items running low, or batches expiring soon.
+   */
   app.get(
     '/inventory',
     { preHandler: requireSeller(SellerPermission.INVENTORY_READ) },
@@ -288,6 +306,13 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Add or remove stock at one place - goods received, a correction, a return,
+   * or moving units into or out of quarantine - and record why. Refused if it
+   * would take stock below zero. Writes an audit entry.
+   *
+   * An idempotency key stops a retried save moving stock twice.
+   */
   app.post(
     '/inventory/movements',
     { preHandler: requireTradingSeller(SellerPermission.INVENTORY_WRITE) },
@@ -321,6 +346,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Change the reorder level and batch details (batch number, made and expiry
+   * dates) for one listing's stock at one place. Does not change the quantity.
+   */
   app.patch(
     '/inventory/:offerId/:locationId',
     { preHandler: requireSeller(SellerPermission.INVENTORY_WRITE) },
@@ -343,6 +372,7 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /** The history of stock changes for one listing, most recent first. */
   app.get(
     '/inventory/:offerId/movements',
     { preHandler: requireSeller(SellerPermission.INVENTORY_READ) },
@@ -359,6 +389,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
   // --- Orders -------------------------------------------------------------
 
+  /**
+   * One page of the seller's orders. Can be filtered by status, a search,
+   * dispatch place, or only those past their dispatch deadline.
+   */
   app.get(
     '/orders',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -393,6 +427,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * One of the seller's orders in full: the items they are shipping and where
+   * to. The buyer's email, phone and payment details are not included.
+   */
   app.get(
     '/orders/:id',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -403,6 +441,12 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Move one of the seller's orders to its next stage, such as accepted,
+   * packing, ready or cancelled. Only allowed moves are accepted; cancelling
+   * needs the cancel permission and releases the stock the order was holding.
+   * Writes an audit entry.
+   */
   app.patch(
     '/orders/:id/status',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_READ) },
@@ -438,6 +482,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Record that some or all of an order has been sent, with the carrier and
+   * tracking number. The order counts as shipped only once every item has gone,
+   * and sending more than is left is refused. Writes an audit entry.
+   */
   app.post(
     '/orders/:id/shipments',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
@@ -474,6 +523,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
   // --- Money --------------------------------------------------------------
 
+  /**
+   * One page of the seller's settlement statements, newest period first: sales,
+   * tax, shipping, fees, refunds and the amount due to them for each period.
+   */
   app.get(
     '/settlements',
     { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
@@ -523,6 +576,7 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /** Every line making up one of the seller's settlement statements, oldest first. */
   app.get(
     '/settlements/:id/lines',
     { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
@@ -563,6 +617,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * The seller's last 100 payouts, newest first, with their status. A failed
+   * payout carries the reason and what to do about it.
+   */
   app.get(
     '/payouts',
     { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
@@ -593,6 +651,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * The state of the seller's payout account set-up, and whether this
+   * marketplace has a payout provider configured at all.
+   */
   app.get(
     '/payout-account',
     { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
@@ -644,6 +706,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
 
   // --- Notifications ------------------------------------------------------
 
+  /**
+   * The seller's 50 most recent notifications, including resolved alerts but
+   * not archived ones, each marked read or unread for the person asking.
+   */
   app.get('/notifications', async (request, reply) => {
     const seller = currentSeller(request);
 
@@ -695,6 +761,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     });
   });
 
+  /**
+   * Mark one notification as read for the person asking. Other team members
+   * still see it as unread.
+   */
   app.post('/notifications/:id/read', async (request, reply) => {
     const seller = currentSeller(request);
     const params = idParam.parse(request.params);
@@ -736,6 +806,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
   // between an authorisation check and a suggestion.
   // -------------------------------------------------------------------------
 
+  /**
+   * Every delivery company arrangement the seller has, in any state, including
+   * requests that were refused or ended.
+   */
   app.get(
     '/carriers',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -745,6 +819,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Ask to use a delivery company on the marketplace, optionally with the
+   * seller's own account number there. The request waits for the marketplace
+   * to approve it; a refused or ended one can be asked for again.
+   */
   app.post(
     '/carriers',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL) },
@@ -802,6 +881,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * The carrier prices currently on offer for one consignment, plus the one
+   * the seller chose, cheapest first. Asks no carrier for new prices.
+   */
   app.get(
     '/consignments/:id/quotes',
     { preHandler: requireTradingSeller(SellerPermission.ORDER_READ) },
@@ -973,6 +1056,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
   // carrier's own site or at its counter and records here what it gave them.
   // No label, no rate, no tracking number is ever produced by these routes.
 
+  /**
+   * Choose DHL, FedEx or India Post for a consignment, to be booked by the
+   * seller on the carrier's own site or counter. Books nothing itself; the
+   * seller is reminded until they enter the carrier's tracking number.
+   */
   app.post(
     '/consignments/:id/manual-booking',
     {
@@ -1000,6 +1088,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Record what the carrier gave the seller for a hand-made booking: service,
+   * collection reference, dates, cost and tracking number. Entering the
+   * tracking number marks the booking as made and the collection as scheduled.
+   */
   app.patch(
     '/consignments/:id/manual-booking',
     {
@@ -1038,6 +1131,7 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /** Cancel a hand-made carrier booking before collection, with a reason. */
   app.post(
     '/consignments/:id/manual-booking/cancel',
     {
@@ -1093,6 +1187,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Upload a file to a hand-booked consignment, such as the carrier's own
+   * label, a customs form or a proof of delivery. Only allowed while the
+   * consignment has a live hand-made booking.
+   */
   app.post(
     '/consignments/:id/documents',
     {
@@ -1170,6 +1269,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
   // board for a person to schedule. The seller sees the difference, because it
   // is a real one.
 
+  /**
+   * Every collection the seller has arranged, newest first. Can be narrowed to
+   * one consignment or to collections still in progress.
+   */
   app.get(
     '/pickups',
     { preHandler: requireSeller(SellerPermission.ORDER_READ) },
@@ -1287,6 +1390,11 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
   // carrier on this seller's account can express the load, the answer is a
   // QUOTATION rather than a fabricated price - see `domain/freight-load.ts`.
 
+  /**
+   * The freight price requests on the seller's account, for loads such as
+   * pallets or containers that no parcel carrier can take. Can be filtered by
+   * state or by order.
+   */
   app.get(
     '/freight-quotes',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_READ) },
@@ -1416,6 +1524,10 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
+  /**
+   * Decline to carry a load that was sent for a freight price, with a reason.
+   * Only possible while the request is still open or quoted.
+   */
   app.post(
     '/freight-quotes/:id/decline',
     { preHandler: requireSeller(SellerPermission.FULFILMENT_WRITE) },
