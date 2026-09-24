@@ -313,7 +313,7 @@ jobs:
       # The report holds test names, files and error messages - no environment,
       # no secrets; the suite's credentials are the fake ones pinned in
       # tests/setup.ts.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: vitest-report
@@ -469,7 +469,7 @@ jobs:
           npm ci --ignore-scripts
           npm sbom --sbom-format cyclonedx > sbom.cdx.json
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: sbom-${{ matrix.slug }}
@@ -543,7 +543,7 @@ jobs:
       # diagnosable only by somebody who could open the run in a browser. The
       # report is redacted - it says which rule fired, in which file, at which
       # line, and never prints the matched value.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: gitleaks-report
