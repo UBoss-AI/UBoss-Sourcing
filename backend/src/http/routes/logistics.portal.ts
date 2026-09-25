@@ -69,6 +69,17 @@ import {
   updateLogisticsPartnerContact,
 } from '../../modules/logistics/partner.service.js';
 import { listLogisticsAudit } from '../../modules/logistics/audit.service.js';
+import {
+  createComplianceDocumentLink,
+  profileUpdateSchema,
+  readLogisticsProfile,
+  redeemComplianceDocumentLink,
+  removeLogisticsLogo,
+  updateLogisticsProfile,
+  uploadComplianceDocument,
+  uploadLogisticsLogo,
+  withdrawProfileChange,
+} from '../../modules/logistics/profile.service.js';
 import { readLiveLocation } from '../../modules/logistics/trip.service.js';
 import { currentUser } from '../plugins/auth.js';
 import { readOwnIntegrationHealth } from '../../modules/logistics/partner-catalogue.service.js';
@@ -1008,6 +1019,207 @@ export function registerLogisticsPortalRoutes(app: FastifyInstance): Promise<voi
       );
 
       return reply.status(200).send(profile);
+    },
+  );
+
+  // --- My Profile --------------------------------------------------------
+  //
+  // The company's own profile. Like everything in this file, no route takes a
+  // partner id: the company is the one the session belongs to.
+
+  /**
+   * This delivery company's full profile: identity, company details, contacts,
+   * coverage, capabilities, compliance documents, integration status and any
+   * details change waiting for the marketplace. Secrets, credentials and the
+   * marketplace's private notes are never included.
+   */
+  app.get(
+    '/profile',
+    { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_READ) },
+    async (request, reply) => {
+      const profile = await readLogisticsProfile(currentLogistics(request));
+      return reply.header('cache-control', 'no-store').status(200).send(profile);
+    },
+  );
+
+  /**
+   * Save changes to the profile. Contacts, addresses, hours and similar fields
+   * are saved at once. Legal name, trading name, registration and tax numbers,
+   * the registered address and the licence are sent to the marketplace to
+   * verify and only change once approved. Any other field is refused. Writes
+   * an audit entry.
+   */
+  app.patch(
+    '/profile',
+    {
+      preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE),
+      config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+    },
+    async (request, reply) => {
+      const body = profileUpdateSchema.parse(request.body ?? {});
+      const result = await updateLogisticsProfile(
+        currentLogistics(request),
+        body,
+        request.correlationId,
+      );
+      return reply.header('cache-control', 'no-store').status(200).send(result);
+    },
+  );
+
+  /** Withdraw the details change waiting for the marketplace. Writes an audit entry. */
+  app.delete(
+    '/profile/pending-change',
+    { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE) },
+    async (request, reply) => {
+      const profile = await withdrawProfileChange(currentLogistics(request), request.correlationId);
+      return reply.status(200).send(profile);
+    },
+  );
+
+  /**
+   * Replace the company logo. JPEG, PNG, WebP or GIF, decided by the file's
+   * contents; SVG is refused. Scanned for malware first. Writes an audit entry.
+   */
+  app.post(
+    '/profile/logo',
+    {
+      preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE),
+      config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+    },
+    async (request, reply) => {
+      const file = await request.file();
+      if (file === undefined) {
+        return reply.status(400).send({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Attach an image.',
+            details: [{ field: 'file', code: 'REQUIRED' }],
+            correlationId: request.correlationId,
+          },
+        });
+      }
+      const result = await uploadLogisticsLogo(
+        currentLogistics(request),
+        await file.toBuffer(),
+        request.correlationId,
+      );
+      return reply.status(200).send(result);
+    },
+  );
+
+  /** Remove the company logo. Writes an audit entry. */
+  app.delete(
+    '/profile/logo',
+    { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE) },
+    async (request, reply) => {
+      await removeLogisticsLogo(currentLogistics(request), request.correlationId);
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * File a compliance document (licence, insurance, permit, registration) for
+   * the marketplace to verify. PDF or image up to 10 MB, decided by the file's
+   * contents, scanned for malware and stored privately. A newer file of the
+   * same kind replaces the older one, which is kept. Writes an audit entry.
+   */
+  app.post(
+    '/profile/documents',
+    {
+      preHandler: requireLogistics(LogisticsPermission.ORGANISATION_WRITE),
+      config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+    },
+    async (request, reply) => {
+      const file = await request.file({ limits: { fileSize: 10 * 1024 * 1024 } });
+      if (file === undefined) {
+        return reply.status(400).send({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Attach a file.',
+            details: [{ field: 'file', code: 'REQUIRED' }],
+            correlationId: request.correlationId,
+          },
+        });
+      }
+
+      const field = (name: string): string | null => {
+        const value = file.fields[name];
+        return typeof value === 'object' && 'value' in value
+          ? String((value as { value: unknown }).value)
+          : null;
+      };
+
+      const bytes = await file.toBuffer();
+      if (file.file.truncated) {
+        return reply.status(400).send({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Documents must be 10 MB or smaller.',
+            details: [{ field: 'file', code: 'TOO_LARGE' }],
+            correlationId: request.correlationId,
+          },
+        });
+      }
+
+      const stored = await uploadComplianceDocument(
+        currentLogistics(request),
+        {
+          kind: field('kind') ?? '',
+          expiresOn: field('expiresOn'),
+          fileName: file.filename,
+          bytes,
+        },
+        request.correlationId,
+      );
+      return reply.status(201).send(stored);
+    },
+  );
+
+  /**
+   * A short-lived, single-use link to one of this company's compliance
+   * documents. Refused for a file that has not passed the malware scan. Writes
+   * an audit entry.
+   */
+  app.post(
+    '/profile/documents/:id/link',
+    { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const link = await createComplianceDocumentLink(
+        currentLogistics(request),
+        params.id,
+        request.correlationId,
+      );
+      return reply.header('cache-control', 'no-store').status(200).send(link);
+    },
+  );
+
+  /**
+   * Download a compliance document with a link from the route above. Needs the
+   * same signed-in person as well as the link, and works once.
+   */
+  app.get(
+    '/profile/documents/:id/download',
+    { preHandler: requireLogistics(LogisticsPermission.ORGANISATION_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const query = z.object({ token: z.string().min(1).max(256) }).parse(request.query);
+      const file = await redeemComplianceDocumentLink(
+        currentLogistics(request),
+        params.id,
+        query.token,
+      );
+
+      return reply
+        .header('content-type', file.contentType)
+        .header(
+          'content-disposition',
+          `attachment; filename="${file.fileName.replace(/[^A-Za-z0-9._-]/g, '_')}"`,
+        )
+        .header('x-content-type-options', 'nosniff')
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send(file.body);
     },
   );
 

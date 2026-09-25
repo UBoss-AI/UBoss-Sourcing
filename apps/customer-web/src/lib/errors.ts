@@ -123,6 +123,10 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'PAYMENT_INSTRUMENT_UNAVAILABLE') {
       return t('payment.thatWayOfPayingIsUnavailable');
     }
+    // Stripe Checkout's refusals. Each says what the customer can do next.
+    if (error.code === 'PAYMENT_ATTEMPT_IN_PROGRESS') return t('payment.attemptInProgress');
+    if (error.code === 'PAYMENT_AMOUNT_NOT_SUPPORTED') return t('payment.amountNotSupported');
+    if (error.code === 'PAYMENT_PROVIDER_NOT_CONFIGURED') return t('payment.notConfigured');
     if (error.code === 'PAYMENT_METHOD_NOT_CHARGEABLE') {
       return t('payment.thatCardCannotBeUsed');
     }
@@ -137,6 +141,7 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      * different things to do about them - ask for a quote, come back later, or
      * order by the piece instead.
      */
+    if (error.code === 'SELLER_SESSION_EXPIRED') return t('sellerSession.expired');
     if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
     if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');

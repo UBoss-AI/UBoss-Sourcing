@@ -5,6 +5,7 @@
  * `product.write` on purpose: editing a draft and making it publicly buyable
  * are different levels of authority, and the SOP grants them separately.
  */
+import { SPEC_GROUPS, SPEC_UNITS } from '../../domain/product-specifications.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { z } from 'zod';
@@ -107,6 +108,11 @@ export const productAttributesSchema = z
       name: z.string().trim().min(1).max(128),
       value: z.string().trim().min(1).max(512),
       isFilterable: z.boolean().optional(),
+      // Where it is shown, and how. Optional, so an editor that does not send
+      // them writes the plain rows it always did (shown under General).
+      group: z.enum(SPEC_GROUPS).nullable().optional(),
+      unit: z.enum(SPEC_UNITS).nullable().optional(),
+      highlight: z.boolean().optional(),
     }),
   )
   .max(50)

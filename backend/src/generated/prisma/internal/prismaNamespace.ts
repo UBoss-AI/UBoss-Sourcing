@@ -419,6 +419,8 @@ export const ModelName = {
   ProductVariantMedia: 'ProductVariantMedia',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
+  ProductVariantAttribute: 'ProductVariantAttribute',
+  ProductDescriptionSection: 'ProductDescriptionSection',
   ProductPackaging: 'ProductPackaging',
   ProductPackDimension: 'ProductPackDimension',
   ProductImportRecord: 'ProductImportRecord',
@@ -446,6 +448,7 @@ export const ModelName = {
   RecurringScheduleItem: 'RecurringScheduleItem',
   ScheduleOccurrence: 'ScheduleOccurrence',
   CustomerPaymentMethod: 'CustomerPaymentMethod',
+  PaymentProviderCustomer: 'PaymentProviderCustomer',
   ErpOrderPush: 'ErpOrderPush',
   FulfilmentQuote: 'FulfilmentQuote',
   Shipment: 'Shipment',
@@ -559,6 +562,8 @@ export const ModelName = {
   SellerLogisticsRelationshipEvent: 'SellerLogisticsRelationshipEvent',
   SellerLogisticsPartnerInvitation: 'SellerLogisticsPartnerInvitation',
   LogisticsPartner: 'LogisticsPartner',
+  LogisticsPartnerProfileChange: 'LogisticsPartnerProfileChange',
+  LogisticsPartnerDocument: 'LogisticsPartnerDocument',
   LogisticsPartnerUser: 'LogisticsPartnerUser',
   LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
   LogisticsServiceRegion: 'LogisticsServiceRegion',
@@ -650,7 +655,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2103,6 +2108,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAttributeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAttributeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductVariantAttribute: {
+      payload: Prisma.$ProductVariantAttributePayload<ExtArgs>
+      fields: Prisma.ProductVariantAttributeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductVariantAttributeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductVariantAttributeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        findFirst: {
+          args: Prisma.ProductVariantAttributeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductVariantAttributeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        findMany: {
+          args: Prisma.ProductVariantAttributeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>[]
+        }
+        create: {
+          args: Prisma.ProductVariantAttributeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        createMany: {
+          args: Prisma.ProductVariantAttributeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductVariantAttributeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        update: {
+          args: Prisma.ProductVariantAttributeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductVariantAttributeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductVariantAttributeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductVariantAttributeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantAttributePayload>
+        }
+        aggregate: {
+          args: Prisma.ProductVariantAttributeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVariantAttribute>
+        }
+        groupBy: {
+          args: Prisma.ProductVariantAttributeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantAttributeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductVariantAttributeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantAttributeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductDescriptionSection: {
+      payload: Prisma.$ProductDescriptionSectionPayload<ExtArgs>
+      fields: Prisma.ProductDescriptionSectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductDescriptionSectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductDescriptionSectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductDescriptionSectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductDescriptionSectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        findMany: {
+          args: Prisma.ProductDescriptionSectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>[]
+        }
+        create: {
+          args: Prisma.ProductDescriptionSectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        createMany: {
+          args: Prisma.ProductDescriptionSectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductDescriptionSectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        update: {
+          args: Prisma.ProductDescriptionSectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductDescriptionSectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductDescriptionSectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductDescriptionSectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductDescriptionSectionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductDescriptionSectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductDescriptionSection>
+        }
+        groupBy: {
+          args: Prisma.ProductDescriptionSectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductDescriptionSectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductDescriptionSectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductDescriptionSectionCountAggregateOutputType> | number
         }
       }
     }
@@ -3885,6 +4022,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerPaymentMethodCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerPaymentMethodCountAggregateOutputType> | number
+        }
+      }
+    }
+    PaymentProviderCustomer: {
+      payload: Prisma.$PaymentProviderCustomerPayload<ExtArgs>
+      fields: Prisma.PaymentProviderCustomerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentProviderCustomerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentProviderCustomerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentProviderCustomerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentProviderCustomerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        findMany: {
+          args: Prisma.PaymentProviderCustomerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>[]
+        }
+        create: {
+          args: Prisma.PaymentProviderCustomerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        createMany: {
+          args: Prisma.PaymentProviderCustomerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PaymentProviderCustomerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        update: {
+          args: Prisma.PaymentProviderCustomerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentProviderCustomerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentProviderCustomerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PaymentProviderCustomerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentProviderCustomerPayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentProviderCustomerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentProviderCustomer>
+        }
+        groupBy: {
+          args: Prisma.PaymentProviderCustomerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentProviderCustomerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentProviderCustomerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentProviderCustomerCountAggregateOutputType> | number
         }
       }
     }
@@ -11346,6 +11549,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LogisticsPartnerProfileChange: {
+      payload: Prisma.$LogisticsPartnerProfileChangePayload<ExtArgs>
+      fields: Prisma.LogisticsPartnerProfileChangeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPartnerProfileChangeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPartnerProfileChangeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPartnerProfileChangeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPartnerProfileChangeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPartnerProfileChangeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPartnerProfileChangeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPartnerProfileChangeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPartnerProfileChangeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        update: {
+          args: Prisma.LogisticsPartnerProfileChangeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPartnerProfileChangeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPartnerProfileChangeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPartnerProfileChangeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerProfileChangePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPartnerProfileChangeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPartnerProfileChange>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPartnerProfileChangeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerProfileChangeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPartnerProfileChangeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerProfileChangeCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsPartnerDocument: {
+      payload: Prisma.$LogisticsPartnerDocumentPayload<ExtArgs>
+      fields: Prisma.LogisticsPartnerDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPartnerDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPartnerDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPartnerDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPartnerDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPartnerDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPartnerDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPartnerDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPartnerDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        update: {
+          args: Prisma.LogisticsPartnerDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPartnerDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPartnerDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPartnerDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPartnerDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPartnerDocument>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPartnerDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPartnerDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
     LogisticsPartnerUser: {
       payload: Prisma.$LogisticsPartnerUserPayload<ExtArgs>
       fields: Prisma.LogisticsPartnerUserFieldRefs
@@ -16489,6 +16824,7 @@ export const SessionScalarFieldEnum = {
   mfaVerifiedAt: 'mfaVerifiedAt',
   sellerUnlockedAt: 'sellerUnlockedAt',
   sellerUnlockedForId: 'sellerUnlockedForId',
+  sellerLastActivityAt: 'sellerLastActivityAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -16825,10 +17161,43 @@ export const ProductAttributeScalarFieldEnum = {
   name: 'name',
   value: 'value',
   sortOrder: 'sortOrder',
-  isFilterable: 'isFilterable'
+  isFilterable: 'isFilterable',
+  groupKey: 'groupKey',
+  unit: 'unit',
+  isHighlight: 'isHighlight'
 } as const
 
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductVariantAttributeScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  name: 'name',
+  value: 'value',
+  unit: 'unit',
+  groupKey: 'groupKey',
+  sortOrder: 'sortOrder'
+} as const
+
+export type ProductVariantAttributeScalarFieldEnum = (typeof ProductVariantAttributeScalarFieldEnum)[keyof typeof ProductVariantAttributeScalarFieldEnum]
+
+
+export const ProductDescriptionSectionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  heading: 'heading',
+  body: 'body',
+  imageMediaId: 'imageMediaId',
+  altText: 'altText',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductDescriptionSectionScalarFieldEnum = (typeof ProductDescriptionSectionScalarFieldEnum)[keyof typeof ProductDescriptionSectionScalarFieldEnum]
 
 
 export const ProductPackagingScalarFieldEnum = {
@@ -17197,6 +17566,8 @@ export const OrderItemScalarFieldEnum = {
   discountMinor: 'discountMinor',
   lineTotalMinor: 'lineTotalMinor',
   isRecurringEligibleSnapshot: 'isRecurringEligibleSnapshot',
+  productInfoSnapshotJson: 'productInfoSnapshotJson',
+  productInfoCapturedAt: 'productInfoCapturedAt',
   createdAt: 'createdAt'
 } as const
 
@@ -17288,6 +17659,13 @@ export const PaymentTransactionScalarFieldEnum = {
   failureMessage: 'failureMessage',
   idempotencyKey: 'idempotencyKey',
   mandateReference: 'mandateReference',
+  providerSessionId: 'providerSessionId',
+  sessionExpiresAt: 'sessionExpiresAt',
+  openAttemptKey: 'openAttemptKey',
+  cardBrand: 'cardBrand',
+  cardLast4: 'cardLast4',
+  disputedAt: 'disputedAt',
+  disputeReason: 'disputeReason',
   authorizedAt: 'authorizedAt',
   capturedAt: 'capturedAt',
   failedAt: 'failedAt',
@@ -17498,6 +17876,19 @@ export const CustomerPaymentMethodScalarFieldEnum = {
 } as const
 
 export type CustomerPaymentMethodScalarFieldEnum = (typeof CustomerPaymentMethodScalarFieldEnum)[keyof typeof CustomerPaymentMethodScalarFieldEnum]
+
+
+export const PaymentProviderCustomerScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  provider: 'provider',
+  mode: 'mode',
+  providerCustomerId: 'providerCustomerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentProviderCustomerScalarFieldEnum = (typeof PaymentProviderCustomerScalarFieldEnum)[keyof typeof PaymentProviderCustomerScalarFieldEnum]
 
 
 export const ErpOrderPushScalarFieldEnum = {
@@ -19179,6 +19570,7 @@ export const SellerListingDraftScalarFieldEnum = {
   packagingJson: 'packagingJson',
   variantAxesJson: 'variantAxesJson',
   variantsJson: 'variantsJson',
+  listingContentJson: 'listingContentJson',
   generatedTitle: 'generatedTitle',
   generatedTitleSource: 'generatedTitleSource',
   sellerEditedTitle: 'sellerEditedTitle',
@@ -19921,6 +20313,24 @@ export const LogisticsPartnerScalarFieldEnum = {
   autoAssignEnabled: 'autoAssignEnabled',
   carrierIntegrationId: 'carrierIntegrationId',
   internalNotes: 'internalNotes',
+  logoStorageKey: 'logoStorageKey',
+  operationalAddressJson: 'operationalAddressJson',
+  businessDescription: 'businessDescription',
+  primaryContactName: 'primaryContactName',
+  primaryContactTitle: 'primaryContactTitle',
+  emergencyContactName: 'emergencyContactName',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  billingContactName: 'billingContactName',
+  billingEmail: 'billingEmail',
+  billingPhone: 'billingPhone',
+  operatingHoursJson: 'operatingHoursJson',
+  timeZone: 'timeZone',
+  declaredTransportModesJson: 'declaredTransportModesJson',
+  hubLocationsJson: 'hubLocationsJson',
+  verificationState: 'verificationState',
+  verifiedAt: 'verifiedAt',
+  verifiedByUserId: 'verifiedByUserId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -19928,6 +20338,48 @@ export const LogisticsPartnerScalarFieldEnum = {
 } as const
 
 export type LogisticsPartnerScalarFieldEnum = (typeof LogisticsPartnerScalarFieldEnum)[keyof typeof LogisticsPartnerScalarFieldEnum]
+
+
+export const LogisticsPartnerProfileChangeScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  state: 'state',
+  pendingKey: 'pendingKey',
+  proposedJson: 'proposedJson',
+  currentJson: 'currentJson',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  requestedAt: 'requestedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsPartnerProfileChangeScalarFieldEnum = (typeof LogisticsPartnerProfileChangeScalarFieldEnum)[keyof typeof LogisticsPartnerProfileChangeScalarFieldEnum]
+
+
+export const LogisticsPartnerDocumentScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  expiresOn: 'expiresOn',
+  reviewState: 'reviewState',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewedAt: 'reviewedAt',
+  rejectionReason: 'rejectionReason',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByLabel: 'uploadedByLabel',
+  createdAt: 'createdAt',
+  supersededAt: 'supersededAt'
+} as const
+
+export type LogisticsPartnerDocumentScalarFieldEnum = (typeof LogisticsPartnerDocumentScalarFieldEnum)[keyof typeof LogisticsPartnerDocumentScalarFieldEnum]
 
 
 export const LogisticsPartnerUserScalarFieldEnum = {
@@ -21603,6 +22055,8 @@ export const PreorderChatConversationScalarFieldEnum = {
   slaAlertedAt: 'slaAlertedAt',
   resolvedAt: 'resolvedAt',
   closedAt: 'closedAt',
+  handoffRequestedAt: 'handoffRequestedAt',
+  handoffTopic: 'handoffTopic',
   reopenCount: 'reopenCount',
   version: 'version',
   createdAt: 'createdAt',
@@ -22189,10 +22643,37 @@ export const ProductAttributeOrderByRelevanceFieldEnum = {
   id: 'id',
   productId: 'productId',
   name: 'name',
-  value: 'value'
+  value: 'value',
+  groupKey: 'groupKey',
+  unit: 'unit'
 } as const
 
 export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductVariantAttributeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  name: 'name',
+  value: 'value',
+  unit: 'unit',
+  groupKey: 'groupKey'
+} as const
+
+export type ProductVariantAttributeOrderByRelevanceFieldEnum = (typeof ProductVariantAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductVariantAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductDescriptionSectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  heading: 'heading',
+  body: 'body',
+  imageMediaId: 'imageMediaId',
+  altText: 'altText'
+} as const
+
+export type ProductDescriptionSectionOrderByRelevanceFieldEnum = (typeof ProductDescriptionSectionOrderByRelevanceFieldEnum)[keyof typeof ProductDescriptionSectionOrderByRelevanceFieldEnum]
 
 
 export const ProductPackagingOrderByRelevanceFieldEnum = {
@@ -22498,7 +22979,12 @@ export const PaymentTransactionOrderByRelevanceFieldEnum = {
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   idempotencyKey: 'idempotencyKey',
-  mandateReference: 'mandateReference'
+  mandateReference: 'mandateReference',
+  providerSessionId: 'providerSessionId',
+  openAttemptKey: 'openAttemptKey',
+  cardBrand: 'cardBrand',
+  cardLast4: 'cardLast4',
+  disputeReason: 'disputeReason'
 } as const
 
 export type PaymentTransactionOrderByRelevanceFieldEnum = (typeof PaymentTransactionOrderByRelevanceFieldEnum)[keyof typeof PaymentTransactionOrderByRelevanceFieldEnum]
@@ -22618,6 +23104,15 @@ export const CustomerPaymentMethodOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerPaymentMethodOrderByRelevanceFieldEnum = (typeof CustomerPaymentMethodOrderByRelevanceFieldEnum)[keyof typeof CustomerPaymentMethodOrderByRelevanceFieldEnum]
+
+
+export const PaymentProviderCustomerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  providerCustomerId: 'providerCustomerId'
+} as const
+
+export type PaymentProviderCustomerOrderByRelevanceFieldEnum = (typeof PaymentProviderCustomerOrderByRelevanceFieldEnum)[keyof typeof PaymentProviderCustomerOrderByRelevanceFieldEnum]
 
 
 export const ErpOrderPushOrderByRelevanceFieldEnum = {
@@ -24192,10 +24687,51 @@ export const LogisticsPartnerOrderByRelevanceFieldEnum = {
   suspensionReason: 'suspensionReason',
   carrierIntegrationId: 'carrierIntegrationId',
   internalNotes: 'internalNotes',
+  logoStorageKey: 'logoStorageKey',
+  businessDescription: 'businessDescription',
+  primaryContactName: 'primaryContactName',
+  primaryContactTitle: 'primaryContactTitle',
+  emergencyContactName: 'emergencyContactName',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  billingContactName: 'billingContactName',
+  billingEmail: 'billingEmail',
+  billingPhone: 'billingPhone',
+  timeZone: 'timeZone',
+  verifiedByUserId: 'verifiedByUserId',
   createdById: 'createdById'
 } as const
 
 export type LogisticsPartnerOrderByRelevanceFieldEnum = (typeof LogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  pendingKey: 'pendingKey',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum = (typeof LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  reviewedByUserId: 'reviewedByUserId',
+  rejectionReason: 'rejectionReason',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByLabel: 'uploadedByLabel'
+} as const
+
+export type LogisticsPartnerDocumentOrderByRelevanceFieldEnum = (typeof LogisticsPartnerDocumentOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerDocumentOrderByRelevanceFieldEnum]
 
 
 export const LogisticsPartnerUserOrderByRelevanceFieldEnum = {
@@ -25137,7 +25673,8 @@ export const PreorderChatConversationOrderByRelevanceFieldEnum = {
   productName: 'productName',
   productSku: 'productSku',
   sellerName: 'sellerName',
-  lastMessagePreview: 'lastMessagePreview'
+  lastMessagePreview: 'lastMessagePreview',
+  handoffTopic: 'handoffTopic'
 } as const
 
 export type PreorderChatConversationOrderByRelevanceFieldEnum = (typeof PreorderChatConversationOrderByRelevanceFieldEnum)[keyof typeof PreorderChatConversationOrderByRelevanceFieldEnum]
@@ -26302,6 +26839,41 @@ export type EnumLogisticsContractStatusFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'LogisticsPartnerVerificationState'
+ */
+export type EnumLogisticsPartnerVerificationStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPartnerVerificationState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsProfileChangeState'
+ */
+export type EnumLogisticsProfileChangeStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsProfileChangeState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsComplianceDocumentKind'
+ */
+export type EnumLogisticsComplianceDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsComplianceDocumentKind'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsDocumentScanState'
+ */
+export type EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentScanState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsComplianceReviewState'
+ */
+export type EnumLogisticsComplianceReviewStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsComplianceReviewState'>
+    
+
+
+/**
  * Reference to a field of type 'LogisticsPartnerRole'
  */
 export type EnumLogisticsPartnerRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPartnerRole'>
@@ -26410,13 +26982,6 @@ export type EnumLogisticsDocumentKindFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'LogisticsDocumentAudience'
  */
 export type EnumLogisticsDocumentAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentAudience'>
-    
-
-
-/**
- * Reference to a field of type 'LogisticsDocumentScanState'
- */
-export type EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentScanState'>
     
 
 
@@ -27054,6 +27619,8 @@ export type GlobalOmitConfig = {
   productVariantMedia?: Prisma.ProductVariantMediaOmit
   productMedia?: Prisma.ProductMediaOmit
   productAttribute?: Prisma.ProductAttributeOmit
+  productVariantAttribute?: Prisma.ProductVariantAttributeOmit
+  productDescriptionSection?: Prisma.ProductDescriptionSectionOmit
   productPackaging?: Prisma.ProductPackagingOmit
   productPackDimension?: Prisma.ProductPackDimensionOmit
   productImportRecord?: Prisma.ProductImportRecordOmit
@@ -27081,6 +27648,7 @@ export type GlobalOmitConfig = {
   recurringScheduleItem?: Prisma.RecurringScheduleItemOmit
   scheduleOccurrence?: Prisma.ScheduleOccurrenceOmit
   customerPaymentMethod?: Prisma.CustomerPaymentMethodOmit
+  paymentProviderCustomer?: Prisma.PaymentProviderCustomerOmit
   erpOrderPush?: Prisma.ErpOrderPushOmit
   fulfilmentQuote?: Prisma.FulfilmentQuoteOmit
   shipment?: Prisma.ShipmentOmit
@@ -27194,6 +27762,8 @@ export type GlobalOmitConfig = {
   sellerLogisticsRelationshipEvent?: Prisma.SellerLogisticsRelationshipEventOmit
   sellerLogisticsPartnerInvitation?: Prisma.SellerLogisticsPartnerInvitationOmit
   logisticsPartner?: Prisma.LogisticsPartnerOmit
+  logisticsPartnerProfileChange?: Prisma.LogisticsPartnerProfileChangeOmit
+  logisticsPartnerDocument?: Prisma.LogisticsPartnerDocumentOmit
   logisticsPartnerUser?: Prisma.LogisticsPartnerUserOmit
   logisticsPartnerInvitation?: Prisma.LogisticsPartnerInvitationOmit
   logisticsServiceRegion?: Prisma.LogisticsServiceRegionOmit

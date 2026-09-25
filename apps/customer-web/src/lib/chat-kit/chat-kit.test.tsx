@@ -34,11 +34,15 @@ function Composer({
   canSend = true,
   clearOnSend = true,
   initial = '',
+  appearance = 'labelled',
+  sendState = 'idle',
 }: {
   onSend: (text: string) => void;
   canSend?: boolean;
   clearOnSend?: boolean;
   initial?: string;
+  appearance?: 'labelled' | 'round';
+  sendState?: 'idle' | 'sending' | 'failed';
 }): React.JSX.Element {
   const [draft, setDraft] = useState(initial);
   return (
@@ -50,7 +54,9 @@ function Composer({
         if (clearOnSend) setDraft('');
       }}
       canSend={canSend}
-      labels={LABELS}
+      labels={{ ...LABELS, sendFailed: 'Your last message was not sent' }}
+      sendAppearance={appearance}
+      sendState={sendState}
       leading={
         <button type="button" data-testid="attach">
           attach
@@ -314,6 +320,79 @@ function readAt(top: number): void {
 function state(): string {
   return screen.getByTestId('state').textContent;
 }
+
+describe('the round send button', () => {
+  function sendButton(): HTMLButtonElement {
+    return screen.getByRole('button', { name: 'Send' });
+  }
+
+  it('is a circle with an upward arrow and a name, not a word', () => {
+    render(<Composer onSend={vi.fn()} appearance="round" initial="Hello" />);
+    const button = sendButton();
+    expect(button.className).toContain('rounded-full');
+    expect(button.className).toContain('bg-brand-fill');
+    expect(button.getAttribute('title')).toBe('Send');
+    expect(button.textContent).toBe('');
+    // The arrow is drawn, and hidden from a screen reader: the name says it.
+    expect(button.querySelector('svg path')?.getAttribute('d')).toBe('M12 19V5m0 0-6.25 6.25M12 5l6.25 6.25');
+    expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    // The same height as the message box beside it.
+    expect(button.className).toContain('size-10');
+    expect(box().className).toContain('min-h-10');
+  });
+
+  it('is disabled with nothing to send, and enabled by the first character', () => {
+    render(<Composer onSend={vi.fn()} appearance="round" />);
+    expect(sendButton().disabled).toBe(true);
+    type('   ');
+    expect(sendButton().disabled).toBe(true);
+    type('Hi');
+    expect(sendButton().disabled).toBe(false);
+  });
+
+  it('sends once for a click, a held Enter and another click together', () => {
+    const onSend = vi.fn();
+    render(<Composer onSend={onSend} appearance="round" clearOnSend={false} />);
+    type('Just once');
+    fireEvent.click(sendButton());
+    press({ repeat: true });
+    fireEvent.click(sendButton());
+    expect(onSend).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps Enter to send and Shift+Enter for a new line', () => {
+    const onSend = vi.fn();
+    render(<Composer onSend={onSend} appearance="round" />);
+    type('Line one');
+    expect(press({ shiftKey: true })).toBe(false);
+    expect(onSend).not.toHaveBeenCalled();
+    expect(press()).toBe(true);
+    expect(onSend).toHaveBeenCalledWith('Line one');
+  });
+
+  it('shows progress while sending, and says so', () => {
+    render(<Composer onSend={vi.fn()} appearance="round" sendState="sending" />);
+    const button = sendButton();
+    expect(button.getAttribute('data-state')).toBe('sending');
+    expect(button.querySelector('svg')).toBeNull();
+    expect(button.querySelector('.animate-spin')).not.toBeNull();
+    expect(screen.getByRole('status').textContent).toBe('Send…');
+  });
+
+  it('marks a failed send and describes it', () => {
+    render(<Composer onSend={vi.fn()} appearance="round" sendState="failed" initial="Retry me" />);
+    const button = sendButton();
+    expect(button.getAttribute('data-state')).toBe('failed');
+    const describedBy = button.getAttribute('aria-describedby') ?? '';
+    expect(document.getElementById(describedBy)?.textContent).toBe('Your last message was not sent');
+  });
+
+  it('stops moving for somebody who asked for less motion', () => {
+    render(<Composer onSend={vi.fn()} appearance="round" initial="x" />);
+    expect(sendButton().className).toContain('motion-reduce:transition-none');
+    expect(sendButton().className).toContain('duration-[180ms]');
+  });
+});
 
 describe('the message history', () => {
   it('opens at the newest message when nothing is unread', () => {

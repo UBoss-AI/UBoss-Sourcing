@@ -74,6 +74,7 @@ export type OrderItemMinAggregateOutputType = {
   discountMinor: bigint | null
   lineTotalMinor: bigint | null
   isRecurringEligibleSnapshot: boolean | null
+  productInfoCapturedAt: Date | null
   createdAt: Date | null
 }
 
@@ -101,6 +102,7 @@ export type OrderItemMaxAggregateOutputType = {
   discountMinor: bigint | null
   lineTotalMinor: bigint | null
   isRecurringEligibleSnapshot: boolean | null
+  productInfoCapturedAt: Date | null
   createdAt: Date | null
 }
 
@@ -129,6 +131,8 @@ export type OrderItemCountAggregateOutputType = {
   discountMinor: number
   lineTotalMinor: number
   isRecurringEligibleSnapshot: number
+  productInfoSnapshotJson: number
+  productInfoCapturedAt: number
   createdAt: number
   _all: number
 }
@@ -182,6 +186,7 @@ export type OrderItemMinAggregateInputType = {
   discountMinor?: true
   lineTotalMinor?: true
   isRecurringEligibleSnapshot?: true
+  productInfoCapturedAt?: true
   createdAt?: true
 }
 
@@ -209,6 +214,7 @@ export type OrderItemMaxAggregateInputType = {
   discountMinor?: true
   lineTotalMinor?: true
   isRecurringEligibleSnapshot?: true
+  productInfoCapturedAt?: true
   createdAt?: true
 }
 
@@ -237,6 +243,8 @@ export type OrderItemCountAggregateInputType = {
   discountMinor?: true
   lineTotalMinor?: true
   isRecurringEligibleSnapshot?: true
+  productInfoSnapshotJson?: true
+  productInfoCapturedAt?: true
   createdAt?: true
   _all?: true
 }
@@ -352,6 +360,8 @@ export type OrderItemGroupByOutputType = {
   discountMinor: bigint
   lineTotalMinor: bigint
   isRecurringEligibleSnapshot: boolean
+  productInfoSnapshotJson: runtime.JsonValue | null
+  productInfoCapturedAt: Date | null
   createdAt: Date
   _count: OrderItemCountAggregateOutputType | null
   _avg: OrderItemAvgAggregateOutputType | null
@@ -403,6 +413,8 @@ export type OrderItemWhereInput = {
   discountMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   lineTotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFilter<"OrderItem"> | boolean
+  productInfoSnapshotJson?: Prisma.JsonNullableFilter<"OrderItem">
+  productInfoCapturedAt?: Prisma.DateTimeNullableFilter<"OrderItem"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderItem"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -436,6 +448,8 @@ export type OrderItemOrderByWithRelationInput = {
   discountMinor?: Prisma.SortOrder
   lineTotalMinor?: Prisma.SortOrder
   isRecurringEligibleSnapshot?: Prisma.SortOrder
+  productInfoSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  productInfoCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   order?: Prisma.OrderOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
@@ -473,6 +487,8 @@ export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
   discountMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   lineTotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFilter<"OrderItem"> | boolean
+  productInfoSnapshotJson?: Prisma.JsonNullableFilter<"OrderItem">
+  productInfoCapturedAt?: Prisma.DateTimeNullableFilter<"OrderItem"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderItem"> | Date | string
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -506,6 +522,8 @@ export type OrderItemOrderByWithAggregationInput = {
   discountMinor?: Prisma.SortOrder
   lineTotalMinor?: Prisma.SortOrder
   isRecurringEligibleSnapshot?: Prisma.SortOrder
+  productInfoSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  productInfoCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OrderItemCountOrderByAggregateInput
   _avg?: Prisma.OrderItemAvgOrderByAggregateInput
@@ -542,6 +560,8 @@ export type OrderItemScalarWhereWithAggregatesInput = {
   discountMinor?: Prisma.BigIntWithAggregatesFilter<"OrderItem"> | bigint | number
   lineTotalMinor?: Prisma.BigIntWithAggregatesFilter<"OrderItem"> | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolWithAggregatesFilter<"OrderItem"> | boolean
+  productInfoSnapshotJson?: Prisma.JsonNullableWithAggregatesFilter<"OrderItem">
+  productInfoCapturedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OrderItem"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
 }
 
@@ -566,6 +586,8 @@ export type OrderItemCreateInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
@@ -599,6 +621,8 @@ export type OrderItemUncheckedCreateInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedCreateNestedOneWithoutOrderItemInput
 }
@@ -624,6 +648,8 @@ export type OrderItemUpdateInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -657,6 +683,8 @@ export type OrderItemUncheckedUpdateInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedUpdateOneWithoutOrderItemNestedInput
 }
@@ -686,6 +714,8 @@ export type OrderItemCreateManyInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -710,6 +740,8 @@ export type OrderItemUpdateManyMutationInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -738,6 +770,8 @@ export type OrderItemUncheckedUpdateManyInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -782,6 +816,8 @@ export type OrderItemCountOrderByAggregateInput = {
   discountMinor?: Prisma.SortOrder
   lineTotalMinor?: Prisma.SortOrder
   isRecurringEligibleSnapshot?: Prisma.SortOrder
+  productInfoSnapshotJson?: Prisma.SortOrder
+  productInfoCapturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -821,6 +857,7 @@ export type OrderItemMaxOrderByAggregateInput = {
   discountMinor?: Prisma.SortOrder
   lineTotalMinor?: Prisma.SortOrder
   isRecurringEligibleSnapshot?: Prisma.SortOrder
+  productInfoCapturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -848,6 +885,7 @@ export type OrderItemMinOrderByAggregateInput = {
   discountMinor?: Prisma.SortOrder
   lineTotalMinor?: Prisma.SortOrder
   isRecurringEligibleSnapshot?: Prisma.SortOrder
+  productInfoCapturedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -1071,6 +1109,8 @@ export type OrderItemCreateWithoutProductInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutItemsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutOrderItemsInput
@@ -1102,6 +1142,8 @@ export type OrderItemUncheckedCreateWithoutProductInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedCreateNestedOneWithoutOrderItemInput
 }
@@ -1160,6 +1202,8 @@ export type OrderItemScalarWhereInput = {
   discountMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   lineTotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFilter<"OrderItem"> | boolean
+  productInfoSnapshotJson?: Prisma.JsonNullableFilter<"OrderItem">
+  productInfoCapturedAt?: Prisma.DateTimeNullableFilter<"OrderItem"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"OrderItem"> | Date | string
 }
 
@@ -1184,6 +1228,8 @@ export type OrderItemCreateWithoutVariantInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
@@ -1215,6 +1261,8 @@ export type OrderItemUncheckedCreateWithoutVariantInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedCreateNestedOneWithoutOrderItemInput
 }
@@ -1266,6 +1314,8 @@ export type OrderItemCreateWithoutOrderInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutOrderItemsInput
@@ -1297,6 +1347,8 @@ export type OrderItemUncheckedCreateWithoutOrderInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedCreateNestedOneWithoutOrderItemInput
 }
@@ -1348,6 +1400,8 @@ export type OrderItemCreateWithoutSellerOfferInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
@@ -1379,6 +1433,8 @@ export type OrderItemUncheckedCreateWithoutSellerOfferInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedCreateNestedOneWithoutOrderItemInput
 }
@@ -1430,6 +1486,8 @@ export type OrderItemCreateWithoutPackagingInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
@@ -1462,6 +1520,8 @@ export type OrderItemUncheckedCreateWithoutPackagingInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1502,6 +1562,8 @@ export type OrderItemUpdateWithoutPackagingInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -1534,6 +1596,8 @@ export type OrderItemUncheckedUpdateWithoutPackagingInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1561,6 +1625,8 @@ export type OrderItemCreateManyProductInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1585,6 +1651,8 @@ export type OrderItemUpdateWithoutProductInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutOrderItemsNestedInput
@@ -1616,6 +1684,8 @@ export type OrderItemUncheckedUpdateWithoutProductInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedUpdateOneWithoutOrderItemNestedInput
 }
@@ -1644,6 +1714,8 @@ export type OrderItemUncheckedUpdateManyWithoutProductInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1671,6 +1743,8 @@ export type OrderItemCreateManyVariantInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1695,6 +1769,8 @@ export type OrderItemUpdateWithoutVariantInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -1726,6 +1802,8 @@ export type OrderItemUncheckedUpdateWithoutVariantInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedUpdateOneWithoutOrderItemNestedInput
 }
@@ -1754,6 +1832,8 @@ export type OrderItemUncheckedUpdateManyWithoutVariantInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1781,6 +1861,8 @@ export type OrderItemCreateManyOrderInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1805,6 +1887,8 @@ export type OrderItemUpdateWithoutOrderInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutOrderItemsNestedInput
@@ -1836,6 +1920,8 @@ export type OrderItemUncheckedUpdateWithoutOrderInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedUpdateOneWithoutOrderItemNestedInput
 }
@@ -1864,6 +1950,8 @@ export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1891,6 +1979,8 @@ export type OrderItemCreateManySellerOfferInput = {
   discountMinor?: bigint | number
   lineTotalMinor: bigint | number
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1915,6 +2005,8 @@ export type OrderItemUpdateWithoutSellerOfferInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -1946,6 +2038,8 @@ export type OrderItemUncheckedUpdateWithoutSellerOfferInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   packaging?: Prisma.OrderItemPackagingUncheckedUpdateOneWithoutOrderItemNestedInput
 }
@@ -1974,6 +2068,8 @@ export type OrderItemUncheckedUpdateManyWithoutSellerOfferInput = {
   discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   lineTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   isRecurringEligibleSnapshot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  productInfoSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  productInfoCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -2004,6 +2100,8 @@ export type OrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   discountMinor?: boolean
   lineTotalMinor?: boolean
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: boolean
+  productInfoCapturedAt?: boolean
   createdAt?: boolean
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -2039,10 +2137,12 @@ export type OrderItemSelectScalar = {
   discountMinor?: boolean
   lineTotalMinor?: boolean
   isRecurringEligibleSnapshot?: boolean
+  productInfoSnapshotJson?: boolean
+  productInfoCapturedAt?: boolean
   createdAt?: boolean
 }
 
-export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "sellerOfferId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "noteSnapshot" | "quantityTierJson" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "createdAt", ExtArgs["result"]["orderItem"]>
+export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "sellerOfferId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "noteSnapshot" | "quantityTierJson" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "productInfoSnapshotJson" | "productInfoCapturedAt" | "createdAt", ExtArgs["result"]["orderItem"]>
 export type OrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -2126,6 +2226,18 @@ export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     discountMinor: bigint
     lineTotalMinor: bigint
     isRecurringEligibleSnapshot: boolean
+    /**
+     * What the customer bought, as it was described at the moment the order
+     * was created: description, specifications (with the variant's own values
+     * applied), packaging, minimum, carton and container figures, the options
+     * chosen and the special instructions. Written once, in the transaction
+     * that creates the order item, by `captureOrderItemSnapshots`, and never
+     * updated - a listing edited, unpublished or archived next month must not
+     * change what an old order says was sold. Shape and `schemaVersion`:
+     * `domain/order-item-snapshot.ts`. NULL on items created before it existed.
+     */
+    productInfoSnapshotJson: runtime.JsonValue | null
+    productInfoCapturedAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["orderItem"]>
   composites: {}
@@ -2525,6 +2637,8 @@ export interface OrderItemFieldRefs {
   readonly discountMinor: Prisma.FieldRef<"OrderItem", 'BigInt'>
   readonly lineTotalMinor: Prisma.FieldRef<"OrderItem", 'BigInt'>
   readonly isRecurringEligibleSnapshot: Prisma.FieldRef<"OrderItem", 'Boolean'>
+  readonly productInfoSnapshotJson: Prisma.FieldRef<"OrderItem", 'Json'>
+  readonly productInfoCapturedAt: Prisma.FieldRef<"OrderItem", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"OrderItem", 'DateTime'>
 }
     

@@ -55,6 +55,14 @@ import {
 } from '../../modules/logistics/partner-catalogue.service.js';
 import { readDriverAssignmentHistory } from '../../modules/logistics/driver-assignment.service.js';
 import {
+  createAdminComplianceLink,
+  decideComplianceDocument,
+  decideProfileChange,
+  readPartnerProfileForReview,
+  redeemAdminComplianceLink,
+  setPartnerVerification,
+} from '../../modules/logistics/profile.service.js';
+import {
   asOperator,
   assignDriver,
   createDriver,
@@ -639,6 +647,158 @@ export function registerAdminLogisticsRoutes(app: FastifyInstance): Promise<void
 
       const result = await upsertSlaPolicy(actorFor(request), params.id, body);
       return reply.status(200).send(result);
+    },
+  );
+
+  // --- A carrier's own profile, and verifying it --------------------------
+
+  /**
+   * A carrier's profile as the carrier sees it, plus its full compliance
+   * document history and any details change waiting for a decision.
+   */
+  app.get(
+    '/logistics/partners/:id/profile',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const review = await readPartnerProfileForReview(params.id);
+      return reply.header('cache-control', 'no-store').status(200).send(review);
+    },
+  );
+
+  /**
+   * Approve or reject a carrier's pending details change (legal name, trading
+   * name, registration, tax number, registered address, licence). Approval
+   * applies it and marks the company verified; a rejection needs a reason the
+   * carrier is shown. Writes an audit entry.
+   */
+  app.post(
+    '/logistics/partners/:id/profile-changes/:changeId/decision',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), changeId: z.string().length(26) })
+        .parse(request.params);
+      const body = z
+        .object({
+          decision: z.enum(['APPROVED', 'REJECTED']),
+          note: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const review = await decideProfileChange(
+        actorFor(request),
+        params.id,
+        params.changeId,
+        body.decision,
+        body.note ?? null,
+      );
+      return reply.status(200).send(review);
+    },
+  );
+
+  /**
+   * Accept or refuse one of a carrier's compliance documents. A refusal needs a
+   * reason the carrier is shown. Writes an audit entry.
+   */
+  app.post(
+    '/logistics/partners/:id/documents/:documentId/decision',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), documentId: z.string().length(26) })
+        .parse(request.params);
+      const body = z
+        .object({
+          decision: z.enum(['VERIFIED', 'REJECTED']),
+          reason: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const review = await decideComplianceDocument(
+        actorFor(request),
+        params.id,
+        params.documentId,
+        body.decision,
+        body.reason ?? null,
+      );
+      return reply.status(200).send(review);
+    },
+  );
+
+  /**
+   * Record whether the carrier's identity has been checked. Anything other than
+   * verified needs a note the carrier is shown. Writes an audit entry.
+   */
+  app.post(
+    '/logistics/partners/:id/verification',
+    { preHandler: requireAdmin(Permission.LOGISTICS_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = z
+        .object({
+          state: z.enum(['UNVERIFIED', 'VERIFIED', 'REVERIFICATION_REQUIRED']),
+          note: z.string().trim().max(512).nullable().optional(),
+        })
+        .parse(request.body);
+
+      const review = await setPartnerVerification(
+        actorFor(request),
+        params.id,
+        body.state,
+        body.note ?? null,
+      );
+      return reply.status(200).send(review);
+    },
+  );
+
+  /**
+   * A short-lived, single-use link to one of a carrier's compliance documents.
+   * Refused for a file that has not passed the malware scan. Writes an audit
+   * entry.
+   */
+  app.post(
+    '/logistics/partners/:id/documents/:documentId/link',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), documentId: z.string().length(26) })
+        .parse(request.params);
+      const link = await createAdminComplianceLink(actorFor(request), params.id, params.documentId);
+      return reply.header('cache-control', 'no-store').status(200).send(link);
+    },
+  );
+
+  /**
+   * Download a carrier's compliance document with a link from the route above.
+   * Needs the same signed-in member of staff as well as the link, and works
+   * once. Served as an attachment, never inline.
+   */
+  app.get(
+    '/logistics/partners/:id/documents/:documentId/download',
+    { preHandler: requireAdmin(Permission.LOGISTICS_READ) },
+    async (request, reply) => {
+      const params = z
+        .object({ id: z.string().length(26), documentId: z.string().length(26) })
+        .parse(request.params);
+      const query = z.object({ token: z.string().min(1).max(256) }).parse(request.query);
+      const file = await redeemAdminComplianceLink(
+        currentUser(request).id,
+        params.id,
+        params.documentId,
+        query.token,
+      );
+
+      return reply
+        .header('content-type', file.contentType)
+        .header(
+          'content-disposition',
+          `attachment; filename="${file.fileName.replace(/[^A-Za-z0-9._-]/g, '_')}"`,
+        )
+        .header('x-content-type-options', 'nosniff')
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send(file.body);
     },
   );
 

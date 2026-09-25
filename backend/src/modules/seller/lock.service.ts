@@ -32,6 +32,7 @@
  * saying "two-factor" about two passwords is a claim that only matters once,
  * in an incident, at which point it turns out to be false.
  */
+import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, forbidden } from '../../domain/errors.js';
 import { hashPassword, verifyPassword } from '../../infra/crypto.js';
 import { prisma } from '../../infra/prisma.js';
@@ -155,7 +156,11 @@ export async function setSellerLock(
     }),
     prisma.session.update({
       where: { id: sessionId },
-      data: { sellerUnlockedAt: now, sellerUnlockedForId: membership.sellerAccountId },
+      data: {
+        sellerUnlockedAt: now,
+        sellerUnlockedForId: membership.sellerAccountId,
+        sellerLastActivityAt: now,
+      },
     }),
     /*
      * Every OTHER session of this person loses its unlock.
@@ -167,7 +172,7 @@ export async function setSellerLock(
      */
     prisma.session.updateMany({
       where: { userId, id: { not: sessionId }, sellerUnlockedForId: membership.sellerAccountId },
-      data: { sellerUnlockedAt: null, sellerUnlockedForId: null },
+      data: { sellerUnlockedAt: null, sellerUnlockedForId: null, sellerLastActivityAt: null },
     }),
   ]);
 
@@ -223,9 +228,23 @@ export async function unlockSeller(
     throw forbidden(ErrorCode.SELLER_LOCK_INVALID, 'That Seller Hub password is not right.');
   }
 
+  const now = new Date();
   await prisma.session.update({
     where: { id: sessionId },
-    data: { sellerUnlockedAt: new Date(), sellerUnlockedForId: membership.sellerAccountId },
+    data: {
+      sellerUnlockedAt: now,
+      sellerUnlockedForId: membership.sellerAccountId,
+      sellerLastActivityAt: now,
+    },
+  });
+
+  await recordAudit({
+    action: AuditAction.SELLER_LOCK_OPENED,
+    resourceType: 'SellerMember',
+    resourceId: membership.memberId,
+    actorType: 'CUSTOMER',
+    actorUserId: userId,
+    correlationId: correlationId ?? null,
   });
 
   return { isSet: true, isOpen: true };
@@ -238,11 +257,168 @@ export async function unlockSeller(
  * finished packing orders and is handing the machine over should be able to
  * close the Hub without signing out of the shop and losing their basket.
  */
-export async function lockSeller(sessionId: string): Promise<SellerLockState> {
+export async function lockSeller(
+  sessionId: string,
+  audit?: { userId: string; memberId: string; correlationId?: string | null },
+): Promise<SellerLockState> {
   await prisma.session.update({
     where: { id: sessionId },
-    data: { sellerUnlockedAt: null, sellerUnlockedForId: null },
+    data: { sellerUnlockedAt: null, sellerUnlockedForId: null, sellerLastActivityAt: null },
   });
 
+  if (audit !== undefined) {
+    await recordAudit({
+      action: AuditAction.SELLER_LOCK_CLOSED,
+      resourceType: 'SellerMember',
+      resourceId: audit.memberId,
+      actorType: 'CUSTOMER',
+      actorUserId: audit.userId,
+      correlationId: audit.correlationId ?? null,
+    });
+  }
+
   return { isSet: true, isOpen: false };
+}
+
+// ---------------------------------------------------------------------------
+// The idle limit
+// ---------------------------------------------------------------------------
+
+/**
+ * How often a busy Hub writes its activity time, at most.
+ *
+ * Every request would be a write in front of every read. Thirty seconds of
+ * slack in a sixty-minute limit is invisible to the person and saves the row
+ * lock on almost every request.
+ */
+export const SELLER_ACTIVITY_WRITE_EVERY_MS = 30_000;
+
+export interface SellerIdleView {
+  /** When the Hub re-locks without further activity. Null while it is locked. */
+  expiresAt: Date | null;
+  idleTimeoutSeconds: number;
+  warningSeconds: number;
+}
+
+type IdleSession = {
+  sellerUnlockedAt: Date | null;
+  sellerUnlockedForId: string | null;
+  sellerLastActivityAt: Date | null;
+};
+
+/**
+ * When an open Hub re-locks. Judged from the last deliberate activity, or from
+ * when it was opened for a session that predates the activity column.
+ */
+export function sellerIdleExpiresAt(session: IdleSession): Date | null {
+  if (session.sellerUnlockedAt === null) return null;
+  const since = session.sellerLastActivityAt ?? session.sellerUnlockedAt;
+  return new Date(since.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000);
+}
+
+export function sellerIdleView(session: IdleSession): SellerIdleView {
+  return {
+    expiresAt: sellerIdleExpiresAt(session),
+    idleTimeoutSeconds: env.SELLER_HUB_IDLE_TIMEOUT_SECONDS,
+    warningSeconds: env.SELLER_HUB_IDLE_WARNING_SECONDS,
+  };
+}
+
+/**
+ * Re-lock an open Hub that has been idle past the limit, and say so.
+ *
+ * On the server and on the row, so every tab, every device and every script
+ * holding this session is shut at once, whatever a browser's own timer says.
+ * The conditional update means two requests arriving together lock it once
+ * and record it once. Throws SELLER_SESSION_EXPIRED; the shop session is left
+ * alone.
+ */
+export async function expireIdleSellerSession(
+  sessionId: string,
+  session: IdleSession,
+  audit: { userId: string; memberId: string; correlationId?: string | null },
+  now: Date = new Date(),
+): Promise<void> {
+  const expiresAt = sellerIdleExpiresAt(session);
+  if (expiresAt === null || expiresAt.getTime() > now.getTime()) return;
+
+  const locked = await prisma.session.updateMany({
+    where: { id: sessionId, sellerUnlockedAt: { not: null } },
+    data: { sellerUnlockedAt: null, sellerUnlockedForId: null, sellerLastActivityAt: null },
+  });
+
+  if (locked.count === 1) {
+    await recordAudit({
+      action: AuditAction.SELLER_SESSION_EXPIRED,
+      resourceType: 'SellerMember',
+      resourceId: audit.memberId,
+      actorType: 'SYSTEM',
+      actorUserId: audit.userId,
+      after: { idleTimeoutSeconds: env.SELLER_HUB_IDLE_TIMEOUT_SECONDS },
+      correlationId: audit.correlationId ?? null,
+    });
+  }
+
+  throw forbidden(
+    ErrorCode.SELLER_SESSION_EXPIRED,
+    'Your Seller Hub session expired due to inactivity. Please sign in again.',
+  );
+}
+
+/**
+ * Record deliberate activity on an open Hub. At most once every
+ * SELLER_ACTIVITY_WRITE_EVERY_MS, by a conditional update that also refuses to
+ * revive a Hub that has just been locked by another request.
+ */
+export async function touchSellerActivity(
+  sessionId: string,
+  session: IdleSession,
+  now: Date = new Date(),
+): Promise<Date | null> {
+  if (session.sellerUnlockedAt === null) return null;
+  const last = session.sellerLastActivityAt ?? session.sellerUnlockedAt;
+  if (now.getTime() - last.getTime() < SELLER_ACTIVITY_WRITE_EVERY_MS) return last;
+
+  const updated = await prisma.session.updateMany({
+    where: { id: sessionId, sellerUnlockedAt: { not: null } },
+    data: { sellerLastActivityAt: now },
+  });
+  return updated.count === 1 ? now : last;
+}
+
+/**
+ * "Stay signed in": the person has answered the warning. Always written, and
+ * audited, because it is the one extension somebody asked for explicitly.
+ */
+export async function renewSellerSession(
+  sessionId: string,
+  audit: { userId: string; memberId: string; correlationId?: string | null },
+  now: Date = new Date(),
+): Promise<SellerIdleView> {
+  const updated = await prisma.session.updateMany({
+    where: { id: sessionId, sellerUnlockedAt: { not: null }, revokedAt: null },
+    data: { sellerLastActivityAt: now },
+  });
+
+  if (updated.count !== 1) {
+    throw forbidden(
+      ErrorCode.SELLER_SESSION_EXPIRED,
+      'Your Seller Hub session expired due to inactivity. Please sign in again.',
+    );
+  }
+
+  await recordAudit({
+    action: AuditAction.SELLER_SESSION_RENEWED,
+    resourceType: 'SellerMember',
+    resourceId: audit.memberId,
+    actorType: 'CUSTOMER',
+    actorUserId: audit.userId,
+    correlationId: audit.correlationId ?? null,
+  });
+
+  return {
+    expiresAt: new Date(now.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000),
+    idleTimeoutSeconds: env.SELLER_HUB_IDLE_TIMEOUT_SECONDS,
+    warningSeconds: env.SELLER_HUB_IDLE_WARNING_SECONDS,
+  };
 }

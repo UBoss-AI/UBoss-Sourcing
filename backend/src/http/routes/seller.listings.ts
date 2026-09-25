@@ -35,6 +35,10 @@ import {
 } from '../../modules/seller/listing-draft.service.js';
 import { loadListingSchema } from '../../modules/seller/listing-schema.service.js';
 import {
+  readListingContentForSeller,
+  saveListingContentForSeller,
+} from '../../modules/seller/listing-content.service.js';
+import {
   containerLoadingInputSchema,
   previewContainerLoading,
   readContainerLoading,
@@ -750,6 +754,32 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   );
 
   /** One listing in the wizard, with everything entered so far. */
+  // A listing's description sections, grouped specifications and per-variant values.
+  app.get('/listing-drafts/:id/content', async (request, reply) => {
+    const params = idParam.parse(request.params);
+    const view = await readListingContentForSeller(currentSeller(request), params.id);
+    return reply.header('cache-control', 'no-store').status(200).send(view);
+  });
+
+  // Replace a listing's description sections, specifications and per-variant values.
+  app.put(
+    '/listing-drafts/:id/content',
+    {
+      preHandler: requireSeller(SellerPermission.LISTING_WRITE),
+      config: { rateLimit: { max: 120, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const view = await saveListingContentForSeller({
+        membership: currentSeller(request),
+        draftId: params.id,
+        body: request.body,
+        correlationId: request.correlationId,
+      });
+      return reply.header('cache-control', 'no-store').status(200).send(view);
+    },
+  );
+
   app.get('/listing-drafts/:id', async (request, reply) => {
     const params = idParam.parse(request.params);
     const draft = await readDraft(currentSeller(request), params.id);

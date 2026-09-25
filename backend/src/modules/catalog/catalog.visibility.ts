@@ -253,7 +253,26 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
     orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
   },
   attributes: {
-    select: { name: true, value: true, sortOrder: true },
+    select: { name: true, value: true, sortOrder: true, groupKey: true, unit: true, isHighlight: true },
+    orderBy: { sortOrder: 'asc' },
+  },
+
+  /**
+   * The description's sections: a heading and plain text each, with a picture
+   * where the seller chose one. Active ones in every language; the route
+   * shows the reader's language's set when there is one, else the product's own
+   * (`descriptionSectionsFor`).
+   */
+  descriptionSections: {
+    where: { isActive: true },
+    select: {
+      heading: true,
+      body: true,
+      language: true,
+      altText: true,
+      sortOrder: true,
+      image: { select: { url: true, altText: true, width: true, height: true } },
+    },
     orderBy: { sortOrder: 'asc' },
   },
 
@@ -307,6 +326,11 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
       id: true,
       sku: true,
       name: true,
+      // Specifications that differ for this variant. See `shownSpecifications`.
+      attributes: {
+        select: { name: true, value: true, unit: true, groupKey: true, sortOrder: true },
+        orderBy: { sortOrder: 'asc' },
+      },
       optionsJson: true,
       priceMinor: true,
       sortOrder: true,

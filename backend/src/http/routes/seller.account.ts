@@ -28,6 +28,8 @@ import {
   sellerLockState,
   setSellerLock,
   unlockSeller,
+  renewSellerSession,
+  sellerIdleView,
 } from '../../modules/seller/lock.service.js';
 import {
   SELLER_UPLOADABLE_KINDS,
@@ -300,9 +302,61 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
           sellerUnlockedAt: auth.sessionSellerUnlockedAt,
           sellerUnlockedForId: auth.sessionSellerUnlockedForId,
         }),
+        /*
+         * When the open Hub re-locks without further activity, and the
+         * deployment's idle and warning settings, so the page times its
+         * warning from the server rather than from its own guess.
+         */
+        session: sellerIdleView({
+          sellerUnlockedAt:
+            auth.sessionSellerUnlockedForId === membership.sellerAccountId
+              ? auth.sessionSellerUnlockedAt
+              : null,
+          sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+          sellerLastActivityAt: auth.sessionSellerLastActivityAt,
+        }),
       },
     });
   });
+
+  /**
+   * When the open Seller Hub re-locks without further activity. Reading it
+   * does not count as activity, so a tab can check without keeping itself
+   * open. Refused with SELLER_SESSION_EXPIRED once the Hub has re-locked.
+   */
+  app.get('/session', { preHandler: requireSeller() }, async (request, reply) => {
+    const auth = currentUser(request);
+    return reply
+      .header('cache-control', 'no-store')
+      .status(200)
+      .send({
+        session: sellerIdleView({
+          sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+          sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+          sellerLastActivityAt: auth.sessionSellerLastActivityAt,
+        }),
+      });
+  });
+
+  /**
+   * "Stay signed in": keep the open Seller Hub open for another full idle
+   * period. Needs the Hub to still be open; once it has re-locked this is
+   * refused with SELLER_SESSION_EXPIRED and the password is needed again.
+   * Writes an audit entry.
+   */
+  app.post(
+    '/session/renew',
+    { preHandler: requireSeller(), config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const session = await renewSellerSession(auth.sessionId, {
+        userId: auth.id,
+        memberId: currentSeller(request).memberId,
+        correlationId: request.correlationId,
+      });
+      return reply.header('cache-control', 'no-store').status(200).send({ session });
+    },
+  );
 
   /**
    * Choose the Seller Hub password, or change it.
@@ -363,7 +417,12 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
    */
   app.post('/lock/close', async (request, reply) => {
     const auth = currentUser(request);
-    const state = await lockSeller(auth.sessionId);
+    const membership = await resolveSellerMembership(auth.customerProfileId ?? '');
+    const state = await lockSeller(auth.sessionId, {
+      userId: auth.id,
+      memberId: membership.memberId,
+      correlationId: request.correlationId,
+    });
 
     return reply.status(200).send({ lock: state });
   });

@@ -85,6 +85,21 @@ export interface PreorderButtonProps {
    * question - a guest, who signs in to buy either way.
    */
   regularOrderAllowed?: boolean | null;
+  /**
+   * The page's quantity decision asked for the stock prompt: the buyer settled
+   * on more than can be promised from stock. Drawn here because this component
+   * owns the preorder terms and the form. Null when not asked.
+   */
+  stockPrompt?: { requested: number; stock: number } | null;
+  /** The stock prompt closed: 'preorder' went on to the form, 'change' wants the quantity box. */
+  onStockPromptClose?: (outcome: 'preorder' | 'change' | 'dismiss') => void;
+  /**
+   * Another dialog of the page's own is open. The minimum-order suggestion
+   * then waits, so the page never shows two dialogs at once.
+   */
+  blocked?: boolean;
+  /** Told whenever one of this component's dialogs opens or closes. */
+  onDialogChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -100,6 +115,10 @@ export function PreorderButton({
   isReady,
   pieces,
   regularOrderAllowed = null,
+  stockPrompt = null,
+  onStockPromptClose,
+  blocked = false,
+  onDialogChange,
   className,
 }: PreorderButtonProps): React.JSX.Element {
   const { t } = useI18n();
@@ -275,7 +294,7 @@ export function PreorderButton({
     if (!armed || threshold === null || policyVersion === null) return undefined;
     const timer = window.setTimeout(() => {
       setArmed(false);
-      if (!canPreorder || panel !== null || isOpen) return;
+      if (!canPreorder || panel !== null || isOpen || blocked || stockPrompt !== null) return;
       if (isBulkPromptDismissed(productId, variantId, threshold, policyVersion)) return;
       // Once per product, minimum and note version, for this session.
       rememberBulkPromptDismissed(productId, variantId, threshold, policyVersion);
@@ -286,7 +305,20 @@ export function PreorderButton({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [armed, pieces, threshold, policyVersion, canPreorder, panel, isOpen, productId, variantId]);
+  }, [armed, pieces, threshold, policyVersion, canPreorder, panel, isOpen, blocked, stockPrompt, productId, variantId]);
+
+  // The page's coordinator needs to know when this component has the screen.
+  const hasDialog = panel !== null || isOpen;
+  useEffect(() => {
+    onDialogChange?.(hasDialog);
+  }, [hasDialog, onDialogChange]);
+
+  // Asked for a stock prompt this component cannot honour (no preorder terms
+  // for this version): hand the screen straight back.
+  useEffect(() => {
+    if (stockPrompt === null || !isReady || eligibility.isPending) return;
+    if (terms === null) onStockPromptClose?.('dismiss');
+  }, [stockPrompt, isReady, eligibility.isPending, terms, onStockPromptClose]);
 
   /*
    * Focus goes back to whatever opened the dialog - but only once the dialog
@@ -387,15 +419,15 @@ export function PreorderButton({
 
   return (
     <div className={className}>
-      {/* [ Preorder  (i) ] [ Chat with UBOSS ] - the i sits inside the right
-          end of Preorder, but it is a sibling laid over it, never a button
-          inside a button: nested buttons are invalid HTML, and a disabled
-          Preorder would swallow its clicks. The i stays whenever Preorder is
-          shown, enabled or not: the information is most useful to the buyer
+      {/* [ Preorder  (i) ] [ chat ] - the i sits inside the right end of
+          Preorder, but it is a sibling laid over it, never a button inside a
+          button: nested buttons are invalid HTML, and a disabled Preorder
+          would swallow its clicks. The i stays whenever Preorder is shown,
+          enabled or not: the information is most useful to the buyer
           wondering why it is off. The chat is there either way, for the same
-          reason. The row wraps on a narrow phone rather than squeezing a label
-          to nothing. */}
-      <div className="flex flex-wrap items-stretch gap-1.5">
+          reason - an icon now, the same height as Preorder, directly to the
+          right of the i. Preorder takes the rest of the row on a phone. */}
+      <div className="flex items-stretch gap-1.5">
         <div className="relative flex min-w-0 flex-1 sm:flex-none">
           <Button
             ref={preorderButtonRef}
@@ -433,7 +465,6 @@ export function PreorderButton({
           variantId={variantId}
           pieces={pieces}
           onReviewProposal={reviewProposal}
-          className="flex-1 sm:flex-none"
         />
       </div>
 
@@ -472,6 +503,28 @@ export function PreorderButton({
             }
             if (acknowledged) openForm(pieces);
             else acknowledge.mutate(policyVersion);
+          }}
+        />
+      )}
+
+      {stockPrompt !== null && terms !== null && panel === null && !isOpen && (
+        <BulkPreorderPrompt
+          terms={terms}
+          pieces={stockPrompt.requested}
+          stock={stockPrompt.stock}
+          regularOrderAllowed={null}
+          onClose={() => {
+            emitPreorderEvent('stock_prompt_dismissed', { productId, variantId });
+            onStockPromptClose?.('dismiss');
+          }}
+          onContinueRegular={() => {
+            emitPreorderEvent('stock_prompt_change_quantity', { productId, variantId });
+            onStockPromptClose?.('change');
+          }}
+          onStartPreorder={() => {
+            emitPreorderEvent('stock_prompt_start_preorder', { productId, variantId });
+            onStockPromptClose?.('preorder');
+            startPreorder(preorderButtonRef.current);
           }}
         />
       )}

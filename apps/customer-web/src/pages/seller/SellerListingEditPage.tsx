@@ -50,6 +50,7 @@
  * table on a phone is a horizontal scroll nobody uses — and stock is the thing
  * most often corrected from a phone, standing in the warehouse.
  */
+import { ListingContentEditor } from './ListingContentEditor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useBlocker, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -564,6 +565,7 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
       )}
 
       <PhotosCard view={view} isBusy={isSaving} onChanged={refresh} />
+      {view.contentDraftId !== null && <ListingContentEditor draftId={view.contentDraftId} />}
 
       <ProductFactsCard view={view} />
 

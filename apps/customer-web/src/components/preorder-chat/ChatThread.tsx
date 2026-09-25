@@ -23,8 +23,14 @@
  *     indicative: nothing in a chat is a quote, a reservation or an order.
  *   - **Only the history scrolls, and only on purpose** - see
  *     `lib/chat-kit/chat-scroll.ts` for when it moves and why.
+ *
+ * Before a conversation exists, the history holds the preorder assistant
+ * (`PreorderAssistant`): automated answers from the product's own data, and
+ * a way to a person at any time. Its answers travel into the conversation the
+ * first message or "Connect with a human agent" creates, as the assistant's
+ * messages - never as the team's.
  */
-import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Spinner } from '@/components/ui';
@@ -73,6 +79,9 @@ import {
   type DeliveryState,
 } from '@/lib/preorder-chat';
 import { messageKey, useChatThread, type PendingMessage } from '@/lib/use-preorder-chat';
+import { faqQuestionText, signedAnswers, takeHandoffIntent, type FaqId } from '@/lib/preorder-assistant';
+import { usePreorderAssistant } from '@/lib/use-preorder-assistant';
+import { AnswerLines, AssistantLabel, AssistantMark, PreorderAssistant, type HandoffStatus } from './PreorderAssistant';
 import { ProposalCard } from './ProposalCard';
 
 export interface ChatThreadProps {
@@ -92,18 +101,6 @@ export interface ChatThreadProps {
   variant?: 'page' | 'drawer';
   className?: string;
 }
-
-const QUICK_QUESTIONS = [
-  'moq',
-  'bulkPricing',
-  'container20',
-  'container40',
-  'stock',
-  'delivery',
-  'specs',
-  'customization',
-  'logistics',
-] as const;
 
 /** A pending message's key: never the same shape as a stored one. */
 function pendingKey(entry: PendingMessage): string {
@@ -128,8 +125,60 @@ export function ChatThread({
     queryFn: fetchChatAvailability,
     staleTime: 30_000,
   });
-  const thread = useChatThread({ conversationId, context: contextInput, locale: language, active });
+  // Only ever used before a conversation exists; after that its answers are
+  // messages in the conversation.
+  const assistant = usePreorderAssistant({
+    context: contextInput,
+    enabled: contextInput !== null && conversationId === null,
+    signedIn: true,
+  });
+  const entriesRef = useRef(assistant.entries);
+  entriesRef.current = assistant.entries;
+  const clearAssistant = assistant.clear;
+  const thread = useChatThread({
+    conversationId,
+    context: contextInput,
+    locale: language,
+    active,
+    startTranscript: () => signedAnswers(entriesRef.current),
+    onConversationStarted: clearAssistant,
+  });
   const { conversation, context, messages, pending } = thread;
+
+  // ---- Asking for a person ---------------------------------------------------
+  const [handoffStatus, setHandoffStatus] = useState<HandoffStatus>('idle');
+  const [handoffError, setHandoffError] = useState<unknown>(null);
+  const handoffBusy = useRef(false);
+  const requestHuman = thread.requestHuman;
+  const connectHuman = useCallback(
+    (topic: FaqId | null): void => {
+      if (handoffBusy.current) return;
+      handoffBusy.current = true;
+      setHandoffStatus('sending');
+      setHandoffError(null);
+      requestHuman(topic, signedAnswers(entriesRef.current))
+        .then(() => {
+          setHandoffStatus('idle');
+        })
+        .catch((error: unknown) => {
+          setHandoffStatus('failed');
+          setHandoffError(error);
+        })
+        .finally(() => {
+          handoffBusy.current = false;
+        });
+    },
+    [requestHuman],
+  );
+
+  // A guest asked for a person and has just signed in: finish what they asked.
+  const intentChecked = useRef(false);
+  useEffect(() => {
+    if (intentChecked.current || thread.isLoading || contextInput === null) return;
+    intentChecked.current = true;
+    const intent = takeHandoffIntent(contextInput.productId, contextInput.variantId);
+    if (intent !== null) connectHuman(intent.topic);
+  }, [thread.isLoading, contextInput, connectHuman]);
 
   useEffect(() => {
     if (conversation !== null) onConversation?.(conversation.id);
@@ -155,7 +204,6 @@ export function ChatThread({
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
-  const composerId = useId();
 
   // Arriving at a conversation from the list, the reader is told where they
   // are. `preventScroll`: the frame does not scroll, and must not start to.
@@ -181,7 +229,10 @@ export function ChatThread({
         authorOf: (item) =>
           item.kind === 'pending'
             ? 'CUSTOMER'
-            : item.message.messageType === 'TEXT' || item.message.messageType === 'ATTACHMENT'
+            : item.message.messageType === 'TEXT' ||
+                item.message.messageType === 'ATTACHMENT' ||
+                item.message.messageType === 'FAQ_QUESTION' ||
+                item.message.messageType === 'AUTOMATED_REPLY'
               ? item.message.senderType
               : null,
         firstUnreadKey: thread.initialUnreadKey,
@@ -213,6 +264,17 @@ export function ChatThread({
   const characters = Array.from(draft).length;
   const tooLong = characters > maxChars;
   const canSend = conversation?.canSend !== false && !tooLong;
+  // The round button's own state: progress while the message just sent is on
+  // its way (the box is empty then, so there is nothing else to send), and a
+  // mark while the newest attempt has failed - its text waits in the outbox,
+  // with Retry, so nothing typed is lost.
+  const newestPending = pending.at(-1);
+  const sendState =
+    newestPending?.status === 'FAILED'
+      ? ('failed' as const)
+      : newestPending?.status === 'SENDING' && draft.trim() === ''
+        ? ('sending' as const)
+        : ('idle' as const);
   const typingTimer = useRef<number | null>(null);
 
   const onDraftChange = (value: string): void => {
@@ -255,7 +317,6 @@ export function ChatThread({
   };
 
   const productName = context?.product.name ?? '';
-  const customerHasWritten = messages.some((message) => message.senderType === 'CUSTOMER') || pending.length > 0;
   const status = conversation?.status ?? null;
   const latestProposal = [...messages].reverse().find((message) => message.proposal !== null)?.proposal ?? null;
   const teamName = t('preorderChat.team.name');
@@ -321,20 +382,22 @@ export function ChatThread({
                 )}
               </div>
             ) : (
-              // The welcome is the screen's own words, labelled as automatic -
-              // never stored, never presented as somebody typing it - and it
-              // belongs at the very start, so it waits for the start to load.
+              // Before a conversation exists: the assistant, automated and
+              // labelled as such. It waits for the product to load, because
+              // its greeting names the product.
               !thread.isLoading &&
-              productName !== '' && (
-                <div className="my-3 flex items-start gap-2">
-                  <ChatAvatar name={marketplace} size="sm" tone="brand" />
-                  <div className="max-w-[min(85%,36rem)] rounded-lg rounded-tl-sm bg-surface-sunken px-3 py-2 text-sm text-ink">
-                    <p className="mb-1 text-xxs font-medium uppercase tracking-wide text-ink-muted">
-                      {t('preorderChat.welcomeLabel')}
-                    </p>
-                    <p className="[overflow-wrap:anywhere]">{t('preorderChat.welcome', { productName })}</p>
-                  </div>
-                </div>
+              conversation === null &&
+              thread.loadError === null && (
+                <PreorderAssistant
+                  assistant={assistant}
+                  productName={productName}
+                  signedIn
+                  handoffStatus={handoffStatus}
+                  handoffError={handoffError}
+                  onRequestHuman={() => {
+                    connectHuman(assistant.topic);
+                  }}
+                />
               )
             )}
 
@@ -428,41 +491,13 @@ export function ChatThread({
           {status === 'BLOCKED' && <Notice text={t('preorderChat.blockedNotice')} />}
           {status === 'RESOLVED' && <Notice text={t('preorderChat.resolvedNotice')} tone="info" />}
           {status === 'AWAITING_YOU' && <Notice text={t('preorderChat.awaitingNotice')} tone="info" />}
+          {/* Queued, and only that: nothing here says a person is online. */}
+          {conversation?.humanRequested === true && status !== 'CLOSED' && status !== 'BLOCKED' && (
+            <Notice text={t('preorderChat.handoff.queued')} tone="info" />
+          )}
 
           {conversation?.canSend !== false && (
             <>
-              {!customerHasWritten && (
-                <div className="mb-2">
-                  <p className="mb-1 text-xs font-medium text-ink-muted" id={`${composerId}-chips`}>
-                    {t('preorderChat.chips.heading')}
-                  </p>
-                  {/* One row that scrolls sideways, so on a short screen the
-                      questions never push the conversation out of view. */}
-                  <ul
-                    className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]"
-                    aria-labelledby={`${composerId}-chips`}
-                  >
-                    {QUICK_QUESTIONS.map((key) => (
-                      <li key={key}>
-                        <button
-                          type="button"
-                          className="whitespace-nowrap rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:border-brand/50 hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                          onClick={() => {
-                            // Fills the composer with an ordinary question for
-                            // the customer to send - it is not an answer from
-                            // anybody.
-                            onDraftChange(t(`preorderChat.chips.text.${key}` as TranslationKey));
-                            composerRef.current?.focus();
-                          }}
-                        >
-                          {t(`preorderChat.chips.${key}` as TranslationKey)}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
               <ChatComposer
                 value={draft}
                 onChange={onDraftChange}
@@ -470,12 +505,15 @@ export function ChatThread({
                 canSend={canSend}
                 invalid={tooLong}
                 textareaRef={composerRef}
+                sendAppearance="round"
+                sendState={sendState}
                 labels={{
                   label: t('preorderChat.composer.label'),
                   placeholder: t('preorderChat.composer.placeholder'),
-                  send: t('preorderChat.composer.send'),
+                  send: t('preorderChat.composer.sendMessage'),
                   hint: t('preorderChat.composer.hint'),
                   touchHint: t('preorderChat.composer.touchHint'),
+                  sendFailed: t('preorderChat.composer.sendFailed'),
                 }}
                 leading={
                   conversation !== null ? (
@@ -995,6 +1033,7 @@ const KNOWN_SYSTEM_EVENTS = new Set([
   'proposal.withdrawn',
   'proposal.declined',
   'proposal.submitted',
+  'handoff.joined',
 ]);
 
 function systemText(t: ReturnType<typeof useI18n>['t'], message: ChatMessage): string {
@@ -1038,8 +1077,60 @@ const MessageBubble = memo(function MessageBubble({
   const mine = message.senderType === 'CUSTOMER';
 
   if (message.messageType === 'SYSTEM_EVENT') {
-    // Quieter than anything a person wrote.
-    return <p className="py-1 text-center text-xxs text-ink-subtle">{systemText(t, message)}</p>;
+    // Quieter than anything a person wrote - except a person joining, which
+    // is the moment the customer was waiting for.
+    return (
+      <p
+        className={cx(
+          'py-1 text-center text-xxs',
+          message.systemEvent === 'handoff.joined' ? 'font-semibold text-brand' : 'text-ink-subtle',
+        )}
+      >
+        {systemText(t, message)}
+      </p>
+    );
+  }
+
+  // The customer asked for a person: their own act, told back quietly.
+  if (message.messageType === 'HANDOFF_REQUEST') {
+    return <p className="py-1 text-center text-xxs text-ink-subtle">{t('preorderChat.handoff.requested')}</p>;
+  }
+
+  // A common question the customer picked, in their own language.
+  if (message.messageType === 'FAQ_QUESTION') {
+    return (
+      <div className="flex flex-col items-end">
+        <div className="min-w-0 max-w-[min(85%,36rem)] rounded-2xl rounded-br-md bg-brand-fill px-3 py-2 text-sm text-white">
+          {groupStart && <span className="sr-only">{t('preorderChat.sender.you')}: </span>}
+          <p className="[overflow-wrap:anywhere]">{faqQuestionText(message.systemEvent ?? '', t)}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // The assistant's answer, as the customer was shown it - labelled
+  // automated, with its own mark, never the team's.
+  if (message.messageType === 'AUTOMATED_REPLY') {
+    return (
+      <div className="flex items-end gap-2">
+        <span className="w-7 shrink-0">{groupEnd && <AssistantMark />}</span>
+        <div className="flex min-w-0 max-w-[min(85%,36rem)] flex-col items-start">
+          {groupStart && <AssistantLabel />}
+          <div className="min-w-0 max-w-full rounded-2xl rounded-bl-md border border-brand/15 bg-brand-soft/40 px-3 py-2 text-sm text-ink">
+            {message.automation === null || message.automation === undefined ? (
+              <p className="italic text-ink-muted">{t('preorderChat.assistant.answerUnavailable')}</p>
+            ) : (
+              <AnswerLines answer={message.automation} />
+            )}
+          </div>
+          {groupEnd && (
+            <p className="mt-0.5 px-1 text-xxs text-ink-subtle">
+              <MessageTime at={message.createdAt} />
+            </p>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (message.messageType === 'STRUCTURED_OFFER' && message.proposal !== null && conversationId !== null) {

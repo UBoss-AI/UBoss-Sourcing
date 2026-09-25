@@ -23,6 +23,7 @@
  * closing the tab loses nothing. The URL carries its id, which is what makes
  * "resume later" a link rather than a feature.
  */
+import { ListingContentEditor } from './ListingContentEditor';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -964,6 +965,9 @@ function DetailsStep({
             isSaving={isSaving}
           />
         ))}
+
+        {/* What buyers read below the product: sections and grouped specifications. */}
+        <ListingContentEditor draftId={draft.id} />
       </div>
     </div>
   );

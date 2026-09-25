@@ -16,6 +16,7 @@ import {
   savingBasisPoints,
   type TierBuyer,
 } from '../../domain/quantity-tier.js';
+import { bulkOffers, type BulkOffer } from '../../domain/bulk-offers.js';
 import { serialiseMoney, type Minor } from '../../domain/money.js';
 import { prisma } from '../../infra/prisma.js';
 import { evaluateEligibility } from '../preorders/policy.service.js';
@@ -154,6 +155,43 @@ export async function bulkPricing(input: BulkPricingInput): Promise<Record<strin
       ? null
       : await indicativeConversion(currency, input.displayCurrency);
 
+  // Every reachable offer as a card, and the preorder-only ones beside them.
+  // Same pricing functions as the basket; see domain/bulk-offers.ts.
+  const offerCard = (offer: BulkOffer) => ({
+    minQuantity: offer.minQuantity,
+    maxQuantity: offer.maxQuantity,
+    unitPrice: money(offer.unitPriceMinor),
+    listUnitPrice: money(list),
+    savingPerPiece: money(offer.savingPerPieceMinor),
+    lineTotal: money(offer.lineTotalMinor),
+    totalSaving: money(offer.totalSavingMinor),
+    savingBasisPoints: offer.savingBasisPoints,
+    businessBuyersOnly: offer.businessBuyersOnly,
+    endsAt: offer.endsAt?.toISOString() ?? null,
+    isCurrent: offer.isCurrent,
+    isNext: offer.isNext,
+    isBestValue: offer.isBestValue,
+    withinStock: offer.withinStock,
+    approximateUnitPrice:
+      conversion === null
+        ? null
+        : serialiseMoney(conversion.convert(offer.unitPriceMinor), conversion.toCurrency),
+  });
+  const offers = bulkOffers({
+    listPriceMinor: list,
+    tiers: offer.quantityTiers,
+    buyer,
+    quantity,
+    stock: offer.availableQuantity,
+  }).map(offerCard);
+  const preorderOffers = bulkOffers({
+    listPriceMinor: list,
+    tiers: offer.quantityTiers.filter((tier) => tier.preorderOnly),
+    buyer: { ...buyer, channel: 'PREORDER', isBusinessBuyer: true },
+    quantity,
+    stock: 0,
+  }).map(offerCard);
+
   return {
     available: true,
     offerId: offer.id,
@@ -180,6 +218,8 @@ export async function bulkPricing(input: BulkPricingInput): Promise<Record<strin
           },
     ladder,
     preorderBands,
+    offers,
+    preorderOffers,
     units,
     stockBaseUnits: offer.availableQuantity,
     exceedsStock: quantity > offer.availableQuantity,

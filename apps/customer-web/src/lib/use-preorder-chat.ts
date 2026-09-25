@@ -37,6 +37,7 @@ import {
   type CustomerConversation,
 } from './preorder-chat';
 import { firstUnreadKey } from './chat-kit/timeline';
+import { requestHandoff, type FaqId, type SignedAnswer } from './preorder-assistant';
 
 /** The key a message is rendered and anchored under. */
 export function messageKey(message: { seq: number }): string {
@@ -79,6 +80,12 @@ export interface ChatThreadState {
   loadEarlier: () => Promise<void>;
   setTyping: (typing: boolean) => void;
   refresh: () => Promise<void>;
+  /**
+   * "Connect with a human agent": creates or reuses the conversation, with the
+   * assistant's answers carried in. Resolves once it is stored; rejects with
+   * the server's error, and a retry reuses the same request id.
+   */
+  requestHuman: (topic: FaqId | null, transcript: SignedAnswer[]) => Promise<void>;
 }
 
 const PAGE = 50;
@@ -93,8 +100,16 @@ export function useChatThread(options: {
   locale: string;
   /** False pauses reading and marking read, e.g. while the drawer is closed. */
   active: boolean;
+  /** The assistant's answers to carry into a conversation the first message starts. */
+  startTranscript?: () => SignedAnswer[];
+  /** A conversation now exists: the carried answers live in it. */
+  onConversationStarted?: () => void;
 }): ChatThreadState {
   const { context: contextInput, locale, active } = options;
+  const startTranscriptRef = useRef(options.startTranscript);
+  startTranscriptRef.current = options.startTranscript;
+  const startedRef = useRef(options.onConversationStarted);
+  startedRef.current = options.onConversationStarted;
   const queryClient = useQueryClient();
   const socket = customerChatSocket();
 
@@ -328,11 +343,19 @@ export function useChatThread(options: {
                   clientMessageId: entry.clientMessageId,
                   body: entry.body,
                   locale,
+                  transcript: startTranscriptRef.current?.() ?? [],
                 })
               : await sendChatMessage(id, { clientMessageId: entry.clientMessageId, body: entry.body });
           if (id === null) {
             setConversationId(result.conversation.id);
+            startedRef.current?.();
             void queryClient.invalidateQueries({ queryKey: chatKeys.list });
+            // The transcript went in ahead of the message: show it.
+            void fetchChatMessages(result.conversation.id, { limit: PAGE })
+              .then((page) => {
+                setMessages((current) => mergeMessages(current, page.messages));
+              })
+              .catch(() => undefined);
           }
           setConversation(result.conversation);
           setContext((current) => result.conversation.context ?? current);
@@ -430,6 +453,32 @@ export function useChatThread(options: {
     [socket],
   );
 
+  // One id per attempt at asking for a person: a retry after a lost response
+  // is the same request, and the server answers it with what it stored.
+  const handoffRequestId = useRef<string | null>(null);
+  const requestHuman = useCallback(
+    async (topic: FaqId | null, transcript: SignedAnswer[]): Promise<void> => {
+      if (contextInput === null) throw new Error('A product is needed to ask for a person.');
+      handoffRequestId.current ??= newClientMessageId();
+      const result = await requestHandoff({
+        clientRequestId: handoffRequestId.current,
+        context: contextInput,
+        locale,
+        topic,
+        transcript,
+      });
+      handoffRequestId.current = null;
+      setConversationId(result.conversation.id);
+      setConversation(result.conversation);
+      setContext((current) => result.conversation.context ?? current);
+      setMessages((current) => mergeMessages(current, result.messages));
+      startedRef.current?.();
+      void queryClient.invalidateQueries({ queryKey: chatKeys.list });
+      void queryClient.invalidateQueries({ queryKey: chatKeys.unread });
+    },
+    [contextInput, locale, queryClient],
+  );
+
   return {
     conversation,
     context,
@@ -451,5 +500,6 @@ export function useChatThread(options: {
     loadEarlier,
     setTyping,
     refresh: load,
+    requestHuman,
   };
 }

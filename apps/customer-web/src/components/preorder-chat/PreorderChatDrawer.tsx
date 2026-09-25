@@ -9,15 +9,21 @@
  * the composer from disappearing under the keyboard.
  */
 import { useEffect, useId, useRef } from 'react';
-import { CloseIcon } from '@/components/icons';
+import { Button } from '@/components/ui';
+import { CloseIcon, ShieldIcon } from '@/components/icons';
 import { useI18n } from '@/i18n/i18n-context';
 import { lockPageScroll } from '@/lib/scroll-lock';
 import type { ChatContextInput } from '@/lib/preorder-chat';
+import { rememberHandoffIntent } from '@/lib/preorder-assistant';
+import { usePreorderAssistant } from '@/lib/use-preorder-assistant';
 import { ChatThread } from './ChatThread';
+import { PreorderAssistant } from './PreorderAssistant';
 
 export function PreorderChatDrawer({
   isOpen,
   onClose,
+  signedIn = true,
+  onSignIn,
   conversationId,
   context,
   onContextChange,
@@ -26,6 +32,9 @@ export function PreorderChatDrawer({
 }: {
   isOpen: boolean;
   onClose: () => void;
+  /** A guest sees the assistant only; writing or asking for a person signs them in. */
+  signedIn?: boolean;
+  onSignIn?: () => void;
   conversationId: string | null;
   context: ChatContextInput;
   onContextChange: (next: ChatContextInput) => void;
@@ -88,16 +97,69 @@ export function PreorderChatDrawer({
               <CloseIcon className="size-5" />
             </button>
           </header>
-          <ChatThread
-            conversationId={conversationId}
-            context={context}
-            onContextChange={onContextChange}
-            onConversation={onConversation}
-            onReviewProposal={onReviewProposal}
-            active={isOpen}
-          />
+          {signedIn ? (
+            <ChatThread
+              conversationId={conversationId}
+              context={context}
+              onContextChange={onContextChange}
+              onConversation={onConversation}
+              onReviewProposal={onReviewProposal}
+              active={isOpen}
+            />
+          ) : (
+            <GuestAssistant context={context} onSignIn={onSignIn ?? onClose} />
+          )}
         </>
       )}
     </dialog>
+  );
+}
+
+/**
+ * The drawer for somebody not signed in: the assistant, and a way to the team
+ * through sign-in. No socket, no conversation, nothing about the guest sent
+ * anywhere - the assistant's answers are the product's public information.
+ */
+function GuestAssistant({
+  context,
+  onSignIn,
+}: {
+  context: ChatContextInput;
+  onSignIn: () => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const assistant = usePreorderAssistant({ context, enabled: true, signedIn: false });
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto w-full max-w-3xl px-3 py-3 sm:px-4">
+          <PreorderAssistant
+            assistant={assistant}
+            productName=""
+            signedIn={false}
+            handoffStatus="idle"
+            handoffError={null}
+            onRequestHuman={() => {
+              // Finished for them once they are back: the answers wait in
+              // this tab, and so does the request.
+              rememberHandoffIntent({ productId: context.productId, variantId: context.variantId, topic: assistant.topic });
+              onSignIn();
+            }}
+          />
+        </div>
+      </div>
+      <div className="shrink-0 border-t border-border-subtle bg-surface px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4">
+        <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-2">
+          <p className="min-w-0 flex-1 text-xs text-ink-muted">{t('preorderChat.assistant.guestFooter')}</p>
+          <Button size="sm" onClick={onSignIn}>
+            {t('preorderChat.assistant.signInToWrite')}
+          </Button>
+        </div>
+        <p className="mx-auto mt-1.5 flex w-full max-w-3xl items-start gap-1.5 text-xxs leading-snug text-ink-subtle">
+          <ShieldIcon className="mt-px size-3.5 shrink-0" />
+          <span className="[@media(max-height:760px)]:line-clamp-1">{t('preorderChat.safety')}</span>
+        </p>
+      </div>
+    </div>
   );
 }

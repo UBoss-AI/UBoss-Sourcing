@@ -134,7 +134,11 @@ export type PreorderEventName =
   | 'bulk_prompt_start_preorder'
   | 'bulk_prompt_continue_regular'
   | 'preorder_info_acknowledged'
-  | 'preorder_form_opened';
+  | 'preorder_form_opened'
+  /** The quantity settled above stock and the stock prompt was answered. */
+  | 'stock_prompt_dismissed'
+  | 'stock_prompt_change_quantity'
+  | 'stock_prompt_start_preorder';
 
 /** The DOM event a deployment's own analytics can listen for. */
 export const PREORDER_EVENT = 'uboss:preorder';

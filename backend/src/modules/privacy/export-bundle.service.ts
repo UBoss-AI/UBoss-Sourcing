@@ -146,7 +146,8 @@ export const SECTIONS = Object.freeze({
     {
       section: 'credentials',
       reason:
-        'Password hash, MFA secret, session and token hashes, and payment mandate references. ' +
+        'Password hash, MFA secret, session and token hashes, payment mandate references and ' +
+        'your customer reference at the payment gateway. ' +
         'Held about the subject but usable as a credential, so their existence is reported ' +
         'and their values are not.',
     },

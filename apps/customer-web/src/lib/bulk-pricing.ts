@@ -20,6 +20,34 @@ export interface BulkBand {
   endsAt: string | null;
 }
 
+/**
+ * One bulk offer, as a card: buy this many, pay this much each. Every amount is
+ * the server's, in the offer's currency; nothing here is worked out in the
+ * browser.
+ */
+export interface BulkOfferCard {
+  minQuantity: number;
+  maxQuantity: number | null;
+  unitPrice: Money;
+  listUnitPrice: Money;
+  savingPerPiece: Money;
+  /** unit price x minimum quantity. */
+  lineTotal: Money;
+  /** saving per piece x minimum quantity. */
+  totalSaving: Money;
+  savingBasisPoints: number;
+  businessBuyersOnly: boolean;
+  endsAt: string | null;
+  isCurrent: boolean;
+  isNext: boolean;
+  /** Strictly the cheapest per piece of two or more offers. Never guessed. */
+  isBestValue: boolean;
+  /** The minimum can be met from stock; past it the rest is a preorder. */
+  withinStock: boolean;
+  /** In the viewer's own currency, indicative only. */
+  approximateUnitPrice: Money | null;
+}
+
 export interface BulkUnitOption {
   unit: BulkUnit;
   piecesPerUnit: number;
@@ -56,6 +84,10 @@ export type BulkPricing =
       } | null;
       ladder: BulkBand[];
       preorderBands: { minQuantity: number; unitPrice: Money; savingBasisPoints: number }[];
+      /** Every offer this buyer can reach, together. Empty when the seller set none. */
+      offers: BulkOfferCard[];
+      /** Bands the seller keeps for preorders only. */
+      preorderOffers: BulkOfferCard[];
       units: BulkUnitOption[];
       stockBaseUnits: number;
       exceedsStock: boolean;

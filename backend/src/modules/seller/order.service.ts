@@ -22,6 +22,8 @@
  * a rate in between, and a disputed settlement has to be recomputable from what
  * was in force on the day.
  */
+import { readOrderItemSnapshot, type OrderItemSnapshot } from '../../domain/order-item-snapshot.js';
+import { currentListingInfo } from '../orders/order-item-snapshot.service.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
@@ -251,14 +253,33 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
    * Ownership is already settled two lines above: the group belongs to this
    * seller, so its lines do, so the order items they name do.
    */
-  const noteByOrderItemId = new Map(
-    (
-      await prisma.orderItem.findMany({
-        where: { id: { in: group.lines.map((line) => line.orderItemId) } },
-        select: { id: true, noteSnapshot: true },
-      })
-    ).map((item) => [item.id, item.noteSnapshot]),
-  );
+  const itemRows = await prisma.orderItem.findMany({
+    where: { id: { in: group.lines.map((line) => line.orderItemId) } },
+    // The instruction, and what was bought as it was described at the time -
+    // the product's own words and facts, never the buyer's pricing. See
+    // `domain/order-item-snapshot.ts` for what the snapshot does and does not
+    // hold.
+    select: { id: true, noteSnapshot: true, productInfoSnapshotJson: true },
+  });
+  const noteByOrderItemId = new Map(itemRows.map((item) => [item.id, item.noteSnapshot]));
+
+  /*
+   * What each line is, frozen at checkout. An order placed before snapshots
+   * existed has none: it is shown the listing as it is NOW, built the same
+   * way, never stored, and labelled so the seller cannot mistake it for what
+   * was sold. Ownership is already settled above - these are this seller's
+   * lines - so nothing here can reach another seller's product information.
+   */
+  const productInfoByItem = new Map<string, { source: 'SNAPSHOT' | 'CURRENT_LISTING' | 'UNAVAILABLE'; info: OrderItemSnapshot | null }>();
+  for (const item of itemRows) {
+    const snapshot = readOrderItemSnapshot(item.productInfoSnapshotJson);
+    if (snapshot !== null) {
+      productInfoByItem.set(item.id, { source: 'SNAPSHOT', info: snapshot });
+      continue;
+    }
+    const current = await currentListingInfo(item.id).catch(() => null);
+    productInfoByItem.set(item.id, current === null ? { source: 'UNAVAILABLE', info: null } : { source: 'CURRENT_LISTING', info: current });
+  }
 
   /*
    * Who is carrying each consignment, how, and what the seller may do next.
@@ -310,6 +331,11 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       // What the buyer asked for on this line, in their own words. The seller
       // is the one who has to do it, so this is the screen it has to reach.
       note: noteByOrderItemId.get(line.orderItemId) ?? null,
+      // What was ordered - description, specifications, packaging and the
+      // selections - and where it came from: SNAPSHOT (frozen at checkout),
+      // CURRENT_LISTING (an older order; today's listing, labelled so) or
+      // UNAVAILABLE. Read only: nothing on the order page can change it.
+      productInfo: productInfoByItem.get(line.orderItemId) ?? { source: 'UNAVAILABLE', info: null },
     })),
     consignments: group.logisticsShipments.map((consignment) => ({
       id: consignment.id,

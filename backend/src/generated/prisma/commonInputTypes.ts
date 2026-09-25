@@ -2775,6 +2775,13 @@ export type EnumLogisticsContractStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel> | $Enums.LogisticsContractStatus
 }
 
+export type EnumLogisticsPartnerVerificationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsPartnerVerificationState | Prisma.EnumLogisticsPartnerVerificationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsPartnerVerificationState[]
+  notIn?: $Enums.LogisticsPartnerVerificationState[]
+  not?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel> | $Enums.LogisticsPartnerVerificationState
+}
+
 export type EnumLogisticsPartnerKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsPartnerKind | Prisma.EnumLogisticsPartnerKindFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsPartnerKind[]
@@ -2803,6 +2810,84 @@ export type EnumLogisticsContractStatusWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel>
+}
+
+export type EnumLogisticsPartnerVerificationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsPartnerVerificationState | Prisma.EnumLogisticsPartnerVerificationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsPartnerVerificationState[]
+  notIn?: $Enums.LogisticsPartnerVerificationState[]
+  not?: Prisma.NestedEnumLogisticsPartnerVerificationStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsPartnerVerificationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel>
+}
+
+export type EnumLogisticsProfileChangeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsProfileChangeState | Prisma.EnumLogisticsProfileChangeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsProfileChangeState[]
+  notIn?: $Enums.LogisticsProfileChangeState[]
+  not?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel> | $Enums.LogisticsProfileChangeState
+}
+
+export type EnumLogisticsProfileChangeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsProfileChangeState | Prisma.EnumLogisticsProfileChangeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsProfileChangeState[]
+  notIn?: $Enums.LogisticsProfileChangeState[]
+  not?: Prisma.NestedEnumLogisticsProfileChangeStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsProfileChangeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel>
+}
+
+export type EnumLogisticsComplianceDocumentKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceDocumentKind | Prisma.EnumLogisticsComplianceDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceDocumentKind[]
+  notIn?: $Enums.LogisticsComplianceDocumentKind[]
+  not?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel> | $Enums.LogisticsComplianceDocumentKind
+}
+
+export type EnumLogisticsDocumentScanStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsDocumentScanState[]
+  notIn?: $Enums.LogisticsDocumentScanState[]
+  not?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
+}
+
+export type EnumLogisticsComplianceReviewStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceReviewState | Prisma.EnumLogisticsComplianceReviewStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceReviewState[]
+  notIn?: $Enums.LogisticsComplianceReviewState[]
+  not?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel> | $Enums.LogisticsComplianceReviewState
+}
+
+export type EnumLogisticsComplianceDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceDocumentKind | Prisma.EnumLogisticsComplianceDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceDocumentKind[]
+  notIn?: $Enums.LogisticsComplianceDocumentKind[]
+  not?: Prisma.NestedEnumLogisticsComplianceDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsComplianceDocumentKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel>
+}
+
+export type EnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsDocumentScanState[]
+  notIn?: $Enums.LogisticsDocumentScanState[]
+  not?: Prisma.NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
+}
+
+export type EnumLogisticsComplianceReviewStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceReviewState | Prisma.EnumLogisticsComplianceReviewStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceReviewState[]
+  notIn?: $Enums.LogisticsComplianceReviewState[]
+  not?: Prisma.NestedEnumLogisticsComplianceReviewStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsComplianceReviewState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel>
 }
 
 export type EnumLogisticsPartnerRoleFilter<$PrismaModel = never> = {
@@ -3074,13 +3159,6 @@ export type EnumLogisticsDocumentAudienceFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel> | $Enums.LogisticsDocumentAudience
 }
 
-export type EnumLogisticsDocumentScanStateFilter<$PrismaModel = never> = {
-  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
-  in?: $Enums.LogisticsDocumentScanState[]
-  notIn?: $Enums.LogisticsDocumentScanState[]
-  not?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
-}
-
 export type EnumLogisticsDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsDocumentKind | Prisma.EnumLogisticsDocumentKindFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsDocumentKind[]
@@ -3099,16 +3177,6 @@ export type EnumLogisticsDocumentAudienceWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel>
-}
-
-export type EnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
-  in?: $Enums.LogisticsDocumentScanState[]
-  notIn?: $Enums.LogisticsDocumentScanState[]
-  not?: Prisma.NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
 }
 
 export type EnumLogisticsPickupStateFilter<$PrismaModel = never> = {
@@ -7093,6 +7161,13 @@ export type NestedEnumLogisticsContractStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel> | $Enums.LogisticsContractStatus
 }
 
+export type NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsPartnerVerificationState | Prisma.EnumLogisticsPartnerVerificationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsPartnerVerificationState[]
+  notIn?: $Enums.LogisticsPartnerVerificationState[]
+  not?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel> | $Enums.LogisticsPartnerVerificationState
+}
+
 export type NestedEnumLogisticsPartnerKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsPartnerKind | Prisma.EnumLogisticsPartnerKindFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsPartnerKind[]
@@ -7121,6 +7196,84 @@ export type NestedEnumLogisticsContractStatusWithAggregatesFilter<$PrismaModel =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLogisticsContractStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumLogisticsPartnerVerificationStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsPartnerVerificationState | Prisma.EnumLogisticsPartnerVerificationStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsPartnerVerificationState[]
+  notIn?: $Enums.LogisticsPartnerVerificationState[]
+  not?: Prisma.NestedEnumLogisticsPartnerVerificationStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsPartnerVerificationState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsPartnerVerificationStateFilter<$PrismaModel>
+}
+
+export type NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsProfileChangeState | Prisma.EnumLogisticsProfileChangeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsProfileChangeState[]
+  notIn?: $Enums.LogisticsProfileChangeState[]
+  not?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel> | $Enums.LogisticsProfileChangeState
+}
+
+export type NestedEnumLogisticsProfileChangeStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsProfileChangeState | Prisma.EnumLogisticsProfileChangeStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsProfileChangeState[]
+  notIn?: $Enums.LogisticsProfileChangeState[]
+  not?: Prisma.NestedEnumLogisticsProfileChangeStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsProfileChangeState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsProfileChangeStateFilter<$PrismaModel>
+}
+
+export type NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceDocumentKind | Prisma.EnumLogisticsComplianceDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceDocumentKind[]
+  notIn?: $Enums.LogisticsComplianceDocumentKind[]
+  not?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel> | $Enums.LogisticsComplianceDocumentKind
+}
+
+export type NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsDocumentScanState[]
+  notIn?: $Enums.LogisticsDocumentScanState[]
+  not?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
+}
+
+export type NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceReviewState | Prisma.EnumLogisticsComplianceReviewStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceReviewState[]
+  notIn?: $Enums.LogisticsComplianceReviewState[]
+  not?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel> | $Enums.LogisticsComplianceReviewState
+}
+
+export type NestedEnumLogisticsComplianceDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceDocumentKind | Prisma.EnumLogisticsComplianceDocumentKindFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceDocumentKind[]
+  notIn?: $Enums.LogisticsComplianceDocumentKind[]
+  not?: Prisma.NestedEnumLogisticsComplianceDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsComplianceDocumentKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsComplianceDocumentKindFilter<$PrismaModel>
+}
+
+export type NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsDocumentScanState[]
+  notIn?: $Enums.LogisticsDocumentScanState[]
+  not?: Prisma.NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
+}
+
+export type NestedEnumLogisticsComplianceReviewStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LogisticsComplianceReviewState | Prisma.EnumLogisticsComplianceReviewStateFieldRefInput<$PrismaModel>
+  in?: $Enums.LogisticsComplianceReviewState[]
+  notIn?: $Enums.LogisticsComplianceReviewState[]
+  not?: Prisma.NestedEnumLogisticsComplianceReviewStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsComplianceReviewState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLogisticsComplianceReviewStateFilter<$PrismaModel>
 }
 
 export type NestedEnumLogisticsPartnerRoleFilter<$PrismaModel = never> = {
@@ -7392,13 +7545,6 @@ export type NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel> | $Enums.LogisticsDocumentAudience
 }
 
-export type NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel = never> = {
-  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
-  in?: $Enums.LogisticsDocumentScanState[]
-  notIn?: $Enums.LogisticsDocumentScanState[]
-  not?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
-}
-
 export type NestedEnumLogisticsDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LogisticsDocumentKind | Prisma.EnumLogisticsDocumentKindFieldRefInput<$PrismaModel>
   in?: $Enums.LogisticsDocumentKind[]
@@ -7417,16 +7563,6 @@ export type NestedEnumLogisticsDocumentAudienceWithAggregatesFilter<$PrismaModel
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLogisticsDocumentAudienceFilter<$PrismaModel>
-}
-
-export type NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.LogisticsDocumentScanState | Prisma.EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel>
-  in?: $Enums.LogisticsDocumentScanState[]
-  notIn?: $Enums.LogisticsDocumentScanState[]
-  not?: Prisma.NestedEnumLogisticsDocumentScanStateWithAggregatesFilter<$PrismaModel> | $Enums.LogisticsDocumentScanState
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumLogisticsDocumentScanStateFilter<$PrismaModel>
 }
 
 export type NestedEnumLogisticsPickupStateFilter<$PrismaModel = never> = {

@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**357 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**360 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -35,7 +35,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Fulfilment options](#fulfilment-options) | 6 |
 | [Idempotency](#idempotency) | 3 |
 | [Payments](#payments) | 14 |
-| [Recurring](#recurring) | 27 |
+| [Recurring](#recurring) | 29 |
 | [Localisation & currency](#localisation-currency) | 4 |
 | [Coupons](#coupons) | 8 |
 | [Integrations](#integrations) | 9 |
@@ -43,7 +43,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Auto-pay](#auto-pay) | 6 |
 | [Data protection](#data-protection) | 6 |
 | [A buyer's own ERP, and the organisation that owns it](#a-buyer-s-own-erp-and-the-organisation-that-owns-it) | 26 |
-| [Seller Hub](#seller-hub) | 40 |
+| [Seller Hub](#seller-hub) | 41 |
 | [Logistics partner portal](#logistics-partner-portal) | 21 |
 | [How a seller's own goods get delivered](#how-a-seller-s-own-goods-get-delivered) | 15 |
 | [Console notifications](#console-notifications) | 2 |
@@ -241,6 +241,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `PAYMENT_SETUP_CONSENT_REQUIRED` | Saving a payment method without the off-session consent that makes it chargeable. Stripe's rules require the record, and so does the law. |
 | `PAYMENT_INSTRUMENT_UNAVAILABLE` | The customer asked to pay with an instrument this deployment cannot offer for this cart - UPI where no gateway serves it, or a card in a currency no connected gateway settles. |
 | `PAYMENT_METHOD_NOT_CHARGEABLE` | A stored card was named for a charge its owner never agreed to. |
+| `PAYMENT_ATTEMPT_IN_PROGRESS` | Another payment for this order is already open, or is already being processed by the bank, and starting a second one could charge twice. |
+| `PAYMENT_AMOUNT_NOT_SUPPORTED` | The order's total cannot be taken by card online in its currency - it is above the gateway's per-payment ceiling, or it is not a whole number of the units the gateway settles in (Stripe charges HUF in whole forint). |
 
 ## Localisation & currency
 
@@ -361,6 +363,7 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SELLER_LOCK_NOT_SET` | This person has not chosen a Seller Hub password yet. |
 | `SELLER_LOCK_REQUIRED` | The lock exists and this session has not opened it. |
 | `SELLER_LOCK_INVALID` | The seller password given was wrong. |
+| `SELLER_SESSION_EXPIRED` | The Hub was open and has re-locked itself after SELLER_HUB_IDLE_TIMEOUT_SECONDS without deliberate activity. Its own code rather than LOCK_REQUIRED, so the lock screen can say why it is back: "your session expired due to inactivity", not "enter your password" out of nowhere. The remedy is the same - enter the Seller Hub password. |
 | `SELLER_DISPLAY_NAME_TAKEN` | The public display name is taken. |
 | `SELLER_APPLICATION_TRANSITION_NOT_ALLOWED` | The application cannot move the way it was asked to. Same shape as ORDER_TRANSITION_NOT_ALLOWED and separate from it, because the states and the remedies are different. |
 | `SELLER_ONBOARDING_INCOMPLETE` | Submission was refused because required onboarding steps are unfinished. `details` carries one entry per missing step, keyed to the step so the interface can link straight to it. |

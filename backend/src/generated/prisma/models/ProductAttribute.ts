@@ -41,6 +41,9 @@ export type ProductAttributeMinAggregateOutputType = {
   value: string | null
   sortOrder: number | null
   isFilterable: boolean | null
+  groupKey: string | null
+  unit: string | null
+  isHighlight: boolean | null
 }
 
 export type ProductAttributeMaxAggregateOutputType = {
@@ -50,6 +53,9 @@ export type ProductAttributeMaxAggregateOutputType = {
   value: string | null
   sortOrder: number | null
   isFilterable: boolean | null
+  groupKey: string | null
+  unit: string | null
+  isHighlight: boolean | null
 }
 
 export type ProductAttributeCountAggregateOutputType = {
@@ -59,6 +65,9 @@ export type ProductAttributeCountAggregateOutputType = {
   value: number
   sortOrder: number
   isFilterable: number
+  groupKey: number
+  unit: number
+  isHighlight: number
   _all: number
 }
 
@@ -78,6 +87,9 @@ export type ProductAttributeMinAggregateInputType = {
   value?: true
   sortOrder?: true
   isFilterable?: true
+  groupKey?: true
+  unit?: true
+  isHighlight?: true
 }
 
 export type ProductAttributeMaxAggregateInputType = {
@@ -87,6 +99,9 @@ export type ProductAttributeMaxAggregateInputType = {
   value?: true
   sortOrder?: true
   isFilterable?: true
+  groupKey?: true
+  unit?: true
+  isHighlight?: true
 }
 
 export type ProductAttributeCountAggregateInputType = {
@@ -96,6 +111,9 @@ export type ProductAttributeCountAggregateInputType = {
   value?: true
   sortOrder?: true
   isFilterable?: true
+  groupKey?: true
+  unit?: true
+  isHighlight?: true
   _all?: true
 }
 
@@ -192,6 +210,9 @@ export type ProductAttributeGroupByOutputType = {
   value: string
   sortOrder: number
   isFilterable: boolean
+  groupKey: string | null
+  unit: string | null
+  isHighlight: boolean
   _count: ProductAttributeCountAggregateOutputType | null
   _avg: ProductAttributeAvgAggregateOutputType | null
   _sum: ProductAttributeSumAggregateOutputType | null
@@ -224,6 +245,9 @@ export type ProductAttributeWhereInput = {
   value?: Prisma.StringFilter<"ProductAttribute"> | string
   sortOrder?: Prisma.IntFilter<"ProductAttribute"> | number
   isFilterable?: Prisma.BoolFilter<"ProductAttribute"> | boolean
+  groupKey?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  unit?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  isHighlight?: Prisma.BoolFilter<"ProductAttribute"> | boolean
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
 }
 
@@ -234,6 +258,9 @@ export type ProductAttributeOrderByWithRelationInput = {
   value?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isFilterable?: Prisma.SortOrder
+  groupKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  unit?: Prisma.SortOrderInput | Prisma.SortOrder
+  isHighlight?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   _relevance?: Prisma.ProductAttributeOrderByRelevanceInput
 }
@@ -249,6 +276,9 @@ export type ProductAttributeWhereUniqueInput = Prisma.AtLeast<{
   value?: Prisma.StringFilter<"ProductAttribute"> | string
   sortOrder?: Prisma.IntFilter<"ProductAttribute"> | number
   isFilterable?: Prisma.BoolFilter<"ProductAttribute"> | boolean
+  groupKey?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  unit?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  isHighlight?: Prisma.BoolFilter<"ProductAttribute"> | boolean
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
 }, "id" | "productId_name">
 
@@ -259,6 +289,9 @@ export type ProductAttributeOrderByWithAggregationInput = {
   value?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isFilterable?: Prisma.SortOrder
+  groupKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  unit?: Prisma.SortOrderInput | Prisma.SortOrder
+  isHighlight?: Prisma.SortOrder
   _count?: Prisma.ProductAttributeCountOrderByAggregateInput
   _avg?: Prisma.ProductAttributeAvgOrderByAggregateInput
   _max?: Prisma.ProductAttributeMaxOrderByAggregateInput
@@ -276,6 +309,9 @@ export type ProductAttributeScalarWhereWithAggregatesInput = {
   value?: Prisma.StringWithAggregatesFilter<"ProductAttribute"> | string
   sortOrder?: Prisma.IntWithAggregatesFilter<"ProductAttribute"> | number
   isFilterable?: Prisma.BoolWithAggregatesFilter<"ProductAttribute"> | boolean
+  groupKey?: Prisma.StringNullableWithAggregatesFilter<"ProductAttribute"> | string | null
+  unit?: Prisma.StringNullableWithAggregatesFilter<"ProductAttribute"> | string | null
+  isHighlight?: Prisma.BoolWithAggregatesFilter<"ProductAttribute"> | boolean
 }
 
 export type ProductAttributeCreateInput = {
@@ -284,6 +320,9 @@ export type ProductAttributeCreateInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
   product: Prisma.ProductCreateNestedOneWithoutAttributesInput
 }
 
@@ -294,6 +333,9 @@ export type ProductAttributeUncheckedCreateInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
 }
 
 export type ProductAttributeUpdateInput = {
@@ -302,6 +344,9 @@ export type ProductAttributeUpdateInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
   product?: Prisma.ProductUpdateOneRequiredWithoutAttributesNestedInput
 }
 
@@ -312,6 +357,9 @@ export type ProductAttributeUncheckedUpdateInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ProductAttributeCreateManyInput = {
@@ -321,6 +369,9 @@ export type ProductAttributeCreateManyInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
 }
 
 export type ProductAttributeUpdateManyMutationInput = {
@@ -329,6 +380,9 @@ export type ProductAttributeUpdateManyMutationInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ProductAttributeUncheckedUpdateManyInput = {
@@ -338,6 +392,9 @@ export type ProductAttributeUncheckedUpdateManyInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ProductAttributeListRelationFilter = {
@@ -368,6 +425,9 @@ export type ProductAttributeCountOrderByAggregateInput = {
   value?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isFilterable?: Prisma.SortOrder
+  groupKey?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  isHighlight?: Prisma.SortOrder
 }
 
 export type ProductAttributeAvgOrderByAggregateInput = {
@@ -381,6 +441,9 @@ export type ProductAttributeMaxOrderByAggregateInput = {
   value?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isFilterable?: Prisma.SortOrder
+  groupKey?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  isHighlight?: Prisma.SortOrder
 }
 
 export type ProductAttributeMinOrderByAggregateInput = {
@@ -390,6 +453,9 @@ export type ProductAttributeMinOrderByAggregateInput = {
   value?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isFilterable?: Prisma.SortOrder
+  groupKey?: Prisma.SortOrder
+  unit?: Prisma.SortOrder
+  isHighlight?: Prisma.SortOrder
 }
 
 export type ProductAttributeSumOrderByAggregateInput = {
@@ -444,6 +510,9 @@ export type ProductAttributeCreateWithoutProductInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
 }
 
 export type ProductAttributeUncheckedCreateWithoutProductInput = {
@@ -452,6 +521,9 @@ export type ProductAttributeUncheckedCreateWithoutProductInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
 }
 
 export type ProductAttributeCreateOrConnectWithoutProductInput = {
@@ -490,6 +562,9 @@ export type ProductAttributeScalarWhereInput = {
   value?: Prisma.StringFilter<"ProductAttribute"> | string
   sortOrder?: Prisma.IntFilter<"ProductAttribute"> | number
   isFilterable?: Prisma.BoolFilter<"ProductAttribute"> | boolean
+  groupKey?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  unit?: Prisma.StringNullableFilter<"ProductAttribute"> | string | null
+  isHighlight?: Prisma.BoolFilter<"ProductAttribute"> | boolean
 }
 
 export type ProductAttributeCreateManyProductInput = {
@@ -498,6 +573,9 @@ export type ProductAttributeCreateManyProductInput = {
   value: string
   sortOrder?: number
   isFilterable?: boolean
+  groupKey?: string | null
+  unit?: string | null
+  isHighlight?: boolean
 }
 
 export type ProductAttributeUpdateWithoutProductInput = {
@@ -506,6 +584,9 @@ export type ProductAttributeUpdateWithoutProductInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ProductAttributeUncheckedUpdateWithoutProductInput = {
@@ -514,6 +595,9 @@ export type ProductAttributeUncheckedUpdateWithoutProductInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ProductAttributeUncheckedUpdateManyWithoutProductInput = {
@@ -522,6 +606,9 @@ export type ProductAttributeUncheckedUpdateManyWithoutProductInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isFilterable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isHighlight?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -533,6 +620,9 @@ export type ProductAttributeSelect<ExtArgs extends runtime.Types.Extensions.Inte
   value?: boolean
   sortOrder?: boolean
   isFilterable?: boolean
+  groupKey?: boolean
+  unit?: boolean
+  isHighlight?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productAttribute"]>
 
@@ -545,9 +635,12 @@ export type ProductAttributeSelectScalar = {
   value?: boolean
   sortOrder?: boolean
   isFilterable?: boolean
+  groupKey?: boolean
+  unit?: boolean
+  isHighlight?: boolean
 }
 
-export type ProductAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "name" | "value" | "sortOrder" | "isFilterable", ExtArgs["result"]["productAttribute"]>
+export type ProductAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "name" | "value" | "sortOrder" | "isFilterable" | "groupKey" | "unit" | "isHighlight", ExtArgs["result"]["productAttribute"]>
 export type ProductAttributeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
 }
@@ -567,6 +660,20 @@ export type $ProductAttributePayload<ExtArgs extends runtime.Types.Extensions.In
      * Attributes drive faceted filtering when true.
      */
     isFilterable: boolean
+    /**
+     * Which specification group it is shown under - one of `SPEC_GROUPS` in
+     * `domain/product-specifications.ts`. NULL for rows written before groups
+     * existed; those read as GENERAL, so every existing product still renders.
+     */
+    groupKey: string | null
+    /**
+     * One of `SPEC_UNITS`, or NULL when the unit is part of the value.
+     */
+    unit: string | null
+    /**
+     * Shown in the product's highlights, at the top of its information.
+     */
+    isHighlight: boolean
   }, ExtArgs["result"]["productAttribute"]>
   composites: {}
 }
@@ -943,6 +1050,9 @@ export interface ProductAttributeFieldRefs {
   readonly value: Prisma.FieldRef<"ProductAttribute", 'String'>
   readonly sortOrder: Prisma.FieldRef<"ProductAttribute", 'Int'>
   readonly isFilterable: Prisma.FieldRef<"ProductAttribute", 'Boolean'>
+  readonly groupKey: Prisma.FieldRef<"ProductAttribute", 'String'>
+  readonly unit: Prisma.FieldRef<"ProductAttribute", 'String'>
+  readonly isHighlight: Prisma.FieldRef<"ProductAttribute", 'Boolean'>
 }
     
 

@@ -35,7 +35,29 @@ import {
   resolveSellerMembership,
   type SellerMembership,
 } from '../../modules/seller/account.service.js';
-import { assertSellerUnlocked } from '../../modules/seller/lock.service.js';
+import { env } from '../../config/env.js';
+import {
+  assertSellerUnlocked,
+  expireIdleSellerSession,
+  touchSellerActivity,
+} from '../../modules/seller/lock.service.js';
+
+/**
+ * The header a Hub page sends with a request a person made on purpose - a page
+ * they opened, a button they pressed - as opposed to a badge polling in the
+ * background. Only those, and every change (POST, PUT, PATCH, DELETE), count as
+ * activity for the idle limit. A tab left open with a notification bell
+ * refreshing every minute therefore still re-locks after the hour.
+ */
+export const SELLER_ACTIVITY_HEADER = 'x-seller-activity';
+
+/** Tells the page when this session's Hub re-locks without further activity. */
+export const SELLER_EXPIRES_HEADER = 'x-seller-session-expires-at';
+
+function isDeliberate(request: FastifyRequest): boolean {
+  if (request.method !== 'GET' && request.method !== 'HEAD') return true;
+  return request.headers[SELLER_ACTIVITY_HEADER] === '1';
+}
 import { currentUser, requireCustomer } from './auth.js';
 
 declare module 'fastify' {
@@ -82,6 +104,33 @@ export function requireSeller(...permissions: SellerPermissionKey[]) {
       sellerUnlockedAt: auth.sessionSellerUnlockedAt,
       sellerUnlockedForId: auth.sessionSellerUnlockedForId,
     });
+
+    /*
+     * The idle limit, on the server.
+     *
+     * An open Hub with no deliberate activity for SELLER_HUB_IDLE_TIMEOUT_SECONDS
+     * is re-locked here, on the session row, and this request refused with
+     * SELLER_SESSION_EXPIRED - whatever any tab's timer thinks. Otherwise a
+     * deliberate request moves the clock on, and every answer says when the
+     * Hub will re-lock, so the page's warning is timed by the server.
+     */
+    const idle = {
+      sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+      sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+      sellerLastActivityAt: auth.sessionSellerLastActivityAt,
+    };
+    const audit = { userId: auth.id, memberId: membership.memberId, correlationId: request.correlationId };
+    await expireIdleSellerSession(auth.sessionId, idle, audit);
+
+    const since = isDeliberate(request)
+      ? await touchSellerActivity(auth.sessionId, idle)
+      : (idle.sellerLastActivityAt ?? idle.sellerUnlockedAt);
+    if (since !== null) {
+      void reply.header(
+        SELLER_EXPIRES_HEADER,
+        new Date(since.getTime() + env.SELLER_HUB_IDLE_TIMEOUT_SECONDS * 1000).toISOString(),
+      );
+    }
 
     for (const permission of permissions) {
       assertSellerPermission(membership, permission);

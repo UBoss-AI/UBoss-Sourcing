@@ -354,12 +354,17 @@ export function CheckoutPage(): React.JSX.Element {
   const cardsForInstrument = useMemo(() => {
     if (instrument === null || instrument === 'UPI') return [];
 
+    // Paid on Stripe's own page, which offers the customer's saved cards
+    // itself. Listing them here too would be a second place to pick one, and
+    // the choice made here would not reach Stripe's page.
+    if (chosenOffer?.hostedCheckout === true) return [];
+
     return (savedCards.data ?? []).filter(
       (card) =>
         card.status === 'ACTIVE' &&
         (card.instrument === null || card.instrument === instrument),
     );
-  }, [savedCards.data, instrument]);
+  }, [savedCards.data, instrument, chosenOffer]);
 
   // Preselect the customer's default so the common case is zero clicks.
   useEffect(() => {
@@ -1052,6 +1057,14 @@ export function CheckoutPage(): React.JSX.Element {
                                 Absent entirely for somebody who has never
                                 saved a card, which is everybody's first order.
                               */}
+                              {isSelected &&
+                                chosenOffer?.hostedCheckout === true &&
+                                (savedCards.data ?? []).some((card) => card.status === 'ACTIVE') && (
+                                  <p className="ml-7 mt-2 border-l border-border-subtle pl-3 text-xs leading-relaxed text-ink-muted">
+                                    {t('checkout.savedCardsOnStripe')}
+                                  </p>
+                                )}
+
                               {isSelected && cardsForInstrument.length > 0 && (
                                 <div className="ml-7 mt-2 space-y-2 border-l border-border-subtle pl-3">
                                   {cardsForInstrument.map((card) => (

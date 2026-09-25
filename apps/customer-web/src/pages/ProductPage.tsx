@@ -30,7 +30,7 @@
  * where the gallery has just taken a full screen, the controls read as one
  * thing to work through rather than as four stacked fragments.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
@@ -42,6 +42,9 @@ import { BulkOrderPanel } from '@/components/catalog/BulkOrderPanel';
 import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { PreorderButton } from '@/components/preorder/PreorderButton';
 import { BulkSavingsPopover } from '@/components/BulkSavingsPopover';
+import { BulkOffersDialog } from '@/components/BulkOffersDialog';
+import { useQuantityDecision } from '@/lib/use-quantity-decision';
+import type { QuantityCommitSource } from '@/components/QuantityInput';
 import { BandPriceValue } from '@/components/BandPriceValue';
 import { ProductInstructionsButton } from '@/components/ProductInstructionsButton';
 import { ImageLightbox } from '@/components/ImageLightbox';
@@ -60,7 +63,6 @@ import {
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
-import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
 import { canonicalUrl, productJsonLd } from '@/lib/seo';
 import { ApproximatePrice } from '@/components/ApproximatePrice';
@@ -85,6 +87,7 @@ import {
 } from '@/lib/variants';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
+import { ProductInformation } from '@/components/product-info/ProductInformation';
 import { DimensionsSection, PackagingSection } from '@/components/ProductPackagingPanel';
 import {
   isSoldByThePiece,
@@ -376,6 +379,7 @@ function VariantPicker({
   currency,
   onToggle,
   onQuantityChange,
+  onQuantityCommit,
 }: {
   variants: ProductVariant[];
   /** Option id to the quantity wanted. An absent id is an option not chosen. */
@@ -393,6 +397,13 @@ function VariantPicker({
   currency: string;
   onToggle: (variant: ProductVariant) => void;
   onQuantityChange: (variant: ProductVariant, quantity: number) => void;
+  /** A settled quantity for one option - see QuantityInput's onCommit. */
+  onQuantityCommit?: (
+    variant: ProductVariant,
+    quantity: number,
+    source: QuantityCommitSource,
+    previous: number,
+  ) => void;
 }): React.JSX.Element {
   const { t } = useI18n();
 
@@ -524,6 +535,9 @@ function VariantPicker({
                       value={wanted}
                       onChange={(next) => {
                         onQuantityChange(variant, next);
+                      }}
+                      onCommit={(next, source, previous) => {
+                        onQuantityCommit?.(variant, next, source, previous);
                       }}
                       rules={rules}
                       label={t('product.quantityFor', { variant: variant.name })}
@@ -721,7 +735,7 @@ function OrderingInformation({ product }: { product: Product }): React.JSX.Eleme
 }
 
 export function ProductPage(): React.JSX.Element {
-  const { t, language } = useI18n();
+  const { t, language, intlLocale } = useI18n();
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -1153,6 +1167,56 @@ export function ProductPage(): React.JSX.Element {
     },
   });
 
+  /*
+   * The quantity decision: which dialog, if any, a settled quantity opens -
+   * every bulk offer together, or the stock prompt. One place decides, so the
+   * page never shows two; see lib/quantity-decision.ts. Only where exactly one
+   * thing is chosen, because offers and stock are per version.
+   */
+  const decisionLine = chosenLines.length === 1 ? chosenLines[0] : undefined;
+  const decisionPieces = decisionLine?.quantity ?? 0;
+  const [preorderDialogOpen, setPreorderDialogOpen] = useState(false);
+  const quantityBoxRef = useRef<HTMLInputElement | null>(null);
+  const viewOffersRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * Where focus goes when the decision's dialog has gone. Set on close and
+   * applied only once no dialog is open - while a modal <dialog> is up the
+   * page behind it is inert and refuses focus. PreorderButton does the same.
+   */
+  const focusAfterDialog = useRef<HTMLElement | null>(null);
+  const quantityDecision = useQuantityDecision({
+    productId: product?.id ?? '',
+    variantId: decisionLine?.variantId ?? null,
+    pieces: decisionPieces,
+    displayCurrency: currency,
+    enabled:
+      product !== undefined &&
+      decisionLine !== undefined &&
+      decisionPieces > 0 &&
+      !(product.purchasability?.isPriceOnRequest ?? false),
+    otherDialogOpen: preorderDialogOpen,
+  });
+  /** A settled quantity, in whatever the box counts, handed on in pieces. */
+  const commitQuantity = (typed: number, source: QuantityCommitSource, previous: number): void => {
+    quantityDecision.commit(typed * sellUnit.piecesPerUnit, source, previous * sellUnit.piecesPerUnit);
+  };
+  const closeStockPrompt = useCallback(
+    (outcome: 'preorder' | 'change' | 'dismiss'): void => {
+      if (outcome === 'change') focusAfterDialog.current = quantityBoxRef.current;
+      quantityDecision.closePreorderPrompt();
+    },
+    [quantityDecision],
+  );
+  const decisionDialogOpen = quantityDecision.dialog !== null;
+  useEffect(() => {
+    if (decisionDialogOpen || preorderDialogOpen) return;
+    const target = focusAfterDialog.current;
+    focusAfterDialog.current = null;
+    if (target?.isConnected !== true) return;
+    target.focus();
+    if (target instanceof HTMLInputElement) target.select();
+  }, [decisionDialogOpen, preorderDialogOpen]);
+
   if (query.isPending) return <LoadingState label={t('product.loadingTheProduct')} />;
 
   // An unpublished or unknown product is a 404, which is a normal outcome here
@@ -1419,7 +1483,21 @@ export function ProductPage(): React.JSX.Element {
     product.description !== null ||
     product.descriptionHtml !== null ||
     product.attributes.length > 0 ||
-    product.packaging !== null;
+    (product.descriptionSections?.length ?? 0) > 0 ||
+    product.packaging !== null ||
+    (product.safety ?? null) !== null ||
+    (product.device ?? null) !== null;
+
+  // Facts the page already holds that a buyer scans for first. Only what is
+  // true of this listing: a minimum above one, a carton that is not a piece.
+  const infoHighlights = [
+    ...(product.purchaseRules.minOrderQty > 1
+      ? [{ label: t('product.info.minimumOrder'), value: formatNumber(product.purchaseRules.minOrderQty) }]
+      : []),
+    ...(!soldByThePiece && sellUnit.piecesPerUnit > 1
+      ? [{ label: t('product.info.piecesPerCarton'), value: formatNumber(sellUnit.piecesPerUnit) }]
+      : []),
+  ];
 
   return (
     <>
@@ -1724,6 +1802,9 @@ export function ProductPage(): React.JSX.Element {
                   currency={priceCurrency}
                   onToggle={toggleVariant}
                   onQuantityChange={setVariantQuantity}
+                  onQuantityCommit={(variant, next, source, previous) => {
+                    if (decisionLine?.variantId === variant.id) commitQuantity(next, source, previous);
+                  }}
                 />
               ) : (
                 // Only where there is nothing to choose between. Where there
@@ -1736,6 +1817,8 @@ export function ProductPage(): React.JSX.Element {
                     setQuantity(next);
                     setAddError(null);
                   }}
+                  onCommit={commitQuantity}
+                  inputRef={quantityBoxRef}
                   rules={rules}
                 />
               )}
@@ -1773,6 +1856,54 @@ export function ProductPage(): React.JSX.Element {
                       : (next) => {
                           setQuantity(next);
                           setAddError(null);
+                        }
+                  }
+                />
+              )}
+
+              {/* Every bulk offer together, on request - and opened by the
+                  quantity decision on the first increase that has offers to
+                  show. Only where the seller has set genuine offers. */}
+              {quantityDecision.pricing !== null && quantityDecision.pricing.offers.length > 0 && (
+                <button
+                  ref={viewOffersRef}
+                  type="button"
+                  aria-haspopup="dialog"
+                  onClick={quantityDecision.openOffers}
+                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-md px-1 text-sm font-semibold text-brand underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {t('bulkOffers.viewAll', {
+                    offers: quantityDecision.pricing.offers.length.toLocaleString(intlLocale),
+                  })}
+                </button>
+              )}
+              {/* Mounted while there are offers and opened by the decision, so
+                  the dialog closes through <dialog>.close() and the browser
+                  puts focus back where it was. */}
+              {quantityDecision.pricing !== null && quantityDecision.pricing.offers.length > 0 && (
+                <BulkOffersDialog
+                  isOpen={quantityDecision.dialog?.kind === 'offers'}
+                  pricing={quantityDecision.pricing}
+                  onClose={() => {
+                    // Back to whatever opened it: the button, or for an
+                    // automatic opening the quantity box the buyer was using.
+                    const back =
+                      quantityDecision.dialog?.kind === 'offers' && quantityDecision.dialog.trigger === 'explicit'
+                        ? viewOffersRef.current
+                        : quantityBoxRef.current;
+                    focusAfterDialog.current = back;
+                    quantityDecision.dismissOffers();
+                  }}
+                  onSelect={
+                    needsVariant || !soldByThePiece
+                      ? undefined
+                      : (pieces) => {
+                          setQuantity(pieces);
+                          setAddError(null);
+                          quantityDecision.chooseOffer(pieces, decisionPieces);
+                          // The box now shows the chosen quantity; the stock
+                          // prompt, if it follows, takes focus from here.
+                          focusAfterDialog.current = quantityBoxRef.current;
                         }
                   }
                 />
@@ -2042,6 +2173,13 @@ export function ProductPage(): React.JSX.Element {
                       }
                       isReady={scheduleLine !== undefined}
                       pieces={totalPieces}
+                      stockPrompt={quantityDecision.dialog?.kind === 'preorder' ? quantityDecision.dialog : null}
+                      onStockPromptClose={closeStockPrompt}
+                      // The minimum-order suggestion waits while a decision dialog
+                      // is up, and stands aside when this quantity is over stock:
+                      // the stock prompt says the same and more.
+                      blocked={quantityDecision.dialog !== null || quantityDecision.overStockNow}
+                      onDialogChange={setPreorderDialogOpen}
                       // Add to Cart takes this quantity exactly when it is
                       // live: the quantity box already holds it inside the
                       // product's own ordering rules, and the server applies
@@ -2181,6 +2319,13 @@ export function ProductPage(): React.JSX.Element {
                       }
                       isReady={scheduleLine !== undefined}
                       pieces={totalPieces}
+                      stockPrompt={quantityDecision.dialog?.kind === 'preorder' ? quantityDecision.dialog : null}
+                      onStockPromptClose={closeStockPrompt}
+                      // The minimum-order suggestion waits while a decision dialog
+                      // is up, and stands aside when this quantity is over stock:
+                      // the stock prompt says the same and more.
+                      blocked={quantityDecision.dialog !== null || quantityDecision.overStockNow}
+                      onDialogChange={setPreorderDialogOpen}
                       className="w-full sm:w-auto"
                     />
                   </div>
@@ -2195,87 +2340,36 @@ export function ProductPage(): React.JSX.Element {
         </div>
       </div>
 
-      {/* --- Description and specifications ---------------------------------
-          Full width below the fold rather than squeezed into the right column:
-          a specification table and a supplier's HTML description are both
-          long, and neither survives a 22rem column. The description takes the
-          wider half and is capped at a reading measure; the specifications sit
-          beside it on a desktop and stack underneath on a phone. */}
+      {/* --- Everything a buyer reads below the buy panel --------------------
+          In one fixed order - highlights, description, specifications,
+          packaging and bulk ordering, compliance, warranty, manufacturer and
+          seller - each only when it has something to say. The chosen option's
+          own specifications replace the product's, so changing size never
+          leaves the previous size's values on the page. */}
       {hasDetail && (
-        <div className="mt-12 grid grid-cols-1 gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10">
-          {(product.description !== null || product.descriptionHtml !== null) && (
-            <section aria-labelledby="description-heading" className="min-w-0">
-              <h2 id="description-heading" className="text-title-sm text-ink">
-                {t('product.description')}
-              </h2>
-
-              {product.descriptionHtml === null ? (
-                <p className="mt-3 max-w-prose whitespace-pre-wrap break-words text-sm leading-relaxed text-ink-muted">
-                  {product.description}
-                </p>
-              ) : (
-                // A supplier's HTML can contain a wide table or an unbroken
-                // part number. `[&_table]:block` with its own overflow makes
-                // the table scroll inside itself instead of pushing the page
-                // sideways, and `break-words` handles the part number.
-                <SafeHtml
-                  html={product.descriptionHtml}
-                  className="prose-sm mt-3 max-w-prose break-words text-sm leading-relaxed text-ink-muted [&_a]:text-brand [&_a]:underline [&_h2]:mt-4 [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:mt-3 [&_h3]:font-medium [&_h3]:text-ink [&_img]:h-auto [&_img]:max-w-full [&_li]:ml-5 [&_li]:list-disc [&_p]:mt-2 [&_table]:mt-3 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-border [&_th]:px-2 [&_th]:py-1"
-                />
-              )}
-            </section>
-          )}
-
-          {product.attributes.length > 0 && (
-            <section aria-labelledby="specifications-heading" className="min-w-0">
-              <h2 id="specifications-heading" className="text-title-sm text-ink">
-                {t('product.specifications')}
-              </h2>
-
-              {/* Two columns from `sm` up, stacked below it. The fixed 10rem
-                  label column this replaced left a two-word value wrapping in
-                  a 4rem gutter on every phone. */}
-              <dl className="mt-3 divide-y divide-border-subtle overflow-hidden rounded-lg border border-border bg-surface shadow-card">
-                {product.attributes.map((attribute) => (
-                  <div
-                    key={attribute.name}
-                    className="grid grid-cols-1 gap-0.5 px-4 py-3 text-sm sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4"
-                  >
-                    <dt className="text-xs font-medium uppercase tracking-wide text-ink-subtle sm:text-sm sm:normal-case sm:tracking-normal sm:text-ink-muted">
-                      {attribute.name}
-                    </dt>
-                    <dd className="break-words text-ink">{attribute.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          )}
-
-          {/* How it is boxed, and what the boxes measure.
-
-              Beside the specifications rather than inside them: a
-              specification is a fact about the product, and this is how it
-              arrives on a pallet - a different question, asked by a different
-              person, in a different part of the buying decision. */}
-          <PackagingSection
-            packaging={shownPackaging}
-            soldByThePiece={soldByThePiece}
-            piecesPerCarton={sellUnit.piecesPerUnit}
-          />
-          <DimensionsSection packaging={shownPackaging} />
-
-          {/* GPSR Art. 19. Below the specifications because it is reference
-              material rather than a selling point, but on the page and not
-              behind a tab: the regulation is about what a buyer can see before
-              they buy, and a panel nobody opens is not something they saw. */}
-          <ProductSafetyPanel safety={product.safety} />
-
-          {/* Below the GPSR block: a buyer reads "what is it and is it safe"
-              before "what class is it and who certified it". Both are on the
-              page rather than behind a tab, because a panel nobody opens is
-              not something they saw. */}
-          <ProductDevicePanel device={product.device} />
-        </div>
+        <ProductInformation
+          specifications={onlyChosen?.specifications ?? product.specifications ?? []}
+          descriptionSections={product.descriptionSections ?? []}
+          description={product.description}
+          descriptionHtml={product.descriptionHtml}
+          extraHighlights={infoHighlights}
+          packaging={
+            <>
+              {/* How it is boxed, and what the boxes measure: how it arrives
+                  on a pallet, asked by a different person from "what is it". */}
+              <PackagingSection
+                packaging={shownPackaging}
+                soldByThePiece={soldByThePiece}
+                piecesPerCarton={sellUnit.piecesPerUnit}
+              />
+              <DimensionsSection packaging={shownPackaging} />
+            </>
+          }
+          compliance={<ProductDevicePanel device={product.device} />}
+          // GPSR Art. 19: on the page and not behind a tab - a panel nobody
+          // opens is not something a buyer saw before they bought.
+          manufacturer={<ProductSafetyPanel safety={product.safety} />}
+        />
       )}
     </>
   );

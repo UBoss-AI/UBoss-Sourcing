@@ -254,6 +254,8 @@ export interface ListingReviewDetail {
   categoryId: string | null;
   categoryPath: { id: string; name: string }[];
   attributes: Record<string, unknown>;
+  /** The seller's description sections, specifications and per-option values. */
+  content: ListingContent | null;
   offer: Record<string, unknown>;
   stock: unknown[];
   packaging: Record<string, unknown>;
@@ -510,4 +512,11 @@ export function decideSellerDocument(
   decision: SellerDocumentDecision,
 ): Promise<never> {
   return api.post<never>(`/admin/seller-documents/${documentId}/decision`, decision);
+}
+
+/** What approval puts on the product page, as the seller wrote it. */
+export interface ListingContent {
+  specifications: { group: string; rows: { label: string; value: string; unit: string | null; highlight: boolean }[] }[];
+  descriptionSections: { heading: string; body: string; imageMediaId: string | null; altText: string | null }[];
+  variantOverrides: { variantSignature: string; group: string; label: string; value: string; unit: string | null }[];
 }

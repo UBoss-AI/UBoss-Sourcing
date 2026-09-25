@@ -11,7 +11,12 @@
  * without being reprocessed. Razorpay retries webhooks; without that index a
  * retry would confirm the order twice and commit the stock twice.
  */
-import type { PaymentProviderConnection } from '../../generated/prisma/client.js';
+import type {
+  Order,
+  PaymentProviderConnection,
+  PaymentTransaction,
+} from '../../generated/prisma/client.js';
+import { paymentSourcesOf } from '../../domain/payment-state.js';
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import {
@@ -34,6 +39,7 @@ import {
   enqueueNotification,
 } from '../notifications/notification.service.js';
 import { transitionOrder } from '../orders/order.service.js';
+import { ensureProviderCustomer } from './provider-customer.service.js';
 import { RazorpayAdapter } from './razorpay.adapter.js';
 import { StripeAdapter } from './stripe.adapter.js';
 import { getMarketplaceName } from '../settings/marketplace-name.js';
@@ -47,6 +53,7 @@ import {
   PaymentProviderError,
   supportsCardVault,
   supportsDirectCardCharge,
+  supportsHostedCheckout,
   supportsOffSession,
   modeForCredential,
   type CreatePaymentResult,
@@ -410,6 +417,15 @@ export interface InstrumentOffer {
    * uses this to word what happens next, rather than to hide anything.
    */
   savedCardsChargeableHere: boolean;
+  /**
+   * Whether this instrument is paid on the gateway's own hosted page.
+   *
+   * True for Stripe Checkout. The storefront then shows neither its own
+   * "save this card" tick nor its own list of saved cards: Stripe's page
+   * offers both, and a second copy of either here would be a promise made
+   * twice in two places that could disagree.
+   */
+  hostedCheckout: boolean;
 }
 
 /**
@@ -467,10 +483,14 @@ export async function availableInstruments(currency: string): Promise<{
         instrument,
         canSaveCard:
           isCardInstrument(instrument) && chosen !== null && chosen.canStoreCards,
+        // Stripe's saved cards are chosen on Stripe's own page now, so none
+        // is charged from ours.
         savedCardsChargeableHere:
           isCardInstrument(instrument) &&
           chosen !== null &&
-          DIRECT_CARD_CHARGE_CAPABLE.has(chosen.provider),
+          DIRECT_CARD_CHARGE_CAPABLE.has(chosen.provider) &&
+          !HOSTED_CHECKOUT_CAPABLE.has(chosen.provider),
+        hostedCheckout: chosen !== null && HOSTED_CHECKOUT_CAPABLE.has(chosen.provider),
       };
     }),
     mockPayments: mockPaymentsEnabled(),
@@ -494,6 +514,12 @@ const CAPABILITY_PROBE_CREDENTIALS: ProviderCredentials = {
 const CARD_VAULT_CAPABLE: ReadonlySet<ProviderKind> = new Set(
   (['RAZORPAY', 'STRIPE'] as const).filter((kind) =>
     supportsCardVault(buildProvider(kind, CAPABILITY_PROBE_CREDENTIALS)),
+  ),
+);
+
+const HOSTED_CHECKOUT_CAPABLE: ReadonlySet<ProviderKind> = new Set(
+  (['RAZORPAY', 'STRIPE'] as const).filter((kind) =>
+    supportsHostedCheckout(buildProvider(kind, CAPABILITY_PROBE_CREDENTIALS)),
   ),
 );
 
@@ -587,24 +613,37 @@ async function ensureBootstrapConnection(
 
   const id = newId();
 
-  await prisma.paymentProviderConnection.create({
-    data: {
-      id,
-      provider: kind,
-      mode,
-      label: `${PROVIDER_LABEL[kind]} (${mode}, from environment)`,
-      credentialsEnc: encryptSecret(
-        JSON.stringify({ keyId: credentials.keyId, keySecret: credentials.keySecret }),
-        credentialAad(id),
-      ),
-      webhookSecretEnc:
-        credentials.webhookSecret.length > 0
-          ? encryptSecret(credentials.webhookSecret, credentialAad(id))
-          : null,
-      credentialsMask: maskSecret(credentials.keyId),
-      isActive: false,
-    },
-  });
+  try {
+    await prisma.paymentProviderConnection.create({
+      data: {
+        id,
+        provider: kind,
+        mode,
+        label: `${PROVIDER_LABEL[kind]} (${mode}, from environment)`,
+        credentialsEnc: encryptSecret(
+          JSON.stringify({ keyId: credentials.keyId, keySecret: credentials.keySecret }),
+          credentialAad(id),
+        ),
+        webhookSecretEnc:
+          credentials.webhookSecret.length > 0
+            ? encryptSecret(credentials.webhookSecret, credentialAad(id))
+            : null,
+        credentialsMask: maskSecret(credentials.keyId),
+        isActive: false,
+      },
+    });
+  } catch (error) {
+    // Two first-ever payments at once - a double click on a fresh deployment -
+    // both found no row and both inserted. The unique index let one land;
+    // this one adopts it rather than failing the customer's payment.
+    const winner = await prisma.paymentProviderConnection.findUnique({
+      where: { provider_mode: { provider: kind, mode } },
+      select: { id: true },
+    });
+
+    if (winner !== null) return winner.id;
+    throw error;
+  }
 
   return id;
 }
@@ -688,8 +727,16 @@ function paymentReturnUrl(orderId: string): string {
  *   AWAIT_CONFIRMATION  - the charge went through without one. Nothing for the
  *                         browser to do but wait for the webhook, which is
  *                         still the only thing that marks the order paid.
+ *   REDIRECT            - Stripe Checkout. Send this tab to `redirectUrl`,
+ *                         Stripe's own page, where the card is entered or
+ *                         chosen and 3-D Secure is answered. Nothing about
+ *                         the card ever comes back through this storefront.
  */
-export type PaymentNextStep = 'OPEN_PROVIDER_UI' | 'AUTHENTICATE' | 'AWAIT_CONFIRMATION';
+export type PaymentNextStep =
+  | 'OPEN_PROVIDER_UI'
+  | 'AUTHENTICATE'
+  | 'AWAIT_CONFIRMATION'
+  | 'REDIRECT';
 
 export interface CreateOrderPaymentResult {
   paymentTransactionId: string;
@@ -701,6 +748,16 @@ export interface CreateOrderPaymentResult {
   /** What the customer picked, echoed back so a reload shows the same thing. */
   instrument: PaymentInstrument | null;
   next: PaymentNextStep;
+  /**
+   * Stripe Checkout only: the hosted page to send the customer to, when
+   * `next` is REDIRECT. An https address for this one session, checked on the
+   * server before it is sent.
+   */
+  redirectUrl?: string | null;
+  /** Stripe Checkout only: the session, so the storefront can find its way back to it. */
+  checkoutSessionId?: string | null;
+  /** Stripe Checkout only: when Stripe will close the page, ISO-8601. */
+  expiresAt?: string | null;
 }
 
 /**
@@ -786,12 +843,17 @@ async function ensureVaultCustomerFor(
   if (!supportsCardVault(provider)) return null;
 
   try {
-    return await provider.ensureVaultCustomer({
-      providerCustomerId: existingProviderCustomerId,
-      customerEmail: order.customerProfile.user.email,
-      customerName: order.customerProfile.fullName,
-      customerPhone: order.customerProfile.phone,
+    // A card being paid with already names its Customer; otherwise the one
+    // filed for this person in `payment_provider_customers`.
+    if (existingProviderCustomerId !== null && existingProviderCustomerId.length > 0) {
+      return existingProviderCustomerId;
+    }
+
+    return await ensureProviderCustomer(provider, {
       customerProfileId: order.customerProfileId,
+      email: order.customerProfile.user.email,
+      name: order.customerProfile.fullName,
+      phone: order.customerProfile.phone,
     });
   } catch (error) {
     logger.warn(
@@ -898,6 +960,34 @@ export async function createOrderPayment(
         : 'That way of paying is no longer available for this order.',
       [{ field: 'instrument', code: 'INSTRUMENT_UNAVAILABLE', meta: { instrument } }],
     );
+  }
+
+  /*
+   * Stripe: always its hosted Checkout page.
+   *
+   * The card is typed or chosen on Stripe's page, 3-D Secure is answered
+   * there, and the customer's saved cards are offered there - so this
+   * storefront never mounts a card form, and a card saved "for next time" is
+   * picked where Stripe shows it rather than from a list of ours. A saved card
+   * named in the request is therefore not charged directly: Checkout offers
+   * it, and the customer confirms it, with Stripe asking for the CVC or 3-D
+   * Secure again whenever the bank wants.
+   *
+   * Deduplicated per ORDER, not per client key. Two tabs send two different
+   * Idempotency-Key headers and must still reach one Stripe page.
+   */
+  if (supportsHostedCheckout(provider)) {
+    const { openStripeCheckout } = await import('./stripe-checkout.service.js');
+
+    return openStripeCheckout({
+      provider,
+      connectionId,
+      orderId: order.id,
+      customerProfileId: order.customerProfileId,
+      instrument,
+      actorUserId: input.actorUserId,
+      correlationId: input.correlationId ?? null,
+    });
   }
 
   /**
@@ -1444,7 +1534,8 @@ export async function chargeOrderOffSession(
     // only safe way to find out what really happened, and it is what
     // reconciliation is for.
     if (existing.providerOrderId !== null) {
-      const reconciled = await reconcilePayment(existing.id);
+      // The occurrence worker settles the ERP hand-off itself.
+      const reconciled = await reconcilePayment(existing.id, { followUps: false });
 
       if (reconciled.status === 'CAPTURED') {
         return {
@@ -1607,7 +1698,8 @@ export async function chargeOrderOffSession(
   // Captured, as far as the charge call is concerned. It is still applied
   // through reconciliation rather than written here - see point 3 in the
   // header. One code path turns a payment into a confirmed order.
-  const reconciled = await reconcilePayment(transactionId);
+  // The occurrence worker settles the ERP hand-off itself.
+  const reconciled = await reconcilePayment(transactionId, { followUps: false });
 
   if (reconciled.status !== 'CAPTURED') {
     // The charge returned a success the provider then did not confirm on
@@ -1801,7 +1893,7 @@ export async function processWebhook(
   const eventRowId = claim.eventRowId;
 
   try {
-    const outcome = await applyEvent(event, eventRowId, correlationId);
+    const outcome = await applyEvent(event, eventRowId, correlationId, provider);
     return outcome;
   } catch (error) {
     /*
@@ -1933,17 +2025,98 @@ async function claimEvent(
     : { kind: 'IN_FLIGHT' };
 }
 
+export type TransactionWithOrder = PaymentTransaction & { order: Order };
+
+/**
+ * Find the attempt a verified event is about.
+ *
+ * Tried in order of how specific the reference is:
+ *
+ *   1. The Checkout Session, for checkout.session.* events. It exists from
+ *      the moment the session was opened.
+ *   2. The charge, for a dispute - that is what Stripe files one against.
+ *   3. The PaymentIntent, which every legacy and off-session attempt has.
+ *   4. Our own attempt id, from `client_reference_id` or the PaymentIntent's
+ *      metadata. This is what matches a `payment_intent.succeeded` that
+ *      overtakes its own `checkout.session.completed` - Stripe does not promise
+ *      delivery order, and at that moment no row carries the pi_ yet. Accepted
+ *      only for a Checkout attempt of the same gateway that is not already
+ *      tied to a DIFFERENT intent or session: a signed event is authentic, but
+ *      the rule that one attempt has one intent is ours to keep.
+ */
+async function findTransactionForEvent(
+  event: VerifiedEvent,
+  providerKind: ProviderKind,
+): Promise<TransactionWithOrder | null> {
+  const include = { order: true } as const;
+
+  if (event.providerSessionId !== null && event.providerSessionId !== undefined) {
+    const bySession = await prisma.paymentTransaction.findUnique({
+      where: { providerSessionId: event.providerSessionId },
+      include,
+    });
+    if (bySession !== null) return bySession;
+  }
+
+  if (event.intent === 'DISPUTE_OPENED' && event.providerPaymentId !== null) {
+    const byCharge = await prisma.paymentTransaction.findUnique({
+      where: { providerPaymentId: event.providerPaymentId },
+      include,
+    });
+    if (byCharge !== null) return byCharge;
+  }
+
+  if (event.providerOrderId !== null) {
+    const byIntent = await prisma.paymentTransaction.findFirst({
+      where: { providerOrderId: event.providerOrderId },
+      include,
+    });
+    if (byIntent !== null) return byIntent;
+  }
+
+  const reference = event.internalReference ?? null;
+  if (reference === null || reference.length !== 26) return null;
+
+  const byReference = await prisma.paymentTransaction.findUnique({
+    where: { id: reference },
+    include,
+  });
+
+  if (
+    byReference === null ||
+    byReference.provider !== providerKind ||
+    byReference.providerSessionId === null ||
+    (byReference.providerOrderId !== null && byReference.providerOrderId !== event.providerOrderId) ||
+    (event.providerSessionId !== null &&
+      event.providerSessionId !== undefined &&
+      byReference.providerSessionId !== event.providerSessionId)
+  ) {
+    return null;
+  }
+
+  return byReference;
+}
+
+export async function markEventProcessed(
+  eventRowId: string,
+  links: { orderId?: string; paymentTransactionId?: string } = {},
+  client: PrismaTransaction | typeof prisma = prisma,
+): Promise<void> {
+  await client.paymentEvent.update({
+    where: { id: eventRowId },
+    data: { processingStatus: 'PROCESSED', processedAt: new Date(), ...links },
+  });
+}
+
 async function applyEvent(
   event: VerifiedEvent,
   eventRowId: string,
-  correlationId?: string,
+  correlationId: string | undefined,
+  provider: PaymentProvider,
 ): Promise<WebhookResult> {
   if (event.intent === 'UNKNOWN') {
     // A real event we simply do not act on (payment.authorized, and so on).
-    await prisma.paymentEvent.update({
-      where: { id: eventRowId },
-      data: { processingStatus: 'PROCESSED', processedAt: new Date() },
-    });
+    await markEventProcessed(eventRowId);
     return { accepted: true, duplicate: false, reason: 'event type not actionable' };
   }
 
@@ -1960,10 +2133,7 @@ async function applyEvent(
   // closed the tab in between: the card is attached at the provider and this
   // records that fact so support can see it.
   if (event.intent === 'SETUP_COMPLETED') {
-    await prisma.paymentEvent.update({
-      where: { id: eventRowId },
-      data: { processingStatus: 'PROCESSED', processedAt: new Date() },
-    });
+    await markEventProcessed(eventRowId);
 
     logger.info(
       {
@@ -1976,14 +2146,32 @@ async function applyEvent(
     return { accepted: true, duplicate: false };
   }
 
+  // --- A card removed at the gateway --------------------------------------
+  //
+  // By the customer inside Checkout, or by an operator in Stripe's dashboard.
+  // It can no longer be charged there, so it stops being offered here - the
+  // two must never disagree about something that can take money. No payment
+  // to match, for the same reason as enrolment above.
+  if (event.intent === 'PAYMENT_METHOD_DETACHED') {
+    const reference = event.providerPaymentMethodId ?? null;
+
+    if (reference !== null) {
+      await prisma.customerPaymentMethod.updateMany({
+        where: {
+          provider: provider.kind,
+          providerPaymentMethodId: reference,
+          status: { in: ['ACTIVE', 'EXPIRED'] },
+        },
+        data: { status: 'DETACHED', detachedAt: new Date(), isDefault: false },
+      });
+    }
+
+    await markEventProcessed(eventRowId);
+    return { accepted: true, duplicate: false };
+  }
+
   // --- 3. Match ----------------------------------------------------------
-  const transaction =
-    event.providerOrderId === null
-      ? null
-      : await prisma.paymentTransaction.findFirst({
-          where: { providerOrderId: event.providerOrderId },
-          include: { order: true },
-        });
+  const transaction = await findTransactionForEvent(event, provider.kind);
 
   if (transaction === null) {
     await markEventRejected(eventRowId, 'no matching payment transaction');
@@ -1991,6 +2179,68 @@ async function applyEvent(
   }
 
   const order = transaction.order;
+
+  // --- Stripe Checkout's own events ----------------------------------------
+  if (
+    event.intent === 'CHECKOUT_COMPLETED' ||
+    event.intent === 'CHECKOUT_ASYNC_SUCCEEDED' ||
+    event.intent === 'CHECKOUT_ASYNC_FAILED' ||
+    event.intent === 'CHECKOUT_EXPIRED'
+  ) {
+    const { applyCheckoutSessionEvent } = await import('./stripe-checkout.service.js');
+
+    return applyCheckoutSessionEvent({
+      event,
+      eventRowId,
+      correlationId,
+      provider,
+      transaction,
+    });
+  }
+
+  // --- A chargeback ---------------------------------------------------------
+  //
+  // Recorded, audited and put in front of finance. The payment stays
+  // CAPTURED and the order keeps its status: a dispute is the customer's
+  // bank asking for the money back, not the money coming back, and what
+  // happens to the goods is a decision for a person.
+  if (event.intent === 'DISPUTE_OPENED') {
+    await prisma.$transaction(async (tx) => {
+      await tx.paymentTransaction.updateMany({
+        where: { id: transaction.id, disputedAt: null },
+        data: {
+          disputedAt: new Date(),
+          disputeReason: event.disputeReason?.slice(0, 64) ?? null,
+        },
+      });
+
+      await markEventProcessed(
+        eventRowId,
+        { orderId: order.id, paymentTransactionId: transaction.id },
+        tx,
+      );
+    });
+
+    await recordAudit({
+      action: AuditAction.PAYMENT_DISPUTED,
+      resourceType: 'payment',
+      resourceId: transaction.id,
+      actorType: 'PROVIDER',
+      after: {
+        orderId: order.id,
+        reason: event.disputeReason ?? null,
+        amountMinor: event.amountMinor,
+      },
+      correlationId: correlationId ?? null,
+    });
+
+    await alertFinance(order.id, order.orderNumber, 'PAYMENT_DISPUTED', {
+      reason: event.disputeReason ?? 'unspecified',
+      amountMinor: (event.amountMinor ?? 0n).toString(),
+    });
+
+    return { accepted: true, duplicate: false };
+  }
 
   if (event.intent === 'PAYMENT_CAPTURED') {
     // The amount check. A provider event claiming a different amount than the
@@ -2018,86 +2268,18 @@ async function applyEvent(
     }
 
     // --- 4. Apply --------------------------------------------------------
-    //
-    // The transaction is moved to CAPTURED with a conditional UPDATE, and
-    // `paidMinor` is credited only if that UPDATE actually matched a row.
-    //
-    // Without the guard, a capture applied twice credits the order twice.
-    // `payment_events` de-duplicates redelivery of the SAME event, but it
-    // cannot help when the capture arrives by two different routes - which is
-    // the ordinary case, not an edge one: an off-session charge is applied from
-    // Stripe's own synchronous response via `reconcilePayment`, and
-    // `payment_intent.succeeded` then arrives seconds later as a genuinely new
-    // event. That produced an order with `paidMinor` at twice its total, which
-    // reads as an overpayment and would invite a refund of money nobody paid.
-    const applied = await prisma.$transaction(async (tx) => {
-      const claimed = await tx.paymentTransaction.updateMany({
-        // The guard. Once this row is CAPTURED, it matches nothing.
-        where: { id: transaction.id, status: { not: 'CAPTURED' } },
-        data: {
-          status: 'CAPTURED',
-          providerPaymentId: event.providerPaymentId,
-          capturedMinor: event.amountMinor ?? transaction.amountMinor,
-          method: event.method,
-          capturedAt: new Date(),
-        },
-      });
-
-      if (claimed.count === 1) {
-        await tx.order.update({
-          where: { id: order.id },
-          data: { paidMinor: { increment: event.amountMinor ?? transaction.amountMinor } },
-        });
-      }
-
-      await tx.paymentEvent.update({
-        where: { id: eventRowId },
-        data: {
-          processingStatus: 'PROCESSED',
-          processedAt: new Date(),
-          orderId: order.id,
-          paymentTransactionId: transaction.id,
-        },
-      });
-
-      return claimed.count === 1;
-    });
-
-    if (!applied) {
-      logger.info(
-        { orderId: order.id, eventId: event.eventId },
-        'capture already applied by another route; acknowledged without crediting again',
-      );
-    }
-
-    // The only path to CONFIRMED. SYSTEM actor, because the authority is the
-    // verified provider event, not any human.
-    if (order.status === 'PENDING_PAYMENT') {
-      await transitionOrder({
-        orderId: order.id,
-        to: 'CONFIRMED',
-        actor: {
-          userId: null,
-          email: null,
-          type: 'SYSTEM',
-          ...(correlationId !== undefined ? { correlationId } : {}),
-        },
-        reason: 'Payment captured and verified',
-        meta: { providerPaymentId: event.providerPaymentId, eventId: event.eventId },
-      });
-    }
-
-    await recordAudit({
-      action: AuditAction.PAYMENT_CAPTURED,
-      resourceType: 'payment',
-      resourceId: transaction.id,
-      actorType: 'PROVIDER',
-      after: {
-        orderId: order.id,
+    await applyCapturedPayment({
+      transaction,
+      capture: {
+        providerOrderId: event.providerOrderId,
         providerPaymentId: event.providerPaymentId,
-        amountMinor: event.amountMinor,
+        amountMinor: event.amountMinor ?? transaction.amountMinor,
+        method: event.method,
       },
-      correlationId: correlationId ?? null,
+      eventRowId,
+      eventId: event.eventId,
+      correlationId,
+      reason: 'Payment captured and verified',
     });
 
     // --- 4b. The card the customer asked to keep --------------------------
@@ -2112,7 +2294,16 @@ async function applyEvent(
     // order; a throw here would cost them a confirmed order they have already
     // paid for. `storeVaultedCardFromEvent` swallows its own failures for the
     // same reason, and this `catch` is the second belt.
-    if (event.vaultedCard !== null && event.vaultedCard !== undefined) {
+    //
+    // Not for a Checkout attempt. A card saved on Stripe's page is recorded
+    // from `checkout.session.completed`, which is where the evidence that the
+    // customer ticked Stripe's box can be read and the consent tied to the
+    // session they gave it in.
+    if (
+      transaction.providerSessionId === null &&
+      event.vaultedCard !== null &&
+      event.vaultedCard !== undefined
+    ) {
       await storeVaultedCardFromEvent(
         transaction.provider,
         order.customerProfileId,
@@ -2124,73 +2315,6 @@ async function applyEvent(
         );
       });
     }
-
-    // --- 5. Everything that follows a confirmed payment -------------------
-    //
-    // Reached whether the money arrived by an interactive checkout, a payment
-    // link, or an off-session charge, and safe to reach twice: both branches
-    // below are idempotent, which is what keeps a redelivered webhook from
-    // producing a second ERP order.
-    //
-    // Deliberately after the audit record and outside the transaction above:
-    // an ERP that is slow or refusing must not roll back a payment this system
-    // has already accepted.
-    if (order.scheduleOccurrenceId !== null) {
-      // A scheduled delivery. Settlement covers the ERP push, the inventory
-      // reconciliation, the occurrence's own status and the plan's next slot.
-      const { settleOccurrenceForOrder } = await import('../recurring/occurrence.service.js');
-
-      await settleOccurrenceForOrder(order.id, correlationId).catch((error: unknown) => {
-        // The payment stands. An occurrence left mid-settlement is picked up
-        // by the retry sweep, and failing the webhook here would only make
-        // the provider redeliver something already applied.
-        logger.error(
-          { err: error, orderId: order.id },
-          'could not settle the scheduled occurrence behind a captured payment',
-        );
-      });
-    } else {
-      // An ordinary order. A no-op where no ERP is configured.
-      const { pushOrderToErp } = await import('../integrations/erp-order.service.js');
-
-      await pushOrderToErp({
-        orderId: order.id,
-        // Derived from the order, so every retry - and every redelivery of
-        // this webhook - sends the ERP the same idempotency key.
-        idempotencyKey: `erp:order:${order.id}`,
-        correlationId: correlationId ?? null,
-      }).catch((error: unknown) => {
-        logger.error(
-          { err: error, orderId: order.id },
-          'could not push a paid order to the ERP; it will be retried',
-        );
-      });
-    }
-
-    /**
-     * The payment REFERENCE, for the buyer's own ERP.
-     *
-     * Separate from the purchase order, which `transitionOrder` queued when the
-     * order became CONFIRMED. This is the money settling, and their accounts
-     * payable needs a reference to reconcile against.
-     *
-     * A reference and a status. Nothing about the instrument crosses this
-     * boundary - see `buildPaymentReference`, whose select list names six
-     * columns and none of them is one.
-     *
-     * Reached for a scheduled delivery as well as an instant purchase, because
-     * both arrive here through the same captured-payment branch.
-     */
-    await import('../customer-erp/pipeline.service.js')
-      .then((pipeline) =>
-        pipeline.dispatchPaymentSettled(order.id, correlationId ?? newId()),
-      )
-      .catch((error: unknown) => {
-        logger.error(
-          { err: error, orderId: order.id },
-          'could not queue a payment reference for a buyer ERP',
-        );
-      });
 
     return { accepted: true, duplicate: false };
   }
@@ -2205,18 +2329,20 @@ async function applyEvent(
         // Never over a settled payment. A late-arriving requires_action for an
         // intent that has since succeeded must change nothing.
         where: { id: transaction.id, status: { notIn: ['CAPTURED', 'FAILED'] } },
-        data: { status: 'PENDING', failureCode: event.failureCode },
-      });
-
-      await tx.paymentEvent.update({
-        where: { id: eventRowId },
         data: {
-          processingStatus: 'PROCESSED',
-          processedAt: new Date(),
-          orderId: order.id,
-          paymentTransactionId: transaction.id,
+          status: 'PENDING',
+          failureCode: event.failureCode,
+          ...(transaction.providerOrderId === null && event.providerOrderId !== null
+            ? { providerOrderId: event.providerOrderId }
+            : {}),
         },
       });
+
+      await markEventProcessed(
+        eventRowId,
+        { orderId: order.id, paymentTransactionId: transaction.id },
+        tx,
+      );
     });
 
     if (order.scheduleOccurrenceId !== null) {
@@ -2235,27 +2361,67 @@ async function applyEvent(
   }
 
   if (event.intent === 'PAYMENT_FAILED') {
+    /*
+     * A decline INSIDE Stripe Checkout is not the end of the attempt.
+     *
+     * The customer is still on Stripe's page, has just been told there why the
+     * card was refused, and can try another card in the same session. Closing
+     * the attempt here would free the order's one open slot while its session
+     * could still take money - and emailing "your payment failed" would be
+     * wrong a moment later when the second card works. So the decline is noted
+     * for support and the attempt stays open; only the session expiring, or
+     * a delayed method failing, closes it.
+     */
+    if (transaction.providerSessionId !== null) {
+      await prisma.$transaction(async (tx) => {
+        await tx.paymentTransaction.updateMany({
+          where: { id: transaction.id, status: { in: ['CREATED', 'PENDING'] } },
+          data: {
+            failureCode: event.failureCode?.slice(0, 64) ?? null,
+            failureMessage: event.failureMessage?.slice(0, 512) ?? null,
+            ...(transaction.providerOrderId === null && event.providerOrderId !== null
+              ? { providerOrderId: event.providerOrderId }
+              : {}),
+          },
+        });
+
+        await markEventProcessed(
+          eventRowId,
+          { orderId: order.id, paymentTransactionId: transaction.id },
+          tx,
+        );
+      });
+
+      return { accepted: true, duplicate: false };
+    }
+
     await prisma.$transaction(async (tx) => {
-      await tx.paymentTransaction.update({
-        where: { id: transaction.id },
+      const failed = await tx.paymentTransaction.updateMany({
+        // A decline that arrives after the same intent succeeded changes
+        // nothing: the money is the truth.
+        where: { id: transaction.id, status: { in: paymentSourcesOf('FAILED') } },
         data: {
           status: 'FAILED',
           providerPaymentId: event.providerPaymentId,
           failureCode: event.failureCode,
           failureMessage: event.failureMessage,
           failedAt: new Date(),
+          openAttemptKey: null,
         },
       });
 
-      await tx.paymentEvent.update({
-        where: { id: eventRowId },
-        data: {
-          processingStatus: 'PROCESSED',
-          processedAt: new Date(),
-          orderId: order.id,
-          paymentTransactionId: transaction.id,
-        },
-      });
+      if (failed.count === 0) {
+        logger.info(
+          { paymentTransactionId: transaction.id, status: transaction.status },
+          'a payment failure arrived for an attempt that has already settled; left as it was',
+        );
+      }
+
+      await markEventProcessed(
+        eventRowId,
+        { orderId: order.id, paymentTransactionId: transaction.id },
+        tx,
+      );
     });
 
     // The order stays PENDING_PAYMENT so the customer can safely retry against
@@ -2299,15 +2465,7 @@ async function applyEvent(
       await syncSettlementRefunds(order.id, tx);
     });
 
-    await prisma.paymentEvent.update({
-      where: { id: eventRowId },
-      data: {
-        processingStatus: 'PROCESSED',
-        processedAt: new Date(),
-        orderId: order.id,
-        paymentTransactionId: transaction.id,
-      },
-    });
+    await markEventProcessed(eventRowId, { orderId: order.id, paymentTransactionId: transaction.id });
 
     return { accepted: true, duplicate: false };
   }
@@ -2316,7 +2474,254 @@ async function applyEvent(
   return { accepted: false, duplicate: false, reason: 'event could not be applied' };
 }
 
-async function markEventRejected(eventRowId: string, reason: string): Promise<void> {
+/** What a capture says happened, from whichever route reported it. */
+export interface CaptureFacts {
+  /** The PaymentIntent, filled in on an attempt that did not have one yet. */
+  providerOrderId: string | null;
+  /** The charge a refund is later issued against. */
+  providerPaymentId: string | null;
+  amountMinor: bigint;
+  method: string | null;
+  /** Display only. Read from the gateway, never from the browser. */
+  card?: { brand: string | null; last4: string | null } | null;
+}
+
+/**
+ * Turn a verified capture into a paid, CONFIRMED order - exactly once.
+ *
+ * THE ONE PLACE money becomes an order's payment. Reached from the webhook,
+ * from `checkout.session.completed`, from a reconciliation against the
+ * gateway's API and from the confirmation page's "check again". Before this
+ * existed the webhook and the reconciliation each had their own copy, and the
+ * reconciliation's had no guard: a customer pressing "check again" while the
+ * webhook was being applied could credit the order twice.
+ *
+ * Callers have already checked amount and currency against the attempt. What
+ * this holds to:
+ *
+ *   1. The attempt moves to CAPTURED with a conditional UPDATE, and the order
+ *      is credited only if that UPDATE matched. A second route reporting the
+ *      same capture - the ordinary case, not an edge one - changes nothing.
+ *   2. A capture is always recorded, even against an attempt this system had
+ *      closed: money that moved has moved. Finance is told, because that is a
+ *      customer who has paid for something we had given up on.
+ *   3. A capture that lands on an order ALREADY paid in full is a second
+ *      payment for one order. It is recorded - the money is real and has to
+ *      be refunded, not ignored - and finance is told.
+ *   4. Everything after the money - ERP, the scheduled occurrence, the buyer's
+ *      accounts payable - runs outside the database transaction, is
+ *      idempotent, and cannot undo the payment by failing.
+ */
+export async function applyCapturedPayment(params: {
+  transaction: TransactionWithOrder;
+  capture: CaptureFacts;
+  eventRowId: string | null;
+  eventId: string | null;
+  correlationId?: string | undefined;
+  reason: string;
+  /**
+   * Run the ERP, occurrence and buyer-ERP follow-ups. Off only for a caller
+   * that settles those itself straight afterwards - the off-session charge,
+   * whose occurrence worker does - so they are not started twice in one run.
+   */
+  followUps?: boolean;
+}): Promise<{ applied: boolean }> {
+  const { transaction, capture } = params;
+  const order = transaction.order;
+
+  const card =
+    capture.card === null || capture.card === undefined
+      ? {}
+      : {
+          cardBrand: capture.card.brand?.slice(0, 32) ?? null,
+          cardLast4: capture.card.last4?.slice(0, 4) ?? null,
+        };
+
+  const outcome = await prisma.$transaction(async (tx) => {
+    const claimed = await tx.paymentTransaction.updateMany({
+      // The guard. Once this row is CAPTURED, it matches nothing.
+      where: { id: transaction.id, status: { in: paymentSourcesOf('CAPTURED') } },
+      data: {
+        status: 'CAPTURED',
+        providerPaymentId: capture.providerPaymentId,
+        capturedMinor: capture.amountMinor,
+        method: capture.method,
+        capturedAt: new Date(),
+        // A captured attempt no longer holds the order's open slot.
+        openAttemptKey: null,
+        ...(transaction.providerOrderId === null && capture.providerOrderId !== null
+          ? { providerOrderId: capture.providerOrderId }
+          : {}),
+        ...card,
+      },
+    });
+
+    let paidInFullAlready = false;
+
+    if (claimed.count === 1) {
+      const before = await tx.order.findUniqueOrThrow({
+        where: { id: order.id },
+        select: { paidMinor: true, grandTotalMinor: true },
+      });
+
+      paidInFullAlready = before.grandTotalMinor > 0n && before.paidMinor >= before.grandTotalMinor;
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { paidMinor: { increment: capture.amountMinor } },
+      });
+    } else if (capture.card !== null && capture.card !== undefined) {
+      // Captured by the other route first, which may not have known the card.
+      // Display fields only; nothing about the money changes.
+      await tx.paymentTransaction.updateMany({
+        where: { id: transaction.id, cardLast4: null },
+        data: card,
+      });
+    }
+
+    if (params.eventRowId !== null) {
+      await markEventProcessed(
+        params.eventRowId,
+        { orderId: order.id, paymentTransactionId: transaction.id },
+        tx,
+      );
+    }
+
+    return { applied: claimed.count === 1, paidInFullAlready };
+  });
+
+  if (!outcome.applied) {
+    logger.info(
+      { orderId: order.id, eventId: params.eventId },
+      'capture already applied by another route; acknowledged without crediting again',
+    );
+  }
+
+  if (outcome.applied && (transaction.status === 'CANCELLED' || transaction.status === 'EXPIRED')) {
+    await alertFinance(order.id, order.orderNumber, 'CAPTURE_ON_CLOSED_ATTEMPT', {
+      paymentTransactionId: transaction.id,
+      previousStatus: transaction.status,
+    });
+  }
+
+  if (outcome.paidInFullAlready) {
+    await alertFinance(order.id, order.orderNumber, 'DUPLICATE_PAYMENT', {
+      paymentTransactionId: transaction.id,
+      amountMinor: capture.amountMinor.toString(),
+    });
+  }
+
+  // The only path to CONFIRMED. SYSTEM actor, because the authority is the
+  // verified provider event, not any human. Read fresh: another route may
+  // have confirmed the order since the attempt was loaded.
+  const current = await prisma.order.findUniqueOrThrow({
+    where: { id: order.id },
+    select: { status: true },
+  });
+
+  if (current.status === 'PENDING_PAYMENT') {
+    await transitionOrder({
+      orderId: order.id,
+      to: 'CONFIRMED',
+      actor: {
+        userId: null,
+        email: null,
+        type: 'SYSTEM',
+        ...(params.correlationId !== undefined ? { correlationId: params.correlationId } : {}),
+      },
+      reason: params.reason,
+      meta: { providerPaymentId: capture.providerPaymentId, eventId: params.eventId },
+    });
+  }
+
+  if (outcome.applied) {
+    await recordAudit({
+      action: AuditAction.PAYMENT_CAPTURED,
+      resourceType: 'payment',
+      resourceId: transaction.id,
+      actorType: 'PROVIDER',
+      after: {
+        orderId: order.id,
+        providerPaymentId: capture.providerPaymentId,
+        amountMinor: capture.amountMinor,
+      },
+      correlationId: params.correlationId ?? null,
+    });
+  }
+
+  if (params.followUps === false) return { applied: outcome.applied };
+
+  // --- 5. Everything that follows a confirmed payment -----------------------
+  //
+  // Reached whether the money arrived by an interactive checkout, a payment
+  // link, or an off-session charge, and safe to reach twice: both branches
+  // below are idempotent, which is what keeps a redelivered webhook from
+  // producing a second ERP order.
+  //
+  // Deliberately after the audit record and outside the transaction above:
+  // an ERP that is slow or refusing must not roll back a payment this system
+  // has already accepted.
+  const correlationId = params.correlationId;
+
+  if (order.scheduleOccurrenceId !== null) {
+    // A scheduled delivery. Settlement covers the ERP push, the inventory
+    // reconciliation, the occurrence's own status and the plan's next slot.
+    const { settleOccurrenceForOrder } = await import('../recurring/occurrence.service.js');
+
+    await settleOccurrenceForOrder(order.id, correlationId).catch((error: unknown) => {
+      // The payment stands. An occurrence left mid-settlement is picked up
+      // by the retry sweep, and failing the webhook here would only make
+      // the provider redeliver something already applied.
+      logger.error(
+        { err: error, orderId: order.id },
+        'could not settle the scheduled occurrence behind a captured payment',
+      );
+    });
+  } else {
+    // An ordinary order. A no-op where no ERP is configured.
+    const { pushOrderToErp } = await import('../integrations/erp-order.service.js');
+
+    await pushOrderToErp({
+      orderId: order.id,
+      // Derived from the order, so every retry - and every redelivery of
+      // this webhook - sends the ERP the same idempotency key.
+      idempotencyKey: `erp:order:${order.id}`,
+      correlationId: correlationId ?? null,
+    }).catch((error: unknown) => {
+      logger.error(
+        { err: error, orderId: order.id },
+        'could not push a paid order to the ERP; it will be retried',
+      );
+    });
+  }
+
+  /**
+   * The payment REFERENCE, for the buyer's own ERP.
+   *
+   * Separate from the purchase order, which `transitionOrder` queued when the
+   * order became CONFIRMED. This is the money settling, and their accounts
+   * payable needs a reference to reconcile against.
+   *
+   * A reference and a status. Nothing about the instrument crosses this
+   * boundary - see `buildPaymentReference`, whose select list names six
+   * columns and none of them is one.
+   *
+   * Reached for a scheduled delivery as well as an instant purchase, because
+   * both arrive here through the same captured-payment branch.
+   */
+  await import('../customer-erp/pipeline.service.js')
+    .then((pipeline) => pipeline.dispatchPaymentSettled(order.id, correlationId ?? newId()))
+    .catch((error: unknown) => {
+      logger.error(
+        { err: error, orderId: order.id },
+        'could not queue a payment reference for a buyer ERP',
+      );
+    });
+
+  return { applied: outcome.applied };
+}
+
+export async function markEventRejected(eventRowId: string, reason: string): Promise<void> {
   logger.error({ eventRowId, reason }, 'payment webhook rejected after verification');
 
   await prisma.paymentEvent.update({
@@ -2338,7 +2743,7 @@ async function markEventRejected(eventRowId: string, reason: string): Promise<vo
 }
 
 /** A verified event we refused to apply is a security signal, not a footnote. */
-async function alertFinance(
+export async function alertFinance(
   orderId: string,
   orderNumber: string,
   code: string,
@@ -2385,6 +2790,7 @@ async function alertFinance(
  */
 export async function reconcilePayment(
   paymentTransactionId: string,
+  options: { followUps?: boolean } = {},
 ): Promise<{ status: string; changed: boolean }> {
   const transaction = await prisma.paymentTransaction.findUnique({
     where: { id: paymentTransactionId },
@@ -2392,11 +2798,21 @@ export async function reconcilePayment(
   });
 
   if (transaction === null) throw notFound('Payment');
+
+  // A Stripe Checkout attempt is asked about through its session, which is
+  // the one reference it is guaranteed to have.
+  if (transaction.providerSessionId !== null) {
+    const { reconcileCheckoutAttempt } = await import('./stripe-checkout.service.js');
+    return reconcileCheckoutAttempt(transaction);
+  }
+
   if (transaction.providerOrderId === null) {
     return { status: transaction.status, changed: false };
   }
 
-  const { provider } = await loadActiveProvider();
+  // The attempt's OWN gateway, never "whichever is active": a deployment with
+  // both connected would otherwise ask Stripe about a Razorpay order.
+  const { provider } = await loadProviderForWebhook(transaction.provider);
   const remote = await provider.fetchPaymentStatus(transaction.providerOrderId);
 
   await prisma.paymentTransaction.update({
@@ -2408,16 +2824,18 @@ export async function reconcilePayment(
     return { status: transaction.status, changed: false };
   }
 
-  // The provider says captured and we did not know. The amount check applies
-  // here exactly as it does on the webhook path.
-  if (remote.amountMinor !== transaction.amountMinor) {
+  // The provider says captured and we did not know. The amount and currency
+  // checks apply here exactly as they do on the webhook path.
+  if (remote.amountMinor !== transaction.amountMinor || remote.currency !== transaction.currency) {
     logger.error(
       {
         paymentTransactionId,
         expected: transaction.amountMinor.toString(),
         received: remote.amountMinor.toString(),
+        expectedCurrency: transaction.currency,
+        receivedCurrency: remote.currency,
       },
-      'reconciliation found an amount mismatch; refusing to confirm',
+      'reconciliation found an amount or currency mismatch; refusing to confirm',
     );
 
     await alertFinance(transaction.orderId, transaction.order.orderNumber, 'RECONCILE_AMOUNT_MISMATCH', {
@@ -2428,34 +2846,21 @@ export async function reconcilePayment(
     return { status: transaction.status, changed: false };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.paymentTransaction.update({
-      where: { id: transaction.id },
-      data: {
-        status: 'CAPTURED',
-        providerPaymentId: remote.providerPaymentId,
-        capturedMinor: remote.amountMinor,
-        method: remote.method,
-        capturedAt: new Date(),
-      },
-    });
-
-    await tx.order.update({
-      where: { id: transaction.orderId },
-      data: { paidMinor: { increment: remote.amountMinor } },
-    });
+  const { applied } = await applyCapturedPayment({
+    transaction,
+    capture: {
+      providerOrderId: remote.providerOrderId,
+      providerPaymentId: remote.providerPaymentId,
+      amountMinor: remote.amountMinor,
+      method: remote.method,
+    },
+    eventRowId: null,
+    eventId: null,
+    reason: 'Payment confirmed by reconciliation',
+    ...(options.followUps === undefined ? {} : { followUps: options.followUps }),
   });
 
-  if (transaction.order.status === 'PENDING_PAYMENT') {
-    await transitionOrder({
-      orderId: transaction.orderId,
-      to: 'CONFIRMED',
-      actor: { userId: null, email: null, type: 'SYSTEM' },
-      reason: 'Payment confirmed by reconciliation',
-    });
-  }
-
-  return { status: 'CAPTURED', changed: true };
+  return { status: 'CAPTURED', changed: applied };
 }
 
 /** Read-only payment view for the order page while a webhook is in flight. */
@@ -2650,7 +3055,13 @@ export async function simulateOrderPayment(
 
   if (claim.kind === 'CLAIMED') {
     try {
-      await applyEvent(event, claim.eventRowId, input.correlationId ?? undefined);
+      await applyEvent(
+        event,
+        claim.eventRowId,
+        input.correlationId ?? undefined,
+        // Only its kind is read on this path; no gateway is contacted.
+        buildProvider(transaction.provider, CAPABILITY_PROBE_CREDENTIALS),
+      );
     } catch (error) {
       // Left FAILED, and therefore claimable again - the same contract
       // `processWebhook` keeps, so a retry of this call is not blocked by the

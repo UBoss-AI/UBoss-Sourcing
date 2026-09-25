@@ -403,6 +403,46 @@ describe('the popover quotes what the basket charges', () => {
     expect(body.exceedsStock).toBe(false);
   });
 
+  it('lists every offer the buyer can reach as cards, priced like the basket', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/catalog/bulk-pricing?productId=${productId}&quantity=480`,
+    });
+    const body = response.json<{
+      listUnitPrice: { minor: string };
+      offers: {
+        minQuantity: number;
+        unitPrice: { minor: string };
+        savingPerPiece: { minor: string };
+        lineTotal: { minor: string };
+        totalSaving: { minor: string };
+        isCurrent: boolean;
+        isNext: boolean;
+        isBestValue: boolean;
+        withinStock: boolean;
+      }[];
+      preorderOffers: { minQuantity: number }[];
+    }>();
+    const list = BigInt(body.listUnitPrice.minor);
+
+    // The same bands as the ladder: nothing added, nothing kept back.
+    expect(body.offers.map((offer) => offer.minQuantity)).toEqual([100, 500]);
+    for (const offer of body.offers) {
+      const unit = BigInt(offer.unitPrice.minor);
+      const pieces = BigInt(offer.minQuantity);
+      expect(BigInt(offer.savingPerPiece.minor)).toBe(list - unit);
+      expect(BigInt(offer.lineTotal.minor)).toBe(unit * pieces);
+      expect(BigInt(offer.totalSaving.minor)).toBe((list - unit) * pieces);
+    }
+    expect(body.offers.map((offer) => [offer.isCurrent, offer.isNext])).toEqual([
+      [true, false],
+      [false, true],
+    ]);
+    expect(body.offers.find((offer) => offer.minQuantity === 500)?.isBestValue).toBe(true);
+    expect(body.offers.every((offer) => offer.withinStock)).toBe(true);
+    expect(body.preorderOffers.map((offer) => offer.minQuantity)).toEqual([10000]);
+  });
+
   it('says so when the quantity is more than the seller holds', async () => {
     const response = await app.inject({
       method: 'GET',

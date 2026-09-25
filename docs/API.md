@@ -524,14 +524,51 @@ password**, opened for this session:
 
 | Endpoint | Body | Answer |
 |---|---|---|
-| `GET /api/v1/sellers/me` | none | `{ seller: null }`, or the membership with `status`, `role`, `permissions`, `isTrading` and `lock` |
+| `GET /api/v1/sellers/me` | none | `{ seller: null }`, or the membership with `status`, `role`, `permissions`, `isTrading`, `lock` and `session` |
 | `POST /api/v1/sellers/lock` | `{ newPassword, currentPassword? }` (12 to 128 characters) | `{ lock }`. Sets or changes it |
 | `POST /api/v1/sellers/lock/open` | `{ password }` | `{ lock }`. Opens the Hub for this session |
 | `POST /api/v1/sellers/lock/close` | none | `{ lock }` |
+| `GET /api/v1/sellers/session` | none | `{ session: { expiresAt, idleTimeoutSeconds, warningSeconds } }`: when the open Hub closes, and the two settings. Reading it is **not** activity |
+| `POST /api/v1/sellers/session/renew` | none | "Stay signed in": the Hub stays open for another full idle period. CSRF required; audited |
 
 Until a password is set, seller routes answer `403 SELLER_LOCK_NOT_SET`; while it
 is set but not opened, `403 SELLER_LOCK_REQUIRED`; a wrong one is
 `403 SELLER_LOCK_INVALID`.
+
+### The Seller Hub idle limit
+
+An open Hub closes itself when nobody has used it for
+`SELLER_HUB_IDLE_TIMEOUT_SECONDS` (default 3600, sixty minutes; allowed 300 to
+86,400). The seller guard checks it on the server, on every `/api/v1/seller/*`
+route and on the two `/api/v1/sellers/session` routes. Only the Hub closes: the
+shop session, the console and the logistics portal are not affected, and the
+access and refresh token lifetimes do not change.
+
+- **What counts as activity.** Any `POST`, `PUT`, `PATCH` or `DELETE` to a Hub
+  route, or a `GET` that carries the request header **`x-seller-activity: 1`**.
+  The storefront sends that header only when the person clicked or pressed a
+  key in the last 15 seconds and the tab is visible. Background polling (the
+  notification badges), hidden tabs and mouse movement do not count. The server
+  writes the activity time at most every 30 seconds.
+- **What every Hub answer carries.** The response header
+  **`x-seller-session-expires-at`**: the ISO time at which the Hub closes if
+  nothing else happens. Both headers pass through CORS.
+- **When the limit passes.** The server clears the unlock on the session row
+  and answers `403 SELLER_SESSION_EXPIRED` ("Your Seller Hub session expired due
+  to inactivity. Please sign in again."). After that, every Hub request gets
+  `403 SELLER_LOCK_REQUIRED` until `POST /api/v1/sellers/lock/open` succeeds.
+  `GET /api/v1/sellers/session` and `POST /api/v1/sellers/session/renew` are
+  also refused with `SELLER_SESSION_EXPIRED` once the Hub has closed.
+- **Warning.** `SELLER_HUB_IDLE_WARNING_SECONDS` (default 300, five minutes;
+  shorter than the limit) is returned as `warningSeconds`. The storefront uses
+  it to ask "Are you still there?" before the end.
+- **Refresh.** A refresh-token rotation copies the Hub unlock and the activity
+  time onto the new session, so refreshing never closes the Hub.
+- **Still true.** Closing the Hub and signing out end it at once; a password
+  reset or email change ends every session; replaying an old refresh token ends
+  the whole family. Opening the Hub does not issue a new session id.
+- **Audit actions.** `seller.lock.opened`, `seller.lock.closed`,
+  `seller.session.renewed`, `seller.session.expired`.
 
 ---
 
@@ -999,6 +1036,24 @@ Examples: `POST /api/v1/admin/products/:id/media` (one image, plus an optional
 `POST /api/v1/seller/documents`, `POST /api/v1/catalog/image-search` (one file
 named `image`; the bytes are never stored).
 
+A listing's description and specifications: `GET /api/v1/seller/listing-drafts/:id/content`
+returns `{ content: { specifications, descriptionSections, variantOverrides },
+variants: [{ signature, name }], images: [{ id, fileName, altText }], editable,
+appliesTo: draft | live }`; `PUT` the same `content` (strict) to replace it.
+`400 VALIDATION_FAILED` with `details[].field` (for example
+`specifications.0.rows.1.label`) and `code` `DUPLICATE_LABEL`, `EMPTY_VALUE`,
+`EMPTY_SECTION`, `DUPLICATE_GROUP`, `TOO_MANY_HIGHLIGHTS` or `NOT_THIS_LISTING`;
+`409 LISTING_TRANSITION_NOT_ALLOWED` while the listing is under review or when
+the product page is shared; another seller's listing is `404`.
+
+A carrier's compliance documents (`POST /api/v1/logistics/profile/documents`)
+have their own limit: **10 MiB**, PDF, JPEG, PNG, WebP or GIF, decided by the
+file's signature. With no scanner configured the file is stored as "not
+scanned", never as clean. A carrier's logo
+(`POST /api/v1/logistics/profile/logo`) is JPEG, PNG, WebP or GIF; SVG is
+refused. It follows the ordinary image limit, `UPLOAD_MAX_BYTES` (5 MiB by
+default), not the 10 MiB document limit.
+
 ## CORS
 
 **CORS** (cross-origin resource sharing) is how a browser decides whether a page
@@ -1009,7 +1064,9 @@ from one address may call an API at another.
 - Credentials (cookies) are allowed.
 - Allowed methods: `GET`, `POST`, `PATCH`, `PUT`, `DELETE`, `OPTIONS`.
 - Allowed request headers: `Content-Type`, `Authorization`, `Idempotency-Key`,
-  `x-csrf-token`, `x-correlation-id`.
+  `x-csrf-token`, `x-correlation-id`, `x-seller-activity`.
+- Response headers a page may read: `x-correlation-id`, `RateLimit-Limit`,
+  `RateLimit-Remaining`, `x-seller-session-expires-at`.
 - A request with no `Origin` header (a server, a script, `curl`) is not a CORS
   request and is allowed through to the normal checks.
 
@@ -1111,7 +1168,10 @@ Both frontends turn each `code` into a message in eight languages. So:
 | `ADDRESS_REQUIRED` | 400 | The address is missing or is not one of yours |
 | `ORDER_TRANSITION_NOT_ALLOWED` | 409 | That status change is not legal from the order's current status |
 | `PAYMENT_PROVIDER_NOT_CONFIGURED` | 400 | The operator has not connected a payment gateway. Not the customer's fault |
+| `PAYMENT_ATTEMPT_IN_PROGRESS` | 409 | Another payment for this order is open or settling. Wait a moment and retry (the storefront retries 3 times, 1.5 s apart) |
+| `PAYMENT_AMOUNT_NOT_SUPPORTED` | 400 | The order total cannot be taken by card online in its currency (for example above Stripe's per-payment ceiling). Nothing is rounded |
 | `SELLER_LOCK_REQUIRED` | 403 | Open the Seller Hub password for this session |
+| `SELLER_SESSION_EXPIRED` | 403 | The open Seller Hub was idle too long and has closed. Ask for the Seller Hub password again; the shop session is still signed in |
 | `LOGISTICS_MFA_CHALLENGE_REQUIRED` | 403 | Enter the authenticator code in the logistics portal |
 | `INTERNAL_ERROR` | 500 | Our fault. Quote `correlationId` |
 
@@ -1152,12 +1212,36 @@ made with a secret only the two sides hold.
 `POST /api/v1/payments/webhooks/razorpay` and
 `POST /api/v1/payments/webhooks/stripe`.
 
-**This is the only thing that confirms an order.** An order moves from
-`PENDING_PAYMENT` to `CONFIRMED` only when a signature-verified payment event
-arrives. The browser coming back from the gateway's payment page proves nothing:
-the page can be closed, the redirect can be forged, and a payment can still fail
-after it. A client must never show "paid" because of a redirect; it asks
-`GET /api/v1/payments/orders/:orderId/status` instead.
+**This is what confirms an order.** An order moves from `PENDING_PAYMENT` to
+`CONFIRMED` only when a signature-verified payment event arrives — or when our
+server asks Stripe's API itself (the *Check again* call in §7.7, and staff
+reconcile). The browser coming back from the gateway's payment page proves
+nothing: the page can be closed, the redirect can be forged, and a payment can
+still fail after it. A client must never show "paid" because of a redirect; it
+asks `GET /api/v1/payments/orders/:orderId/status`, or for Stripe Checkout
+`GET /api/v1/payments/orders/:orderId/checkout/:sessionId`, instead. Every one
+of these paths ends in the same guarded capture, so an order is confirmed
+exactly once.
+
+**Stripe events to subscribe to** (in the Stripe Dashboard, on the endpoint
+`https://<api-host>/api/v1/payments/webhooks/stripe`):
+
+| Event | What it does here |
+|---|---|
+| `checkout.session.completed` | Paid: amount and currency must equal the attempt; the server re-reads the session from Stripe and captures. Unpaid (a delayed payment method): the attempt becomes `PENDING` and still holds the order |
+| `checkout.session.async_payment_succeeded` | A delayed payment arrived: capture |
+| `checkout.session.async_payment_failed` | A delayed payment failed: the attempt fails and the payment-failed email is sent |
+| `checkout.session.expired` | The Stripe page timed out: the attempt expires and the order is free for a new one |
+| `payment_intent.succeeded` | Capture (matched even if it arrives before its `checkout.session.completed`) |
+| `payment_intent.payment_failed` | On a Checkout attempt, only noted: the customer is still on Stripe's page and can try another card |
+| `charge.refunded`, `refund.updated`, `refund.failed` | Refund outcomes |
+| `charge.dispute.created` | A chargeback: recorded on the payment, audited, finance alerted. The payment stays captured and the order keeps its status |
+| `payment_method.detached` | That saved card is marked `DETACHED` here too |
+
+Do **not** subscribe to `charge.succeeded`: it reports the same capture under a
+different event id. A Stripe event is matched to its payment by Checkout
+session id, then (for a dispute) charge id, then PaymentIntent id, then our own
+attempt id carried in `client_reference_id` or the PaymentIntent's metadata.
 
 | | Razorpay | Stripe |
 |---|---|---|
@@ -1192,7 +1276,10 @@ events by processing status and the twenty most recent.
 key is configured), `POST /api/v1/payments/orders/:orderId/mock-capture` builds
 the event the gateway would have sent and runs it through the same code as a
 real webhook. To test the real path, forward events instead:
-`stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe`.
+`stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe`,
+and paste the `whsec_` it prints into `STRIPE_WEBHOOK_SECRET`. Without any
+webhooks, *Check again* on the confirmation page still confirms a Stripe
+Checkout payment from Stripe's API.
 
 ## The operator's ERP: stock pushed to us
 
@@ -1392,7 +1479,12 @@ Invoke-RestMethod -Uri "$api/catalog/products/nitrile-examination-gloves-medium?
 ```
 
 The answer is `{ product, currency, country, taxNote, soldInCurrencies,
-packagingOptions }`. `taxNote` is one sentence explaining the price (for
+packagingOptions }`. `product.specifications` is `[{ group, rows: [{ label, value,
+unit, highlight }] }]` in the fixed group order with empty and duplicate rows
+left out; each `variants[i].specifications` is that variant's own list when any
+value differs, else `null`. `product.descriptionSections` is `[{ heading, body,
+image: { url, alt, width, height } | null }]` - plain text, in the requested
+language when a translated set exists. `taxNote` is one sentence explaining the price (for
 example which country's VAT applies); `packagingOptions` lists cartons, pallets
 or containers the seller sells it in, and is empty for most products. A product
 that is not published answers `404`, whatever its slug.
@@ -1415,6 +1507,17 @@ Invoke-RestMethod -Uri "$api/catalog/bulk-pricing?productId=01J9Z3K4M5N6P7Q8R9S0
 
 The answer is the quantity bands and the saving at this quantity. It is sent
 `private, no-store`.
+
+It also carries two lists of ready-made offer cards: `offers` (every band this
+buyer can reach in the basket) and `preorderOffers` (bands the seller keeps for
+preorders only). A band that is not cheaper than the list price gives no card.
+Each card has `minQuantity`, `maxQuantity`, `unitPrice`, `listUnitPrice`,
+`savingPerPiece`, `lineTotal` (band price x `minQuantity`), `totalSaving`,
+`savingBasisPoints` (whole basis points, rounded down), `businessBuyersOnly`,
+`endsAt`, `isCurrent`, `isNext`, `isBestValue`, `withinStock` and, only when
+it differs, `approximateUnitPrice` in the display currency. Money fields are
+money objects, so the amount is a string of minor units. The cards reserve nothing: the basket and checkout
+price again.
 
 **"Can you deliver to Belgium, and when?"** Public, before any account:
 
@@ -1623,27 +1726,73 @@ $payHeaders = $headers + @{ 'Idempotency-Key' = [guid]::NewGuid().ToString() }
 $session = Invoke-RestMethod -Method Post -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/session" -Headers $payHeaders -ContentType 'application/json' -Body (@{ instrument = 'CREDIT_CARD' } | ConvertTo-Json)
 ```
 
+With Stripe, the answer sends the customer to **Stripe-hosted Checkout**,
+Stripe's own payment page:
+
 ```json
 {
   "paymentTransactionId": "01J9Z7B8C9D0E1F2G3H4J5K6M7",
   "provider": "STRIPE",
   "mode": "TEST",
-  "providerOrderId": "pi_3Q...",
+  "providerOrderId": "",
   "amount": { "minor": "213962", "formatted": "2139.62", "currency": "EUR" },
-  "checkoutPayload": { "...": "passed to the gateway's own browser library" },
+  "checkoutPayload": {},
   "instrument": "CREDIT_CARD",
-  "next": "OPEN_PROVIDER_UI"
+  "next": "REDIRECT",
+  "redirectUrl": "https://checkout.stripe.com/c/pay/cs_test_a1B2c3D4e5F6...",
+  "checkoutSessionId": "cs_test_a1B2c3D4e5F6...",
+  "expiresAt": "2026-09-25T10:32:00.000Z"
 }
 ```
 
-`next` tells the client what to do: `OPEN_PROVIDER_UI` (open the gateway's
-payment sheet with `checkoutPayload`), `AUTHENTICATE` (the card needs a
-3-D Secure check) or `AWAIT_CONFIRMATION`. `checkoutPayload` contains only the
-gateway's **publishable** key. No secret ever reaches the browser. The amount is
-always the order's own; a client cannot choose what to pay.
+`next` tells the client what to do:
+
+| `next` | Do this |
+|---|---|
+| `REDIRECT` | Stripe. Send this same tab to `redirectUrl` (it is always `https` and contains the session id — check both before navigating). The card is entered or chosen, and 3-D Secure answered, on Stripe's page. The page closes at `expiresAt` (32 minutes) |
+| `OPEN_PROVIDER_UI` | Razorpay. Open the gateway's payment sheet with `checkoutPayload`, which contains only the gateway's **publishable** key |
+| `AUTHENTICATE` | The card needs a 3-D Secure check |
+| `AWAIT_CONFIRMATION` | Nothing to open. For Stripe this also means the order is already being paid; `checkoutSessionId` says which page, so go to the confirmation view below |
+
+No secret ever reaches the browser. The amount is always the order's own
+outstanding total, read on the server; a client cannot choose what to pay, and
+an amount, currency, discount or tax in the body is ignored.
+
+Stripe Checkout keeps **one open attempt per order**. A second call while the
+first is still creating Stripe's page is answered
+`409 PAYMENT_ATTEMPT_IN_PROGRESS` — wait about 1.5 seconds and retry. A second
+call once the page exists gets the same `redirectUrl` (if more than two minutes
+are left). The Stripe idempotency key is made by the server from the attempt,
+not taken from your `Idempotency-Key`. A total a card cannot take in its
+currency is `400 PAYMENT_AMOUNT_NOT_SUPPORTED`, and a lost stock reservation
+that cannot be taken again is `409 INSUFFICIENT_STOCK`.
 
 The optional body fields are `instrument`, `savedPaymentMethodId` (a saved card
-of yours), `saveCard`, and the older `provider` and `method`.
+of yours), `saveCard`, and the older `provider` and `method`. With Stripe
+Checkout, saved cards and the save box are Stripe's, on Stripe's page.
+
+After paying, Stripe returns the customer to
+`/checkout/payment/:orderId/confirmation?session_id=cs_...` on the storefront.
+That return proves nothing. Read our record of it:
+
+```powershell
+Invoke-RestMethod -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/checkout/cs_test_a1B2c3D4e5F6..." -Headers $headers
+```
+
+The answer has `state` (`CONFIRMING`, `SUCCEEDED`, `PROCESSING`, `FAILED`,
+`CANCELLED` or `EXPIRED`), `orderId`, `orderNumber`, `orderStatus`, `amount`,
+`paidAt`, `card` (`{ brand, last4 }` or `null`), `failureReason` (`DECLINED`,
+`INSUFFICIENT_FUNDS`, `EXPIRED_CARD`, `INCORRECT_CVC`,
+`AUTHENTICATION_FAILED`, `BANK_PAYMENT_FAILED`, `OTHER` or `null` — Stripe's
+raw decline codes are never passed on) and `canRetry`. A session id that is not
+shaped like `cs_test_…` or `cs_live_…` is `400`; another customer's is `404`.
+
+- `POST .../checkout/:sessionId/refresh` (*Check again*) makes our server ask
+  Stripe's API and apply the answer through the same guarded capture. It never
+  starts a payment.
+- `POST .../checkout/cancel`, after Stripe's *Cancel* link, expires the open
+  page at Stripe (so a tab left open cannot pay) and frees the order. If Stripe
+  says it was paid after all, the payment is recorded instead.
 
 If a payment fails, the order stays `PENDING_PAYMENT` with its stock reserved.
 Open a **new session for the same order**. Do not check out again; that would
@@ -1651,9 +1800,10 @@ make a second order.
 
 ## 7.8 The webhook confirms the order
 
-The customer pays in the gateway's sheet. The gateway then calls
-`POST /api/v1/payments/webhooks/stripe` (or `/razorpay`) with a signed event.
-Only that event moves the order to `CONFIRMED`.
+The customer pays on Stripe's page (or in Razorpay's sheet). The gateway then
+calls `POST /api/v1/payments/webhooks/stripe` (or `/razorpay`) with a signed
+event. That event — or our server's own read of Stripe's API through
+*Check again* or reconcile — is what moves the order to `CONFIRMED`.
 
 ```mermaid
 sequenceDiagram
@@ -1663,21 +1813,23 @@ sequenceDiagram
   B->>A: POST /api/v1/cart/checkout (Idempotency-Key)
   A-->>B: 201 orderId, PENDING_PAYMENT
   B->>A: POST /api/v1/payments/orders/:orderId/session (Idempotency-Key)
-  A->>G: create payment
-  A-->>B: 201 checkoutPayload, next OPEN_PROVIDER_UI
-  B->>G: customer pays in the gateway sheet
-  G-->>B: redirect back: NOT proof of payment
+  A->>G: create Checkout session (one open attempt per order)
+  A-->>B: 201 next REDIRECT, redirectUrl
+  B->>G: same tab goes to Stripe-hosted Checkout, customer pays
+  G-->>B: redirect back to .../confirmation: NOT proof of payment
   G->>A: POST /api/v1/payments/webhooks/stripe (stripe-signature)
   A->>A: verify signature over raw bytes, record event
   A->>A: assertTransition PENDING_PAYMENT to CONFIRMED
   A-->>G: 200 received, accepted
   loop until paid or give up
-    B->>A: GET /api/v1/payments/orders/:orderId/status
-    A-->>B: status, paid, orderStatus
+    B->>A: GET /api/v1/payments/orders/:orderId/checkout/:sessionId (every 2 s)
+    A-->>B: state, orderStatus, card
   end
 ```
 
-While waiting, the client polls:
+While waiting, a Stripe Checkout client polls the confirmation view shown in
+§7.7 (the storefront polls every 2 seconds and, after 60 seconds, offers
+*Check again*). Any client can also poll the order's payment status:
 
 ```powershell
 Invoke-RestMethod -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/status" -Headers $headers
@@ -1688,8 +1840,9 @@ Invoke-RestMethod -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/status" 
 ```
 
 Show success only when `orderStatus` is `CONFIRMED` (or later). If the answer is
-stuck, `POST /api/v1/payments/orders/:orderId/reconcile` asks the gateway
-directly and applies what it says.
+stuck, `POST /api/v1/payments/orders/:orderId/reconcile` (or, for Stripe
+Checkout, `POST .../checkout/:sessionId/refresh`) asks the attempt's own
+gateway directly and applies what it says.
 
 On a development machine with `PAYMENT_MOCK_SUCCESS=true`:
 
@@ -1720,6 +1873,17 @@ The detail answers `{ order }`, which adds `shippingAddress`, `billingAddress`,
 
 Order lines are **snapshots**: the name, SKU, price and tax rate as they were at
 checkout. Never rebuild an old order from the live catalogue.
+
+Each `items[i].productInfo` on `GET /api/v1/orders/:id` is what was bought as it
+was described when the order was created - `{ schemaVersion, capturedAt,
+productName, sku, variantName, selectedOptions, description: { text, html,
+sections }, specificationGroups, packaging: { orderingUnit, unitQuantity,
+piecesPerUnit, equivalentPieces, ... }, moqPieces, piecesPerCarton,
+containerCapacity, specialInstructions }` - or `null` for an order from before
+these were kept. The seller's `GET /api/v1/seller/orders/:id` returns the same
+object per line as `lines[i].productInfo: { source: SNAPSHOT | CURRENT_LISTING |
+UNAVAILABLE, info }`; `CURRENT_LISTING` is today's listing for an older order,
+never stored.
 
 Other order calls: `GET /api/v1/orders/:id/invoice`,
 `GET /api/v1/orders/:id/price-breakdown`, and
@@ -2116,15 +2280,18 @@ Shipping, returns and invoices for the operator's own orders are in
 
 | Endpoint | Who | What |
 |---|---|---|
-| `GET /api/v1/payments/gateways`, `/instruments?currency=` | Customer | What payment choices exist |
-| `POST /api/v1/payments/orders/:orderId/session` | Customer | Open a payment (Idempotency-Key required) |
+| `GET /api/v1/payments/gateways`, `/instruments?currency=` | Customer | What payment choices exist. Each offer says `hostedCheckout` (paid on Stripe's page); `savedCardsChargeableHere` is `false` for Stripe |
+| `POST /api/v1/payments/orders/:orderId/session` | Customer | Open a payment (Idempotency-Key required). For Stripe, `next: "REDIRECT"` with `redirectUrl`, `checkoutSessionId`, `expiresAt` |
+| `GET /api/v1/payments/orders/:orderId/checkout/:sessionId` | Customer (own order) | The Stripe Checkout confirmation view: `state`, order, amount, card, `failureReason`, `canRetry`. Reads our records only. 120 per 5 minutes |
+| `POST /api/v1/payments/orders/:orderId/checkout/:sessionId/refresh` | Customer (own order) | *Check again*: ask Stripe's API and apply the answer. Never starts a payment. 12 per 5 minutes |
+| `POST /api/v1/payments/orders/:orderId/checkout/cancel` | Customer (own order) | After Stripe's *Cancel* link: expire the open page at Stripe and free the order (records the payment instead if Stripe says it was paid). 20 per 5 minutes |
 | `GET /api/v1/payments/orders/:orderId/status` | Customer | Is it paid |
-| `POST /api/v1/payments/orders/:orderId/reconcile` | Customer | Ask the gateway directly |
+| `POST /api/v1/payments/orders/:orderId/reconcile` | Customer | Ask the attempt's own gateway directly |
 | `GET /api/v1/payments/links/:token`, `POST .../pay` | Anyone with the link | Pay an emailed payment link |
 | `POST /api/v1/payments/webhooks/:provider` | Gateway | Signed payment events |
-| `GET`/`POST /api/v1/account/payment-methods`, `POST .../setup-intent`, `POST .../:id/default`, `DELETE .../:id` | Customer | Saved cards |
+| `GET`/`POST /api/v1/account/payment-methods`, `POST .../setup-intent`, `POST .../:id/default`, `DELETE .../:id` | Customer | Saved cards. Removing a card an ACTIVE or PAUSED auto-pay mandate uses is refused (`PAYMENT_METHOD_IN_USE`, detail `AUTOPAY_DEPENDS_ON_METHOD`) |
 | `GET`/`POST`/`PATCH`/`DELETE /api/v1/account/autopay`, `POST .../pause` | Customer | Standing permission to be charged |
-| `GET /api/v1/admin/payments`, `/payments/webhook-health` | Staff, `payment.read` | Payments and webhook health |
+| `GET /api/v1/admin/payments`, `/payments/webhook-health` | Staff, `payment.read` | Payments and webhook health. Each payment carries a derived `lifecycleState` (for example `CHECKOUT_SESSION_CREATED`, `SUCCEEDED`, `PARTIALLY_REFUNDED`, `DISPUTED`) and `checkoutSessionId`, `cardBrand`, `cardLast4`, `disputedAt`, `disputeReason` |
 | `PUT`/`GET /api/v1/admin/payments/connections`, `POST .../:id/test`, `PATCH .../:id/status` | Staff, `payment_gateway.write` | Connect a gateway |
 | `POST /api/v1/admin/orders/:id/payment-links`, `DELETE /api/v1/admin/payment-links/:linkId` | Staff, `payment_link.create` | Payment links |
 | `GET /api/v1/admin/orders/:id/refund-quote`, `POST /api/v1/admin/orders/:id/refunds` | Staff, `payment.read` / `refund.create` | Refunds. `{ amountMinor?, reason }`, Idempotency-Key required |
@@ -2222,7 +2389,7 @@ Seller Hub password.
 
 | Area | Key endpoints |
 |---|---|
-| Entry | `GET /api/v1/sellers/me`, `POST /api/v1/sellers/apply`, `POST /api/v1/sellers/lock`, `/lock/open`, `/lock/close` |
+| Entry | `GET /api/v1/sellers/me`, `POST /api/v1/sellers/apply`, `POST /api/v1/sellers/lock`, `/lock/open`, `/lock/close`, `GET /api/v1/sellers/session`, `POST /api/v1/sellers/session/renew` |
 | Onboarding | `GET /api/v1/seller/onboarding`, `PATCH /business-profile`, `POST /documents`, `POST /agreements`, `POST /submit` |
 | Listings | `GET /api/v1/seller/listings`, `PATCH /listings/:id/status`, `PATCH /listings/:id/price`, `GET`/`PATCH /listings/:id/edit` |
 | Drafts | `GET`/`POST /api/v1/seller/listing-drafts`, `PATCH /:id`, `POST /:id/validate`, `POST /:id/submit`, `POST /:id/media` |
@@ -2281,6 +2448,12 @@ A carrier's own desk. There is no carrier id in any path.
 | `GET /api/v1/logistics/legs`, `POST /legs/:id/accept`, `/progress` | `shipment.*` | Delivery legs the operator manages |
 | `GET /api/v1/logistics/driver/tasks`, `POST /driver/trips`, `/driver/trips/:id/end`, `/driver/location-consent` | `driver.task.read`, `trip.write` | The driver's phone |
 | `POST /api/v1/logistics/driver/location-pings` | Device token in the body | Position updates, 120 per 15 minutes |
+| `GET /api/v1/logistics/profile` | `organisation.read` | The **My Profile** page: the profile, derived capabilities, compliance, integration status, completion |
+| `PATCH /api/v1/logistics/profile` | `organisation.write` | Strict body: only fields the carrier may change, or re-verified fields (which create one pending change request instead of changing the record). Anything else is `400`; a trading name used by another carrier is `409` |
+| `DELETE /api/v1/logistics/profile/pending-change` | `organisation.write` | Withdraw the open change request |
+| `POST`/`DELETE /api/v1/logistics/profile/logo` | `organisation.write` | Set or remove the logo |
+| `POST /api/v1/logistics/profile/documents` | `organisation.write` | Upload a compliance document (multipart). A newer one of the same kind supersedes the older |
+| `POST /api/v1/logistics/profile/documents/:id/link`, `GET .../download` | `organisation.read` | A single-use link, valid `LOGISTICS_DOCUMENT_URL_TTL_SECONDS` (300), redeemed by the same signed-in person. Served as an attachment with `nosniff`. An unscanned file is refused unless `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS=true` |
 
 ## ERP integrations
 
@@ -2317,7 +2490,8 @@ back over REST.
 
 ### Customer endpoints
 
-All need a customer session except `availability`. Every conversation route
+All need a customer session except `availability` and the two `assistant`
+routes. Every conversation route
 narrows to the caller's own profile inside the query; another customer's id
 answers `404` exactly as a missing one.
 
@@ -2325,8 +2499,11 @@ answers `404` exactly as a missing one.
 |---|---|
 | `GET /api/v1/preorder-chats/availability` | Public. `{ enabled, teamAvailable, typicalResponse, maxMessageChars, attachments: { available, reason, maxBytes, types } }`. `teamAvailable` is true only while staff who can reply are connected |
 | `POST /api/v1/preorder-chats/context` | Body `{ productId, variantId, orderingUnit, unitQuantity, desiredDeliveryDate }` (strict). The product card as the server builds it, and the live conversation about it if one exists. **Creates nothing** |
-| `POST /api/v1/preorder-chats/messages` | The first message about a product: `{ clientMessageId, body, replyToMessageId, context, locale }`. Creates the conversation in the same transaction, or continues the live one. `201`, or `200` with `duplicate: true` for a retry |
-| `GET /api/v1/preorder-chats`, `/unread`, `/:id` | The customer's conversations (cursor), total unread, one conversation |
+| `POST /api/v1/preorder-chats/assistant` | Public (a session is read if present). Body `{ context }`. `{ greeting: { firstName, productName, variantName }, questions: [{ id, category, questionKey, version, requiresHumanConfirmation }], signedIn }`. Creates nothing. 60/min |
+| `POST /api/v1/preorder-chats/assistant/answer` | Public. `{ context, faqId }`. `{ answer: { faqId, version, outcome: ANSWERED \| NEEDS_CONFIRMATION, lines: [{ key, values }] }, askedAt, token }`. Each value is typed: `{ kind: number, value }`, `{ kind: date, value: YYYY-MM-DD }`, `{ kind: money, minor, currency }` (minor units as a string), `{ kind: unit \| text, value }`, `{ kind: countries, value: [ISO codes] }`. `token` is the server's signature; `404` for a product not on sale. 60/min |
+| `POST /api/v1/preorder-chats/handoff` | "Connect with a human agent". `{ clientRequestId, context, locale, topic, transcript: [{ answer, askedAt, token }] }` (at most 24). Creates or reuses the live conversation, stores the transcript and the request. `{ conversation, messages, created, duplicate }`; `201`, or `200` with `duplicate: true` for a retry with the same `clientRequestId`. An answer not signed by this server for this product in the last 24 h is `400 VALIDATION_FAILED` with `{ field: transcript.<n>, code: NOT_SIGNED }`. 20 per 10 min |
+| `POST /api/v1/preorder-chats/messages` | The first message about a product: `{ clientMessageId, body, replyToMessageId, context, locale, transcript }` (`transcript` optional, as for `handoff`). Creates the conversation in the same transaction, or continues the live one. `201`, or `200` with `duplicate: true` for a retry |
+| `GET /api/v1/preorder-chats`, `/unread`, `/:id` | The customer's conversations (cursor), total unread, one conversation. `/unread` takes an optional `productId` (26-character id) to count only the signed-in customer's conversations about that product; a malformed id is `400`. Without it the count covers all their conversations |
 | `GET /api/v1/preorder-chats/:id/messages?after=&before=&limit=` | History. `after` = everything since a sequence, oldest first (reconnect); `before` = earlier messages |
 | `POST /api/v1/preorder-chats/:id/messages` | `{ clientMessageId, body, replyToMessageId }` |
 | `POST /api/v1/preorder-chats/:id/read` | `{ seq }`, clamped to what exists; returns `{ readSeq, unreadCount }` |

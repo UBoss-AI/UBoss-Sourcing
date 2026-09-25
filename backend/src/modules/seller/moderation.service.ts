@@ -19,6 +19,8 @@
  *     seller who has been waiting three days for a review may not want their
  *     listing to go live at 2am with no stock.
  */
+import { readListingContent, type ListingContent } from '../../domain/product-specifications.js';
+import { replaceProductContent } from '../catalog/product-content.service.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SELLER_SELLING_UNIT } from '../../domain/ordering-unit.js';
 import { assertListingTransition } from '../../domain/seller-state.js';
@@ -435,6 +437,8 @@ export async function readListingForReview(draftId: string): Promise<{
   categoryId: string | null;
   categoryPath: { id: string; name: string }[];
   attributes: Record<string, unknown>;
+  /** The seller's description sections, specifications and per-variant values - what approval puts on the product page. */
+  content: ListingContent | null;
   offer: Record<string, unknown>;
   stock: unknown[];
   packaging: Record<string, unknown>;
@@ -499,6 +503,7 @@ export async function readListingForReview(draftId: string): Promise<{
     categoryId: row.categoryId,
     categoryPath: schema?.categoryPath ?? [],
     attributes: asJsonObject(row.attributesJson),
+    content: readListingContent(row.listingContentJson),
     offer: asJsonObject(row.offerJson),
     stock: Array.isArray(row.stockJson) ? row.stockJson : [],
     packaging: asJsonObject(row.packagingJson),
@@ -1017,6 +1022,9 @@ async function publishApprovedListing(
   const variantSpecs = buildVariantSpecs(draft, { sellerSku, priceMinor, stockJson });
 
   let firstOfferId: string | null = null;
+  // The listing's option signatures to the variants they became, for the
+  // seller's per-variant specifications below.
+  const variantsBySignature = new Map<string, string>();
 
   for (const [position, spec] of variantSpecs.entries()) {
     let variantKey = '';
@@ -1024,6 +1032,7 @@ async function publishApprovedListing(
     if (spec.options !== null) {
       const variantId = newId();
       variantKey = variantId;
+      variantsBySignature.set(spec.optionSignature, variantId);
 
       await tx.productVariant.create({
         data: {
@@ -1195,6 +1204,9 @@ async function publishApprovedListing(
     orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
   });
 
+  // A draft picture's id to the catalogue asset it became, so a description
+  // section that points at one of the listing's pictures still does.
+  const assetByDraftMedia = new Map<string, string>();
   for (const [index, item] of draftMedia.entries()) {
     const asset = await tx.mediaAsset.upsert({
       where: { storageKey: item.storageKey },
@@ -1226,6 +1238,32 @@ async function publishApprovedListing(
       },
       update: { sortOrder: index, isPrimary: item.isPrimary },
     });
+    assetByDraftMedia.set(item.id, asset.id);
+  }
+
+  /*
+   * The seller's description and specifications.
+   *
+   * Only onto a product this listing DESCRIBED. A seller who matched their
+   * offer to an existing catalogue page sells that page as it is - letting
+   * them replace its specifications would change what every other seller of it
+   * is selling, the same rule the edit page applies to photographs.
+   */
+  const content = readListingContent(draft.listingContentJson);
+  if (draft.matchedProductId === null && content !== null) {
+    await replaceProductContent(
+      tx,
+      productId,
+      {
+        ...content,
+        descriptionSections: content.descriptionSections.map((section) => ({
+          ...section,
+          imageMediaId:
+            section.imageMediaId === null ? null : (assetByDraftMedia.get(section.imageMediaId) ?? null),
+        })),
+      },
+      { variantIds: variantsBySignature, allowedImageIds: new Set(assetByDraftMedia.values()) },
+    );
   }
 
   const totals = await tx.sellerInventory.aggregate({

@@ -764,6 +764,8 @@ erDiagram
         datetime expiresAt
         datetime revokedAt
         string replacedBySessionId
+        datetime sellerUnlockedAt
+        datetime sellerLastActivityAt
     }
     auth_tokens {
         string id PK
@@ -828,6 +830,18 @@ erDiagram
 - Refresh tokens rotate. Each refresh creates a new `sessions` row and revokes
   the old one (`revokedAt`, `replacedBySessionId`); all rows of one chain share
   a `familyId`, so a stolen, re-used token revokes the whole family.
+- A rotation **copies the session's extra checks** onto the new row: the
+  carrier portal's `mfaVerifiedAt`, and the Seller Hub's `sellerUnlockedAt`,
+  `sellerUnlockedForId` and `sellerLastActivityAt`. Before this, the Hub's
+  unlock was not copied, so every refresh closed the Hub.
+- Seller Hub idle limit: `sellerLastActivityAt` (`DATETIME(3) NULL`, added by
+  migration `20260929100000_seller_hub_idle_session`) is the time of the last
+  deliberate Hub action, written at most every 30 seconds. When it is older than
+  `SELLER_HUB_IDLE_TIMEOUT_SECONDS`, the seller guard clears the unlock on the
+  row and the Hub must be opened again with its password. Opening the Hub sets
+  it; closing or expiry sets it back to `NULL` with the unlock. Where it is
+  `NULL` on an open Hub (a row from before the migration), `sellerUnlockedAt` is
+  used instead.
 - Lockout: `failedLoginCount` and `lockedUntil`; `login_attempts` feeds the
   rate limits by email and by IP.
 - MFA: `mfaSecretEnc` (encrypted TOTP secret), `mfaLastCounter` (stops a code
@@ -930,10 +944,22 @@ against them (see [5.17](#517-seller-hub)).
 | [`Product`](reference/DATABASE-TABLES.md#model-product) | `products` | one catalogue item, with its base price in the base currency |
 | [`ProductVariant`](reference/DATABASE-TABLES.md#model-productvariant) | `product_variants` | one purchasable version, identified by its `optionSignature` |
 | [`ProductMedia`](reference/DATABASE-TABLES.md#model-productmedia) / [`ProductVariantMedia`](reference/DATABASE-TABLES.md#model-productvariantmedia) | `product_media` / `product_variant_media` | one picture on a product or a variant, in order |
-| [`ProductAttribute`](reference/DATABASE-TABLES.md#model-productattribute) | `product_attributes` | one name/value fact ("Material: nitrile"), optionally filterable |
+| [`ProductAttribute`](reference/DATABASE-TABLES.md#model-productattribute) | `product_attributes` | one name/value fact ("Material: nitrile"), optionally filterable; its specification group (`groupKey`, NULL = General), `unit` and whether it is a highlight |
+| [`ProductVariantAttribute`](reference/DATABASE-TABLES.md#model-productvariantattribute) | `product_variant_attributes` | one specification that differs for one variant: same label replaces the product's, a new label is added. UNIQUE (variantId, name) |
+| [`ProductDescriptionSection`](reference/DATABASE-TABLES.md#model-productdescriptionsection) | `product_description_sections` | one heading-and-plain-text section of a product's description, with an optional picture (`imageMediaId`, SET NULL) and a `language` (NULL = the product's own) |
 | [`ProductPackaging`](reference/DATABASE-TABLES.md#model-productpackaging) | `product_packaging` | how one SKU is packed, as the supplier wrote it |
 | [`ProductPackDimension`](reference/DATABASE-TABLES.md#model-productpackdimension) | `product_pack_dimensions` | one box size (primary pack, inner box, outer carton) |
 | [`ProductImportRecord`](reference/DATABASE-TABLES.md#model-productimportrecord) | `product_import_records` | where one catalogue row came from: file, sheet, row, the raw row as JSON |
+
+**Specifications and description sections.** Groups and units are closed lists
+in `domain/product-specifications.ts` (`SPEC_GROUPS`, `SPEC_UNITS`), validated
+on write rather than enforced by an ENUM, so adding a group is a code change and
+not a migration. The storefront's copies are held to them by a test. Sections
+are plain text, never HTML. A seller's content waits on the draft in
+`seller_listing_drafts.listingContentJson` until approval copies it onto the
+product (`publishApprovedListing`, only for a product the listing described).
+All three product tables cascade from their product or variant, ON UPDATE
+RESTRICT. Migration `20261002090000_product_specifications`.
 
 ```mermaid
 erDiagram
@@ -944,6 +970,8 @@ erDiagram
     products ||--o{ product_media : "pictured by"
     product_variants ||--o{ product_variant_media : "pictured by"
     products ||--o{ product_attributes : "described by"
+    product_variants ||--o{ product_variant_attributes : "overrides"
+    products ||--o{ product_description_sections : "described in"
     products ||--o{ product_packaging : "packed as"
     product_packaging ||--o{ product_pack_dimensions : "measures"
     products ||--o{ product_import_records : "imported from"
@@ -1335,7 +1363,7 @@ tax, to which address, from which warehouse.
 | Model | Table | One row means |
 |---|---|---|
 | [`Order`](reference/DATABASE-TABLES.md#model-order) | `orders` | one order: its number, status, totals, frozen addresses, tax decision, warehouse promise and exchange rate |
-| [`OrderItem`](reference/DATABASE-TABLES.md#model-orderitem) | `order_items` | one line, fully snapshotted |
+| [`OrderItem`](reference/DATABASE-TABLES.md#model-orderitem) | `order_items` | one line, fully snapshotted - including `productInfoSnapshotJson`, the product as described when the order was created (description, specifications with the variant's values, packaging, minimum, carton and container figures, options, instructions; `schemaVersion` 1), written once in the creating transaction and never updated (migration `20261003090000_order_item_product_snapshot`) |
 | [`OrderItemPackaging`](reference/DATABASE-TABLES.md#model-orderitempackaging) | `order_item_packaging` | the package choice frozen from the cart line |
 | [`OrderStatusHistory`](reference/DATABASE-TABLES.md#model-orderstatushistory) | `order_status_history` | one status change: from, to, who, why, correlation id |
 | [`OrderApproval`](reference/DATABASE-TABLES.md#model-orderapproval) | `order_approvals` | one approval request for a high-value or credit-terms order, and its decision |
@@ -1561,6 +1589,7 @@ card number.
 | [`PaymentLink`](reference/DATABASE-TABLES.md#model-paymentlink) | `payment_links` | one emailed, single-use, expiring link to pay one order |
 | [`Refund`](reference/DATABASE-TABLES.md#model-refund) | `refunds` | one refund against one captured transaction |
 | [`CustomerPaymentMethod`](reference/DATABASE-TABLES.md#model-customerpaymentmethod) | `customer_payment_methods` | one saved card: the gateway's token, brand, last four, expiry, and **what the owner consented to** |
+| [`PaymentProviderCustomer`](reference/DATABASE-TABLES.md#model-paymentprovidercustomer) | `payment_provider_customers` | the gateway's customer record for one person, in one mode: which Stripe Customer (`cus_…`) is theirs in `TEST` and which in `LIVE` |
 
 ```mermaid
 erDiagram
@@ -1574,6 +1603,7 @@ erDiagram
     payment_transactions |o--o{ payment_events : "about"
     refunds |o--o{ return_requests : "settles"
     customer_profiles ||--o{ customer_payment_methods : "saves"
+    customer_profiles ||--o{ payment_provider_customers : "is known to the gateway as"
     customer_payment_methods |o--o{ orders : "preferred card"
     payment_provider_connections {
         string id PK
@@ -1589,10 +1619,21 @@ erDiagram
         string connectionId FK
         string providerPaymentId UK
         string idempotencyKey UK
+        string providerSessionId UK
+        string openAttemptKey UK
+        datetime sessionExpiresAt
         enum status
         bigint amountMinor
         bigint capturedMinor
         string currency
+        datetime disputedAt
+    }
+    payment_provider_customers {
+        string id PK
+        string customerProfileId FK
+        enum provider
+        enum mode
+        string providerCustomerId
     }
     payment_events {
         string id PK
@@ -1645,7 +1686,8 @@ erDiagram
   customer chose. The customer is never shown a gateway name; the server maps
   instrument to gateway in `backend/src/domain/payment-instrument.ts`.
 - `PaymentTransactionStatus`: `CREATED`, `PENDING`, `AUTHORIZED`, `CAPTURED`
-  (money taken), `FAILED`, `CANCELLED`, `EXPIRED`.
+  (money taken), `FAILED`, `CANCELLED`, `EXPIRED`. Which may follow which is
+  below, under **The payment state model**.
 - `WebhookProcessingStatus`: `RECEIVED`, `PROCESSED`, `DUPLICATE`, `REJECTED`
   (bad signature), `FAILED`.
 - `RefundStatus`: `REQUESTED`, `PROCESSING`, `SUCCEEDED`, `FAILED`,
@@ -1675,6 +1717,103 @@ erDiagram
 - `payment_transactions` and `refunds` are `Restrict` to `orders`: an order
   with money on it cannot be deleted.
 
+**Stripe-hosted Checkout columns on `payment_transactions`.** Stripe-hosted
+Checkout is Stripe's own payment page; one attempt is one Checkout Session.
+
+| Column | What it holds |
+|---|---|
+| `providerSessionId` | The Checkout Session id (`cs_…`). `UNIQUE` (`uq_payment_provider_session`), so one session belongs to one attempt |
+| `sessionExpiresAt` | When Stripe closes the page (32 minutes after it opens) |
+| `openAttemptKey` | The order id while the attempt is open; `NULL` once it closes. See the rule below |
+| `cardBrand`, `cardLast4` | For display only ("Visa ending in 4242"). Never a card number |
+| `disputedAt`, `disputeReason` | Set when Stripe reports a chargeback. The status stays `CAPTURED` |
+
+- **`uq_payment_open_attempt (openAttemptKey)`: one open payment attempt per
+  order.** An open attempt carries its order id in `openAttemptKey`; closing
+  it sets the column to `NULL`. MariaDB treats every `NULL` in a `UNIQUE`
+  index as distinct, so any number of closed attempts sit side by side and
+  only a second *open* one collides. A double click, a second tab or a retry
+  therefore hits a duplicate-key error, and the service hands it the first
+  attempt's Stripe page, tells it to wait (`PAYMENT_ATTEMPT_IN_PROGRESS`), or
+  sends it to the confirmation. An attempt left open without a session for 20
+  seconds (its request timed out) is closed `FAILED` so a new one can open.
+- `uq_payment_provider_session (providerSessionId)`: a Checkout webhook finds
+  exactly one attempt.
+
+**`payment_provider_customers`.** The link between a person and the gateway's
+own customer record. Stripe needs one so that Checkout can offer the "save for
+future purchases" box and show saved cards again.
+
+- `uq_provider_customer_profile (customerProfileId, provider, mode)`: one
+  Stripe Customer per person per mode. Two first checkouts at the same moment
+  both insert; one lands and the other adopts it.
+- `uq_provider_customer_ref (provider, providerCustomerId)`: one person per
+  Stripe Customer, so one person can never see another's cards.
+- The foreign key to `customer_profiles` is `ON DELETE CASCADE`. Erasure
+  deletes the row and then, best-effort, the Customer at Stripe. The data
+  export lists it under the withheld `credentials` section.
+- A row is never matched by email and never taken from a browser. A Stripe
+  Customer that Stripe says no longer exists is forgotten and a new one made.
+
+**A card saved on Checkout.** A `customer_payment_methods` row is written only
+when the card, read back from Stripe, is a card attached to this person's
+mapped Stripe Customer and saved for redisplay. It is stored with
+`consentScope = CHECKOUT` and `consentVersion = 'stripe-checkout-native-v1'`,
+and an `audit_logs` row (`payment_method.saved`) records the consent. A
+`CHECKOUT` card can never be charged off-session.
+
+**The payment state model** (`backend/src/domain/payment-state.ts`).
+`payment_transactions.status` is written from several places — a webhook, a
+reconcile, a Checkout Session opening or closing — each with a conditional
+`UPDATE` whose allowed source states come from this one file, so two racing
+writers cannot both win.
+
+```mermaid
+stateDiagram-v2
+    [*] --> CREATED
+    CREATED --> PENDING
+    CREATED --> AUTHORIZED
+    CREATED --> FAILED
+    CREATED --> CANCELLED
+    CREATED --> EXPIRED
+    PENDING --> AUTHORIZED
+    PENDING --> FAILED
+    PENDING --> CANCELLED
+    PENDING --> EXPIRED
+    AUTHORIZED --> FAILED
+    AUTHORIZED --> CANCELLED
+    AUTHORIZED --> EXPIRED
+    FAILED --> PENDING
+    CREATED --> CAPTURED
+    PENDING --> CAPTURED
+    AUTHORIZED --> CAPTURED
+    FAILED --> CAPTURED
+    CANCELLED --> CAPTURED
+    EXPIRED --> CAPTURED
+    CAPTURED --> [*]
+```
+
+- `CAPTURED` is terminal. It may follow **any** other state, because money
+  that moved is always recorded. A capture on a `CANCELLED` or `EXPIRED`
+  attempt alerts finance (`CAPTURE_ON_CLOSED_ATTEMPT`); a capture on an order
+  already paid in full is recorded and alerted (`DUPLICATE_PAYMENT`).
+- `FAILED` may go back to `PENDING`: on Checkout the customer can try another
+  card on the same payment.
+- `CREATED`, `PENDING` and `AUTHORIZED` are the open states; they hold the
+  order's `openAttemptKey`.
+- Refunds and disputes are **separate facts**, not statuses. A richer
+  *lifecycle state* is derived from them, never stored, and shown to staff as
+  `lifecycleState`: `CREATED` (no session yet), `CHECKOUT_SESSION_CREATED`,
+  `PROCESSING` and `REQUIRES_ACTION` (both stored `PENDING`), `AUTHORIZED`,
+  `SUCCEEDED` (stored `CAPTURED`), `PARTIALLY_REFUNDED`, `REFUNDED`,
+  `DISPUTED` (outranks the refund states), `FAILED`, `CANCELLED`, `EXPIRED`.
+
+**Stock while the customer is on Stripe's page.** Opening Checkout extends the
+order's active `stock_reservations` to the session's expiry plus 5 minutes.
+Reservations that had already lapsed are taken again, all or nothing; if the
+stock is gone, the attempt closes `FAILED` and the payment page is refused.
+Reservations are committed once, when the order moves to `CONFIRMED`.
+
 **Worked example: the webhook confirms the order.** The customer pays. The
 browser returns to the confirmation page - **this confirms nothing**. Then the
 gateway's server calls the webhook:
@@ -1684,7 +1823,11 @@ gateway's server calls the webhook:
    delivery collides on the unique index and is marked `DUPLICATE`.
 2. In one transaction: `payment_transactions` is moved to `CAPTURED` with a
    conditional update (so a replay cannot credit twice), and
-   `orders.paidMinor` is increased by the captured amount.
+   `orders.paidMinor` is increased by the captured amount only if that update
+   matched. This happens in one place, `applyCapturedPayment`, whichever path
+   brought the news: the webhook, `checkout.session.completed`, *Check again*
+   or a reconcile. `openAttemptKey` is cleared and, for Checkout, `cardBrand`
+   and `cardLast4` are filled from Stripe.
 3. The order moves `PENDING_PAYMENT -> CONFIRMED` through `assertTransition`.
    Inside that same transaction: reservations become `COMMITTED` and
    `inventory_movements` rows are written; the order is split into
@@ -3122,7 +3265,9 @@ and links to them rather than replacing them.
 
 | Model | Table | One row means |
 |---|---|---|
-| [`LogisticsPartner`](reference/DATABASE-TABLES.md#model-logisticspartner) | `logistics_partners` | one delivery company (marketplace carrier, or owned by a seller) |
+| [`LogisticsPartner`](reference/DATABASE-TABLES.md#model-logisticspartner) | `logistics_partners` | one delivery company (marketplace carrier, or owned by a seller), with its own profile and its verification state |
+| [`LogisticsPartnerProfileChange`](reference/DATABASE-TABLES.md#model-logisticspartnerprofilechange) | `logistics_partner_profile_changes` | one request by the carrier to change a re-verified profile field (legal name, registration, licence …), and staff's answer |
+| [`LogisticsPartnerDocument`](reference/DATABASE-TABLES.md#model-logisticspartnerdocument) | `logistics_partner_documents` | one compliance document the carrier uploaded (licence, insurance, permit …), its scan and its review |
 | [`LogisticsPartnerUser`](reference/DATABASE-TABLES.md#model-logisticspartneruser) / [`LogisticsPartnerInvitation`](reference/DATABASE-TABLES.md#model-logisticspartnerinvitation) | `logistics_partner_users` / `logistics_partner_invitations` | one person working for it, with a role / a pending invite |
 | `LogisticsServiceRegion`, `LogisticsCapability`, `LogisticsSlaPolicy` | `logistics_service_regions`, `logistics_capabilities`, `logistics_sla_policies` | where it delivers, what it can carry (cold chain, dangerous goods), its promised times |
 | [`LogisticsShipment`](reference/DATABASE-TABLES.md#model-logisticsshipment) | `logistics_shipments` | one consignment: reference, tracking number, status, addresses, handling needs, SLA dates |
@@ -3139,6 +3284,8 @@ and links to them rather than replacing them.
 ```mermaid
 erDiagram
     logistics_partners ||--o{ logistics_partner_users : "employs"
+    logistics_partners ||--o{ logistics_partner_profile_changes : "asks to change"
+    logistics_partners ||--o{ logistics_partner_documents : "files"
     users ||--o| logistics_partner_users : "is"
     orders |o--o{ logistics_shipments : "shipped as"
     seller_order_groups |o--o{ logistics_shipments : "shipped as"
@@ -3156,6 +3303,23 @@ erDiagram
         enum partnerKind
         enum status
         string ownerSellerAccountId FK
+        enum verificationState
+    }
+    logistics_partner_profile_changes {
+        string id PK
+        string logisticsPartnerId FK
+        enum state
+        string pendingKey UK
+        json proposedJson
+        json currentJson
+    }
+    logistics_partner_documents {
+        string id PK
+        string logisticsPartnerId FK
+        enum kind
+        enum scanState
+        enum reviewState
+        datetime supersededAt
     }
     logistics_partner_users {
         string id PK
@@ -3229,6 +3393,56 @@ erDiagram
 exceptions (`DELAYED`, `ON_HOLD`, `ADDRESS_ISSUE`, `CUSTOMS_HOLD`, `DAMAGED`,
 `TEMPERATURE_EXCEPTION`, `DELIVERY_FAILED`), returns (`RETURN_REQUESTED`,
 `RETURN_IN_TRANSIT`, `RETURNED`) and `LOST`, `CANCELLED`.
+`LogisticsPartnerVerificationState`: `UNVERIFIED` (the default), `VERIFIED`,
+`REVERIFICATION_REQUIRED`. `LogisticsProfileChangeState`: `PENDING`,
+`APPROVED`, `REJECTED`, `WITHDRAWN`. `LogisticsComplianceDocumentKind`:
+`BUSINESS_LICENCE`, `INSURANCE_CERTIFICATE`, `TRANSPORT_PERMIT` (these three
+are required), `COMPANY_REGISTRATION`, `TAX_REGISTRATION`, `OTHER`.
+`LogisticsComplianceReviewState`: `PENDING_REVIEW`, `VERIFIED`, `REJECTED`.
+A compliance document's `scanState` reuses `LogisticsDocumentScanState` from
+the shipment documents.
+
+**The carrier's profile** (migration
+`20260929090000_logistics_partner_profile`). `logistics_partners` gained
+nullable columns for the profile the carrier keeps on its **My Profile** page:
+`logoStorageKey`, `operationalAddressJson`, `businessDescription`,
+`primaryContactName`, `primaryContactTitle`, `emergencyContactName`,
+`supportEmail`, `supportPhone`, `billingContactName`, `billingEmail`,
+`billingPhone`, `operatingHoursJson`, `timeZone`, `declaredTransportModesJson`,
+`hubLocationsJson`, and three for verification: `verificationState`,
+`verifiedAt`, `verifiedByUserId`. Every carrier that existed before the
+migration is `UNVERIFIED`, because no check was ever recorded for it.
+`declaredTransportModesJson` is the carrier's own statement and is never read
+as an approval; approvals stay in `logistics_capabilities`.
+
+- **Re-verified fields are never written straight to `logistics_partners`.**
+  Legal name, trading name, registration number, tax number, registration
+  country, registered address and transport licence number and expiry go into
+  a `logistics_partner_profile_changes` row. `proposedJson` holds only the
+  fields being changed; `currentJson` holds the same fields as they stood, so
+  the reviewer sees a before-and-after. The live row keeps the old values until
+  staff approve. Approving copies the values across and sets the partner
+  `VERIFIED`.
+- **At most one open request per company, held by the database.**
+  `pendingKey` is the partner id while the row is `PENDING` and `NULL`
+  otherwise, under `uq_logistics_profile_change_pending`. This relies on
+  MariaDB treating every `NULL` in a `UNIQUE` index as distinct, so any number
+  of decided rows can sit beside the one open one. A newer request marks the
+  older one `WITHDRAWN` first.
+- **A compliance document is never overwritten.** A newer upload of the same
+  `kind` sets `supersededAt` on the older row, which is kept. `contentHash` is
+  the SHA-256 of the bytes; `contentType` is decided by the file's signature.
+  `scanState = SKIPPED` means no scanner was configured and never means clean.
+  A document whose `expiresOn` has passed reads as Expired.
+- Both new tables **cascade-delete with the partner**.
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING : carrier saves a re-verified field
+    PENDING --> APPROVED : staff approve (partner becomes VERIFIED)
+    PENDING --> REJECTED : staff reject, with a reason
+    PENDING --> WITHDRAWN : carrier withdraws, or sends a newer request
+```
 
 **Lifecycle.** The **forward path only**, simplified from `SHIPMENT_TRANSITIONS`
 in `backend/src/domain/logistics-shipment-state.ts`. The file also holds every
@@ -3929,7 +4143,7 @@ meet the index and the second joins the first.
 row lock queues concurrent senders), and `uq_preorder_chat_message_seq
 (conversationId, serverSequence)` holds it. `uq_preorder_chat_message_client
 (senderKey, clientMessageId)` makes a retry return the stored message.
-`senderKey` is `C:<userId>`, `A:<userId>` or `S:<conversationId>`; a system
+`senderKey` is `C:<userId>`, `A:<userId>`, `S:<conversationId>` or (the assistant) `B:<conversationId>`; a system
 card's `clientMessageId` is deterministic (`proposal:<id>`), so the system
 cannot post a card twice either.
 
@@ -3948,6 +4162,20 @@ equivalent pieces and date. `productName`, `productSku` and `sellerName` are
 copied out of it for search. `productId`, `variantId`, `sellerAccountId` and
 `offerId` are not foreign keys, like `preorder_requests`: an archived product
 must not take the conversation with it.
+
+**The preorder assistant.** Its answers reach this table only when the customer
+asks for a person or writes a first message after reading them. Each question
+the customer picked is a `FAQ_QUESTION` message from the CUSTOMER (`systemEvent`
+= the question id); each answer is an `AUTOMATED_REPLY` from sender
+`AUTOMATION` (`senderKey` `B:<conversationId>`) whose `systemMetaJson` holds
+`{ answer: { faqId, version, outcome, lines }, askedAt }` exactly as shown; the
+request itself is a `HANDOFF_REQUEST` from the customer, so it counts as unread
+for staff and starts `awaitingReplySince`. AUTOMATION messages count on the
+staff side of the unread counters (the customer is the reader) and never set
+`firstResponseAt`. `handoffRequestedAt` / `handoffTopic` on the conversation
+record the latest request; "human requested" is `handoffRequestedAt` later than
+`lastStaffMessageAt`, read as a filter, not a status. Migration
+`20261001090000_preorder_chat_assistant`.
 
 **Foreign keys.** Conversations, messages, participants, notes, proposals and
 attachments cascade from the customer profile (erasure removes them all).
@@ -4564,7 +4792,7 @@ their `UPDATE`/`DELETE` grants. The full order is in
 | Identity and contact | `users` (email, phone, pending changes), `customer_profiles` (names, organisation, phone, tax numbers), `addresses` |
 | Sign-in traces | `sessions` (IP, user agent, optional sign-in location), `login_attempts`, `auth_tokens` |
 | What they bought | `orders` (address snapshots, notes), `order_items`, `invoices` (buyer JSON), `fulfilment_quotes`, `coupon_redemptions`, `preorder_requests` |
-| Payment | `customer_payment_methods` (gateway token, brand, last four - no card number), `customer_autopay_settings` (consent, hashed IP) |
+| Payment | `customer_payment_methods` (gateway token, brand, last four - no card number), `customer_autopay_settings` (consent, hashed IP), `payment_provider_customers` (the Stripe Customer id; exported under the withheld `credentials` section, deleted at Stripe on erasure) |
 | Baskets and lists | `carts`, `cart_items`, `wishlist_items`, `product_instructions`, `recurring_schedules` |
 | Conversations | `assistant_conversations` (visitor name, phone, email), `assistant_messages` |
 | Memberships | `buyer_organization_members`, `seller_members`, `logistics_partner_users` |

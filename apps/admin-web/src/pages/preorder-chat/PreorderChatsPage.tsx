@@ -51,11 +51,19 @@ import {
   type InboxSort,
 } from '@/lib/preorder-chats';
 import { desktopAlertsOn, desktopAlertsSupported, requestDesktopAlerts } from '@/lib/use-preorder-chat-live';
+import { faqQuestionText } from '@/lib/preorder-assistant';
 import { ConversationPane } from './ConversationPane';
 import { priorityTone, slaState, statusTone } from './tones';
 
 /** The queue's own views, as chips. */
-const QUEUE_VIEWS = ['all', 'unassigned', 'mine', 'unread', 'priority'] as const satisfies readonly InboxFilter[];
+const QUEUE_VIEWS = [
+  'all',
+  'human_requested',
+  'unassigned',
+  'mine',
+  'unread',
+  'priority',
+] as const satisfies readonly InboxFilter[];
 /** Views by where a conversation is, in a menu. */
 const STATUS_VIEWS = [
   'open',
@@ -374,7 +382,9 @@ function InboxRow({
         <span className="mt-0.5 flex items-center gap-2">
           <span className={cx('min-w-0 flex-1 truncate text-xs', unread ? 'text-ink' : 'text-ink-muted')}>
             {conversation.lastMessagePreview === null
-              ? '—'
+              ? conversation.handoff !== null
+                ? t('preorderChats.handoff.badge')
+                : '—'
               : conversation.lastMessageSender === 'ADMIN'
                 ? `${t('preorderChats.you')}: ${conversation.lastMessagePreview}`
                 : conversation.lastMessagePreview}
@@ -385,6 +395,26 @@ function InboxRow({
           <Badge tone={statusTone(conversation.status)}>
             {t(`preorderChats.status.${conversation.status}` as TranslationKey)}
           </Badge>
+          {conversation.handoff?.waiting === true && (
+            // A long topic is cut short in the row; the whole of it is on hover
+            // and in the conversation itself.
+            <span
+              className="inline-flex min-w-0 max-w-full"
+              title={
+                conversation.handoff.topic === null ? undefined : faqQuestionText(conversation.handoff.topic, t)
+              }
+            >
+              <Badge tone="warning">
+                <span className="block max-w-[16rem] truncate">
+                  {conversation.handoff.topic === null
+                    ? t('preorderChats.handoff.badge')
+                    : t('preorderChats.handoff.badgeTopic', {
+                        topic: faqQuestionText(conversation.handoff.topic, t),
+                      })}
+                </span>
+              </Badge>
+            </span>
+          )}
           {conversation.priority !== 'NORMAL' && (
             <Badge tone={priorityTone(conversation.priority)}>
               {t(`preorderChats.priority.${conversation.priority}` as TranslationKey)}

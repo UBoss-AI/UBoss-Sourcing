@@ -177,6 +177,22 @@ export type ProductMedia = Prisma.ProductMediaModel
  */
 export type ProductAttribute = Prisma.ProductAttributeModel
 /**
+ * Model ProductVariantAttribute
+ * A specification that is different for one variant: a row with the same
+ * label as the product's replaces it for a buyer who picked this variant; a
+ * label only the variant has is added. See `shownSpecifications`.
+ */
+export type ProductVariantAttribute = Prisma.ProductVariantAttributeModel
+/**
+ * Model ProductDescriptionSection
+ * One section of a product's description: a heading and plain text, with an
+ * optional picture. Plain text on purpose - it is shown as text, so there is
+ * no markup in it to sanitise; tags are stripped on the way in. The seller's
+ * HTML description, where one exists, stays in `Product.descriptionHtml`,
+ * sanitised on write.
+ */
+export type ProductDescriptionSection = Prisma.ProductDescriptionSectionModel
+/**
  * Model ProductPackaging
  * 
  */
@@ -380,6 +396,25 @@ export type ScheduleOccurrence = Prisma.ScheduleOccurrenceModel
  * same record.
  */
 export type CustomerPaymentMethod = Prisma.CustomerPaymentMethodModel
+/**
+ * Model PaymentProviderCustomer
+ * The one record a customer has at a gateway - Stripe's Customer (cus_...).
+ * 
+ * Authoritative, and the only place that answers "which Stripe Customer is
+ * this person". Saved cards hang off it, every Checkout Session is opened
+ * against it, and it is what lets Stripe offer a returning customer the card
+ * they saved last time. Before this table the id was only ever copied onto
+ * card rows, and a customer without one got a fresh Stripe Customer per
+ * attempt once Stripe's 24-hour idempotency window had passed.
+ * 
+ * Per MODE as well as per gateway: a test-mode cus_ does not exist in live,
+ * and a deployment moving from one to the other must not hand Stripe an id it
+ * has never seen.
+ * 
+ * Never matched on email and never accepted from a browser. Ownership is the
+ * `customerProfileId` column and nothing else.
+ */
+export type PaymentProviderCustomer = Prisma.PaymentProviderCustomerModel
 /**
  * Model ErpOrderPush
  * One order's hand-off to the ERP, and the state of its retries.
@@ -1617,6 +1652,37 @@ export type SellerLogisticsPartnerInvitation = Prisma.SellerLogisticsPartnerInvi
  * rules and the easiest one to lose by accident.
  */
 export type LogisticsPartner = Prisma.LogisticsPartnerModel
+/**
+ * Model LogisticsPartnerProfileChange
+ * A change to who a logistics company IS, waiting for the operator.
+ * 
+ * Legal name, trading name, registration and tax numbers, the registered
+ * address and the transport licence are what an invoice, a customs
+ * declaration and a contract are written against. A carrier that could
+ * change them itself could become somebody else between two consignments,
+ * so a change to any of them is proposed here and applied only when a member
+ * of staff approves it. Until then the live record keeps the verified values.
+ * 
+ * `pendingKey` is the partner id while PENDING and NULL otherwise, and it is
+ * UNIQUE: MariaDB treats every NULL as distinct, so any number of decided
+ * requests sit beside each other while two open ones for one company cannot.
+ */
+export type LogisticsPartnerProfileChange = Prisma.LogisticsPartnerProfileChangeModel
+/**
+ * Model LogisticsPartnerDocument
+ * A licence, a certificate of insurance, a permit - the carrier's file.
+ * 
+ * The bytes are under the PRIVATE storage prefix and are read back only
+ * through a short-lived, single-use link issued to somebody who has passed
+ * the ownership check, the same path shipment documents take. An insurance
+ * certificate names a policy number and a sum insured, and neither belongs at
+ * a guessable URL.
+ * 
+ * A newer upload of the same kind supersedes rather than replaces the older
+ * one, which stays readable: the certificate an approval was given against
+ * is the one that has to be produced when that approval is questioned.
+ */
+export type LogisticsPartnerDocument = Prisma.LogisticsPartnerDocumentModel
 /**
  * Model LogisticsPartnerUser
  * One person inside one logistics company.

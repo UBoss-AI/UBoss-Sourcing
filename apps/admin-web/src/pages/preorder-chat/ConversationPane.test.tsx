@@ -82,7 +82,7 @@ interface Call {
   body: Record<string, unknown>;
 }
 
-function stubApi(): Call[] {
+function stubApi(history: unknown[] = [MESSAGE]): Call[] {
   const calls: Call[] = [];
   vi.stubGlobal(
     'fetch',
@@ -96,7 +96,7 @@ function stubApi(): Call[] {
       if (url.includes('/messages') && method === 'POST') {
         return json({ message: { ...MESSAGE, id: 'M2', seq: 2, senderType: 'ADMIN', body: body['body'] }, conversation: DETAIL, duplicate: false }, 201);
       }
-      if (url.includes('/messages')) return json({ messages: [MESSAGE], hasMore: false });
+      if (url.includes('/messages')) return json({ messages: history, hasMore: false });
       if (url.includes('/notes') && method === 'POST') return json({ id: 'n1', body: body['body'], authorUserId: 'u1', authorEmail: null, createdAt: MESSAGE.createdAt }, 201);
       if (url.includes('/notes')) return json({ notes: [] });
       if (url.includes('/proposals')) return json({ proposals: [] });
@@ -186,5 +186,42 @@ describe('a Preorder Chats conversation', () => {
       expect(posts(calls, '/notes')).toHaveLength(1);
     });
     expect(posts(calls, '/messages')).toHaveLength(0);
+  });
+
+  it('shows the assistant transcript as automated, never as a member of staff', async () => {
+    stubApi([
+      { ...MESSAGE, messageType: 'FAQ_QUESTION', body: '', systemEvent: 'container40', systemMeta: { faqId: 'container40', version: 1 } },
+      {
+        ...MESSAGE,
+        id: 'M2',
+        seq: 2,
+        senderType: 'AUTOMATION',
+        messageType: 'AUTOMATED_REPLY',
+        body: '',
+        systemEvent: 'container40',
+        automation: {
+          faqId: 'container40',
+          version: 1,
+          outcome: 'NEEDS_CONFIRMATION',
+          askedAt: MESSAGE.createdAt,
+          lines: [
+            { key: 'preorderChat.assistant.a.containerUnverified', values: { size: { kind: 'text', value: '40' } } },
+            { key: 'preorderChat.assistant.a.needsConfirmation', values: {} },
+          ],
+        },
+      },
+      { ...MESSAGE, id: 'M3', seq: 3, messageType: 'HANDOFF_REQUEST', body: '', systemEvent: 'handoff.requested', systemMeta: { topic: 'container40' } },
+    ]);
+    renderPane();
+    const history = await screen.findByRole('log');
+    expect(await within(history).findByText('How many pieces fit in a 40-ft container?')).toBeDefined();
+    expect(within(history).getByText('The seller has not verified how many pieces fit in a 40-ft container.')).toBeDefined();
+    expect(within(history).getByText('Automated')).toBeDefined();
+    expect(within(history).getByText('The team has to confirm this')).toBeDefined();
+    expect(
+      within(history).getByText('Sikka Pvt Ltd asked for a person about: How many pieces fit in a 40-ft container?'),
+    ).toBeDefined();
+    // Not attributed to a colleague, and not to the team.
+    expect(within(history).queryByText('owner@example.test')).toBeNull();
   });
 });

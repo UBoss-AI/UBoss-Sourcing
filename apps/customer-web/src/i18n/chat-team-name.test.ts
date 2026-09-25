@@ -26,7 +26,7 @@ describe('the chat team’s name', () => {
     // Who manages a delivery level is the same team.
     expect(i18n.t('sellerLogistics.mode.UBOSS')).toBe('UBoss');
     expect(i18n.t('sellerLogistics.mode.HYBRID')).toBe('Self + UBoss');
-    expect(i18n.t('sellerLogistics.mode.SELF')).toBe('Self');
+    expect(i18n.t('sellerLogistics.mode.SELF')).toBe('Self Ship');
   });
 
   it('is the marketplace’s own name when none is set', () => {

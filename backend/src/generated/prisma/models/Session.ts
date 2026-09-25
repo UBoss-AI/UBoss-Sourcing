@@ -54,6 +54,7 @@ export type SessionMinAggregateOutputType = {
   mfaVerifiedAt: Date | null
   sellerUnlockedAt: Date | null
   sellerUnlockedForId: string | null
+  sellerLastActivityAt: Date | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -79,6 +80,7 @@ export type SessionMaxAggregateOutputType = {
   mfaVerifiedAt: Date | null
   sellerUnlockedAt: Date | null
   sellerUnlockedForId: string | null
+  sellerLastActivityAt: Date | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -104,6 +106,7 @@ export type SessionCountAggregateOutputType = {
   mfaVerifiedAt: number
   sellerUnlockedAt: number
   sellerUnlockedForId: number
+  sellerLastActivityAt: number
   expiresAt: number
   revokedAt: number
   revokedReason: number
@@ -143,6 +146,7 @@ export type SessionMinAggregateInputType = {
   mfaVerifiedAt?: true
   sellerUnlockedAt?: true
   sellerUnlockedForId?: true
+  sellerLastActivityAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -168,6 +172,7 @@ export type SessionMaxAggregateInputType = {
   mfaVerifiedAt?: true
   sellerUnlockedAt?: true
   sellerUnlockedForId?: true
+  sellerLastActivityAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -193,6 +198,7 @@ export type SessionCountAggregateInputType = {
   mfaVerifiedAt?: true
   sellerUnlockedAt?: true
   sellerUnlockedForId?: true
+  sellerLastActivityAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -305,6 +311,7 @@ export type SessionGroupByOutputType = {
   mfaVerifiedAt: Date | null
   sellerUnlockedAt: Date | null
   sellerUnlockedForId: string | null
+  sellerLastActivityAt: Date | null
   expiresAt: Date
   revokedAt: Date | null
   revokedReason: string | null
@@ -353,6 +360,7 @@ export type SessionWhereInput = {
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
+  sellerLastActivityAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -379,6 +387,7 @@ export type SessionOrderByWithRelationInput = {
   mfaVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerUnlockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerUnlockedForId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerLastActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -409,6 +418,7 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
+  sellerLastActivityAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -435,6 +445,7 @@ export type SessionOrderByWithAggregationInput = {
   mfaVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerUnlockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerUnlockedForId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerLastActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -468,6 +479,7 @@ export type SessionScalarWhereWithAggregatesInput = {
   mfaVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   sellerUnlockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   sellerUnlockedForId?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
+  sellerLastActivityAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
@@ -492,6 +504,7 @@ export type SessionCreateInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -518,6 +531,7 @@ export type SessionUncheckedCreateInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -542,6 +556,7 @@ export type SessionUpdateInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -568,6 +583,7 @@ export type SessionUncheckedUpdateInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -593,6 +609,7 @@ export type SessionCreateManyInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -617,6 +634,7 @@ export type SessionUpdateManyMutationInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -642,6 +660,7 @@ export type SessionUncheckedUpdateManyInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -683,6 +702,7 @@ export type SessionCountOrderByAggregateInput = {
   mfaVerifiedAt?: Prisma.SortOrder
   sellerUnlockedAt?: Prisma.SortOrder
   sellerUnlockedForId?: Prisma.SortOrder
+  sellerLastActivityAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -714,6 +734,7 @@ export type SessionMaxOrderByAggregateInput = {
   mfaVerifiedAt?: Prisma.SortOrder
   sellerUnlockedAt?: Prisma.SortOrder
   sellerUnlockedForId?: Prisma.SortOrder
+  sellerLastActivityAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -739,6 +760,7 @@ export type SessionMinOrderByAggregateInput = {
   mfaVerifiedAt?: Prisma.SortOrder
   sellerUnlockedAt?: Prisma.SortOrder
   sellerUnlockedForId?: Prisma.SortOrder
+  sellerLastActivityAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -827,6 +849,7 @@ export type SessionCreateWithoutUserInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -851,6 +874,7 @@ export type SessionUncheckedCreateWithoutUserInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -905,6 +929,7 @@ export type SessionScalarWhereInput = {
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
+  sellerLastActivityAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -929,6 +954,7 @@ export type SessionCreateManyUserInput = {
   mfaVerifiedAt?: Date | string | null
   sellerUnlockedAt?: Date | string | null
   sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -953,6 +979,7 @@ export type SessionUpdateWithoutUserInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -977,6 +1004,7 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1001,6 +1029,7 @@ export type SessionUncheckedUpdateManyWithoutUserInput = {
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1028,6 +1057,7 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   mfaVerifiedAt?: boolean
   sellerUnlockedAt?: boolean
   sellerUnlockedForId?: boolean
+  sellerLastActivityAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -1056,6 +1086,7 @@ export type SessionSelectScalar = {
   mfaVerifiedAt?: boolean
   sellerUnlockedAt?: boolean
   sellerUnlockedForId?: boolean
+  sellerLastActivityAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -1065,7 +1096,7 @@ export type SessionSelectScalar = {
   lastUsedAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "familyStartedAt" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "sellerLastActivityAt" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "familyStartedAt" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1148,6 +1179,14 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     sellerUnlockedAt: Date | null
     sellerUnlockedForId: string | null
+    /**
+     * The last time this session did something in the Seller Hub that a person
+     * did on purpose - a change, or a page they opened - as opposed to a badge
+     * polling in a background tab. The Hub re-locks after
+     * SELLER_HUB_IDLE_TIMEOUT_SECONDS without one, on the server, whatever any
+     * browser tab believes. Null while the Hub is locked.
+     */
+    sellerLastActivityAt: Date | null
     expiresAt: Date
     revokedAt: Date | null
     revokedReason: string | null
@@ -1555,6 +1594,7 @@ export interface SessionFieldRefs {
   readonly mfaVerifiedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly sellerUnlockedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly sellerUnlockedForId: Prisma.FieldRef<"Session", 'String'>
+  readonly sellerLastActivityAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedReason: Prisma.FieldRef<"Session", 'String'>

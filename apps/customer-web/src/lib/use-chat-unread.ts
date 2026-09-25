@@ -15,7 +15,7 @@ export function useChatUnreadCount(): number {
   const { isCustomer } = useSession();
   const unread = useQuery({
     queryKey: chatKeys.unread,
-    queryFn: fetchUnreadChats,
+    queryFn: () => fetchUnreadChats(),
     enabled: isCustomer,
     refetchInterval: 60_000,
     refetchIntervalInBackground: false,

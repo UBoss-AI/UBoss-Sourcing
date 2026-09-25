@@ -104,7 +104,9 @@ function BrandMark(): React.JSX.Element {
       // shrink pushes the cart off a phone instead of letting the name
       // truncate. The logo plate keeps its own `shrink-0`, so what gives way
       // is the wording and never the mark.
-      className="-mx-2 flex min-w-0 shrink items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover sm:gap-3"
+      // On a phone the hover box stops 6px short on the right, not 8, so it
+      // never reaches under the first control across the 6px row gap.
+      className="-mx-2 flex min-w-0 shrink items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover max-sm:-mr-1.5 max-sm:pr-1.5 sm:gap-3.5"
     >
       {business.logo === null ? (
         // No logo uploaded, so the mark is the earth - the same object the
@@ -131,12 +133,17 @@ function BrandMark(): React.JSX.Element {
       <span className="flex min-w-0 flex-col leading-tight">
         <span
           className={cx(
-            'truncate text-ink',
-            // The script wordmark a step up and in its real Bold: its short
-            // x-height reads a size smaller than Inter at the same number.
+            'truncate',
+            // The script wordmark in its real Bold and its own colour token
+            // (`brand-wordmark`: near-white with a soft glow on the dark
+            // header). 17px on a phone - the most a 375px row leaves beside five
+            // controls - and 23px from `sm`; its short x-height
+            // reads a size smaller than Inter at the same number. The line box
+            // grows by 2px and the tagline's shrinks by 2px, so the header is
+            // exactly as tall as it was.
             isProductBrand
-              ? 'font-brand text-xl font-bold leading-6'
-              : 'text-base font-semibold tracking-tight',
+              ? 'brand-wordmark font-brand text-[1.0625rem] font-bold leading-6 sm:text-[1.4375rem] sm:leading-[1.625rem]'
+              : 'text-base font-semibold tracking-tight text-ink',
           )}
         >
           {business.displayName}
@@ -153,10 +160,13 @@ function BrandMark(): React.JSX.Element {
             // ordinary face: it is translated, Greek included, and the script
             // is bundled as Latin only.
             className={cx(
-              'hidden truncate text-ink-subtle',
+              'hidden truncate',
               seller === undefined
-                ? 'font-brand text-sm font-bold leading-5 lg:block'
-                : 'text-xxs font-medium uppercase tracking-[0.14em] sm:block',
+                ? // `brand-tagline`: a very light blue on the dark header, where
+                  // ink-subtle read as faint grey. 15px, a step under the
+                  // wordmark so it never competes with it.
+                  'brand-tagline font-brand text-[0.9375rem] font-bold leading-[1.125rem] lg:block'
+                : 'text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle sm:block',
             )}
           >
             {/*
@@ -249,7 +259,7 @@ export function Header(): React.JSX.Element {
        * product reflows*. The brand is already truncating at this width, so
        * widening the gap only moves where the ellipsis falls.
        */}
-      <div className="mx-auto flex max-w-content items-center gap-2 px-4 py-3 [@media(max-height:480px)]:py-1.5 sm:gap-6">
+      <div className="mx-auto flex max-w-content items-center gap-1.5 px-4 py-3 [@media(max-height:480px)]:py-1.5 sm:gap-6">
         <BrandMark />
 
         {/*

@@ -2,10 +2,10 @@
  * Preorder chat: the customer's side.
  *
  * A signed-in customer asking the OPERATOR's team about a preorder, from the
- * product page. Every route here but `/availability` needs a customer session,
- * and every conversation route narrows to that customer's own profile INSIDE
- * the query - another customer's conversation id answers exactly as a missing
- * one does. There is no seller route anywhere that reaches these tables.
+ * product page. Every route here but `/availability` and the two `/assistant`
+ * routes needs a customer session, and every conversation route narrows to
+ * that customer's own profile INSIDE the query - another customer's
+ * conversation id answers exactly as a missing one does. There is no seller route anywhere that reaches these tables.
  *
  * Writes go over REST, which is where authorisation, validation, the
  * transaction and the acknowledgement live. The socket at `/socket` only
@@ -25,19 +25,31 @@ import {
   redeemAttachmentLink,
   uploadAttachment,
 } from '../../modules/preorder-chat/attachment.service.js';
-import { chatContextInputSchema } from '../../modules/preorder-chat/context.service.js';
+import { answerFaq } from '../../modules/preorder-chat/assistant/answers.js';
+import { FAQ_IDS, activeFaqEntries } from '../../modules/preorder-chat/assistant/catalogue.js';
+import {
+  customerFirstName,
+  gatherFaqFacts,
+  signAnswer,
+} from '../../modules/preorder-chat/assistant/facts.service.js';
+import {
+  buildChatContext,
+  chatContextInputSchema,
+} from '../../modules/preorder-chat/context.service.js';
 import {
   continueCustomerChat,
   customerSendSchema,
   customerStartSchema,
   customerUnreadTotal,
   getCustomerConversation,
+  handoffSchema,
   historyQuerySchema,
   listCustomerConversations,
   listCustomerMessages,
   markCustomerRead,
   previewCustomerChat,
   readSchema,
+  requestHumanHandoff,
   startOrContinueCustomerChat,
   type CustomerActor,
 } from '../../modules/preorder-chat/conversation.service.js';
@@ -50,7 +62,7 @@ import {
   submittedSchema,
 } from '../../modules/preorder-chat/proposal.service.js';
 import { CloseCode } from '../../modules/preorder-chat/realtime/gateway.js';
-import { currentUser, requireCustomer } from '../plugins/auth.js';
+import { currentUser, optionalCustomer, requireCustomer } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 const proposalParams = z.object({ id: z.string().length(26), proposalId: z.string().length(26) });
@@ -216,6 +228,85 @@ export function registerPreorderChatRoutes(app: FastifyInstance): Promise<void> 
   );
 
   /**
+   * The preorder assistant, before anybody writes anything. Public: a guest
+   * can read the common answers without signing in. The questions offered, in
+   * order, and what the greeting may say - the product's name as the server
+   * reads it, and a signed-in customer's first name. Creates nothing.
+   */
+  app.post(
+    '/assistant',
+    { preHandler: optionalCustomer, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const { context } = z.object({ context: chatContextInputSchema }).strict().parse(request.body);
+      const built = await buildChatContext(context);
+      const profileId = request.auth?.customerProfileId ?? null;
+      return reply
+        .header('cache-control', 'no-store')
+        .status(200)
+        .send({
+          greeting: {
+            firstName: await customerFirstName(profileId),
+            productName: built.snapshot.product.name,
+            variantName: built.snapshot.variant?.name ?? null,
+          },
+          questions: activeFaqEntries().map((entry) => ({
+            id: entry.id,
+            category: entry.category,
+            questionKey: entry.questionTranslationKey,
+            version: entry.version,
+            requiresHumanConfirmation: entry.requiresHumanConfirmation,
+          })),
+          signedIn: profileId !== null,
+        });
+    },
+  );
+
+  /**
+   * One automated answer, from the product's own preorder terms, verified
+   * loading, stock and delivery window - never a guessed figure. Signed, so
+   * the customer can carry it into a conversation if they ask for a person.
+   */
+  app.post(
+    '/assistant/answer',
+    { preHandler: optionalCustomer, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const input = z
+        .object({ context: chatContextInputSchema, faqId: z.enum(FAQ_IDS) })
+        .strict()
+        .parse(request.body);
+      const { built, facts } = await gatherFaqFacts(input.context, {
+        customerProfileId: request.auth?.customerProfileId ?? null,
+      });
+      const answer = answerFaq(input.faqId, facts);
+      if (answer === null) throw notFound('Question');
+      const askedAt = new Date().toISOString();
+      const token = signAnswer(
+        { productId: built.keys.productId, variantId: built.keys.variantId },
+        answer,
+        askedAt,
+      );
+      return reply.header('cache-control', 'no-store').status(200).send({ answer, askedAt, token });
+    },
+  );
+
+  /**
+   * "Connect with a human agent." Creates the conversation about this product,
+   * or reuses the live one, carries the answers the customer read into it and
+   * puts it in the team's queue as a request for a person. Retrying with the
+   * same `clientRequestId` returns what the first attempt stored.
+   */
+  app.post(
+    '/handoff',
+    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const input = handoffSchema.parse(request.body);
+      const outcome = await requestHumanHandoff(actorOf(request, input.locale), input);
+      await publish(outcome.events);
+      return reply.status(outcome.value.duplicate ? 200 : 201).send(outcome.value);
+    },
+  );
+
+  /**
    * Send the first message about a product - which starts the conversation -
    * or the next one, if a live conversation about it already exists. A resolved
    * conversation reopens. Retrying with the same `clientMessageId` returns the
@@ -243,12 +334,16 @@ export function registerPreorderChatRoutes(app: FastifyInstance): Promise<void> 
     return reply.status(200).send(await listCustomerConversations(actorOf(request), query));
   });
 
-  /** How many replies are waiting to be read, across every conversation. */
+  /**
+   * How many replies are waiting to be read, across every conversation - or,
+   * with a product id, across the conversations about that product only.
+   */
   app.get('/unread', { preHandler: requireCustomer }, async (request, reply) => {
+    const query = z.object({ productId: z.string().length(26).optional() }).parse(request.query ?? {});
     return reply
       .header('cache-control', 'no-store')
       .status(200)
-      .send({ unreadCount: await customerUnreadTotal(actorOf(request)) });
+      .send({ unreadCount: await customerUnreadTotal(actorOf(request), query.productId ?? null) });
   });
 
   /** One of the customer's own conversations. Another customer's answers 404. */

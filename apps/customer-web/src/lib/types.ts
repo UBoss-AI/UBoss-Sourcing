@@ -275,11 +275,51 @@ export interface PriceConversion {
   provider: string;
 }
 
+export const SPEC_GROUP_KEYS = [
+  'GENERAL',
+  'TECHNICAL',
+  'DIMENSIONS_WEIGHT',
+  'MATERIAL',
+  'PERFORMANCE',
+  'COMPATIBILITY',
+  'PACKAGING',
+  'CARTON',
+  'CONTAINER',
+  'COMPLIANCE',
+  'WARRANTY',
+  'IN_THE_BOX',
+  'MANUFACTURER',
+  'SELLER',
+  'ORIGIN',
+] as const;
+export type SpecGroupKey = (typeof SPEC_GROUP_KEYS)[number];
+
+export interface SpecRow {
+  label: string;
+  value: string;
+  unit: string | null;
+  highlight: boolean;
+}
+
+export interface SpecGroup {
+  group: SpecGroupKey;
+  rows: SpecRow[];
+}
+
+export interface DescriptionSection {
+  heading: string;
+  /** Plain text; line breaks are the seller's own. Never HTML. */
+  body: string;
+  image: { url: string; alt: string; width: number | null; height: number | null } | null;
+}
+
 export interface ProductVariant {
   id: string;
   sku: string;
   name: string;
   options: Record<string, string>;
+  /** This variant's specifications when any differ from the product's; null means the product's apply. */
+  specifications?: SpecGroup[] | null;
   price: Money | null;
   /** This size's own "was" price, quoted through the same destination. */
   compareAtPrice?: Money | null;
@@ -532,7 +572,11 @@ export interface Product {
   publishedAt: string | null;
   primaryImage: ProductImage | null;
   images: ProductImage[];
-  attributes: { name: string; value: string }[];
+  attributes: { name: string; value: string; group?: SpecGroupKey; unit?: string | null }[];
+  /** The same facts grouped in the fixed order, empties and duplicates left out. */
+  specifications?: SpecGroup[];
+  /** Plain-text sections, in the reader's language where one exists. */
+  descriptionSections?: DescriptionSection[];
   variants: ProductVariant[];
   /**
    * GPSR Art. 19 information, when the catalogue carries it.
@@ -1109,6 +1153,11 @@ export interface OrderListItem {
 export interface OrderItem {
   /** The order line's own id, not the product's. */
   id: string;
+  /**
+   * What was bought, as it was described when the order was placed. Null on
+   * an order from before these were kept; optional for an older server.
+   */
+  productInfo?: import('./seller').OrderedProductInfo | null;
   /** What to add back to a cart on reorder. */
   productId: string;
   variantId: string | null;
@@ -1312,6 +1361,15 @@ export type PaymentInstrument = 'CREDIT_CARD' | 'DEBIT_CARD' | 'UPI';
 export interface InstrumentOffer {
   instrument: PaymentInstrument;
   /**
+   * The card is typed or chosen on the gateway's own page - Stripe Checkout.
+   *
+   * This storefront then shows neither its own "save this card" tick nor its
+   * own list of saved cards: Stripe's page offers both, and a second copy here
+   * would be the same promise made twice in two places that could disagree.
+   * Optional so an older server that does not send it reads as "no".
+   */
+  hostedCheckout?: boolean;
+  /**
    * Whether a card paid with here can be kept for next time.
    *
    * False for UPI, which produces nothing to keep, and false where the gateway
@@ -1415,8 +1473,45 @@ export interface PaymentSession {
    *   AWAIT_CONFIRMATION - it went through with no challenge. Nothing to do
    *                        but wait for the backend, which is still the only
    *                        thing that can say the order is paid.
+   *   REDIRECT           - Stripe Checkout. Send this tab to `redirectUrl`,
+   *                        Stripe's own page. The card is typed or chosen
+   *                        there, and nothing about it comes back here.
    */
-  next: 'OPEN_PROVIDER_UI' | 'AUTHENTICATE' | 'AWAIT_CONFIRMATION';
+  next: 'OPEN_PROVIDER_UI' | 'AUTHENTICATE' | 'AWAIT_CONFIRMATION' | 'REDIRECT';
+  /** Stripe Checkout: the hosted page, when `next` is REDIRECT. */
+  redirectUrl?: string | null;
+  /** Stripe Checkout: the session, which the confirmation page is addressed by. */
+  checkoutSessionId?: string | null;
+  /** Stripe Checkout: when Stripe closes the page. ISO-8601. */
+  expiresAt?: string | null;
+}
+
+/**
+ * Where a Stripe Checkout payment stands, from the confirmation endpoint.
+ *
+ * Read from the backend's records, which only Stripe's signed webhook - or
+ * Stripe's own API, asked by the server - ever advances. Nothing about the
+ * browser's return from Stripe is evidence of any of it.
+ */
+export interface CheckoutConfirmation {
+  state: 'CONFIRMING' | 'SUCCEEDED' | 'PROCESSING' | 'FAILED' | 'CANCELLED' | 'EXPIRED';
+  orderId: string;
+  orderNumber: string;
+  orderStatus: string;
+  amount: Money;
+  paidAt: string | null;
+  /** Brand and last four only. There is nothing else to show, by design. */
+  card: { brand: string | null; last4: string } | null;
+  failureReason:
+    | 'DECLINED'
+    | 'INSUFFICIENT_FUNDS'
+    | 'EXPIRED_CARD'
+    | 'INCORRECT_CVC'
+    | 'AUTHENTICATION_FAILED'
+    | 'BANK_PAYMENT_FAILED'
+    | 'OTHER'
+    | null;
+  canRetry: boolean;
 }
 
 /** What `POST /cart/checkout` returns. */

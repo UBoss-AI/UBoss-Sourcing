@@ -279,6 +279,21 @@ export function StaffIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * The company's own profile. An identity card: a portrait beside two lines,
+ * so it reads as "who we are" rather than as a member of staff.
+ */
+export function ProfileIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="3.2" y="5" width="17.6" height="14" rx="2.2" />
+      <circle cx="8.8" cy="11" r="2.1" />
+      <path d="M5.8 16.2a3.3 3.3 0 0 1 6 0" />
+      <path d="M14 10h3.8M14 13.4h3" />
+    </Icon>
+  );
+}
+
 export function SettingsIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

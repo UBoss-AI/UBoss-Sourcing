@@ -6,6 +6,7 @@
  * on the server; the inbox never loads a conversation's history until it is
  * opened.
  */
+import type { FaqAnswer } from './preorder-assistant';
 import { api, BASE_URL, downloadFile } from './api';
 import { newIdempotencyKey } from './forms';
 
@@ -36,6 +37,7 @@ export const CHAT_PRIORITIES: readonly ChatPriority[] = ['LOW', 'NORMAL', 'HIGH'
 export const INBOX_FILTERS = [
   'all',
   'unassigned',
+  'human_requested',
   'mine',
   'unread',
   'priority',
@@ -72,12 +74,17 @@ export interface InboxConversation {
   assignedTo: { id: string; email: string } | null;
   tags: string[];
   lastMessagePreview: string | null;
-  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | null;
+  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION' | null;
   lastMessageAt: string;
   unreadCount: number;
   awaitingReplySince: string | null;
   waitingMinutes: number | null;
   reopenCount: number;
+  /**
+   * The customer asked the preorder assistant for a person. `waiting` until a
+   * member of staff replies after the request; the time and topic stay.
+   */
+  handoff: { requestedAt: string; topic: string | null; waiting: boolean } | null;
   createdAt: string;
 }
 
@@ -142,14 +149,24 @@ export interface ChatProposal {
 export interface StaffMessage {
   id: string;
   seq: number;
-  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM';
+  /** AUTOMATION is the preorder assistant: never a member of staff. */
+  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION';
   senderName?: string | null;
   senderUserId?: string | null;
-  messageType: 'TEXT' | 'ATTACHMENT' | 'SYSTEM_EVENT' | 'STRUCTURED_OFFER';
+  messageType:
+    | 'TEXT'
+    | 'ATTACHMENT'
+    | 'SYSTEM_EVENT'
+    | 'STRUCTURED_OFFER'
+    | 'FAQ_QUESTION'
+    | 'AUTOMATED_REPLY'
+    | 'HANDOFF_REQUEST';
   body: string;
   systemEvent: string | null;
   systemMeta: Record<string, string | number | boolean | null>;
   proposal: ChatProposal | null;
+  /** For AUTOMATED_REPLY: the answer exactly as the customer was shown it. */
+  automation?: FaqAnswer | null;
   attachment: { id: string; fileName: string; contentType: string; byteSize: number; downloadable: boolean } | null;
   createdAt: string;
   deliveredAt: string | null;

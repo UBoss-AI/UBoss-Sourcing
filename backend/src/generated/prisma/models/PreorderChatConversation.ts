@@ -96,6 +96,8 @@ export type PreorderChatConversationMinAggregateOutputType = {
   slaAlertedAt: Date | null
   resolvedAt: Date | null
   closedAt: Date | null
+  handoffRequestedAt: Date | null
+  handoffTopic: string | null
   reopenCount: number | null
   version: number | null
   createdAt: Date | null
@@ -142,6 +144,8 @@ export type PreorderChatConversationMaxAggregateOutputType = {
   slaAlertedAt: Date | null
   resolvedAt: Date | null
   closedAt: Date | null
+  handoffRequestedAt: Date | null
+  handoffTopic: string | null
   reopenCount: number | null
   version: number | null
   createdAt: Date | null
@@ -190,6 +194,8 @@ export type PreorderChatConversationCountAggregateOutputType = {
   slaAlertedAt: number
   resolvedAt: number
   closedAt: number
+  handoffRequestedAt: number
+  handoffTopic: number
   reopenCount: number
   version: number
   createdAt: number
@@ -268,6 +274,8 @@ export type PreorderChatConversationMinAggregateInputType = {
   slaAlertedAt?: true
   resolvedAt?: true
   closedAt?: true
+  handoffRequestedAt?: true
+  handoffTopic?: true
   reopenCount?: true
   version?: true
   createdAt?: true
@@ -314,6 +322,8 @@ export type PreorderChatConversationMaxAggregateInputType = {
   slaAlertedAt?: true
   resolvedAt?: true
   closedAt?: true
+  handoffRequestedAt?: true
+  handoffTopic?: true
   reopenCount?: true
   version?: true
   createdAt?: true
@@ -362,6 +372,8 @@ export type PreorderChatConversationCountAggregateInputType = {
   slaAlertedAt?: true
   resolvedAt?: true
   closedAt?: true
+  handoffRequestedAt?: true
+  handoffTopic?: true
   reopenCount?: true
   version?: true
   createdAt?: true
@@ -497,6 +509,8 @@ export type PreorderChatConversationGroupByOutputType = {
   slaAlertedAt: Date | null
   resolvedAt: Date | null
   closedAt: Date | null
+  handoffRequestedAt: Date | null
+  handoffTopic: string | null
   reopenCount: number
   version: number
   createdAt: Date
@@ -568,6 +582,8 @@ export type PreorderChatConversationWhereInput = {
   slaAlertedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   resolvedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffRequestedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffTopic?: Prisma.StringNullableFilter<"PreorderChatConversation"> | string | null
   reopenCount?: Prisma.IntFilter<"PreorderChatConversation"> | number
   version?: Prisma.IntFilter<"PreorderChatConversation"> | number
   createdAt?: Prisma.DateTimeFilter<"PreorderChatConversation"> | Date | string
@@ -624,6 +640,8 @@ export type PreorderChatConversationOrderByWithRelationInput = {
   slaAlertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handoffRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handoffTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   reopenCount?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -684,6 +702,8 @@ export type PreorderChatConversationWhereUniqueInput = Prisma.AtLeast<{
   slaAlertedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   resolvedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffRequestedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffTopic?: Prisma.StringNullableFilter<"PreorderChatConversation"> | string | null
   reopenCount?: Prisma.IntFilter<"PreorderChatConversation"> | number
   version?: Prisma.IntFilter<"PreorderChatConversation"> | number
   createdAt?: Prisma.DateTimeFilter<"PreorderChatConversation"> | Date | string
@@ -740,6 +760,8 @@ export type PreorderChatConversationOrderByWithAggregationInput = {
   slaAlertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handoffRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handoffTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   reopenCount?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -796,6 +818,8 @@ export type PreorderChatConversationScalarWhereWithAggregatesInput = {
   slaAlertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatConversation"> | Date | string | null
   resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatConversation"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatConversation"> | Date | string | null
+  handoffRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PreorderChatConversation"> | Date | string | null
+  handoffTopic?: Prisma.StringNullableWithAggregatesFilter<"PreorderChatConversation"> | string | null
   reopenCount?: Prisma.IntWithAggregatesFilter<"PreorderChatConversation"> | number
   version?: Prisma.IntWithAggregatesFilter<"PreorderChatConversation"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PreorderChatConversation"> | Date | string
@@ -841,6 +865,8 @@ export type PreorderChatConversationCreateInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -897,6 +923,8 @@ export type PreorderChatConversationUncheckedCreateInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -947,6 +975,8 @@ export type PreorderChatConversationUpdateInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1003,6 +1033,8 @@ export type PreorderChatConversationUncheckedUpdateInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1056,6 +1088,8 @@ export type PreorderChatConversationCreateManyInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1101,6 +1135,8 @@ export type PreorderChatConversationUpdateManyMutationInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1149,6 +1185,8 @@ export type PreorderChatConversationUncheckedUpdateManyInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1213,6 +1251,8 @@ export type PreorderChatConversationCountOrderByAggregateInput = {
   slaAlertedAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  handoffRequestedAt?: Prisma.SortOrder
+  handoffTopic?: Prisma.SortOrder
   reopenCount?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1274,6 +1314,8 @@ export type PreorderChatConversationMaxOrderByAggregateInput = {
   slaAlertedAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  handoffRequestedAt?: Prisma.SortOrder
+  handoffTopic?: Prisma.SortOrder
   reopenCount?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1320,6 +1362,8 @@ export type PreorderChatConversationMinOrderByAggregateInput = {
   slaAlertedAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  handoffRequestedAt?: Prisma.SortOrder
+  handoffTopic?: Prisma.SortOrder
   reopenCount?: Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1593,6 +1637,8 @@ export type PreorderChatConversationCreateWithoutAssignedAdminInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1647,6 +1693,8 @@ export type PreorderChatConversationUncheckedCreateWithoutAssignedAdminInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1729,6 +1777,8 @@ export type PreorderChatConversationScalarWhereInput = {
   slaAlertedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   resolvedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
   closedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffRequestedAt?: Prisma.DateTimeNullableFilter<"PreorderChatConversation"> | Date | string | null
+  handoffTopic?: Prisma.StringNullableFilter<"PreorderChatConversation"> | string | null
   reopenCount?: Prisma.IntFilter<"PreorderChatConversation"> | number
   version?: Prisma.IntFilter<"PreorderChatConversation"> | number
   createdAt?: Prisma.DateTimeFilter<"PreorderChatConversation"> | Date | string
@@ -1774,6 +1824,8 @@ export type PreorderChatConversationCreateWithoutCustomerProfileInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1828,6 +1880,8 @@ export type PreorderChatConversationUncheckedCreateWithoutCustomerProfileInput =
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1904,6 +1958,8 @@ export type PreorderChatConversationCreateWithoutPreorderRequestInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -1958,6 +2014,8 @@ export type PreorderChatConversationUncheckedCreateWithoutPreorderRequestInput =
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2034,6 +2092,8 @@ export type PreorderChatConversationCreateWithoutParticipantsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2089,6 +2149,8 @@ export type PreorderChatConversationUncheckedCreateWithoutParticipantsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2154,6 +2216,8 @@ export type PreorderChatConversationUpdateWithoutParticipantsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2209,6 +2273,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutParticipantsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2258,6 +2324,8 @@ export type PreorderChatConversationCreateWithoutMessagesInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2313,6 +2381,8 @@ export type PreorderChatConversationUncheckedCreateWithoutMessagesInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2378,6 +2448,8 @@ export type PreorderChatConversationUpdateWithoutMessagesInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2433,6 +2505,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutMessagesInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2482,6 +2556,8 @@ export type PreorderChatConversationCreateWithoutNotesInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2537,6 +2613,8 @@ export type PreorderChatConversationUncheckedCreateWithoutNotesInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2602,6 +2680,8 @@ export type PreorderChatConversationUpdateWithoutNotesInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2657,6 +2737,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutNotesInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2706,6 +2788,8 @@ export type PreorderChatConversationCreateWithoutProposalsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2761,6 +2845,8 @@ export type PreorderChatConversationUncheckedCreateWithoutProposalsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2826,6 +2912,8 @@ export type PreorderChatConversationUpdateWithoutProposalsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2881,6 +2969,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutProposalsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2930,6 +3020,8 @@ export type PreorderChatConversationCreateWithoutAttachmentsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -2985,6 +3077,8 @@ export type PreorderChatConversationUncheckedCreateWithoutAttachmentsInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -3050,6 +3144,8 @@ export type PreorderChatConversationUpdateWithoutAttachmentsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3105,6 +3201,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutAttachmentsInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3156,6 +3254,8 @@ export type PreorderChatConversationCreateManyAssignedAdminInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -3201,6 +3301,8 @@ export type PreorderChatConversationUpdateWithoutAssignedAdminInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3255,6 +3357,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutAssignedAdminInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3307,6 +3411,8 @@ export type PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminInput
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3354,6 +3460,8 @@ export type PreorderChatConversationCreateManyCustomerProfileInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -3399,6 +3507,8 @@ export type PreorderChatConversationUpdateWithoutCustomerProfileInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3453,6 +3563,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutCustomerProfileInput =
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3505,6 +3617,8 @@ export type PreorderChatConversationUncheckedUpdateManyWithoutCustomerProfileInp
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3552,6 +3666,8 @@ export type PreorderChatConversationCreateManyPreorderRequestInput = {
   slaAlertedAt?: Date | string | null
   resolvedAt?: Date | string | null
   closedAt?: Date | string | null
+  handoffRequestedAt?: Date | string | null
+  handoffTopic?: string | null
   reopenCount?: number
   version?: number
   createdAt?: Date | string
@@ -3597,6 +3713,8 @@ export type PreorderChatConversationUpdateWithoutPreorderRequestInput = {
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3651,6 +3769,8 @@ export type PreorderChatConversationUncheckedUpdateWithoutPreorderRequestInput =
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3703,6 +3823,8 @@ export type PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestInp
   slaAlertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handoffTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reopenCount?: Prisma.IntFieldUpdateOperationsInput | number
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3818,6 +3940,8 @@ export type PreorderChatConversationSelect<ExtArgs extends runtime.Types.Extensi
   slaAlertedAt?: boolean
   resolvedAt?: boolean
   closedAt?: boolean
+  handoffRequestedAt?: boolean
+  handoffTopic?: boolean
   reopenCount?: boolean
   version?: boolean
   createdAt?: boolean
@@ -3877,13 +4001,15 @@ export type PreorderChatConversationSelectScalar = {
   slaAlertedAt?: boolean
   resolvedAt?: boolean
   closedAt?: boolean
+  handoffRequestedAt?: boolean
+  handoffTopic?: boolean
   reopenCount?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PreorderChatConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "startedByUserId" | "productId" | "variantId" | "variantKey" | "sellerAccountId" | "offerId" | "preorderRequestId" | "preorderKey" | "activeKey" | "status" | "priority" | "assignedAdminId" | "assignedAt" | "customerLocale" | "contextSnapshotJson" | "productName" | "productSku" | "sellerName" | "tagsJson" | "lastSequence" | "customerMessageCount" | "staffMessageCount" | "customerReadStaffCount" | "staffReadCustomerCount" | "customerDeliveredSeq" | "customerReadSeq" | "staffDeliveredSeq" | "staffReadSeq" | "lastMessagePreview" | "lastMessageSender" | "lastMessageAt" | "lastCustomerMessageAt" | "lastStaffMessageAt" | "awaitingReplySince" | "firstResponseAt" | "customerEmailedSeq" | "slaAlertedAt" | "resolvedAt" | "closedAt" | "reopenCount" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderChatConversation"]>
+export type PreorderChatConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "startedByUserId" | "productId" | "variantId" | "variantKey" | "sellerAccountId" | "offerId" | "preorderRequestId" | "preorderKey" | "activeKey" | "status" | "priority" | "assignedAdminId" | "assignedAt" | "customerLocale" | "contextSnapshotJson" | "productName" | "productSku" | "sellerName" | "tagsJson" | "lastSequence" | "customerMessageCount" | "staffMessageCount" | "customerReadStaffCount" | "staffReadCustomerCount" | "customerDeliveredSeq" | "customerReadSeq" | "staffDeliveredSeq" | "staffReadSeq" | "lastMessagePreview" | "lastMessageSender" | "lastMessageAt" | "lastCustomerMessageAt" | "lastStaffMessageAt" | "awaitingReplySince" | "firstResponseAt" | "customerEmailedSeq" | "slaAlertedAt" | "resolvedAt" | "closedAt" | "handoffRequestedAt" | "handoffTopic" | "reopenCount" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderChatConversation"]>
 export type PreorderChatConversationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   assignedAdmin?: boolean | Prisma.PreorderChatConversation$assignedAdminArgs<ExtArgs>
@@ -4040,6 +4166,17 @@ export type $PreorderChatConversationPayload<ExtArgs extends runtime.Types.Exten
     slaAlertedAt: Date | null
     resolvedAt: Date | null
     closedAt: Date | null
+    /**
+     * When the customer last asked the assistant for a person. NULL when they
+     * never did - they wrote to the team directly instead. The queue shows it
+     * as "Human assistance requested" until a member of staff replies after
+     * it; it is not a status, for the same reason assignment is not one.
+     */
+    handoffRequestedAt: Date | null
+    /**
+     * The common question they were on when they asked, or NULL.
+     */
+    handoffTopic: string | null
     /**
      * Times it went from RESOLVED back to OPEN.
      */
@@ -4468,6 +4605,8 @@ export interface PreorderChatConversationFieldRefs {
   readonly slaAlertedAt: Prisma.FieldRef<"PreorderChatConversation", 'DateTime'>
   readonly resolvedAt: Prisma.FieldRef<"PreorderChatConversation", 'DateTime'>
   readonly closedAt: Prisma.FieldRef<"PreorderChatConversation", 'DateTime'>
+  readonly handoffRequestedAt: Prisma.FieldRef<"PreorderChatConversation", 'DateTime'>
+  readonly handoffTopic: Prisma.FieldRef<"PreorderChatConversation", 'String'>
   readonly reopenCount: Prisma.FieldRef<"PreorderChatConversation", 'Int'>
   readonly version: Prisma.FieldRef<"PreorderChatConversation", 'Int'>
   readonly createdAt: Prisma.FieldRef<"PreorderChatConversation", 'DateTime'>

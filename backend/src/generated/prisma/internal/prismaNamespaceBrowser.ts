@@ -73,6 +73,8 @@ export const ModelName = {
   ProductVariantMedia: 'ProductVariantMedia',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
+  ProductVariantAttribute: 'ProductVariantAttribute',
+  ProductDescriptionSection: 'ProductDescriptionSection',
   ProductPackaging: 'ProductPackaging',
   ProductPackDimension: 'ProductPackDimension',
   ProductImportRecord: 'ProductImportRecord',
@@ -100,6 +102,7 @@ export const ModelName = {
   RecurringScheduleItem: 'RecurringScheduleItem',
   ScheduleOccurrence: 'ScheduleOccurrence',
   CustomerPaymentMethod: 'CustomerPaymentMethod',
+  PaymentProviderCustomer: 'PaymentProviderCustomer',
   ErpOrderPush: 'ErpOrderPush',
   FulfilmentQuote: 'FulfilmentQuote',
   Shipment: 'Shipment',
@@ -213,6 +216,8 @@ export const ModelName = {
   SellerLogisticsRelationshipEvent: 'SellerLogisticsRelationshipEvent',
   SellerLogisticsPartnerInvitation: 'SellerLogisticsPartnerInvitation',
   LogisticsPartner: 'LogisticsPartner',
+  LogisticsPartnerProfileChange: 'LogisticsPartnerProfileChange',
+  LogisticsPartnerDocument: 'LogisticsPartnerDocument',
   LogisticsPartnerUser: 'LogisticsPartnerUser',
   LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
   LogisticsServiceRegion: 'LogisticsServiceRegion',
@@ -395,6 +400,7 @@ export const SessionScalarFieldEnum = {
   mfaVerifiedAt: 'mfaVerifiedAt',
   sellerUnlockedAt: 'sellerUnlockedAt',
   sellerUnlockedForId: 'sellerUnlockedForId',
+  sellerLastActivityAt: 'sellerLastActivityAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -731,10 +737,43 @@ export const ProductAttributeScalarFieldEnum = {
   name: 'name',
   value: 'value',
   sortOrder: 'sortOrder',
-  isFilterable: 'isFilterable'
+  isFilterable: 'isFilterable',
+  groupKey: 'groupKey',
+  unit: 'unit',
+  isHighlight: 'isHighlight'
 } as const
 
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductVariantAttributeScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  name: 'name',
+  value: 'value',
+  unit: 'unit',
+  groupKey: 'groupKey',
+  sortOrder: 'sortOrder'
+} as const
+
+export type ProductVariantAttributeScalarFieldEnum = (typeof ProductVariantAttributeScalarFieldEnum)[keyof typeof ProductVariantAttributeScalarFieldEnum]
+
+
+export const ProductDescriptionSectionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  heading: 'heading',
+  body: 'body',
+  imageMediaId: 'imageMediaId',
+  altText: 'altText',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductDescriptionSectionScalarFieldEnum = (typeof ProductDescriptionSectionScalarFieldEnum)[keyof typeof ProductDescriptionSectionScalarFieldEnum]
 
 
 export const ProductPackagingScalarFieldEnum = {
@@ -1103,6 +1142,8 @@ export const OrderItemScalarFieldEnum = {
   discountMinor: 'discountMinor',
   lineTotalMinor: 'lineTotalMinor',
   isRecurringEligibleSnapshot: 'isRecurringEligibleSnapshot',
+  productInfoSnapshotJson: 'productInfoSnapshotJson',
+  productInfoCapturedAt: 'productInfoCapturedAt',
   createdAt: 'createdAt'
 } as const
 
@@ -1194,6 +1235,13 @@ export const PaymentTransactionScalarFieldEnum = {
   failureMessage: 'failureMessage',
   idempotencyKey: 'idempotencyKey',
   mandateReference: 'mandateReference',
+  providerSessionId: 'providerSessionId',
+  sessionExpiresAt: 'sessionExpiresAt',
+  openAttemptKey: 'openAttemptKey',
+  cardBrand: 'cardBrand',
+  cardLast4: 'cardLast4',
+  disputedAt: 'disputedAt',
+  disputeReason: 'disputeReason',
   authorizedAt: 'authorizedAt',
   capturedAt: 'capturedAt',
   failedAt: 'failedAt',
@@ -1404,6 +1452,19 @@ export const CustomerPaymentMethodScalarFieldEnum = {
 } as const
 
 export type CustomerPaymentMethodScalarFieldEnum = (typeof CustomerPaymentMethodScalarFieldEnum)[keyof typeof CustomerPaymentMethodScalarFieldEnum]
+
+
+export const PaymentProviderCustomerScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  provider: 'provider',
+  mode: 'mode',
+  providerCustomerId: 'providerCustomerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentProviderCustomerScalarFieldEnum = (typeof PaymentProviderCustomerScalarFieldEnum)[keyof typeof PaymentProviderCustomerScalarFieldEnum]
 
 
 export const ErpOrderPushScalarFieldEnum = {
@@ -3085,6 +3146,7 @@ export const SellerListingDraftScalarFieldEnum = {
   packagingJson: 'packagingJson',
   variantAxesJson: 'variantAxesJson',
   variantsJson: 'variantsJson',
+  listingContentJson: 'listingContentJson',
   generatedTitle: 'generatedTitle',
   generatedTitleSource: 'generatedTitleSource',
   sellerEditedTitle: 'sellerEditedTitle',
@@ -3827,6 +3889,24 @@ export const LogisticsPartnerScalarFieldEnum = {
   autoAssignEnabled: 'autoAssignEnabled',
   carrierIntegrationId: 'carrierIntegrationId',
   internalNotes: 'internalNotes',
+  logoStorageKey: 'logoStorageKey',
+  operationalAddressJson: 'operationalAddressJson',
+  businessDescription: 'businessDescription',
+  primaryContactName: 'primaryContactName',
+  primaryContactTitle: 'primaryContactTitle',
+  emergencyContactName: 'emergencyContactName',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  billingContactName: 'billingContactName',
+  billingEmail: 'billingEmail',
+  billingPhone: 'billingPhone',
+  operatingHoursJson: 'operatingHoursJson',
+  timeZone: 'timeZone',
+  declaredTransportModesJson: 'declaredTransportModesJson',
+  hubLocationsJson: 'hubLocationsJson',
+  verificationState: 'verificationState',
+  verifiedAt: 'verifiedAt',
+  verifiedByUserId: 'verifiedByUserId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -3834,6 +3914,48 @@ export const LogisticsPartnerScalarFieldEnum = {
 } as const
 
 export type LogisticsPartnerScalarFieldEnum = (typeof LogisticsPartnerScalarFieldEnum)[keyof typeof LogisticsPartnerScalarFieldEnum]
+
+
+export const LogisticsPartnerProfileChangeScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  state: 'state',
+  pendingKey: 'pendingKey',
+  proposedJson: 'proposedJson',
+  currentJson: 'currentJson',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  requestedAt: 'requestedAt',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsPartnerProfileChangeScalarFieldEnum = (typeof LogisticsPartnerProfileChangeScalarFieldEnum)[keyof typeof LogisticsPartnerProfileChangeScalarFieldEnum]
+
+
+export const LogisticsPartnerDocumentScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  expiresOn: 'expiresOn',
+  reviewState: 'reviewState',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewedAt: 'reviewedAt',
+  rejectionReason: 'rejectionReason',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByLabel: 'uploadedByLabel',
+  createdAt: 'createdAt',
+  supersededAt: 'supersededAt'
+} as const
+
+export type LogisticsPartnerDocumentScalarFieldEnum = (typeof LogisticsPartnerDocumentScalarFieldEnum)[keyof typeof LogisticsPartnerDocumentScalarFieldEnum]
 
 
 export const LogisticsPartnerUserScalarFieldEnum = {
@@ -5509,6 +5631,8 @@ export const PreorderChatConversationScalarFieldEnum = {
   slaAlertedAt: 'slaAlertedAt',
   resolvedAt: 'resolvedAt',
   closedAt: 'closedAt',
+  handoffRequestedAt: 'handoffRequestedAt',
+  handoffTopic: 'handoffTopic',
   reopenCount: 'reopenCount',
   version: 'version',
   createdAt: 'createdAt',
@@ -6095,10 +6219,37 @@ export const ProductAttributeOrderByRelevanceFieldEnum = {
   id: 'id',
   productId: 'productId',
   name: 'name',
-  value: 'value'
+  value: 'value',
+  groupKey: 'groupKey',
+  unit: 'unit'
 } as const
 
 export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductVariantAttributeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  name: 'name',
+  value: 'value',
+  unit: 'unit',
+  groupKey: 'groupKey'
+} as const
+
+export type ProductVariantAttributeOrderByRelevanceFieldEnum = (typeof ProductVariantAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductVariantAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductDescriptionSectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  heading: 'heading',
+  body: 'body',
+  imageMediaId: 'imageMediaId',
+  altText: 'altText'
+} as const
+
+export type ProductDescriptionSectionOrderByRelevanceFieldEnum = (typeof ProductDescriptionSectionOrderByRelevanceFieldEnum)[keyof typeof ProductDescriptionSectionOrderByRelevanceFieldEnum]
 
 
 export const ProductPackagingOrderByRelevanceFieldEnum = {
@@ -6404,7 +6555,12 @@ export const PaymentTransactionOrderByRelevanceFieldEnum = {
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   idempotencyKey: 'idempotencyKey',
-  mandateReference: 'mandateReference'
+  mandateReference: 'mandateReference',
+  providerSessionId: 'providerSessionId',
+  openAttemptKey: 'openAttemptKey',
+  cardBrand: 'cardBrand',
+  cardLast4: 'cardLast4',
+  disputeReason: 'disputeReason'
 } as const
 
 export type PaymentTransactionOrderByRelevanceFieldEnum = (typeof PaymentTransactionOrderByRelevanceFieldEnum)[keyof typeof PaymentTransactionOrderByRelevanceFieldEnum]
@@ -6524,6 +6680,15 @@ export const CustomerPaymentMethodOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerPaymentMethodOrderByRelevanceFieldEnum = (typeof CustomerPaymentMethodOrderByRelevanceFieldEnum)[keyof typeof CustomerPaymentMethodOrderByRelevanceFieldEnum]
+
+
+export const PaymentProviderCustomerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  providerCustomerId: 'providerCustomerId'
+} as const
+
+export type PaymentProviderCustomerOrderByRelevanceFieldEnum = (typeof PaymentProviderCustomerOrderByRelevanceFieldEnum)[keyof typeof PaymentProviderCustomerOrderByRelevanceFieldEnum]
 
 
 export const ErpOrderPushOrderByRelevanceFieldEnum = {
@@ -8098,10 +8263,51 @@ export const LogisticsPartnerOrderByRelevanceFieldEnum = {
   suspensionReason: 'suspensionReason',
   carrierIntegrationId: 'carrierIntegrationId',
   internalNotes: 'internalNotes',
+  logoStorageKey: 'logoStorageKey',
+  businessDescription: 'businessDescription',
+  primaryContactName: 'primaryContactName',
+  primaryContactTitle: 'primaryContactTitle',
+  emergencyContactName: 'emergencyContactName',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  billingContactName: 'billingContactName',
+  billingEmail: 'billingEmail',
+  billingPhone: 'billingPhone',
+  timeZone: 'timeZone',
+  verifiedByUserId: 'verifiedByUserId',
   createdById: 'createdById'
 } as const
 
 export type LogisticsPartnerOrderByRelevanceFieldEnum = (typeof LogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  pendingKey: 'pendingKey',
+  requestedByUserId: 'requestedByUserId',
+  requestedByLabel: 'requestedByLabel',
+  decidedByUserId: 'decidedByUserId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum = (typeof LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerProfileChangeOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  reviewedByUserId: 'reviewedByUserId',
+  rejectionReason: 'rejectionReason',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedByLabel: 'uploadedByLabel'
+} as const
+
+export type LogisticsPartnerDocumentOrderByRelevanceFieldEnum = (typeof LogisticsPartnerDocumentOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerDocumentOrderByRelevanceFieldEnum]
 
 
 export const LogisticsPartnerUserOrderByRelevanceFieldEnum = {
@@ -9043,7 +9249,8 @@ export const PreorderChatConversationOrderByRelevanceFieldEnum = {
   productName: 'productName',
   productSku: 'productSku',
   sellerName: 'sellerName',
-  lastMessagePreview: 'lastMessagePreview'
+  lastMessagePreview: 'lastMessagePreview',
+  handoffTopic: 'handoffTopic'
 } as const
 
 export type PreorderChatConversationOrderByRelevanceFieldEnum = (typeof PreorderChatConversationOrderByRelevanceFieldEnum)[keyof typeof PreorderChatConversationOrderByRelevanceFieldEnum]

@@ -23,6 +23,7 @@
  * that a colleague is viewing: the server does not report either, so neither
  * is shown.
  */
+import { faqLineText, faqQuestionText } from '@/lib/preorder-assistant';
 import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -600,7 +601,10 @@ function Thread({
         authorOf: (item) =>
           item.kind === 'pending'
             ? 'me'
-            : item.message.messageType === 'TEXT' || item.message.messageType === 'ATTACHMENT'
+            : item.message.messageType === 'TEXT' ||
+                item.message.messageType === 'ATTACHMENT' ||
+                item.message.messageType === 'FAQ_QUESTION' ||
+                item.message.messageType === 'AUTOMATED_REPLY'
               ? item.message.senderType === 'ADMIN'
                 ? `admin-${item.message.senderUserId ?? item.message.senderName ?? ''}`
                 : item.message.senderType
@@ -816,11 +820,73 @@ const StaffBubble = memo(function StaffBubble({
   groupEnd: boolean;
   customerName: string;
 }): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
   const [redacting, setRedacting] = useState(false);
   const [reason, setReason] = useState('');
   const [error, setError] = useState<unknown>(null);
   const reasonId = useId();
+
+  // The customer asked the assistant for a person, on this topic.
+  if (message.messageType === 'HANDOFF_REQUEST') {
+    const topic = typeof message.systemMeta['topic'] === 'string' ? message.systemMeta['topic'] : null;
+    return (
+      <p className="py-1 text-center text-xxs font-semibold text-warning">
+        {topic === null
+          ? t('preorderChats.handoff.requested', { customer: customerName })
+          : t('preorderChats.handoff.requestedTopic', { customer: customerName, topic: faqQuestionText(topic, t) })}
+      </p>
+    );
+  }
+
+  // A question the customer picked from the assistant's list.
+  if (message.messageType === 'FAQ_QUESTION') {
+    return (
+      <div className="flex items-end gap-2">
+        <span className="w-7 shrink-0">{groupEnd && <ChatAvatar name={customerName} size="sm" />}</span>
+        <div className="flex min-w-0 max-w-[min(85%,40rem)] flex-col items-start">
+          {groupStart && <p className="mb-0.5 px-1 text-xxs font-medium text-ink-muted">{customerName}</p>}
+          <p className="min-w-0 max-w-full rounded-2xl bg-surface-sunken px-3 py-2 text-sm text-ink [overflow-wrap:anywhere]">
+            {faqQuestionText(message.systemEvent ?? '', t)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // The assistant's answer, as the customer read it: labelled automated, on
+  // the team's side, never with a colleague's name.
+  if (message.messageType === 'AUTOMATED_REPLY') {
+    return (
+      <div className="flex flex-row-reverse items-end gap-2">
+        <div className="flex min-w-0 max-w-[min(85%,40rem)] flex-col items-end">
+          {groupStart && (
+            <p className="mb-0.5 flex items-center gap-1.5 px-1 text-xxs font-medium text-ink-muted">
+              {t('preorderChat.assistant.name')}
+              <span className="rounded-full border border-border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide">
+                {t('preorderChat.assistant.automated')}
+              </span>
+            </p>
+          )}
+          <div className="min-w-0 max-w-full space-y-1 rounded-2xl border border-dashed border-brand/30 bg-surface px-3 py-2 text-sm text-ink">
+            {message.automation === null || message.automation === undefined ? (
+              <p className="italic text-ink-muted">{t('preorderChats.assistant.unavailable')}</p>
+            ) : (
+              <>
+                {message.automation.lines.map((line, index) => (
+                  <p key={`${line.key}-${String(index)}`} className="whitespace-pre-line [overflow-wrap:anywhere]">
+                    {faqLineText(line, t, intlLocale)}
+                  </p>
+                ))}
+                {message.automation.outcome === 'NEEDS_CONFIRMATION' && (
+                  <p className="text-xxs font-semibold text-warning">{t('preorderChats.assistant.needsTeam')}</p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (message.messageType === 'SYSTEM_EVENT' || message.messageType === 'STRUCTURED_OFFER') {
     const event = message.systemEvent ?? 'unknown';

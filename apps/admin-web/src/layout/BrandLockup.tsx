@@ -54,12 +54,12 @@ export function BrandLockup({
     >
       <EarthMark initial={PRODUCT_INITIAL} size="sm" />
       <SidebarLabel display="block" className="min-w-0 leading-tight">
-        <span aria-hidden="true" className="block font-brand text-lg font-bold leading-6 text-ink">
+        <span aria-hidden="true" className="brand-wordmark block font-brand text-xl font-bold leading-6">
           {PRODUCT_BRAND}
         </span>
         <span
           aria-hidden="true"
-          className="block truncate font-brand text-sm font-bold leading-5 text-ink-subtle"
+          className="brand-tagline block truncate font-brand text-[0.9375rem] font-bold leading-5"
         >
           {PRODUCT_TAGLINE}
         </span>

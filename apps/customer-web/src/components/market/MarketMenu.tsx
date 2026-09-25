@@ -278,7 +278,7 @@ export function MarketMenu({ className }: { className?: string }): React.JSX.Ele
         // in a panel, and announcing it as a menu would describe keyboard
         // behaviour it does not have.
         aria-controls={panelId}
-        className="flex h-10 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-2 text-ink transition-colors hover:border-border-hover hover:bg-surface-hover sm:px-2.5"
+        className="flex h-10 items-center gap-1 rounded-md border border-border-strong bg-surface px-2 text-ink transition-colors hover:border-border-hover hover:bg-surface-hover sm:gap-1.5 sm:px-2.5"
       >
         {/* The flag is the fastest of the four to read, so it leads. Where no
             country has been chosen yet there is nothing truthful to draw, and
@@ -303,9 +303,13 @@ export function MarketMenu({ className }: { className?: string }): React.JSX.Ele
           )}
         </span>
 
+        {/* Not on a phone: the header's row is 320px wide there, and the
+            twenty pixels are what lets the wordmark stay beside the globe.
+            The button still opens a menu and still says so to a screen
+            reader through its name and `aria-expanded`. */}
         <ChevronDownIcon
           className={cx(
-            'h-4 w-4 shrink-0 text-ink-subtle transition-transform',
+            'h-4 w-4 shrink-0 text-ink-subtle transition-transform max-sm:hidden',
             isOpen && 'rotate-180',
           )}
         />

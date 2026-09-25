@@ -79,6 +79,7 @@ import {
   type PartnerSlaPolicy,
 } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
+import { PartnerVerificationCard } from './PartnerVerificationCard';
 
 const ROLES: readonly LogisticsRole[] = [
   'LOGISTICS_PARTNER_OWNER',
@@ -268,6 +269,7 @@ export function LogisticsPartnerDetailPage(): React.JSX.Element {
         </Card>
       )}
 
+      <PartnerVerificationCard partnerId={partner.id} />
       <CapabilitiesCard partner={partner} />
       <RegionsCard partner={partner} />
       <SlaPoliciesCard partner={partner} />

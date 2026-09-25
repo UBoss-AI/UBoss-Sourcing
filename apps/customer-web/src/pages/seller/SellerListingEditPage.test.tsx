@@ -88,6 +88,7 @@ function view(over: Partial<ListingEditView> = {}): ListingEditView {
     statusReason: null,
     sellerSku: 'SHOE-7',
     currency: 'INR',
+    contentDraftId: null,
     updatedAt: '2026-09-19T09:00:00.000Z',
     pausedAt: null,
     pausedBy: null,

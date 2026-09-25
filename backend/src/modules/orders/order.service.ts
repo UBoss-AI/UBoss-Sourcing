@@ -13,6 +13,7 @@
  * Every status change goes through `assertTransition` and appends to
  * `order_status_history`. No service writes `orders.status` directly.
  */
+import { captureOrderItemSnapshots } from './order-item-snapshot.service.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
@@ -728,6 +729,11 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     if (packagingRows.length > 0) {
       await tx.orderItemPackaging.createMany({ data: packagingRows as never });
     }
+
+    // What was bought, frozen now, with the packaging above: description,
+    // specifications, packaging, minimum, carton and container figures and
+    // the selections. Read by the seller's order page and nothing rewrites it.
+    await captureOrderItemSnapshots(tx, orderId);
 
     /*
      * What each of L1-L4 cost, frozen per seller.

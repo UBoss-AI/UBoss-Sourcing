@@ -11,15 +11,39 @@
  * The steppers move by the increment, not by one, because stepping by one
  * through a multiple-of-5 rule produces three invalid values out of every four.
  */
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState, type Ref } from 'react';
 import { Button } from './ui';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
+import { MAX_QUANTITY, parseQuantity, type QuantityProblem } from '@/lib/parse-quantity';
 import type { PurchaseRules } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+
+/** How a committed quantity was arrived at. */
+export type QuantityCommitSource = 'step' | 'typed';
+
+/**
+ * How long typing has to pause before the number counts as the buyer's
+ * answer. Long enough that "1", "10", "100" on the way to "1000" are never
+ * treated as quantities somebody asked for.
+ */
+export const TYPING_SETTLE_MS = 800;
 
 interface QuantityInputProps {
   value: number;
   onChange: (next: number) => void;
+  /**
+   * The quantity the buyer has settled on, as opposed to every keystroke.
+   *
+   * `onChange` fires as they type so the page can show a live figure. This
+   * fires once they are done: a stepper press, an arrow key, Enter, leaving
+   * the field, or a pause in typing. It is what decides anything that opens a
+   * dialog, so typing "1000" is one decision, not four. `previous` is the
+   * last committed quantity, so the caller can tell an increase from a
+   * decrease without keeping its own copy.
+   */
+  onCommit?: (next: number, source: QuantityCommitSource, previous: number) => void;
+  /** The number field itself, for a caller that sends focus back to it. */
+  inputRef?: Ref<HTMLInputElement>;
   rules: PurchaseRules;
   label?: string;
   disabled?: boolean;
@@ -54,10 +78,13 @@ export function QuantityInput({
   disabled = false,
   itemName,
   ruleHint = true,
+  onCommit,
+  inputRef,
 }: QuantityInputProps): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
   const inputId = useId();
   const hintId = `${inputId}-hint`;
+  const problemId = `${inputId}-problem`;
 
   const step = Math.max(1, rules.qtyIncrement);
   const min = Math.max(1, rules.minOrderQty);
@@ -77,6 +104,92 @@ export function QuantityInput({
    */
   const [draft, setDraft] = useState<string | null>(null);
   const shown = draft ?? String(value);
+
+  /*
+   * What is wrong with what is in the box, if anything. A box showing "1.5"
+   * or "-3" is never a quantity: it commits nothing, so nothing downstream -
+   * no price, no dialog - acts on it, and leaving the field puts back the
+   * last good number rather than guessing what was meant.
+   */
+  const [problem, setProblem] = useState<QuantityProblem | null>(null);
+
+  /*
+   * Commits. `committed` is the last quantity reported through onCommit, so
+   * a blur straight after Enter, or a pause after a stepper press, does not
+   * report the same number twice. `arrowKey` marks the one change that came
+   * from ArrowUp/ArrowDown - a deliberate step, committed at once.
+   */
+  const committed = useRef(value);
+  const arrowKey = useRef(false);
+  const settleTimer = useRef<number | null>(null);
+  const commit = (next: number, source: QuantityCommitSource): void => {
+    if (settleTimer.current !== null) {
+      window.clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+    }
+    const previous = committed.current;
+    if (next === previous) return;
+    committed.current = next;
+    onCommit?.(next, source, previous);
+  };
+  const clearSettle = (): void => {
+    if (settleTimer.current !== null) {
+      window.clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+    }
+  };
+
+  /**
+   * Read what is now in the box and act on it.
+   *
+   * 'settle' is ordinary typing: show it, and commit only once typing pauses,
+   * so "1", "10", "100" on the way to "1000" never count. 'step' (an arrow
+   * key) and 'now' (a paste) are complete answers and commit at once.
+   */
+  const accept = (raw: string, locale: string, when: 'settle' | 'step' | 'now'): void => {
+    const parsed = parseQuantity(raw, locale);
+    if (parsed.kind === 'empty') {
+      // A box being retyped, not a quantity of zero. The page keeps its last
+      // good number until something is typed.
+      clearSettle();
+      setProblem(null);
+      setDraft('');
+      return;
+    }
+    if (parsed.kind === 'invalid') {
+      clearSettle();
+      setProblem(parsed.problem);
+      setDraft(raw.replace(/[^\d.,-]/g, '').slice(0, 12));
+      return;
+    }
+    setProblem(null);
+    // Leading zeros dropped as they are typed, so "01000" never shows.
+    setDraft(String(parsed.value));
+    // Typed input is not clamped on every keystroke — that fights the person
+    // typing "15" by rewriting it to "10" after the "1".
+    onChange(parsed.value);
+    if (when === 'settle') {
+      clearSettle();
+      settleTimer.current = window.setTimeout(() => {
+        settleTimer.current = null;
+        commit(clampToRules(parsed.value, rules), 'typed');
+      }, TYPING_SETTLE_MS);
+      return;
+    }
+    commit(clampToRules(parsed.value, rules), when === 'step' ? 'step' : 'typed');
+  };
+
+  useEffect(() => {
+    // A quantity set from outside (a version chosen, an offer taken) is where
+    // the next comparison starts from.
+    if (draft === null) committed.current = value;
+  }, [value, draft]);
+  useEffect(
+    () => () => {
+      if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    },
+    [],
+  );
 
   const canDecrease = !disabled && value > min;
   const canIncrease =
@@ -110,13 +223,16 @@ export function QuantityInput({
               : t('product.decreaseNamedQuantityBy', { name: itemName, step: String(step) })
           }
           onClick={() => {
-            onChange(clampToRules(value - step, rules));
+            const next = clampToRules(value - step, rules);
+            onChange(next);
+            commit(next, 'step');
           }}
         >
           −
         </Button>
 
         <input
+          ref={inputRef}
           id={inputId}
           type="number"
           inputMode="numeric"
@@ -124,25 +240,72 @@ export function QuantityInput({
           min={min}
           step={step}
           disabled={disabled}
-          aria-describedby={description === null ? undefined : hintId}
+          aria-describedby={
+            [description === null ? null : hintId, problem === null ? null : problemId]
+              .filter((id) => id !== null)
+              .join(' ') || undefined
+          }
           onChange={(event) => {
-            // Digits only, no leading zeros, and not so many that the number
-            // stops being exact.
-            const digits = event.target.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
-            setDraft(digits);
-            // Typed input is not clamped on every keystroke — that fights the
-            // person typing "15" by rewriting it to "10" after the "1". And an
-            // empty box is not a quantity of zero: it is a box being retyped.
-            if (digits !== '') onChange(Number(digits));
+            // A number input hands back "" for text it cannot read ("1..2")
+            // and says so in badInput; that is a problem, not an empty box.
+            if (event.target.validity.badInput) {
+              clearSettle();
+              setProblem('notANumber');
+              return;
+            }
+            // The value of a number input is always written the machine's way
+            // ("1.5"), whatever the page language, so it is read that way.
+            accept(event.target.value, 'en', arrowKey.current ? 'step' : 'settle');
+            arrowKey.current = false;
+          }}
+          onPaste={(event) => {
+            // Pasted text is read in the page's own language, where "1.000"
+            // may be a thousand; a number input would otherwise refuse it.
+            const text = event.clipboardData.getData('text');
+            event.preventDefault();
+            accept(text, intlLocale, 'now');
+          }}
+          onKeyDown={(event) => {
+            // No exponents, signs or negatives: nobody means 1e3 syringes.
+            if (event.key === 'e' || event.key === 'E' || event.key === '+' || event.key === '-') {
+              event.preventDefault();
+              return;
+            }
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+              arrowKey.current = true;
+              return;
+            }
+            if (event.key !== 'Enter') return;
+            if (problem !== null) return;
+            // Enter settles the number where it is, without leaving the field.
+            const typed = draft === null ? value : draft === '' ? min : Number(draft);
+            const next = clampToRules(typed, rules);
+            setDraft(null);
+            onChange(next);
+            commit(next, 'typed');
           }}
           onBlur={() => {
+            if (problem !== null) {
+              // Not a quantity: put the last good one back.
+              clearSettle();
+              setProblem(null);
+              setDraft(null);
+              return;
+            }
             // Clamping happens when they stop, so the field always settles on
             // something the server will accept. Left empty, it is the minimum.
             const typed = draft === null ? value : draft === '' ? min : Number(draft);
+            const next = clampToRules(typed, rules);
             setDraft(null);
-            onChange(clampToRules(typed, rules));
+            onChange(next);
+            commit(next, 'typed');
           }}
-          className="w-16 min-w-0 shrink rounded-md border border-border-strong bg-surface px-3 py-2.5 text-center text-sm tabular text-ink disabled:bg-surface-sunken sm:w-20"
+          aria-invalid={problem === null ? undefined : true}
+          aria-errormessage={problem === null ? undefined : problemId}
+          className={
+            'w-16 min-w-0 shrink rounded-md border bg-surface px-3 py-2.5 text-center text-sm tabular text-ink disabled:bg-surface-sunken sm:w-20 ' +
+            (problem === null ? 'border-border-strong' : 'border-danger')
+          }
         />
 
         <Button
@@ -155,12 +318,20 @@ export function QuantityInput({
               : t('product.increaseNamedQuantityBy', { name: itemName, step: String(step) })
           }
           onClick={() => {
-            onChange(clampToRules(value + step, rules));
+            const next = clampToRules(value + step, rules);
+            onChange(next);
+            commit(next, 'step');
           }}
         >
           +
         </Button>
       </div>
+
+      {problem !== null && (
+        <p id={problemId} role="alert" className="mt-1.5 text-xs font-medium text-danger">
+          {t(`quantityInput.problem.${problem}`, { max: MAX_QUANTITY.toLocaleString(intlLocale) })}
+        </p>
+      )}
 
       {description !== null && (
         <p id={hintId} className="mt-1.5 text-xs text-ink-muted">

@@ -218,6 +218,10 @@ export async function executeErasure(input: {
    * codebase. Declared out here so it survives the closure.
    */
   const detachable: string[] = [];
+  // Stripe Customers (cus_...) filed for this person. Deleted at Stripe after
+  // the commit, for the same reason the cards are detached: the Customer
+  // holds their name and email, and nothing here needs it any more.
+  const gatewayCustomers: string[] = [];
 
   /**
    * Private storage objects of erased preorder chat attachments, deleted once
@@ -599,6 +603,16 @@ export async function executeErasure(input: {
         await tx.customerPaymentMethod.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
+      // Their record at the gateway. A reference, not personal data in
+      // itself - but with this deployment's key it opens their saved cards,
+      // so it goes with them.
+      const filedCustomers = await tx.paymentProviderCustomer.findMany({
+        where: { customerProfileId: profile.id, provider: 'STRIPE' },
+        select: { providerCustomerId: true },
+      });
+      gatewayCustomers.push(...filedCustomers.map((row) => row.providerCustomerId));
+      await tx.paymentProviderCustomer.deleteMany({ where: { customerProfileId: profile.id } });
+
       // Orders that never became invoices carry no retention obligation, so
       // the address snapshots and the customer's own note go.
       const scrubbable = await tx.order.findMany({
@@ -787,6 +801,10 @@ export async function executeErasure(input: {
     await detachErasedPaymentMethods(detachable, input.userId);
   }
 
+  if (gatewayCustomers.length > 0) {
+    await deleteErasedGatewayCustomers(gatewayCustomers, input.userId);
+  }
+
   // The erased chat attachments' bytes. Same rule: after, and not fatal - a
   // file whose row is gone can no longer be reached through any route.
   for (const key of chatFiles) {
@@ -834,6 +852,42 @@ async function detachErasedPaymentMethods(
     logger.error(
       { err: error, userId, count: providerPaymentMethodIds.length },
       'could not reach the payment provider to detach saved cards after an erasure',
+    );
+  }
+}
+
+/**
+ * Delete the erased person's Customer records at Stripe.
+ *
+ * Same contract as `detachErasedPaymentMethods`: after the commit, and never
+ * fatal. Deleting a Stripe Customer also detaches every card on it, so a card
+ * the detach above could not reach is covered here too. Stripe keeps the
+ * charges themselves - it is obliged to - but no longer a record of the person
+ * that this deployment could reuse.
+ */
+async function deleteErasedGatewayCustomers(
+  providerCustomerIds: readonly string[],
+  userId: string,
+): Promise<void> {
+  try {
+    const { loadActiveProvider } = await import('../payments/payment.service.js');
+    const { supportsHostedCheckout } = await import('../payments/provider.js');
+
+    const { provider } = await loadActiveProvider('STRIPE');
+    if (provider.kind !== 'STRIPE' || !supportsHostedCheckout(provider)) return;
+
+    for (const reference of providerCustomerIds) {
+      await provider.deleteVaultCustomer(reference).catch((error: unknown) => {
+        logger.error(
+          { err: error, userId },
+          'could not delete a Stripe customer after an erasure; it needs deleting by hand',
+        );
+      });
+    }
+  } catch (error) {
+    logger.error(
+      { err: error, userId, count: providerCustomerIds.length },
+      'could not reach Stripe to delete customer records after an erasure',
     );
   }
 }

@@ -343,6 +343,22 @@ export const ErrorCode = {
   /// agreement the customer has not given. Also covers a card whose provider
   /// is no longer connected.
   PAYMENT_METHOD_NOT_CHARGEABLE: 'PAYMENT_METHOD_NOT_CHARGEABLE',
+  /// Another payment for this order is already open, or is already being
+  /// processed by the bank, and starting a second one could charge twice.
+  ///
+  /// Raised by Stripe Checkout while a second tab or a second click is still
+  /// being answered, and while a payment the customer already submitted is
+  /// settling. It is a "wait", not a "no": the first attempt either finishes
+  /// or closes, and the order can then be paid.
+  PAYMENT_ATTEMPT_IN_PROGRESS: 'PAYMENT_ATTEMPT_IN_PROGRESS',
+  /// The order's total cannot be taken by card online in its currency - it is
+  /// above the gateway's per-payment ceiling, or it is not a whole number of
+  /// the units the gateway settles in (Stripe charges HUF in whole forint).
+  ///
+  /// Never "fixed" by rounding: rounding a payment changes what the customer
+  /// is charged. The order can still be paid by a payment link or by the
+  /// operator's offline route.
+  PAYMENT_AMOUNT_NOT_SUPPORTED: 'PAYMENT_AMOUNT_NOT_SUPPORTED',
 
   // --- Localisation & currency ---
   CURRENCY_NOT_SUPPORTED: 'CURRENCY_NOT_SUPPORTED',
@@ -640,6 +656,12 @@ export const ErrorCode = {
   SELLER_LOCK_REQUIRED: 'SELLER_LOCK_REQUIRED',
   /// The seller password given was wrong.
   SELLER_LOCK_INVALID: 'SELLER_LOCK_INVALID',
+  /// The Hub was open and has re-locked itself after
+  /// SELLER_HUB_IDLE_TIMEOUT_SECONDS without deliberate activity. Its own code
+  /// rather than LOCK_REQUIRED, so the lock screen can say why it is back: "your
+  /// session expired due to inactivity", not "enter your password" out of
+  /// nowhere. The remedy is the same - enter the Seller Hub password.
+  SELLER_SESSION_EXPIRED: 'SELLER_SESSION_EXPIRED',
 
   /// The public display name is taken.
   SELLER_DISPLAY_NAME_TAKEN: 'SELLER_DISPLAY_NAME_TAKEN',

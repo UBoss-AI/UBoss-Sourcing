@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**834 endpoints** in 68 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**858 endpoints** in 68 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 333 |
-| [Logistics partner portal](#logistics-partner-portal) | 72 |
-| [Seller Hub](#seller-hub) | 223 |
+| [Admin panel (staff)](#admin-panel-staff) | 339 |
+| [Logistics partner portal](#logistics-partner-portal) | 80 |
+| [Seller Hub](#seller-hub) | 227 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 162 |
-| [Public and storefront](#public-and-storefront) | 33 |
+| [Customer account](#customer-account) | 166 |
+| [Public and storefront](#public-and-storefront) | 35 |
 
 ## Admin panel (staff)
 
@@ -315,6 +315,12 @@ Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/route
 | PUT | `/api/v1/admin/logistics/partners/:id/regions` | Staff | Admin(LOGISTICS_WRITE) | Replace a carrier's approved service regions (countries, states, cities or postcode areas, for pickup and delivery) with the list given. Only the marketplace can set these. Writes an audit entry. |
 | POST | `/api/v1/admin/logistics/partners/:id/capabilities` | Staff | Admin(LOGISTICS_WRITE) | Approve, refuse or suspend one special-handling capability for a carrier, such as cold chain or dangerous goods, with its evidence. Only approved capabilities make a carrier eligible for shipments that need them. Writes an audit entry. |
 | PUT | `/api/v1/admin/logistics/partners/:id/sla-policies` | Staff | Admin(LOGISTICS_WRITE) | Create or replace one of a carrier's delivery-time commitments: pickup and delivery hours for a service type, delivery attempts, and what proof of delivery must include. Writes an audit entry. |
+| GET | `/api/v1/admin/logistics/partners/:id/profile` | Staff | Admin(LOGISTICS_READ) | A carrier's profile as the carrier sees it, plus its full compliance document history and any details change waiting for a decision. |
+| POST | `/api/v1/admin/logistics/partners/:id/profile-changes/:changeId/decision` | Staff | Admin(LOGISTICS_WRITE) | Approve or reject a carrier's pending details change (legal name, trading name, registration, tax number, registered address, licence). Approval applies it and marks the company verified; a rejection needs a reason the carrier is shown. Writes an audit entry. |
+| POST | `/api/v1/admin/logistics/partners/:id/documents/:documentId/decision` | Staff | Admin(LOGISTICS_WRITE) | Accept or refuse one of a carrier's compliance documents. A refusal needs a reason the carrier is shown. Writes an audit entry. |
+| POST | `/api/v1/admin/logistics/partners/:id/verification` | Staff | Admin(LOGISTICS_WRITE) | Record whether the carrier's identity has been checked. Anything other than verified needs a note the carrier is shown. Writes an audit entry. |
+| POST | `/api/v1/admin/logistics/partners/:id/documents/:documentId/link` | Staff | Admin(LOGISTICS_READ) | A short-lived, single-use link to one of a carrier's compliance documents. Refused for a file that has not passed the malware scan. Writes an audit entry. |
+| GET | `/api/v1/admin/logistics/partners/:id/documents/:documentId/download` | Staff | Admin(LOGISTICS_READ) | Download a carrier's compliance document with a link from the route above. Needs the same signed-in member of staff as well as the link, and works once. Served as an attachment, never inline. |
 | POST | `/api/v1/admin/logistics/partners/:id/invitations` | Staff | Admin(LOGISTICS_WRITE) | Invite a person to join a carrier's portal team with a given role. Emails them a one-time link to set a password; the link itself is never returned. |
 | GET | `/api/v1/admin/logistics/shipments` | Staff | Admin(LOGISTICS_READ) | Every consignment, across every carrier, narrowed the way an operations desk actually thinks about them. |
 | GET | `/api/v1/admin/logistics/tracking-filters` | Staff | Admin(LOGISTICS_READ) | What there is to filter the tracking list BY. |
@@ -838,6 +844,21 @@ Defined in `backend/src/http/routes/logistics.operations.ts`.
 | POST | `/api/v1/logistics/pickups/:id/complete` | Logistics | Logistics(PICKUP_WRITE) | The van came and took the goods. |
 | POST | `/api/v1/logistics/pickups/:id/fail` | Logistics | Logistics(PICKUP_WRITE) | Record that a collection could not be made, with the reason. Raises a high-severity missed-collection problem on the shipment. Refused once the collection is already completed or cancelled. |
 
+### `logistics/profile`
+
+Defined in `backend/src/http/routes/logistics.portal.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/logistics/profile` | Logistics | Logistics(ORGANISATION_READ) | This delivery company's full profile: identity, company details, contacts, coverage, capabilities, compliance documents, integration status and any details change waiting for the marketplace. Secrets, credentials and the marketplace's private notes are never included. |
+| PATCH | `/api/v1/logistics/profile` | Logistics | Logistics(ORGANISATION_WRITE) | Save changes to the profile. Contacts, addresses, hours and similar fields are saved at once. Legal name, trading name, registration and tax numbers, the registered address and the licence are sent to the marketplace to verify and only change once approved. Any other field is refused. Writes an audit entry. |
+| DELETE | `/api/v1/logistics/profile/pending-change` | Logistics | Logistics(ORGANISATION_WRITE) | Withdraw the details change waiting for the marketplace. Writes an audit entry. |
+| POST | `/api/v1/logistics/profile/logo` | Logistics | Logistics(ORGANISATION_WRITE) | Replace the company logo. JPEG, PNG, WebP or GIF, decided by the file's contents; SVG is refused. Scanned for malware first. Writes an audit entry. |
+| DELETE | `/api/v1/logistics/profile/logo` | Logistics | Logistics(ORGANISATION_WRITE) | Remove the company logo. Writes an audit entry. |
+| POST | `/api/v1/logistics/profile/documents` | Logistics | Logistics(ORGANISATION_WRITE) | File a compliance document (licence, insurance, permit, registration) for the marketplace to verify. PDF or image up to 10 MB, decided by the file's contents, scanned for malware and stored privately. A newer file of the same kind replaces the older one, which is kept. Writes an audit entry. |
+| POST | `/api/v1/logistics/profile/documents/:id/link` | Logistics | Logistics(ORGANISATION_READ) | A short-lived, single-use link to one of this company's compliance documents. Refused for a file that has not passed the malware scan. Writes an audit entry. |
+| GET | `/api/v1/logistics/profile/documents/:id/download` | Logistics | Logistics(ORGANISATION_READ) | Download a compliance document with a link from the route above. Needs the same signed-in person as well as the link, and works once. |
+
 ### `logistics/shipments`
 
 Defined in `backend/src/http/routes/logistics.portal.ts`, `backend/src/http/routes/logistics.operations.ts`.
@@ -1107,7 +1128,9 @@ Defined in `backend/src/http/routes/seller.listings.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/seller/listing-drafts` | Seller | Seller(LISTING_READ) | One page of the seller's listings still in the wizard or in review, filterable by status, text, category and brand. |
 | POST | `/api/v1/seller/listing-drafts` | Seller | Seller(LISTING_READ) + TradingSeller(LISTING_WRITE) | Start a new listing in the wizard, optionally with its category, brand or matching catalogue product already chosen. Writes an audit entry. |
-| GET | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) | One listing in the wizard, with everything entered so far. |
+| GET | `/api/v1/seller/listing-drafts/:id/content` | Seller | Seller(LISTING_READ) | One listing in the wizard, with everything entered so far. A listing's description sections, grouped specifications and per-variant values. |
+| PUT | `/api/v1/seller/listing-drafts/:id/content` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Replace a listing's description sections, specifications and per-variant values. |
+| GET | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) | *Read one listing draft.* |
 | PATCH | `/api/v1/seller/listing-drafts/:id` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Autosave. |
 | POST | `/api/v1/seller/listing-drafts/:id/variants/generate` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Build the combination rows for the axes the seller switched on. |
 | POST | `/api/v1/seller/listing-drafts/:id/validate` | Seller | Seller(LISTING_READ) | Re-run every check on a wizard listing and return what is still missing or wrong. Its status moves to match: ready to submit once everything passes. |
@@ -1362,6 +1385,8 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/sellers/me` | Customer | Customer | "Do I sell here, and how is it going?" |
+| GET | `/api/v1/sellers/session` | Seller | Customer + Seller | When the open Seller Hub re-locks without further activity. Reading it does not count as activity, so a tab can check without keeping itself open. Refused with SELLER_SESSION_EXPIRED once the Hub has re-locked. |
+| POST | `/api/v1/sellers/session/renew` | Seller | Customer + Seller | "Stay signed in": keep the open Seller Hub open for another full idle period. Needs the Hub to still be open; once it has re-locked this is refused with SELLER_SESSION_EXPIRED and the password is needed again. Writes an audit entry. |
 | POST | `/api/v1/sellers/lock` | Customer | Customer | Choose the Seller Hub password, or change it. |
 | POST | `/api/v1/sellers/lock/open` | Customer | Customer | Open the Hub for this session. |
 | POST | `/api/v1/sellers/lock/close` | Customer | Customer | Shut it again, without signing out of the shop. |
@@ -1711,6 +1736,9 @@ Defined in `backend/src/http/routes/payments.ts`.
 | GET | `/api/v1/payments/instruments` | Customer | Customer | How a customer may pay for a cart in this currency |
 | POST | `/api/v1/payments/orders/:orderId/session` | Customer | Customer | Start a payment for an order |
 | GET | `/api/v1/payments/orders/:orderId/status` | Customer | Customer | Poll payment status after returning from the provider |
+| GET | `/api/v1/payments/orders/:orderId/checkout/:sessionId` | Customer | Customer | The Stripe Checkout confirmation page's question: what happened to the payment made on this session? Answers from our own records, which only a signed webhook or Stripe's own API ever advance - never from the fact that the customer's browser came back. Found only for the customer who owns the order the session was opened for. |
+| POST | `/api/v1/payments/orders/:orderId/checkout/:sessionId/refresh` | Customer | Customer | "Check again": ask Stripe directly, when its webhook is late. |
+| POST | `/api/v1/payments/orders/:orderId/checkout/cancel` | Customer | Customer | The customer came back through Stripe's Cancel link. |
 | POST | `/api/v1/payments/orders/:orderId/mock-capture` | Customer | Customer | Settle an order without a gateway (testing only) |
 | POST | `/api/v1/payments/orders/:orderId/reconcile` | Customer | Customer | Ask the provider directly. |
 
@@ -1721,9 +1749,10 @@ Defined in `backend/src/http/routes/preorder-chats.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | POST | `/api/v1/preorder-chats/context` | Customer | Customer | What the chat drawer shows before anything is sent: the product card, as the server reads it, and the conversation this customer already has about it. Creates nothing - opening the drawer does not start a conversation. |
+| POST | `/api/v1/preorder-chats/handoff` | Customer | Customer | "Connect with a human agent." Creates the conversation about this product, or reuses the live one, carries the answers the customer read into it and puts it in the team's queue as a request for a person. Retrying with the same `clientRequestId` returns what the first attempt stored. |
 | POST | `/api/v1/preorder-chats/messages` | Customer | Customer | Send the first message about a product - which starts the conversation - or the next one, if a live conversation about it already exists. A resolved conversation reopens. Retrying with the same `clientMessageId` returns the stored message instead of sending it twice. |
 | GET | `/api/v1/preorder-chats` | Customer | Customer | The customer's conversations, newest activity first. |
-| GET | `/api/v1/preorder-chats/unread` | Customer | Customer | How many replies are waiting to be read, across every conversation. |
+| GET | `/api/v1/preorder-chats/unread` | Customer | Customer | How many replies are waiting to be read, across every conversation - or, with a product id, across the conversations about that product only. |
 | GET | `/api/v1/preorder-chats/:id` | Customer | Customer | One of the customer's own conversations. Another customer's answers 404. |
 | GET | `/api/v1/preorder-chats/:id/messages` | Customer | Customer | A page of history. `after` returns everything since a sequence number, oldest first - how a page catches up after a dropped connection. `before` loads earlier messages. |
 | POST | `/api/v1/preorder-chats/:id/messages` | Customer | Customer | Send a message in an existing conversation. |
@@ -1906,6 +1935,8 @@ Defined in `backend/src/http/routes/preorder-chats.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/preorder-chats/availability` | Public |  | Whether the team is here, and what this installation allows. Public: the chat button shows it to a guest before they sign in, and it is only ever true when somebody who can reply is actually connected. |
 | GET | `/api/v1/preorder-chats/socket` | Public |  | The live connection. A GET that upgrades to a WebSocket. |
+| POST | `/api/v1/preorder-chats/assistant` | Public (customer optional) | optionalCustomer | The preorder assistant, before anybody writes anything. Public: a guest can read the common answers without signing in. The questions offered, in order, and what the greeting may say - the product's name as the server reads it, and a signed-in customer's first name. Creates nothing. |
+| POST | `/api/v1/preorder-chats/assistant/answer` | Public (customer optional) | optionalCustomer | One automated answer, from the product's own preorder terms, verified loading, stock and delivery window - never a guessed figure. Signed, so the customer can carry it into a conversation if they ask for a person. |
 
 ### `preorders`
 

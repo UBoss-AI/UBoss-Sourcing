@@ -19,6 +19,7 @@ import {
   type PreorderChatPriorityName,
   type PreorderChatStatusName,
 } from '../../domain/preorder-chat-state.js';
+import { readStoredAnswer } from './assistant/transcript.js';
 import { readSnapshot, type ChatContextSnapshot } from './context.service.js';
 
 // ---------------------------------------------------------------------------
@@ -52,10 +53,17 @@ export interface MessageRow {
   id: string;
   conversationId: string;
   serverSequence: number;
-  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM';
+  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION';
   senderUserId: string | null;
   clientMessageId: string;
-  messageType: 'TEXT' | 'ATTACHMENT' | 'SYSTEM_EVENT' | 'STRUCTURED_OFFER';
+  messageType:
+    | 'TEXT'
+    | 'ATTACHMENT'
+    | 'SYSTEM_EVENT'
+    | 'STRUCTURED_OFFER'
+    | 'FAQ_QUESTION'
+    | 'AUTOMATED_REPLY'
+    | 'HANDOFF_REQUEST';
   body: string;
   systemEvent: string | null;
   systemMetaJson: unknown;
@@ -218,6 +226,11 @@ export function messageView(row: MessageRow, options: MessageViewOptions): Recor
     body: redacted ? '' : row.body,
     systemEvent: row.systemEvent,
     systemMeta: systemMeta(row.systemMetaJson),
+    // The assistant's answer, exactly as the customer was shown it: which
+    // question, under which catalogue version, and the lines with their
+    // values. Null for anything else, and for a stored answer that no longer
+    // validates.
+    automation: row.messageType === 'AUTOMATED_REPLY' && !redacted ? readStoredAnswer(row.systemMetaJson) : null,
     replyToMessageId: row.replyToMessageId,
     proposal: proposal === undefined ? null : proposalView(proposal),
     attachment:
@@ -257,6 +270,8 @@ export const CUSTOMER_CONVERSATION_SELECT = {
   lastMessagePreview: true,
   lastMessageSender: true,
   lastMessageAt: true,
+  lastStaffMessageAt: true,
+  handoffRequestedAt: true,
   resolvedAt: true,
   closedAt: true,
   createdAt: true,
@@ -274,8 +289,10 @@ export interface CustomerConversationRow {
   staffDeliveredSeq: number;
   staffReadSeq: number;
   lastMessagePreview: string | null;
-  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | null;
+  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION' | null;
   lastMessageAt: Date;
+  lastStaffMessageAt: Date | null;
+  handoffRequestedAt: Date | null;
   resolvedAt: Date | null;
   closedAt: Date | null;
   createdAt: Date;
@@ -320,6 +337,11 @@ export function customerConversationView(row: CustomerConversationRow): Record<s
     lastMessagePreview: row.lastMessagePreview,
     lastMessageFromMe: row.lastMessageSender === 'CUSTOMER',
     lastMessageAt: row.lastMessageAt.toISOString(),
+    // True from "Connect with a human agent" until a member of staff replies.
+    // It says the request is queued - never that anybody is connected.
+    humanRequested:
+      row.handoffRequestedAt !== null &&
+      (row.lastStaffMessageAt === null || row.lastStaffMessageAt < row.handoffRequestedAt),
     resolvedAt: row.resolvedAt?.toISOString() ?? null,
     closedAt: row.closedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
@@ -364,6 +386,8 @@ export const STAFF_CONVERSATION_SELECT = {
   firstResponseAt: true,
   resolvedAt: true,
   closedAt: true,
+  handoffRequestedAt: true,
+  handoffTopic: true,
   reopenCount: true,
   version: true,
   createdAt: true,
@@ -403,7 +427,7 @@ export interface StaffConversationRow {
   customerDeliveredSeq: number;
   customerReadSeq: number;
   lastMessagePreview: string | null;
-  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | null;
+  lastMessageSender: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION' | null;
   lastMessageAt: Date;
   lastCustomerMessageAt: Date | null;
   lastStaffMessageAt: Date | null;
@@ -411,6 +435,8 @@ export interface StaffConversationRow {
   firstResponseAt: Date | null;
   resolvedAt: Date | null;
   closedAt: Date | null;
+  handoffRequestedAt: Date | null;
+  handoffTopic: string | null;
   reopenCount: number;
   version: number;
   createdAt: Date;
@@ -479,6 +505,17 @@ export function staffConversationSummary(
         ? null
         : Math.max(0, Math.floor((now.getTime() - row.awaitingReplySince.getTime()) / 60_000)),
     reopenCount: row.reopenCount,
+    // "Human assistance requested": asked the assistant for a person, and no
+    // member of staff has replied since. The request's time and topic stay
+    // on the conversation after it is answered, for the record.
+    handoff:
+      row.handoffRequestedAt === null
+        ? null
+        : {
+            requestedAt: row.handoffRequestedAt.toISOString(),
+            topic: row.handoffTopic,
+            waiting: row.lastStaffMessageAt === null || row.lastStaffMessageAt < row.handoffRequestedAt,
+          },
     createdAt: row.createdAt.toISOString(),
   };
 }

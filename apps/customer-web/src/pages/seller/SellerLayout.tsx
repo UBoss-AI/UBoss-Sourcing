@@ -26,6 +26,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIsFetching, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { takeExpiredNotice } from '@/lib/seller-session';
+import { SellerSessionGuard } from './SellerSessionGuard';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/components/ui';
@@ -695,6 +697,8 @@ function SellerLockGate({
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
+  /** Back here because the Hub timed out: said once, above the form. */
+  const [expired] = useState(() => mode === 'enter' && takeExpiredNotice());
 
   /*
    * The password field takes focus when this screen appears.
@@ -748,6 +752,12 @@ function SellerLockGate({
           <h1 className="text-title-sm text-ink">
             {isChoosing ? t('seller.lock.chooseTitle') : t('seller.lock.enterTitle')}
           </h1>
+
+          {expired && (
+            <p role="alert" className="mt-3 rounded-md border border-warning/40 bg-warning-soft px-3 py-2 text-sm font-medium text-ink">
+              {t('sellerSession.expired')}
+            </p>
+          )}
 
           <p className="mt-2 text-sm leading-relaxed text-ink-muted">
             {isChoosing ? t('seller.lock.chooseBody') : t('seller.lock.enterBody')}
@@ -924,6 +934,8 @@ export function SellerLayout(): React.JSX.Element {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-sunken lg:flex-row">
+      {/* The idle warning, and the re-lock when the server says the time is up. */}
+      <SellerSessionGuard session={seller.session} />
       {/* ---- The rail ---------------------------------------------------- */}
       <aside
         className={cx(

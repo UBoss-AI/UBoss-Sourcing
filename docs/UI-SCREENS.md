@@ -308,9 +308,11 @@ flowchart TD
     SchedCart["/accounts/schedule Schedule Cart"]
     Checkout["/checkout"]
     Pay["/checkout/payment/:orderId"]
+    PayConfirm["/checkout/payment/:orderId/confirmation"]
     Confirm["/order-confirmation/:orderId"]
     Builder["/schedules/new"]
   end
+  Pay -->|"via Stripe-hosted Checkout"| PayConfirm
   Product --> Cart
   Product --> Builder
   Cart <--> SchedCart
@@ -450,6 +452,7 @@ flowchart TD
   Dash --> Companies["/companies"] --> Shipments
   Dash --> Drivers["/drivers"]
   Dash --> Company
+  Dash --> Profile["/profile"]
   Dash --> Integration["/integration"]
 ```
 
@@ -488,11 +491,11 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
 
    | Item | What it is | What it does |
    |---|---|---|
-   | Brand | The store's logo (or the earth mark) and name | Goes to `/` |
+   | Brand | The store's logo (or the earth mark) and name. For Glovia: the wordmark (23px, 17px on a phone) over **The Way to the World** (15px, from 1024px), in their own bright colour tokens | Goes to `/` |
    | Appearance | Match my device, Light, Dark. One cycling button on phones | Kept in this browser only |
-   | Market control | Flag, language code, and on wide screens the country and currency | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
+   | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
-   | Account | **Sign in** for a guest. For a customer, their first name and a menu | The menu lists the account pages in four groups and **Sign out**, which asks first |
+   | Account | **Sign in** for a guest. For a customer, their first name and a menu (on a phone the icon alone, no chevron) | The menu lists the account pages in four groups and **Sign out**, which asks first |
    | Cart | Orange, with a count of items | Opens `/cart` (a guest is asked to sign in) |
 
    There is **no search box and no category bar** in the header, on purpose.
@@ -692,7 +695,7 @@ category shows an empty list, not an error.
 | | |
 |---|---|
 | **Who** | Anybody can look. Buying needs an activated customer |
-| **File** | `pages/ProductPage.tsx`, `components/VariantSelector.tsx`, `components/QuantityInput.tsx`, `components/BulkSavingsPopover.tsx`, `components/preorder/*`, `components/ProductInstructionsButton.tsx` |
+| **File** | `pages/ProductPage.tsx`, `components/VariantSelector.tsx`, `components/QuantityInput.tsx`, `components/BulkSavingsPopover.tsx`, `components/BulkOffersDialog.tsx`, `lib/quantity-decision.ts`, `lib/use-quantity-decision.ts`, `components/preorder/*`, `components/ProductInstructionsButton.tsx` |
 | **Local screenshot** | `03-customer-product-detail.png` |
 
 **Purpose.** Where the decision to buy is made.
@@ -712,8 +715,50 @@ category shows an empty list, not an error.
   several versions at once, each with its own quantity. The choice goes into
   the address bar (for example `?size=…`).
 - **Quantity**: kept inside the product's minimum, step and maximum. "Comes
-  to N pieces" when ordering cartons.
+  to N pieces" when ordering cartons. Whole positive pieces only, up to
+  100,000,000 (see *Safe quantity input* under Shared controls). A typed
+  quantity counts on Enter, on leaving the box, or after 0.8 seconds without
+  typing; + / −, an arrow key or a paste counts at once.
 - **Quantity savings**: what you would save by buying more.
+- **View all bulk offers (N)**: a link under the quantity box, shown whenever
+  the listing has at least one genuine offer. It opens the **Bulk offers**
+  dialog: every band at once, as cards (not a carousel). Each card: *Buy N or
+  more*, price per piece, crossed-out usual price, saving per piece, discount
+  %, total for N, total saving, stock (*Available from stock* / *Only X in
+  stock. The rest would be a preorder.*), the offer's end date, and **Select
+  N**. Tags: *Your quantity*, *Next saving*, *Best value*, *Business
+  accounts*. A progress line: *Add N more to pay P a piece.* A separate list
+  of preorder-only prices. A footnote that prices are re-checked in the basket
+  and at checkout. Cards rise in one after another and lift on hover; under
+  reduced motion they just appear. A native `<dialog>`: focus moves in,
+  Escape and the backdrop close it, focus returns to what opened it.
+  - **Opens by itself** on a quantity increase (stepper, arrow key, or typed
+    and settled) when offers exist, once per product and version per browser
+    session; again only if the set of bands changes (another version, a
+    business buyer's own bands). Closing it without choosing silences it for
+    that product and version for the session. The link always opens it.
+  - **Select N** sets the quantity to N (only where the page counts pieces for
+    one version), closes the dialog and re-prices. If N is more than stock,
+    the stock prompt opens after this dialog has closed.
+- **More than is in stock**: where the seller takes preorders, the change that
+  crosses the stock line opens a prompt with the quantity asked for, available
+  now, short by, and the preorder minimum, in pieces. **Continue with
+  preorder** goes into the preorder flow (the note if not yet acknowledged,
+  then the form, opening on the page's quantity, version and unit); **Change
+  quantity** puts focus back in the quantity box.
+  - "Stock" is the available figure from `GET /catalog/bulk-pricing` for that
+    product and version, the one the page already shows.
+  - Same for + / −, typing, pasting, arrow keys, the browser's spinner, and
+    **Select N**. Typing 1000 over a stock of 500 is judged once, on 1000.
+  - Opens once on the crossing (501 → 502 → 503 opens it once); back to the
+    stock figure or below re-arms it. 500 of 500 is within stock.
+  - Changing the version re-checks the current quantity and can open it.
+- **Which dialog opens**: one coordinator decides, in this order: an invalid
+  quantity opens nothing; over stock opens the stock prompt; an increase with
+  offers opens the offers dialog. It acts only on the server's answer for the
+  exact quantity and version committed; a late older reply is ignored. Never
+  two dialogs at once. *Ordering in bulk?* stands aside when the quantity is
+  over stock.
 - **Total**: price per piece, pieces, total cost.
 - **Special instructions (optional)**: sent with the line when it is added.
 - **Buttons, for a customer**
@@ -737,24 +782,49 @@ category shows an empty list, not an error.
     information*): the same note, to read at any time — a popover beside the
     button on a desktop, a bottom sheet on a phone. Already acknowledged, it
     offers **Continue to preorder** with no checkbox.
-  - **Chat with {marketplace}** right after Preorder (the operator's own
-    name; *Chat with Glovia* until one is set), with the tooltip *"Ask
-    {marketplace} about this preorder"*, on every product whether or not it
-    can be preordered. A guest goes to sign in and comes back with the chat
-    open. It opens a drawer on the right (full screen on a phone): the team's
+  - **Chat icon** (speech bubbles) directly right of the ⓘ, on every product
+    whether or not it can be preordered. The row is `[ Preorder (i) ] [ chat
+    icon ]`: the icon is a 48×48 px button as tall as Preorder; on a phone
+    Preorder takes the rest of the row and the row does not wrap. There is no
+    visible "Chat with …" text button; this is the only chat entry in the row.
+    Its accessible name is *Chat with {marketplace}* (the operator's own name;
+    *Chat with Glovia* until one is set), or *Chat with {marketplace}. Unread
+    replies: N*. The tooltip *"Ask {marketplace} about this preorder"* shows on
+    hover and keyboard focus, is linked by `aria-describedby`, and Escape hides
+    it; on touch a tap opens the chat directly. Visible focus ring, a soft
+    brand-colour hover glow, reduced motion respected. A red badge (99+ cap)
+    counts staff replies still unread in the signed-in customer's
+    conversations about this product, from
+    `GET /api/v1/preorder-chats/unread?productId=…`; it refreshes once a minute
+    while the tab is in front and when the chat marks messages read or a live
+    message arrives. Guests see no badge. A guest opens the same drawer with
+    the preorder assistant only and a **Sign in to write** button; asking for a
+    person or writing signs them in and brings them back with the chat open,
+    their answers kept and the request finished. It opens a drawer on the right (full screen on a phone): the team's
     availability and typical response time; the product card (picture, name,
     seller, SKU, option, minimum, and **Your requirement**: order unit -
     Pieces, 20-ft or 40-ft container - quantity, equivalent pieces from the
     seller's verified figures, desired date; editable until the first
-    message); an automatic welcome; the history with Sending / Sent /
-    Delivered / Read / Not sent and Retry; nine **Quick questions** that fill
-    the box; the security notice; the message box (Enter sends, Shift+Enter
-    is a new line) with a paperclip for a PDF or image when attachments are
+    message); before a conversation exists, the **preorder assistant**: its
+    header ("{marketplace} Preorder Assistant", an **Automated** tag, and
+    **Connect with a human agent**), a greeting by first name naming the
+    product, the common questions as a card of rows (icon, question, chevron;
+    six, then **View all questions**), each answer labelled Automated (with a
+    **Needs confirmation** tag when the team must confirm), *Was this helpful?*
+    and *Would you like to connect with a human agent?*; after a handoff the
+    notice *"Your request has been sent to the {team} preorder team…"* above
+    the box; the history with Sending / Sent / Delivered / Read / Not sent and
+    Retry, the assistant's stored answers, and *"A member of the {team} team has
+    joined the conversation."*; the security notice; the message box (Enter
+    sends, Shift+Enter is a new line) with a round brand-colour **Send message**
+    button (upward arrow; disabled when empty; progress while sending; a mark
+    after a failed send) and a paperclip for a PDF or image when attachments are
     available. A proposal card shows the figures, "indicative" price and
     expiry, with **Review proposal** (opens the preorder form filled in, with
     a note to check every field) and **Decline**. Opening the drawer creates
     nothing. API: `GET /api/v1/preorder-chats/availability`,
-    `POST /api/v1/preorder-chats/context`, `POST /api/v1/preorder-chats/messages`,
+    `POST /api/v1/preorder-chats/context`, `POST /api/v1/preorder-chats/assistant`,
+    `POST .../assistant/answer`, `POST .../handoff`, `POST /api/v1/preorder-chats/messages`,
     `GET .../:id/messages`, `POST .../:id/read`, the socket
     `/api/v1/preorder-chats/socket`, and `GET/POST .../proposals/:proposalId…`.
   - **In the preorder dialog, Order in** is a dropdown: *Pieces*, *20-ft
@@ -780,15 +850,25 @@ category shows an empty list, not an error.
   minimum, with **Start preorder** and — only where Add to Cart takes that
   quantity — **Continue with regular order**. Once per product per session.
   Start preorder goes through the note (if not yet acknowledged) into the
-  form, keeping the version and the quantity.
+  form, keeping the version and the quantity. It waits while another dialog
+  (such as Bulk offers) is open.
   - **Add instructions**: a standing note to the seller about this product,
     without buying anything.
   - **Save for later**.
   - **Order by** carton, pallet or container, when the product offers it.
 - **Buttons, for a guest**: **Sign in to order**, **Save for later**,
   **Preorder** and **Add instructions** all go to sign-in first and come back.
-- **Ordering information**, **Description**, **Specifications**, packaging,
-  dimensions, product safety and medical device details.
+- **Ordering information**, then the product information in one fixed order,
+  each only with data: **Product highlights** (six, then **View all
+  highlights**); **Description** (seller's sections - heading, text with line
+  breaks, lazy-loaded picture with alt text - or the older description);
+  **Specifications** grouped under translated headings as label | value rows,
+  eight rows then **View all specifications (n)** / **Show less**
+  (`aria-expanded`, keeps its place, `#specifications` opens it); **Packaging
+  and bulk ordering** (those groups, then packaging and dimensions);
+  **Compliance and certifications** (that group, then medical device details);
+  **Warranty**; **Manufacturer and seller information** (those groups, then
+  product safety). Choosing an option swaps in its own specifications.
 
 **States.** "Loading the product". A product that does not exist shows the
 "We could not find that page" screen.
@@ -798,6 +878,7 @@ category shows an empty list, not an error.
 - `GET /api/v1/catalog/products/:slug?currency=…&country=…&language=…`
 - `GET /api/v1/catalog/variant-axes`
 - `GET /api/v1/catalog/bulk-pricing?productId=…&variantId=…&quantity=…`
+  (the popover, and `offers` / `preorderOffers` for the Bulk offers dialog)
 - `POST /api/v1/cart/items/bulk` (Add to cart and Order by)
 - `GET /api/v1/preorders/eligibility?productId=…&variantId=…`
 - `POST /api/v1/preorders/acknowledgement` (Agree and continue to preorder)
@@ -1183,7 +1264,9 @@ is charged until the next step."
 3. **How would you like to pay?**
    - **Pay now**, then "Pay with" Credit Card, Debit Card or UPI (whatever the
      store offers in this currency), and your saved cards that fit, or "Use a
-     different card".
+     different card". When the card is paid on Stripe's own page, the saved-card
+     list is hidden here and replaced by "Your saved cards will be offered on
+     the secure payment page…".
    - **Send a payment link**: the order is placed now and a secure link is
      emailed, for example to your finance team.
 4. **Anything we should know?** A note for the order (delivery instructions, a
@@ -1223,35 +1306,55 @@ recurring orders are on.
 | | |
 |---|---|
 | **Who** | Activated customer, for their own order |
-| **File** | `pages/PaymentPage.tsx`, `components/StripePaymentDialog.tsx`, `lib/stripe.ts`, `lib/razorpay.ts` |
+| **File** | `pages/PaymentPage.tsx`, `lib/stripe-checkout.ts`, `lib/razorpay.ts` |
 | **Local screenshot** | `29-customer-payment-step.png` |
 
 **Purpose.** Take the payment for an order that already exists. **This page
 never decides on its own that an order is paid.** It waits for the server,
 and the server marks an order paid only when the payment provider's signed
-message (a webhook) arrives.
+message (a webhook) arrives, or when the server itself has asked the provider.
+The page never reprices the order: the amount is the order's, read on the
+server.
 
-**On the screen.** "Pay for your order", the order number, the **Amount
-due**, and a status badge (Payment pending, Opening payment window, Action
-needed in the payment window, Processing, Paid, Not paid). Buttons **Pay
-securely now** (or **Try the payment again**) and **Pay later — view the
-order**. "Retrying uses this same order — it will never create a second one."
-Sometimes a **Save this card for next time** box, never ticked in advance.
+**On the screen.** "Pay for your order", the order number, and an order
+summary from the server: how many items, the subtotal, any discount, delivery,
+tax, the **Amount due**, and "Charged in …" with the currency. The billing
+address. A status badge. The button **Pay securely now** (or **Try the payment
+again**) and **Pay later — view the order**. "Retrying uses this same order —
+it will never create a second one." A secure-payment note.
+
+With Stripe, the page also says **"Payments are processed securely by
+Stripe"**, and explains that the "save for future purchases" box on the next
+page is Stripe's own, is never ticked in advance, and that a saved card is
+only used when you pay yourself. There is no save tick of our own for Stripe.
+Razorpay keeps its own **Save this card for next time** box, never ticked in
+advance.
 
 **What happens**
 
-1. **Pay securely now** asks the server to start a payment.
-2. The server's answer decides what opens: the Stripe card form in a dialog,
-   the Razorpay sheet, a bank check (3-D Secure) for a saved card, or nothing
-   at all when a saved card can be charged directly.
-3. The page then asks the server every two seconds whether the order is paid.
-   After 90 seconds it says "This is taking longer than usual — your payment
-   has not been lost… You can safely leave this page".
-4. When the server says paid: "Payment confirmed — Order … is paid. We have
-   emailed your confirmation." with **View your order**, **Keep shopping** and
-   **All your orders**.
-5. Closing the payment window: "Your order is saved and still awaiting
-   payment."
+1. **Pay securely now** is disabled at once and says "Opening secure
+   payment…", so a double click cannot start two payments. It asks the server
+   to start a payment. The request carries no amount, tax or discount.
+2. **Stripe:** the same tab goes to **Stripe-hosted Checkout** — Stripe's own
+   payment page. Card entry, choosing a saved card, the bank's check (3-D
+   Secure) and the save box all happen there. The address is checked before
+   leaving: it must be `https` and belong to this payment. If another tab is
+   already opening the payment, the page waits and tries again (up to three
+   times). If the order is already being paid, it goes straight to the
+   confirmation page below.
+3. **Razorpay:** its sheet opens over the page, as before. The page then asks
+   the server every two seconds whether the order is paid, and shows "Payment
+   confirmed" when it is. Closing the sheet: "Your order is saved and still
+   awaiting payment."
+4. **Back from Stripe's Cancel link** (`?payment=cancelled`): the page tells
+   the server, which closes Stripe's page so it cannot be paid later, and shows
+   **"Payment cancelled — nothing was charged"** with a retry. If the server
+   finds it was paid after all, the page goes to the confirmation.
+5. **Back with the browser's Back button:** a page the browser restores from
+   its memory has its button switched on again.
+6. Errors are shown in a summary that takes focus. "Card payment is not set up
+   on this store yet…" when Stripe has no keys. A problem at Stripe is shown
+   in the store's own words; Stripe's text is never shown.
 
 **Test mode.** When the store runs with test payments, a "Test mode" panel
 offers **Mark this order as paid**.
@@ -1261,10 +1364,52 @@ offers **Mark this order as paid**.
 - `GET /api/v1/orders/:orderId`
 - `GET /api/v1/payments/instruments?currency=…`
 - `POST /api/v1/payments/orders/:orderId/session` (with an `Idempotency-Key`)
+- `POST /api/v1/payments/orders/:orderId/checkout/cancel` (back from
+  Stripe's Cancel link)
 - `GET /api/v1/payments/orders/:orderId/status` (every two seconds while
-  waiting)
+  waiting for Razorpay)
 - `POST /api/v1/payments/orders/:orderId/mock-capture` (test mode only)
-- The Stripe or Razorpay script, loaded from the provider
+- The Razorpay script, loaded from the provider
+
+#### `/checkout/payment/:orderId/confirmation` — Payment confirmation (Stripe)
+
+| | |
+|---|---|
+| **Who** | Activated customer, for their own order, back from Stripe-hosted Checkout |
+| **File** | `pages/PaymentConfirmationPage.tsx` |
+
+**Purpose.** Where Stripe sends you back after paying
+(`?session_id=cs_…`). Arriving here proves nothing, so the page says nothing
+about the payment until the server has.
+
+**On the screen.** One of these, as a heading that is read aloud by screen
+readers and takes focus when it changes:
+
+| State | What it shows |
+|---|---|
+| Confirming payment… | A spinner while the server waits for Stripe |
+| Payment successful | The order number, the amount, when it was paid, the card ("Visa ending in 4242"), the order status, **View order** and **Continue shopping** |
+| Payment processing | The bank has not finished yet (a delayed payment method). **Check again** |
+| Payment failed | Why, in plain words (declined, not enough funds, expired card, wrong CVC, failed bank check, bank payment failed). **Retry payment** |
+| Payment cancelled | Nothing was charged. **Retry payment** |
+| Session expired | Stripe's page timed out. **Retry payment** |
+| Confirmation temporarily delayed | After 60 seconds of waiting. **Check again** |
+
+A session that does not exist or is not yours: "We could not find this
+payment".
+
+**What happens.** The page asks the server every two seconds for up to 60
+seconds. **Check again** makes the server ask Stripe directly and apply the
+answer; it never starts a new payment. **Retry payment** is offered only
+when the attempt closed without being paid, and goes back to the payment page
+for the same order.
+
+**API calls**
+
+- `GET /api/v1/payments/orders/:orderId/checkout/:sessionId` (every two
+  seconds while waiting)
+- `POST /api/v1/payments/orders/:orderId/checkout/:sessionId/refresh`
+  (**Check again**)
 
 #### `/order-confirmation/:orderId` — Your order has been placed
 
@@ -1432,7 +1577,7 @@ it.
 
 - Number, date, status, and a sentence explaining the status. **Pay for this
   order** when it is waiting for payment (and is not a payment-link order).
-- **Items**: as ordered, with any line instructions and the tax included.
+- **Items**: as ordered, with any line instructions and the tax included, and **Ordered product information** (the description, specifications, packaging and selections as they were when the order was placed) for orders placed since those were kept.
 - Totals, and the delivery charge by level (L1 to L4) when sellers charge per
   level.
 - **Progress**: the order's timeline.
@@ -1878,16 +2023,20 @@ catalogue and your cart, and a message says so.
 **Purpose.** Cards saved for checkout and for automatic payment. Card numbers
 are typed into the payment provider's own secure field (Stripe) and never
 reach the store. The store keeps only the brand, the last four digits and a
-reference.
+reference. A card saved with Stripe's own "save for future purchases" box on
+Stripe-hosted Checkout appears here as **Checkout only**: it is offered again
+on Stripe's page, and never charged without you present.
 
 **On the screen**
 
 - A row per card with badges: Default, Cannot be charged, Credit card or Debit
   card, Checkout only, and the expiry date.
-- **Make default** and **Delete** on each row. Deleting is refused if Auto-Pay
-  depends on the card, and the reason is shown.
-- **Add a card** opens "Save a card": the secure card fields and a consent box
-  that is not ticked in advance.
+- **Make default** and **Delete** on each row. Deleting is refused while an
+  Auto-Pay mandate that is active or paused uses the card, and the reason is
+  shown.
+- **Add a card** opens "Save a card" for Auto-Pay: Stripe's own Payment
+  Element (secure card fields hosted by Stripe) and a consent box that is not
+  ticked in advance.
 - When recurring orders are switched on, a panel explains where a saved card
   is charged without you present, with a link to Auto-Pay.
 
@@ -2152,6 +2301,11 @@ Both password screens have **Back to the shop**. **Close the Hub** at the foot
 of the sidebar locks it again without signing out of the shop
 (`POST /api/v1/sellers/lock/close`).
 
+**After the Hub closed itself.** When the Hub was closed because nobody used it
+(see 5.2, "The idle warning"), the "Enter your Seller Hub password" screen also
+shows the notice "Your session expired due to inactivity. Please sign in
+again." The shop is still signed in; only the Hub password is asked for.
+
 ### 5.2 The frame
 
 File: `pages/seller/SellerLayout.tsx`.
@@ -2162,6 +2316,30 @@ File: `pages/seller/SellerLayout.tsx`.
 - **The top bar**: the company name and legal name, the application status,
   the bell, **Refresh this screen**, and **Add listing** (greyed out until the
   seller is approved).
+- **The idle warning** (file: `pages/seller/SellerSessionGuard.tsx`). The open
+  Hub closes after `SELLER_HUB_IDLE_TIMEOUT_SECONDS` (default sixty minutes)
+  with nobody using it. `SELLER_HUB_IDLE_WARNING_SECONDS` (default five
+  minutes) before that, a dialog opens over whatever page is showing:
+  - Title **"Are you still there?"**, then "Your Seller Hub session will expire
+    soon due to inactivity.", a line saying the Hub closes after that many
+    minutes and the shop sign-in is not affected, and a countdown.
+  - **Stay signed in** calls `POST /api/v1/sellers/session/renew`. The dialog
+    closes only once the server agrees. If it fails, the dialog says "We could
+    not keep you signed in. Try again." and stays.
+  - **Sign out** closes the Hub (`POST /api/v1/sellers/lock/close`) and leaves
+    the shop signed in.
+  - Escape hides the dialog, but the clock keeps running.
+  - The clock comes from the server: every Hub answer carries
+    `x-seller-session-expires-at`, and the page checks with
+    `GET /api/v1/sellers/session`. Clicks and key presses in a visible tab make
+    the next page load count as activity (`x-seller-activity: 1`); background
+    polling and mouse movement do not.
+  - At the end, the page asks the server first, because another tab may have
+    kept the Hub open. Once the server confirms, the Hub's cached data is
+    cleared, the open page and its live updates close, and the password screen
+    shows the expiry notice (see 5.1). Unsaved typing on that page is lost.
+  - Open tabs tell each other about a new closing time, a renewal, a sign-out
+    and the expiry, so no tab warns about a Hub another tab is using.
 - **A banner** on every page until the application is approved:
 
   | Application status | Badge | Banner |
@@ -2421,6 +2599,19 @@ it.
 - `POST /api/v1/seller/listings/:id/duplicate`
 - `POST /api/v1/seller/listing-drafts/:id/withdraw`
 
+**Description and specifications card** (on `/seller/listings/new` step 3,
+below the sections, and on `/seller/listings/:id/edit` for a listing the
+seller described): description sections (heading, text, a picture from this
+listing with its alt text), specification groups (group, then rows of label,
+value, unit and **Show in highlights**) and **Values for one option**; every
+item has **Move up**, **Move down** and **Remove**; **Add a section**, **Add a
+group**, **Add a specification**, **Add a value for an option**; **Preview**
+(the product page's own component) and **Save**. The server's answer about a
+field appears under it (`aria-invalid`). Read only, with the reason, while the
+listing is under review or when the page is shared with other sellers; "saving
+changes the product page straight away" on a live listing. API:
+`GET`/`PUT /api/v1/seller/listing-drafts/:id/content`.
+
 #### `/seller/listings/:id/edit` — Edit a listing
 
 | | |
@@ -2591,7 +2782,7 @@ returns, and the next steps.
 
 | Section | What is in it | What you can do |
 |---|---|---|
-| What to send | Each line: ordered, sent, returned, still to send, and "The buyer asked for" when there is a line note | — |
+| What to send | Each line: the product name as ordered, ordered, sent, returned, still to send, "The buyer asked for" when there is a line note, and **Ordered product information** (collapsed; tabs Description, Specifications, Packaging - order unit, quantity, pieces per unit, equivalent pieces, minimum, carton and container figures - and Order selections), read only, from the snapshot taken when the order was created; an older order shows the current listing under "Historical product snapshot was not available…" | Open **Ordered product information**; **View current listing** (`/seller/listings/:offerId`) |
 | Delivery levels | Only for orders priced on four levels. L1 First mile, L2 International transport, L3 Destination inland transport, L4 Last mile; who manages each; status (Waiting for the level before, Needs a carrier, Carrier named, Accepted by the carrier, Moving, Handed over) | On the levels **you** manage: choose **Who carries this level**, **Save tracking**, **Mark as started**, **Mark as handed over** (or **Mark as delivered** for L4). UBOSS levels are read-only |
 | Who carries this | One block per consignment: stage (from "Awaiting logistics assignment" through "Picked up", "In transit" to "Delivered", "Returned"), partner, carrier, driver (shown masked), tracking number, assignment history | **Prepare the consignment** when none exists. **Assign Logistics Partner** (a delivery company on the marketplace, or DHL, FedEx or India Post booked by you). **Take it back from the partner**. For a hand booking: enter the tracking number and dates, record milestones (Picked up, In transit, Delayed, Out for delivery, Delivered …), attach proof of delivery. With your own carrier account: **Ask what it costs**, **Choose this**, **Book it for …**, **Book a parcel pickup**, **The goods are ready** |
 | Invoices and packing lists | Per consignment: packages, the tax invoice and the packing list, each with its status (Not started, Draft, Needs fixing, Ready to issue, Issued, Voided, Credit note needed, Replaced) and a checklist of what is missing | **Add packages** (type, sizes, gross and net weight, container and seal, what is in each with batch and expiry). **Split into two consignments**. **Check**, **Preview PDF**, **Issue invoice**, **Issue packing list**. **Mark as packed** issues both together, or nothing at all if something is missing. **Download**, **Download all**. **Issue credit note** (an invoice is only ever corrected by a credit note). **Replace** a packing list |
@@ -2789,7 +2980,7 @@ apply to new orders only."
 
    | Mode | L1 First mile | L2, L3, L4 |
    |---|---|---|
-   | Self | You | You |
+   | Self Ship | You | You |
    | *{marketplace}* | You | *{marketplace}* |
    | Self + *{marketplace}* | You | You tick which you manage; at least one stays with the marketplace |
 
@@ -3516,6 +3707,10 @@ decide.
 - One card per section (Description, Additional information, Compliance),
   with each answer on its own row, and "Required, not answered" where a
   required answer is empty.
+- **Description and specifications**: the seller's sections, specification
+  groups (highlights marked) and values for one option, read only, as approval
+  will put them on the product page; "The seller has not added a description
+  or specifications" when there are none.
 - A **Note** button on every photo slot, row and section.
 - **Already flagged**: what was said last time.
 - **Your review**: the notes so far, and three buttons.
@@ -3914,19 +4109,23 @@ and the conversation are separate views.
 - **Queue:** search (customer, company, email with `customer.read`,
   product, SKU, seller, conversation or preorder id, a word in a message),
   sort (newest message, oldest unanswered, priority, longest waiting), view
-  chips with counts (All, Unassigned, Assigned to me, Unread, High priority),
+  chips with counts (All, Human requested, Unassigned, Assigned to me,
+  Unread, High priority),
   a status menu with counts (Open, Waiting for customer, Waiting for internal
   response, Resolved, Closed, Spam and blocked), and rows with the customer's
   initials, customer, product and seller, last message, unread count, status,
-  priority, waiting time (with "near" / "past the response target") and
-  assignee.
+  priority, a **Human assistance requested** badge with the topic while a
+  handoff waits for a reply, waiting time (with "near" / "past the response
+  target") and assignee.
   **Load more** pages on.
 - **Conversation:** header with the customer, product and seller, status,
   priority and assignee; **Assign to me** / **Put back in the queue**,
   **Resolve** / **Reopen**, and **More actions** (another status, priority,
   **Download transcript**). Tabs **Conversation** (history with day
   separators, an unread marker, Sent / Delivered / Read by the customer,
-  proposal cards, typing, **Redact** with a reason, **New messages** / **Jump
+  proposal cards, the preorder assistant's transcript (the customer's
+  questions, answers labelled "{marketplace} Preorder Assistant · Automated",
+  "{customer} asked for a person about: {topic}"), typing, **Redact** with a reason, **New messages** / **Jump
   to latest**, and the reply box - Enter sends, Shift+Enter is a new line), **Internal notes** (amber, "never seen by the
   customer"; saved with the button or Ctrl+Enter, never plain Enter),
   **Activity** (the audit entries).
@@ -4023,9 +4222,28 @@ or refuse each capability, with evidence and expiry); **Where they operate**
 (hours to collect and deliver, attempts, what proof a delivery must record);
 **Drivers and vehicles**; **Their people** and **Invite somebody**.
 
+**Profile verification** card (`src/pages/logistics/PartnerVerificationCard.tsx`).
+Seen with `logistics.read`; every decision needs `logistics.write`.
+
+- The verification badge, with **Mark as verified** and **Ask for
+  re-verification** (a reason the carrier sees is required).
+- The pending profile change, as a table of field / now / asked for, with
+  **Approve and apply** (the values apply and the carrier becomes verified)
+  and **Reject** (a reason of at least eight characters, which the carrier
+  sees).
+- The compliance documents, with scan and review badges, **Download** (a
+  single-use link bound to the member of staff), and **Verify** or **Reject**
+  with a reason.
+
 **API calls**
 
 - `GET /api/v1/admin/logistics/partners/:id`
+- `GET /api/v1/admin/logistics/partners/:id/profile`
+- `POST /api/v1/admin/logistics/partners/:id/profile-changes/:changeId/decision`
+- `POST /api/v1/admin/logistics/partners/:id/verification`
+- `POST /api/v1/admin/logistics/partners/:id/documents/:documentId/decision`
+- `POST /api/v1/admin/logistics/partners/:id/documents/:documentId/link`, then
+  `GET /api/v1/admin/logistics/partners/:id/documents/:documentId/download`
 - `POST /api/v1/admin/logistics/partners/:id/status`
 - `POST /api/v1/admin/logistics/partners/:id/capabilities`
 - `PUT /api/v1/admin/logistics/partners/:id/regions`
@@ -4512,6 +4730,7 @@ somebody who holds its permission.
 | Shipments | Exceptions (with a count of open ones) | `/exceptions` | See shipments |
 | Companies | Companies | `/companies` | See companies |
 | Companies | Drivers | `/drivers` | See drivers or vehicles |
+| Companies | My Profile | `/profile` | See the organisation |
 | Companies | My company | `/company` | See the organisation |
 | Companies | Integration | `/integration` | See the integration (owner and administrator) |
 
@@ -4543,6 +4762,7 @@ while the tab is visible.
 | `/exceptions` | Exceptions | See shipments |
 | `/companies` | Companies we carry for | See companies |
 | `/drivers` | Drivers and vehicles | See drivers or vehicles |
+| `/profile` | My Profile | See the organisation (not drivers). Editing: owner and administrator |
 | `/company` | My company | See the organisation |
 | `/integration` | Your integration | See the integration |
 | `/driver/tasks` | My tasks | Driver task list |
@@ -4887,6 +5107,53 @@ Inviting people and changing roles are not on this screen yet.
 **API calls:** `GET /api/v1/logistics/organisation`,
 `PATCH /api/v1/logistics/organisation`, `GET /api/v1/logistics/members`
 
+#### `/profile` — My Profile
+
+| | |
+|---|---|
+| **Who** | See the organisation (`logistics.organisation.read`): owner, administrator, dispatcher, operations agent, tracking viewer. Not drivers. Editing needs `logistics.organisation.write` (owner and administrator). The profile history needs `logistics.audit.read` |
+| **File** | `src/pages/ProfilePage.tsx`, with `src/components/profile/` |
+| **Address** | Served as `/logistics/profile`. `?tab=` opens one tab directly |
+
+**Purpose.** The carrier's whole company profile on one page. Some details
+save at once; legal and licence details go to the marketplace for review. The
+company always comes from the session; nothing on the page names a partner id.
+
+**Header card.** Logo (or the company's initial), trading name, legal name,
+partner ID (read-only, with a copy button and an accessible tooltip), account
+status, verification badge, "change waiting for review" badge, a
+profile-completion ring (the percentage comes from the server, 18 checks) and
+the last-updated time.
+
+**Tabs.** An accessible tablist: arrow keys, Home and End move between tabs.
+
+| Tab | On the screen |
+|---|---|
+| Overview | Summary cards that highlight on hover, "still to add" chips, and the system record (ID, partner code, dates, counts, levels) |
+| Company details | Legal and trading name, registration and tax numbers, registration country, registered and operational address, website, business description. Re-verified fields carry a badge saying they go for review |
+| Authorised contacts | Business email and phone; primary, emergency, support and billing contacts |
+| Service coverage | Approved regions (set by the marketplace, read-only) and up to 20 hub and warehouse locations |
+| Logistics capabilities | Approved capabilities (read-only); evidence worked out from the fleet, drivers and published rates (self-managed, L1–L4 levels, transport priced for, fleet size, refrigerated vehicles, vehicle types, heaviest load, active drivers); declared transport modes (road, air, sea, rail), shown as the carrier's own statement; time zone; opening hours for each weekday |
+| Compliance and documents | Business licence, insurance certificate and transport permit (required), plus company registration, tax registration and other. Each shows Missing, Waiting for review, Verified, Not accepted or Expired. Upload (PDF or picture, up to 10 MB) and Download |
+| Integration status | DHL, FedEx, India Post, GPS and the tracking webhook, each with its state. No secret is ever shown; "Connected" only after a verified success |
+| Account and security | Your role, whether two-step sign-in is on, recovery codes left, how the profile is protected, and the profile history (with `logistics.audit.read`) |
+
+**Saving.** One draft covers every tab. A sticky save bar shows how many
+changes are unsaved, with **Discard changes** and **Save**. Leaving with
+unsaved changes asks first, both for a link inside the portal and for closing
+the browser tab. Each field shows its own error, from the page's checks and
+from the server's. A pending change can be withdrawn. Reduced motion is
+respected.
+
+**API calls**
+
+- `GET` and `PATCH /api/v1/logistics/profile`
+- `DELETE /api/v1/logistics/profile/pending-change`
+- `POST` and `DELETE /api/v1/logistics/profile/logo`
+- `POST /api/v1/logistics/profile/documents`
+- `POST /api/v1/logistics/profile/documents/:id/link`, then
+  `GET /api/v1/logistics/profile/documents/:id/download` (single use)
+
 #### `/integration` — Your integration
 
 | | |
@@ -5016,18 +5283,25 @@ flowchart TD
   Mode -->|"Yes"| Pay["/checkout/payment/:orderId"]
   Mode -->|"Payment link or approval"| Conf["/order-confirmation/:orderId: what happens next"]
   Conf -->|"Awaiting payment"| Pay
-  Pay --> Provider["Stripe form, Razorpay sheet, or saved card"]
+  Pay -->|"Stripe"| Hosted["Stripe-hosted Checkout (Stripe's own page): card, saved card, 3-D Secure, save box"]
+  Hosted -->|"Paid or processing"| Back["/checkout/payment/:orderId/confirmation"]
+  Hosted -->|"Cancel"| Cancelled["Payment page: 'Payment cancelled — nothing was charged'"] --> Pay
+  Back --> PollS["Page asks the server every 2 seconds; 'Check again' after 60 seconds"]
+  Pay -->|"Razorpay"| Provider["Razorpay sheet over the page"]
   Provider --> Poll["Page asks the server every 2 seconds"]
   Webhook["Payment provider sends a signed message to the server"] --> Confirmed["Server marks the order paid and confirmed"]
   Confirmed --> Poll
+  Confirmed --> PollS
+  PollS --> PaidS["'Payment successful': order, amount, card, View order"]
   Poll --> Paid["'Payment confirmed' then View your order"]
   Paid --> OrderPage["/account/orders/:id"]
+  PaidS --> OrderPage
 ```
 
-**The one rule:** the browser never decides that an order is paid. Only the
-payment provider's signed message (the webhook) confirms it. The payment page
-just waits for the server to say so, and says "your payment has not been
-lost" if that takes more than 90 seconds.
+**The one rule:** the browser never decides that an order is paid. Coming
+back from Stripe's page proves nothing. Only the payment provider's signed
+message (the webhook), or the server asking the provider itself (**Check
+again**), confirms it. The pages just wait for the server to say so.
 
 ### 8.3 Building a repeat order (schedule)
 
@@ -5210,7 +5484,7 @@ these. Paths are relative to each app's `src` folder.
 | Messages that pop up | `components/toast.tsx`, `components/toast-context.ts` | "Saved.", "Added to your cart." and so on. Three tones: success, error, info |
 | The sidebar | `components/ui/sidebar.tsx` (all three) | A rail of icons that widens on hover or focus, and a drawer on phones. Used by the admin panel, the account area and the logistics portal |
 | Tables | `components/DataTable.tsx`: `DataTable`, `Pager` (admin, logistics) | Scrolls inside itself. Columns can be hidden on small screens (`secondary` below `lg`, `tertiary` below `xl`) |
-| Quantity | `components/QuantityInput.tsx` (storefront) | Steps by the product's own increment and keeps inside its minimum and maximum. The server checks the rules again; this only helps |
+| Quantity | `components/QuantityInput.tsx`, `lib/parse-quantity.ts` (storefront, every quantity box including the basket) | Steps by the product's own increment and keeps inside its minimum and maximum. **Safe quantity input:** whole positive pieces only, up to 100,000,000. A paste is read in the page language's convention ("1.000" is a thousand in German, one in English). Negative, zero, fractions, and anything not plain digits (`1e3`, `Infinity`, hex) are refused with a message under the box in eight languages; `e`, `+` and `-` are blocked; an empty box while retyping is not zero; leaving the box on something invalid puts back the last good quantity. The server checks the rules again; this only helps |
 | Money and dates | `lib/format.ts` (all three): `formatMoney`, `minorToMajor`, `majorToMinor`, `formatDate`, `formatRelative`; the storefront adds `formatMoneyMinor` | Amounts arrive as whole minor units written as text and are never turned into a floating-point number. The currency's own number of decimals is respected |
 | Other prices | `components/ApproximatePrice.tsx`, `components/BandPriceValue.tsx`, `components/Totals.tsx`, `components/DeliveryBreakdown.tsx` (storefront) | An approximate price in another currency; a quantity-band price; the rows of a total; the L1 to L4 delivery charges |
 | The checkout progress bar | `components/CheckoutSteps.tsx`, `lib/checkout-steps.ts` (storefront) | Cart → Address → Payment → Confirmation. A step is ticked only when it is truly done |
@@ -5218,7 +5492,7 @@ these. Paths are relative to each app's `src` folder.
 | Cart tabs | `components/CartModeTabs.tsx` (storefront) | Instant Buy and Schedule Cart. Shown only when recurring orders are on |
 | Version choice | `components/VariantSelector.tsx` (storefront) | One control per option; combinations that do not exist are greyed out |
 | Addresses | `components/AddressForm.tsx`, `components/AddressSuggest.tsx`, `components/BusinessAddressFields.tsx` (storefront) | The address form with suggestions as you type; the six-part registered address for sellers |
-| Cards on file | `components/CardSetupDialog.tsx`, `components/StripePaymentDialog.tsx`, `components/AutoPaySetupDialog.tsx` (storefront) | The card fields are the payment provider's own; the store never sees a card number |
+| Cards on file | `components/CardSetupDialog.tsx`, `components/AutoPaySetupDialog.tsx` (storefront) | The card fields are the payment provider's own; the store never sees a card number. Checkout card payments happen on Stripe-hosted Checkout, not in a storefront component |
 | Flags | `components/CountryFlag.tsx` (storefront, admin) | Drawn in code, not emoji or images, so they look the same on every machine and need nothing from the internet |
 | Market control | `components/market/*` (storefront) | The header control for language, country and currency |
 | Light and dark | `components/ThemeToggle.tsx` (all three) | Match my device, Light, Dark |

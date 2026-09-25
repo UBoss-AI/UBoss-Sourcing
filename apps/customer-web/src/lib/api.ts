@@ -21,6 +21,7 @@
  *   - **The error envelope is the contract.** `{ error: { code, message,
  *     details, correlationId } }`. `ApiError` carries all four.
  */
+import { noteSellerResponse, sellerActivityHeaders } from './seller-session';
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1').replace(
   /\/+$/,
@@ -275,9 +276,17 @@ function toApiError(status: number, body: unknown, retryAfter: string | null): A
   );
 }
 
+/** The error code in an envelope, if the body is one. */
+function errorCodeOf(payload: unknown): string | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  const error = (payload as { error?: { code?: unknown } }).error;
+  return typeof error?.code === 'string' ? error.code : null;
+}
+
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = options.method ?? 'GET';
-  const headers: Record<string, string> = {};
+  // A Seller Hub read a person asked for is marked as such; see seller-session.ts.
+  const headers: Record<string, string> = { ...sellerActivityHeaders(path, method) };
 
   if (!SAFE_METHODS.has(method)) {
     const csrf = readCsrfToken();
@@ -324,10 +333,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   if (response.ok) {
+    noteSellerResponse(path, response.headers, null);
     return (await parseBody(response)) as T;
   }
 
   const payload = await parseBody(response);
+  noteSellerResponse(path, response.headers, errorCodeOf(payload));
 
   if (response.status === 401 && (options.retryOnUnauthorised ?? true)) {
     const refreshed = await refreshSession();

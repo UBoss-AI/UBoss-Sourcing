@@ -175,6 +175,14 @@ export const router = createBrowserRouter([
         ...customerRoute(() => import('@/pages/PaymentPage').then((m) => m.PaymentPage)),
       },
       {
+        // Where Stripe Checkout returns a customer. Says nothing until the
+        // backend has: the arrival here is not evidence of a payment.
+        path: 'checkout/payment/:orderId/confirmation',
+        ...customerRoute(() =>
+          import('@/pages/PaymentConfirmationPage').then((m) => m.PaymentConfirmationPage),
+        ),
+      },
+      {
         path: 'order-confirmation/:orderId',
         ...customerRoute(() =>
           import('@/pages/OrderConfirmationPage').then((m) => m.OrderConfirmationPage),

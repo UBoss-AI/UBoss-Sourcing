@@ -1,19 +1,37 @@
 /**
- * "Chat with UBOSS" - beside Preorder on every product page.
+ * "Chat with UBOSS" - an icon beside Preorder's (i) on every product page:
+ * [ Preorder (i) ] [ chat ].
+ *
+ * An icon button rather than a labelled one, because the row already says
+ * "Preorder" and three words of text beside it crowded the action the buyer
+ * came for. It loses nothing: its accessible name is "Chat with {{marketplace}}",
+ * a tooltip says what it does on hover and on keyboard focus, and on a phone a
+ * tap simply opens the chat - nothing depends on hover. It is 48 px square,
+ * the height of the Preorder button, which is past the 44 px touch minimum.
+ * A badge shows replies from the team that are still unread on conversations
+ * about THIS product, counted by the server.
+ *
+ * Everything behind the click is unchanged: the same sign-in round trip, the
+ * same drawer, the same product, option, quantity and unit carried in.
  *
  * Asks the operator's own team, never the seller. It is there whether or not
  * the product can be preordered right now, because "why can't I preorder
  * this?" is one of the questions it exists for.
  *
- * A guest is sent to sign in and brought back to this page - the query string
- * keeps the option they chose - with the chat open on the quantity and unit
- * they were looking at. Nothing about the guest is sent anywhere: the intent
- * waits in this tab's sessionStorage, and a conversation only exists once a
- * signed-in customer sends a first message.
+ * A guest opens the same drawer and can read the preorder assistant's answers
+ * straight away - they are the product's own public information. Writing to
+ * the team, or asking for a person, needs an account: the guest is sent to
+ * sign in and brought back to this page - the query string keeps the option
+ * they chose - with the chat open on the quantity and unit they were looking
+ * at, the answers they read still there, and a request for a person finished
+ * for them if that is what they asked for. Nothing about the guest is sent
+ * anywhere: the intent waits in this tab's sessionStorage, and a conversation
+ * only exists once a signed-in customer writes or asks for a person.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Tooltip } from '@/components/Tooltip';
 import { useSession } from '@/auth/session-context';
 import { ChatBubblesIcon } from '@/components/icons';
 import { useI18n } from '@/i18n/i18n-context';
@@ -22,6 +40,7 @@ import {
   CHAT_INTENT_PARAM,
   chatKeys,
   fetchChatAvailability,
+  fetchUnreadChats,
   rememberChatIntent,
   takeChatIntent,
   type ChatContextInput,
@@ -44,7 +63,7 @@ export function ChatWithUbossButton({
   onReviewProposal,
   className,
 }: ChatWithUbossButtonProps): React.JSX.Element | null {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
   const { isCustomer } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,6 +82,18 @@ export function ChatWithUbossButton({
 
   const availability = useQuery({ queryKey: chatKeys.availability, queryFn: fetchChatAvailability, staleTime: 60_000 });
 
+  // Under chatKeys.unread, so every place that invalidates the unread count -
+  // a live message, a conversation marked read - refreshes this badge too.
+  const unread = useQuery({
+    queryKey: [...chatKeys.unread, productId],
+    queryFn: () => fetchUnreadChats(productId),
+    enabled: isCustomer && availability.data?.enabled !== false,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
+    retry: false,
+  });
+  const unreadCount = isCustomer ? (unread.data?.unreadCount ?? 0) : 0;
+
   // The option or quantity on the page changed while the drawer was closed:
   // the next conversation is about what is on the page now.
   useEffect(() => {
@@ -76,16 +107,17 @@ export function ChatWithUbossButton({
     }));
   }, [productId, variantId, pieces, isOpen]);
 
+  // Off to sign in, and back to this page with the chat open.
+  const signIn = useCallback((): void => {
+    rememberChatIntent(context);
+    const params = new URLSearchParams(location.search);
+    params.set(CHAT_INTENT_PARAM, '1');
+    void navigate(`/login?next=${encodeURIComponent(`${location.pathname}?${params.toString()}`)}`);
+  }, [context, location.pathname, location.search, navigate]);
+
   const open = useCallback((): void => {
-    if (!isCustomer) {
-      rememberChatIntent(context);
-      const params = new URLSearchParams(location.search);
-      params.set(CHAT_INTENT_PARAM, '1');
-      void navigate(`/login?next=${encodeURIComponent(`${location.pathname}?${params.toString()}`)}`);
-      return;
-    }
     setIsOpen(true);
-  }, [isCustomer, context, location.pathname, location.search, navigate]);
+  }, []);
 
   // Back from sign-in with the intent in the URL.
   const intent = searchParams.get(CHAT_INTENT_PARAM) === '1';
@@ -109,27 +141,43 @@ export function ChatWithUbossButton({
 
   return (
     <>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={open}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        aria-label={t('preorderChat.buttonLabel')}
-        title={t('preorderChat.tooltip')}
-        className={cx(
-          'inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink shadow-card',
-          'hover:border-brand/40 hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
-          className,
-        )}
-      >
-        <ChatBubblesIcon className="size-5 shrink-0 text-brand" />
-        <span className="truncate">{t('preorderChat.button')}</span>
-      </button>
+      <Tooltip label={t('preorderChat.tooltip')} align="end">
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={open}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-label={
+            unreadCount > 0
+              ? t('preorderChat.iconLabelUnread', { unread: unreadCount.toLocaleString(intlLocale) })
+              : t('preorderChat.button')
+          }
+          className={cx(
+            'relative inline-flex size-12 shrink-0 items-center justify-center rounded-md border border-border-strong bg-surface text-brand shadow-card',
+            'transition-[border-color,background-color,box-shadow] duration-200',
+            'hover:border-brand/50 hover:bg-brand-soft hover:shadow-[0_0_0_4px_rgb(var(--brand)/0.12),0_6px_18px_-6px_rgb(var(--brand)/0.45)]',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+            className,
+          )}
+        >
+          <ChatBubblesIcon className="size-5 shrink-0" />
+          {unreadCount > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute -right-1.5 -top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-xxs font-semibold leading-5 text-white ring-2 ring-surface"
+            >
+              {unreadCount > 99 ? '99+' : unreadCount.toLocaleString(intlLocale)}
+            </span>
+          )}
+        </button>
+      </Tooltip>
 
       <PreorderChatDrawer
         isOpen={isOpen}
         onClose={close}
+        signedIn={isCustomer}
+        onSignIn={signIn}
         conversationId={conversationId}
         context={context}
         onContextChange={setContext}

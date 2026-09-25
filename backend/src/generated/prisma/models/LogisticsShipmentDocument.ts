@@ -665,10 +665,6 @@ export type EnumLogisticsDocumentAudienceFieldUpdateOperationsInput = {
   set?: $Enums.LogisticsDocumentAudience
 }
 
-export type EnumLogisticsDocumentScanStateFieldUpdateOperationsInput = {
-  set?: $Enums.LogisticsDocumentScanState
-}
-
 export type LogisticsShipmentDocumentCreateWithoutShipmentInput = {
   id: string
   kind: $Enums.LogisticsDocumentKind

@@ -17,6 +17,7 @@
  *     hand somebody else's.
  */
 import { api, postFile } from './api';
+import type { SpecGroupKey } from './types';
 import type { CarrierSetupStatus } from './carrier-providers';
 import type { ConsignmentLogisticsState } from './consignment-logistics';
 import type { MapConfig } from '@/components/LocationMap';
@@ -56,6 +57,28 @@ export interface SellerIdentity {
    * would flash the workspace first.
    */
   lock: { isSet: boolean; isOpen: boolean };
+  /**
+   * When the open Hub re-locks without further activity, and the
+   * deployment's idle and warning settings. Absent from an older server.
+   */
+  session?: SellerIdleSession;
+}
+
+export interface SellerIdleSession {
+  /** Null while the Hub is locked. */
+  expiresAt: string | null;
+  idleTimeoutSeconds: number;
+  warningSeconds: number;
+}
+
+/** When the open Hub re-locks. Reading it does not keep the Hub open. */
+export function fetchSellerSession(): Promise<{ session: SellerIdleSession }> {
+  return api.get<{ session: SellerIdleSession }>('/sellers/session');
+}
+
+/** "Stay signed in": keep the open Hub open for another full idle period. */
+export function renewSellerSession(): Promise<{ session: SellerIdleSession }> {
+  return api.post<{ session: SellerIdleSession }>('/sellers/session/renew', {});
 }
 
 /** Choose the Seller Hub password, or change it. */
@@ -980,6 +1003,8 @@ export interface ListingEditView {
     priceTiers: { minQuantity: number; priceMinor: string }[];
   };
   brand: { id: string; name: string; status: string } | null;
+  /** The listing its description and specifications are edited through, or null. */
+  contentDraftId: string | null;
   product: {
     id: string;
     name: string;
@@ -1567,6 +1592,12 @@ export interface SellerOrderDetail {
      * legitimately lacks it.
      */
     note?: string | null;
+    /**
+     * What was ordered, as it was described when the order was created -
+     * SNAPSHOT - or, for an order from before snapshots, the listing as it is
+     * now, labelled CURRENT_LISTING. Read only. Optional for an older server.
+     */
+    productInfo?: { source: 'SNAPSHOT' | 'CURRENT_LISTING' | 'UNAVAILABLE'; info: OrderedProductInfo | null };
   }[];
   shipments: {
     id: string;
@@ -2864,4 +2895,81 @@ export function previewBulkOrder(
   return api.get<BulkOrderPreview>(
     `/seller/offers/${encodeURIComponent(offerId)}/packaging/preview?${params.toString()}`,
   );
+}
+
+// ---------------------------------------------------------------------------
+// A listing's description and specifications
+// ---------------------------------------------------------------------------
+
+export interface ListingSpecRowInput {
+  label: string;
+  value: string;
+  unit: string | null;
+  highlight: boolean;
+}
+
+export interface ListingContent {
+  specifications: { group: SpecGroupKey; rows: ListingSpecRowInput[] }[];
+  descriptionSections: { heading: string; body: string; imageMediaId: string | null; altText: string | null }[];
+  variantOverrides: { variantSignature: string; group: SpecGroupKey; label: string; value: string; unit: string | null }[];
+}
+
+export interface ListingContentView {
+  content: ListingContent;
+  variants: { signature: string; name: string }[];
+  images: { id: string; fileName: string; altText: string | null }[];
+  editable: boolean;
+  appliesTo: 'draft' | 'live';
+}
+
+/** The units a value may carry: the server's list, kept in step by `spec-units-sync.test.ts`. */
+export const SPEC_UNITS = [
+  'mm', 'cm', 'm', 'km', 'in', 'ft',
+  'mg', 'g', 'kg', 't', 'oz', 'lb',
+  'ml', 'l', 'm³', 'fl oz', 'gal',
+  'W', 'kW', 'V', 'A', 'mA', 'mAh', 'Ah', 'Wh', 'kWh', 'Ω',
+  'Hz', 'kHz', 'MHz', 'GHz', 'dB',
+  '°C', '°F', 'K',
+  'Pa', 'kPa', 'bar', 'psi',
+  'rpm', 's', 'min', 'h', 'd',
+  'pcs', '%', 'GB', 'TB', 'MB',
+  'lm', 'lx', 'N', 'Nm',
+] as const;
+
+export function fetchListingContent(draftId: string): Promise<ListingContentView> {
+  return api.get<ListingContentView>(`/seller/listing-drafts/${draftId}/content`);
+}
+
+export function saveListingContent(draftId: string, content: ListingContent): Promise<ListingContentView> {
+  return api.put<ListingContentView>(`/seller/listing-drafts/${draftId}/content`, content);
+}
+
+/** `domain/order-item-snapshot.ts` on the server: what one order line says was bought. */
+export interface OrderedProductInfo {
+  schemaVersion: number;
+  capturedAt: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  variantId: string | null;
+  variantName: string | null;
+  selectedOptions: { name: string; value: string }[];
+  description: { text: string | null; html: string | null; sections: { heading: string; body: string }[] };
+  specificationGroups: { group: SpecGroupKey; rows: { label: string; value: string; unit: string | null; highlight: boolean }[] }[];
+  packaging: {
+    orderingUnit: string;
+    unitQuantity: number;
+    piecesPerUnit: number;
+    equivalentPieces: number;
+    packageType: string | null;
+    unitsPerCarton: number | null;
+    cartonsPerPallet: number | null;
+    cartonsPerContainer: number | null;
+    dimensionsMm: { length: number | null; width: number | null; height: number | null } | null;
+    grossWeightGrams: string | null;
+  };
+  moqPieces: number | null;
+  piecesPerCarton: number | null;
+  containerCapacity: Record<'CONTAINER_20_FT' | 'CONTAINER_40_FT', { pieces: number; cartons: number | null; piecesPerCarton: number | null } | null>;
+  specialInstructions: string | null;
 }

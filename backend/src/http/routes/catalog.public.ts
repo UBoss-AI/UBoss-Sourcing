@@ -88,6 +88,8 @@ import {
   productIdsMatchingTranslation,
 } from '../../modules/catalog/translation.service.js';
 import { isSupportedLanguage } from '../../modules/identity/language.service.js';
+import { descriptionSectionsFor } from '../../modules/catalog/product-content.service.js';
+import { shownSpecifications } from '../../domain/product-specifications.js';
 import { resolveCurrencyFor } from '../../modules/settings/currency.service.js';
 import {
   serialisePackaging,
@@ -727,7 +729,19 @@ function serialiseProduct(
     attributes: product.attributes.map((attribute) => ({
       name: attribute.name,
       value: attribute.value,
+      group: attribute.groupKey ?? 'GENERAL',
+      unit: attribute.unit,
     })),
+
+    // The same facts, grouped in the fixed order with empty and duplicate
+    // rows left out - what the page's specification table shows. A variant
+    // with overrides carries its own `specifications` below.
+    specifications: shownSpecifications(product.attributes),
+    // The reader's language is the one the translation row was read in.
+    descriptionSections: descriptionSectionsFor(
+      product.descriptionSections,
+      product.translations[0]?.language ?? null,
+    ),
 
     variants: product.variants.map((variant) => {
       const variantPrice = variantPrices.get(priceKey(product.id, variant.id)) ?? price;
@@ -758,6 +772,11 @@ function serialiseProduct(
         sku: variant.sku,
         name: variant.name,
         options: variant.optionsJson,
+        // This variant's specifications, when any differ from the product's -
+        // otherwise null and the product's apply. Never the previous
+        // variant's: the page swaps the whole list.
+        specifications:
+          variant.attributes.length === 0 ? null : shownSpecifications(product.attributes, variant.attributes),
         availableInCurrency: variantPrice !== null,
         price: variantQuote === null ? null : serialiseMoney(variantQuote.unitPriceMinor, currency),
         compareAtPrice:

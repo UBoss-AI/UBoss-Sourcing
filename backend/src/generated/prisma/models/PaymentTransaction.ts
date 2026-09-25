@@ -53,6 +53,13 @@ export type PaymentTransactionMinAggregateOutputType = {
   failureMessage: string | null
   idempotencyKey: string | null
   mandateReference: string | null
+  providerSessionId: string | null
+  sessionExpiresAt: Date | null
+  openAttemptKey: string | null
+  cardBrand: string | null
+  cardLast4: string | null
+  disputedAt: Date | null
+  disputeReason: string | null
   authorizedAt: Date | null
   capturedAt: Date | null
   failedAt: Date | null
@@ -78,6 +85,13 @@ export type PaymentTransactionMaxAggregateOutputType = {
   failureMessage: string | null
   idempotencyKey: string | null
   mandateReference: string | null
+  providerSessionId: string | null
+  sessionExpiresAt: Date | null
+  openAttemptKey: string | null
+  cardBrand: string | null
+  cardLast4: string | null
+  disputedAt: Date | null
+  disputeReason: string | null
   authorizedAt: Date | null
   capturedAt: Date | null
   failedAt: Date | null
@@ -103,6 +117,13 @@ export type PaymentTransactionCountAggregateOutputType = {
   failureMessage: number
   idempotencyKey: number
   mandateReference: number
+  providerSessionId: number
+  sessionExpiresAt: number
+  openAttemptKey: number
+  cardBrand: number
+  cardLast4: number
+  disputedAt: number
+  disputeReason: number
   authorizedAt: number
   capturedAt: number
   failedAt: number
@@ -140,6 +161,13 @@ export type PaymentTransactionMinAggregateInputType = {
   failureMessage?: true
   idempotencyKey?: true
   mandateReference?: true
+  providerSessionId?: true
+  sessionExpiresAt?: true
+  openAttemptKey?: true
+  cardBrand?: true
+  cardLast4?: true
+  disputedAt?: true
+  disputeReason?: true
   authorizedAt?: true
   capturedAt?: true
   failedAt?: true
@@ -165,6 +193,13 @@ export type PaymentTransactionMaxAggregateInputType = {
   failureMessage?: true
   idempotencyKey?: true
   mandateReference?: true
+  providerSessionId?: true
+  sessionExpiresAt?: true
+  openAttemptKey?: true
+  cardBrand?: true
+  cardLast4?: true
+  disputedAt?: true
+  disputeReason?: true
   authorizedAt?: true
   capturedAt?: true
   failedAt?: true
@@ -190,6 +225,13 @@ export type PaymentTransactionCountAggregateInputType = {
   failureMessage?: true
   idempotencyKey?: true
   mandateReference?: true
+  providerSessionId?: true
+  sessionExpiresAt?: true
+  openAttemptKey?: true
+  cardBrand?: true
+  cardLast4?: true
+  disputedAt?: true
+  disputeReason?: true
   authorizedAt?: true
   capturedAt?: true
   failedAt?: true
@@ -302,6 +344,13 @@ export type PaymentTransactionGroupByOutputType = {
   failureMessage: string | null
   idempotencyKey: string
   mandateReference: string | null
+  providerSessionId: string | null
+  sessionExpiresAt: Date | null
+  openAttemptKey: string | null
+  cardBrand: string | null
+  cardLast4: string | null
+  disputedAt: Date | null
+  disputeReason: string | null
   authorizedAt: Date | null
   capturedAt: Date | null
   failedAt: Date | null
@@ -350,6 +399,13 @@ export type PaymentTransactionWhereInput = {
   failureMessage?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   idempotencyKey?: Prisma.StringFilter<"PaymentTransaction"> | string
   mandateReference?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  providerSessionId?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  sessionExpiresAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  openAttemptKey?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  cardBrand?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  cardLast4?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  disputeReason?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   authorizedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   capturedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
@@ -379,6 +435,13 @@ export type PaymentTransactionOrderByWithRelationInput = {
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   mandateReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  providerSessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  openAttemptKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardBrand?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardLast4?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputeReason?: Prisma.SortOrderInput | Prisma.SortOrder
   authorizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -396,6 +459,8 @@ export type PaymentTransactionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   providerPaymentId?: string
   idempotencyKey?: string
+  providerSessionId?: string
+  openAttemptKey?: string
   AND?: Prisma.PaymentTransactionWhereInput | Prisma.PaymentTransactionWhereInput[]
   OR?: Prisma.PaymentTransactionWhereInput[]
   NOT?: Prisma.PaymentTransactionWhereInput | Prisma.PaymentTransactionWhereInput[]
@@ -412,6 +477,11 @@ export type PaymentTransactionWhereUniqueInput = Prisma.AtLeast<{
   failureCode?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   failureMessage?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   mandateReference?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  sessionExpiresAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  cardBrand?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  cardLast4?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  disputeReason?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   authorizedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   capturedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
@@ -422,7 +492,7 @@ export type PaymentTransactionWhereUniqueInput = Prisma.AtLeast<{
   connection?: Prisma.XOR<Prisma.PaymentProviderConnectionScalarRelationFilter, Prisma.PaymentProviderConnectionWhereInput>
   refunds?: Prisma.RefundListRelationFilter
   events?: Prisma.PaymentEventListRelationFilter
-}, "id" | "providerPaymentId" | "idempotencyKey">
+}, "id" | "providerPaymentId" | "idempotencyKey" | "providerSessionId" | "openAttemptKey">
 
 export type PaymentTransactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -441,6 +511,13 @@ export type PaymentTransactionOrderByWithAggregationInput = {
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   mandateReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  providerSessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  openAttemptKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardBrand?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardLast4?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  disputeReason?: Prisma.SortOrderInput | Prisma.SortOrder
   authorizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -474,6 +551,13 @@ export type PaymentTransactionScalarWhereWithAggregatesInput = {
   failureMessage?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
   idempotencyKey?: Prisma.StringWithAggregatesFilter<"PaymentTransaction"> | string
   mandateReference?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
+  providerSessionId?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
+  sessionExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentTransaction"> | Date | string | null
+  openAttemptKey?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
+  cardBrand?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
+  cardLast4?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
+  disputedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentTransaction"> | Date | string | null
+  disputeReason?: Prisma.StringNullableWithAggregatesFilter<"PaymentTransaction"> | string | null
   authorizedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentTransaction"> | Date | string | null
   capturedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentTransaction"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentTransaction"> | Date | string | null
@@ -497,6 +581,13 @@ export type PaymentTransactionCreateInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -526,6 +617,13 @@ export type PaymentTransactionUncheckedCreateInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -551,6 +649,13 @@ export type PaymentTransactionUpdateInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -580,6 +685,13 @@ export type PaymentTransactionUncheckedUpdateInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -607,6 +719,13 @@ export type PaymentTransactionCreateManyInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -630,6 +749,13 @@ export type PaymentTransactionUpdateManyMutationInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -655,6 +781,13 @@ export type PaymentTransactionUncheckedUpdateManyInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -696,6 +829,13 @@ export type PaymentTransactionCountOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   mandateReference?: Prisma.SortOrder
+  providerSessionId?: Prisma.SortOrder
+  sessionExpiresAt?: Prisma.SortOrder
+  openAttemptKey?: Prisma.SortOrder
+  cardBrand?: Prisma.SortOrder
+  cardLast4?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
   authorizedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
@@ -726,6 +866,13 @@ export type PaymentTransactionMaxOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   mandateReference?: Prisma.SortOrder
+  providerSessionId?: Prisma.SortOrder
+  sessionExpiresAt?: Prisma.SortOrder
+  openAttemptKey?: Prisma.SortOrder
+  cardBrand?: Prisma.SortOrder
+  cardLast4?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
   authorizedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
@@ -751,6 +898,13 @@ export type PaymentTransactionMinOrderByAggregateInput = {
   failureMessage?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   mandateReference?: Prisma.SortOrder
+  providerSessionId?: Prisma.SortOrder
+  sessionExpiresAt?: Prisma.SortOrder
+  openAttemptKey?: Prisma.SortOrder
+  cardBrand?: Prisma.SortOrder
+  cardLast4?: Prisma.SortOrder
+  disputedAt?: Prisma.SortOrder
+  disputeReason?: Prisma.SortOrder
   authorizedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
   failedAt?: Prisma.SortOrder
@@ -907,6 +1061,13 @@ export type PaymentTransactionCreateWithoutOrderInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -934,6 +1095,13 @@ export type PaymentTransactionUncheckedCreateWithoutOrderInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -990,6 +1158,13 @@ export type PaymentTransactionScalarWhereInput = {
   failureMessage?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   idempotencyKey?: Prisma.StringFilter<"PaymentTransaction"> | string
   mandateReference?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  providerSessionId?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  sessionExpiresAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  openAttemptKey?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  cardBrand?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  cardLast4?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
+  disputedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
+  disputeReason?: Prisma.StringNullableFilter<"PaymentTransaction"> | string | null
   authorizedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   capturedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
   failedAt?: Prisma.DateTimeNullableFilter<"PaymentTransaction"> | Date | string | null
@@ -1013,6 +1188,13 @@ export type PaymentTransactionCreateWithoutConnectionInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1040,6 +1222,13 @@ export type PaymentTransactionUncheckedCreateWithoutConnectionInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1091,6 +1280,13 @@ export type PaymentTransactionCreateWithoutEventsInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1119,6 +1315,13 @@ export type PaymentTransactionUncheckedCreateWithoutEventsInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1159,6 +1362,13 @@ export type PaymentTransactionUpdateWithoutEventsInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1187,6 +1397,13 @@ export type PaymentTransactionUncheckedUpdateWithoutEventsInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1211,6 +1428,13 @@ export type PaymentTransactionCreateWithoutRefundsInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1239,6 +1463,13 @@ export type PaymentTransactionUncheckedCreateWithoutRefundsInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1279,6 +1510,13 @@ export type PaymentTransactionUpdateWithoutRefundsInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1307,6 +1545,13 @@ export type PaymentTransactionUncheckedUpdateWithoutRefundsInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1332,6 +1577,13 @@ export type PaymentTransactionCreateManyOrderInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1355,6 +1607,13 @@ export type PaymentTransactionUpdateWithoutOrderInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1382,6 +1641,13 @@ export type PaymentTransactionUncheckedUpdateWithoutOrderInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1408,6 +1674,13 @@ export type PaymentTransactionUncheckedUpdateManyWithoutOrderInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1432,6 +1705,13 @@ export type PaymentTransactionCreateManyConnectionInput = {
   failureMessage?: string | null
   idempotencyKey: string
   mandateReference?: string | null
+  providerSessionId?: string | null
+  sessionExpiresAt?: Date | string | null
+  openAttemptKey?: string | null
+  cardBrand?: string | null
+  cardLast4?: string | null
+  disputedAt?: Date | string | null
+  disputeReason?: string | null
   authorizedAt?: Date | string | null
   capturedAt?: Date | string | null
   failedAt?: Date | string | null
@@ -1455,6 +1735,13 @@ export type PaymentTransactionUpdateWithoutConnectionInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1482,6 +1769,13 @@ export type PaymentTransactionUncheckedUpdateWithoutConnectionInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1508,6 +1802,13 @@ export type PaymentTransactionUncheckedUpdateManyWithoutConnectionInput = {
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  providerSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openAttemptKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardBrand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardLast4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  disputedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  disputeReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1573,6 +1874,13 @@ export type PaymentTransactionSelect<ExtArgs extends runtime.Types.Extensions.In
   failureMessage?: boolean
   idempotencyKey?: boolean
   mandateReference?: boolean
+  providerSessionId?: boolean
+  sessionExpiresAt?: boolean
+  openAttemptKey?: boolean
+  cardBrand?: boolean
+  cardLast4?: boolean
+  disputedAt?: boolean
+  disputeReason?: boolean
   authorizedAt?: boolean
   capturedAt?: boolean
   failedAt?: boolean
@@ -1605,6 +1913,13 @@ export type PaymentTransactionSelectScalar = {
   failureMessage?: boolean
   idempotencyKey?: boolean
   mandateReference?: boolean
+  providerSessionId?: boolean
+  sessionExpiresAt?: boolean
+  openAttemptKey?: boolean
+  cardBrand?: boolean
+  cardLast4?: boolean
+  disputedAt?: boolean
+  disputeReason?: boolean
   authorizedAt?: boolean
   capturedAt?: boolean
   failedAt?: boolean
@@ -1613,7 +1928,7 @@ export type PaymentTransactionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PaymentTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "connectionId" | "provider" | "mode" | "providerOrderId" | "providerPaymentId" | "status" | "amountMinor" | "capturedMinor" | "currency" | "method" | "failureCode" | "failureMessage" | "idempotencyKey" | "mandateReference" | "authorizedAt" | "capturedAt" | "failedAt" | "reconciledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentTransaction"]>
+export type PaymentTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "connectionId" | "provider" | "mode" | "providerOrderId" | "providerPaymentId" | "status" | "amountMinor" | "capturedMinor" | "currency" | "method" | "failureCode" | "failureMessage" | "idempotencyKey" | "mandateReference" | "providerSessionId" | "sessionExpiresAt" | "openAttemptKey" | "cardBrand" | "cardLast4" | "disputedAt" | "disputeReason" | "authorizedAt" | "capturedAt" | "failedAt" | "reconciledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentTransaction"]>
 export type PaymentTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   connection?: boolean | Prisma.PaymentProviderConnectionDefaultArgs<ExtArgs>
@@ -1657,6 +1972,37 @@ export type $PaymentTransactionPayload<ExtArgs extends runtime.Types.Extensions.
      * Set when this attempt is a recurring auto-pay against a stored mandate.
      */
     mandateReference: string | null
+    /**
+     * --- Stripe-hosted Checkout ---
+     * 
+     * The Checkout Session (cs_...) this attempt sent the customer to. Stripe
+     * creates the PaymentIntent only once the customer confirms on its page, so
+     * `providerOrderId` stays NULL until then and this is the reference every
+     * checkout.session.* webhook is matched on.
+     */
+    providerSessionId: string | null
+    sessionExpiresAt: Date | null
+    /**
+     * The order id while this attempt is OPEN, NULL once it is closed.
+     * 
+     * The one-open-attempt-per-order rule, held by the database rather than by
+     * a read-then-write. A second tab or a double click collides on this
+     * UNIQUE index instead of opening a second Checkout Session - and MariaDB
+     * treats every NULL as distinct, so closed attempts never collide.
+     */
+    openAttemptKey: string | null
+    /**
+     * Display only, read back from Stripe after capture: what a person needs to
+     * recognise the card they paid with. Never a card number.
+     */
+    cardBrand: string | null
+    cardLast4: string | null
+    /**
+     * A chargeback was opened against this payment. The money's own status
+     * (CAPTURED) does not change - a dispute is a claim, not a reversal.
+     */
+    disputedAt: Date | null
+    disputeReason: string | null
     authorizedAt: Date | null
     capturedAt: Date | null
     failedAt: Date | null
@@ -2056,6 +2402,13 @@ export interface PaymentTransactionFieldRefs {
   readonly failureMessage: Prisma.FieldRef<"PaymentTransaction", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"PaymentTransaction", 'String'>
   readonly mandateReference: Prisma.FieldRef<"PaymentTransaction", 'String'>
+  readonly providerSessionId: Prisma.FieldRef<"PaymentTransaction", 'String'>
+  readonly sessionExpiresAt: Prisma.FieldRef<"PaymentTransaction", 'DateTime'>
+  readonly openAttemptKey: Prisma.FieldRef<"PaymentTransaction", 'String'>
+  readonly cardBrand: Prisma.FieldRef<"PaymentTransaction", 'String'>
+  readonly cardLast4: Prisma.FieldRef<"PaymentTransaction", 'String'>
+  readonly disputedAt: Prisma.FieldRef<"PaymentTransaction", 'DateTime'>
+  readonly disputeReason: Prisma.FieldRef<"PaymentTransaction", 'String'>
   readonly authorizedAt: Prisma.FieldRef<"PaymentTransaction", 'DateTime'>
   readonly capturedAt: Prisma.FieldRef<"PaymentTransaction", 'DateTime'>
   readonly failedAt: Prisma.FieldRef<"PaymentTransaction", 'DateTime'>

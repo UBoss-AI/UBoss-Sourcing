@@ -14,6 +14,7 @@ import {
   CustomersIcon,
   DashboardIcon,
   OrdersIcon,
+  ProfileIcon,
   SellerIcon,
   StaffIcon,
   WarehouseIcon,
@@ -123,6 +124,17 @@ export const NAVIGATION: readonly NavSection[] = [
         labelKey: 'nav.drivers',
         icon: StaffIcon,
         anyOf: [Permission.DRIVER_READ, Permission.VEHICLE_READ],
+      },
+      {
+        /*
+         * The company's own profile: identity, contacts, coverage, compliance
+         * documents and integration status. Anybody who can read the company
+         * record can open it; only an owner or administrator can change it.
+         */
+        to: '/profile',
+        labelKey: 'nav.myProfile',
+        icon: ProfileIcon,
+        anyOf: [Permission.ORGANISATION_READ],
       },
       {
         to: '/company',

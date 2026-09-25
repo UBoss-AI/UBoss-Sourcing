@@ -89,6 +89,8 @@ declare module 'fastify' {
        */
       sessionSellerUnlockedAt: Date | null;
       sessionSellerUnlockedForId: string | null;
+      /** When the Seller Hub last saw deliberate activity; see the seller guard. */
+      sessionSellerLastActivityAt: Date | null;
     };
   }
 }
@@ -197,6 +199,7 @@ async function authenticate(
     sessionPlace: string | null;
     sessionSellerUnlockedAt: Date | null;
     sessionSellerUnlockedForId: string | null;
+    sessionSellerLastActivityAt: Date | null;
   }
 > {
   const presented = extractAccessToken(request, expectedKind);
@@ -242,6 +245,7 @@ async function authenticate(
     sessionPlace: session.place,
     sessionSellerUnlockedAt: session.sellerUnlockedAt,
     sessionSellerUnlockedForId: session.sellerUnlockedForId,
+    sessionSellerLastActivityAt: session.sellerLastActivityAt,
   };
 }
 
@@ -398,6 +402,7 @@ export function currentUser(
   sessionPlace: string | null;
   sessionSellerUnlockedAt: Date | null;
   sessionSellerUnlockedForId: string | null;
+  sessionSellerLastActivityAt: Date | null;
 } {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.

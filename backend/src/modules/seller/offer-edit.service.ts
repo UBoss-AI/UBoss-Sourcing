@@ -194,6 +194,7 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
       productId: true,
       variantKey: true,
       updatedAt: true,
+      sourceDraftId: true,
       brand: { select: { id: true, name: true, status: true } },
       priceTiers: { orderBy: { minQuantity: 'asc' }, select: { minQuantity: true, priceMinor: true } },
       product: {
@@ -410,6 +411,9 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
     },
 
     brand: offer.brand,
+    // The listing the description and specifications are edited through
+    // (`/listing-drafts/:id/content`), or null for an offer with no draft.
+    contentDraftId: offer.sourceDraftId,
 
     product: {
       id: offer.product.id,

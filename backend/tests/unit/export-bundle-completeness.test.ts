@@ -55,6 +55,9 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   Cart: 'carts',
   RecurringSchedule: 'recurringSchedules',
   CustomerPaymentMethod: 'savedPaymentMethods',
+  // A gateway customer reference (cus_...). Usable with this deployment's key to
+  // reach their saved cards, so reported as existing and not disclosed.
+  PaymentProviderCustomer: 'credentials',
   CouponRedemption: 'couponRedemptions',
   CustomerLimit: 'purchasingLimits',
   WishlistItem: 'wishlist',

@@ -6,6 +6,7 @@
  * view is scoped by session-derived profile id and omits internal notes; the
  * admin view is permission-gated and shows everything.
  */
+import { readOrderItemSnapshot } from '../../domain/order-item-snapshot.js';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { fromDateColumn } from '../../domain/delivery-dates.js';
@@ -493,6 +494,11 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
           // well as to staff: an instruction somebody cannot re-read on their
           // own order is one they cannot check was understood.
           note: item.noteSnapshot,
+          // What they bought, as it was described when they ordered it:
+          // description, specifications, packaging and their selections. Null
+          // on an order from before these were kept. Never today's listing -
+          // the customer's record of a purchase is the purchase.
+          productInfo: readOrderItemSnapshot(item.productInfoSnapshotJson),
         })),
         timeline: order.statusHistory.map((entry) => ({
           from: entry.fromStatus,

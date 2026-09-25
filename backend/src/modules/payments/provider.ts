@@ -162,8 +162,33 @@ export interface VerifiedEvent {
     | 'PAYMENT_ACTION_REQUIRED'
     | 'REFUND_PROCESSED'
     | 'SETUP_COMPLETED'
+    | CheckoutEventIntent
+    | 'DISPUTE_OPENED'
+    | 'PAYMENT_METHOD_DETACHED'
     | 'UNKNOWN';
   providerOrderId: string | null;
+  /**
+   * The hosted Checkout Session this event is about (cs_...).
+   *
+   * Set on every checkout.session.* event. The PaymentIntent does not exist
+   * until the customer confirms on Stripe's page, so for an attempt whose
+   * customer never got that far this is the only reference there is.
+   */
+  providerSessionId?: string | null;
+  /** Stripe's `payment_status` on a session event: 'paid', 'unpaid' or 'no_payment_required'. */
+  checkoutPaymentStatus?: string | null;
+  /**
+   * Our own payment attempt id, as we sent it to the gateway.
+   *
+   * Read from `client_reference_id` or the PaymentIntent's metadata, both of
+   * which this system wrote when it opened the session. Trustworthy because
+   * the event's signature is: nobody but us and Stripe can put a value there.
+   * It is what matches a `payment_intent.succeeded` that overtakes its own
+   * `checkout.session.completed` - at that moment no row carries the pi_ yet.
+   */
+  internalReference?: string | null;
+  /** Set on DISPUTE_OPENED: Stripe's reason word, e.g. 'fraudulent'. */
+  disputeReason?: string | null;
   providerPaymentId: string | null;
   providerRefundId: string | null;
   /** Set on SETUP_COMPLETED. The SetupIntent this event is about. */
@@ -443,6 +468,15 @@ export interface VaultedCardDetails {
    */
   funding: string | null;
   country: string | null;
+  /**
+   * Stripe's `allow_redisplay`: 'always' only for a card the customer ticked
+   * Checkout's save box for. It is how a Checkout payment tells a card the
+   * customer chose to keep from one Stripe merely processed. Absent on
+   * Razorpay.
+   */
+  allowRedisplay?: string | null;
+  /** The instrument's type, e.g. 'card' or 'link'. Absent on Razorpay. */
+  methodType?: string | null;
 }
 
 export interface EnsureVaultCustomerInput {
@@ -453,6 +487,15 @@ export interface EnsureVaultCustomerInput {
   customerPhone: string | null;
   /** Ours, sent as metadata so the gateway's dashboard traces back here. */
   customerProfileId: string;
+  /**
+   * The creation request's idempotency key, when the caller has a better one
+   * than the adapter's per-profile default.
+   *
+   * `payment_provider_customers` serialises concurrent creation itself, so it
+   * passes a fresh key per attempt: the per-profile default would, for 24
+   * hours, hand back a Customer the gateway has since deleted.
+   */
+  idempotencyKey?: string;
 }
 
 /**
@@ -572,6 +615,154 @@ export function supportsDirectCardCharge(
 ): provider is DirectCardChargeProvider {
   const candidate = provider as Partial<DirectCardChargeProvider>;
   return supportsCardVault(provider) && typeof candidate.chargeSavedCardOnSession === 'function';
+}
+
+// ---------------------------------------------------------------------------
+// Hosted checkout
+// ---------------------------------------------------------------------------
+//
+// The customer is SENT to the gateway's own page and comes back. Card numbers,
+// CVCs, 3-D Secure and the saved-card list all live on that page, so this
+// process - and the storefront - never handle any of them, and the whole
+// integration stays in the smallest PCI scope there is (SAQ A).
+//
+// Kept apart from `PaymentProvider.createPayment` because the shape of the
+// thing is different: there is no client secret to hand the browser, only a
+// URL on the gateway's domain, and the gateway's payment object does not exist
+// until the customer has confirmed. Only Stripe implements it.
+
+/** The checkout.session.* events, normalised. */
+export type CheckoutEventIntent =
+  | 'CHECKOUT_COMPLETED'
+  | 'CHECKOUT_ASYNC_SUCCEEDED'
+  | 'CHECKOUT_ASYNC_FAILED'
+  | 'CHECKOUT_EXPIRED';
+
+export interface CheckoutShippingAddress {
+  name: string;
+  line1: string;
+  line2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  /** ISO 3166-1 alpha-2. */
+  country: string | null;
+  phone: string | null;
+}
+
+export interface CreateCheckoutSessionInput {
+  /** Ours. Sent as client_reference_id and metadata, and as the idempotency key's root. */
+  paymentTransactionId: string;
+  orderId: string;
+  orderNumber: string;
+  /** Minor units, from the order. Never from a browser. */
+  amountMinor: bigint;
+  currency: string;
+  /** The line the customer reads on Stripe's page. */
+  lineItemName: string;
+  lineItemDescription: string | null;
+  /**
+   * What is being bought, on the PaymentIntent.
+   *
+   * Required by India's export rules for any payment on a card issued outside
+   * India, and useful on every other one: it is what the customer's bank shows
+   * when they ask what a charge was for.
+   */
+  description: string;
+  /**
+   * This customer's gateway record, from `payment_provider_customers`.
+   *
+   * Never from the browser. Passing it is what makes Stripe offer the cards
+   * they saved last time - and passing the wrong one would show them somebody
+   * else's, which is why it is read from our own table and nowhere else.
+   */
+  providerCustomerId: string | null;
+  customerEmail: string | null;
+  /**
+   * Show Stripe's own "save for future purchases" tickbox.
+   *
+   * Stripe's native control, unticked by default and worded by Stripe. A
+   * card saved through it is usable only while the customer is present: it
+   * carries no off-session mandate, and nothing here may treat it as one.
+   * Requires `providerCustomerId`.
+   */
+  offerToSaveCard: boolean;
+  /** For physical goods; declared on the PaymentIntent. See `description`. */
+  shipping: CheckoutShippingAddress | null;
+  /** One of Stripe's locale tags, or null for the browser's own. */
+  locale: string | null;
+  successUrl: string;
+  cancelUrl: string;
+  /** Between 30 minutes and 24 hours ahead - Stripe's own bounds. */
+  expiresAt: Date;
+  idempotencyKey: string;
+}
+
+/** A session, as much as this system needs to know about it. */
+export interface CheckoutSessionResult {
+  sessionId: string;
+  /** Stripe's page. Only present while the session is open. */
+  url: string | null;
+  status: 'open' | 'complete' | 'expired';
+  /** 'paid', 'unpaid' or 'no_payment_required'. */
+  paymentStatus: string;
+  expiresAt: Date;
+  providerPaymentIntentId: string | null;
+  providerCustomerId: string | null;
+  amountTotal: bigint | null;
+  currency: string | null;
+  clientReferenceId: string | null;
+  /**
+   * The payment behind a completed session, when it was expanded.
+   *
+   * Read from the gateway, never from the customer's return: this is what the
+   * confirmation page's "Visa ending 4242" is built from.
+   */
+  payment: {
+    status: NormalisedPaymentStatus;
+    chargeId: string | null;
+    amountReceived: bigint;
+    method: string | null;
+    paymentMethodId: string | null;
+    card: { brand: string | null; last4: string | null } | null;
+    failureCode: string | null;
+  } | null;
+}
+
+export interface HostedCheckoutProvider extends CardVaultProvider {
+  createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult>;
+  /** Re-read a session, with its payment expanded. A read; creates nothing. */
+  retrieveCheckoutSession(sessionId: string): Promise<CheckoutSessionResult>;
+  /**
+   * Close an open session so it can no longer be paid.
+   *
+   * Used when the customer comes back through Cancel, so that a tab they left
+   * open cannot take money for an attempt this system has closed.
+   */
+  expireCheckoutSession(sessionId: string): Promise<CheckoutSessionResult>;
+  /**
+   * Let Checkout offer an existing saved card again.
+   *
+   * Only for a card the customer saved with a checkout's "keep this" consent
+   * before Checkout existed here. Stripe offers a card back only when its
+   * `allow_redisplay` is 'always'; cards saved the old way carry
+   * 'unspecified', and auto-pay cards must stay that way.
+   */
+  allowCheckoutRedisplay(providerPaymentMethodId: string): Promise<void>;
+  /** Delete the gateway's customer record, after an erasure. */
+  deleteVaultCustomer(providerCustomerId: string): Promise<void>;
+}
+
+export function supportsHostedCheckout(
+  provider: PaymentProvider,
+): provider is HostedCheckoutProvider {
+  const candidate = provider as Partial<HostedCheckoutProvider>;
+  return (
+    supportsCardVault(provider) &&
+    typeof candidate.createCheckoutSession === 'function' &&
+    typeof candidate.retrieveCheckoutSession === 'function' &&
+    typeof candidate.expireCheckoutSession === 'function'
+  );
 }
 
 /** Narrow a provider to one that can charge off-session. */

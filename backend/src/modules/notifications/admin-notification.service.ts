@@ -199,6 +199,11 @@ export const AdminNotificationKind = {
   /// The customer answered a proposal: submitted a preorder from it, or
   /// declined it. The variables are productName and outcome.
   PREORDER_CHAT_PROPOSAL_ANSWERED: 'preorder_chat.proposal_answered',
+  /// A customer asked the preorder assistant for a person. The variables are
+  /// productName, customerName and topic (the common question they were on,
+  /// or null). Carries `preorder_chat.view`. INFORMATION, like a new chat: the
+  /// queue is what says it is still waiting.
+  PREORDER_CHAT_HANDOFF: 'preorder_chat.handoff',
 } as const;
 
 export type AdminNotificationKindKey =
@@ -332,6 +337,7 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
     resolvedInstead: 'a reply in the conversation',
   }),
   [AdminNotificationKind.PREORDER_CHAT_PROPOSAL_ANSWERED]: INFORMATION,
+  [AdminNotificationKind.PREORDER_CHAT_HANDOFF]: INFORMATION,
 });
 
 function policyFor(kind: string): KindPolicy {

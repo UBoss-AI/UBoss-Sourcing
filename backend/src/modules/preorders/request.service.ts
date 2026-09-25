@@ -20,6 +20,7 @@
  *     the policy on every preview and submission, and the order is built from
  *     the confirmed revision's own stored figures.
  */
+import { captureOrderItemSnapshots } from '../orders/order-item-snapshot.service.js';
 import { priceForQuantity } from '../../domain/quantity-tier.js';
 import { z } from 'zod';
 
@@ -2944,6 +2945,9 @@ export async function buyerConfirm(
           },
         });
       }
+
+      // What was bought, frozen with its packaging: see `order-item-snapshot.service.ts`.
+      await captureOrderItemSnapshots(tx, orderId);
 
       await tx.orderStatusHistory.create({
         data: {

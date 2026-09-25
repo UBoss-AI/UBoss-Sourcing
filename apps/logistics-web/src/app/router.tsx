@@ -145,6 +145,13 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'profile',
+        ...lazyRoute(
+          () => import('@/pages/ProfilePage').then((m) => m.ProfilePage),
+          [Permission.ORGANISATION_READ],
+        ),
+      },
+      {
         path: 'company',
         ...lazyRoute(
           () => import('@/pages/CompanyPages').then((m) => m.CompanyPage),

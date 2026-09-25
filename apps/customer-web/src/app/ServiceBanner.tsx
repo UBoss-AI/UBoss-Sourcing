@@ -54,7 +54,22 @@ function useServiceTrouble(): 'maintenance' | 'unreachable' | null {
     };
 
     evaluate();
-    return cache.subscribe(evaluate);
+    // Deferred to a microtask: the cache also announces a query being CREATED,
+    // and a component that creates one while it renders would otherwise have
+    // this banner setting state in the middle of that render - React's
+    // "cannot update a component while rendering a different component". The
+    // banner cares only about settled failures, which a microtask later is
+    // exactly as soon.
+    let live = true;
+    const unsubscribe = cache.subscribe(() => {
+      queueMicrotask(() => {
+        if (live) evaluate();
+      });
+    });
+    return () => {
+      live = false;
+      unsubscribe();
+    };
   }, [queryClient]);
 
   return trouble;

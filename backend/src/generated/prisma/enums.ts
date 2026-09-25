@@ -1803,6 +1803,46 @@ export const LogisticsNotificationKind = {
 export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]
 
 
+export const LogisticsPartnerVerificationState = {
+  UNVERIFIED: 'UNVERIFIED',
+  VERIFIED: 'VERIFIED',
+  REVERIFICATION_REQUIRED: 'REVERIFICATION_REQUIRED'
+} as const
+
+export type LogisticsPartnerVerificationState = (typeof LogisticsPartnerVerificationState)[keyof typeof LogisticsPartnerVerificationState]
+
+
+export const LogisticsProfileChangeState = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type LogisticsProfileChangeState = (typeof LogisticsProfileChangeState)[keyof typeof LogisticsProfileChangeState]
+
+
+export const LogisticsComplianceDocumentKind = {
+  BUSINESS_LICENCE: 'BUSINESS_LICENCE',
+  INSURANCE_CERTIFICATE: 'INSURANCE_CERTIFICATE',
+  TRANSPORT_PERMIT: 'TRANSPORT_PERMIT',
+  COMPANY_REGISTRATION: 'COMPANY_REGISTRATION',
+  TAX_REGISTRATION: 'TAX_REGISTRATION',
+  OTHER: 'OTHER'
+} as const
+
+export type LogisticsComplianceDocumentKind = (typeof LogisticsComplianceDocumentKind)[keyof typeof LogisticsComplianceDocumentKind]
+
+
+export const LogisticsComplianceReviewState = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type LogisticsComplianceReviewState = (typeof LogisticsComplianceReviewState)[keyof typeof LogisticsComplianceReviewState]
+
+
 export const ManualCarrierBookingStatus = {
   BOOKING_REQUIRED: 'BOOKING_REQUIRED',
   BOOKED: 'BOOKED',
@@ -2336,7 +2376,8 @@ export type PreorderChatPriority = (typeof PreorderChatPriority)[keyof typeof Pr
 export const PreorderChatSenderType = {
   CUSTOMER: 'CUSTOMER',
   ADMIN: 'ADMIN',
-  SYSTEM: 'SYSTEM'
+  SYSTEM: 'SYSTEM',
+  AUTOMATION: 'AUTOMATION'
 } as const
 
 export type PreorderChatSenderType = (typeof PreorderChatSenderType)[keyof typeof PreorderChatSenderType]
@@ -2346,7 +2387,10 @@ export const PreorderChatMessageType = {
   TEXT: 'TEXT',
   ATTACHMENT: 'ATTACHMENT',
   SYSTEM_EVENT: 'SYSTEM_EVENT',
-  STRUCTURED_OFFER: 'STRUCTURED_OFFER'
+  STRUCTURED_OFFER: 'STRUCTURED_OFFER',
+  FAQ_QUESTION: 'FAQ_QUESTION',
+  AUTOMATED_REPLY: 'AUTOMATED_REPLY',
+  HANDOFF_REQUEST: 'HANDOFF_REQUEST'
 } as const
 
 export type PreorderChatMessageType = (typeof PreorderChatMessageType)[keyof typeof PreorderChatMessageType]

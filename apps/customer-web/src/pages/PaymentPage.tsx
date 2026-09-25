@@ -2,24 +2,29 @@
  * Payment.
  *
  * The rule this page exists to hold: **the browser never decides whether an
- * order is paid.** Razorpay's success callback fires in the customer's own
- * tab; anyone can fire it. So when the sheet closes, this page does not say
- * "paid" — it starts asking the backend, and only the backend's answer, which
- * comes from a signature-verified webhook, changes what the customer is told.
+ * order is paid.** Neither a gateway's success callback nor a return from
+ * Stripe's page is proof of anything - both arrive through the customer's own
+ * tab, and anyone can produce them. Only the backend's answer, which comes from
+ * a signature-verified webhook or from the gateway's own API asked by the
+ * server, changes what the customer is told.
  *
- * That produces a genuine Processing state, and it is honest: for a few
- * seconds nobody knows yet, including us.
+ * Two gateways, two shapes:
  *
- * Retrying is safe. A retry asks for a payment session on the *same order*
- * with the same idempotency key, so a customer who fails once, closes the
- * sheet, and tries again ends up with one order and one payment — never two
- * orders.
+ *   Stripe    This tab is sent to Stripe Checkout, Stripe's own page. The card
+ *             is typed or chosen there, 3-D Secure is answered there, and the
+ *             option to save the card for next time is Stripe's own unticked
+ *             box. The customer comes back to the confirmation page, which
+ *             waits for the backend.
+ *   Razorpay  Razorpay's sheet opens over this page, and when it closes this
+ *             page waits for the backend in the same way.
  *
- * Every visible state on this page is derived from `phase`, and `phase` moves
- * to `paid` in exactly one place: the effect that reads the backend's verdict.
- * The status strip, the progress indicator and the heading all read from it,
- * so there is no second path by which the UI could claim a payment the server
- * has not confirmed.
+ * Retrying is safe on both. Stripe allows ONE open payment per order, held by
+ * the server - a second tab or a second click is handed the same Stripe page,
+ * not a new one. Razorpay reuses one idempotency key from this page, so a
+ * customer who fails once and tries again still has one payment.
+ *
+ * Every visible state is derived from `phase`, and `phase` moves to `paid` in
+ * exactly one place: the effect that reads the backend's verdict.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -30,12 +35,11 @@ import { paymentSteps } from '@/lib/checkout-steps';
 import { AlertIcon, CheckIcon, ClockIcon, ShieldIcon } from '@/components/icons';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState, Spinner } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
-import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
 import { openRazorpayCheckout, type CheckoutOutcome } from '@/lib/razorpay';
-import { loadStripeJs } from '@/lib/stripe';
-import { StripePaymentDialog } from '@/components/StripePaymentDialog';
+import { confirmationPath, goToCheckout, isSafeCheckoutUrl } from '@/lib/stripe-checkout';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type {
   OrderDetail,
@@ -51,41 +55,53 @@ import { errorMessage } from '@/lib/errors';
 const MAX_POLL_SECONDS = 90;
 const POLL_INTERVAL_MS = 2000;
 
+/**
+ * How often to ask again when another tab is still opening this order's
+ * Stripe page. The server answers PAYMENT_ATTEMPT_IN_PROGRESS for a few
+ * seconds while that happens; after this, the customer is told and can retry.
+ */
+const IN_PROGRESS_RETRIES = 3;
+const IN_PROGRESS_DELAY_MS = 1500;
+
 type Phase =
   /** Nothing started yet — the customer has to press Pay. */
   | 'idle'
-  /** Asking the backend for a session and opening the provider sheet. */
+  /** Asking the backend for a session. The button is disabled. */
   | 'opening'
-  /** The sheet is open; the customer is inside the provider's UI. */
+  /** Leaving for Stripe's page. The tab is navigating. */
+  | 'redirecting'
+  /** Razorpay's sheet is open over this page. */
   | 'in-provider'
   /** Sheet closed after submission. Waiting for the backend to confirm. */
   | 'processing'
   /** The backend says the order is paid. */
   | 'paid'
   /** The provider or the customer ended it without payment. */
-  | 'unpaid';
+  | 'unpaid'
+  /** Back from Stripe through Cancel; the server is closing that page. */
+  | 'cancelling'
+  /** Back from Stripe through Cancel. Nothing was charged. */
+  | 'cancelled';
 
 /**
- * The one-line state of this payment, as a chip beside the amount.
+ * The one-line state of this payment, as a chip beside the heading.
  *
- * Five distinct things can be true, and a customer who refreshes, or comes
- * back to the tab, needs to know which one without reading a paragraph.
  * `paid` is the only entry that says anything has succeeded, and only the
  * backend can put the page into it.
  */
 const PHASE_CHIP: Record<Phase, { tone: BadgeTone; labelKey: TranslationKey }> = {
   idle: { tone: 'warning', labelKey: 'payment.phasePending' },
   opening: { tone: 'brand', labelKey: 'payment.phaseOpening' },
-  'in-provider': {
-    tone: 'brand',
-    labelKey: 'payment.phaseInProvider',
-  },
+  redirecting: { tone: 'brand', labelKey: 'payment.phaseOpening' },
+  'in-provider': { tone: 'brand', labelKey: 'payment.phaseInProvider' },
   processing: { tone: 'brand', labelKey: 'payment.phaseProcessing' },
   paid: { tone: 'success', labelKey: 'payment.phasePaid' },
   // "Not paid", not "Payment not completed": the panel below already carries
   // that sentence, and a chip repeating it word for word reads as two separate
   // failures rather than one.
   unpaid: { tone: 'danger', labelKey: 'payment.phaseUnpaid' },
+  cancelling: { tone: 'warning', labelKey: 'payment.phasePending' },
+  cancelled: { tone: 'warning', labelKey: 'payment.phaseUnpaid' },
 };
 
 /**
@@ -99,12 +115,15 @@ function StatusPanel({
   title,
   children,
   role = 'status',
+  panelRef,
 }: {
   tone: 'brand' | 'warning' | 'danger' | 'success';
   icon: React.JSX.Element;
   title: string;
   children: React.ReactNode;
   role?: 'status' | 'alert';
+  /** Given to the error panel so it can take focus when it appears. */
+  panelRef?: React.Ref<HTMLDivElement>;
 }): React.JSX.Element {
   const tones = {
     brand: 'border-brand/30 bg-brand-soft text-brand',
@@ -115,9 +134,14 @@ function StatusPanel({
 
   return (
     <div
+      ref={panelRef}
       role={role}
+      tabIndex={panelRef === undefined ? undefined : -1}
       {...(role === 'status' ? { 'aria-live': 'polite' as const } : {})}
-      className={cx('flex items-start gap-3 rounded-md border px-4 py-3.5', tones[tone])}
+      className={cx(
+        'flex items-start gap-3 rounded-md border px-4 py-3.5 outline-none focus-visible:ring-2 focus-visible:ring-brand',
+        tones[tone],
+      )}
     >
       <span className="mt-0.5 shrink-0">{icon}</span>
       <div className="min-w-0 text-sm">
@@ -126,6 +150,37 @@ function StatusPanel({
       </div>
     </div>
   );
+}
+
+/** One row of the order summary. */
+function SummaryRow({
+  label,
+  value,
+  emphasis = false,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}): React.JSX.Element {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className={emphasis ? 'text-sm font-medium text-ink' : 'text-sm text-ink-muted'}>
+        {label}
+      </dt>
+      <dd className={cx('tabular text-ink', emphasis ? 'text-title-lg' : 'text-sm')}>{value}</dd>
+    </div>
+  );
+}
+
+/** A server refusal that says "wait", not "no". */
+function isAttemptInProgress(error: unknown): boolean {
+  return error instanceof ApiError && error.code === 'PAYMENT_ATTEMPT_IN_PROGRESS';
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 export function PaymentPage(): React.JSX.Element {
@@ -139,29 +194,30 @@ export function PaymentPage(): React.JSX.Element {
   const [phase, setPhase] = useState<Phase>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [pollSeconds, setPollSeconds] = useState(0);
-  /**
-   * The live Stripe session, when that is the gateway.
-   *
-   * Razorpay's sheet is a promise this page awaits; Stripe's form is an
-   * element that has to be mounted, so it is held here and rendered. Both
-   * report back through `handleOutcome`, and nothing downstream of that knows
-   * which provider it was.
-   */
-  const [stripeSession, setStripeSession] = useState<PaymentSession | null>(null);
 
   /**
-   * Whether to keep the card being entered.
+   * Whether to keep the card being entered — Razorpay only.
    *
-   * Lives here rather than at the checkout because this is where the card is
-   * actually typed, which is the only moment the offer means anything — and it
-   * is where every shop the customer has used puts it.
+   * Stripe asks on its own page, with its own unticked box, so this tick is
+   * never shown for a Stripe payment: the same question asked twice in two
+   * places is a promise that could be kept in one and broken in the other.
    *
    * Starts false and stays false unless they tick it. A pre-ticked consent is
-   * not consent under the GDPR, and storing a payment credential is exactly
-   * the kind of thing that rule exists for. `CardSetupDialog` has held the
-   * same line since it was written.
+   * not consent under the GDPR.
    */
   const [saveCard, setSaveCard] = useState(false);
+
+  /**
+   * A synchronous latch against a double click.
+   *
+   * `phase` disables the button, but only after React re-renders; two clicks
+   * inside one frame both see it enabled. This ref is set on the first and
+   * read by the second before either has rendered anything.
+   */
+  const starting = useRef(false);
+
+  /** The alert that says why a payment did not go through, focused when it appears. */
+  const errorPanel = useRef<HTMLDivElement | null>(null);
 
   const replayState = location.state as { replayed?: boolean } | null;
   const wasReplayed = replayState?.replayed === true;
@@ -171,9 +227,10 @@ export function PaymentPage(): React.JSX.Element {
   /**
    * One key for every payment attempt on this order from this page.
    *
-   * Reused across retries on purpose: the backend then hands back the *same*
-   * payment session rather than creating a second one, so a customer who tries
-   * three times still has one payment against one order.
+   * Reused across retries on purpose: for Razorpay the backend hands back the
+   * *same* payment session rather than creating a second one. Stripe goes
+   * further and deduplicates per order on the server, so a second tab with a
+   * different key still lands on the same Stripe page.
    */
   const idempotencyKey = useMemo(() => newIdempotencyKey(), []);
 
@@ -186,13 +243,8 @@ export function PaymentPage(): React.JSX.Element {
   const orderCurrency = order.data?.order.currency ?? null;
 
   /**
-   * What this order's chosen instrument allows.
-   *
-   * Asked only to decide whether to offer the "save this card" tick. The
-   * instrument itself was settled at the checkout and is on the order; this is
-   * the one fact about it that lives with the gateway rather than the order,
-   * and offering to save a card where nothing can store one would be a promise
-   * this page cannot keep.
+   * What this order's chosen instrument allows: whether a card can be saved,
+   * and whether it is paid on Stripe's hosted page.
    */
   const instruments = useQuery({
     queryKey: ['payment-instruments', orderCurrency],
@@ -243,25 +295,80 @@ export function PaymentPage(): React.JSX.Element {
   }, [phase]);
 
   /**
-   * Coming back from a payment method that left the page.
+   * Back from Stripe's page by the browser's own Back button.
    *
-   * iDEAL, Bancontact and a full-page 3-D Secure challenge all navigate away,
-   * so the customer returns to a freshly mounted page that would otherwise
-   * show them the Pay button again while their payment was in flight.
+   * The browser may restore this page exactly as it was left - mid-redirect,
+   * button disabled - from its back-forward cache. `pageshow` with `persisted`
+   * is that restore; the page goes back to where the customer can press Pay,
+   * which hands them the same Stripe session if it is still open.
+   */
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent): void => {
+      if (!event.persisted) return;
+      starting.current = false;
+      setPhase((current) => (current === 'redirecting' || current === 'opening' ? 'idle' : current));
+    };
+
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, []);
+
+  /**
+   * Coming back from Stripe's Cancel link.
    *
-   * Stripe appends `payment_intent` and `redirect_status` to the return URL.
-   * Neither is read: they come through the customer's own browser, which is
-   * not a trusted reporter of whether money moved. The marker's only job is to
-   * put this page back into the wait it was in before the redirect - the
-   * answer still comes from the backend.
+   * The server closes this order's Stripe page at Stripe, so a tab left open
+   * behind it cannot take money, and frees the order for a fresh attempt. If
+   * the customer had in fact paid in that other tab a moment earlier, the
+   * server says so and this page goes to the confirmation instead.
+   *
+   * The `payment` parameter is read and dropped. It came through the
+   * customer's browser and says only where they clicked - never whether
+   * money moved.
+   */
+  const cancelHandled = useRef(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get('payment') !== 'cancelled') return;
+    if (cancelHandled.current || orderId === undefined) return;
+    cancelHandled.current = true;
+
+    setPhase('cancelling');
+    void navigate(location.pathname, { replace: true, state: replayState });
+
+    void api
+      .post<{ state: string; checkoutSessionId: string | null }>(
+        `/payments/orders/${orderId}/checkout/cancel`,
+        {},
+      )
+      .then((result) => {
+        if (
+          result.checkoutSessionId !== null &&
+          (result.state === 'SUCCEEDED' || result.state === 'PROCESSING')
+        ) {
+          void navigate(confirmationPath(orderId, result.checkoutSessionId), { replace: true });
+          return;
+        }
+        setPhase('cancelled');
+      })
+      .catch(() => {
+        // The page at Stripe expires on its own; the order is still saved.
+        setPhase('cancelled');
+      });
+  }, [location.pathname, location.search, replayState, navigate, orderId]);
+
+  /**
+   * Returning from a Stripe redirect made by the older in-page form.
+   *
+   * Kept for a payment that was already under way when this storefront moved
+   * to Stripe Checkout. Stripe's own parameters on the URL are not read: they
+   * come through the customer's browser.
    */
   useEffect(() => {
     if (new URLSearchParams(location.search).get('stripe_return') !== '1') return;
 
     setPhase('processing');
-
-    // Drop the marker and Stripe's parameters, so the address bar is clean and
-    // a later refresh is an ordinary visit to the order.
     void navigate(location.pathname, { replace: true, state: replayState });
   }, [location.pathname, location.search, replayState, navigate]);
 
@@ -275,6 +382,12 @@ export function PaymentPage(): React.JSX.Element {
     }
   }, [phase, status.data]);
 
+  // An error summary takes focus when it appears, so a keyboard or screen
+  // reader user is not left on a button that has just been re-enabled.
+  useEffect(() => {
+    if (phase === 'unpaid' && message !== null) errorPanel.current?.focus();
+  }, [phase, message]);
+
   /**
    * Whether this installation settles payments on request, with no gateway.
    *
@@ -287,12 +400,8 @@ export function PaymentPage(): React.JSX.Element {
   /**
    * Settle this order without a gateway.
    *
-   * Only reachable where the backend has said it is on. It does NOT put the
-   * page into `paid` - it puts it into the same wait every other payment ends
-   * in, and the poll below reports the verdict. That is not ceremony: the
-   * whole value of testing through this path is that the screens behave as
-   * they will in production, and in production the answer comes from the
-   * server.
+   * It does NOT put the page into `paid` - it puts it into the same wait every
+   * other payment ends in, and the poll reports the verdict.
    */
   const settleWithoutGateway = useCallback(async (): Promise<void> => {
     setMessage(null);
@@ -307,129 +416,109 @@ export function PaymentPage(): React.JSX.Element {
   }, [orderId, t]);
 
   /**
-   * What to do once the provider's UI has closed, whichever provider it was.
+   * What to do once Razorpay's sheet has closed.
    *
    * `submitted` deliberately does not mean paid - it means the customer is
    * finished and the backend has yet to say what happened.
    */
-  const handleOutcome = useCallback((outcome: CheckoutOutcome): void => {
-    setStripeSession(null);
+  const handleOutcome = useCallback(
+    (outcome: CheckoutOutcome): void => {
+      if (outcome.kind === 'dismissed') {
+        setPhase('unpaid');
+        setMessage(t('payment.youClosedTheWindow'));
+        return;
+      }
 
-    if (outcome.kind === 'dismissed') {
-      setPhase('unpaid');
-      setMessage(t('payment.youClosedTheWindow'));
-      return;
+      if (outcome.kind === 'failed') {
+        setPhase('unpaid');
+        setMessage(outcome.message);
+        return;
+      }
+
+      setPhase('processing');
+
+      // In test mode, finish the job the webhook would have. Only on
+      // `submitted`: a decline somebody is deliberately testing stays a decline.
+      if (mockPayments) void settleWithoutGateway();
+    },
+    [t, mockPayments, settleWithoutGateway],
+  );
+
+  /**
+   * Ask for the payment, and ask again while another tab is opening it.
+   *
+   * The body carries no amount, currency, discount, tax or delivery charge -
+   * all of those are on the order, and the server reads them from there.
+   */
+  const requestSession = useCallback(async (): Promise<PaymentSession> => {
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        return await api.post<PaymentSession>(
+          `/payments/orders/${String(orderId)}/session`,
+          { saveCard },
+          { idempotencyKey },
+        );
+      } catch (error) {
+        if (!isAttemptInProgress(error) || attempt >= IN_PROGRESS_RETRIES) throw error;
+        await sleep(IN_PROGRESS_DELAY_MS);
+      }
     }
-
-    if (outcome.kind === 'failed') {
-      setPhase('unpaid');
-      setMessage(outcome.message);
-      return;
-    }
-
-    setPhase('processing');
-
-    /*
-     * In test mode, finish the job the webhook would have.
-     *
-     * This is the case the whole fixture exists for: the tester paid with a
-     * test card, the gateway accepted it, and its event cannot reach a laptop.
-     * Waiting ninety seconds and then failing teaches nobody anything.
-     *
-     * Only on `submitted`. A dismissal or a decline is left exactly as it is,
-     * because a declined card is a thing somebody may be deliberately testing
-     * and a fixture that paid it anyway would hide the very behaviour under
-     * test.
-     */
-    if (mockPayments) void settleWithoutGateway();
-  }, [t, mockPayments, settleWithoutGateway]);
+  }, [orderId, idempotencyKey, saveCard]);
 
   const startPayment = useCallback(async (): Promise<void> => {
+    if (starting.current) return;
+    starting.current = true;
+
     setMessage(null);
     setPhase('opening');
 
     try {
-      // No gateway is named here on purpose — nor is the instrument. Both are
-      // on the order, so the server reads them back for us, which is what
-      // makes a reload of this page, or a return to it hours later, offer the
-      // same thing rather than the default.
-      //
-      // One thing this page knows that the order does not: whether the
-      // customer ticked the box just now.
-      //
-      // Deliberately not sending where to return to after an authentication
-      // challenge. The server builds that from its own configuration - a
-      // browser-supplied return address would be an open redirect with a
-      // payment gateway's credibility behind it.
-      const session = await api.post<PaymentSession>(
-        `/payments/orders/${String(orderId)}/session`,
-        { saveCard },
-        { idempotencyKey },
-      );
+      const session = await requestSession();
 
       /*
-       * A charge the server has already made against a card they saved
-       * earlier, which the bank now wants them to confirm.
+       * Stripe Checkout: leave for Stripe's page.
        *
-       * The only Stripe call on this page that confirms nothing. There is no
-       * form to read and no decision to make here: the payment exists, and
-       * this runs the issuer's challenge against it. Its answer is not
-       * forwarded anywhere either — the wait below is for the backend, exactly
-       * as it is for every other route through this page.
+       * The latch stays set - the tab is navigating away, and nothing on this
+       * page should respond to another click in the meantime.
        */
-      if (session.next === 'AUTHENTICATE') {
-        setPhase('in-provider');
+      if (session.next === 'REDIRECT') {
+        if (!isSafeCheckoutUrl(session.redirectUrl, session.checkoutSessionId)) {
+          throw new Error(t('payment.unableToOpenSecurePayment'));
+        }
 
-        const factory = await loadStripeJs(t);
-        const stripe = factory(String(session.checkoutPayload.key ?? ''));
+        setPhase('redirecting');
+        goToCheckout(session.redirectUrl);
+        return;
+      }
 
-        const result = await stripe.handleNextAction({
-          clientSecret: String(session.checkoutPayload.client_secret ?? ''),
-        });
-
-        if (result.error !== undefined) {
-          setPhase('unpaid');
-          setMessage(result.error.message ?? t('common.paymentDidNotGoThrough'));
+      /*
+       * Already paid, or submitted and settling - in another tab, most likely.
+       * Nothing to open; the confirmation page waits for the backend.
+       */
+      if (session.next === 'AWAIT_CONFIRMATION') {
+        if (typeof session.checkoutSessionId === 'string' && orderId !== undefined) {
+          void navigate(confirmationPath(orderId, session.checkoutSessionId));
           return;
         }
 
+        starting.current = false;
         setPhase('processing');
-        return;
-      }
-
-      /*
-       * A saved card that went through with no challenge at all.
-       *
-       * Nothing for the customer to do, and nothing for this browser to open.
-       * It goes straight into the same wait every other payment ends in —
-       * "submitted" is still not "paid", and the webhook is still the only
-       * thing that changes that.
-       */
-      if (session.next === 'AWAIT_CONFIRMATION') {
-        setPhase('processing');
-        return;
-      }
-
-      if (session.provider === 'STRIPE') {
-        // Mounted rather than awaited. The dialog calls back with the same
-        // outcome the Razorpay sheet resolves to.
-        setStripeSession(session);
-        setPhase('in-provider');
         return;
       }
 
       if (session.provider !== 'RAZORPAY') {
+        starting.current = false;
         setPhase('unpaid');
-        setMessage(
-          t('payment.needsAMethodWeCannotOpen'),
-        );
+        setMessage(t('payment.needsAMethodWeCannotOpen'));
         return;
       }
 
       setPhase('in-provider');
-
-      handleOutcome(await openRazorpayCheckout(t, session.checkoutPayload));
+      const outcome = await openRazorpayCheckout(t, session.checkoutPayload);
+      starting.current = false;
+      handleOutcome(outcome);
     } catch (error) {
+      starting.current = false;
       setPhase('unpaid');
 
       if (error instanceof NetworkError) {
@@ -437,11 +526,16 @@ export function PaymentPage(): React.JSX.Element {
         return;
       }
 
-      setMessage(
-        errorMessage(t, error, t('payment.couldNotBeStarted')),
-      );
+      if (error instanceof ApiError && error.code === 'PAYMENT_PROVIDER_ERROR') {
+        // Our own sentence. The gateway's is logged on the server and has no
+        // business in front of a customer.
+        setMessage(t('payment.unableToOpenSecurePayment'));
+        return;
+      }
+
+      setMessage(errorMessage(t, error, t('payment.couldNotBeStarted')));
     }
-  }, [orderId, idempotencyKey, handleOutcome, saveCard, t]);
+  }, [orderId, requestSession, handleOutcome, navigate, t]);
 
   if (order.isPending) return <LoadingState label={t('payment.loadingYourOrder')} />;
 
@@ -457,31 +551,33 @@ export function PaymentPage(): React.JSX.Element {
   }
 
   const currentOrder = order.data.order;
-  const outstanding = currentOrder.totals.grandTotal;
+  const totals = currentOrder.totals;
+  const outstanding = totals.grandTotal;
+
+  const chosenOffer =
+    (instruments.data?.instruments ?? []).find(
+      (offer) => offer.instrument === currentOrder.preferredPaymentInstrument,
+    ) ?? null;
+
+  /** Paid on Stripe's hosted page, which asks about saving the card itself. */
+  const hostedCheckout = chosenOffer?.hostedCheckout === true;
 
   /**
-   * Whether to offer to keep the card.
-   *
-   * Four conditions, and every one of them removes an offer that could not be
-   * honoured or that makes no sense: the order has to be paid by card, the
-   * customer must not already be using a card they saved, the gateway behind
-   * that instrument has to be able to store one, and the offer list has to
-   * have actually loaded. A tick nobody can act on is worse than no tick.
+   * Whether to offer our own save tick. Razorpay only, and only where it can
+   * be honoured: a card payment, not already using a saved card, on a gateway
+   * that can store one.
    */
   const canOfferToSaveCard =
+    !hostedCheckout &&
     currentOrder.preferredPaymentInstrument !== null &&
     currentOrder.preferredPaymentInstrument !== 'UPI' &&
     currentOrder.preferredPaymentMethodId === null &&
-    (instruments.data?.instruments ?? []).some(
-      (offer) =>
-        offer.instrument === currentOrder.preferredPaymentInstrument && offer.canSaveCard,
-    );
+    chosenOffer?.canSaveCard === true;
 
   // Already settled before this page even opened — a webhook can land while
   // the customer is still on the provider's screen.
   const alreadyPaid =
-    BigInt(currentOrder.totals.paid.minor) >= BigInt(currentOrder.totals.grandTotal.minor) &&
-    currentOrder.totals.grandTotal.minor !== '0';
+    BigInt(totals.paid.minor) >= BigInt(totals.grandTotal.minor) && totals.grandTotal.minor !== '0';
 
   if (alreadyPaid || phase === 'paid') {
     return (
@@ -499,11 +595,6 @@ export function PaymentPage(): React.JSX.Element {
           {/* Said only here, and only because the backend has said it first. */}
           <h1 className="mt-4 text-title-lg text-success">{t('payment.paymentConfirmed')}</h1>
           <p className="mt-2 text-sm text-ink">
-            {/*
-              Split on the placeholder rather than interpolated, so the order
-              number keeps the monospace it is read back in - the same trick
-              the support-email sentences use.
-            */}
             {t('payment.orderIsPaid').split('{{order}}')[0]}
             <span className="font-mono font-medium">{currentOrder.orderNumber}</span>
             {t('payment.orderIsPaid').split('{{order}}')[1]}
@@ -530,6 +621,11 @@ export function PaymentPage(): React.JSX.Element {
 
   const pollTimedOut = phase === 'processing' && pollSeconds >= MAX_POLL_SECONDS;
   const chip = PHASE_CHIP[phase];
+  const busy = phase === 'opening' || phase === 'redirecting' || phase === 'in-provider' || phase === 'cancelling';
+  const canStart = phase === 'idle' || phase === 'unpaid' || phase === 'cancelled';
+  const itemCount = currentOrder.items.reduce((sum, item) => sum + item.quantity, 0);
+  const billing = currentOrder.billingAddress;
+  const hasDiscount = totals.discount.minor !== '0';
 
   return (
     <div className="mx-auto max-w-2xl py-4">
@@ -544,27 +640,72 @@ export function PaymentPage(): React.JSX.Element {
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
+      <div className="rounded-lg border border-border bg-surface p-5 shadow-card sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
             <h1 className="text-title-lg text-ink">{t('payment.payForYourOrder')}</h1>
             <p className="mt-1 text-sm text-ink-muted">
-              Order{' '}
-              <span className="font-mono font-medium text-ink">{currentOrder.orderNumber}</span> ·
-              placed just now
+              {t('payment.orderLabel')}{' '}
+              <span className="font-mono font-medium text-ink">{currentOrder.orderNumber}</span>
             </p>
           </div>
 
           {/* The state of the payment itself, always on screen, never ahead of
-              the backend. `idle` says pending, not "ready" — nothing has been
-              paid and the chip should not imply otherwise. */}
+              the backend. */}
           <Badge tone={chip.tone}>{translateKey(t, chip.labelKey)}</Badge>
         </div>
 
-        <div className="mt-5 flex items-baseline justify-between border-y border-border py-4">
-          <span className="text-sm text-ink-muted">{t('payment.amountDue')}</span>
-          <span className="text-title-lg tabular text-ink">{formatMoney(outstanding)}</span>
-        </div>
+        {/*
+          The order summary, exactly as the server priced it.
+
+          Every figure is read from the order - nothing here is computed from
+          the lines, because a second calculation in the browser is a second
+          answer that could disagree with the one the customer is charged.
+        */}
+        <section aria-labelledby="payment-summary-heading" className="mt-5 border-y border-border py-4">
+          <h2 id="payment-summary-heading" className="sr-only">
+            {t('payment.summaryTitle')}
+          </h2>
+          <dl className="space-y-2">
+            {itemCount > 0 && (
+              <SummaryRow
+                label={t('payment.itemCount', { count: itemCount })}
+                value={formatMoney(totals.subtotal)}
+              />
+            )}
+            {itemCount === 0 && (
+              <SummaryRow label={t('payment.subtotal')} value={formatMoney(totals.subtotal)} />
+            )}
+            {hasDiscount && (
+              <SummaryRow label={t('payment.discount')} value={`−${formatMoney(totals.discount)}`} />
+            )}
+            <SummaryRow label={t('payment.delivery')} value={formatMoney(totals.shipping)} />
+            <SummaryRow label={t('payment.tax')} value={formatMoney(totals.tax)} />
+            <div className="border-t border-border-subtle pt-2">
+              <SummaryRow label={t('payment.amountDue')} value={formatMoney(outstanding)} emphasis />
+            </div>
+          </dl>
+          <p className="mt-2 text-right text-xs text-ink-subtle">
+            {t('payment.chargedIn', { currency: currentOrder.currency })}
+          </p>
+        </section>
+
+        {billing !== null && (
+          <section aria-labelledby="payment-billing-heading" className="mt-4 text-sm">
+            <h2 id="payment-billing-heading" className="text-xs font-medium uppercase tracking-wide text-ink-subtle">
+              {t('payment.billingTo')}
+            </h2>
+            <address className="mt-1 not-italic leading-relaxed text-ink">
+              {billing.contactName !== null && <span className="block font-medium">{billing.contactName}</span>}
+              <span className="block">
+                {[billing.line1, billing.line2].filter((part) => part !== null && part.length > 0).join(', ')}
+              </span>
+              <span className="block text-ink-muted">
+                {[billing.postalCode, billing.city, billing.country].filter((part) => part.length > 0).join(' · ')}
+              </span>
+            </address>
+          </section>
+        )}
 
         {/* --- Processing -------------------------------------------------- */}
         {phase === 'processing' && (
@@ -601,10 +742,26 @@ export function PaymentPage(): React.JSX.Element {
             <StatusPanel
               tone="warning"
               role="alert"
+              panelRef={errorPanel}
               icon={<AlertIcon className="h-5 w-5" />}
               title={t('payment.paymentNotCompleted')}
             >
               {message}
+            </StatusPanel>
+          </div>
+        )}
+
+        {/* --- Back from Stripe through Cancel ------------------------------ */}
+        {(phase === 'cancelled' || phase === 'cancelling') && (
+          <div className="mt-6">
+            <StatusPanel
+              tone="warning"
+              icon={
+                phase === 'cancelling' ? <Spinner className="h-5 w-5" /> : <AlertIcon className="h-5 w-5" />
+              }
+              title={t('payment.cancelledTitle')}
+            >
+              {t('payment.cancelledBody')}
             </StatusPanel>
           </div>
         )}
@@ -614,9 +771,7 @@ export function PaymentPage(): React.JSX.Element {
 
           A deployment that quietly confirms orders nobody paid for is worse
           than one that refuses to confirm them at all, because sooner or later
-          somebody demonstrates it to a customer. So it is stated on the screen
-          where the money would be taken, every time, and not tucked into a
-          developer tool.
+          somebody demonstrates it to a customer.
         */}
         {mockPayments && (
           <div className="mt-6 space-y-3">
@@ -630,7 +785,7 @@ export function PaymentPage(): React.JSX.Element {
               <Button
                 size="sm"
                 className="mt-3"
-                disabled={phase === 'opening' || phase === 'in-provider'}
+                disabled={busy}
                 onClick={() => {
                   void settleWithoutGateway();
                 }}
@@ -642,31 +797,16 @@ export function PaymentPage(): React.JSX.Element {
         )}
 
         {/* --- Actions ------------------------------------------------------ */}
-        {(phase === 'idle' || phase === 'unpaid') && (
+        {(canStart || busy) && phase !== 'in-provider' && (
           <div className="mt-6 space-y-3">
             {/*
-              Keep this card for next time.
+              Keep this card for next time — Razorpay only.
 
-              Offered here rather than at the checkout because this is where the
-              card is actually typed, which is the only moment the question
-              means anything.
-
-              Hidden in three cases, each for its own reason: when the customer
-              is already paying with a card they saved (there is nothing new to
-              keep), when the order is a UPI payment (there is no card), and
-              when the gateway behind this order cannot store one (the offer
-              could not be honoured).
-
-              Never pre-ticked. A pre-ticked box is not consent under the GDPR,
-              and what is being consented to here is a payment credential being
-              kept — which is the kind of thing that rule was written for.
-
-              What actually gets stored is a token held by the gateway, never a
-              card number: since October 2022 the RBI forbids a merchant
-              storing one, and no deployment of this software is inside PCI DSS
-              scope.
+              Never pre-ticked. What gets stored is a token held by the
+              gateway, never a card number: since October 2022 the RBI forbids
+              a merchant storing one.
             */}
-            {canOfferToSaveCard && (
+            {canOfferToSaveCard && canStart && (
               <label className="flex cursor-pointer items-start gap-3 rounded-md bg-surface-sunken px-4 py-3 text-xs">
                 <input
                   type="checkbox"
@@ -689,16 +829,27 @@ export function PaymentPage(): React.JSX.Element {
               variant="action"
               size="lg"
               fullWidth
+              isLoading={busy}
+              disabled={!canStart}
+              aria-busy={busy}
               onClick={() => {
                 void startPayment();
               }}
             >
-              {phase === 'unpaid' ? t('payment.tryThePaymentAgain') : t('payment.paySecurelyNow')}
+              {busy
+                ? t('payment.openingSecurePayment')
+                : phase === 'unpaid' || phase === 'cancelled'
+                  ? t('payment.tryThePaymentAgain')
+                  : t('payment.paySecurelyNow')}
             </Button>
 
-            {/* Retrying reuses the same order and the same idempotency key, so
-                there is no way to end up with two orders. Saying so removes
-                the main reason a customer would hesitate. */}
+            {/* Announced once, when the tab is about to leave for Stripe. */}
+            <p className="sr-only" role="status" aria-live="polite">
+              {phase === 'redirecting' ? t('payment.redirectingToStripe') : ''}
+            </p>
+
+            {/* Retrying can never create a second order or a second payment.
+                Saying so removes the main reason a customer would hesitate. */}
             <p className="text-center text-xs text-ink-muted">
               {t('payment.retryingUsesThisSameOrder')}
             </p>
@@ -709,28 +860,30 @@ export function PaymentPage(): React.JSX.Element {
           </div>
         )}
 
-        {/* --- Requires action in the provider's window ---------------------- */}
-        {(phase === 'opening' || phase === 'in-provider') && (
+        {/* --- Razorpay's sheet is open over this page ----------------------- */}
+        {phase === 'in-provider' && (
           <div className="mt-6">
             <StatusPanel
               tone="brand"
               icon={<Spinner className="h-5 w-5" />}
-              title={
-                phase === 'opening'
-                  ? t('payment.openingTheSecureWindow')
-                  : t('payment.finishPayingInWindow')
-              }
+              title={t('payment.finishPayingInWindow')}
             >
-              {phase === 'opening'
-                ? t('payment.oneMomentAskingProvider')
-                : t('payment.theWindowIsOpen')}
+              {t('payment.theWindowIsOpen')}
             </StatusPanel>
           </div>
         )}
 
         <div className="mt-6 flex gap-2.5 border-t border-border pt-4 text-xs leading-relaxed text-ink-subtle">
           <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
-          <p>{t('payment.cardDetailsOnProviderPage')}</p>
+          <div className="space-y-1">
+            <p>{t('payment.cardDetailsOnProviderPage')}</p>
+            {hostedCheckout && (
+              <>
+                <p className="font-medium text-ink-muted">{t('payment.securedByStripe')}</p>
+                <p>{t('payment.stripeHostedNote')}</p>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -751,15 +904,6 @@ export function PaymentPage(): React.JSX.Element {
           {t('payment.allYourOrders')}
         </Link>
       </div>
-
-      {stripeSession !== null && (
-        <StripePaymentDialog
-          payload={stripeSession.checkoutPayload}
-          amount={stripeSession.amount}
-          orderNumber={currentOrder.orderNumber}
-          onOutcome={handleOutcome}
-        />
-      )}
 
       {currentOrder.status === 'PENDING_APPROVAL' && (
         <div className="mt-4 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm">

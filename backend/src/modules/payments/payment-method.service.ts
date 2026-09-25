@@ -32,6 +32,7 @@ import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { loadActiveProvider } from './payment.service.js';
+import { ensureProviderCustomer } from './provider-customer.service.js';
 import {
   supportsCardVault,
   supportsOffSession,
@@ -117,16 +118,20 @@ export async function beginPaymentMethodEnrolment(
 
   if (profile === null) throw notFound('Customer');
 
-  // Any instrument of theirs will do - they all hang off the same provider
-  // customer. DETACHED ones included: the provider customer outlives the card.
-  const existing = await prisma.customerPaymentMethod.findFirst({
-    where: { customerProfileId, provider: 'STRIPE' },
-    orderBy: { createdAt: 'desc' },
-    select: { providerCustomerId: true },
-  });
+  // The one Stripe Customer filed for this person - the same record Checkout
+  // opens against - so an auto-pay card and a card saved at checkout sit side
+  // by side rather than on two Customers nothing joins back together.
+  const providerCustomerId = supportsCardVault(provider)
+    ? await ensureProviderCustomer(provider, {
+        customerProfileId,
+        email: profile.user.email,
+        name: profile.fullName,
+        phone: null,
+      })
+    : null;
 
   const setup = await provider.createSetupIntent({
-    providerCustomerId: existing?.providerCustomerId ?? null,
+    providerCustomerId,
     customerEmail: profile.user.email,
     customerName: profile.fullName,
     customerProfileId,
@@ -367,6 +372,19 @@ export async function completePaymentMethodEnrolment(
  */
 export const CHECKOUT_CONSENT_VERSION = 'checkout-v1';
 
+/**
+ * The version recorded for a card saved through Stripe Checkout's own tickbox.
+ *
+ * The wording is Stripe's, shown on Stripe's page, and Stripe changes it - so
+ * what this records is the MECHANISM the customer agreed through: Stripe's
+ * native, unticked "save for future purchases" control, for customer-present
+ * checkouts only. A change of mechanism is a new version.
+ */
+export const CHECKOUT_NATIVE_CONSENT_VERSION = 'stripe-checkout-native-v1';
+
+/** What the saved-card consent is for, and the only thing it is for. */
+export const CHECKOUT_CONSENT_USAGE = 'CUSTOMER_INITIATED_CHECKOUT';
+
 export interface RecordVaultedCardInput {
   customerProfileId: string;
   provider: 'RAZORPAY' | 'STRIPE';
@@ -374,6 +392,15 @@ export interface RecordVaultedCardInput {
   /** Where the consent came from, for the record. Hashed before storage. */
   ipAddress?: string | null;
   userAgent?: string | null;
+  /** Defaults to `CHECKOUT_CONSENT_VERSION`, the in-page tick this predates. */
+  consentVersion?: string;
+  /**
+   * The checkout the consent was given in, for the audit record.
+   *
+   * References only - the session and our attempt - so that "when and where
+   * did I agree to this" has an answer that does not involve any card data.
+   */
+  consentContext?: { providerSessionId: string; paymentTransactionId: string } | null;
 }
 
 /**
@@ -468,7 +495,7 @@ export async function recordCardSavedAtCheckout(
           status: 'ACTIVE',
           consentScope: 'CHECKOUT',
           consentAcceptedAt: new Date(),
-          consentVersion: CHECKOUT_CONSENT_VERSION,
+          consentVersion: input.consentVersion ?? CHECKOUT_CONSENT_VERSION,
           consentIpHash:
             input.ipAddress === null || input.ipAddress === undefined
               ? null
@@ -490,8 +517,20 @@ export async function recordCardSavedAtCheckout(
             provider: input.provider,
             brand: row.brand,
             last4: row.last4,
+            // The consent record. Who (resourceId -> this customer's row),
+            // what, which version, for what use, and where it was given.
+            // Never a card number: none has ever been available to write.
+            consentType: 'SAVE_CARD_FOR_CHECKOUT',
             consentScope: 'CHECKOUT',
             consentVersion: row.consentVersion,
+            intendedUsage: CHECKOUT_CONSENT_USAGE,
+            customerProfileId: input.customerProfileId,
+            ...(input.consentContext === null || input.consentContext === undefined
+              ? {}
+              : {
+                  providerSessionId: input.consentContext.providerSessionId,
+                  paymentTransactionId: input.consentContext.paymentTransactionId,
+                }),
           },
         },
         tx,
@@ -657,6 +696,29 @@ export async function removePaymentMethod(
         code: 'SCHEDULE_DEPENDS_ON_METHOD',
         meta: { scheduleId: schedule.id, name: schedule.name, status: schedule.status },
       })),
+    );
+  }
+
+  /*
+   * Refused while it is the card behind their standing auto-pay mandate.
+   *
+   * Same reasoning as the plans above: removing it silently would leave a
+   * mandate that fails at its next charge for a reason the customer could not
+   * have seen coming. PAUSED counts - a pause is resumed without asking for
+   * consent again, onto this very card. The customer changes the auto-pay card
+   * or turns auto-pay off first, and then this one can go.
+   */
+  const mandate = await prisma.customerAutoPaySetting.findFirst({
+    where: { paymentMethodId, status: { not: 'DISABLED' } },
+    select: { id: true, status: true },
+  });
+
+  if (mandate !== null) {
+    throw conflict(
+      ErrorCode.PAYMENT_METHOD_IN_USE,
+      'This card pays for your automatic payments. Choose another card for auto-pay, ' +
+        'or turn auto-pay off, before removing this one.',
+      [{ code: 'AUTOPAY_DEPENDS_ON_METHOD', meta: { status: mandate.status } }],
     );
   }
 

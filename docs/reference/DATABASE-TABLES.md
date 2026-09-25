@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**238 tables · 215 enums · 571 extra indexes and unique keys**, in 43 groups. The groups follow the section banners in the schema file.
+**243 tables · 219 enums · 579 extra indexes and unique keys**, in 43 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -28,13 +28,13 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [Identity & access](#group-identity-access) | 8 | 3 |
 | [Business configuration](#group-business-configuration) | 7 | 1 |
 | [Media](#group-media) | 1 | 0 |
-| [Catalog](#group-catalog) | 9 | 5 |
+| [Catalog](#group-catalog) | 11 | 5 |
 | [/ whether a warehouse is currently shipping, and how well. / / deliberately not the same axis as `isactive`, and confusing the two is the / mistake this enum exists to prevent. `isactive` answers "is this place part / of the business at all" - a retired warehouse is archived master data and / disappears from every picker. this answers "of the places that are, can / this one move a box today". a warehouse under a roof repair is thoroughly / active and cannot ship a thing.](#group-whether-a-warehouse-is-currently-shipping-and-how-well-deliberately-not-the-same-axis-as-isactive-and-confusing-the-two-is-the-mistake-this-enum-exists-to-prevent-isactive-answers-is-this-place-part-of-the-business-at-all-a-retired-warehouse-is-archived-master-data-and-disappears-from-every-picker-this-answers-of-the-places-that-are-can-this-one-move-a-box-today-a-warehouse-under-a-roof-repair-is-thoroughly-active-and-cannot-ship-a-thing) | 6 | 4 |
 | [Customers](#group-customers) | 2 | 1 |
 | [Cart](#group-cart) | 2 | 1 |
 | [Orders](#group-orders) | 5 | 6 |
 | [Payments](#group-payments) | 5 | 7 |
-| [Recurring purchases](#group-recurring-purchases) | 5 | 10 |
+| [Recurring purchases](#group-recurring-purchases) | 6 | 10 |
 | [/ one warehouse's offer for one basket, frozen. / / rows are cheap and short-lived: one per eligible option per request, swept / once they expire unless an order points at them. a quote attached to an / order is kept for ever - it is the evidence of what the customer was shown / before they agreed to pay.](#group-one-warehouse-s-offer-for-one-basket-frozen-rows-are-cheap-and-short-lived-one-per-eligible-option-per-request-swept-once-they-expire-unless-an-order-points-at-them-a-quote-attached-to-an-order-is-kept-for-ever-it-is-the-evidence-of-what-the-customer-was-shown-before-they-agreed-to-pay) | 3 | 2 |
 | [Integrations (custom product/inventory API connector)](#group-integrations-custom-product-inventory-api-connector) | 3 | 5 |
 | [Bulk import / export](#group-bulk-import-export) | 3 | 1 |
@@ -59,7 +59,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 25 |
 | [/ how a seller came to be able to use a carrier. / / stored because it decides who may end the relationship and on what notice, / which is a question that gets asked exactly once - during a dispute.](#group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute) | 1 | 2 |
 | [/ who is responsible for moving a seller's goods. / / read together with `sellerfulfilmentmethod.status`: a mode says what kind / of delivery this is, the status says whether it may be used yet. a seller / can have a dedicated_partner method sitting in pending_approval for a / fortnight while their integrated_carrier method carries everything.](#group-who-is-responsible-for-moving-a-seller-s-goods-read-together-with-sellerfulfilmentmethod-status-a-mode-says-what-kind-of-delivery-this-is-the-status-says-whether-it-may-be-used-yet-a-seller-can-have-a-dedicated-partner-method-sitting-in-pending-approval-for-a-fortnight-while-their-integrated-carrier-method-carries-everything) | 11 | 12 |
-| [Logistics partner portal](#group-logistics-partner-portal) | 27 | 28 |
+| [Logistics partner portal](#group-logistics-partner-portal) | 29 | 32 |
 | [Demo catalogue](#group-demo-catalogue) | 1 | 0 |
 | [/ a package a buyer can order by. / / parallel to the four bulk members of `orderingunit` rather than the same / enum, because the two answer different questions: this one is configuration / ("may this be bought by the pallet?") and that one is a historical fact on / a line ("this was bought by the pallet"). keeping them apart is what lets a / package type be retired from the configuration without rewriting the / meaning of every order that used it.](#group-a-package-a-buyer-can-order-by-parallel-to-the-four-bulk-members-of-orderingunit-rather-than-the-same-enum-because-the-two-answer-different-questions-this-one-is-configuration-may-this-be-bought-by-the-pallet-and-that-one-is-a-historical-fact-on-a-line-this-was-bought-by-the-pallet-keeping-them-apart-is-what-lets-a-package-type-be-retired-from-the-configuration-without-rewriting-the-meaning-of-every-order-that-used-it) | 6 | 9 |
 | [/ what kind of transport a consignment actually needs.](#group-what-kind-of-transport-a-consignment-actually-needs) | 1 | 2 |
@@ -275,6 +275,7 @@ Table `sessions`
 | `mfaVerifiedAt` | DateTime · DateTime(3) | yes |  |  | When THIS session passed its second-factor challenge. |
 | `sellerUnlockedAt` | DateTime · DateTime(3) | yes |  |  | When THIS session last presented the seller password, and for whom. |
 | `sellerUnlockedForId` | String · Char(26) | yes |  |  |  |
+| `sellerLastActivityAt` | DateTime · DateTime(3) | yes |  |  | The last time this session did something in the Seller Hub that a person did on purpose - a change, or a page they opened - as opposed to a badge polling in a background tab. The Hub re-locks after SELLER_HUB_IDLE_TIMEOUT_SECONDS without one, on the server, whatever any browser tab believes. Null while the Hub is… |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
 | `revokedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `revokedReason` | String · VarChar(128) | yes |  |  |  |
@@ -637,6 +638,7 @@ Table `media_assets`
 
 - `productMedia` ← [ProductMedia](#model-productmedia) - has many
 - `variantMedia` ← [ProductVariantMedia](#model-productvariantmedia) - has many
+- `descriptionSectionImages` ← [ProductDescriptionSection](#model-productdescriptionsection) - has many
 - `categoryImages` ← [Category](#model-category) - has many
 - `categoryBanners` ← [Category](#model-category) - has many
 - `businessProfiles` ← [BusinessProfile](#model-businessprofile) - has many
@@ -649,7 +651,7 @@ Table `media_assets`
 
 ## Catalog
 
-[Category](#model-category) · [Product](#model-product) · [ProductVariant](#model-productvariant) · [ProductVariantMedia](#model-productvariantmedia) · [ProductMedia](#model-productmedia) · [ProductAttribute](#model-productattribute) · [ProductPackaging](#model-productpackaging) · [ProductPackDimension](#model-productpackdimension) · [ProductImportRecord](#model-productimportrecord)
+[Category](#model-category) · [Product](#model-product) · [ProductVariant](#model-productvariant) · [ProductVariantMedia](#model-productvariantmedia) · [ProductMedia](#model-productmedia) · [ProductAttribute](#model-productattribute) · [ProductVariantAttribute](#model-productvariantattribute) · [ProductDescriptionSection](#model-productdescriptionsection) · [ProductPackaging](#model-productpackaging) · [ProductPackDimension](#model-productpackdimension) · [ProductImportRecord](#model-productimportrecord)
 
 ```mermaid
 erDiagram
@@ -667,6 +669,9 @@ erDiagram
     Product ||--o{ ProductMedia : "product"
     MediaAsset ||--o{ ProductMedia : "media"
     Product ||--o{ ProductAttribute : "product"
+    ProductVariant ||--o{ ProductVariantAttribute : "variant"
+    Product ||--o{ ProductDescriptionSection : "product"
+    MediaAsset |o--o{ ProductDescriptionSection : "image"
     Product ||--o{ ProductPackaging : "product"
     ProductVariant |o--o{ ProductPackaging : "variant"
     ProductPackaging ||--o{ ProductPackDimension : "packaging"
@@ -708,6 +713,15 @@ erDiagram
     ProductAttribute {
         String id PK
         String productId FK
+    }
+    ProductVariantAttribute {
+        String id PK
+        String variantId FK
+    }
+    ProductDescriptionSection {
+        String id PK
+        String productId FK
+        String imageMediaId FK
     }
     ProductPackaging {
         String id PK
@@ -842,6 +856,7 @@ Table `products`
 - `variants` ← [ProductVariant](#model-productvariant) - has many
 - `media` ← [ProductMedia](#model-productmedia) - has many
 - `attributes` ← [ProductAttribute](#model-productattribute) - has many
+- `descriptionSections` ← [ProductDescriptionSection](#model-productdescriptionsection) - has many
 - `inventoryBalances` ← [InventoryBalance](#model-inventorybalance) - has many
 - `inventoryMovements` ← [InventoryMovement](#model-inventorymovement) - has many
 - `stockReservations` ← [StockReservation](#model-stockreservation) - has many
@@ -927,6 +942,7 @@ Table `product_variants`
 - `importRecords` ← [ProductImportRecord](#model-productimportrecord) - has many
 - `sellerOffers` ← [SellerOffer](#model-selleroffer) - has many
 - `media` ← [ProductVariantMedia](#model-productvariantmedia) - has many
+- `attributes` ← [ProductVariantAttribute](#model-productvariantattribute) - has many
 
 **Indexes and keys**
 
@@ -999,6 +1015,9 @@ Table `product_attributes`
 | `value` | String · VarChar(512) |  |  |  |  |
 | `sortOrder` | Int |  |  | 0 |  |
 | `isFilterable` | Boolean |  |  | false | Attributes drive faceted filtering when true. |
+| `groupKey` | String · VarChar(32) | yes |  |  | Which specification group it is shown under - one of `SPEC_GROUPS` in `domain/product-specifications.ts`. NULL for rows written before groups existed; those read as GENERAL, so every existing product still renders. |
+| `unit` | String · VarChar(24) | yes |  |  | One of `SPEC_UNITS`, or NULL when the unit is part of the value. |
+| `isHighlight` | Boolean |  |  | false | Shown in the product's highlights, at the top of its information. |
 
 **Relations**
 
@@ -1008,6 +1027,63 @@ Table `product_attributes`
 
 - `@@unique([productId, name], map: "uq_product_attribute_name")`
 - `@@index([name, value], map: "ix_product_attribute_lookup")`
+
+<a id="model-productvariantattribute"></a>
+
+### ProductVariantAttribute
+
+Table `product_variant_attributes`
+
+A specification that is different for one variant: a row with the same label as the product's replaces it for a buyer who picked this variant; a label only the variant has is added. See `shownSpecifications`.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `variantId` | String · Char(26) |  | FK → [ProductVariant](#model-productvariant) |  | (on delete: Cascade) |
+| `name` | String · VarChar(128) |  |  |  |  |
+| `value` | String · VarChar(512) |  |  |  |  |
+| `unit` | String · VarChar(24) | yes |  |  |  |
+| `groupKey` | String · VarChar(32) | yes |  |  | NULL keeps the product row's group. |
+| `sortOrder` | Int |  |  | 0 |  |
+
+**Relations**
+
+- `variant` → [ProductVariant](#model-productvariant) via `variantId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([variantId, name], map: "uq_product_variant_attribute_name")`
+
+<a id="model-productdescriptionsection"></a>
+
+### ProductDescriptionSection
+
+Table `product_description_sections`
+
+One section of a product's description: a heading and plain text, with an optional picture. Plain text on purpose - it is shown as text, so there is no markup in it to sanitise; tags are stripped on the way in. The seller's HTML description, where one exists, stays in `Product.descriptionHtml`, sanitised on write.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `productId` | String · Char(26) |  | FK → [Product](#model-product) |  | (on delete: Cascade) |
+| `language` | String · VarChar(10) | yes |  |  | NULL is the product's own language; a language code is a translation, shown instead of the NULL rows to a reader in that language. |
+| `heading` | String · VarChar(120) |  |  |  |  |
+| `body` | String · Text |  |  |  |  |
+| `imageMediaId` | String · Char(26) | yes | FK → [MediaAsset](#model-mediaasset) |  | (on delete: SetNull) |
+| `altText` | String · VarChar(255) | yes |  |  |  |
+| `sortOrder` | Int |  |  | 0 |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `product` → [Product](#model-product) via `productId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `image` → [MediaAsset](#model-mediaasset) via `imageMediaId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([productId, language, sortOrder], map: "ix_product_description_section_order")`
 
 <a id="model-productpackaging"></a>
 
@@ -1581,6 +1657,7 @@ Table `customer_profiles`
 - `orders` ← [Order](#model-order) - has many
 - `schedules` ← [RecurringSchedule](#model-recurringschedule) - has many
 - `paymentMethods` ← [CustomerPaymentMethod](#model-customerpaymentmethod) - has many
+- `providerCustomers` ← [PaymentProviderCustomer](#model-paymentprovidercustomer) - has many
 - `autoPaySetting` ← [CustomerAutoPaySetting](#model-customerautopaysetting) - has zero or one
 - `couponRedemptions` ← [CouponRedemption](#model-couponredemption) - has many
 - `limits` ← [CustomerLimit](#model-customerlimit) - has many
@@ -1963,6 +2040,8 @@ Table `order_items`
 | `discountMinor` | BigInt |  |  | 0 |  |
 | `lineTotalMinor` | BigInt |  |  |  |  |
 | `isRecurringEligibleSnapshot` | Boolean |  |  | false |  |
+| `productInfoSnapshotJson` | Json | yes |  |  | What the customer bought, as it was described at the moment the order was created: description, specifications (with the variant's own values applied), packaging, minimum, carton and container figures, the options chosen and the special instructions. Written once, in the transaction that creates the order item, by… |
+| `productInfoCapturedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Relations**
@@ -2235,6 +2314,13 @@ Table `payment_transactions`
 | `failureMessage` | String · VarChar(512) | yes |  |  |  |
 | `idempotencyKey` | String · VarChar(128) |  | UNIQUE |  | Guards against creating two provider orders for one checkout attempt. |
 | `mandateReference` | String · VarChar(128) | yes |  |  | Set when this attempt is a recurring auto-pay against a stored mandate. |
+| `providerSessionId` | String · VarChar(191) | yes | UNIQUE |  | --- Stripe-hosted Checkout --- |
+| `sessionExpiresAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `openAttemptKey` | String · Char(26) | yes | UNIQUE |  | The order id while this attempt is OPEN, NULL once it is closed. |
+| `cardBrand` | String · VarChar(32) | yes |  |  | Display only, read back from Stripe after capture: what a person needs to recognise the card they paid with. Never a card number. |
+| `cardLast4` | String · Char(4) | yes |  |  |  |
+| `disputedAt` | DateTime · DateTime(3) | yes |  |  | A chargeback was opened against this payment. The money's own status (CAPTURED) does not change - a dispute is a claim, not a reversal. |
+| `disputeReason` | String · VarChar(64) | yes |  |  |  |
 | `authorizedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `capturedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `failedAt` | DateTime · DateTime(3) | yes |  |  |  |
@@ -2446,7 +2532,7 @@ What the customer chose to pay with, in the words they were shown.
 
 ## Recurring purchases
 
-[RecurringSchedule](#model-recurringschedule) · [RecurringScheduleItem](#model-recurringscheduleitem) · [ScheduleOccurrence](#model-scheduleoccurrence) · [CustomerPaymentMethod](#model-customerpaymentmethod) · [ErpOrderPush](#model-erporderpush)
+[RecurringSchedule](#model-recurringschedule) · [RecurringScheduleItem](#model-recurringscheduleitem) · [ScheduleOccurrence](#model-scheduleoccurrence) · [CustomerPaymentMethod](#model-customerpaymentmethod) · [PaymentProviderCustomer](#model-paymentprovidercustomer) · [ErpOrderPush](#model-erporderpush)
 
 ```mermaid
 erDiagram
@@ -2462,6 +2548,7 @@ erDiagram
     ProductVariant |o--o{ RecurringScheduleItem : "substituteVariant"
     RecurringSchedule ||--o{ ScheduleOccurrence : "schedule"
     CustomerProfile ||--o{ CustomerPaymentMethod : "customerProfile"
+    CustomerProfile ||--o{ PaymentProviderCustomer : "customerProfile"
     Order ||--o| ErpOrderPush : "order"
     ScheduleOccurrence |o--o| ErpOrderPush : "occurrence"
     RecurringSchedule {
@@ -2495,6 +2582,10 @@ erDiagram
         String id PK
         String customerProfileId FK
         StoredPaymentMethodStatus status
+    }
+    PaymentProviderCustomer {
+        String id PK
+        String customerProfileId FK
     }
     ErpOrderPush {
         String id PK
@@ -2712,6 +2803,33 @@ A reusable payment instrument, plus the consent that makes it chargeable while t
 
 - `@@unique([provider, providerPaymentMethodId], map: "uq_payment_method_provider_ref")`
 - `@@index([customerProfileId, status], map: "ix_payment_method_customer")`
+
+<a id="model-paymentprovidercustomer"></a>
+
+### PaymentProviderCustomer
+
+Table `payment_provider_customers`
+
+The one record a customer has at a gateway - Stripe's Customer (cus_...).
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `provider` | [enum PaymentProviderKind](#enum-paymentproviderkind) |  |  |  |  |
+| `mode` | [enum PaymentMode](#enum-paymentmode) |  |  |  |  |
+| `providerCustomerId` | String · VarChar(128) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**
+
+**Indexes and keys**
+
+- `@@unique([customerProfileId, provider, mode], map: "uq_provider_customer_profile")`
+- `@@unique([provider, providerCustomerId], map: "uq_provider_customer_ref")`
 
 <a id="model-erporderpush"></a>
 
@@ -7197,6 +7315,7 @@ A seller's working copy of a listing.
 | `packagingJson` | Json | yes |  |  | Pack hierarchy: base unit, units per pack, packs per box, and so on, with the calculated total sellable units. Decimal-safe arithmetic lives in `packaging.ts`; this stores what the seller entered and what it worked out to, so a later change to the arithmetic is visible rather than silent. |
 | `variantAxesJson` | Json | yes |  |  | The axes this listing sells along, and the values the seller offers on each: `{ axes: [{ axisKey, values: [{ label, amount?, unit? }] }] }`. |
 | `variantsJson` | Json | yes |  |  | The combinations the seller actually approved, each with its own SKU, price, stock and pack - the matrix, as they last left it. |
+| `listingContentJson` | Json | yes |  |  | The seller's specifications, description sections and per-variant overrides, as `listingContentSchema` in `domain/product-specifications.ts` validates them. Copied onto the product when the listing is approved. |
 | `generatedTitle` | String · VarChar(512) | yes |  |  | The title the rules generated, and the fields that produced it. Null until every title-component attribute is valid - which is exactly when "Preview title" becomes pressable. |
 | `generatedTitleSource` | Json | yes |  |  |  |
 | `sellerEditedTitle` | String · VarChar(512) | yes |  |  | A title the seller edited, where policy allows it. Null means the generated one stands. |
@@ -9158,12 +9277,14 @@ Where a seller's invitation to a new delivery company stands.
 
 ## Logistics partner portal
 
-[LogisticsPartner](#model-logisticspartner) · [LogisticsPartnerUser](#model-logisticspartneruser) · [LogisticsPartnerInvitation](#model-logisticspartnerinvitation) · [LogisticsServiceRegion](#model-logisticsserviceregion) · [LogisticsCapability](#model-logisticscapability) · [LogisticsSlaPolicy](#model-logisticsslapolicy) · [LogisticsShipment](#model-logisticsshipment) · [LogisticsShipmentPackage](#model-logisticsshipmentpackage) · [SellerManualCarrierBooking](#model-sellermanualcarrierbooking) · [LogisticsShipmentAssignment](#model-logisticsshipmentassignment) · [LogisticsShipmentEvent](#model-logisticsshipmentevent) · [LogisticsShipmentException](#model-logisticsshipmentexception) · [LogisticsShipmentDocument](#model-logisticsshipmentdocument) · [LogisticsProofOfDelivery](#model-logisticsproofofdelivery) · [LogisticsPickupRequest](#model-logisticspickuprequest) · [LogisticsDispatchManifest](#model-logisticsdispatchmanifest) · [LogisticsDispatchManifestEntry](#model-logisticsdispatchmanifestentry) · [LogisticsDriverProfile](#model-logisticsdriverprofile) · [LogisticsVehicle](#model-logisticsvehicle) · [LogisticsDriverAssignment](#model-logisticsdriverassignment) · [LogisticsActiveTrip](#model-logisticsactivetrip) · [LogisticsLocationPing](#model-logisticslocationping) · [CarrierIntegration](#model-carrierintegration) · [CarrierStatusMapping](#model-carrierstatusmapping) · [CarrierWebhookEvent](#model-carrierwebhookevent) · [LogisticsNotification](#model-logisticsnotification) · [LogisticsAuditLog](#model-logisticsauditlog)
+[LogisticsPartner](#model-logisticspartner) · [LogisticsPartnerProfileChange](#model-logisticspartnerprofilechange) · [LogisticsPartnerDocument](#model-logisticspartnerdocument) · [LogisticsPartnerUser](#model-logisticspartneruser) · [LogisticsPartnerInvitation](#model-logisticspartnerinvitation) · [LogisticsServiceRegion](#model-logisticsserviceregion) · [LogisticsCapability](#model-logisticscapability) · [LogisticsSlaPolicy](#model-logisticsslapolicy) · [LogisticsShipment](#model-logisticsshipment) · [LogisticsShipmentPackage](#model-logisticsshipmentpackage) · [SellerManualCarrierBooking](#model-sellermanualcarrierbooking) · [LogisticsShipmentAssignment](#model-logisticsshipmentassignment) · [LogisticsShipmentEvent](#model-logisticsshipmentevent) · [LogisticsShipmentException](#model-logisticsshipmentexception) · [LogisticsShipmentDocument](#model-logisticsshipmentdocument) · [LogisticsProofOfDelivery](#model-logisticsproofofdelivery) · [LogisticsPickupRequest](#model-logisticspickuprequest) · [LogisticsDispatchManifest](#model-logisticsdispatchmanifest) · [LogisticsDispatchManifestEntry](#model-logisticsdispatchmanifestentry) · [LogisticsDriverProfile](#model-logisticsdriverprofile) · [LogisticsVehicle](#model-logisticsvehicle) · [LogisticsDriverAssignment](#model-logisticsdriverassignment) · [LogisticsActiveTrip](#model-logisticsactivetrip) · [LogisticsLocationPing](#model-logisticslocationping) · [CarrierIntegration](#model-carrierintegration) · [CarrierStatusMapping](#model-carrierstatusmapping) · [CarrierWebhookEvent](#model-carrierwebhookevent) · [LogisticsNotification](#model-logisticsnotification) · [LogisticsAuditLog](#model-logisticsauditlog)
 
 ```mermaid
 erDiagram
     CarrierIntegration |o--o{ LogisticsPartner : "carrierIntegration"
     SellerAccount |o--o{ LogisticsPartner : "ownerSellerAccount"
+    LogisticsPartner ||--o{ LogisticsPartnerProfileChange : "partner"
+    LogisticsPartner ||--o{ LogisticsPartnerDocument : "partner"
     LogisticsPartner ||--o{ LogisticsPartnerUser : "partner"
     User ||--o| LogisticsPartnerUser : "user"
     LogisticsPartner ||--o{ LogisticsPartnerInvitation : "partner"
@@ -9227,6 +9348,14 @@ erDiagram
         LogisticsPartnerStatus status
         LogisticsContractStatus contractStatus
         String carrierIntegrationId FK
+    }
+    LogisticsPartnerProfileChange {
+        String id PK
+        String logisticsPartnerId FK
+    }
+    LogisticsPartnerDocument {
+        String id PK
+        String logisticsPartnerId FK
     }
     LogisticsPartnerUser {
         String id PK
@@ -9415,6 +9544,24 @@ One logistics company.
 | `autoAssignEnabled` | Boolean |  |  | false | Whether new work may be offered automatically, or only by a person. |
 | `carrierIntegrationId` | String · Char(26) | yes | FK → [CarrierIntegration](#model-carrierintegration) |  | Which carrier API this partner's shipments are tracked through, where they are tracked through one at all. Null means the partner works entirely inside this portal - which is the MANUAL provider and the ordinary case. (on delete: SetNull) |
 | `internalNotes` | String · Text | yes |  |  | Free-text, operator-only. Never shown to the partner: it routinely names other people, exactly like `CustomerProfile.internalNotes`. |
+| `logoStorageKey` | String · VarChar(512) | yes |  |  | The company's mark. A bare storage key under the PUBLIC prefix, exactly like `SellerAccount.logoStorageKey`; the URL is built on read. |
+| `operationalAddressJson` | Json | yes |  |  | Where the vans actually leave from, when that is not the registered office. Same shape as `addressJson`. |
+| `businessDescription` | String · VarChar(2000) | yes |  |  | A paragraph in the carrier's own words. |
+| `primaryContactName` | String · VarChar(160) | yes |  |  | The named people behind the desk addresses above. Optional, and kept beside rather than instead of `contactEmail`: a person changes jobs, the operations desk does not. |
+| `primaryContactTitle` | String · VarChar(120) | yes |  |  |  |
+| `emergencyContactName` | String · VarChar(160) | yes |  |  |  |
+| `supportEmail` | String · VarChar(320) | yes |  |  |  |
+| `supportPhone` | String · VarChar(32) | yes |  |  |  |
+| `billingContactName` | String · VarChar(160) | yes |  |  |  |
+| `billingEmail` | String · VarChar(320) | yes |  |  |  |
+| `billingPhone` | String · VarChar(32) | yes |  |  |  |
+| `operatingHoursJson` | Json | yes |  |  | Opening hours per weekday, `{ "mon": { "open": "08:00", "close": "18:00" } }`, a missing day meaning closed. Read in `timeZone`. |
+| `timeZone` | String · VarChar(64) | yes |  |  | IANA zone, e.g. `Europe/Brussels`. Validated against the runtime's own zone list on write. |
+| `declaredTransportModesJson` | Json | yes |  |  | Road, air, sea - what the carrier SAYS it runs. A declaration, shown as one; the modes it is actually priced for come from published level rates. |
+| `hubLocationsJson` | Json | yes |  |  | Its own hubs and depots, as a short list of `{ name, city, countryCode }`. |
+| `verificationState` | [enum LogisticsPartnerVerificationState](#enum-logisticspartnerverificationstate) |  |  | UNVERIFIED | Whether the operator has checked the company's identity - legal name, registration, tax number - against its documents. |
+| `verifiedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `verifiedByUserId` | String · Char(26) | yes |  |  |  |
 | `createdById` | String · Char(26) | yes |  |  |  |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
@@ -9443,6 +9590,8 @@ One logistics company.
 - `sellerLinks` ← [SellerLogisticsPartner](#model-sellerlogisticspartner) - has many
 - `levelRates` ← [LogisticsLevelRate](#model-logisticslevelrate) - has many
 - `shipmentLegs` ← [ShipmentLeg](#model-shipmentleg) - has many
+- `profileChanges` ← [LogisticsPartnerProfileChange](#model-logisticspartnerprofilechange) - has many
+- `complianceDocuments` ← [LogisticsPartnerDocument](#model-logisticspartnerdocument) - has many
 
 **Indexes and keys**
 
@@ -9450,6 +9599,76 @@ One logistics company.
 - `@@index([registrationCountry], map: "ix_logistics_partner_country")`
 - `@@index([carrierIntegrationId], map: "ix_logistics_partner_integration")`
 - `@@index([ownerSellerAccountId, partnerKind], map: "ix_logistics_partner_owner")`
+
+<a id="model-logisticspartnerprofilechange"></a>
+
+### LogisticsPartnerProfileChange
+
+Table `logistics_partner_profile_changes`
+
+A change to who a logistics company IS, waiting for the operator.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `logisticsPartnerId` | String · Char(26) |  | FK → [LogisticsPartner](#model-logisticspartner) |  | (on delete: Cascade) |
+| `state` | [enum LogisticsProfileChangeState](#enum-logisticsprofilechangestate) |  |  | PENDING |  |
+| `pendingKey` | String · Char(26) | yes | UNIQUE |  |  |
+| `proposedJson` | Json |  |  |  | Only the fields being changed, with their proposed values. |
+| `currentJson` | Json |  |  |  | The same fields as they stood when the request was made, so the reviewer sees a before-and-after rather than a bare new value. |
+| `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `requestedByLabel` | String · VarChar(160) |  |  |  |  |
+| `requestedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `decidedByUserId` | String · Char(26) | yes |  |  |  |
+| `decidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `decisionNote` | String · VarChar(512) | yes |  |  | Shown to the carrier. A rejection with no reason cannot be fixed. |
+
+**Relations**
+
+- `partner` → [LogisticsPartner](#model-logisticspartner) via `logisticsPartnerId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([logisticsPartnerId, requestedAt], map: "ix_logistics_profile_change_partner")`
+- `@@index([state, requestedAt], map: "ix_logistics_profile_change_state")`
+
+<a id="model-logisticspartnerdocument"></a>
+
+### LogisticsPartnerDocument
+
+Table `logistics_partner_documents`
+
+A licence, a certificate of insurance, a permit - the carrier's file.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `logisticsPartnerId` | String · Char(26) |  | FK → [LogisticsPartner](#model-logisticspartner) |  | (on delete: Cascade) |
+| `kind` | [enum LogisticsComplianceDocumentKind](#enum-logisticscompliancedocumentkind) |  |  |  |  |
+| `storageKey` | String · VarChar(512) |  |  |  | Opaque key in the object store. Never a path a browser can construct. |
+| `originalFileName` | String · VarChar(255) |  |  |  | The name the carrier's own file had. Shown back, never used as a path. |
+| `contentType` | String · VarChar(128) |  |  |  | Decided by the bytes, never the request's header. |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  | SHA-256 of the bytes, so a stored file can be shown to be unmodified. |
+| `scanState` | [enum LogisticsDocumentScanState](#enum-logisticsdocumentscanstate) |  |  | PENDING | Reuses the shipment documents' scan states: SKIPPED means no scanner was configured and is never a synonym for CLEAN. |
+| `expiresOn` | DateTime · Date | yes |  |  | When the document itself lapses, as printed on it. |
+| `reviewState` | [enum LogisticsComplianceReviewState](#enum-logisticscompliancereviewstate) |  |  | PENDING_REVIEW |  |
+| `reviewedByUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectionReason` | String · VarChar(512) | yes |  |  | Shown to the carrier. |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `uploadedByLabel` | String · VarChar(160) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `supersededAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `partner` → [LogisticsPartner](#model-logisticspartner) via `logisticsPartnerId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([logisticsPartnerId, kind, supersededAt], map: "ix_logistics_partner_document_kind")`
+- `@@index([reviewState, createdAt], map: "ix_logistics_partner_document_review")`
 
 <a id="model-logisticspartneruser"></a>
 
@@ -10975,6 +11194,58 @@ Who may read one document.
 | `SECURITY_EVENT` |  |
 | `LEG_ASSIGNED` | A leg of a four-level journey (L1-L4) was given to this company. |
 | `LEG_WITHDRAWN` | A leg this company held was taken back by whoever controls it. |
+
+<a id="enum-logisticspartnerverificationstate"></a>
+
+#### enum LogisticsPartnerVerificationState
+
+Whether the operator has checked who a logistics company is.
+
+| Value | Meaning |
+|---|---|
+| `UNVERIFIED` |  |
+| `VERIFIED` |  |
+| `REVERIFICATION_REQUIRED` | Verified once, and something it was verified against has since been found wrong - a rejected identity change or a rejected document. |
+
+<a id="enum-logisticsprofilechangestate"></a>
+
+#### enum LogisticsProfileChangeState
+
+Where a proposed identity change has got to.
+
+| Value | Meaning |
+|---|---|
+| `PENDING` |  |
+| `APPROVED` |  |
+| `REJECTED` |  |
+| `WITHDRAWN` | Taken back by the carrier before anybody decided. |
+
+<a id="enum-logisticscompliancedocumentkind"></a>
+
+#### enum LogisticsComplianceDocumentKind
+
+What a compliance document is evidence of.
+
+| Value | Meaning |
+|---|---|
+| `BUSINESS_LICENCE` |  |
+| `INSURANCE_CERTIFICATE` |  |
+| `TRANSPORT_PERMIT` |  |
+| `COMPANY_REGISTRATION` |  |
+| `TAX_REGISTRATION` |  |
+| `OTHER` |  |
+
+<a id="enum-logisticscompliancereviewstate"></a>
+
+#### enum LogisticsComplianceReviewState
+
+Whether the operator has accepted a compliance document.
+
+| Value | Meaning |
+|---|---|
+| `PENDING_REVIEW` |  |
+| `VERIFIED` |  |
+| `REJECTED` |  |
 
 <a id="enum-manualcarrierbookingstatus"></a>
 
@@ -13573,6 +13844,8 @@ One customer's conversation with the operator's team about one product.
 | `slaAlertedAt` | DateTime · DateTime(3) | yes |  |  | Set when the SLA alert for the current wait has been raised, so it is raised once per wait. |
 | `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
 | `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `handoffRequestedAt` | DateTime · DateTime(3) | yes |  |  | When the customer last asked the assistant for a person. NULL when they never did - they wrote to the team directly instead. The queue shows it as "Human assistance requested" until a member of staff replies after it; it is not a status, for the same reason assignment is not one. |
+| `handoffTopic` | String · VarChar(64) | yes |  |  | The common question they were on when they asked, or NULL. |
 | `reopenCount` | Int |  |  | 0 | Times it went from RESOLVED back to OPEN. |
 | `version` | Int |  |  | 0 | Optimistic concurrency for status, assignment and priority writes. |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
@@ -13839,6 +14112,7 @@ Live events in flight between API processes, under REALTIME_BUS_DRIVER=database.
 | `CUSTOMER` |  |
 | `ADMIN` |  |
 | `SYSTEM` | Written by the system itself - "UBOSS has created a preorder proposal", "this conversation was resolved". Carries an event key and values, never prose, so each reader sees it in their own language. |
+| `AUTOMATION` | The preorder assistant: an automated answer to a common question, built from the product's own data. Never a person, never shown as one, and never counted as staff answering - `firstResponseAt` and the waiting clock only move for ADMIN. |
 
 <a id="enum-preorderchatmessagetype"></a>
 
@@ -13850,6 +14124,9 @@ Live events in flight between API processes, under REALTIME_BUS_DRIVER=database.
 | `ATTACHMENT` |  |
 | `SYSTEM_EVENT` |  |
 | `STRUCTURED_OFFER` | A card pointing at a `PreorderChatProposal`. |
+| `FAQ_QUESTION` | A common question the customer picked from the assistant's list. Sent by the CUSTOMER; `systemEvent` is the question id and `systemMetaJson` its version, so each reader sees the question in their own language. |
+| `AUTOMATED_REPLY` | The assistant's answer. Sent by AUTOMATION; `systemMetaJson` holds the answer key and the values that filled it, exactly as the customer was shown them (see `modules/preorder-chat/assistant/`). |
+| `HANDOFF_REQUEST` | The customer asked for a person. Sent by the CUSTOMER, so it starts the waiting clock and counts as unread for staff like any message. |
 
 <a id="enum-preorderchatparticipanttype"></a>
 

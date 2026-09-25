@@ -16,6 +16,7 @@ import { mkdir } from 'node:fs/promises';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import { CSRF_HEADER } from './plugins/auth.js';
+import { SELLER_ACTIVITY_HEADER, SELLER_EXPIRES_HEADER } from './plugins/seller.js';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
@@ -336,8 +337,11 @@ export async function buildApp() {
       'Idempotency-Key',
       CSRF_HEADER,
       CORRELATION_HEADER,
+      // The Seller Hub's "a person did this" mark, and its answer: when the
+      // open Hub re-locks. See plugins/seller.ts.
+      SELLER_ACTIVITY_HEADER,
     ],
-    exposedHeaders: [CORRELATION_HEADER, 'RateLimit-Limit', 'RateLimit-Remaining'],
+    exposedHeaders: [CORRELATION_HEADER, 'RateLimit-Limit', 'RateLimit-Remaining', SELLER_EXPIRES_HEADER],
     maxAge: 86_400,
   });
 

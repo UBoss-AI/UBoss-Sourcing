@@ -24,6 +24,7 @@
  *     behind the API must say "something happened" rather than silently drop
  *     it.
  */
+import { faqQuestionText } from '@/lib/preorder-assistant';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -100,6 +101,7 @@ const PREORDER_UPDATE = 'preorder.update';
 const PREORDER_CHAT_STARTED = 'preorder_chat.started';
 const PREORDER_CHAT_SLA_BREACHED = 'preorder_chat.sla_breached';
 const PREORDER_CHAT_PROPOSAL_ANSWERED = 'preorder_chat.proposal_answered';
+const PREORDER_CHAT_HANDOFF = 'preorder_chat.handoff';
 
 /** The steps a preorder notification can name. Anything else reads as the generic line. */
 const PREORDER_EVENTS = new Set([
@@ -287,6 +289,22 @@ function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18
       detail: t('notifications.preorderChat.startedDetail', {
         customerName: textVariable(variables, 'customerName', '—'),
       }),
+    };
+  }
+
+  if (notification.kind === PREORDER_CHAT_HANDOFF) {
+    const topic = textVariable(variables, 'topic', '');
+    return {
+      title: t('notifications.preorderChat.handoff', {
+        productName: textVariable(variables, 'productName', '—'),
+      }),
+      detail:
+        topic === ''
+          ? t('notifications.preorderChat.startedDetail', { customerName: textVariable(variables, 'customerName', '—') })
+          : t('notifications.preorderChat.handoffDetail', {
+              customerName: textVariable(variables, 'customerName', '—'),
+              topic: faqQuestionText(topic, t),
+            }),
     };
   }
 

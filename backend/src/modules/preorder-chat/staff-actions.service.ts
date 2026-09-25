@@ -739,7 +739,9 @@ export async function redactMessage(
     },
   });
   if (message === null) throw notFound('Message');
-  if (message.senderType === 'SYSTEM') {
+  // Nobody wrote the system's cards or the assistant's answers: there are no
+  // words of a person's to remove.
+  if (message.senderType === 'SYSTEM' || message.senderType === 'AUTOMATION') {
     throw badRequest(ErrorCode.VALIDATION_FAILED, 'System messages cannot be redacted.');
   }
   if (message.redactedAt !== null) {

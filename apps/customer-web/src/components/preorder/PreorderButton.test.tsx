@@ -284,10 +284,11 @@ describe('PreorderButton', () => {
     expect(screen.getByRole('button', { name: /^preorder$/i })).toBeDisabled();
     expect(screen.getByText(/choose one option/i)).toBeInTheDocument();
     expect(infoButton()).toBeEnabled();
-    // Nothing about the terms is asked for. (The chat button beside it may ask
-    // whether the team is online; that is not a question about this product.)
+    // Nothing about the terms is asked for. (The chat icon beside it may ask
+    // whether the team is online and how many replies are unread; neither is a
+    // question about the preorder terms.)
     const asked = fetchMock.mock.calls.map(([input]) => (input instanceof Request ? input.url : input.toString()));
-    expect(asked.filter((url) => !url.includes('/preorder-chats/availability'))).toEqual([]);
+    expect(asked.filter((url) => !url.includes('/preorder-chats/'))).toEqual([]);
   });
 
   it('is disabled for an account with no company, with a way to add one', async () => {
@@ -301,7 +302,7 @@ describe('PreorderButton', () => {
 
   // --- 1-3. The i beside Preorder ------------------------------------------------
 
-  it('lays out [ Preorder (i) ] [ Chat with UBOSS ] as separate, labelled buttons', async () => {
+  it('lays out [ Preorder (i) ] [ chat ] as separate, labelled buttons', async () => {
     stubApi(AVAILABLE, viewer());
     renderPage();
 
@@ -312,9 +313,13 @@ describe('PreorderButton', () => {
     expect(preorder.contains(info)).toBe(false);
     expect(info.contains(preorder)).toBe(false);
     expect(preorder.nextElementSibling).toBe(info);
-    const chat = screen.getByRole('button', { name: 'Chat with the Glovia team about this product' });
+    const chat = screen.getByRole('button', { name: 'Chat with Glovia' });
     expect(info.compareDocumentPosition(chat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(chat.contains(info)).toBe(false);
+    // One way into the chat from this row, and it is the icon: no visible
+    // "Chat with Glovia" text button beside it any more.
+    expect(screen.getAllByRole('button', { name: /chat with/i })).toHaveLength(1);
+    expect(screen.queryByText('Chat with Glovia')).toBeNull();
     expect(info).toHaveAttribute('aria-haspopup', 'dialog');
     expect(info).toHaveAttribute('aria-expanded', 'false');
   });

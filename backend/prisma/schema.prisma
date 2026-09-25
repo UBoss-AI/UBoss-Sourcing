@@ -324,6 +324,13 @@ model Session {
   sellerUnlockedAt    DateTime? @db.DateTime(3)
   sellerUnlockedForId String?   @db.Char(26)
 
+  /// The last time this session did something in the Seller Hub that a person
+  /// did on purpose - a change, or a page they opened - as opposed to a badge
+  /// polling in a background tab. The Hub re-locks after
+  /// SELLER_HUB_IDLE_TIMEOUT_SECONDS without one, on the server, whatever any
+  /// browser tab believes. Null while the Hub is locked.
+  sellerLastActivityAt DateTime? @db.DateTime(3)
+
   expiresAt           DateTime  @db.DateTime(3)
   revokedAt           DateTime? @db.DateTime(3)
   revokedReason       String?   @db.VarChar(128)
@@ -780,6 +787,7 @@ model MediaAsset {
 
   productMedia     ProductMedia[]
   variantMedia     ProductVariantMedia[]
+  descriptionSectionImages ProductDescriptionSection[] @relation("ProductDescriptionSectionImage")
   categoryImages   Category[]        @relation("CategoryImage")
   categoryBanners  Category[]        @relation("CategoryBanner")
   businessProfiles BusinessProfile[]
@@ -1096,6 +1104,7 @@ model Product {
   variants            ProductVariant[]
   media               ProductMedia[]
   attributes          ProductAttribute[]
+  descriptionSections ProductDescriptionSection[]
   inventoryBalances   InventoryBalance[]
   inventoryMovements  InventoryMovement[]
   stockReservations   StockReservation[]
@@ -1278,6 +1287,7 @@ model ProductVariant {
 
   sellerOffers SellerOffer[]
   media        ProductVariantMedia[]
+  attributes   ProductVariantAttribute[]
 
   /// One row per combination, per product.
   ///
@@ -1347,12 +1357,69 @@ model ProductAttribute {
   sortOrder    Int     @default(0)
   /// Attributes drive faceted filtering when true.
   isFilterable Boolean @default(false)
+  /// Which specification group it is shown under - one of `SPEC_GROUPS` in
+  /// `domain/product-specifications.ts`. NULL for rows written before groups
+  /// existed; those read as GENERAL, so every existing product still renders.
+  groupKey     String? @db.VarChar(32)
+  /// One of `SPEC_UNITS`, or NULL when the unit is part of the value.
+  unit         String? @db.VarChar(24)
+  /// Shown in the product's highlights, at the top of its information.
+  isHighlight  Boolean @default(false)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, name], map: "uq_product_attribute_name")
   @@index([name, value], map: "ix_product_attribute_lookup")
   @@map("product_attributes")
+}
+
+/// A specification that is different for one variant: a row with the same
+/// label as the product's replaces it for a buyer who picked this variant; a
+/// label only the variant has is added. See `shownSpecifications`.
+model ProductVariantAttribute {
+  id        String @id @db.Char(26)
+  variantId String @db.Char(26)
+
+  name      String  @db.VarChar(128)
+  value     String  @db.VarChar(512)
+  unit      String? @db.VarChar(24)
+  /// NULL keeps the product row's group.
+  groupKey  String? @db.VarChar(32)
+  sortOrder Int     @default(0)
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_product_variant_attribute_variant")
+
+  @@unique([variantId, name], map: "uq_product_variant_attribute_name")
+  @@map("product_variant_attributes")
+}
+
+/// One section of a product's description: a heading and plain text, with an
+/// optional picture. Plain text on purpose - it is shown as text, so there is
+/// no markup in it to sanitise; tags are stripped on the way in. The seller's
+/// HTML description, where one exists, stays in `Product.descriptionHtml`,
+/// sanitised on write.
+model ProductDescriptionSection {
+  id        String  @id @db.Char(26)
+  productId String  @db.Char(26)
+  /// NULL is the product's own language; a language code is a translation,
+  /// shown instead of the NULL rows to a reader in that language.
+  language  String? @db.VarChar(10)
+
+  heading      String  @db.VarChar(120)
+  body         String  @db.Text
+  imageMediaId String? @db.Char(26)
+  altText      String? @db.VarChar(255)
+  sortOrder    Int     @default(0)
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  product Product     @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_product_description_section_product")
+  image   MediaAsset? @relation("ProductDescriptionSectionImage", fields: [imageMediaId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_product_description_section_image")
+
+  @@index([productId, language, sortOrder], map: "ix_product_description_section_order")
+  @@map("product_description_sections")
 }
 
 // ---------------------------------------------------------------------------
@@ -2187,6 +2254,8 @@ model CustomerProfile {
   schedules RecurringSchedule[]
 
   paymentMethods CustomerPaymentMethod[]
+  /// This customer's own record at each gateway (Stripe's cus_...).
+  providerCustomers PaymentProviderCustomer[]
 
   /// Their authority to be charged while nobody is watching. Self-service, and
   /// necessarily so: nobody can consent on somebody else's behalf to money
@@ -2779,6 +2848,17 @@ model OrderItem {
 
   isRecurringEligibleSnapshot Boolean @default(false)
 
+  /// What the customer bought, as it was described at the moment the order
+  /// was created: description, specifications (with the variant's own values
+  /// applied), packaging, minimum, carton and container figures, the options
+  /// chosen and the special instructions. Written once, in the transaction
+  /// that creates the order item, by `captureOrderItemSnapshots`, and never
+  /// updated - a listing edited, unpublished or archived next month must not
+  /// change what an old order says was sold. Shape and `schemaVersion`:
+  /// `domain/order-item-snapshot.ts`. NULL on items created before it existed.
+  productInfoSnapshotJson Json?
+  productInfoCapturedAt   DateTime? @db.DateTime(3)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
 
   order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -2993,6 +3073,30 @@ model PaymentTransaction {
 
   /// Set when this attempt is a recurring auto-pay against a stored mandate.
   mandateReference String? @db.VarChar(128)
+
+  /// --- Stripe-hosted Checkout ---
+  ///
+  /// The Checkout Session (cs_...) this attempt sent the customer to. Stripe
+  /// creates the PaymentIntent only once the customer confirms on its page, so
+  /// `providerOrderId` stays NULL until then and this is the reference every
+  /// checkout.session.* webhook is matched on.
+  providerSessionId String?   @unique(map: "uq_payment_provider_session") @db.VarChar(191)
+  sessionExpiresAt  DateTime? @db.DateTime(3)
+  /// The order id while this attempt is OPEN, NULL once it is closed.
+  ///
+  /// The one-open-attempt-per-order rule, held by the database rather than by
+  /// a read-then-write. A second tab or a double click collides on this
+  /// UNIQUE index instead of opening a second Checkout Session - and MariaDB
+  /// treats every NULL as distinct, so closed attempts never collide.
+  openAttemptKey    String?   @unique(map: "uq_payment_open_attempt") @db.Char(26)
+  /// Display only, read back from Stripe after capture: what a person needs to
+  /// recognise the card they paid with. Never a card number.
+  cardBrand         String?   @db.VarChar(32)
+  cardLast4         String?   @db.Char(4)
+  /// A chargeback was opened against this payment. The money's own status
+  /// (CAPTURED) does not change - a dispute is a claim, not a reversal.
+  disputedAt        DateTime? @db.DateTime(3)
+  disputeReason     String?   @db.VarChar(64)
 
   authorizedAt DateTime? @db.DateTime(3)
   capturedAt   DateTime? @db.DateTime(3)
@@ -3764,6 +3868,42 @@ model CustomerPaymentMethod {
   @@unique([provider, providerPaymentMethodId], map: "uq_payment_method_provider_ref")
   @@index([customerProfileId, status], map: "ix_payment_method_customer")
   @@map("customer_payment_methods")
+}
+
+/// The one record a customer has at a gateway - Stripe's Customer (cus_...).
+///
+/// Authoritative, and the only place that answers "which Stripe Customer is
+/// this person". Saved cards hang off it, every Checkout Session is opened
+/// against it, and it is what lets Stripe offer a returning customer the card
+/// they saved last time. Before this table the id was only ever copied onto
+/// card rows, and a customer without one got a fresh Stripe Customer per
+/// attempt once Stripe's 24-hour idempotency window had passed.
+///
+/// Per MODE as well as per gateway: a test-mode cus_ does not exist in live,
+/// and a deployment moving from one to the other must not hand Stripe an id it
+/// has never seen.
+///
+/// Never matched on email and never accepted from a browser. Ownership is the
+/// `customerProfileId` column and nothing else.
+model PaymentProviderCustomer {
+  id                 String              @id @db.Char(26)
+  customerProfileId  String              @db.Char(26)
+  provider           PaymentProviderKind
+  mode               PaymentMode
+  providerCustomerId String              @db.VarChar(128)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  /// One Stripe Customer per person per mode. Two concurrent first checkouts
+  /// collide here, and the loser adopts the winner's id.
+  @@unique([customerProfileId, provider, mode], map: "uq_provider_customer_profile")
+  /// And one person per Stripe Customer: the same cus_ can never be filed
+  /// under two customers, which is what would let one see the other's cards.
+  @@unique([provider, providerCustomerId], map: "uq_provider_customer_ref")
+  @@map("payment_provider_customers")
 }
 
 /// One order's hand-off to the ERP, and the state of its retries.
@@ -9417,6 +9557,11 @@ model SellerListingDraft {
   /// told are "not offered" rather than "out of stock".
   variantsJson Json?
 
+  /// The seller's specifications, description sections and per-variant
+  /// overrides, as `listingContentSchema` in `domain/product-specifications.ts`
+  /// validates them. Copied onto the product when the listing is approved.
+  listingContentJson Json?
+
   /// The title the rules generated, and the fields that produced it. Null
   /// until every title-component attribute is valid - which is exactly when
   /// "Preview title" becomes pressable.
@@ -12508,6 +12653,61 @@ model LogisticsPartner {
   /// other people, exactly like `CustomerProfile.internalNotes`.
   internalNotes String? @db.Text
 
+  // --- The partner's own profile (My Profile in the portal) --------------
+  //
+  // Everything below is the carrier describing itself. None of it is matched
+  // against a consignment: an approved region, an approved capability and a
+  // published level rate are what decide where work goes, and those stay the
+  // operator's. These columns are what a seller or an operator reads to know
+  // who they are dealing with.
+
+  /// The company's mark. A bare storage key under the PUBLIC prefix, exactly
+  /// like `SellerAccount.logoStorageKey`; the URL is built on read.
+  logoStorageKey String? @db.VarChar(512)
+
+  /// Where the vans actually leave from, when that is not the registered
+  /// office. Same shape as `addressJson`.
+  operationalAddressJson Json?
+
+  /// A paragraph in the carrier's own words.
+  businessDescription String? @db.VarChar(2000)
+
+  /// The named people behind the desk addresses above. Optional, and kept
+  /// beside rather than instead of `contactEmail`: a person changes jobs, the
+  /// operations desk does not.
+  primaryContactName  String? @db.VarChar(160)
+  primaryContactTitle String? @db.VarChar(120)
+  emergencyContactName String? @db.VarChar(160)
+  supportEmail        String? @db.VarChar(320)
+  supportPhone        String? @db.VarChar(32)
+  billingContactName  String? @db.VarChar(160)
+  billingEmail        String? @db.VarChar(320)
+  billingPhone        String? @db.VarChar(32)
+
+  /// Opening hours per weekday, `{ "mon": { "open": "08:00", "close": "18:00" } }`,
+  /// a missing day meaning closed. Read in `timeZone`.
+  operatingHoursJson Json?
+  /// IANA zone, e.g. `Europe/Brussels`. Validated against the runtime's own
+  /// zone list on write.
+  timeZone String? @db.VarChar(64)
+
+  /// Road, air, sea - what the carrier SAYS it runs. A declaration, shown as
+  /// one; the modes it is actually priced for come from published level rates.
+  declaredTransportModesJson Json?
+  /// Its own hubs and depots, as a short list of `{ name, city, countryCode }`.
+  hubLocationsJson Json?
+
+  /// Whether the operator has checked the company's identity - legal name,
+  /// registration, tax number - against its documents.
+  ///
+  /// Separate from `status`: an ACTIVE carrier may still be UNVERIFIED on an
+  /// installation that onboarded it by phone, and saying so is more honest
+  /// than inferring a check that never happened. Every row that existed before
+  /// this column is UNVERIFIED for exactly that reason.
+  verificationState LogisticsPartnerVerificationState @default(UNVERIFIED)
+  verifiedAt        DateTime? @db.DateTime(3)
+  verifiedByUserId  String?   @db.Char(26)
+
   createdById String?  @db.Char(26)
   createdAt   DateTime @default(now()) @db.DateTime(3)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
@@ -12538,6 +12738,9 @@ model LogisticsPartner {
   /// Level prices that name this company as the carrier, and the legs it holds.
   levelRates   LogisticsLevelRate[]
   shipmentLegs ShipmentLeg[]
+  /// Identity changes waiting for the operator, and the compliance file.
+  profileChanges      LogisticsPartnerProfileChange[]
+  complianceDocuments LogisticsPartnerDocument[]
 
   @@index([status, createdAt], map: "ix_logistics_partner_status")
   @@index([registrationCountry], map: "ix_logistics_partner_country")
@@ -12546,6 +12749,134 @@ model LogisticsPartner {
   /// me. Also the exclusion the marketplace carrier picker runs.
   @@index([ownerSellerAccountId, partnerKind], map: "ix_logistics_partner_owner")
   @@map("logistics_partners")
+}
+
+/// Whether the operator has checked who a logistics company is.
+enum LogisticsPartnerVerificationState {
+  UNVERIFIED
+  VERIFIED
+  /// Verified once, and something it was verified against has since been
+  /// found wrong - a rejected identity change or a rejected document.
+  REVERIFICATION_REQUIRED
+}
+
+/// Where a proposed identity change has got to.
+enum LogisticsProfileChangeState {
+  PENDING
+  APPROVED
+  REJECTED
+  /// Taken back by the carrier before anybody decided.
+  WITHDRAWN
+}
+
+/// A change to who a logistics company IS, waiting for the operator.
+///
+/// Legal name, trading name, registration and tax numbers, the registered
+/// address and the transport licence are what an invoice, a customs
+/// declaration and a contract are written against. A carrier that could
+/// change them itself could become somebody else between two consignments,
+/// so a change to any of them is proposed here and applied only when a member
+/// of staff approves it. Until then the live record keeps the verified values.
+///
+/// `pendingKey` is the partner id while PENDING and NULL otherwise, and it is
+/// UNIQUE: MariaDB treats every NULL as distinct, so any number of decided
+/// requests sit beside each other while two open ones for one company cannot.
+model LogisticsPartnerProfileChange {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  state      LogisticsProfileChangeState @default(PENDING)
+  pendingKey String?                     @unique(map: "uq_logistics_profile_change_pending") @db.Char(26)
+
+  /// Only the fields being changed, with their proposed values.
+  proposedJson Json
+  /// The same fields as they stood when the request was made, so the reviewer
+  /// sees a before-and-after rather than a bare new value.
+  currentJson  Json
+
+  requestedByUserId String   @db.Char(26)
+  requestedByLabel  String   @db.VarChar(160)
+  requestedAt       DateTime @default(now()) @db.DateTime(3)
+
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+  /// Shown to the carrier. A rejection with no reason cannot be fixed.
+  decisionNote    String?   @db.VarChar(512)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_logistics_profile_change_partner")
+
+  @@index([logisticsPartnerId, requestedAt], map: "ix_logistics_profile_change_partner")
+  @@index([state, requestedAt], map: "ix_logistics_profile_change_state")
+  @@map("logistics_partner_profile_changes")
+}
+
+/// What a compliance document is evidence of.
+enum LogisticsComplianceDocumentKind {
+  BUSINESS_LICENCE
+  INSURANCE_CERTIFICATE
+  TRANSPORT_PERMIT
+  COMPANY_REGISTRATION
+  TAX_REGISTRATION
+  OTHER
+}
+
+/// Whether the operator has accepted a compliance document.
+enum LogisticsComplianceReviewState {
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+/// A licence, a certificate of insurance, a permit - the carrier's file.
+///
+/// The bytes are under the PRIVATE storage prefix and are read back only
+/// through a short-lived, single-use link issued to somebody who has passed
+/// the ownership check, the same path shipment documents take. An insurance
+/// certificate names a policy number and a sum insured, and neither belongs at
+/// a guessable URL.
+///
+/// A newer upload of the same kind supersedes rather than replaces the older
+/// one, which stays readable: the certificate an approval was given against
+/// is the one that has to be produced when that approval is questioned.
+model LogisticsPartnerDocument {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  kind LogisticsComplianceDocumentKind
+
+  /// Opaque key in the object store. Never a path a browser can construct.
+  storageKey       String @db.VarChar(512)
+  /// The name the carrier's own file had. Shown back, never used as a path.
+  originalFileName String @db.VarChar(255)
+  /// Decided by the bytes, never the request's header.
+  contentType      String @db.VarChar(128)
+  byteSize         Int
+  /// SHA-256 of the bytes, so a stored file can be shown to be unmodified.
+  contentHash      String @db.Char(64)
+
+  /// Reuses the shipment documents' scan states: SKIPPED means no scanner was
+  /// configured and is never a synonym for CLEAN.
+  scanState LogisticsDocumentScanState @default(PENDING)
+
+  /// When the document itself lapses, as printed on it.
+  expiresOn DateTime? @db.Date
+
+  reviewState      LogisticsComplianceReviewState @default(PENDING_REVIEW)
+  reviewedByUserId String?   @db.Char(26)
+  reviewedAt       DateTime? @db.DateTime(3)
+  /// Shown to the carrier.
+  rejectionReason  String?   @db.VarChar(512)
+
+  uploadedByUserId String   @db.Char(26)
+  uploadedByLabel  String   @db.VarChar(160)
+  createdAt        DateTime @default(now()) @db.DateTime(3)
+  supersededAt     DateTime? @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_logistics_partner_document_partner")
+
+  @@index([logisticsPartnerId, kind, supersededAt], map: "ix_logistics_partner_document_kind")
+  @@index([reviewState, createdAt], map: "ix_logistics_partner_document_review")
+  @@map("logistics_partner_documents")
 }
 
 /// One person inside one logistics company.
@@ -17395,6 +17726,11 @@ enum PreorderChatSenderType {
   /// "this conversation was resolved". Carries an event key and values, never
   /// prose, so each reader sees it in their own language.
   SYSTEM
+  /// The preorder assistant: an automated answer to a common question, built
+  /// from the product's own data. Never a person, never shown as one, and
+  /// never counted as staff answering - `firstResponseAt` and the waiting
+  /// clock only move for ADMIN.
+  AUTOMATION
 }
 
 enum PreorderChatMessageType {
@@ -17403,6 +17739,17 @@ enum PreorderChatMessageType {
   SYSTEM_EVENT
   /// A card pointing at a `PreorderChatProposal`.
   STRUCTURED_OFFER
+  /// A common question the customer picked from the assistant's list. Sent by
+  /// the CUSTOMER; `systemEvent` is the question id and `systemMetaJson` its
+  /// version, so each reader sees the question in their own language.
+  FAQ_QUESTION
+  /// The assistant's answer. Sent by AUTOMATION; `systemMetaJson` holds the
+  /// answer key and the values that filled it, exactly as the customer was
+  /// shown them (see `modules/preorder-chat/assistant/`).
+  AUTOMATED_REPLY
+  /// The customer asked for a person. Sent by the CUSTOMER, so it starts the
+  /// waiting clock and counts as unread for staff like any message.
+  HANDOFF_REQUEST
 }
 
 enum PreorderChatParticipantType {
@@ -17548,6 +17895,15 @@ model PreorderChatConversation {
 
   resolvedAt  DateTime? @db.DateTime(3)
   closedAt    DateTime? @db.DateTime(3)
+
+  /// When the customer last asked the assistant for a person. NULL when they
+  /// never did - they wrote to the team directly instead. The queue shows it
+  /// as "Human assistance requested" until a member of staff replies after
+  /// it; it is not a status, for the same reason assignment is not one.
+  handoffRequestedAt DateTime? @db.DateTime(3)
+  /// The common question they were on when they asked, or NULL.
+  handoffTopic       String?   @db.VarChar(64)
+
   /// Times it went from RESOLVED back to OPEN.
   reopenCount Int       @default(0)
 

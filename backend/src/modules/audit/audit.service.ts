@@ -107,6 +107,11 @@ export const AuditAction = {
   PAYMENT_GATEWAY_CONFIGURED: 'payment_gateway.configured',
   PAYMENT_GATEWAY_ACTIVATED: 'payment_gateway.activated',
   WEBHOOK_REJECTED: 'webhook.rejected',
+  /// A Stripe Checkout attempt closed without money moving: the customer
+  /// cancelled, the session expired, or it could not be opened.
+  PAYMENT_CHECKOUT_CLOSED: 'payment.checkout_closed',
+  /// A chargeback was opened against a captured payment.
+  PAYMENT_DISPUTED: 'payment.disputed',
   REFUND_CREATED: 'refund.created',
   REFUND_COMPLETED: 'refund.completed',
 
@@ -270,6 +275,12 @@ export const AuditAction = {
   SELLER_LOCK_CHANGED: 'seller.lock.changed',
   /// A wrong Seller Hub password. One is a typo; a run of them is not.
   SELLER_LOCK_REFUSED: 'seller.lock.refused',
+  /// The Hub opened, closed by the person, kept open from the warning, or
+  /// re-locked by the server after SELLER_HUB_IDLE_TIMEOUT_SECONDS idle.
+  SELLER_LOCK_OPENED: 'seller.lock.opened',
+  SELLER_LOCK_CLOSED: 'seller.lock.closed',
+  SELLER_SESSION_RENEWED: 'seller.session.renewed',
+  SELLER_SESSION_EXPIRED: 'seller.session.expired',
 
   // A seller's evidence, and what the marketplace decided about it
   //
@@ -386,6 +397,9 @@ export const AuditAction = {
   PREORDER_CHAT_VIEWED: 'preorder_chat.viewed',
   PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
   PREORDER_CHAT_STATUS_CHANGED: 'preorder_chat.status_changed',
+  /// The customer asked the preorder assistant for a person. `after` carries
+  /// the question they were on and how many answers they had read.
+  PREORDER_CHAT_HANDOFF_REQUESTED: 'preorder_chat.handoff_requested',
   PREORDER_CHAT_PRIORITY_CHANGED: 'preorder_chat.priority_changed',
   PREORDER_CHAT_TAGS_CHANGED: 'preorder_chat.tags_changed',
   PREORDER_CHAT_NOTE_ADDED: 'preorder_chat.note_added',

@@ -17,6 +17,7 @@
  * number, no payment reference. The delivery address is shown because somebody
  * has to write it on the box.
  */
+import { OrderedProductInfo } from './OrderedProductInfo';
 import { useState } from 'react';
 import { ConsignmentLogisticsPanel } from './ConsignmentLogisticsPanel';
 import { SellerOrderLegsPanel } from './SellerOrderLegsPanel';
@@ -189,7 +190,10 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
             <li key={line.id} className="px-6 py-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink">{line.productName}</p>
+                  {/* The name the customer bought it under, from the order's
+                      snapshot; today's listing name only for an order from
+                      before snapshots. */}
+                  <p className="text-sm font-medium text-ink">{line.productInfo?.info?.productName ?? line.productName}</p>
                   <p className="mt-0.5 text-xxs text-ink-subtle">{line.sellerSku}</p>
 
                   {/* The buyer's own words about this line, on the panel
@@ -226,6 +230,15 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
                   </p>
                 </div>
               </div>
+
+              {line.productInfo !== undefined && (
+                <OrderedProductInfo
+                  source={line.productInfo.source}
+                  info={line.productInfo.info}
+                  listingPath={`/seller/listings/${line.offerId}`}
+                  sellerSku={line.sellerSku}
+                />
+              )}
 
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-muted">
                 {/*

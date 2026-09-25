@@ -165,9 +165,11 @@ export function AccountMenu(): React.JSX.Element {
           {identity.shortName ?? t('header.account')}
         </span>
 
+        {/* Hidden on a phone, like the market menu's: the room goes to the
+            wordmark. The name and `aria-expanded` still say it is a menu. */}
         <ChevronDownIcon
           aria-hidden="true"
-          className={cx('h-4 w-4 shrink-0 text-ink-subtle transition-transform', isOpen && 'rotate-180')}
+          className={cx('h-4 w-4 shrink-0 text-ink-subtle transition-transform max-sm:hidden', isOpen && 'rotate-180')}
         />
       </button>
 

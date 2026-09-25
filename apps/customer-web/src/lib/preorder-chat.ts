@@ -7,6 +7,7 @@
  * only says which product, option, unit, quantity and date it is asking about.
  */
 import { api, BASE_URL, newIdempotencyKey, postFile } from './api';
+import type { FaqAnswer, SignedAnswer } from './preorder-assistant';
 
 export type ChatOrderingUnit = 'PIECE' | 'CONTAINER_20_FT' | 'CONTAINER_40_FT';
 export const CHAT_ORDERING_UNITS: readonly ChatOrderingUnit[] = ['PIECE', 'CONTAINER_20_FT', 'CONTAINER_40_FT'];
@@ -52,6 +53,11 @@ export interface CustomerConversation {
   lastMessagePreview: string | null;
   lastMessageFromMe: boolean;
   lastMessageAt: string;
+  /**
+   * The customer asked the assistant for a person and nobody has replied
+   * since. Says the request is queued - never that anybody is connected.
+   */
+  humanRequested: boolean;
   resolvedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -80,13 +86,23 @@ export interface ChatProposal {
 export interface ChatMessage {
   id: string;
   seq: number;
-  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM';
-  messageType: 'TEXT' | 'ATTACHMENT' | 'SYSTEM_EVENT' | 'STRUCTURED_OFFER';
+  /** AUTOMATION is the preorder assistant: never a person, and never shown as one. */
+  senderType: 'CUSTOMER' | 'ADMIN' | 'SYSTEM' | 'AUTOMATION';
+  messageType:
+    | 'TEXT'
+    | 'ATTACHMENT'
+    | 'SYSTEM_EVENT'
+    | 'STRUCTURED_OFFER'
+    | 'FAQ_QUESTION'
+    | 'AUTOMATED_REPLY'
+    | 'HANDOFF_REQUEST';
   body: string;
   systemEvent: string | null;
   systemMeta: Record<string, string | number | boolean | null>;
   replyToMessageId: string | null;
   proposal: ChatProposal | null;
+  /** For AUTOMATED_REPLY: the answer exactly as the customer was shown it. */
+  automation?: (FaqAnswer & { askedAt: string }) | null;
   attachment: { id: string; fileName: string; contentType: string; byteSize: number; downloadable: boolean } | null;
   createdAt: string;
   deliveredAt: string | null;
@@ -143,6 +159,8 @@ export function startChat(input: {
   clientMessageId: string;
   body: string;
   locale: string | null;
+  /** The assistant's answers the customer read first, as the server signed them. */
+  transcript?: SignedAnswer[];
 }): Promise<SendResult> {
   return api.post<SendResult>('/preorder-chats/messages', { ...input, replyToMessageId: null });
 }
@@ -172,8 +190,9 @@ export function markChatRead(id: string, seq: number): Promise<{ readSeq: number
   return api.post(`/preorder-chats/${id}/read`, { seq });
 }
 
-export function fetchUnreadChats(): Promise<{ unreadCount: number }> {
-  return api.get('/preorder-chats/unread');
+/** Unread replies from the team: all of them, or those about one product. */
+export function fetchUnreadChats(productId?: string): Promise<{ unreadCount: number }> {
+  return api.get('/preorder-chats/unread', productId === undefined ? undefined : { query: { productId } });
 }
 
 export function fetchMyConversations(cursor?: string): Promise<{

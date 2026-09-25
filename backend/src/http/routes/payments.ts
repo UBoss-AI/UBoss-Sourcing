@@ -15,6 +15,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
+import { lifecycleState } from '../../domain/payment-state.js';
 import { Permission } from '../../domain/permissions.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
@@ -40,6 +41,12 @@ import {
   getRefundQuote,
   settleRefundedOrder,
 } from '../../modules/payments/refund.service.js';
+import {
+  CHECKOUT_SESSION_ID_PATTERN,
+  cancelOpenCheckout,
+  getCheckoutConfirmation,
+  refreshCheckoutConfirmation,
+} from '../../modules/payments/stripe-checkout.service.js';
 import { encryptSecret, maskSecret } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
@@ -52,6 +59,12 @@ import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
  * `:id|:orderId` in the route table and in any generated client.
  */
 const orderParam = z.object({ orderId: z.string().length(26) });
+
+/** A Stripe Checkout Session id, shape-checked before it reaches a query. */
+const checkoutSessionParams = z.object({
+  orderId: z.string().length(26),
+  sessionId: z.string().regex(CHECKOUT_SESSION_ID_PATTERN),
+});
 const adminOrderParam = z.object({ id: z.string().length(26) });
 
 export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
@@ -316,6 +329,81 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   );
 
   /**
+   * The Stripe Checkout confirmation page's question: what happened to the
+   * payment made on this session? Answers from our own records, which only a
+   * signed webhook or Stripe's own API ever advance - never from the fact
+   * that the customer's browser came back. Found only for the customer who
+   * owns the order the session was opened for.
+   */
+  // Where a Stripe Checkout payment stands, for the confirmation page.
+  app.get(
+    '/orders/:orderId/checkout/:sessionId',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 120, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { orderId, sessionId } = checkoutSessionParams.parse(request.params);
+
+      const view = await getCheckoutConfirmation(orderId, auth.customerProfileId ?? '', sessionId);
+      return reply.status(200).send(view);
+    },
+  );
+
+  /**
+   * "Check again": ask Stripe directly, when its webhook is late.
+   *
+   * Uses Stripe's API over the server's own authenticated connection and
+   * applies the answer through the same guarded path the webhook uses. Never
+   * starts, repeats or changes a payment. Rate-limited: each call costs a
+   * Stripe API request.
+   */
+  // Ask Stripe again about a Checkout payment whose confirmation is late.
+  app.post(
+    '/orders/:orderId/checkout/:sessionId/refresh',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 12, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { orderId, sessionId } = checkoutSessionParams.parse(request.params);
+
+      const view = await refreshCheckoutConfirmation(
+        orderId,
+        auth.customerProfileId ?? '',
+        sessionId,
+      );
+      return reply.status(200).send(view);
+    },
+  );
+
+  /**
+   * The customer came back through Stripe's Cancel link.
+   *
+   * Closes the order's open Stripe page at Stripe, so a tab left open behind
+   * it cannot take money, and frees the order for a fresh attempt. If they
+   * had paid in that other tab a moment earlier, the payment is recorded
+   * instead - Stripe will not cancel a completed session.
+   */
+  // Close this order's open Stripe Checkout page after the customer cancelled.
+  app.post(
+    '/orders/:orderId/checkout/cancel',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 20, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const { orderId } = orderParam.parse(request.params);
+
+      const result = await cancelOpenCheckout(orderId, auth.customerProfileId ?? '', auth.id);
+      return reply.status(200).send(result);
+    },
+  );
+
+  /**
    * Settle this order without a gateway.
    *
    * FOR TESTING. Refused unless `PAYMENT_MOCK_SUCCESS` is on, which the
@@ -417,7 +505,11 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
           orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
           skip: (query.page - 1) * query.limit,
           take: query.limit,
-          include: { order: { select: { orderNumber: true, customerProfileId: true } } },
+          include: {
+            order: { select: { orderNumber: true, customerProfileId: true } },
+            // Settled refunds only, for the derived lifecycle state below.
+            refunds: { where: { status: 'SUCCEEDED' }, select: { amountMinor: true } },
+          },
         }),
         prisma.paymentTransaction.count({ where }),
       ]);
@@ -439,6 +531,22 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
           providerPaymentId: row.providerPaymentId,
           failureCode: row.failureCode,
           failureMessage: row.failureMessage,
+          // Stripe Checkout, disputes and the card's display fields. The
+          // stored status is the money's own lifecycle; `lifecycleState`
+          // adds what the refunds and a dispute say about it.
+          checkoutSessionId: row.providerSessionId,
+          cardBrand: row.cardBrand,
+          cardLast4: row.cardLast4,
+          disputedAt: row.disputedAt?.toISOString() ?? null,
+          disputeReason: row.disputeReason,
+          lifecycleState: lifecycleState({
+            status: row.status,
+            providerSessionId: row.providerSessionId,
+            failureCode: row.failureCode,
+            capturedMinor: row.capturedMinor,
+            refundedMinor: row.refunds.reduce((sum, refund) => sum + refund.amountMinor, 0n),
+            disputedAt: row.disputedAt,
+          }),
           reconciledAt: row.reconciledAt?.toISOString() ?? null,
           createdAt: row.createdAt.toISOString(),
         })),

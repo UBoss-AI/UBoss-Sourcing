@@ -257,6 +257,15 @@
        the page ground went sky: a tinted ground is a darker ground, and the
        quietest text on it has to pay for that. */
     --ink-subtle: 92 109 135;
+    /*
+     * The Glovia wordmark and its tagline in the header. Their own tokens
+     * rather than ink and ink-subtle: the tagline set in ink-subtle is what
+     * read as faint on the dark header. Light: the wordmark in ink, the
+     * tagline two steps darker than subtle (10.4:1 on the header white; it was 5.3:1).
+     */
+    --brand-wordmark: 15 23 42;
+    --brand-tagline: 51 65 85;
+    --brand-wordmark-glow: none;
     --ink-inverse: 248 250 252;
 
     /* ===================================================================
@@ -457,6 +466,12 @@
       --ink: 232 238 248;
       --ink-muted: 175 189 210;
       --ink-subtle: 145 161 185;
+      /* The header lockup on the dark header: near-white, and a very light blue
+         for the tagline (16.0:1 and 11.6:1 on the header surface - the tagline was 6.4:1), with the
+         softest glow - enough to lift the script off the navy, not neon. */
+      --brand-wordmark: 248 250 255;
+      --brand-tagline: 199 216 242;
+      --brand-wordmark-glow: 0 0 14px rgb(138 180 255 / 0.28), 0 1px 1px rgb(2 6 23 / 0.45);
 
       --ring: 138 180 255;
     }
@@ -533,6 +548,12 @@
     --ink: 232 238 248;
     --ink-muted: 175 189 210;
     --ink-subtle: 145 161 185;
+    /* The header lockup on the dark header: near-white, and a very light blue
+       for the tagline (16.0:1 and 11.6:1 on the header surface - the tagline was 6.4:1), with the
+       softest glow - enough to lift the script off the navy, not neon. */
+    --brand-wordmark: 248 250 255;
+    --brand-tagline: 199 216 242;
+    --brand-wordmark-glow: 0 0 14px rgb(138 180 255 / 0.28), 0 1px 1px rgb(2 6 23 / 0.45);
 
     --ring: 138 180 255;
   }
@@ -661,6 +682,34 @@
   /* Tabular numerals keep money columns aligned down the page. */
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /*
+   * The header lockup: the Glovia wordmark and "The Way to the World".
+   *
+   * The face is unchanged - Dancing Script Bold, `font-brand`, with its
+   * size-matched fallback above so nothing moves when it arrives. What these
+   * add is colour from the tokens, the dark theme's soft glow, and rendering:
+   * greyscale antialiasing (sub-pixel colour fringes are what made the thin
+   * script strokes look fuzzy on a dark ground) and no synthetic bold, which a
+   * browser would otherwise paint over the real 700 while it loads.
+   */
+  .brand-wordmark,
+  .brand-tagline {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+  .brand-wordmark {
+    color: rgb(var(--brand-wordmark));
+    text-shadow: var(--brand-wordmark-glow);
+  }
+  .brand-tagline {
+    color: rgb(var(--brand-tagline));
+    letter-spacing: 0.01em;
   }
 }
 

@@ -52,6 +52,7 @@
  *     their money is gone and the order is real is the one message that turns a
  *     technical problem into a lost account.
  */
+import { captureOrderItemSnapshots } from '../orders/order-item-snapshot.service.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { ErrorCode } from '../../domain/errors.js';
@@ -1324,6 +1325,10 @@ async function createOrderForOccurrence(input: {
         isRecurringEligibleSnapshot: line.isRecurringEligibleSnapshot,
       })),
     });
+
+    // What was bought, frozen as the order is created - the listing may have
+    // changed since the schedule was set up, and the order says what it is now.
+    await captureOrderItemSnapshots(tx, orderId);
 
     await tx.orderStatusHistory.create({
       data: {

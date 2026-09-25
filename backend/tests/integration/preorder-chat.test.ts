@@ -678,6 +678,17 @@ describe('ordering and recovery', () => {
     const unread = await call(buyerA, 'GET', '/api/v1/preorder-chats/unread');
     expect(unread.body['unreadCount']).toBeGreaterThanOrEqual(1);
 
+    // Narrowed to the product - the badge on that product page's chat icon.
+    // Another product's count is zero, and another customer's is untouched.
+    const here = await call(buyerA, 'GET', `/api/v1/preorder-chats/unread?productId=${productId}`);
+    expect(here.body['unreadCount']).toBe(unread.body['unreadCount']);
+    const elsewhere = await call(buyerA, 'GET', '/api/v1/preorder-chats/unread?productId=01J0000000000000000000000Z');
+    expect(elsewhere.body['unreadCount']).toBe(0);
+    const otherBuyer = await call(buyerB, 'GET', `/api/v1/preorder-chats/unread?productId=${productId}`);
+    expect(otherBuyer.body['unreadCount']).toBe(0);
+    const junk = await call(buyerA, 'GET', '/api/v1/preorder-chats/unread?productId=not-an-id');
+    expect(junk.status).toBe(400);
+
     const detail = await call(buyerA, 'GET', `/api/v1/preorder-chats/${conversationId}`);
     const last = (detail.body['conversation'] as { lastSequence: number }).lastSequence;
     const read = await call(buyerA, 'POST', `/api/v1/preorder-chats/${conversationId}/read`, { seq: last + 1000 });

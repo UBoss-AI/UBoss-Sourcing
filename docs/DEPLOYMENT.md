@@ -97,7 +97,7 @@ of this review was substantially correct, with the corrections noted.
 | Reverse proxy | nginx, static SPA serving + `/api/v1` proxy to three loopback API instances | `deploy/nginx/uboss.conf` **[VR]** |
 | Process supervision | **systemd. There is no Dockerfile or compose file anywhere in the repository.** | `find . -iname "Dockerfile*" -o -iname "docker-compose*"` → no results **[VR]** |
 | Cache / queue broker | **No Redis is needed or used.** `QUEUE_DRIVER` defaults to `database`; the `redis` branch throws "not implemented"; `CACHE_DRIVER` is read nowhere outside `env.ts` | `backend/src/infra/queue/index.ts`; grep for `CACHE_DRIVER` **[VR]** |
-| Payments | Stripe **and** Razorpay, both hand-rolled over `fetch` (no vendor SDK). Cards are collected by **Stripe Elements in the browser** — card data never reaches this server | `backend/src/modules/payments/*.adapter.ts`; `apps/customer-web/src/components/CardSetupDialog.tsx` **[VR]** |
+| Payments | Stripe **and** Razorpay, both hand-rolled over `fetch` (no vendor SDK). Checkout card payments happen on **Stripe-hosted Checkout** — Stripe's own page, reached by a same-tab redirect — so card entry, saved-card choice and 3-D Secure happen at Stripe. **Stripe Elements** (the Payment Element with a SetupIntent) is used only for the auto-pay card form. Card data never reaches this server | `backend/src/modules/payments/*.adapter.ts`, `stripe-checkout.service.ts`; `apps/customer-web/src/lib/stripe-checkout.ts`, `components/CardSetupDialog.tsx` **[VR]** |
 | AI | Anthropic (`@anthropic-ai/sdk`) and Google Gemini (`@google/genai`), selectable | `backend/src/modules/assistant/provider.*.ts` **[VR]** |
 | CI/CD | **None exists.** No `.github/workflows`, no GitLab CI, no Jenkinsfile | `find . -maxdepth 3 -name ".github"` → no results **[VR]** |
 
@@ -308,9 +308,10 @@ sequenceDiagram
   N->>API: proxy, X-Forwarded-Proto: https
   API->>DB: idempotency_records INSERT (scope,key) UNIQUE
   API->>DB: order row, assertTransition() only
-  API->>S: create PaymentIntent
-  API-->>B: client secret
-  B->>S: confirm card directly (card never touches this server)
+  API->>S: create Checkout Session (one open attempt per order)
+  API-->>B: next REDIRECT, redirectUrl
+  B->>S: same tab to Stripe-hosted Checkout (card never touches this server)
+  S-->>B: back to /checkout/payment/:orderId/confirmation (confirms nothing)
   S-->>API: POST /api/v1/payments/webhooks/stripe (signed, ≤5 min old)
   API->>API: HMAC over RAW body + timestamp freshness
   API->>DB: order → CONFIRMED (only here, never on redirect)
@@ -615,8 +616,8 @@ that the availability target is Option A at best.
 | **NIS2** (EU) 2022/2555 + Polish **KSC** amendment | Online marketplaces are digital providers in Annex II | The operating entity | — | Registration; ISMS; incident reporting | Registration confirmation; ISMS documents | **[OD]** | **Polish KSC amendment in force 3 Apr 2026. Registration in the S46 system was due 3 Oct 2026. ISMS obligations by 3 Apr 2027** **[VE]**. Size and establishment thresholds likely exclude a small India-based entity — **but the deadline is imminent if they do not** | Does the entity meet the medium-enterprise threshold and have an EU establishment? | **Yes [LA]** | [gov.pl KSC](https://www.gov.pl/web/baza-wiedzy/nowelizacja-ustawy-o-krajowym-systemie-cyberbezpieczenstwa) |
 | **DORA** (EU) 2022/2554 | — | — | — | — | — | — | **Out of scope**, and the reason is simple: DORA applies to financial entities and their critical ICT third-party providers. UBOSS is neither — it sells medical supplies and uses a regulated PSP rather than being one | Revisit only if UBOSS itself becomes a payment or credit institution | No | EUR-Lex 32022R2554 |
 | **EAA** (EU) 2019/882 | **E-commerce is expressly in scope** **[VE]** | All three frontends | `eslint-plugin-jsx-a11y`, `axe-core`, per-app `audit:contrast` gate in `verify` **[VR]** | WCAG 2.2 AA via EN 301 549; published accessibility statement; testing evidence | Audit reports; statement; remediation log | **[OD]** | **Better than most** — `backend/docs/ACCESSIBILITY.md` exists and contrast auditing is a build gate. No published statement | **[NV]** Confirm the application date and the microenterprise-services exemption thresholds directly from Directive 2019/882 — EUR-Lex could not be retrieved in this session | **Yes [LA]** | [EC EAA](https://commission.europa.eu/strategy-and-policy/policies/justice-and-fundamental-rights/disability/european-accessibility-act-eaa_en) |
-| **PSD2 / SCA** | Card payments to EU customers | Checkout, auto-pay | Stripe SetupIntent/PaymentIntent; off-session mandates with consent version and timestamp; `authentication_required` handling | Merchant agreement; mandate wording reviewed | Consent records per schedule | **[OD]** | **Strong** — consent version and timestamp are stored per schedule **[VR]** | Is the Stripe account EEA-acquired? | **[LA]** | [Stripe docs](https://docs.stripe.com/) |
-| **PCI DSS v4.0.1** | Card acceptance | Checkout | **Card data never touches this server** — Stripe Elements posts directly to Stripe **[VR]**; TLS 1.2/1.3 only; no PAN stored | Determine the correct SAQ with the acquirer; annual attestation; script-integrity and payment-page change-detection controls | AOC/SAQ; script inventory | **[OD]** | **Good architecture, no attestation.** SAQ eligibility is not something this document can decide | Which SAQ does the acquirer require? | **Yes** | [PCI SSC](https://www.pcisecuritystandards.org/) |
+| **PSD2 / SCA** | Card payments to EU customers | Checkout, auto-pay | Checkout: Stripe-hosted Checkout runs 3-D Secure/SCA on Stripe's page whenever the bank asks. Auto-pay: Stripe SetupIntent/PaymentIntent; off-session mandates with consent version and timestamp; `authentication_required` handling. A card saved on Checkout (`CHECKOUT` consent) is never charged off-session | Merchant agreement; mandate wording reviewed | Consent records per schedule | **[OD]** | **Strong** — consent version and timestamp are stored per schedule **[VR]** | Is the Stripe account EEA-acquired? | **[LA]** | [Stripe docs](https://docs.stripe.com/) |
+| **PCI DSS v4.0.1** | Card acceptance | Checkout | **Card data never touches this server.** Checkout is a full redirect to Stripe-hosted Checkout, the pattern that is normally eligible for SAQ A; the auto-pay card form uses Stripe Elements, which posts directly to Stripe **[VR]**; TLS 1.2/1.3 only; no PAN stored | Determine the correct SAQ with the acquirer; annual attestation; script-integrity and payment-page change-detection controls | AOC/SAQ; script inventory | **[OD]** | **Good architecture, no attestation.** SAQ eligibility is not something this document can decide | Which SAQ does the acquirer require? | **Yes** | [PCI SSC](https://www.pcisecuritystandards.org/) |
 | **Polish consumer / language law** | If any B2C buyer is ever admitted | Storefront | Eight languages incl. Polish **[VR]** | Withdrawal rights, price presentation, complaint handling, Polish-language T&Cs — **none of which currently exist because the platform is B2B** | T&Cs; withdrawal policy | **[OD]** | **B2B only today.** Admitting one consumer changes the obligation set materially | Will any B2C buyer be admitted? (§26) | **Yes [LA]** | — |
 
 ### 7.2 KSeF applicability — a determination, not an implementation task
@@ -737,7 +738,7 @@ Work top to bottom. Nothing below starts before everything above is ticked.
 | 6 | Reverse DNS set if outbound mail is sent from the box | hPanel | `dig -x <IP>` resolves | Only if not using an SMTP relay — and you should use a relay |
 | 7 | Domain registered; DNS provider access confirmed | Registrar | Can create records | §11 |
 | 8 | GitHub access: protected `main`, deploy key or environment secrets | GitHub | Branch protection visible | §15 |
-| 9 | **Production Stripe account, EEA-acquired** | Stripe | Live keys issued | `<DECIDE>` — Razorpay is an Indian acquirer and is not suitable for EU trade (`DATA-PROTECTION.md` §2.4) |
+| 9 | **Production Stripe account, EEA-acquired** | Stripe | Live keys issued | `<DECIDE>` — Razorpay is an Indian acquirer and is not suitable for EU trade (`DATA-PROTECTION.md` §2.4). **If the account is India-registered:** Stripe India is invite-only; non-INR payments need exports switched on, a transaction purpose code (for goods, e.g. P0102/P0103) and an IEC (Import Export Code) for physical goods and for AMEX international; payouts are in INR; international cards need 3-D Secure. Verify each in the live Dashboard before claiming live international payments. The operator is merchant of record; Stripe Connect fund splitting is not supported for India-registered platforms and is not built |
 | 10 | **Production SMTP provider with a DPA and an EU region** | Vendor | Test mail delivered | `EMAIL_DRIVER=log` is refused in production **[VR]** |
 | 11 | SPF, DKIM, DMARC published for the sending domain | DNS | `dig TXT` shows all three | Otherwise verification and invitation mail lands in spam — and those links cannot be read from logs |
 | 12 | **AI provider account + DPA + training opt-out** | Anthropic or Google | Key issued, opt-out confirmed in writing | Or leave both keys unset and ship without the assistant |
@@ -1235,6 +1236,12 @@ shipped policy. **The Razorpay origins have not been walked through against a
 real checkout in this session**, so an installation using Razorpay must watch
 the reports before it enforces.
 
+**Stripe-hosted Checkout needs no CSP change.** Checkout card payments now
+leave the storefront by a top-level, same-tab redirect to Stripe's own page,
+and a top-level navigation is not governed by CSP. The Stripe origins above
+stay in the policy for the auto-pay card form, which still uses Stripe.js and
+the Payment Element.
+
 **Procedure to enforce CSP — this is a go-live condition, not a nicety:**
 
 1. Run staging for a full day with the Report-Only header and a browser console
@@ -1477,6 +1484,8 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 | `COOKIE_DOMAIN` | API | Cookie scope | yes | no | `.<DOMAIN>` — **leading dot** | empty | n/a | — | Sign in on admin, immediately signed out |
 | `COOKIE_SAME_SITE` | API | CSRF posture | yes | no | `lax` | `lax` | n/a | enum + production guard | **Refuses to start** on `none` in production: it attaches the session cookie to cross-site requests and removes the browser layer under the double-submit token |
 | `SESSION_ABSOLUTE_TTL_SECONDS` | API | Ceiling on one sign-in, from the password, unaffected by rotation | no | no | `7776000` (90 days) | same | n/a | must exceed `REFRESH_TOKEN_TTL_SECONDS` | **Refuses to start** when shorter — every session would end before its own refresh token expired |
+| `SELLER_HUB_IDLE_TIMEOUT_SECONDS` | API | How long an open Seller Hub may sit unused before it closes and asks for the Hub password again. The shop session is not affected | no | no | `3600` (60 minutes) | same | n/a | integer 300–86400 | **Refuses to start** outside the range |
+| `SELLER_HUB_IDLE_WARNING_SECONDS` | API | How long before that the Hub shows "Are you still there?" | no | no | `300` (5 minutes) | same | n/a | integer 30–3600, shorter than `SELLER_HUB_IDLE_TIMEOUT_SECONDS` | **Refuses to start** when not shorter than the idle limit |
 | `API_PUBLIC_URL` | API | Webhook and redirect URLs | yes | no | `https://shop.<DOMAIN>` | `http://localhost:4000` | n/a | URL | Webhooks and links point at the wrong host |
 | `CUSTOMER_WEB_ORIGIN` | API | CORS + links | yes | no | `https://shop.<DOMAIN>` | `http://localhost:5174` | n/a | origin list | CORS refuses the storefront |
 | `ADMIN_WEB_ORIGIN` | API | CORS + links | yes | no | `https://admin.<DOMAIN>` | `http://localhost:5173` | n/a | origin list | CORS refuses the console |
@@ -1498,8 +1507,9 @@ before exiting** **[VR]**. Read the failure; do not work around it.
 |---|---|---|---|
 | `PAYMENT_DEFAULT_PROVIDER` | yes | no | **`STRIPE` for EU trade.** Razorpay is an Indian acquirer |
 | `STRIPE_SECRET_KEY` | conditional | **yes** | **A `sk_test_` key with `NODE_ENV=production` refuses to start — "test keys never collect money". An `sk_live_` key outside production also refuses** **[VR]** |
-| `STRIPE_PUBLISHABLE_KEY` | conditional | no | Handed to the browser by the API at runtime, never baked into a bundle |
-| `STRIPE_WEBHOOK_SECRET` | conditional | **yes** | The `whsec_` value. **Without it an order can never reach CONFIRMED** |
+| `STRIPE_PUBLISHABLE_KEY` | conditional | no | Handed to the browser by the API at runtime (for the auto-pay card form), never baked into a bundle |
+| `STRIPE_WEBHOOK_SECRET` | conditional | **yes** | The `whsec_` value of the endpoint `https://shop.<DOMAIN>/api/v1/payments/webhooks/stripe`. **Without it an order can never reach CONFIRMED.** Subscribe that endpoint to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `refund.updated`, `refund.failed`, `charge.dispute.created`, `payment_method.detached` — **not** `charge.succeeded` |
+| `CUSTOMER_WEB_PUBLIC_URL` | yes | no | Also where Stripe returns paying customers (success and cancel URLs are built from it, never from the request). **In production it must be `https`, or the backend refuses to start** |
 | `RAZORPAY_KEY_ID` / `_KEY_SECRET` / `_WEBHOOK_SECRET` | conditional | **yes** | The same live/test guards apply |
 | `AUTOPAY_CONSENT_VERSION` | no | no | Bump when the mandate wording changes — stored per schedule as evidence |
 | `AUTOPAY_PLATFORM_MAX_MINOR` | no | no | Hard ceiling on an off-session charge. Set it deliberately |
@@ -2731,6 +2741,7 @@ condition, and a step whose condition is not met stops the launch.**
 | 9 | **Migration rehearsal** on staging (§13) | Staging | Tech owner | Verification queries match; app works | Stop |
 | 10 | Monitoring and alerts live, each proved by a test alert. **`monitor.sh` is the on-box half only** — an external uptime check is the one that survives the machine | Monitoring | Tech owner | A test alert arrives on a phone from `UBOSS_ALERT_COMMAND`, **and** an external check reports the site reachable | Stop |
 | 11 | Production accounts verified: Stripe live, SMTP, AI, storage, off-site backup | Vendors | Tech owner | Each returns a successful test | Stop |
+| 11a | **Stripe switched from test to live, in this order:** (1) live keys (`sk_live_`, `pk_live_`) on the LIVE Stripe connection in Admin → Integrations, or in the production env, with `NODE_ENV=production` and an `https` `CUSTOMER_WEB_PUBLIC_URL`; (2) the **live** webhook endpoint `https://shop.<DOMAIN>/api/v1/payments/webhooks/stripe` created with the events in §12.2, its live `whsec_` pasted; (3) *Test connection* in Admin (it checks live mode from Stripe's side), then activate; (4) `cd backend; npm run payments:backfill-redisplay` run once against live; (5) in the Stripe Dashboard: payment methods enabled (cards at least), branding (logo, colours, business name — shown on Checkout), statement descriptor, and the custom Checkout domain if wanted | Stripe + Admin | Tech owner | Test connection passes; one small real payment with a real card reaches CONFIRMED, is refunded, and both the order and the refund are correct. Test-mode Stripe customers are per mode, so live customers get new live ones automatically | Stop |
 | 12 | On-call rota and incident contacts published | — | Business owner | Written down | Stop |
 
 ### T-minus 2 days
@@ -2776,7 +2787,7 @@ condition, and a step whose condition is not met stops the launch.**
 | 7 | Add to cart, checkout, **pay with a live card for a small real amount** | Order reaches **CONFIRMED** |
 | 8 | **Provider webhook delivered and signature-verified** | Provider dashboard shows `200`; order confirmed |
 | 9 | **Refund that payment** | Refund succeeds; order and ledger reflect it |
-| 10 | Save a card (Stripe Elements) | Card saved; **no card data in any log** |
+| 10 | Save a card: tick Stripe's save box on Checkout, then pay again and see it offered; and add an auto-pay card (Stripe Elements) | Card saved and offered on the next Checkout; **no card data in any log** |
 | 11 | Create a scheduled order; force one occurrence | Charged once, not twice |
 | 12 | Admin console sign-in | **MFA prompt appears**; console loads |
 | 13 | Admin approves a seller listing | Status changes; `audit_logs` row written |

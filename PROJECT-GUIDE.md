@@ -25,6 +25,7 @@ have to read separately — this *is* the explanation.
 8. [The API](#8-the-api)
 9. [Complete flows, end to end](#9-complete-flows-end-to-end)
    - [9.3.2 Choosing a fulfilment warehouse](#932-choosing-a-fulfilment-warehouse)
+   - [9.3.3 Stripe-hosted Checkout](#933-stripe-hosted-checkout)
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
    - [9.5.1 Autopay: charging a card nobody is looking at](#951-autopay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
@@ -98,6 +99,21 @@ tagline when the business display name *is* "Glovia". Northwind Industrial's
 header says Northwind Industrial in the ordinary heading face, alone: Glovia's
 slogan under another company's name would be the software claiming their shop.
 
+**How visible it is.** The wordmark and tagline have their own colour tokens,
+`--brand-wordmark` and `--brand-tagline`, and classes `.brand-wordmark` and
+`.brand-tagline` in each app's `index.css`, used by all three lockups. On the
+dark header the wordmark is near-white with a very soft blue glow (16.0:1) and
+the tagline a very light blue (11.6:1 - it used to be the grey `ink-subtle` at
+6.4:1, which is what read as faint); on the light header they are ink and a
+dark slate (17.9:1 and 10.4:1), with no glow. Both render with greyscale
+antialiasing and no synthetic bold. Sizes: the storefront wordmark is 23px
+from `sm` up and 17px on a phone, the tagline 15px from `lg` up; the admin
+and logistics wordmarks 20px over a 15px tagline. The storefront's header is
+the same height it was - the wordmark's line box grew by 2px and the tagline's
+shrank by 2px. On a phone the market and account buttons drop their chevrons
+so "Glovia" fits beside the globe at 375px; at 320px there is room for the
+globe alone. Every pair is in each app's `audit:contrast`.
+
 It used to be called *UBOSS Sourcing*. That name is gone from every screen a
 customer, a member of staff or a carrier reads.
 
@@ -154,7 +170,8 @@ applications, filled with the operator's name:
   seller, and "Northwind manages L2" said to Northwind about its own delivery
   would be wrong.
 - **On the server**, `modules/settings/marketplace-name.ts` reads the name for
-  the Razorpay/Stripe payment sheet, the console's authenticator issuer and
+  the Razorpay payment sheet (Stripe's hosted Checkout page shows the
+  branding set in the Stripe Dashboard instead), the console's authenticator issuer and
   every e-mail's `{{businessName}}`. Text that is **stored** — audit labels,
   notification rows, error messages — says "the marketplace" or "Marketplace
   operations" instead, so it stays true after a rename.
@@ -757,6 +774,12 @@ That last part reads harshly and is the point: when the same token arrives
 twice, one of the two is a thief and there is no way to tell which. Signing
 both out is the only answer that is never wrong.
 
+**A rotation carries the session's extra checks forward.** The carrier portal's
+second factor (`mfaVerifiedAt`) and the Seller Hub's unlock (`sellerUnlockedAt`,
+`sellerUnlockedForId`, `sellerLastActivityAt`) are copied onto the new row, so
+a silent refresh never closes either. The Seller Hub has its own idle limit
+instead — see "When an open Hub closes by itself" under Becoming a seller.
+
 The first two are **HttpOnly**: JavaScript in the page cannot read them. If an
 attacker managed to inject a script into the page, it still could not steal the
 login.
@@ -849,7 +872,8 @@ comes back in the exact same shape:
 | `/cart` | The cart — the **Instant Buy** tab | **Yes** |
 | `/accounts/schedule` | Schedule Cart: the standing orders, and where one is changed | **Yes** |
 | `/checkout` | Address, shipping, payment choice | **Yes** |
-| `/checkout/payment/:orderId` | The payment sheet | **Yes** |
+| `/checkout/payment/:orderId` | The payment page: the server's order summary and "Pay securely now". For Stripe it sends the same tab to Stripe-hosted Checkout; Razorpay's sheet opens over it | **Yes** |
+| `/checkout/payment/:orderId/confirmation` | Where Stripe sends the customer back (`?session_id=cs_...`). Waits for the backend and shows success, processing, failed, cancelled or expired | **Yes** |
 | `/order-confirmation/:orderId` | "Thank you" | **Yes** |
 | `/confirm-contact` | Confirm a new email address or telephone number (from the emailed link) | Asks for one |
 | `/schedules/new` | Build a repeating order | **Yes** |
@@ -3339,6 +3363,63 @@ it keep them and keep selling; the axis simply stops being offered. The panel
 says how many are affected before saving, because that is a decision somebody
 should make knowingly.
 
+## The product page: description and specifications
+
+Below the buy panel, everything a buyer reads about a product comes in one
+fixed order, and a section appears only when it has something true to say:
+
+1. **Product highlights** - the specifications the seller marked as highlights,
+   plus the minimum order and the pieces per carton when those are more than
+   one. Six at first, then **View all highlights**.
+2. **Product description** - the seller's sections (a heading, plain text with
+   their own line breaks, an optional picture, lazy-loaded with alt text), and
+   the older single description where a product has one (plain text, or the
+   HTML that was sanitised when it was saved).
+3. **Specifications** - grouped under fixed, translated headings (General,
+   Technical specifications, Dimensions and weight, Material and construction,
+   Performance, Compatibility, In the box), label | value rows, two columns from
+   `sm` up and stacked on a phone. Eight rows at first, then **View all
+   specifications (n)** / **Show less** with `aria-expanded`; the toggle keeps its
+   place on the screen, and a link to `#specifications` opens the whole table.
+4. **Packaging and bulk ordering** - the Packaging, Carton and Container groups,
+   then the existing packaging and dimensions panels.
+5. **Compliance and certifications** - the Compliance group, then the device panel.
+6. **Warranty** - the Warranty group.
+7. **Manufacturer and seller information** - the Manufacturer, Seller and Country
+   of origin groups, then the GPSR safety panel.
+
+**The data.** `product_attributes` rows gained `groupKey`, `unit` and
+`isHighlight`. A row written before groups existed has no group and reads as
+**General**, so every existing product renders unchanged. Values that differ
+for one option live in `product_variant_attributes`: a row with the same label
+replaces the product's for a buyer who picked that option, and a label only
+the option has is added. The server does the merge (`shownSpecifications` in
+`domain/product-specifications.ts`) and sends each option its own
+`specifications` only when it has any; the page swaps the whole list when the
+option changes, so the previous option's values never stay on screen.
+Description sections are `product_description_sections` - plain text, never
+HTML; tags are stripped on the way in, and a `language` column lets a
+translated set replace the product's own (never a mixture). Empty values,
+empty groups, a label seen twice and values stored as "null" or "undefined"
+never reach the page. Groups and units are closed lists (`SPEC_GROUPS`,
+`SPEC_UNITS`); the storefront's copies are held to the server's by
+`spec-units-sync.test.ts`.
+
+**Where it comes from.** The seller writes it in the listing wizard's
+**Description and specifications** card (and on the edit page of a live
+listing they described): sections, groups and rows with add, move up, move
+down and remove, a unit list, a highlight tick, values for one option, a
+preview drawn by the product page's own component, and Save. It is stored on
+the draft (`seller_listing_drafts.listingContentJson`) through
+`GET`/`PUT /seller/listing-drafts/:id/content`, reviewed by the moderator with
+the rest of the listing (the review page shows it read only), and copied onto
+the product when the listing is approved - only onto a product the listing
+DESCRIBED; a seller who matched an existing page cannot change its
+specifications, because other sellers sell it too. On a live listing the
+describing seller's save changes the page at once and is audited, the same
+rule photographs follow. Another seller's listing answers 404, and nothing
+changes while the moderator is reviewing.
+
 ## The marketplace seller's side: versions in the listing wizard
 
 Everything above is the operator's own catalogue, edited in the admin panel. A
@@ -4195,6 +4276,85 @@ What that means exactly:
 It is not a second factor and nothing in the product calls it one. A second
 factor is something you *have*; this is a second secret of the same kind,
 guarding a different set of routes.
+
+### When an open Hub closes by itself
+
+**The Hub closes after an hour with nobody using it.** Only the Hub: the shop
+sign-in, the basket, the orders, the admin console and the carrier portal are
+not touched, and the access and refresh token lifetimes do not change.
+
+This replaced a bug. The Hub's unlock is written on the session row
+(`sellerUnlockedAt`, `sellerUnlockedForId`), and when the refresh token rotated
+— several times an hour — the new row did not copy it. So every silent refresh
+closed the Hub, and sellers reported "the Seller Hub keeps logging me out".
+Rotation now carries the unlock forward, together with the new
+`sellerLastActivityAt`, the same way it already carried the carrier portal's
+`mfaVerifiedAt`.
+
+The rule, and where it lives:
+
+- **The server enforces it**, in the seller guard, on every `/api/v1/seller/*`
+  route and on the two `/api/v1/sellers/session` routes. A page that stops
+  counting down cannot keep the Hub open.
+- **The limit** is `SELLER_HUB_IDLE_TIMEOUT_SECONDS`: default `3600` (sixty
+  minutes), allowed `300` to `86400`.
+- **Activity means something the person did on purpose.** Any `POST`, `PUT`,
+  `PATCH` or `DELETE` to a Hub route counts. A `GET` counts only when it carries
+  the header `x-seller-activity: 1`, and the storefront adds that header only
+  when somebody clicked or pressed a key in the last fifteen seconds and the tab
+  is visible. So opening a page counts; the notification badges polling in the
+  background, a hidden tab and a moving mouse do not. The server writes the
+  time at most once every thirty seconds.
+- **When the limit passes**, the server clears the unlock on the row and answers
+  `403 SELLER_SESSION_EXPIRED` ("Your Seller Hub session expired due to
+  inactivity. Please sign in again."). Every later Hub request gets
+  `SELLER_LOCK_REQUIRED` until the Hub password is typed again.
+- **Every Hub answer says when it will close**, in the header
+  `x-seller-session-expires-at` (an ISO time). Both headers are allowed through
+  CORS.
+- `GET /api/v1/sellers/session` returns when the Hub closes, the limit and the
+  warning time. Reading it is **not** activity. `POST
+  /api/v1/sellers/session/renew` is **Stay signed in**: another full idle
+  period, CSRF token required, written to the audit log, refused with
+  `SELLER_SESSION_EXPIRED` once the Hub has closed. `GET /api/v1/sellers/me`
+  now carries the same `session` block.
+
+What the seller sees:
+
+- `SELLER_HUB_IDLE_WARNING_SECONDS` before the end (default `300`, five minutes,
+  and it must be shorter than the limit), a dialog asks **"Are you still
+  there?"** with a countdown. **Stay signed in** calls renew, and the dialog
+  goes only once the server has agreed; if it fails the dialog says "We could
+  not keep you signed in. Try again." and never pretends the Hub is open.
+  **Sign out** closes the Hub through the existing close route and leaves the
+  shop signed in. Escape hides the dialog; the clock keeps running.
+- At the end, the page asks the server first, because another tab may have
+  kept the Hub open. Once the server confirms, the Hub's cached data is
+  cleared, the open Hub pages and their live streams close, and the lock screen
+  says "Your session expired due to inactivity. Please sign in again." Typing
+  in an unsaved form on that page is lost; only what the server had saved
+  survives.
+- **Tabs agree.** They share one session row, so the server already gives them
+  one answer. A `BroadcastChannel` named `uboss-seller-hub-session` also passes
+  a new closing time, a renewal, a sign-out and the expiry between tabs, so no
+  tab warns about a Hub another tab kept open, and none stays drawn after
+  another signed out.
+
+Still true: closing the Hub and signing out end it at once; a password reset or
+an email change ends every session; a deactivated account cannot refresh;
+replaying an old refresh token ends the whole family. The audit log records
+`seller.lock.opened`, `seller.lock.closed`, `seller.session.renewed` and
+`seller.session.expired`.
+
+What it does **not** do, said plainly:
+
+- Opening the Hub does not issue a new session id. The Hub unlock is an extra
+  check on the signed-in session, and that session was created fresh at
+  sign-in.
+- An admin suspending a seller does not by itself close an open Hub. The Hub's
+  trading routes already refuse a suspended seller.
+- There is no "type your password again for this sensitive action" step for
+  sellers beyond the Hub password itself.
 
 `/sell` is public, on the same reasoning as the catalogue: somebody deciding
 whether to bring their catalogue here should be able to read what is involved
@@ -5287,6 +5447,34 @@ because MariaDB treats every NULL in a UNIQUE index as distinct: extending
 `uq_cart_item_sku` with the nullable column alone would stop re-adding the same
 SKU from bumping the quantity and start creating a second row every time. The
 same trick `variantKey` on that table already plays.
+
+### What was ordered, frozen when the order is created
+
+Every order item carries `productInfoSnapshotJson` (with `productInfoCapturedAt`):
+the product's description (plain text, sanitised HTML and sections), its
+specifications with the ordered variant's own values applied, the packaging the
+line was ordered in (unit, quantity in that unit, pieces per unit, equivalent
+pieces, carton, pallet and container figures, dimensions), the minimum order,
+pieces per carton, verified 20-ft and 40-ft loading, the options chosen and the
+buyer's special instructions - and `schemaVersion`. No prices, stock or notes.
+
+It is written by `captureOrderItemSnapshots` inside the transaction that creates
+the items - checkout (`submitCheckout`), a preorder becoming an order, and a
+scheduled order - after the packaging rows, and only where it is still NULL, so
+nothing ever rewrites it. A listing edited, unpublished or archived later
+changes nothing an order says.
+
+The seller's order page reads it. Each line has **Ordered product
+information** (collapsed; tabs Description, Specifications, Packaging, Order
+selections), read only, with **View current listing** as a separate link. An
+order from before snapshots shows the listing as it is now, built the same way
+but never stored, under *"Historical product snapshot was not available.
+Showing the current listing information."* Ownership is the order group's:
+a seller reads only their own lines, and another seller's group answers 404.
+The customer's own order page shows the same snapshot (without the seller's
+code or listing link). The invoice and packing list name a line from the item's
+`nameSnapshot`, `variantNameSnapshot`, SKU and quantity, which the snapshot
+copies, so the page and the documents describe the same product.
 
 ### Telling the seller
 
@@ -6845,6 +7033,7 @@ Shipments, Collections, Dispatch and Problems, all unchanged in the navigation.
 | `/exceptions` | What has gone wrong, and recording what was done about it. |
 | `/companies` | The sellers and receiving businesses this carrier works with. |
 | `/drivers` | The fleet: drivers, added by typing a name, and the vans they drive. |
+| `/profile` | **My Profile.** The company's full profile in eight tabs: details, contacts, coverage, capabilities, compliance documents, integration status, and account and security. Some fields save at once; legal and licence fields go to the marketplace for review. See "The carrier's own profile" below. |
 | `/company` | The carrier's own profile, members and invitations. |
 | `/driver/tasks` | A driver's round, on a phone. |
 
@@ -7068,6 +7257,165 @@ count for ever and the number on the fleet screen only goes up, which is how a
 dispatcher stops reading it. Clearing the marker is also what lets a
 consignment corrected out of a terminal status be given to a driver again.
 
+## The carrier's own profile
+
+`/profile` in the logistics portal (served as `/logistics/profile`), in the
+sidebar as **My Profile**, in the Companies group just above **My company**.
+`/company` is unchanged; it still holds members and invitations.
+
+**Who sees it.** Anyone holding `logistics.organisation.read`: owner, partner
+administrator, dispatcher, operations agent and the read-only tracking user.
+Not drivers. Only `logistics.organisation.write` — owner and partner
+administrator — can edit. Everyone else sees the same page with nothing to
+change.
+
+**No route takes a partner id from the caller.** The company always comes from
+the session. A carrier cannot read or change another carrier's profile by
+changing a number in a request.
+
+### What the page shows
+
+A header card: the logo (or the company's initial), trading name, legal name,
+the partner ID (read-only, with a copy button and an accessible tooltip), the
+account status, the verification badge, a "change waiting for review" badge
+when there is one, a profile-completion ring and the last-updated time.
+
+The completion percentage is **computed on the server** from 18 checks: logo,
+addresses, numbers, contacts, operating hours, time zone, declared transport
+modes, licence and the three required documents, among others. The page shows
+the number; it does not work it out.
+
+Eight tabs, as an accessible ARIA tablist (arrow keys, Home and End), each one
+deep-linkable with `?tab=`:
+
+| Tab | What it holds |
+|---|---|
+| Overview | Summary cards, "still to add" chips, and the system record |
+| Company details | Names, numbers, addresses, website, description |
+| Authorised contacts | Primary, emergency, support and billing contacts |
+| Service coverage | Approved regions (set by the marketplace), and hub and warehouse locations |
+| Logistics capabilities | Approved capabilities, the derived evidence below, declared transport modes, time zone and operating hours |
+| Compliance and documents | The documents, their state, upload and download |
+| Integration status | DHL, FedEx, India Post, GPS and the tracking webhook |
+| Account and security | Your role, MFA, recovery codes left, how the profile is protected, and the profile history |
+
+The profile history is shown only to roles holding `logistics.audit.read`.
+
+**One draft across all tabs.** A sticky save bar counts the unsaved changes and
+offers **Discard changes** and **Save**. Leaving with unsaved changes asks
+first — inside the app and when the browser tab is closed. Fields are
+validated on the page and again on the server. Reduced motion is respected.
+Every string is in the eight languages.
+
+### Four kinds of field
+
+| Kind | Fields | Who changes it |
+|---|---|---|
+| System | ID, partner code, dates, fleet and driver counts, levels | Nobody; the system works it out |
+| Operator-controlled | Account status, contract, approved regions, approved capabilities, carrier integration, verification state | Marketplace staff only |
+| Saved at once | Business email and phone, primary contact name and title, emergency contact name and phone, support email and phone, billing contact name, email and phone, website, business description, operational address, operating hours per weekday, time zone, declared transport modes, hub and warehouse locations | Owner or partner administrator |
+| Re-verified | Legal name, trading name, registration number, tax (GST/VAT) number, registration country, registered address, transport licence number and expiry | Owner or partner administrator asks; staff approve |
+
+The time zone must be a real IANA name. Declared transport modes (road, air,
+sea, rail) are **the carrier's own statement**, shown as such, never as an
+approval. There can be up to 20 hub and warehouse locations.
+
+**The save is strict.** `PATCH /api/v1/logistics/profile` refuses, with 400,
+any field outside the last two kinds — `id`, `partnerCode`, `status`,
+`verificationState`, `internalNotes`, a partner id. A trading name that
+clashes with another carrier's is refused with 409.
+
+### A change that has to be checked
+
+Saving a re-verified field does **not** change the live record. It creates one
+pending change request, holding what the field is now and what was asked for.
+The live record keeps the old values until a member of staff approves. A newer
+request replaces the older one, which is marked withdrawn, so there is never
+more than one open request per company. The carrier can withdraw it
+(`DELETE /api/v1/logistics/profile/pending-change`).
+
+Approving applies the values and sets the company **VERIFIED**. Rejecting
+needs a reason of at least eight characters, and the carrier sees it.
+
+### Capabilities are derived, not typed
+
+Nothing on the capabilities tab is a box the carrier fills in:
+
+- **Self-managed** — the partner kind is `SELLER_SELF_MANAGED`.
+- **L1–L4 levels** — from the published level rates that name the company, and
+  the legs it holds.
+- **Transport you are priced for** — the modes on its published rates.
+- **Fleet size, refrigerated vehicles, vehicle types, heaviest vehicle load** —
+  from its active vehicles.
+- **Active drivers** — from its active drivers.
+
+The portal does not let a carrier widen its regions or capabilities. That is
+still the marketplace's decision, on `/logistics/partners/:id`.
+
+### Compliance documents
+
+Six kinds: **Business licence**, **Insurance certificate** and **Transport
+permit** (these three are required), Company registration, Tax registration
+and Other.
+
+- PDF, JPEG, PNG, WebP or GIF, recognised **by the file's signature**, not its
+  name or the header the browser sent. Up to 10 MB.
+- Scanned for malware before it is stored (ClamAV). If no scanner is
+  configured the file is marked **not scanned**, never "clean".
+- Stored under the private storage prefix.
+- A newer upload of the same kind supersedes the older one. The older one is
+  kept.
+
+Each required kind shows one of: **Missing**, **Waiting for review**,
+**Verified**, **Not accepted**, or **Expired** (its expiry date has passed).
+
+**Downloading is a two-step, single-use link.** A `POST .../documents/:id/link`
+mints a link that works once, for `LOGISTICS_DOCUMENT_URL_TTL_SECONDS`
+(default 300), and only for the same signed-in person. The file is served as
+an attachment with `nosniff`. A file that was not scanned is not served unless
+`LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS=true` (default `false`).
+
+**The logo** is JPEG, PNG, WebP or GIF by signature. SVG is refused. It is
+scanned and kept in public storage, like a seller's logo.
+
+### Integration status never shows a secret
+
+"Connected" appears only when a verified success has been recorded.
+
+| Line | States |
+|---|---|
+| DHL, FedEx | Connected (an active integration with a recorded success) · Set up, not yet confirmed · Failing · Switched off · Credentials required (the default) |
+| India Post | Always Manual tracking |
+| GPS | Active (a position in the last 24 hours) · Drivers agreed, no positions yet · Not configured |
+| Tracking webhook | Connected (a signed webhook event has been accepted) · Waiting for the first update (a secret is set, no event yet) · Not configured |
+
+### The staff side
+
+On `/logistics/partners/:id` in the admin console, a **Profile verification**
+card. `logistics.read` to see it, `logistics.write` to decide.
+
+- The verification badge, with **Mark as verified** and **Ask for
+  re-verification** (which needs a reason the carrier sees).
+- The pending change as a table — field, now, asked for — with **Approve and
+  apply** and **Reject** (a reason of at least eight characters).
+- The compliance documents with their scan and review badges, **Download**
+  (a single-use link bound to that member of staff), and **Verify** or
+  **Reject** with a reason.
+
+### Everything is written down
+
+Every save, change request, withdrawal, approval or rejection, logo change,
+document upload, download or decision, and verification change writes a row
+in the carrier's logistics audit log (actions `logistics.profile.*`). Staff
+decisions also write the main audit log.
+
+### What it does not do
+
+- **No bank details.** The system has no carrier payouts, so it asks for none.
+- **No widening of regions or capabilities** from the portal.
+- Carriers that existed before this page are **UNVERIFIED**, because no check
+  was ever recorded for them.
+
 ## The marketplace's own screens
 
 Inside the admin panel, under **Logistics**.
@@ -7078,7 +7426,7 @@ Inside the admin panel, under **Logistics**.
 | `/logistics/shipments/:id` | One consignment. Offer it to a carrier, take it back, correct a status, read the full timeline — and work the fleet: put one of the carrier’s drivers on it, name the van, move it to somebody else, take them off, and send it on the way. |
 | `/logistics/exceptions` | The queue, worst first and then oldest first. |
 | `/logistics/partners` | The carriers. Create one and invite its first owner. |
-| `/logistics/partners/:id` | Registration, contract, areas served, approved capabilities, delivery promises, people — and the fleet: add a driver by typing their name, add a van, stand somebody down or bring them back. |
+| `/logistics/partners/:id` | Registration, contract, areas served, approved capabilities, delivery promises, people — and the fleet: add a driver by typing their name, add a van, stand somebody down or bring them back. The **Profile verification** card approves or rejects the carrier's pending profile change and its compliance documents. |
 | `/logistics/integrations` | Carrier API connections, their health, and their status-code mapping. |
 
 ### The tracking desk narrows on the axes a question arrives on
@@ -7574,7 +7922,14 @@ frozen or they are gone. `orders.customerNote` stays where it was and stays
 
 **Money**
 `payment_provider_connections`, `payment_transactions`, `payment_events`,
-`payment_links`, `refunds`, `invoices`, `vat_rates`, `vat_number_checks`
+`payment_provider_customers`, `payment_links`, `refunds`, `invoices`,
+`vat_rates`, `vat_number_checks`
+
+`payment_provider_customers` maps one person to one Stripe Customer per mode
+(test or live). `payment_transactions` also carries what Stripe-hosted Checkout
+needs: `providerSessionId`, `sessionExpiresAt`, `openAttemptKey`, `cardBrand`,
+`cardLast4`, `disputedAt` and `disputeReason`. See *9.3.3 Stripe-hosted
+Checkout*.
 
 **After the sale**
 `shipments`, `return_requests`
@@ -8278,10 +8633,16 @@ state machine's back, so what a tester sees is the real consequence of a
 payment and not a green tick.
 
 The payment page says **Test mode** on it whenever this is on, offers *Mark
-this order as paid*, and settles the order by itself when a gateway's own test
+this order as paid*, and settles the order by itself when Razorpay's own test
 sheet reports success. A sheet the customer dismissed, and a card the gateway
 declined, are left exactly as they are: a decline is a thing somebody may be
 deliberately testing.
+
+Stripe has no sheet on our page any more: the customer pays on Stripe-hosted
+Checkout and comes back to `/checkout/payment/:orderId/confirmation`. With no
+webhook able to arrive, that page's **Check again** button asks Stripe's API
+directly and confirms the payment through the same guarded capture path (see
+*9.3.3 Stripe-hosted Checkout*).
 
 The webhook path is untouched. The fixture is refused in three independent
 places:
@@ -8301,6 +8662,8 @@ a provider was involved.
 When the real path is what you want to exercise, give the gateway somewhere to
 deliver to instead: `stripe listen --forward-to
 localhost:4000/api/v1/payments/webhooks/stripe`, or a tunnel to the same URL.
+`stripe listen` is the Stripe CLI; paste the `whsec_…` secret it prints into
+`STRIPE_WEBHOOK_SECRET`.
 
 ---
 
@@ -8542,15 +8905,23 @@ This is the most important flow in the system.
 │ never shown a gateway; the server resolves one from that     │
 │ choice (see 9.3.1).                                          │
 │                                                              │
-│ They either enter a card, or pick one they saved before.     │
+│ Stripe: "Pay securely now" sends the same tab to Stripe-     │
+│ hosted Checkout. Card entry, saved-card choice, 3-D Secure   │
+│ and the "save for future purchases" box are all on Stripe's  │
+│ page (see 9.3.3). Stripe sends them back to                  │
+│ /checkout/payment/:orderId/confirmation?session_id=cs_...    │
 │                                                              │
-│ The browser then returns to /order-confirmation/:orderId.    │
-│ THIS REDIRECT CONFIRMS NOTHING.                              │
+│ Razorpay: its sheet opens over our page; saved cards are     │
+│ picked inside it. The browser then returns to                │
+│ /order-confirmation/:orderId.                                │
+│                                                              │
+│ NEITHER RETURN CONFIRMS ANYTHING.                            │
 └──────────────────────────────────────────────────────────────┘
                             ▼
 ┌── 4. THE WEBHOOK — the only thing that confirms an order ────┐
 │ The gateway's own server calls:                              │
 │   POST /api/v1/payments/webhooks/stripe                      │
+│   (Stripe: checkout.session.completed and friends)           │
 │                                                              │
 │   · Signature verified against the RAW bytes                 │
 │   · providerEventId is UNIQUE — a re-delivered event is a    │
@@ -8584,6 +8955,11 @@ How would you like to pay?
 with instruments only, and `domain/payment-instrument.ts` turns one into a
 gateway — that file is the single place the mapping lives.
 
+Each offer also says `hostedCheckout: true` or `false`. When the card
+instrument is paid on Stripe's page, `savedCardsChargeableHere` is `false`, and
+`/checkout` hides its own saved-card list. In its place it says: "Your saved
+cards will be offered on the secure payment page…". Stripe shows them there.
+
 It **refuses rather than substitutes**. A customer who chose UPI and is
 silently handed a card form has been told something untrue by this application,
 so a UPI order with no UPI gateway is `PAYMENT_INSTRUMENT_UNAVAILABLE`, not a
@@ -8609,7 +8985,7 @@ to, and the two values are **different agreements**:
 
 | Scope | What was agreed | Where it comes from |
 |---|---|---|
-| `CHECKOUT` | "keep this so I need not type it again" | the tick on the payment page |
+| `CHECKOUT` | "keep this so I need not type it again" | Stripe's own save box on its Checkout page, or Razorpay's tick on our payment page |
 | `OFF_SESSION` | "charge this while I am not here" | Autopay enrolment |
 
 `assertChargeable` in `payment-method.service.ts` refuses anything that is not
@@ -8631,9 +9007,13 @@ is what a person recognises their own card by and can pay for nothing.
 
 | | Stripe | Razorpay |
 |---|---|---|
-| Save a card at a checkout | yes | yes |
-| Charge a saved card from **our** pages | yes | **no** |
+| Save a card at a checkout | yes — Stripe's own box on its Checkout page | yes — our tick |
+| Charge a saved card from **our** pages | **no** — chosen on Stripe's page | **no** |
 | Charge a saved card off-session (Autopay) | yes | no |
+
+Stripe's saved cards are picked **on Stripe-hosted Checkout**. The session is
+opened on the person's own Stripe Customer, so Stripe already knows their
+cards (see *9.3.3*).
 
 Razorpay's saved cards are picked **inside Razorpay's own sheet**, which is
 opened with the customer's `customer_id` so their cards are already sitting
@@ -8691,6 +9071,9 @@ The same idea is applied structurally, in the database, everywhere it matters:
 |---|---|
 | Duplicate webhook delivery | `unique(payment_events.providerEventId)` |
 | Duplicate checkout | `unique(idempotency_records.scope, key)` + body hash |
+| Two open payment attempts for one order (double click, two tabs) | `uq_payment_open_attempt` on `payment_transactions.openAttemptKey` |
+| One Stripe Checkout session recorded twice | `uq_payment_provider_session` on `payment_transactions.providerSessionId` |
+| Two Stripe Customers for one person | `uq_provider_customer_profile` on `payment_provider_customers` |
 | Duplicate recurring order | `unique(schedule_occurrences.scheduleId, plannedRunAt)` |
 | One occurrence becoming two orders | `unique(orders.scheduleOccurrenceId)` |
 | Duplicate refund | `unique(refunds.idempotencyKey)` |
@@ -8911,6 +9294,331 @@ never make.
 `FULFILMENT_QUOTE_TTL_MINUTES` is how long an offer stands (15 by default), and
 the browser is told it as `config.fulfilment.fulfilmentQuoteTtlSeconds` so a
 figure baked into a bundle is not a figure an operator cannot change.
+
+## 9.3.3 Stripe-hosted Checkout
+
+When the gateway is Stripe, the card is **not** typed on our page. The old
+in-page Stripe Payment Element dialog (`StripePaymentDialog.tsx`) is deleted.
+"Pay securely now" sends the same tab to **Stripe-hosted Checkout** — Stripe's
+own page, on `checkout.stripe.com` or the operator's custom Checkout domain.
+Card entry, the choice of a saved card, 3-D Secure (SCA), bank redirects and
+the "save for future purchases" box all happen there. Razorpay is unchanged:
+its sheet still opens over our page.
+
+### The flow, end to end
+
+```
+/checkout            order created, server-priced, stock reserved,
+                     status PENDING_PAYMENT
+        ▼
+/checkout/payment/:orderId
+                     order summary from the server; "Pay securely now"
+        │  POST /api/v1/payments/orders/:orderId/session
+        │  → next: "REDIRECT", redirectUrl, checkoutSessionId, expiresAt
+        ▼
+Stripe-hosted Checkout (same tab, window.location.assign)
+        │  the customer pays, or presses Stripe's Cancel link
+        ▼
+/checkout/payment/:orderId/confirmation?session_id=cs_...
+                     polls our records every 2 s; "Check again" asks Stripe
+        ▲
+        │  meanwhile, and independently:
+POST /api/v1/payments/webhooks/stripe  (checkout.session.completed, …)
+        │  signature verified → applyCapturedPayment → order CONFIRMED
+```
+
+The confirmation page **reads our records only**. It never confirms a payment
+by itself: the order is confirmed by the signed webhook, or by "Check again",
+which has the server ask Stripe's API. Both use the same guarded capture path.
+
+### What is charged, and who decides
+
+- The order is priced once, at `/checkout`: lines, discount, delivery, tax and
+  the exchange-rate snapshot. **The payment page never reprices.**
+- The amount is `orders.grandTotalMinor - paidMinor`, read on the server. The
+  request carries no amount, currency, discount, tax, seller, warehouse or
+  shipping. Anything like that a browser sends is ignored.
+- Stripe gets **one** line item, "Order <number>", whose amount is exactly the
+  outstanding total. Its description lists up to three "qty × product name"
+  and "+N more". One line means Stripe's total can never disagree with ours by
+  rounding. The full breakdown is shown on our page before the customer leaves.
+- Money stays `BigInt` minor units the whole way. `domain/stripe-amount.ts`
+  checks the currency's decimals against Stripe's list. It refuses an amount of
+  zero or less, one above Stripe's per-payment ceiling (99,999,999 minor units),
+  and a HUF amount that is not whole forint. It never rounds. A refusal is
+  `PAYMENT_AMOUNT_NOT_SUPPORTED` (400).
+
+**Merchant of record.** The operator is the merchant of record: one Stripe
+account, and the platform collects. No splitting of money between sellers, and
+no seller payouts, were built. Splitting would need **Stripe Connect**, and
+Stripe says that for India-registered platforms "separate charges and
+transfers" and destination charges with application fees are not supported.
+That is a known blocker, not a feature.
+
+### What is sent to Stripe
+
+| Setting | Value |
+|---|---|
+| `mode` | `payment` |
+| `customer` | the person's own Stripe Customer (`cus_…`), or `customer_email` if none could be made |
+| `saved_payment_method_options[payment_method_save]` | `enabled` — Stripe's own, unticked box. Only when there is a Customer |
+| `setup_future_usage`, off-session | **never sent** |
+| `client_reference_id`, `metadata` | our attempt id and order id only (the PaymentIntent's metadata also has the order number). No name, email, address or product |
+| `billing_address_collection` | `required` |
+| `payment_intent_data.description` / `.shipping` | what is bought / name and delivery address (no phone) |
+| `locale` | the customer's language (en, de, el, es, fr, it, nl, pl), else `auto` |
+| `expires_at` | 32 minutes (Stripe's minimum is 30) |
+| `success_url`, `cancel_url` | built from `CUSTOMER_WEB_PUBLIC_URL`, never from the request, so there is no open redirect |
+| `payment_method_types` | not sent. The Stripe Dashboard's payment-method settings decide |
+
+The URL Stripe returns is used only if it is `https` and its path contains the
+session id. The storefront checks this again before it navigates.
+
+The billing address, description and shipping address are there for a reason:
+India's export rules require payer name, billing address, description and (for
+goods) a shipping address on every payment from a non-Indian card, or the
+payment is declined.
+
+### One open attempt per order
+
+A double click, a second tab or a retry must not open two payments. Each
+attempt is a `payment_transactions` row, and `openAttemptKey` holds the order
+id while the attempt is open and `NULL` once it closes. `uq_payment_open_attempt`
+is unique, and MariaDB treats each `NULL` as distinct, so only the **open**
+attempt collides. The second request then:
+
+- gets the **same** Stripe page, if it is open with more than 2 minutes left;
+- is told to wait with `PAYMENT_ATTEMPT_IN_PROGRESS` (409) if the first request
+  is still creating the page (under 20 seconds). The storefront retries up to
+  3 times, 1.5 seconds apart;
+- is sent to the confirmation page if the session is already complete.
+
+The Stripe idempotency key is `stripe-checkout:<attemptId>`, made by the
+server. It is never the browser's `Idempotency-Key` header. The button is
+disabled at once — a synchronous latch stops two clicks in one frame — and says
+"Opening secure payment…".
+
+A request that timed out halfway leaves an open attempt with no session. After
+20 seconds it is closed as `FAILED` (`SESSION_NOT_RECORDED`) and a new attempt
+opens. The orphaned Stripe session's URL was never given to anyone, so nobody
+can pay it, and it expires by itself.
+
+### Stock
+
+Placing an order reserves stock for 20 minutes. Opening Checkout extends the
+order's active reservations to the session's expiry plus 5 minutes. If they had
+already lapsed, the same quantities are reserved again, all or nothing. If the
+stock is gone, the payment page is refused with `INSUFFICIENT_STOCK` and the
+attempt closes `FAILED` (`STOCK_UNAVAILABLE`).
+
+On capture the reservations are committed exactly once, as the order moves to
+`CONFIRMED`. On expiry or failure they lapse by the usual sweep, the order stays
+`PENDING_PAYMENT`, and it can be paid again.
+
+### One Stripe Customer per person
+
+`payment_provider_customers` holds `customerProfileId`, `provider`, `mode` and
+`providerCustomerId`. Two unique indexes: `uq_provider_customer_profile` on
+(`customerProfileId`, `provider`, `mode`) and `uq_provider_customer_ref` on
+(`provider`, `providerCustomerId`). The foreign key to `customer_profiles` is
+`ON DELETE CASCADE`.
+
+- One Customer per person per mode. Never matched by email. Never accepted from
+  a browser.
+- Two first checkouts at once both try to insert; the index lets one land and
+  the other adopts it. A person who already has saved cards keeps the `cus_…`
+  those cards carry.
+- A `cus_…` that Stripe says is missing is forgotten and a new one is made.
+- The Autopay card enrolment (SetupIntent) uses the same mapped Customer.
+- A Customer is made for every signed-in customer who opens Stripe Checkout,
+  because Stripe needs one to offer the save box. Guests cannot pay on the
+  storefront at all: every payment route needs a signed-in customer.
+- GDPR: the export lists it under the withheld `credentials` section. Erasure
+  deletes the row and, after the commit, deletes the Customer at Stripe
+  (best effort).
+
+### The webhook
+
+`POST /api/v1/payments/webhooks/stripe` is the same endpoint as before, with
+more events. Subscribe to these in the Stripe Dashboard:
+
+| Event | New? | What it does |
+|---|---|---|
+| `checkout.session.completed` | new | Paid: amount and currency must match the attempt, then the server re-reads the session from Stripe and applies the capture. Unpaid (a delayed method): the attempt goes `PENDING` and still holds the order |
+| `checkout.session.async_payment_succeeded` | new | Capture |
+| `checkout.session.async_payment_failed` | new | Attempt `FAILED`, payment-failed email |
+| `checkout.session.expired` | new | Attempt `EXPIRED`, order free for a new attempt |
+| `payment_intent.succeeded` | | Capture |
+| `payment_intent.payment_failed` | | For a Checkout attempt it does **not** close it — the customer is still on Stripe's page and may try another card. The decline code is noted; no email |
+| `charge.refunded`, `refund.updated`, `refund.failed` | | Refunds, as before |
+| `charge.dispute.created` | new | `disputedAt` and `disputeReason` recorded, audit `payment.disputed`, finance alerted. The payment stays `CAPTURED` and the order keeps its status |
+| `payment_method.detached` | new | That saved card is marked `DETACHED` here too |
+
+Still **not** `charge.succeeded`.
+
+An event is matched to its payment by session id, then (for a dispute) charge
+id, then PaymentIntent id, then our attempt id from `client_reference_id` or
+the PaymentIntent's metadata. So a `payment_intent.succeeded` that arrives
+before its `checkout.session.completed` still finds its order.
+
+### One capture path
+
+`applyCapturedPayment` in `payment.service.ts` is now the **only** place money
+becomes a `CONFIRMED` order. The webhook, `checkout.session.completed`,
+"Check again" and the admin and customer reconcile all call it. It is a
+conditional update, so the order is credited only if the update matched, and it
+moves the order through `assertTransition`. The ERP push, the scheduled-delivery
+settlement and the buyer-ERP payment reference follow, idempotently, outside the
+database transaction.
+
+- A capture on an attempt we had closed (`CANCELLED`, `EXPIRED`) is still
+  recorded, and finance is alerted (`CAPTURE_ON_CLOSED_ATTEMPT`).
+- A capture on an order already paid in full is recorded, and finance is
+  alerted (`DUPLICATE_PAYMENT`).
+- Seller and admin notifications still fire only when the order becomes
+  `CONFIRMED`.
+
+Fixed on the way: the old reconcile had no guard and could credit twice beside a
+racing webhook; it asked "whichever gateway is active" rather than the
+attempt's own gateway; the old payment-failed path could overwrite a `CAPTURED`
+row; and two first payments at once on a fresh deployment could fail.
+
+`domain/payment-state.ts` holds the allowed moves for
+`payment_transactions.status`: `CREATED`, `PENDING`, `AUTHORIZED`, `CAPTURED`,
+`FAILED`, `CANCELLED`, `EXPIRED`. `CAPTURED` is final, and may follow any other
+state — money that moved is always recorded. Refunds and disputes are separate
+facts, not statuses. Admins see a derived `lifecycleState` in
+`GET /api/v1/admin/payments` (`CHECKOUT_SESSION_CREATED`, `PROCESSING`,
+`REQUIRES_ACTION`, `SUCCEEDED`, `PARTIALLY_REFUNDED`, `REFUNDED`, `DISPUTED` and
+the rest), plus `checkoutSessionId`, `cardBrand`, `cardLast4`, `disputedAt` and
+`disputeReason`.
+
+### The customer endpoints
+
+All need a signed-in customer and are scoped to their own order.
+
+| Method | Path | What it does |
+|---|---|---|
+| `POST` | `/payments/orders/:orderId/session` | For Stripe: `next: "REDIRECT"` with `redirectUrl`, `checkoutSessionId`, `expiresAt`; or `next: "AWAIT_CONFIRMATION"` with `checkoutSessionId` if the order is already being paid. `PaymentNextStep` gained `REDIRECT` |
+| `GET` | `/payments/orders/:orderId/checkout/:sessionId` | The confirmation view: `state` (`CONFIRMING`, `SUCCEEDED`, `PROCESSING`, `FAILED`, `CANCELLED`, `EXPIRED`), order number and status, amount, `paidAt`, card brand and last four, a `failureReason` from a short fixed list (never Stripe's raw decline code), `canRetry`. Reads our records only. 120 per 5 minutes |
+| `POST` | `/payments/orders/:orderId/checkout/:sessionId/refresh` | "Check again": the server asks Stripe and applies the answer through the same guarded path. Never starts a payment. 12 per 5 minutes |
+| `POST` | `/payments/orders/:orderId/checkout/cancel` | After Stripe's Cancel link: expires the session at Stripe so a tab left open cannot pay, marks the attempt `CANCELLED`, frees the order. If Stripe says it was paid, records the payment instead. 20 per 5 minutes |
+
+The session id must match `^cs_(test|live)_[A-Za-z0-9]{8,180}$`, or the answer
+is 400. Another customer's session is a 404.
+
+**Error codes.** Two are new, and the storefront maps both in eight languages:
+`PAYMENT_ATTEMPT_IN_PROGRESS` (409, another payment for this order is open or
+settling) and `PAYMENT_AMOUNT_NOT_SUPPORTED` (400, the total cannot be taken by
+card online in its currency). The payment page also now words
+`PAYMENT_PROVIDER_NOT_CONFIGURED` ("Card payment is not set up on this store
+yet…") and gives its own sentence for `PAYMENT_PROVIDER_ERROR`; Stripe's text
+is logged, never shown.
+
+### The two screens
+
+**`/checkout/payment/:orderId`** (`pages/PaymentPage.tsx`) shows the order
+summary from the server — item count, subtotal, any discount, delivery, tax,
+amount due, "Charged in <currency>" — the billing address and "Pay securely
+now". It says payments are processed securely by Stripe, that the save box is
+Stripe's and never pre-ticked, and that a saved card is only used when the
+customer pays themselves. There is no save tick of our own for Stripe; Razorpay
+keeps its tick. Errors appear in an alert that takes focus. `?payment=cancelled`
+calls the cancel endpoint and shows "Payment cancelled — nothing was charged"
+with a retry; if the server says it was paid, the page goes to the confirmation.
+Coming back with the browser's Back button re-enables the button. The test-mode
+*Mark this order as paid* is unchanged.
+
+**`/checkout/payment/:orderId/confirmation`** (`pages/PaymentConfirmationPage.tsx`)
+shows one of: Confirming payment…, Payment successful, Payment processing,
+Payment failed, Payment cancelled, Session expired, or Confirmation temporarily
+delayed (after 60 seconds of polling every 2 seconds). Success shows the order
+number, amount, when it was paid, "Visa ending in 4242", the order status, View
+order and Continue shopping. "Check again" appears when delayed or processing;
+"Retry payment" only when the attempt closed unpaid. The heading is a live
+region and takes focus when it changes. An unknown session says "We could not
+find this payment".
+
+### Saving a card on Stripe's page
+
+- The box is Stripe's own, unticked by default, in Stripe's words. A card saved
+  through it is attached to the person's Stripe Customer with
+  `allow_redisplay: always`.
+- We store a card **only** if, read back from Stripe, it is a `card`, it is
+  attached to **this** person's mapped Customer, and `allow_redisplay` is
+  `always`. Otherwise nothing is stored.
+- The `customer_payment_methods` row has consent scope `CHECKOUT` and consent
+  version `stripe-checkout-native-v1`, plus the brand, last four, expiry,
+  funding and country. Never a card number, a CVC or a raw token.
+- An audit entry `payment_method.saved` records the consent:
+  `SAVE_CARD_FOR_CHECKOUT`, intended use `CUSTOMER_INITIATED_CHECKOUT`, and the
+  session and payment it came from.
+- **It is never an Autopay mandate.** `assertChargeable` refuses a `CHECKOUT`
+  card off-session. Autopay still needs its own SetupIntent enrolment with its
+  own `OFF_SESSION` consent.
+- Next time, Checkout opens on the same Customer, so Stripe offers "Visa ending
+  in 4242". The customer may pick it or type a new card; Stripe asks for the CVC
+  or 3-D Secure when the bank wants. An expired, removed or declined card is
+  simply not chosen — the customer picks another on Stripe's page.
+
+Cards saved with the **old** in-page tick carry `allow_redisplay: unspecified`,
+so Checkout would not offer them. A one-off command fixes that:
+
+```powershell
+cd backend; npm run payments:backfill-redisplay
+```
+
+It sets `allow_redisplay: always` on active Stripe cards with scope `CHECKOUT`
+only. Autopay cards are untouched, and running it twice changes nothing.
+
+A second command proves the test keys and the exact Checkout parameters work
+against Stripe's real API: it opens one TEST-mode session, reads it back,
+expires it and deletes its test Customer. It refuses a live key and prints no
+key:
+
+```powershell
+cd backend; npm run payments:stripe-smoke
+```
+
+### Configuration
+
+No new environment variables. `STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `PAYMENT_DEFAULT_PROVIDER` and
+`CUSTOMER_WEB_PUBLIC_URL` do the work. One new guard: **in production
+`CUSTOMER_WEB_PUBLIC_URL` must be `https`**, because Stripe sends paying
+customers back there, or the backend refuses to start. With no Stripe keys, the
+payment page says "Card payment is not set up on this store yet". The Content
+Security Policy needs no change: a top-level redirect to Stripe is not governed
+by it, and the Stripe origins it already lists stay for the Autopay card form.
+
+In the Stripe Dashboard the operator still has to set: the webhook endpoint
+`https://<api-host>/api/v1/payments/webhooks/stripe` with the events above;
+payment methods (cards at least) under Settings → Payment methods; branding
+(logo, colours, business name) under Settings → Branding, which is what
+Checkout shows; optionally a custom Checkout domain; and the statement
+descriptor.
+
+**An India account.** Stripe India is invite-only. Taking payments in other
+currencies needs the exports opt-in, a transaction purpose code (for example
+P0102 or P0103 for goods), and an IEC for physical goods (and for international
+AMEX). Payouts are in INR, and international cards need 3-D Secure. Check all of
+this in the live Dashboard before claiming live international payments work.
+
+### Moving from test to live
+
+1. Put the live keys (`sk_live_`, `pk_live_`) in **Admin → Integrations**
+   (the Stripe connection, LIVE) or in the production environment, with
+   `NODE_ENV=production` and an `https` `CUSTOMER_WEB_PUBLIC_URL`.
+2. Create the **live** webhook endpoint in Stripe with the events above, and
+   paste its live `whsec_…` secret.
+3. Press **Test connection** in Admin (it checks live mode from Stripe's side),
+   then activate.
+4. Run `cd backend; npm run payments:backfill-redisplay` once against live.
+5. Make one small real payment with a real card, refund it, and check the order
+   and the refund.
+
+Stripe Customers belong to one mode, so live customers get new live Customers
+automatically.
 
 ## 9.4 The order's life
 
@@ -9248,7 +9956,7 @@ one customer naming another's plan gets a 404 rather than a 403.
 | `POST` | `/account/payment-methods/setup-intent` | Begins enrolment |
 | `POST` | `/account/payment-methods` | Finishes it. Re-reads Stripe; requires consent |
 | `POST` | `/account/payment-methods/:id/default` | Sets the default |
-| `DELETE` | `/account/payment-methods/:id` | Removes one. Refused while a live plan needs it |
+| `DELETE` | `/account/payment-methods/:id` | Removes one. Refused while a live plan needs it, or while an Autopay mandate (`ACTIVE` or `PAUSED`) uses it — `PAYMENT_METHOD_IN_USE`, detail code `AUTOPAY_DEPENDS_ON_METHOD` |
 
 The payment-method routes are refused entirely unless
 `FEATURE_SUBSCRIPTION_AUTOPAY` is on. A stored card exists only to be charged
@@ -10405,10 +11113,38 @@ that writes them.
 
 A buyer looking at a product often has a question before they are ready to send
 a preorder request - *"how many fit in a 40-ft container?"*, *"can you do
-20,000 by March?"*. **Chat with {marketplace}** beside Preorder lets them ask the
+20,000 by March?"*. A **chat icon** beside Preorder lets them ask the
 **operator's own team**, live, and the team answers in the console's **Preorder
-Chats**. The button carries the operator's trading name (`{{marketplace}}` in the
-translations; *Chat with Glovia* until a name is set).
+Chats**.
+
+**The entry point is an icon, not a text button.** The product page's preorder
+row is `[ Preorder (i) ] [ chat icon ]`. The icon (speech bubbles) is a 48×48 px
+button directly right of the (i), as tall as Preorder. On a phone Preorder takes
+the rest of the row, and the row never wraps. There is no visible "Chat with …"
+text button any more; this icon is the only chat entry in that row.
+
+- **Its name.** Screen readers hear *Chat with {marketplace}* - the operator's
+  trading name (`{{marketplace}}` in the translations; *Chat with Glovia* until
+  a name is set). With unread replies it is *Chat with {marketplace}. Unread
+  replies: N*.
+- **Its tooltip.** *"Ask {marketplace} about this preorder"* shows on hover and
+  on keyboard focus, is linked with `aria-describedby`, and Escape hides it. On
+  a touch screen a tap opens the chat straight away; nothing depends on hover.
+  It has a visible focus ring and a soft hover glow in the brand colour, and it
+  respects reduced motion.
+- **Its badge.** A red count (capped at 99+) of staff replies the signed-in
+  customer has not read yet, in their conversations about **this product**.
+  The server counts it: `GET /api/v1/preorder-chats/unread?productId=…`. The
+  `productId` is optional; the customer is always the signed-in one, so it can
+  only narrow their own count, and a malformed id is a 400. Without it the count
+  covers every conversation, as the account Messages badge uses it. The badge
+  refreshes once a minute while the tab is in front, and whenever the chat marks
+  messages read or a live message arrives (the same refresh as the Messages
+  badge). A guest sees no badge.
+
+What happens after the click has not changed: a guest goes to sign in and comes
+back with the chat open; the same drawer, the same product, option, quantity and
+unit, existing conversations, live messages and proposals.
 
 It is **customer ↔ operator staff only**. The seller of the product is not in the
 conversation, is sent nothing about it, and has no route that reads it. A chat
@@ -10524,6 +11260,87 @@ not read itself aloud; one polite announcement names each new message.
 Both screens run the same code for this: `lib/chat-kit/` is one set of files
 kept identically in the storefront and the console, and
 `lib/chat-kit-sync.test.ts` in each app fails the build if the copies differ.
+
+### The preorder assistant, and asking for a person
+
+Before a conversation exists, the chat opens on the **preorder assistant**:
+automated answers to twelve common questions (minimum quantity, bulk
+pricing, 20-ft and 40-ft container loading, whether a quantity is in stock,
+what happens when stock is short, the delivery date, split shipments,
+customisation, payment, logistics and tracking, changing or cancelling). It is
+labelled **"{marketplace} Preorder Assistant · Automated"** on every answer,
+has its own mark, and is never shown as a person or as the team. A guest can
+use it without signing in.
+
+The questions are shown as a card of tappable rows — an icon, the question and
+a chevron — the first six, then **View all questions**.
+
+**Where the answers come from.** The server builds every answer from the
+product's own data through `evaluateEligibility` — the seller's preorder terms,
+the loading the seller verified, the stock on the listing, the delivery
+window the preorder form would offer, the split-delivery and cancellation
+settings. A figure the data does not hold is never guessed: the answer says
+*"This information needs confirmation from the {team} preorder team"*, is
+marked **Needs confirmation**, and offers a person. Customisation always gets
+that answer, because no listing field says whether a product can be
+customised.
+
+**The configuration.** `backend/src/modules/preorder-chat/assistant/catalogue.ts`
+holds one entry per question — `id`, `category`, `questionTranslationKey`,
+`answerTemplateTranslationKeys`, `requiredDataFields`, `displayOrder`,
+`active`, `requiresHumanConfirmation`, `version` — validated by one schema when
+the server starts. `answers.ts` turns facts into lines (pure functions, unit
+tested); `facts.service.ts` reads the facts. An answer is a list of lines,
+each a translation key and **typed** values (a number, a date, an amount of
+money, a unit, a list of countries), so each app formats them in the reader's
+language. The words for questions and answers live in both frontends'
+catalogues under `preorderChat.assistant.*`, in all eight languages. Nothing in
+an answer is HTML. There is no admin screen for the questions yet; the
+catalogue is shaped so a table with the same columns can replace it.
+
+**After an answer:** *Was this helpful?* **Yes / Ask another question**, and
+*Would you like to connect with a human agent?* **Connect with a human agent /
+Not now**. **Connect with a human agent** is also in the assistant's header the
+whole time, so nobody has to go through the questions to reach a person.
+
+**Asking for a person** (`POST /preorder-chats/handoff`, signed in):
+
+1. A guest is sent to sign in first. The answers they read and the request wait
+   in the tab's `sessionStorage`; when they come back the drawer opens and the
+   request is finished for them.
+2. The server creates the conversation about this product, or reuses the live
+   one — never a second.
+3. The answers go in as messages: each question the customer picked
+   (`FAQ_QUESTION`, from the customer) and each answer (`AUTOMATED_REPLY`,
+   sender **`AUTOMATION`** — never `ADMIN`), then a `HANDOFF_REQUEST` from the
+   customer. Each answer was **signed** by the server when it was given (an
+   HMAC derived from `SESSION_COOKIE_SECRET`, over product, option, answer and
+   time); the handoff accepts only answers this server signed for this product
+   in the last 24 hours, so staff read exactly what the customer was shown.
+4. `handoffRequestedAt` and `handoffTopic` are set on the conversation. The
+   request counts as unread for staff and starts the waiting clock like any
+   message; staff with `preorder_chat.view` get a `preorder_chat.handoff`
+   notification; the queue has a **Human requested** view and the row a
+   **Human assistance requested** badge with the topic.
+5. The customer sees *"Your request has been sent to the {team} preorder team.
+   A human representative will reply here as soon as possible."* — never
+   "connected" or "online".
+6. The first staff reply after the request adds the system line *"A member of
+   the {team} team has joined the conversation."*, once, and the request leaves
+   the queue view. History, unread counts and receipts are the conversation's
+   own and carry on unchanged.
+
+A customer who simply types a first message after reading answers carries them
+in too, ahead of the message. Reopening the drawer does not start the greeting
+again: the transcript is restored from the tab, or, once there is a
+conversation, the conversation is shown.
+
+**The send button** is a circle in the brand colour with a white upward arrow,
+named "Send message", disabled while the box is empty, showing progress while
+the message is on its way and a mark if it failed (its text waits in the
+outbox with Retry). Enter sends, Shift+Enter is a new line, an input method
+composing is left alone, and one press is one message. The console keeps its
+labelled button (`sendAppearance` in `lib/chat-kit/primitives.tsx`).
 
 ### The lifecycle
 
@@ -10806,7 +11623,7 @@ list price, price charged).
 |---|---|---|
 | `GET /seller/offers/:id/quantity-tiers` | Seller, `listing.read` | The bands, with savings in basis points |
 | `PUT /seller/offers/:id/quantity-tiers` | Seller, `listing.write` | Replace the set. Validated as a set (`validateTiers`), written under a row lock on the offer, audited `listing.quantity_tiers_saved` |
-| `GET /catalog/bulk-pricing?productId&variantId&offerId&quantity&displayCurrency` | Public, optional session | Price per piece now and at the next band, the band ladder this buyer can reach, preorder-only bands, per-piece price for piece/carton/pallet/container, stock, whether the quantity exceeds it, whether preorders are open, and an approximate conversion with its rate set. `Cache-Control: private, no-store` |
+| `GET /catalog/bulk-pricing?productId&variantId&offerId&quantity&displayCurrency` | Public, optional session | Price per piece now and at the next band, the band ladder this buyer can reach, preorder-only bands, per-piece price for piece/carton/pallet/container, stock, whether the quantity exceeds it, whether preorders are open, and an approximate conversion with its rate set. Also `offers` and `preorderOffers`: one ready-made card per genuine band (see *All bulk offers together* below). `Cache-Control: private, no-store` |
 
 New error code (appended): `QUANTITY_TIERS_INVALID`, details
 `{ field: "tiers.N", code, meta: { index, otherIndex } }` with codes
@@ -10820,7 +11637,8 @@ The cart line gained `quantityTier` and `nextQuantityTier`.
 
 - **Seller Hub** - *Listing → Quantity prices* (`SellerQuantityTiersPanel`).
 - **Storefront** - `BulkSavingsPopover` under the product page's quantity box;
-  the basket line's band note.
+  the *Bulk offers* dialog and the *More than is in stock* prompt (below); the
+  basket line's band note.
 
 On EVERY quantity increase (on any purchasable product), a galaxy card
 (`components/ui/galaxy-canvas.tsx`: ~700 stars on logarithmic spiral arms,
@@ -10836,6 +11654,117 @@ product+variant in `sessionStorage`, over-stock routes to the preorder dialog
 tooltip; no Aceternity or React Bits source is included (React Bits is MIT +
 Commons Clause; Aceternity forbids redistributing source; this product is
 redistributed to every operator).
+
+### All bulk offers together (the product page)
+
+The popover shows one band at a time. A buyer comparing bulk prices wants to
+see every band at once, so the product page also has a **Bulk offers** dialog.
+The popover and the *Ordering in bulk?* prompt stay as they were.
+
+**The server builds the cards.** `GET /catalog/bulk-pricing` also returns
+`offers` (every band this buyer can reach in the basket) and `preorderOffers`
+(bands the seller keeps for preorders only). `domain/bulk-offers.ts` builds
+them in BigInt minor units with the same `priceForQuantity` / `nextSaving` the
+basket uses, so the dialog and the basket cannot disagree. Each card:
+
+| Field | Meaning |
+|---|---|
+| `minQuantity`, `maxQuantity` | The band's range, in pieces |
+| `unitPrice`, `listUnitPrice` | Band price and usual price per piece (strings) |
+| `savingPerPiece` | List minus band price |
+| `lineTotal` | Band price x `minQuantity` |
+| `totalSaving` | Saving per piece x `minQuantity` |
+| `savingBasisPoints` | Discount in whole basis points, rounded down |
+| `businessBuyersOnly`, `endsAt` | Copied from the band |
+| `isCurrent` | The band the chosen quantity is priced by |
+| `isNext` | The nearest band above that lowers the price |
+| `isBestValue` | Strictly the cheapest per piece; only with two or more offers and no tie |
+| `withinStock` | Minimum <= stock |
+| `approximateUnitPrice` | Indicative, in the viewer's display currency, only when it differs |
+
+- **No fake offers.** A band whose effective price is not below list gives no
+  card. Business-only, country-limited, dated and preorder-only bands follow
+  the basket's eligibility exactly.
+- **Nothing is reserved.** The basket and checkout re-price everything. The
+  dialog says so in a footnote.
+
+**The storefront.** *View all bulk offers (N)* appears under the quantity box
+whenever there is at least one genuine offer. The dialog shows every band as a
+card (not a carousel): *Buy N or more*, price per piece, crossed-out usual
+price, saving per piece, discount %, total for N, total saving, stock
+(*Available from stock* / *Only X in stock. The rest would be a preorder.*),
+end date and a *Select N* button. Tags: *Your quantity*, *Next saving*, *Best
+value*, *Business accounts*. A progress line says *Add N more to pay P a
+piece.* Preorder-only prices are a separate list. Cards rise in one after
+another and lift on hover; under reduced motion they just appear. It is a
+native `<dialog>` through `Modal`: focus moves in, Escape and the backdrop
+close it, focus returns to what opened it. All strings in eight languages.
+
+**When it opens by itself.** On a quantity **increase** (stepper, arrow key, or
+typed and settled) when offers exist - once per product+version per browser
+session. It opens again by itself only if the set of bands changes (another
+version, a business buyer seeing their own bands). Closing it without choosing
+silences it for that product+version for the session. The link always opens
+it. It never opens over another dialog.
+
+**Select N** sets the quantity to N (only where the page counts pieces for one
+version), closes the dialog and re-prices. If N is more than stock, the stock
+prompt opens after the offers dialog has closed - never two dialogs at once.
+
+**"More than is in stock".** Shows the quantity asked for, available now, short
+by, and the seller's preorder minimum. *Continue with preorder* goes into the
+existing preorder flow (the note, then the form). *Change quantity* puts focus
+back in the quantity box. It opens only on the change that crosses the stock
+line, and only where the seller takes preorders.
+
+- **Same for every way of changing the quantity.** + / −, typing, pasting,
+  arrow keys, the browser's own number spinner, or *Select N* in the offers
+  dialog. "Stock" is the available figure `GET /catalog/bulk-pricing` reports
+  for that product and version - the same figure the page already shows.
+- **When a quantity counts ("commits").** A typed quantity counts when the
+  buyer presses Enter, leaves the box, or stops typing for 0.8 s. A stepper
+  press, an arrow key or a paste counts at once. Typing 1000 over a stock of
+  500 is judged once, on 1000 - never on 1, 10 or 100.
+- **Only on the crossing.** 501 → 502 → 503 opens it once. Going back to the
+  stock figure or below re-arms it. Exactly the stock (500 of 500) is within
+  stock.
+- **Changing the version** re-checks the current quantity against that
+  version's stock and can open the prompt. It never opens the offers dialog by
+  itself.
+- *Continue with preorder* shows the preorder note first if the buyer has not
+  acknowledged it, then the preorder form, opening on the quantity, version
+  and unit on the page. The server checks stock and every preorder and basket
+  rule again when anything is submitted.
+
+**One coordinator decides.** `lib/quantity-decision.ts` (pure) and
+`use-quantity-decision.ts` pick at most one dialog, in this order: an invalid
+quantity opens nothing; over stock opens the stock prompt; an increase with
+offers opens the offers dialog. It acts only on the server's answer for the
+exact quantity and version that were committed; an older reply that arrives
+late is ignored. *Ordering in bulk?* now waits while another dialog is open,
+and stands aside when the quantity is over stock, because the stock prompt
+shows the preorder minimum too.
+
+**Safe quantity input.** Every quantity box in the storefront, the basket
+included, goes through `components/QuantityInput.tsx` and
+`lib/parse-quantity.ts`. Only whole, positive pieces are accepted.
+
+- A pasted number is read in the page language's own convention: "1,000" in
+  English, "1.000" in German and "1 000" in French all mean a thousand;
+  "1.000" in English means one.
+- Refused, with a message under the box in eight languages
+  (`quantityInput.problem.*`): negative (*Enter a quantity above zero.*), zero
+  (*Enter a quantity of at least 1.*), a fraction (*Enter a whole number of
+  pieces.*), anything that is not a plain number - `1e3`, `Infinity`, hex -
+  (*Enter a quantity using digits only.*), and more than 100,000,000
+  (`MAX_QUANTITY`; *Enter at most 100,000,000.*).
+- The `e`, `+` and `-` keys are blocked. An empty box while retyping is not
+  zero.
+- Leaving the box while it holds something invalid puts back the last good
+  quantity. Nothing invalid is ever sent or priced.
+
+New `uboss:preorder` steps: `stock_prompt_dismissed`,
+`stock_prompt_change_quantity`, `stock_prompt_start_preorder`.
 
 ### Store-wide quantity discounts (the store's own products)
 
@@ -10932,7 +11861,7 @@ did before this existed. There is no feature flag; publishing is the opt-in.
 
 ### Words you will meet
 
-- **Mode** — `SELF`, `UBOSS` or `HYBRID` (shown as *Self*, the operator's own
+- **Mode** — `SELF`, `UBOSS` or `HYBRID` (shown as *Self Ship*, the operator's own
   business name, and *Self +* that name — `{{marketplace}}` in the catalogues,
   never the word UBOSS). It says **who is in control** of L2–L4. It is not a
   carrier.
@@ -11698,9 +12627,10 @@ into a checkout has not agreed to.
 ### The other way a card gets saved
 
 A card can also be kept at a checkout, and that is a **narrower** thing. The
-tick sits on the payment page — beside the Pay button, where the card is
-actually typed, which is the only moment the offer means anything — and it says
-"save this card for next time", not "charge this while I am away".
+box sits where the card is actually typed, which is the only moment the offer
+means anything, and it says "save this card for next time", not "charge this
+while I am away". For Stripe that is **Stripe's own box on its hosted Checkout
+page**, in Stripe's words; for Razorpay it is our tick beside the Pay button.
 
 Also never pre-ticked. A pre-ticked box is not consent under the GDPR, and a
 payment credential is exactly what that rule was written for.
@@ -11709,11 +12639,15 @@ The two paths differ in where the truth comes from:
 
 | | Autopay enrolment | Saved at a checkout |
 |---|---|---|
-| Trigger | the customer confirms a SetupIntent | a signature-verified capture webhook |
-| Stripe asks for | `usage: 'off_session'` | `setup_future_usage: 'on_session'` |
-| Scope stored | `OFF_SESSION` | `CHECKOUT` |
+| Trigger | the customer confirms a SetupIntent | a signature-verified capture (Stripe: read back from Stripe after the Checkout session is paid) |
+| Stripe asks for | `usage: 'off_session'` | nothing extra — Stripe's native save box (`saved_payment_method_options[payment_method_save]=enabled`); no `setup_future_usage` |
+| Stored only if | the SetupIntent succeeded | Stripe: it is a `card`, attached to this person's own Customer, with `allow_redisplay: always` |
+| Scope stored | `OFF_SESSION` | `CHECKOUT` (Stripe consent version `stripe-checkout-native-v1`) |
 | Gateways | Stripe only | Stripe and Razorpay |
 | Can Autopay charge it? | yes | **no** — `assertChargeable` refuses |
+
+See *9.3.3 Stripe-hosted Checkout* for the full rules and the one-off
+`payments:backfill-redisplay` command for cards saved with the old in-page tick.
 
 Both read the card's display fields back **from the gateway** rather than
 taking them from a browser or an event body. The provider is the authority on
@@ -13756,6 +14690,13 @@ The same distinction runs through the admin panel: a live key filed under Test
 mode is rejected at save, LIVE mode is labelled *"real money"* everywhere, and
 activating a live connection asks for confirmation in those words.
 
+The other way round is refused too: a **test** key in production will not
+start, and a publishable and secret key from different modes are refused. And
+in production `CUSTOMER_WEB_PUBLIC_URL` **must be `https`**, or the backend
+refuses to start — Stripe-hosted Checkout sends paying customers back to it,
+and the return address is always built from that setting, never from the
+request.
+
 ## Configuration is validated at boot
 
 `backend/src/config/env.ts` checks every environment variable with Zod before
@@ -15164,7 +16105,7 @@ Everything lives in `backend/.env`, validated at boot by `src/config/env.ts`.
 |---|---|
 | `ADMIN_WEB_ORIGIN` | The admin panel's exact origin (default `http://localhost:5173`) |
 | `CUSTOMER_WEB_ORIGIN` | The storefront's exact origin (default `http://localhost:5174`) |
-| `CUSTOMER_WEB_PUBLIC_URL` | Where emailed customer links point |
+| `CUSTOMER_WEB_PUBLIC_URL` | Where emailed customer links point, and where Stripe-hosted Checkout sends the customer back. **Must be `https` in production** — the backend refuses to start otherwise |
 | `ADMIN_WEB_PUBLIC_URL` | Where emailed staff links point |
 | `LOGISTICS_WEB_ORIGIN` | The logistics portal's exact origin (default `http://localhost:5175`) |
 | `LOGISTICS_WEB_PUBLIC_URL` | Where an invited carrier's activation link points. **Required when `FEATURE_LOGISTICS_PORTAL` is on** — `env.ts` refuses to start without it, because an invitation email with no address in it is a person who cannot get in |
@@ -15949,6 +16890,8 @@ UBoss-Software/
 | Change how stock conflicts are resolved | `inventoryAuthority` on the connection; `applyRecords` in `erp-inventory-sync.service.ts` |
 | Change what a customer may authorise us to charge | `modules/payments/autopay.service.ts` (`evaluateAutoPay`) |
 | Cap every automatic charge, store-wide | `AUTOPAY_PLATFORM_MAX_MINOR` |
+| Change what is sent to Stripe-hosted Checkout | `modules/payments/stripe-checkout.service.ts`; which amounts Stripe can take is `domain/stripe-amount.ts` |
+| Change how a payment becomes a confirmed order | `applyCapturedPayment` in `modules/payments/payment.service.ts` — the only place; payment status moves are `domain/payment-state.ts` |
 | Turn a feature on or off | `backend/.env` |
 
 ---

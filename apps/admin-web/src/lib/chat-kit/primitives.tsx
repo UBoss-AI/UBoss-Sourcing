@@ -329,6 +329,8 @@ export interface ChatComposerProps {
     hint: string;
     /** For a touch keyboard, where Enter is a new line. */
     touchHint: string;
+    /** Said with the round button while the last message has not been sent. */
+    sendFailed?: string;
   };
   /** Controls before the box: an attach button. */
   leading?: React.ReactNode;
@@ -338,6 +340,98 @@ export interface ChatComposerProps {
   isEnterClaimed?: () => boolean;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
   className?: string;
+  /**
+   * `labelled`: a rounded rectangle with the word beside the icon (the
+   * console). `round`: a circle with an upward arrow and no visible word - the
+   * storefront's chat. Both are named by `labels.send`.
+   */
+  sendAppearance?: 'labelled' | 'round';
+  /**
+   * What the message just sent is doing, for the round button: `sending`
+   * shows progress in place of the arrow, `failed` marks the button and names
+   * the failure in `labels.sendFailed`. The outbox keeps the text either way.
+   */
+  sendState?: SendButtonState;
+}
+
+export type SendButtonState = 'idle' | 'sending' | 'failed';
+
+/**
+ * The storefront's send button: a circle in the brand colour with a white
+ * upward arrow, the height of the message box beside it.
+ *
+ * Hover lifts it with a soft glow, a press presses it in a little, and focus
+ * draws a ring outside the glow so the two never read as one. Every movement
+ * is 180 ms and stops entirely under `prefers-reduced-motion`. Disabled is the
+ * native attribute - it is a real button that cannot be pressed, and a screen
+ * reader says so - and it is dimmed rather than hidden, so the box does not
+ * change width as the first letter is typed.
+ */
+export function SendButton({
+  label,
+  disabled,
+  state = 'idle',
+  failedLabel,
+}: {
+  label: string;
+  disabled: boolean;
+  state?: SendButtonState;
+  failedLabel?: string;
+}): React.JSX.Element {
+  const failedId = useId();
+  const sending = state === 'sending';
+  const failed = state === 'failed';
+  return (
+    <>
+      <button
+        type="submit"
+        disabled={disabled}
+        aria-label={label}
+        title={label}
+        aria-describedby={failed && failedLabel !== undefined ? failedId : undefined}
+        data-state={state}
+        className={cx(
+          'relative inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-fill text-white',
+          'shadow-[0_1px_2px_rgb(0_0_0/0.25)] transition-[transform,box-shadow,background-color,opacity] duration-[180ms] ease-out',
+          'enabled:hover:bg-brand-fill-hover enabled:hover:shadow-[0_0_0_4px_rgb(var(--brand)/0.16),0_6px_16px_-4px_rgb(var(--brand)/0.55)]',
+          'enabled:active:scale-[0.94] enabled:active:shadow-[0_0_0_3px_rgb(var(--brand)/0.2)]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-brand',
+          'disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none',
+          'motion-reduce:transition-none motion-reduce:enabled:active:scale-100',
+          failed && 'ring-2 ring-danger ring-offset-2 ring-offset-surface',
+        )}
+      >
+        {sending ? (
+          <span
+            aria-hidden="true"
+            className="size-4 animate-spin rounded-full border-2 border-white/35 border-t-white motion-reduce:animate-none motion-reduce:border-t-white/35"
+          />
+        ) : (
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <path d="M12 19V5m0 0-6.25 6.25M12 5l6.25 6.25" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+        {failed && (
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 inline-flex size-3.5 items-center justify-center rounded-full bg-danger text-[9px] font-bold leading-none text-white ring-2 ring-surface"
+          >
+            !
+          </span>
+        )}
+      </button>
+      {failed && failedLabel !== undefined && (
+        <span id={failedId} className="sr-only">
+          {failedLabel}
+        </span>
+      )}
+      {sending && (
+        <span role="status" className="sr-only">
+          {label}…
+        </span>
+      )}
+    </>
+  );
 }
 
 export function ChatComposer({
@@ -353,6 +447,8 @@ export function ChatComposer({
   isEnterClaimed,
   textareaRef,
   className,
+  sendAppearance = 'labelled',
+  sendState = 'idle',
 }: ChatComposerProps): React.JSX.Element {
   const id = useId();
   const composer = useChatComposer({
@@ -400,17 +496,28 @@ export function ChatComposer({
             className="block max-h-[10.5rem] min-h-10 w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm leading-5 text-ink placeholder:text-ink-subtle focus-visible:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand/40 disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger"
           />
         </div>
-        <button
-          type="submit"
-          disabled={!sendable}
-          aria-label={labels.send}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-brand-fill px-3 text-sm font-semibold text-white hover:bg-brand-fill-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          <svg aria-hidden="true" viewBox="0 0 20 20" className="size-5" fill="currentColor">
-            <path d="M3.1 2.3a.75.75 0 0 0-1 .9l1.9 6.05H10a.75.75 0 0 1 0 1.5H4l-1.9 6.05a.75.75 0 0 0 1 .9l15-7.25a.75.75 0 0 0 0-1.35l-15-7.8Z" />
-          </svg>
-          <span className="hidden sm:inline">{labels.send}</span>
-        </button>
+        {sendAppearance === 'round' ? (
+          <SendButton
+            label={labels.send}
+            // While the message just sent is on its way, the empty box has
+            // nothing to send anyway; the progress is what the button shows.
+            disabled={!sendable}
+            state={sendState}
+            {...(labels.sendFailed === undefined ? {} : { failedLabel: labels.sendFailed })}
+          />
+        ) : (
+          <button
+            type="submit"
+            disabled={!sendable}
+            aria-label={labels.send}
+            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-brand-fill px-3 text-sm font-semibold text-white hover:bg-brand-fill-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20" className="size-5" fill="currentColor">
+              <path d="M3.1 2.3a.75.75 0 0 0-1 .9l1.9 6.05H10a.75.75 0 0 1 0 1.5H4l-1.9 6.05a.75.75 0 0 0 1 .9l15-7.25a.75.75 0 0 0 0-1.35l-15-7.8Z" />
+            </svg>
+            <span className="hidden sm:inline">{labels.send}</span>
+          </button>
+        )}
       </div>
       <div id={`${id}-hint`} className="mt-1 flex flex-wrap items-center justify-between gap-x-3 text-xxs text-ink-subtle">
         <span>{composer.newlineOnEnter ? labels.touchHint : labels.hint}</span>

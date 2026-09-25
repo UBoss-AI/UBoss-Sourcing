@@ -13,6 +13,7 @@
  *     a fresh cart at today's prices, and says so — a customer who expects the
  *     old total and gets a new one has been misled by the button.
  */
+import { OrderedProductInfo } from '@/pages/seller/OrderedProductInfo';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -357,6 +358,11 @@ export function OrderDetailPage(): React.JSX.Element {
                             {item.note}
                           </p>
                         </div>
+                      )}
+                      {/* What was bought as it was described at the time: the
+                          same frozen record the seller works from. */}
+                      {item.productInfo !== undefined && item.productInfo !== null && (
+                        <OrderedProductInfo source="SNAPSHOT" info={item.productInfo} />
                       )}
                     </div>
 

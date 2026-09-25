@@ -188,6 +188,22 @@ interface SessionCarriedColumns {
    * exists to stop.
    */
   familyStartedAt: Date | null;
+  /**
+   * The Seller Hub's lock, and when the Hub last saw deliberate activity.
+   *
+   * Carried for the same reason the second factor is. They were not, and that
+   * was the Seller Hub "logging out": every refresh - several an hour in a
+   * browser being used - wrote a replacement row with the lock shut, so the
+   * Hub asked for its password again mid-task. The lock belongs to the
+   * sign-in, not to the token.
+   *
+   * What ends it now is what should: SELLER_HUB_IDLE_TIMEOUT_SECONDS without
+   * deliberate activity (checked by the seller guard), closing the Hub,
+   * signing out, or anything that revokes the family.
+   */
+  sellerUnlockedAt: Date | null;
+  sellerUnlockedForId: string | null;
+  sellerLastActivityAt: Date | null;
 }
 
 /** Create a fresh session family after a successful sign-in. */
@@ -413,6 +429,9 @@ export async function rotateSession(
           locationCountry: session.locationCountry,
           locationCapturedAt: session.locationCapturedAt,
           familyStartedAt: session.familyStartedAt,
+          sellerUnlockedAt: session.sellerUnlockedAt,
+          sellerUnlockedForId: session.sellerUnlockedForId,
+          sellerLastActivityAt: session.sellerLastActivityAt,
         },
         tx,
       );
@@ -487,6 +506,8 @@ export interface SessionAuthState {
    */
   sellerUnlockedAt: Date | null;
   sellerUnlockedForId: string | null;
+  /** When the Seller Hub last saw deliberate activity on this session. */
+  sellerLastActivityAt: Date | null;
 }
 
 /**
@@ -507,6 +528,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       mfaVerifiedAt: true,
       sellerUnlockedAt: true,
       sellerUnlockedForId: true,
+      sellerLastActivityAt: true,
       // For the top bar. The coordinates are the fallback label, which is why
       // they are read here and not only the name.
       locationLabel: true,
@@ -524,6 +546,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       place: null,
       sellerUnlockedAt: null,
       sellerUnlockedForId: null,
+      sellerLastActivityAt: null,
     };
   }
 
@@ -535,6 +558,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
     place: sessionPlace(session),
     sellerUnlockedAt: session.sellerUnlockedAt,
     sellerUnlockedForId: session.sellerUnlockedForId,
+    sellerLastActivityAt: session.sellerLastActivityAt,
   };
 }
 

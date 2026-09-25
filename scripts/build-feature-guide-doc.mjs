@@ -227,6 +227,22 @@ bullets([
   'Press a photograph to open it full screen and make it larger.',
   'Add the item to the cart or save it for later where the relevant feature is available.',
 ]);
+h2('3.2b What a customer reads about a product');
+p('Below the price and the buttons, everything about the product is laid out in the same order on every product page, so a buyer learns where to look. A part appears only when the seller has filled it in; nothing is made up to fill a gap.');
+table(['Part', 'What the customer sees'], [
+  ['Product highlights', 'The handful of facts the seller marked as most important, such as the model, the capacity or the material, plus the minimum order and how many pieces are in a carton when those matter. Six show first; View all highlights shows the rest.'],
+  ['Product description', 'The seller’s description, in short sections with headings and, where the seller chose one, a picture. Line breaks are kept as the seller wrote them.'],
+  ['Specifications', 'The product’s facts in groups such as General, Technical specifications and Dimensions and weight, each fact on its own row with its label on the left and its value on the right. On a phone the label sits above the value. A long list shows the first eight facts; View all specifications shows the rest and Show less folds it again, without the page jumping.'],
+  ['Packaging and bulk ordering', 'How the product is packed and what a carton or container holds, followed by the box sizes.'],
+  ['Compliance and certifications', 'Certificates and standards the product meets, and medical-device details where they apply.'],
+  ['Warranty', 'What the warranty covers, in the seller’s words.'],
+  ['Manufacturer and seller information', 'Who makes it, who sells it, where it comes from, and the product-safety contact details the law asks for.'],
+], [3000, 7000]);
+bullets([
+  'Choosing another size, colour or other option updates the facts to that option’s own, such as a bigger capacity. The previous option’s values never stay on the screen.',
+  'The group headings are in the customer’s own language. The facts themselves are shown as the seller wrote them.',
+  'Whatever a seller types is shown as plain text. Formatting, links and anything that could run in a browser are removed when the seller saves it.',
+]);
 h2('3.2c Looking at a photograph properly');
 p('Pressing a product photograph opens it on its own, filling the screen. It can then be made larger with the buttons, with a scroll wheel, by double-tapping it, or with the plus and minus keys, and it can be dragged around once it is larger than the screen. Arrow keys move between a product’s photographs when it is not zoomed in, and move the picture when it is. Pressing Escape, or anywhere outside the picture, closes it again.');
 p('The picture that opens is the original photograph, not a smaller copy blown up, so what is on screen is as sharp as the file that was uploaded. It stops enlarging at six times the size it starts at — far enough to read a moulded part number or a thread size off a good photograph, and short of the point where it simply looks broken.');
@@ -426,13 +442,34 @@ table(['Step', 'What the application does'], [
   ['Order creation', 'Creates one order number, freezes the product name/SKU/price/tax details used for that order, applies coupon and checks purchasing limits.'],
   ['Stock reservation', 'Reserves the required stock before the order is confirmed so the same stock is not promised twice.'],
   ['Approval route', 'Can send an order for approval when the business has enabled approval rules or the customer uses credit terms.'],
-  ['Payment', 'Creates a payment step for the selected payment instrument. Card details stay with the payment provider, not the application.'],
-  ['Payment confirmation', 'A verified payment-provider event/webhook confirms payment. A browser redirect alone is not treated as proof of payment.'],
+  ['Payment', 'Creates a payment step for the selected payment instrument. Card details stay with the payment provider, not the application. With Stripe, the customer pays on Stripe’s own page (see 5.1a).'],
+  ['Payment confirmation', 'A verified payment-provider event/webhook confirms payment, or the system asking the payment company itself. A customer arriving back from the payment page is not treated as proof of payment.'],
   ['Handing it to a carrier', 'Once the payment is confirmed, the delivery is raised for whoever has to send it — the business for its own goods, and each outside seller for theirs — and goes into the queue waiting for a haulage company to be put on it. Only where the business uses haulage companies at all.'],
   ['Order history', 'Customer can view the order timeline, payment context, invoice context and fulfilment status.'],
 ], [3000, 7300]);
 p('An order made up of goods from two places arrives as two deliveries, and the order page says so: each one names who sent it, who is carrying it and its tracking number. Until a haulage company has been put on a delivery the order simply does not name one yet; nothing invents a carrier.');
 p('Each delivery also shows where it has got to, in plain words: waiting for the seller to confirm, awaiting a carrier, carrier assigned, pickup scheduled, picked up, in transit, out for delivery, delivered. Underneath is the list of updates written for the buyer. The buyer is not told which delivery company turned a parcel down, who the driver is, or anything the carrier writes for its own staff. The buyer is also emailed when a delivery is on its way, out for delivery and delivered.');
+h2('5.1a Paying by card');
+p('When the business takes cards through Stripe, a card payment company, the customer never types a card number into the shop. The payment page shows what they are paying for, and one press sends them to Stripe’s own secure payment page. Stripe then sends them back to the shop.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Opens the payment page for their order.', 'Shows the order number, how many items, the subtotal, any discount, delivery, tax, the amount due and the currency it will be charged in, and the billing address. The amount comes from the order that was placed. Nothing on this page can change it.'],
+  ['2', 'Presses “Pay securely now”.', 'The button greys out at once and says “Opening secure payment…”, so pressing twice cannot start two payments. The same goods stay set aside for the customer while they pay.'],
+  ['3', 'Pays on Stripe’s page.', 'Stripe’s page shows the business’s name and the one amount due. The customer types a card, or picks a card they saved before. If their bank wants an extra security check, it happens there.'],
+  ['4', 'Comes back to the shop.', 'A page says “Confirming payment…” and waits until the shop has heard from Stripe. Coming back is not taken as proof of payment.'],
+  ['5', 'Sees the answer.', '“Payment successful”, with the order number, the amount, when it was paid and the card used, such as “Visa ending in 4242”, and buttons to view the order or keep shopping. Or a clear reason if it did not go through, with a button to try again on the same order.'],
+], [800, 3000, 6500]);
+bullets([
+  'The order is placed once. Trying again, from the same tab, a second tab or after a failed card, always pays for that same order and never makes a second one.',
+  'If the customer presses Cancel on Stripe’s page, they come back to “Payment cancelled — nothing was charged”, and the order waits to be paid. Stripe’s page is closed behind them, so a tab left open cannot take money later.',
+  'If the answer is slow, the page says so after a minute and offers “Check again”, which asks Stripe directly. It never starts a new payment.',
+  'Some bank payments take time to settle. The page then says “Payment processing”, and the order is confirmed when the money arrives.',
+  'If the goods were no longer available when the customer pressed Pay, the payment page refuses rather than taking money for goods that are not there.',
+]);
+note('Saving a card for next time', 'Stripe’s page has its own box for saving the card. It is never ticked for the customer. A card saved this way is offered again the next time they pay, on Stripe’s page, and they can still choose a different card. It is only ever used when the customer is there and paying themselves. Automatic payments for repeat orders need their own separate permission, given on the AutoPay page, and saving a card at checkout does not give it.', C.purple);
+p('The business collects every card payment into its own single account. Paying part of each payment straight on to outside sellers is not built. For a business registered in India, Stripe does not offer the kind of account that would split payments between sellers.');
+h2('5.1b A record of exactly what was bought');
+p('The moment an order is created, the system keeps a copy of how each product was described at that moment: its description, its specifications (with the chosen size’s or colour’s own values), how it was packed, the minimum order, how many pieces fit in a carton or a container, the options chosen and any special instructions. That copy never changes. If the seller later edits the listing, takes it off sale or removes it, the order still says exactly what the customer bought.');
+p('The customer can open this record on their own order page, under Ordered product information.');
 h2('5.2 Order life cycle');
 p('The normal order path is Draft → Pending Approval or Pending Payment → Confirmed → Processing → Shipped → Delivered. Cancellation, return and refund are controlled transitions with history and reason rules.');
 h2('5.3 Buy Later and Subscribe & Reorder');
@@ -463,7 +500,7 @@ table(['Step', 'What the customer does', 'What the system does back'], [
 bullets([
   'Every product can be preordered. Where the seller has not set their own preorder terms, standard terms apply: a minimum of 1,000 pieces (the business can change this figure, and a product that already needs more keeps its own), the product’s own price, and the seller still answers every request. Products the shop sells itself are preordered from the shop, and the shop’s staff answer.',
   'A small round “i” button sits inside the right end of the Preorder button. Pressing it shows the same note at any time: the minimum for this product, in the unit the seller set it in, and how a preorder works. On a computer it opens next to the button; on a phone it slides up from the bottom of the screen.',
-  'When the customer raises the quantity on the product page to the preorder minimum, the page asks once, “Ordering in bulk?”, and offers Start preorder. Continue with regular order is offered too, but only where the product can be bought in the basket at that quantity. It does not keep asking as the number goes up, and it asks again only in a new visit or if the minimum changes.',
+  'When the customer raises the quantity on the product page to the preorder minimum, the page asks once, “Ordering in bulk?”, and offers Start preorder. Continue with regular order is offered too, but only where the product can be bought in the basket at that quantity. It does not keep asking as the number goes up, and it asks again only in a new visit or if the minimum changes. If another window is already open, such as the bulk offers, it waits until that one is closed.',
   'The customer confirms the note once. The system remembers it for their account, so they are not asked every time. If the business changes how preorders work, it can ask every customer to read the note again. Confirming the note only says the customer has read it: it does not accept any terms, does not place an order and does not charge anything. A request cannot be sent without it.',
   'A seller can switch preorders off for a listing; the button then stays visible and greyed out, and says why. The business can also limit preorders to listings whose seller has set terms.',
   'Preorders are for business accounts. An account without a company name is told so, with a link to add one.',
@@ -498,15 +535,16 @@ bullets([
   'Anything set aside for the customer is given back if the preorder is cancelled, expires or is rejected, or if its order is cancelled.',
 ]);
 h2('5.4b Asking the team about a preorder');
-p('Beside the Preorder button on every product page there is a Chat button that carries the name of the business running the marketplace — for example “Chat with Northwind”. It lets a customer ask that business’s own team a question before they decide: how many fit in a container, whether a date is possible, what a bulk price might be. The seller of the product is not part of this conversation and does not see it.');
+p('Right beside the Preorder button on every product page there is a small chat icon: a pair of speech bubbles, the same height as Preorder. Pointing at it, or moving to it with the keyboard, shows a short hint that names the business running the marketplace — for example “Ask Northwind about this preorder”. Screen readers call it “Chat with Northwind”. On a phone a single tap opens the chat. It lets a customer ask that business’s own team a question before they decide: how many fit in a container, whether a date is possible, what a bulk price might be. The seller of the product is not part of this conversation and does not see it.');
 table(['Step', 'What the customer does', 'What the system does back'], [
-  ['1', 'Presses the Chat button.', 'Opens a chat panel on the right of the screen (the whole screen on a phone). At the top it shows the product: its picture, name, seller, code, option and minimum preorder quantity. If the customer is not signed in, it asks them to sign in first and then brings them straight back to the same product with the chat open.'],
+  ['1', 'Presses the chat icon beside Preorder.', 'Opens a chat panel on the right of the screen (the whole screen on a phone). At the top it shows the product: its picture, name, seller, code, option and minimum preorder quantity. A customer who is not signed in can still read the automatic answers described below; to write to the team or ask for a person, they are asked to sign in and are brought straight back to the same product with the chat open.'],
   ['2', 'Says what they need: pieces, a 20-ft container or a 40-ft container, how many, and a date if they have one.', 'Shows how many pieces that comes to, using the seller’s own checked figures for a container. Nothing is saved yet — simply opening the chat does not start a conversation.'],
-  ['3', 'Writes a message, or taps one of the quick questions to fill it in, and presses Enter or the Send button. Shift+Enter starts a new line; on a phone, Enter starts a new line and the Send button sends.', 'Sends it only once, however the key is pressed. Saves the message, starts the conversation and sends it straight to the team. The message shows Sent, then Delivered, then Read.'],
+  ['3', 'Writes a message and presses Enter or the round blue Send button with the arrow. Shift+Enter starts a new line; on a phone, Enter starts a new line and the Send button sends.', 'Sends it only once, however the key is pressed. The button stays grey while the box is empty, shows a small spinner while the message is on its way, and a red mark if it could not be sent — the words stay, with Retry. Saves the message, starts the conversation and sends it straight to the team, together with any automatic answers the customer read first. The message shows Sent, then Delivered, then Read.'],
   ['4', 'Waits for the reply, with the chat open or closed.', 'Shows the reply the moment the team sends it. If the customer has closed the page, it sends an email a few minutes later saying a reply is waiting — the email never contains the reply itself.'],
   ['5', 'Reads a proposal the team sends, if they reach an agreement.', 'Shows a card with the quantity, pieces, an estimated price, a date and how long the proposal is open. Review proposal opens the normal preorder form already filled in; the customer checks it and sends the preorder request themselves.'],
 ], [700, 4000, 5300]);
 bullets([
+  'When the team has replied and the customer has not read it yet, a small red number sits on the chat icon. It counts only the replies about that product. It updates by itself every minute, and as soon as the customer reads the replies. A customer who is not signed in sees no number.',
   'The chat says honestly whether somebody from the team is online right now, and shows the business’s usual response time.',
   'A short safety note asks the customer to keep product and preorder talk inside the marketplace, for their security and a correct order record, and never to share passwords, one-time codes, card details, bank logins or access keys in the chat.',
   'Nothing typed in the chat is an order or a promise. Writing “yes” does not accept anything. Only a preorder request, answered by the supplier and confirmed by the customer, commits anybody.',
@@ -517,6 +555,19 @@ bullets([
   'Where the business allows it, the customer can attach a PDF or a picture. Each file is checked for viruses before it is kept, and only the people in the conversation can open it.',
 ]);
 
+h3('Automatic answers, and asking for a person');
+p('Before anyone writes, the chat shows the marketplace’s preorder assistant. It is clearly marked “Automated” and never pretends to be a person. It greets a signed-in customer by first name, names the product, and lists twelve common questions as a card of rows the customer can tap: the minimum quantity, bulk prices, how many pieces fit in a 20-ft or a 40-ft container, whether the quantity they want is in stock, what happens when stock is short, the delivery date, delivery in several shipments, customisation, payment, how delivery and tracking work, and changing or cancelling. Six show at first; View all questions shows the rest.');
+table(['What the customer does', 'What the system does back'], [
+  ['Taps a question.', 'Answers it straight away from this product’s own information: the seller’s preorder terms, the container loading the seller has checked, the stock on the listing and the dates the preorder form would allow. Prices are called estimates, and stock is never promised.'],
+  ['Asks something the product’s information does not cover.', 'Says honestly that the preorder team needs to confirm it, marks the answer “Needs confirmation” and offers a person. It never makes up a quantity, price, date or promise.'],
+  ['Answers “Was this helpful?” with Yes, or picks Ask another question.', 'Thanks them, or shows the questions again.'],
+  ['Presses Connect with a human agent — after an answer, or at any time from the top of the chat.', 'Asks a guest to sign in first and keeps their answers. Then opens the conversation for this product (or continues the one they already have), puts the questions and answers they read into it, and tells the team. The customer is told the request has been sent and that a person will reply here as soon as possible — it never claims someone is online.'],
+  ['Waits.', 'When a member of the team replies, the chat shows “A member of the team has joined the conversation” and the conversation carries on as usual.'],
+], [4000, 6000]);
+bullets([
+  'Closing and reopening the chat does not start the greeting again: the answers already read are still there.',
+  'The questions, their order and which ones always need a person are one list the business can change, and each answer is recorded with the version of the rules that produced it.',
+]);
 h2('5.4a Paying less per piece for more');
 p('Many sellers charge less per piece when a customer buys more — for example 10.00 each, 9.50 each from 100 pieces, 9.20 each from 500. The product page shows this as the customer chooses a quantity, and the basket charges it.');
 bullets([
@@ -529,6 +580,38 @@ bullets([
   'Every time the customer raises the quantity, a small spinning galaxy appears under the quantity box for about a second while the new price is worked out, then turns into the card: the saving if there is one, or otherwise the price per piece and the total, with a note that this product has no bulk discount yet. Lowering the quantity goes straight to the figures.',
   'The store’s own products get the same card once the store turns on quantity discounts (see “Quantity discounts” in the admin section). Raising the quantity on any of them then says, for example, “Add 6 more pieces to pay 97.00 each, saving 3.00 per piece”, and the basket charges that price.',
   'The card can be hidden, and stays hidden for that product until the customer closes the browser tab. It moves gently into view, and nothing moves at all for people who have asked their device to reduce motion.',
+]);
+h3('Seeing every bulk offer at once');
+p('The small card shows one price at a time. A buyer comparing prices wants to see them all together, so when a product has real bulk prices a link appears under the quantity box: “View all bulk offers”, with how many there are.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Presses “View all bulk offers”, or raises the quantity on a product that has bulk prices.', 'Opens a “Bulk offers” window with every price side by side. Each one says “Buy N or more”, the price per piece next to the usual price crossed out, the saving per piece and in per cent, the total for that many pieces and the total saving, whether it is available from stock, and when the offer ends.'],
+  ['2', 'Reads the labels.', 'Marks the price that applies to the quantity chosen now (“Your quantity”), the next price that would lower the cost (“Next saving”), the cheapest per piece (“Best value”) and prices only for business accounts. A line says how many more pieces reach the next price. Prices kept only for preorders are listed separately.'],
+  ['3', 'Presses “Select N” on one of them.', 'Sets the quantity to that number, closes the window and shows the new price.'],
+], [700, 4000, 5300]);
+bullets([
+  'Only real offers are shown. A price that is not lower than the usual price is never presented as an offer. A customer only sees the prices that apply to them, exactly as the basket would.',
+  'The window opens by itself only the first time the customer raises the quantity on that product, in that visit. If they close it without choosing, it does not open by itself again for that product in that visit. The link always opens it. It opens again by itself only if the prices on offer change, for example when another version of the product is chosen.',
+  'Nothing is held or promised by the window. The basket and checkout work out every price again.',
+  'The offers slide in one after another and lift slightly under the mouse. For people who have asked their device to reduce motion, they simply appear. The window works fully with the keyboard and with screen readers, and it is in all eight languages.',
+]);
+h3('Asking for more than is in stock');
+p('Where the seller takes preorders, raising the quantity past what is in stock opens a short message: “More than is in stock”. It shows how many were asked for, how many are available now, how many are short, and the seller’s smallest preorder.');
+bullets([
+  'Continue with preorder takes the customer into the normal preorder steps: the short note first if they have not read it yet, then the request form, already filled in with the quantity and version they chose.',
+  'Change quantity closes the message and puts the customer back in the quantity box.',
+  'It works the same however the quantity is changed: the plus and minus buttons, typing, pasting, the arrow keys, or picking a bulk offer.',
+  'While the customer is typing, the system waits. The quantity counts when they press Enter, click away, or stop typing for a moment. So typing 1000 when 500 are in stock is judged once, on 1000, and not on 1, 10 and 100 along the way.',
+  'It appears only at the moment the quantity goes past the stock, not on every change after that. If the customer comes back down to the stock or below and then goes over again, it appears again. Asking for exactly what is in stock is fine.',
+  'Choosing another version of the product checks the quantity again against that version’s stock.',
+  'Only one window is ever open at a time. If the customer picks a bulk offer that is larger than the stock, the offers window closes first, then this message opens. A message about the stock always comes before the bulk offers, and it replaces the “Ordering in bulk?” message, because it shows the smallest preorder too.',
+  'The message only helps the customer decide. When anything is sent, the system checks the stock and every preorder and basket rule again.',
+]);
+h3('Typing a quantity safely');
+p('Every quantity box in the shop, the basket included, accepts only whole pieces: 1 or more, up to 100,000,000.');
+bullets([
+  'A number pasted in is read the way the customer’s language writes numbers. “1.000” means a thousand in German and one in English.',
+  'Anything else is refused, with a short message under the box in the customer’s language: a negative number, zero, a part of a piece, letters or symbols, or a number that is too large.',
+  'If the customer clicks away while the box holds something it cannot accept, the last good quantity comes back. Nothing wrong is ever sent or priced.',
 ]);
 
 h2('5.5 Invoices from the seller');
@@ -565,7 +648,7 @@ table(['Account page', 'What the customer can do'], [
   ['Company', 'Maintain company name, department and delivery contact number.'],
   ['Addresses', 'Add, edit, select default and archive shipping/billing addresses.'],
   ['Region', 'Choose language, country and currency together.'],
-  ['Payment methods', 'Manage saved cards where payment provider features are enabled.'],
+  ['Payment methods', 'Manage saved cards where payment provider features are enabled. A card saved on Stripe’s payment page is marked “Checkout only”. A card that AutoPay is using cannot be removed until AutoPay stops using it; the page says why.'],
   ['AutoPay', 'View and manage standing payment consent, card and spend limits.'],
   ['Billing', 'Maintain VAT/GST/billing information used during checkout and invoices.'],
 ], [2800, 7200]);
@@ -621,6 +704,7 @@ table(['Step', 'What the person does', 'What the system does'], [
 ], [700, 4400, 5000]);
 
 note('The Seller Hub has its own password', 'Buying and selling share one account, and the selling side has a second password of its own, chosen the first time the Hub is opened. It has to be different from the shop password. Entering it is remembered for that browser only, so signing in on a new machine asks again, and changing it closes the Hub on every other machine while leaving the shop signed in. A button in the Hub closes it without signing out of the shop, for anybody handing their computer to somebody else.', C.blue);
+note('An open Seller Hub closes itself when nobody uses it', 'If nobody has done anything in the Seller Hub for an hour, it closes and asks for the Seller Hub password again. Doing something means clicking, typing, saving or opening a page. A tab left in the background, or the mouse moving over the screen, does not count. Five minutes before the end, the Hub asks "Are you still there?" and counts down. Stay signed in keeps it open for another hour. Sign out closes the Hub straight away. If the time runs out, the Hub shows a message that the session expired and asks for the password again; anything typed but not saved on that page is lost. Only the Hub closes: the person stays signed in to the shop, with their basket and orders. Several open tabs agree with each other, so one tab never warns about a Hub another tab is still using. The business running the marketplace can change the hour and the five minutes. The Hub also no longer closes by itself several times an hour while somebody is working in it, which it used to do.', C.blue);
 
 h2('6a.2 What the application asks for');
 p('There are eight steps. What each one demands depends on the country the business is registered in and on whether it manufactures, distributes, wholesales or resells — so a German seller is asked for a VAT number, an Indian seller for a GSTIN, an Australian seller for an ABN, and a distributor for written authorisation from the manufacturer instead of a declaration it cannot sign.');
@@ -701,6 +785,21 @@ note('The questions fit the product', 'A seller listing a bolt is asked for a th
 note('Photographs', 'Every listing needs a front view and a picture of the packaging. A category that asks for a barcode or UDI also asks for a readable photograph of that label, and one that asks about sterility asks for a photograph of the seal.', C.blue);
 note('A seller prices one piece', 'Everything on the price and stock step is counted in pieces, and every label says so: price per piece, stock in pieces, smallest order, and step. That is what a buyer will see and what the seller will be paid on. Nothing a seller lists is shown to buyers as a carton, and the shop’s own carton of 500 never appears on a seller’s listing.', C.teal);
 
+h2('6a.5b Writing the description and specifications');
+p('In the product details step there is a card called Description and specifications. It is where the seller writes what buyers will read below the product.');
+table(['What the seller does', 'What the system does back'], [
+  ['Adds description sections, each with a heading and some text, and optionally picks one of the listing’s own photographs for a section.', 'Keeps the line breaks the seller typed and removes any formatting or links. A picture needs a short description for people who cannot see it; if the seller leaves it blank, the heading is used.'],
+  ['Adds specification groups — General, Technical specifications, Dimensions and weight, Warranty and so on — and rows of label, value and unit in each.', 'Offers the units as a list, so the same measurement is always written the same way. Refuses the same label twice on one product, an empty value, and a unit it does not know, and shows the reason under the field.'],
+  ['Ticks Show in highlights on the most important facts.', 'Puts those facts at the top of the product information. Twelve at most.'],
+  ['Gives one version its own value where it differs, for example a larger size with a higher capacity.', 'Shows that value to buyers who choose that version, and the product’s own value to everyone else.'],
+  ['Moves items up or down, removes them, and presses Preview.', 'Shows the text exactly as the product page will, before anything is saved.'],
+  ['Presses Save, then sends the listing for review.', 'Keeps it on the listing. The marketplace reviewer sees it with the rest of the listing, and when the listing is approved it appears on the product page.'],
+], [4600, 5400]);
+bullets([
+  'While the listing is with the reviewer it cannot be changed, so the reviewer approves what they read.',
+  'Once a listing is on sale, the seller who first described the product can still change its description and specifications, and the change shows at once. A seller who added their stock to a product page somebody else wrote cannot change that page, because other sellers sell it too.',
+  'No seller can see or change another seller’s listing.',
+]);
 h2('6a.5a Selling one thing in several versions');
 p('Most things are sold in more than one form. A T-shirt comes in sizes and colours; a shoe comes in sizes and widths; a laptop comes with different memory and storage; seeds come in a 500 gram packet or a kilo, singly or in a box of ten. Each of those is a separate thing to price, count and pack, and each needs its own code — but they are all one product as far as a buyer is concerned, and they belong on one page with a chooser rather than on a dozen separate pages.');
 p('After the product details, the seller is asked one question: does this come in more than one version? Answering no finishes the listing — the price and stock already entered cover it, and buyers see no chooser. Answering yes opens the version builder.');
@@ -793,6 +892,7 @@ note('Nothing is guessed from the old listing', 'A product called "Raymond, Suit
 note('The original listing is never destroyed', 'It keeps its code, its price and every order that refers to it, and it appears in the table as "no particular version". Whether to archive it, pause it or leave it selling is the seller’s decision afterwards — it is the row their past orders point at, and nothing here can know which they intended.', C.blue);
 note('Saving twice adds nothing twice', 'Versions are matched by the combination they describe, so one that is already listed is skipped rather than created again or overwritten. A seller adding one more size to a range of six does not have to re-enter the prices of the six.', C.teal);
 
+p('The reviewer also sees the seller’s description and specifications exactly as they will appear on the product page, and can send the listing back with a note if something in them is wrong.');
 h2('6a.8b Changing a listing that is already selling');
 p('Every part of a listing can be changed after it has been approved, without deleting it and starting again. Edit opens it already filled in — its photographs, what it costs, the quantities it is sold in, and every version it comes in with that version’s own code, price, stock and picture.');
 table(['What the seller does', 'What the system does'], [
@@ -838,6 +938,20 @@ bullets([
   'A product several businesses sell shows its requests to all of them. A customer asking whether something comes in 8 mm is asking the marketplace, not a company whose name they have never seen.',
 ]);
 
+h2('6a.8e Seeing exactly what a customer ordered');
+p('On each order, every product the seller has to send has a panel called Ordered product information. It shows the product as the customer saw it when they ordered, in four tabs.');
+table(['Tab', 'What it shows'], [
+  ['Description', 'The product description as it was at the time of the order.'],
+  ['Specifications', 'The specifications at the time of the order, including the values for the size, colour or other option that was chosen.'],
+  ['Packaging', 'The unit it was ordered in, how many of them, how many pieces that comes to, the minimum order, and the carton and container figures.'],
+  ['Order selections', 'The options the customer chose and any special instructions they wrote.'],
+], [2600, 7400]);
+bullets([
+  'Nothing in the panel can be changed. To change the product itself, the seller uses View current listing, which opens the listing separately.',
+  'Changing the listing afterwards does not change what an order says. The invoice and packing list describe the product the same way as this panel.',
+  'For an order placed before this was kept, the panel shows the listing as it is now and says so clearly at the top.',
+  'A seller only ever sees their own part of an order. When one order includes products from several sellers, each sees only their own products.',
+]);
 h2('6a.9 Who can do what inside a seller business');
 table(['Role', 'What they can do'], [
   ['Seller Owner', 'Everything, including accepting the marketplace agreements. The owner cannot be removed or have their role changed from inside the business.'],
@@ -1148,9 +1262,9 @@ table(['Stage', 'From', 'To'], [
 ], [2600, 3700, 3700]);
 p('The seller chooses one of three ways of working:');
 table(['Choice', 'What it means'], [
-  ['Self', 'The seller looks after all four stages: they choose the carrier and set the price for each.'],
+  ['Self Ship', 'The seller looks after all four stages: they choose the carrier and set the price for each.'],
   ['The marketplace', 'The seller looks after the first stage. The marketplace chooses the carrier and sets the price for the other three, and the seller can see them.'],
-  ['Self and the marketplace', 'The seller looks after the first stage and ticks which of the other three they will also look after. The marketplace looks after the rest. At least one of the three has to stay with the marketplace — otherwise it is simply “Self”.'],
+  ['Self and the marketplace', 'The seller looks after the first stage and ticks which of the other three they will also look after. The marketplace looks after the rest. At least one of the three has to stay with the marketplace — otherwise it is simply “Self Ship”.'],
 ], [3000, 7000]);
 bullets([
   'The first stage is always the seller’s, whichever choice they make. The goods start in their building.',
@@ -1493,7 +1607,9 @@ table(['Screen/action', 'What staff can do'], [
 ], [3000, 7000]);
 h2('10.2 Payments and finance');
 bullets([
-  'Review payment status: created, pending, captured, failed or refunded.',
+  'Review payment status: created, pending, captured, failed or refunded — and, for card payments, whether the customer has opened Stripe’s payment page, whether it was partly or fully refunded, and whether the customer’s bank has disputed it. The card brand and last four digits are shown.',
+  'When a customer’s bank disputes a card payment, the payment is marked, finance is alerted, and the order keeps its status until somebody decides what to do.',
+  'If money arrives for a payment the shop had already given up on, or for an order that was already paid, it is still recorded and finance is alerted, so nothing is lost or taken twice without anybody knowing.',
   'Create or monitor payment links.',
   'Process refunds where the staff role and order status allow it.',
   'See payment-provider activity while keeping sensitive card data outside the application.',
@@ -1561,6 +1677,7 @@ h2('11.1a Preorder Chats — answering customers live');
 p('Customers’ questions from the product page arrive in Preorder Chats in the admin menu. The menu item shows how many customers are waiting for an answer, and the number changes the moment somebody writes.');
 table(['Staff member does', 'The system does back'], [
   ['Opens Preorder Chats.', 'Shows the queue: who is asking, about which product and seller, the last message, how long they have waited, who is handling it, its status and priority. The wait turns amber when it nears the business’s target time and red when it passes it, with words as well as colour. It can be filtered (unassigned, assigned to me, unread, high priority, waiting for the customer, resolved and more), searched and sorted — for example the oldest unanswered first.'],
+  ['Opens a conversation where the customer asked for a person.', 'Shows it in the “Human requested” view with a “Human assistance requested” label and the question they were on. The questions the customer picked and the automatic answers they read come first, marked “Automated”, so staff know exactly what the customer was already told. The staff member’s first reply tells the customer that a person has joined.'],
   ['Opens a conversation.', 'Shows the messages, and beside them the product as the customer saw it when they asked and a link to the product as it is now, the customer, the seller and any linked preorder.'],
   ['Replies, pressing Enter to send or Shift+Enter to start a new line.', 'Sends the reply to the customer at once, only once however the key is pressed. The first reply puts the conversation in that staff member’s name.'],
   ['Scrolls back to read older messages.', 'Keeps their place when the customer writes again, and shows a “new messages” button instead of jumping. Pressing it goes to the newest message.'],
@@ -1745,6 +1862,7 @@ table(['Screen', 'What it is for'], [
   ['Problems', 'What has gone wrong, and recording what was done about it.'],
   ['Companies', 'The businesses this carrier collects from and delivers to.'],
   ['Drivers and vehicles', 'The fleet. Add somebody by typing their name, add the vans and trucks, and see who is free.'],
+  ['My Profile', 'The company’s full profile: its details, contacts, where it works, what it can do, its compliance documents, how its connections are doing, and its account security. See below.'],
   ['My company', 'Their own details, their people and their invitations.'],
   ['My round', 'A driver’s stops for the day, made for a phone.'],
 ], [2600, 7400]);
@@ -1761,6 +1879,35 @@ bullets([
 ]);
 p('Choosing one driver narrows every figure on the screen, not just the list. A count of problems shown beside one driver’s work would otherwise be a figure about somebody else. The choice is part of the web address, so a dispatcher can send a colleague exactly the view they are looking at.');
 p('Where an order was split into several parcels, each keeps its own place in the ring and its own tracking. Two parcels of one order are never rolled together into a single history, because they can be in two different places on two different days.');
+
+h2('12a.4b My Profile: the carrier’s own company profile');
+p('A haulage company keeps everything the marketplace knows about it on one page. The owner and the partner administrator can change it. Dispatchers, operations staff and people who only follow deliveries can read it. Drivers do not see it. A company only ever sees its own profile.');
+p('The top of the page shows the company’s logo, its names, its partner ID with a button to copy it, whether the account is active, whether the company has been verified, and whether a change is waiting for review. A ring shows how complete the profile is, and a list says what is still missing.');
+table(['Tab', 'What the company finds there'], [
+  ['Overview', 'A summary of the whole profile and what is still to add.'],
+  ['Company details', 'Its names, registration and tax numbers, addresses, website and a short description.'],
+  ['Authorised contacts', 'The main contact, an emergency contact, support, and billing.'],
+  ['Service coverage', 'The regions the marketplace has approved, and the company’s own hubs and warehouses.'],
+  ['Logistics capabilities', 'What the marketplace has approved it to carry, what its fleet shows, the kinds of transport it says it offers, its time zone and its opening hours for each day.'],
+  ['Compliance and documents', 'Its licence, insurance and permit documents, and whether each one has been accepted.'],
+  ['Integration status', 'Whether its DHL, FedEx, India Post, GPS and tracking connections are working.'],
+  ['Account and security', 'The person’s own role, their two-step sign-in, and — for people allowed to see it — a history of changes to the profile.'],
+], [2800, 7200]);
+table(['What the company changes', 'What the system does'], [
+  ['Contacts, website, description, working address, opening hours, time zone, hubs, and the kinds of transport it offers', 'Saves the change straight away.'],
+  ['Legal name, trading name, registration number, tax number, country, registered address, or transport licence', 'Does not change the live record. It sends one change request to the marketplace. The old details stay in use until a member of staff approves. The company can withdraw the request, and a newer request replaces an older one.'],
+  ['Uploads a document', 'Checks it really is a PDF or a picture, whatever its name says, and that it is no bigger than 10 MB. Scans it for viruses, then keeps it privately. A newer file of the same kind takes the place of the older one, which is kept.'],
+  ['Downloads a document', 'Gives a link that works once, for a few minutes, and only for that person.'],
+  ['Changes its logo', 'Accepts a normal picture file, checks it and scans it.'],
+], [3600, 6400]);
+bullets([
+  'Changes are kept in one draft across every tab. A bar at the bottom counts them and offers to save or discard. Leaving the page with unsaved changes asks first.',
+  'The business licence, insurance certificate and transport permit are required. Each one shows as missing, waiting for review, verified, not accepted, or expired.',
+  'Fleet size, cold vehicles, delivery levels and the transport it is priced for are worked out from the company’s real vehicles, drivers and prices. Nobody types them in.',
+  'A connection only says “Connected” once it has really worked. Passwords and keys are never shown.',
+  'Some things only the marketplace can change: the account status, the contract, the approved regions and capabilities, and whether the company is verified. A company cannot widen its own regions or capabilities.',
+  'There are no bank details, because the system does not pay carriers.',
+]);
 
 h2('12a.5 Drivers, and who is carrying what');
 p('Each haulage company keeps its own list of the people who drive for it and the vehicles they drive. A driver is simply a name on that list. Nobody needs an account, an invitation or an email to be added — somebody types their name, and they can be sent out that afternoon. That matters because a haulage company employs people who will never use this software at all: an agency driver covering a round, a subcontractor, somebody who started this morning.');
@@ -1792,7 +1939,7 @@ table(['Screen', 'What it is for'], [
   ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history — including every driver who has held it and why it changed hands. From here the operations desk can also put one of the carrier’s drivers on it, name the vehicle, move it to somebody else, take them off, and send it on the way.'],
   ['Delivery problems', 'The queue across every carrier, worst first and then oldest first.'],
   ['Carriers', 'Add a haulage company, invite its first person, and see how much each one has on.'],
-  ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, its people — and its fleet, where a driver or a vehicle can be added on their behalf.'],
+  ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, its people — and its fleet, where a driver or a vehicle can be added on their behalf. It is also where staff check the company’s profile changes and documents.'],
   ['Carrier connections', 'Whether each haulage company’s computer system is actually connected, and what its status codes mean here.'],
 ], [2600, 7400]);
 p('When a delivery is offered to a carrier, the system scores every candidate: does it cover both ends of the journey, is it approved for what has to be carried, does it have room, and how often does it deliver on time. The reasons are written out beside each company. A company the score rules out can still be chosen — the person arranging it sometimes knows something the score does not — but the reason is on the screen while they choose.');
@@ -1806,6 +1953,18 @@ table(['What gets approved', 'Why it matters'], [
   ['Dangerous goods', 'Carrying these is regulated, and the approval records the evidence.'],
   ['Same day, next day, international, customs clearance', 'Decides what kind of work a company is offered at all.'],
 ], [3600, 6400]);
+
+h2('12a.7a Checking a carrier’s profile and documents');
+p('On each carrier’s page, marketplace staff see a profile verification panel. Anyone who can look at carriers can read it. Only staff who can manage carriers can decide.');
+table(['What staff can do', 'What the system does'], [
+  ['Read a waiting change', 'Shows each field, what it says now, and what the company asked for.'],
+  ['Approve and apply it', 'Puts the new details on the live record and marks the company as verified.'],
+  ['Reject it', 'Needs a reason, which the company sees. The live record stays as it was.'],
+  ['Download a document', 'Gives a link that works once, for a few minutes, and only for that member of staff.'],
+  ['Verify or reject a document', 'Records the decision. A rejection needs a reason, which the company sees.'],
+  ['Mark the company as verified, or ask it to verify again', 'Asking again needs a reason, which the company sees.'],
+], [3600, 6400]);
+p('Every change, request, withdrawal, decision, upload and download is written into the company’s own record of who did what. Decisions by staff are also written into the marketplace’s main record. Companies that were on the system before this panel existed start as not verified, because nobody has checked them yet.');
 
 h2('12a.8 The delivery promise, and what counts as proof');
 p('For each carrier the business sets how many hours they have to collect and how many to deliver, how early to start warning that a delivery is going to be late, and how many delivery attempts are allowed. Every delivery is then measured against the promise that applies to it and shows as on track, at risk or missed.');
@@ -1883,6 +2042,7 @@ h2('14.1 Security');
 bullets([
   'Separate customer and admin sessions allow a buyer and staff user to be signed in at the same time without one replacing the other.',
   'How long a sign-in lasts while nothing is happening is set by the business running the marketplace, and the shop and the admin console are set separately. Out of the box the shop, the Seller Hub and the driver app allow an hour, because a seller filling in an application works from paperwork and is often away from the screen; the admin console allows fifteen minutes, because that is the account that can refund an order and read a customer’s address, and it is the one left open on a shared desk. Lengthening one never lengthens the other. A browser that is being used stays signed in without anybody noticing either number.',
+  'An open Seller Hub closes after an hour with nobody using it, and asks for its own password again. The server keeps that clock, not the page, so a page left open cannot keep the Hub open by itself. Updates the page fetches on its own, such as the notification counts, do not keep it open. The shop sign-in is not affected. Closing the Hub or signing out still ends it at once, and opening, closing, staying signed in and expiring are each recorded in the audit history.',
   'Passwords use secure password hashing; reset/activation/contact tokens are time-limited and single-use.',
   'Every staff session is challenged for a code from an authenticator app, and recovery codes are issued once for a lost phone.',
   'Permissions are enforced on the server for protected actions.',
@@ -1925,6 +2085,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],
   ['Any-product scheduling', 'Controls whether all published products or only selected products may be repeated.'],
+  ['Card payment on Stripe’s own page', 'Appears once the business connects its Stripe account. Until then the payment page says card payment is not set up on this store yet. The business also sets, in its Stripe account, which ways to pay are offered and the name, logo and colours shown on Stripe’s page.'],
   ['AutoPay', 'Requires both AutoPay features and a compatible payment-provider configuration.'],
   ['Admin ERP', 'Requires ERP integration feature and configured connection.'],
   ['Customer ERP', 'Requires customer integration path/configuration and safe endpoint validation.'],
@@ -1971,18 +2132,20 @@ table(['Step', 'Customer action', 'System response'], [
   ['4', 'Reviews “Where this can ship from”.', 'Shows eligible warehouses, lead-time/fee information and any partial-stock warnings.'],
   ['5', 'Chooses a warehouse preference and continues.', 'Records preference; actual total remains the clearly shown checkout total.'],
   ['6', 'Selects address/payment choice and places order.', 'Creates one order, reserves stock, applies tax/coupon/limits and starts payment/approval path.'],
-  ['7', 'Pays securely.', 'Payment provider event verifies payment; then order becomes confirmed and processing can begin.'],
+  ['7', 'Presses “Pay securely now” and pays on Stripe’s own secure page, choosing a saved card or typing a new one.', 'Comes back to “Confirming payment…”. When the payment company confirms the payment, the order becomes confirmed, the page says “Payment successful” with the card used, and processing can begin.'],
   ['8', 'Checks My orders.', 'Shows order status, history, payment/invoice context and fulfilment progress.'],
 ], [800, 4100, 5200]);
 h2('Example A2 — A customer asks about a container before preordering');
 table(['Step', 'Who', 'What happens'], [
-  ['1', 'Customer', 'On a product page, presses the Chat button and asks: “How many fit in a 40-ft container, and can you deliver two by March?”'],
-  ['2', 'System', 'Shows the question to the team at once and raises the Preorder Chats count.'],
-  ['3', 'Order desk', 'Takes the conversation, checks with the warehouse (writing an internal note the customer cannot see), and replies.'],
-  ['4', 'Customer', 'Agrees in the chat.'],
-  ['5', 'Order desk', 'Sends a preorder proposal: two 40-ft containers, the pieces that makes, an estimated price and a date.'],
-  ['6', 'Customer', 'Presses Review proposal, checks the preorder form it fills in, accepts the preorder terms and sends the request.'],
-  ['7', 'System', 'Links the request to the conversation and sends it to the supplier, who answers with final terms that the customer confirms and pays for as with any preorder.'],
+  ['1', 'Customer', 'On a product page, presses the chat icon beside Preorder and taps “How many pieces fit in a 40-ft container?”'],
+  ['2', 'System', 'The automatic assistant answers from the seller’s checked loading — or, if the seller has not checked it, says the team must confirm and offers a person.'],
+  ['3', 'Customer', 'Presses Connect with a human agent and adds: “Can you deliver two by March?”'],
+  ['4', 'System', 'Puts the question, the automatic answer and the message in front of the team at once, marks it “Human assistance requested” and raises the Preorder Chats count.'],
+  ['5', 'Order desk', 'Takes the conversation, checks with the warehouse (writing an internal note the customer cannot see), and replies.'],
+  ['6', 'Customer', 'Agrees in the chat.'],
+  ['7', 'Order desk', 'Sends a preorder proposal: two 40-ft containers, the pieces that makes, an estimated price and a date.'],
+  ['8', 'Customer', 'Presses Review proposal, checks the preorder form it fills in, accepts the preorder terms and sends the request.'],
+  ['9', 'System', 'Links the request to the conversation and sends it to the supplier, who answers with final terms that the customer confirms and pays for as with any preorder.'],
 ], [800, 1600, 7600]);
 
 h2('Example B — Inventory manager handles stock');
@@ -2098,8 +2261,9 @@ table(['Step', 'Who acts', 'What happens'], [
   ['1', 'A seller', 'Sets quantity prices on silicone tubing: 10.00 each, 9.50 from 100 pieces, 9.20 from 500.'],
   ['2', 'A clinic buyer', 'Types 480 pieces on the product page.'],
   ['3', 'The system', 'Shows that 480 pieces already cost 9.50 each, and that 20 more would bring every piece down to 9.20.'],
-  ['4', 'The buyer', 'Presses the suggestion. The quantity becomes 500.'],
-  ['5', 'The system', 'Charges 9.20 a piece in the basket and at checkout, and the order records that the 500-piece price applied.'],
+  ['4', 'The system', 'Because the buyer raised the quantity, opens the Bulk offers window once: 9.50 from 100 pieces is marked “Your quantity”, and 9.20 from 500 is marked “Next saving” and “Best value”, with the total for 500 pieces and the total saving.'],
+  ['5', 'The buyer', 'Presses “Select 500” in the window (or the suggestion under the quantity box). The quantity becomes 500.'],
+  ['6', 'The system', 'Works the price out again in the basket and at checkout, charges 9.20 a piece, and the order records that the 500-piece price applied.'],
 ], [700, 2300, 7000]);
 
 h2('Example I — A seller packs an order and sends it in two lorries');

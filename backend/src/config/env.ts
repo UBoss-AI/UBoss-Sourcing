@@ -152,6 +152,18 @@ const envSchema = z
      * before their own refresh token expired - checked below.
      */
     SESSION_ABSOLUTE_TTL_SECONDS: intFromString(3600, 31_536_000).default(7_776_000),
+    /**
+     * How long the Seller Hub stays open without deliberate activity, in
+     * seconds. An IDLE limit, enforced by the server on the session row: a
+     * change in the Hub, or a page opened in it, restarts the clock; a badge
+     * polling in a background tab does not. Past it the Hub re-locks and asks
+     * for the Seller Hub password again. The shop session itself - buying,
+     * the basket, orders - is untouched, and so are the admin console and the
+     * logistics portal. One hour by default.
+     */
+    SELLER_HUB_IDLE_TIMEOUT_SECONDS: intFromString(300, 86_400).default(3600),
+    /** How long before that the Hub warns, in seconds. Five minutes by default. */
+    SELLER_HUB_IDLE_WARNING_SECONDS: intFromString(30, 3600).default(300),
     COOKIE_DOMAIN: z.string().default(''),
     COOKIE_SECURE: booleanFromString.default(false),
     COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
@@ -1586,6 +1598,17 @@ const envSchema = z
       });
     }
 
+    // A warning that comes before the session has even started is no warning.
+    if (value.SELLER_HUB_IDLE_WARNING_SECONDS >= value.SELLER_HUB_IDLE_TIMEOUT_SECONDS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SELLER_HUB_IDLE_WARNING_SECONDS'],
+        message:
+          `SELLER_HUB_IDLE_WARNING_SECONDS (${String(value.SELLER_HUB_IDLE_WARNING_SECONDS)}s) must be ` +
+          `shorter than SELLER_HUB_IDLE_TIMEOUT_SECONDS (${String(value.SELLER_HUB_IDLE_TIMEOUT_SECONDS)}s).`,
+      });
+    }
+
     /*
      * The logistics portal, switched on with nowhere to send anybody.
      *
@@ -1933,6 +1956,20 @@ const envSchema = z
         path: ['RAZORPAY_KEY_ID'],
         message:
           'this is a TEST Razorpay key and NODE_ENV is production. Test keys never collect money.',
+      });
+    }
+
+    // Stripe Checkout sends a customer who has just paid back to this address,
+    // and the storefront's sign-in and verification links point at it too.
+    // Over plain HTTP in production, that return leg and those links are
+    // readable - and rewritable - by anybody on the path.
+    if (value.NODE_ENV === 'production' && !/^https:\/\//i.test(value.CUSTOMER_WEB_PUBLIC_URL)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['CUSTOMER_WEB_PUBLIC_URL'],
+        message:
+          'must be an https address in production. Stripe Checkout returns paying customers ' +
+          'here, and every sign-in link points here.',
       });
     }
 

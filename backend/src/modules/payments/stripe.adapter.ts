@@ -24,6 +24,7 @@
  *                this process.
  */
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { StripeAmountError, toStripeAmount } from '../../domain/stripe-amount.js';
 import { logger } from '../../infra/logger.js';
 import { PRODUCT_NAME } from '../settings/marketplace-name.js';
 import {
@@ -31,8 +32,11 @@ import {
   modeForCredential,
   type ConnectionTestResult,
   type CreatePaymentInput,
+  type CheckoutSessionResult,
+  type CreateCheckoutSessionInput,
   type CreatePaymentResult,
   type CreateSetupIntentInput,
+  type HostedCheckoutProvider,
   type CreateSetupIntentResult,
   type DirectCardChargeProvider,
   type EnsureVaultCustomerInput,
@@ -175,6 +179,8 @@ interface StripePaymentMethod {
   object?: string;
   type?: string;
   customer?: string | null;
+  /** 'always' | 'limited' | 'unspecified'. Only 'always' is offered back by Checkout. */
+  allow_redisplay?: string | null;
   card?: {
     brand?: string | null;
     last4?: string | null;
@@ -189,6 +195,116 @@ interface StripeCustomer {
   id: string;
   email?: string | null;
 }
+
+interface StripeCheckoutSession {
+  id: string;
+  object?: string;
+  url?: string | null;
+  status?: string | null;
+  payment_status?: string | null;
+  expires_at?: number | null;
+  amount_total?: number | null;
+  currency?: string | null;
+  client_reference_id?: string | null;
+  /** A cus_ id unless expanded. */
+  customer?: string | { id: string } | null;
+  /** A pi_ id unless expanded. */
+  payment_intent?: string | StripePaymentIntentExpanded | null;
+  metadata?: Record<string, string> | null;
+}
+
+/** A PaymentIntent with its charge and payment method expanded. */
+interface StripePaymentIntentExpanded extends Omit<StripePaymentIntent, 'payment_method'> {
+  payment_method?: string | StripePaymentMethod | null;
+  metadata?: Record<string, string> | null;
+}
+
+interface StripeDispute {
+  id: string;
+  charge?: string | null;
+  payment_intent?: string | null;
+  amount?: number;
+  currency?: string;
+  reason?: string | null;
+}
+
+/**
+ * Stripe's own names, and only those. A shape Stripe has not announced is
+ * treated as open rather than guessed at: open is the state that keeps the
+ * order payable and charges nobody.
+ */
+function sessionStatusOf(value: string | null | undefined): CheckoutSessionResult['status'] {
+  return value === 'complete' || value === 'expired' ? value : 'open';
+}
+
+function sessionResultOf(session: StripeCheckoutSession): CheckoutSessionResult {
+  const intent = typeof session.payment_intent === 'object' ? session.payment_intent : null;
+  const intentId =
+    typeof session.payment_intent === 'string' ? session.payment_intent : (intent?.id ?? null);
+
+  const method = typeof intent?.payment_method === 'object' ? intent.payment_method : null;
+  const charge = typeof intent?.latest_charge === 'object' ? intent.latest_charge : null;
+  const status = intent === null ? null : (INTENT_STATUS_MAP[intent.status] ?? 'PENDING');
+
+  return {
+    sessionId: session.id,
+    url: typeof session.url === 'string' && session.url.length > 0 ? session.url : null,
+    status: sessionStatusOf(session.status),
+    paymentStatus: session.payment_status ?? 'unpaid',
+    expiresAt: new Date((session.expires_at ?? 0) * 1000),
+    providerPaymentIntentId: intentId,
+    providerCustomerId:
+      typeof session.customer === 'string' ? session.customer : (session.customer?.id ?? null),
+    amountTotal:
+      typeof session.amount_total === 'number' ? BigInt(session.amount_total) : null,
+    currency: typeof session.currency === 'string' ? normaliseCurrency(session.currency) : null,
+    clientReferenceId: session.client_reference_id ?? null,
+    payment:
+      intent === null || status === null
+        ? null
+        : {
+            status,
+            chargeId: chargeIdOf(intent),
+            amountReceived:
+              status === 'CAPTURED' ? BigInt(intent.amount_received ?? intent.amount) : 0n,
+            method: charge?.payment_method_details?.type ?? method?.type ?? null,
+            paymentMethodId:
+              typeof intent.payment_method === 'string'
+                ? intent.payment_method
+                : (method?.id ?? null),
+            card:
+              method?.card === null || method?.card === undefined
+                ? null
+                : { brand: method.card.brand ?? null, last4: method.card.last4 ?? null },
+            failureCode:
+              intent.last_payment_error?.decline_code ?? intent.last_payment_error?.code ?? null,
+          },
+  };
+}
+
+/**
+ * Whether a URL is a secure Stripe Checkout page for this one session.
+ *
+ * https only, and the session's own id in the path - which every hosted
+ * Checkout URL carries, on checkout.stripe.com or on an operator's custom
+ * Checkout domain alike. Exported for the storefront-facing service, which
+ * checks again before handing the address to a browser.
+ */
+export function isCheckoutUrlFor(url: string | null, sessionId: string): url is string {
+  if (url === null) return false;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && parsed.pathname.includes(sessionId);
+  } catch {
+    return false;
+  }
+}
+
+/** Stripe's Checkout locales that this storefront's eight languages map onto. */
+const CHECKOUT_LOCALES: ReadonlySet<string> = new Set([
+  'en', 'de', 'el', 'es', 'fr', 'it', 'nl', 'pl',
+]);
 
 /** `payment_method` is a bare id unless the request expanded it. */
 function paymentMethodIdOf(intent: StripeSetupIntent): string | null {
@@ -278,13 +394,15 @@ function normaliseCurrency(currency: string): string {
 }
 
 /** `latest_charge` is a bare id unless the request expanded it. */
-function chargeIdOf(intent: StripePaymentIntent): string | null {
+function chargeIdOf(intent: Pick<StripePaymentIntent, 'latest_charge'>): string | null {
   const charge = intent.latest_charge;
   if (typeof charge === 'string') return charge;
   return charge?.id ?? null;
 }
 
-export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvider {
+export class StripeAdapter
+  implements OffSessionProvider, DirectCardChargeProvider, HostedCheckoutProvider
+{
   readonly kind = 'STRIPE' as const;
   readonly mode: ProviderMode;
 
@@ -306,7 +424,7 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
    * is sitting on a checkout page waiting for it.
    */
   private async request<T>(
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'DELETE',
     path: string,
     body?: FormObject,
     idempotencyKey?: string,
@@ -726,7 +844,10 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
    * able to offer them the first card.
    */
   async ensureVaultCustomer(input: EnsureVaultCustomerInput): Promise<string> {
-    return this.ensureCustomer(input, `vault-customer:${input.customerProfileId}`);
+    return this.ensureCustomer(
+      input,
+      input.idempotencyKey ?? `vault-customer:${input.customerProfileId}`,
+    );
   }
 
   /**
@@ -769,6 +890,8 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
       expYear: card?.expYear ?? null,
       funding: card?.funding ?? null,
       country: card?.country ?? null,
+      allowRedisplay: method.allow_redisplay ?? null,
+      methodType: method.type ?? null,
     };
   }
 
@@ -1058,6 +1181,170 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Hosted Checkout
+  // -------------------------------------------------------------------------
+
+  /**
+   * Open a Checkout Session: Stripe's own page, which the customer is sent to.
+   *
+   * What is deliberately in it, and why:
+   *
+   *   ONE line item for the order's total. The breakdown - lines, discount,
+   *   delivery, tax - was priced when the order was placed and is shown on our
+   *   page before the customer leaves it. Re-expressing it as Stripe line
+   *   items would mean negative lines for discounts (which Stripe does not
+   *   take) or coupons created per order, and a second pricing of the same
+   *   basket whose rounding could disagree with ours by a paisa. One line
+   *   whose amount IS the order's outstanding total cannot disagree.
+   *
+   *   `client_reference_id` and metadata: our attempt and order ids, which are
+   *   opaque ULIDs. No name, email, address or product detail goes in
+   *   metadata - Stripe shows metadata to anyone with dashboard access and
+   *   copies it into exports.
+   *
+   *   `customer`: the one Stripe Customer we hold for this person, so their
+   *   saved cards are offered. Never the browser's say-so.
+   *
+   *   `saved_payment_method_options.payment_method_save: enabled`: Stripe's
+   *   own unticked "save for future purchases" box. A card saved through it
+   *   gets `allow_redisplay: always`, which is what lets the next Checkout
+   *   offer it - and it carries no off-session authority. There is
+   *   deliberately no `setup_future_usage`: that would save EVERY card,
+   *   whether or not the customer ticked anything.
+   *
+   *   `billing_address_collection: required` and, for goods, a declared
+   *   `shipping`: India's export rules require the payer's name and billing
+   *   address, a description and the delivery address for any payment on a
+   *   card issued outside India, and a payment without them is declined.
+   *
+   * No `payment_method_types`. The account's dashboard settings decide, which
+   * is how cards, wallets and the European bank methods appear without this
+   * file enumerating them.
+   */
+  async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<CheckoutSessionResult> {
+    let stripeAmount: { amount: number; currency: string };
+    try {
+      stripeAmount = toStripeAmount(input.amountMinor, input.currency);
+    } catch (error) {
+      if (error instanceof StripeAmountError) {
+        throw new PaymentProviderError({ message: error.message, providerCode: error.problem });
+      }
+      throw error;
+    }
+
+    const customer = input.providerCustomerId;
+    const references = {
+      uboss_payment_transaction_id: input.paymentTransactionId,
+      uboss_order_id: input.orderId,
+    };
+
+    const session = await this.request<StripeCheckoutSession>(
+      'POST',
+      '/checkout/sessions',
+      {
+        mode: 'payment',
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: stripeAmount.currency,
+              unit_amount: stripeAmount.amount,
+              product_data: {
+                name: input.lineItemName.slice(0, 250),
+                description:
+                  input.lineItemDescription === null || input.lineItemDescription.length === 0
+                    ? undefined
+                    : input.lineItemDescription.slice(0, 500),
+              },
+            },
+          },
+        ],
+        success_url: input.successUrl,
+        cancel_url: input.cancelUrl,
+        client_reference_id: input.paymentTransactionId,
+        expires_at: Math.floor(input.expiresAt.getTime() / 1000),
+        billing_address_collection: 'required',
+        ...(customer === null ? { customer_email: input.customerEmail ?? undefined } : { customer }),
+        ...(input.offerToSaveCard && customer !== null
+          ? { saved_payment_method_options: { payment_method_save: 'enabled' } }
+          : {}),
+        locale: input.locale !== null && CHECKOUT_LOCALES.has(input.locale) ? input.locale : 'auto',
+        metadata: references,
+        payment_intent_data: {
+          description: input.description.slice(0, 1000),
+          metadata: { ...references, uboss_order_number: input.orderNumber },
+          shipping:
+            input.shipping === null
+              ? undefined
+              : {
+                  name: input.shipping.name,
+                  phone: input.shipping.phone ?? undefined,
+                  address: {
+                    line1: input.shipping.line1,
+                    line2: input.shipping.line2 ?? undefined,
+                    city: input.shipping.city ?? undefined,
+                    state: input.shipping.state ?? undefined,
+                    postal_code: input.shipping.postalCode ?? undefined,
+                    country: input.shipping.country ?? undefined,
+                  },
+                },
+        },
+      },
+      input.idempotencyKey,
+    );
+
+    const result = sessionResultOf(session);
+
+    // The storefront sends the customer wherever this says. It is Stripe's
+    // answer over an authenticated TLS connection, and it is still checked:
+    // an https page for THIS session, and nothing else. Not pinned to
+    // checkout.stripe.com, because an operator may give Checkout their own
+    // domain - but always https, and always this session.
+    if (result.status === 'open' && !isCheckoutUrlFor(result.url, result.sessionId)) {
+      throw new PaymentProviderError({
+        message: 'Stripe opened the payment but did not return a usable secure page for it.',
+      });
+    }
+
+    return result;
+  }
+
+  async retrieveCheckoutSession(sessionId: string): Promise<CheckoutSessionResult> {
+    const session = await this.request<StripeCheckoutSession>(
+      'GET',
+      `/checkout/sessions/${encodeURIComponent(sessionId)}?${encodeForm({
+        expand: ['payment_intent.latest_charge', 'payment_intent.payment_method'],
+      })}`,
+    );
+
+    return sessionResultOf(session);
+  }
+
+  async expireCheckoutSession(sessionId: string): Promise<CheckoutSessionResult> {
+    const session = await this.request<StripeCheckoutSession>(
+      'POST',
+      `/checkout/sessions/${encodeURIComponent(sessionId)}/expire`,
+    );
+
+    return sessionResultOf(session);
+  }
+
+  async allowCheckoutRedisplay(providerPaymentMethodId: string): Promise<void> {
+    await this.request<StripePaymentMethod>(
+      'POST',
+      `/payment_methods/${encodeURIComponent(providerPaymentMethodId)}`,
+      { allow_redisplay: 'always' },
+    );
+  }
+
+  async deleteVaultCustomer(providerCustomerId: string): Promise<void> {
+    await this.request<StripeCustomer>(
+      'DELETE',
+      `/customers/${encodeURIComponent(providerCustomerId)}`,
+    );
+  }
+
   async detachPaymentMethod(providerPaymentMethodId: string): Promise<void> {
     await this.request<StripePaymentMethod>(
       'POST',
@@ -1164,6 +1451,10 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
       providerRefundId: null,
       providerSetupIntentId: null,
       providerPaymentMethodId: null,
+      providerSessionId: null,
+      checkoutPaymentStatus: null,
+      internalReference: null,
+      disputeReason: null,
       amountMinor: null,
       currency: null,
       method: null,
@@ -1171,13 +1462,89 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
       failureMessage: null,
     };
 
+    /*
+     * The four Checkout Session events.
+     *
+     * Each is matched on the session id, which exists from the moment the
+     * session was opened - unlike the PaymentIntent, which Stripe creates only
+     * once the customer confirms. `completed` does not by itself mean paid:
+     * a delayed method completes the session `unpaid` and settles days later
+     * through `async_payment_succeeded` or `_failed`, so the payment status
+     * travels with the event and the service decides.
+     */
+    if (
+      eventType === 'checkout.session.completed' ||
+      eventType === 'checkout.session.async_payment_succeeded' ||
+      eventType === 'checkout.session.async_payment_failed' ||
+      eventType === 'checkout.session.expired'
+    ) {
+      const session = object as unknown as StripeCheckoutSession;
+      const intentId =
+        typeof session.payment_intent === 'string'
+          ? session.payment_intent
+          : (session.payment_intent?.id ?? null);
+
+      const intent =
+        eventType === 'checkout.session.completed'
+          ? ('CHECKOUT_COMPLETED' as const)
+          : eventType === 'checkout.session.async_payment_succeeded'
+            ? ('CHECKOUT_ASYNC_SUCCEEDED' as const)
+            : eventType === 'checkout.session.async_payment_failed'
+              ? ('CHECKOUT_ASYNC_FAILED' as const)
+              : ('CHECKOUT_EXPIRED' as const);
+
+      return {
+        ...base,
+        ...empty,
+        intent,
+        providerOrderId: intentId,
+        providerSessionId: session.id,
+        checkoutPaymentStatus: session.payment_status ?? null,
+        internalReference:
+          session.client_reference_id ?? session.metadata?.uboss_payment_transaction_id ?? null,
+        amountMinor: typeof session.amount_total === 'number' ? BigInt(session.amount_total) : null,
+        currency: typeof session.currency === 'string' ? normaliseCurrency(session.currency) : null,
+      };
+    }
+
+    // A chargeback. The money moved and has not moved back yet; the service
+    // records it and tells finance, and does not touch the payment's status.
+    if (eventType === 'charge.dispute.created') {
+      const dispute = object as unknown as StripeDispute;
+
+      return {
+        ...base,
+        ...empty,
+        intent: 'DISPUTE_OPENED',
+        providerOrderId: dispute.payment_intent ?? null,
+        providerPaymentId: dispute.charge ?? null,
+        amountMinor: typeof dispute.amount === 'number' ? BigInt(dispute.amount) : null,
+        currency: typeof dispute.currency === 'string' ? normaliseCurrency(dispute.currency) : null,
+        disputeReason: dispute.reason ?? null,
+      };
+    }
+
+    // A card removed at Stripe - by the customer inside Checkout, or by an
+    // operator in the dashboard. The service stops offering it here too.
+    if (eventType === 'payment_method.detached') {
+      const method = object as unknown as StripePaymentMethod;
+
+      return {
+        ...base,
+        ...empty,
+        intent: 'PAYMENT_METHOD_DETACHED',
+        providerPaymentMethodId: method.id,
+      };
+    }
+
     if (eventType === 'payment_intent.succeeded') {
-      const intent = object as unknown as StripePaymentIntent;
+      const intent = object as unknown as StripePaymentIntentExpanded;
 
       return {
         ...base,
         ...empty,
         intent: 'PAYMENT_CAPTURED',
+        internalReference: intent.metadata?.uboss_payment_transaction_id ?? null,
         providerOrderId: intent.id,
         // The charge id, which is what a later refund is issued against.
         providerPaymentId: chargeIdOf(intent),
@@ -1214,12 +1581,13 @@ export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvid
     }
 
     if (eventType === 'payment_intent.payment_failed') {
-      const intent = object as unknown as StripePaymentIntent;
+      const intent = object as unknown as StripePaymentIntentExpanded;
 
       return {
         ...base,
         ...empty,
         intent: 'PAYMENT_FAILED',
+        internalReference: intent.metadata?.uboss_payment_transaction_id ?? null,
         providerOrderId: intent.id,
         providerPaymentId: chargeIdOf(intent),
         amountMinor: BigInt(intent.amount),

@@ -79,7 +79,14 @@ export interface CreateProductInput {
    * as unconfirmed without inventing a route for it.
    */
   hasProvisionalPrice?: boolean;
-  attributes?: { name: string; value: string; isFilterable?: boolean }[];
+  attributes?: {
+    name: string;
+    value: string;
+    isFilterable?: boolean;
+    group?: string | null;
+    unit?: string | null;
+    highlight?: boolean;
+  }[];
   /**
    * Rich description. Sanitised against an allowlist before storage - see
    * infra/sanitize.ts. It is stored clean so no reader has to remember to
@@ -234,6 +241,9 @@ export async function createProduct(
                   value: attribute.value,
                   sortOrder: index,
                   isFilterable: attribute.isFilterable ?? false,
+                  groupKey: attribute.group ?? null,
+                  unit: attribute.unit ?? null,
+                  isHighlight: attribute.highlight ?? false,
                 })),
               },
             }
@@ -395,6 +405,9 @@ export async function updateProduct(
             value: attribute.value,
             sortOrder: index,
             isFilterable: attribute.isFilterable ?? false,
+            groupKey: attribute.group ?? null,
+            unit: attribute.unit ?? null,
+            isHighlight: attribute.highlight ?? false,
           })),
         });
       }

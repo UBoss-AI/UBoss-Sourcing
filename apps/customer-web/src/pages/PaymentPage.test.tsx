@@ -166,7 +166,7 @@ describe('PaymentPage', () => {
     renderPayment();
 
     expect(
-      await screen.findByText(/retrying uses this same order/i),
+      await screen.findByText(/uses this same order/i),
     ).toBeInTheDocument();
   });
 
