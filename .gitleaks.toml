@@ -110,3 +110,19 @@ literal on a line whose name contains PASSWORD, which is exactly the heuristic \
 working - it just happens to be wrong here. Changing the alphabet means \
 changing this line too."""
   regexes = ['''ABCDEFGHJKLMNPQRSTUVWXYZ23456789''']
+
+# -----------------------------------------------------------------------------
+# Documentation examples
+#
+# Response bodies in the API guide, shown so a reader knows the SHAPE of an
+# answer. The values are invented and visibly truncated (the literal "...." in
+# the middle): no key signed them and nothing accepts them. Matched by their
+# exact text, so a real token pasted into the same example is still reported.
+# -----------------------------------------------------------------------------
+[[allowlists]]
+  description = "docs/API.md - the example sign-in response. `eyJzdWIiOi` is just base64 for `{\"sub\":\"`; the rest is four made-up characters after a literal \"....\"."
+  regexes = ['''eyJzdWIiOi\.\.\.\.Qm9n''']
+
+[[allowlists]]
+  description = "docs/API.md - the example refresh response, same invented shape as the sign-in example above."
+  regexes = ['''eyJzdWIiOi\.\.\.\.bm9u''']
