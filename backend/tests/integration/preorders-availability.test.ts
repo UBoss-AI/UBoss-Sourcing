@@ -327,8 +327,12 @@ beforeAll(async () => {
   await app.ready();
   await cleanUp();
 
+  // This file's OWN taxable class, found by its code. It used to take whichever
+  // class came first - on a fresh CI database that was a 0% class another file
+  // had made, the quote's tax was zero, and the total-exceeds-goods assertion
+  // below failed there while passing locally.
   const taxClass =
-    (await prisma.taxClass.findFirst({ select: { id: true } })) ??
+    (await prisma.taxClass.findFirst({ where: { code: 'PAV18' }, select: { id: true } })) ??
     (await prisma.taxClass.create({
       data: { id: newId(), code: 'PAV18', name: 'GST 18%', ratePercent: '18.000000', isActive: true },
       select: { id: true },
