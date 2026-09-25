@@ -530,12 +530,14 @@ const envSchema = z
      */
     PREORDER_CHAT_TYPICAL_RESPONSE: z.string().trim().max(80).default('within 4 business hours'),
     /**
-     * The name the team answering preorder chats goes by - "the {team} team
-     * is available". Empty uses the marketplace's own name. Its own setting
+     * The name the operator's own team goes by wherever it does the work
+     * itself: answering preorder chats ("the {team} team is available") and
+     * managing delivery levels ("Self + {team}", "{team} chooses the
+     * carrier"). Empty uses the marketplace's own name. Its own setting
      * because an operator may trade under one name (the storefront, emails,
-     * payment sheets) and answer as a team under another.
+     * payment sheets) and work as a team under another.
      */
-    PREORDER_CHAT_TEAM_NAME: z.string().trim().max(80).default(''),
+    OPERATOR_TEAM_NAME: z.string().trim().max(80).default(''),
     /** The longest message a person may send, in characters. */
     PREORDER_CHAT_MAX_MESSAGE_CHARS: intFromString(200, 10_000).default(4000),
     /** Messages one person may send per minute, across every conversation. */

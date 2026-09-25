@@ -17,17 +17,20 @@ import { act, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ApiError } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
-import { i18n, NAMESPACE, setMarketplaceName } from './config';
+import { i18n, NAMESPACE, setMarketplaceName, setTeamName } from './config';
 import { useT, type Translate } from './i18n-context';
 import { LANGUAGES } from './languages';
 import en from './locales/en.json';
 
 const WITH_NAME = Object.entries(en)
-  .filter(([, value]) => value.includes('{{marketplace}}'))
+  // `{{team}}` is the operator's own team (OPERATOR_TEAM_NAME), which falls back
+  // to the marketplace's name: both name the operator, so both are held here.
+  .filter(([, value]) => value.includes('{{marketplace}}') || value.includes('{{team}}'))
   .map(([key]) => key as keyof typeof en);
 
 afterEach(async () => {
   setMarketplaceName(null);
+  setTeamName(null);
   await i18n.changeLanguage('en');
 });
 
@@ -58,6 +61,8 @@ describe('the marketplace name in the catalogue', () => {
 
     await i18n.changeLanguage(code);
     setMarketplaceName('Northwind Supply');
+    // No team name of its own: the team goes by the marketplace's name.
+    setTeamName(null);
     for (const key of WITH_NAME) {
       const text = i18n.t(key, { ns: NAMESPACE });
       expect(text, `${code} ${key}`).toContain('Northwind Supply');
@@ -65,6 +70,7 @@ describe('the marketplace name in the catalogue', () => {
       // the preorder chat's welcome names the product too - which its call site
       // fills; those are not this test's business.
       expect(text, `${code} ${key}`).not.toContain('{{marketplace}}');
+      expect(text, `${code} ${key}`).not.toContain('{{team}}');
     }
   });
 
@@ -77,6 +83,7 @@ describe('the marketplace name in the catalogue', () => {
 
   it('fills a string reached through an error code', () => {
     setMarketplaceName('Northwind Supply');
+    setTeamName(null);
     const error = new ApiError(403, { code: 'LOGISTICS_LEVEL_NOT_SELLER_CONTROLLED', message: 'refused' });
 
     const message = errorMessage(i18n.t.bind(i18n) as Translate, error);
@@ -87,7 +94,7 @@ describe('the marketplace name in the catalogue', () => {
 
   it('lets a call site that passes its own name win', () => {
     setMarketplaceName('Northwind Supply');
-    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE, marketplace: 'Acme' })).toBe(
+    expect(i18n.t('sellerLogistics.mode.HYBRID', { ns: NAMESPACE, team: 'Acme' })).toBe(
       'Self + Acme',
     );
   });
@@ -98,6 +105,7 @@ describe('the marketplace name in the catalogue', () => {
 
     act(() => {
       setMarketplaceName('Northwind Supply');
+      setTeamName(null);
     });
 
     expect(screen.getByText('Self + Northwind Supply')).toBeInTheDocument();

@@ -2567,7 +2567,7 @@ not in the conversation and never sees it.
 | `REALTIME_BUS_DRIVER` | `memory` | `memory` for one API process. **`database` when you run several** behind a load balancer: live events then cross processes through the `realtime_events` table (ids only, cleared within minutes). No Redis needed. |
 | `REALTIME_BUS_POLL_MS` | `750` | How often each process reads that table under `database`. |
 | `PREORDER_CHAT_TYPICAL_RESPONSE` | `within 4 business hours` | Shown as "Typical response time: …", in your words. Empty shows nothing. |
-| `PREORDER_CHAT_TEAM_NAME` | *(empty)* | The name your chat team goes by: "the *name* team is available", "*name* Preorder Team", "*name* closed this conversation". Empty uses your marketplace's display name. Set it when your team answers under a different name from your storefront - the button still says "Chat with" your marketplace. |
+| `OPERATOR_TEAM_NAME` | *(empty)* | The name your own team goes by where it does the work itself: in preorder chat ("the *name* team is available", "*name* Preorder Team") and in delivery levels ("Self / *name* / Self + *name*", "*name* chooses the carrier") on the seller's logistics page, the console and the carrier portal. Empty uses your marketplace's display name. Set it when your team works under a different name from your storefront - the header, emails and "Chat with" button keep the marketplace's name. |
 | `PREORDER_CHAT_SLA_MINUTES` | `240` | Minutes a customer may wait before the console bell raises an alert that only a reply closes. |
 | `PREORDER_CHAT_EMAIL_DELAY_MINUTES` | `10` | Minutes a reply sits unread before the customer is emailed that it is waiting. |
 | `PREORDER_CHAT_MESSAGES_PER_MINUTE` | `20` | Messages one person may send per minute. |

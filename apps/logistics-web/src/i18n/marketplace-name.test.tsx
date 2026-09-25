@@ -5,23 +5,29 @@
  * that "Accounts are created by UBOSS operations" and to "Contact UBOSS
  * operations". The catalogues now say `{{marketplace}}`, and
  * `<MarketplaceName />` fills it from `GET /config`. See `setMarketplaceName`.
+ *
+ * Strings about the operator's own team doing the work ("Set by {{team}}
+ * operations") say `{{team}}` instead - `OPERATOR_TEAM_NAME`, which falls back
+ * to the marketplace's name. Both placeholders name the operator, so both are
+ * held to the same rules here.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '@/lib/api';
-import { i18n, NAMESPACE, setMarketplaceName } from './config';
+import { i18n, NAMESPACE, setMarketplaceName, setTeamName } from './config';
 import { LANGUAGES } from './languages';
 import { MarketplaceName } from './MarketplaceName';
 import en from './locales/en.json';
 
 const WITH_NAME = Object.entries(en)
-  .filter(([, value]) => value.includes('{{marketplace}}'))
+  .filter(([, value]) => value.includes('{{marketplace}}') || value.includes('{{team}}'))
   .map(([key]) => key as keyof typeof en);
 
 afterEach(async () => {
   vi.restoreAllMocks();
   setMarketplaceName(null);
+  setTeamName(null);
   await i18n.changeLanguage('en');
 });
 
@@ -41,6 +47,8 @@ describe('the marketplace name in the carrier portal', () => {
 
     await i18n.changeLanguage(code);
     setMarketplaceName('Northwind Supply');
+    // No team name of its own: the team goes by the marketplace's name.
+    setTeamName(null);
     for (const key of WITH_NAME) {
       const text = i18n.t(key, { ns: NAMESPACE });
       expect(text, `${code} ${key}`).toContain('Northwind Supply');
@@ -50,6 +58,13 @@ describe('the marketplace name in the carrier portal', () => {
 
   it('is the product’s own name until the deployment’s arrives', () => {
     expect(i18n.t('source.UBOSS_ADMIN', { ns: NAMESPACE })).toBe('Glovia operations');
+  });
+
+  it('names the operator’s team by its own name where one is set', () => {
+    setMarketplaceName('Glovia');
+    setTeamName('UBoss');
+    expect(i18n.t('source.UBOSS_ADMIN', { ns: NAMESPACE })).toBe('UBoss operations');
+    expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).not.toContain('UBoss');
   });
 
   it('takes the name from GET /config', async () => {

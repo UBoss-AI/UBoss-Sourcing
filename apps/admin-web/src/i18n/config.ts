@@ -93,7 +93,7 @@ void i18n
       escapeValue: false,
       // `{{marketplace}}`: the name this deployment trades under. The product's
       // own name until `setMarketplaceName` is handed the operator's.
-      // `{{team}}`: who answers a preorder chat. See `setChatTeamName`.
+      // `{{team}}`: who answers a preorder chat. See `setTeamName`.
       defaultVariables: { marketplace: PRODUCT_BRAND, team: PRODUCT_BRAND },
     },
 
@@ -148,22 +148,22 @@ export function setMarketplaceName(name: string | null | undefined): void {
 }
 
 /**
- * Fill `{{team}}` - the name the preorder chat's team goes by - in every string.
+ * Fill `{{team}}` - the name the operator's own team goes by - in every string.
  *
  * Usually the marketplace's own name, and it falls back to that. It is its
- * own setting (`PREORDER_CHAT_TEAM_NAME`, sent as
- * `marketplace.chatTeamName` by `GET /config`) because an operator can
- * trade under one name and answer as a team with another: a storefront
- * called Glovia whose buyers talk to "the UBoss team". Renaming the store to
- * get the team's name right would rename the header, the emails and the
- * payment sheets too.
+ * own setting (`OPERATOR_TEAM_NAME`, sent as `marketplace.teamName` by
+ * `GET /config`) because an operator can trade under one name and work as a
+ * team under another: a storefront called Glovia whose buyers talk to "the
+ * UBoss team" and whose sellers choose "Self + UBoss" for a delivery level.
+ * Renaming the store to get the team's name right would rename the header,
+ * the emails and the payment sheets too.
  *
- * The catalogues say `{{team}}` in every sentence about the people who
- * answer ("the {{team}} team is available", "{{team}} closed this
- * conversation") and `{{marketplace}}` in every sentence about the platform
- * ("Chat with {{marketplace}}").
+ * The catalogues say `{{team}}` in every sentence about the people who do
+ * the work (answering a chat, choosing a carrier, pricing a level) and
+ * `{{marketplace}}` in every sentence about the platform ("Chat with
+ * {{marketplace}}", the platform fee).
  */
-export function setChatTeamName(name: string | null | undefined): void {
+export function setTeamName(name: string | null | undefined): void {
   const trimmed = (name ?? '').trim();
   const interpolation = (i18n.options.interpolation ??= {});
   const variables = (interpolation.defaultVariables ??= {}) as Record<string, unknown>;

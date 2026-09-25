@@ -2048,7 +2048,7 @@ confirmed by guessing its slug.
 
 | Endpoint | What |
 |---|---|
-| `GET /api/v1/config` | Branding, support contacts, capability flags. `marketplace` is `{ displayName, chatTeamName }` - the operator's trading name, and the name the preorder chat's team answers as (`PREORDER_CHAT_TEAM_NAME`, else the trading name). Cached for a minute |
+| `GET /api/v1/config` | Branding, support contacts, capability flags. `marketplace` is `{ displayName, teamName }` - the operator's trading name, and the name the operator's own team works under in preorder chat and delivery levels (`OPERATOR_TEAM_NAME`, else the trading name). Cached for a minute |
 | `GET /api/v1/catalog/categories`, `/categories/:slug` | The category tree, one category |
 | `GET /api/v1/catalog/products`, `/products/:slug` | Product list and detail, priced for `country` and `currency` |
 | `GET /api/v1/catalog/filters` | Price range and attribute facets |

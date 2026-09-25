@@ -1921,7 +1921,7 @@ h1('15. Optional Features and Configuration');
 p('Some features are implemented but only appear when the organisation enables the relevant feature flag or connects the required external provider.');
 table(['Optional capability', 'When it appears / what is required'], [
   ['Customer self-registration', 'Enabled by the customer-registration feature. It can still require staff approval after email confirmation.'],
-  ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The team can answer under its own name — for example a shop called Glovia whose customers are told “the UBoss team is available” — without renaming the shop.'],
+  ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The business’s own team can work under its own name — for example a shop called Glovia whose customers are told “the UBoss team is available” and whose sellers choose “Self”, “UBoss” or “Self + UBoss” for each delivery level — without renaming the shop.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],
   ['Any-product scheduling', 'Controls whether all published products or only selected products may be repeated.'],

@@ -10486,7 +10486,7 @@ the frame follows the visual viewport, so the on-screen keyboard shrinks it
 instead of covering the reply box.
 
 - **Customer:** the list (product picture, product, "{team} Preorder
-  Team · Seller: …" - `{team}` is `PREORDER_CHAT_TEAM_NAME`, else the
+  Team · Seller: …" - `{team}` is `OPERATOR_TEAM_NAME`, else the
   marketplace name, last message, time, unread count, status) beside the open
   conversation. Its header names the team - never the seller, who appears only
   as a fact about the product - with the status, honest availability and
@@ -15234,7 +15234,7 @@ the carrier portal does not sign a member of staff out of the console.
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Settles any order awaiting payment on request, with no gateway and no webhook, through the same code a real capture runs. **Development only — `env.ts` refuses to start a production process with it on, and refuses to start at all beside a live payment key**, because it confirms orders nobody has paid for |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means every guarded `/api/v1/logistics/*` route refuses with `FEATURE_DISABLED`, so the third application has nothing a carrier can use, and carrier webhooks are refused. The admin panel's Logistics group **stays**, and staff can still create carriers and prepare them before the switch is turned on |
-| `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on every product page, **Account → Messages** and the console's **Preorder Chats** (section 9.5.3b). Off answers every chat route 404 and hides the button. Tuning lives beside it: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `PREORDER_CHAT_TEAM_NAME` (the name the team answers as - `{{team}}` in the translations; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES`, `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, the rate and size limits, the attachment settings and `PREORDER_CHAT_RETENTION_DAYS` |
+| `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on every product page, **Account → Messages** and the console's **Preorder Chats** (section 9.5.3b). Off answers every chat route 404 and hides the button. Tuning lives beside it: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the name the operator's own team works under - `{{team}}` in the translations, used in chat and in every "who manages this delivery level" sentence; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES`, `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, the rate and size limits, the attachment settings and `PREORDER_CHAT_RETENTION_DAYS` |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 — and the value is **published in `/config`**, so the page offers the way in where the composer would be rather than letting somebody type a paragraph and then refusing it. On, and a visitor may ask before signing up; understand what that costs first, because an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
 

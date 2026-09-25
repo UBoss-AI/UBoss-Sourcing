@@ -15,10 +15,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { api } from '@/lib/api';
-import { setChatTeamName, setMarketplaceName } from './config';
+import { setTeamName, setMarketplaceName } from './config';
 
 interface MarketplaceConfig {
-  marketplace?: { displayName?: string; chatTeamName?: string };
+  marketplace?: { displayName?: string; teamName?: string };
 }
 
 export function MarketplaceName(): null {
@@ -31,11 +31,11 @@ export function MarketplaceName(): null {
   });
 
   const name = config.data?.marketplace?.displayName;
-  const team = config.data?.marketplace?.chatTeamName;
+  const team = config.data?.marketplace?.teamName;
   useEffect(() => {
     // The store's name first: the team's falls back to it.
     setMarketplaceName(name);
-    setChatTeamName(team);
+    setTeamName(team);
   }, [name, team]);
 
   return null;
