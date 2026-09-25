@@ -92,6 +92,14 @@ export const SECTIONS = Object.freeze({
     // A negotiation a named individual started, and the evidence behind a
     // committed delivery date, so disclosed whole.
     'preorderRequests',
+    // The versions of the bulk preorder note they acknowledged, and when.
+    'preorderAcknowledgements',
+    // Their preorder chats with the operator's team: every message, card and
+    // proposal they were shown, the files' names, how far they read, and a
+    // block if there is one. Staff are named as "the team", as they were in
+    // the conversation. Staff's internal notes are withheld under
+    // `internalNotes` below, on the reasoning written there.
+    'preorderChats',
     'chatEnquiries',
     'sessions',
     'dataRequests',
@@ -1013,6 +1021,127 @@ export async function buildCustomerBundle(
         })),
       };
     })(),
+
+    preorderChats: await (async () => {
+      const LIMIT = 100;
+      const MESSAGES = 2_000;
+      const where = { customerProfileId: profile?.id ?? '' };
+      const [rows, total, block] = await Promise.all([
+        prisma.preorderChatConversation.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+          select: {
+            id: true,
+            status: true,
+            productName: true,
+            sellerName: true,
+            contextSnapshotJson: true,
+            createdAt: true,
+            resolvedAt: true,
+            closedAt: true,
+            participants: {
+              where: { userId: subject.userId },
+              select: { lastReadSeq: true, lastReadAt: true, joinedAt: true },
+            },
+            messages: {
+              orderBy: { serverSequence: 'asc' },
+              take: MESSAGES,
+              select: {
+                serverSequence: true,
+                senderType: true,
+                messageType: true,
+                body: true,
+                systemEvent: true,
+                createdAt: true,
+                redactedAt: true,
+                redactionReason: true,
+                attachment: { select: { fileName: true, contentType: true, byteSize: true } },
+              },
+            },
+            proposals: {
+              orderBy: { revision: 'asc' },
+              select: {
+                revision: true,
+                state: true,
+                orderingUnit: true,
+                unitQuantity: true,
+                equivalentBaseUnits: true,
+                indicativeUnitPriceMinor: true,
+                currency: true,
+                deliveryDate: true,
+                expiresAt: true,
+                createdAt: true,
+              },
+            },
+          },
+        }),
+        prisma.preorderChatConversation.count({ where }),
+        prisma.preorderChatCustomerBlock.findUnique({
+          where: { customerProfileId: profile?.id ?? '' },
+          select: { reason: true, createdAt: true },
+        }),
+      ]);
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? { note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.` }
+          : {}),
+        messagingBlocked:
+          block === null ? null : { reason: block.reason, since: iso(block.createdAt) },
+        conversations: rows.map((chat) => ({
+          id: chat.id,
+          product: chat.productName,
+          seller: chat.sellerName,
+          status: chat.status,
+          context: chat.contextSnapshotJson,
+          startedAt: iso(chat.createdAt),
+          resolvedAt: iso(chat.resolvedAt),
+          closedAt: iso(chat.closedAt),
+          yourReadPosition: chat.participants[0]
+            ? { seq: chat.participants[0].lastReadSeq, at: iso(chat.participants[0].lastReadAt) }
+            : null,
+          messages: chat.messages.map((message) => ({
+            seq: message.serverSequence,
+            // Staff are "the team", exactly as the conversation showed them.
+            from:
+              message.senderType === 'CUSTOMER'
+                ? 'you'
+                : message.senderType === 'ADMIN'
+                  ? 'the team'
+                  : 'system',
+            type: message.messageType,
+            text: message.redactedAt === null ? message.body : null,
+            systemEvent: message.systemEvent,
+            redacted: message.redactedAt === null ? null : { at: iso(message.redactedAt), reason: message.redactionReason },
+            file: message.attachment,
+            at: iso(message.createdAt),
+          })),
+          proposals: chat.proposals.map((proposal) => ({
+            ...proposal,
+            indicativeUnitPriceMinor: money(proposal.indicativeUnitPriceMinor),
+            deliveryDate: iso(proposal.deliveryDate),
+            expiresAt: iso(proposal.expiresAt),
+            createdAt: iso(proposal.createdAt),
+          })),
+        })),
+      };
+    })(),
+
+    // Which versions of the bulk preorder note this person said they read,
+    // and when. Short, and plainly about them.
+    preorderAcknowledgements: (
+      await prisma.customerAcknowledgement.findMany({
+        where: { userId: subject.userId },
+        orderBy: { acknowledgedAt: 'asc' },
+        select: { type: true, policyVersion: true, acknowledgedAt: true },
+      })
+    ).map((row) => ({
+      type: row.type,
+      policyVersion: row.policyVersion,
+      acknowledgedAt: iso(row.acknowledgedAt),
+    })),
 
     organisationMembership: await (async () => {
       const membership = await prisma.buyerOrganizationMember.findUnique({

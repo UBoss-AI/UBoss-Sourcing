@@ -28,6 +28,7 @@ import {
   BoxIcon,
   CalendarIcon,
   CardIcon,
+  ChatBubblesIcon,
   ChartIcon,
   GlobeIcon,
   HeartIcon,
@@ -46,6 +47,7 @@ export type AccountNavId =
   | 'orders'
   | 'schedules'
   | 'preorders'
+  | 'messages'
   | 'profile'
   | 'company'
   | 'addresses'
@@ -113,6 +115,16 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     labelKey: 'account.nav.preorders',
     menuLabelKey: 'account.nav.preorders',
     icon: LayersIcon,
+  },
+  // Preorder chats with the UBOSS team. Beside preorders, because that is what
+  // they are about; not behind a flag the storefront reads, because the chat
+  // button that starts one is on every product page.
+  messages: {
+    id: 'messages',
+    to: '/account/messages',
+    labelKey: 'preorderChat.nav',
+    menuLabelKey: 'preorderChat.nav',
+    icon: ChatBubblesIcon,
   },
   profile: {
     id: 'profile',
@@ -236,7 +248,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     {
       titleKey: 'account.group.orders',
-      items: include(['dashboard', 'orders', 'schedules', 'preorders'], flags),
+      items: include(['dashboard', 'orders', 'schedules', 'preorders', 'messages'], flags),
     },
     {
       titleKey: 'account.group.accountSettings',
@@ -270,7 +282,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
 export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
   const groups: AccountNavGroup[] = [
     { titleKey: 'account.group.yourAccount', items: include(['dashboard', 'profile'], flags) },
-    { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders'], flags) },
+    { titleKey: 'account.group.orders', items: include(['orders', 'schedules', 'preorders', 'messages'], flags) },
     {
       titleKey: 'account.group.payments',
       items: include(['paymentMethods', 'autopay', 'coupons'], flags),

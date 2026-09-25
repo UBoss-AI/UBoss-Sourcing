@@ -76,7 +76,9 @@ export async function listInventory(
 
   const where = {
     sellerAccountId: membership.sellerAccountId,
-    ...(query.locationId === null || query.locationId === undefined ? {} : { locationId: query.locationId }),
+    ...(query.locationId === null || query.locationId === undefined
+      ? {}
+      : { locationId: query.locationId }),
     ...(expiryCutoff === null ? {} : { expiresOn: { not: null, lte: expiryCutoff } }),
     ...(search.length === 0
       ? {}
@@ -163,7 +165,9 @@ export async function recordStockMovement(input: StockMovementInput): Promise<{ 
   // exactly as `inventory.adjust` does in the operator's catalogue.
   assertSellerPermission(
     membership,
-    input.type === 'ADJUSTMENT' ? SellerPermission.INVENTORY_ADJUST : SellerPermission.INVENTORY_WRITE,
+    input.type === 'ADJUSTMENT'
+      ? SellerPermission.INVENTORY_ADJUST
+      : SellerPermission.INVENTORY_WRITE,
   );
 
   if (input.quantityDelta === 0) {
@@ -183,7 +187,11 @@ export async function recordStockMovement(input: StockMovementInput): Promise<{ 
   }
 
   const run = async (tx: PrismaTransaction): Promise<{ balance: number }> => {
-    if (input.idempotencyKey !== null && input.idempotencyKey !== undefined && input.idempotencyKey.length > 0) {
+    if (
+      input.idempotencyKey !== null &&
+      input.idempotencyKey !== undefined &&
+      input.idempotencyKey.length > 0
+    ) {
       const seen = await tx.sellerInventoryMovement.findFirst({
         where: {
           sellerAccountId: membership.sellerAccountId,
@@ -216,7 +224,13 @@ export async function recordStockMovement(input: StockMovementInput): Promise<{ 
       throw conflict(
         ErrorCode.INSUFFICIENT_STOCK,
         `Only ${String(row.availableQuantity)} in stock at this location.`,
-        [{ field: 'quantityDelta', code: 'BELOW_ZERO', meta: { available: row.availableQuantity } }],
+        [
+          {
+            field: 'quantityDelta',
+            code: 'BELOW_ZERO',
+            meta: { available: row.availableQuantity },
+          },
+        ],
       );
     }
 
@@ -287,7 +301,18 @@ export async function recordStockMovement(input: StockMovementInput): Promise<{ 
  */
 export async function reserveStock(
   tx: PrismaTransaction,
-  input: { offerId: string; locationId: string; quantity: number; orderId: string },
+  input: {
+    offerId: string;
+    locationId: string;
+    quantity: number;
+    orderId: string;
+    /**
+     * Only for a second reservation against the same order and location - a
+     * later shipment of a split delivery - which must not collide with the
+     * first one's key.
+     */
+    idempotencyKey?: string;
+  },
 ): Promise<void> {
   const row = await tx.sellerInventory.findUnique({
     where: { offerId_locationId: { offerId: input.offerId, locationId: input.locationId } },
@@ -297,11 +322,9 @@ export async function reserveStock(
   if (row === null) throw notFound('Stock record');
 
   if (row.availableQuantity < input.quantity) {
-    throw conflict(
-      ErrorCode.INSUFFICIENT_STOCK,
-      `Only ${String(row.availableQuantity)} left.`,
-      [{ code: 'INSUFFICIENT', meta: { available: row.availableQuantity } }],
-    );
+    throw conflict(ErrorCode.INSUFFICIENT_STOCK, `Only ${String(row.availableQuantity)} left.`, [
+      { code: 'INSUFFICIENT', meta: { available: row.availableQuantity } },
+    ]);
   }
 
   const updated = await tx.sellerInventory.updateMany({
@@ -345,11 +368,36 @@ export async function reserveStock(
       referenceId: input.orderId,
       // Derived from the order and the offer rather than random, so a retried
       // checkout cannot reserve the same units twice.
-      idempotencyKey: `reserve:${input.orderId}:${input.offerId}:${input.locationId}`,
+      idempotencyKey:
+        input.idempotencyKey ?? `reserve:${input.orderId}:${input.offerId}:${input.locationId}`,
     },
   });
 
   await refreshOfferTotals(tx, input.offerId);
+}
+
+/**
+ * How much one order has reserved of one offer at one location, net of what
+ * it has given back. Read from the ledger, because that is the truth the
+ * balance is derived from.
+ */
+export async function reservedForOrderAt(
+  tx: PrismaTransaction,
+  input: { orderId: string; offerId: string; locationId: string },
+): Promise<number> {
+  const movements = await tx.sellerInventoryMovement.aggregate({
+    where: {
+      offerId: input.offerId,
+      locationId: input.locationId,
+      referenceType: 'order',
+      referenceId: input.orderId,
+      type: { in: ['RESERVATION', 'RESERVATION_RELEASE'] },
+    },
+    _sum: { quantityDelta: true },
+  });
+  // Reservations are negative and releases positive, so the net hold is the
+  // negated sum.
+  return Math.max(0, -(movements._sum.quantityDelta ?? 0));
 }
 
 /**
@@ -365,10 +413,7 @@ export async function reserveStock(
  * `recordStockMovement` already sums: one query that cannot drift beats an
  * increment that drifts the first time a caller forgets it.
  */
-export async function refreshOfferTotals(
-  tx: PrismaTransaction,
-  offerId: string,
-): Promise<void> {
+export async function refreshOfferTotals(tx: PrismaTransaction, offerId: string): Promise<void> {
   const totals = await tx.sellerInventory.aggregate({
     where: { offerId },
     _sum: { availableQuantity: true, reservedQuantity: true },
@@ -546,7 +591,11 @@ export async function updateStockSettings(
   if (row === null) throw notFound('Stock record');
   assertSellerOwnership(membership, row.sellerAccountId, 'Stock record');
 
-  if (settings.reorderThreshold !== null && settings.reorderThreshold !== undefined && settings.reorderThreshold < 0) {
+  if (
+    settings.reorderThreshold !== null &&
+    settings.reorderThreshold !== undefined &&
+    settings.reorderThreshold < 0
+  ) {
     throw badRequest(ErrorCode.VALIDATION_FAILED, 'A reorder level cannot be negative.', [
       { field: 'reorderThreshold', code: 'NEGATIVE' },
     ]);

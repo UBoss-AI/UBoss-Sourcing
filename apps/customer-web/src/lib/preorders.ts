@@ -9,15 +9,45 @@
 import { api, newIdempotencyKey } from './api';
 import type { Money } from './format';
 
-export type PreorderUnit = 'PIECE' | 'CARTON' | 'UK_PALLET' | 'US_PALLET' | 'CONTAINER';
+export type PreorderUnit =
+  | 'PIECE'
+  | 'CARTON'
+  | 'UK_PALLET'
+  | 'US_PALLET'
+  | 'CONTAINER'
+  | 'CONTAINER_20_FT'
+  | 'CONTAINER_40_FT';
+
+export type ContainerSize = 'CONTAINER_20_FT' | 'CONTAINER_40_FT';
+
+export const CONTAINER_SIZES: readonly ContainerSize[] = ['CONTAINER_20_FT', 'CONTAINER_40_FT'];
+
+export function isContainerSize(unit: string): unit is ContainerSize {
+  return unit === 'CONTAINER_20_FT' || unit === 'CONTAINER_40_FT';
+}
 
 export const PREORDER_UNITS: readonly PreorderUnit[] = [
   'PIECE',
+  'CONTAINER_20_FT',
+  'CONTAINER_40_FT',
   'CARTON',
   'UK_PALLET',
   'US_PALLET',
   'CONTAINER',
 ];
+
+/**
+ * One container size, as the server offers it. An unavailable size carries no
+ * figure at all - never a zero, never an estimate - and says why.
+ */
+export interface ContainerOption {
+  unit: ContainerSize;
+  available: boolean;
+  piecesPerContainer: number | null;
+  cartonsPerContainer: number | null;
+  piecesPerCarton: number | null;
+  reason: 'NOT_CONFIGURED' | 'NOT_VERIFIED' | 'NOT_OFFERED' | null;
+}
 
 export type PreorderStatus =
   | 'SUBMITTED'
@@ -52,6 +82,8 @@ export type Eligibility =
       listUnitPriceMinor: string;
       instantStockBaseUnits: number;
       units: { unit: PreorderUnit; baseUnits: number }[];
+      /** Always both sizes; absent from responses older than container ordering. */
+      containerOptions?: ContainerOption[];
       moq: {
         unit: PreorderUnit;
         quantity: number;
@@ -109,7 +141,16 @@ export function openingQuantity(
 
 export interface EligibilityResponse {
   eligibility: Eligibility;
-  viewer: { signedIn: boolean; isBusinessBuyer: boolean; addressId: string | null };
+  viewer: {
+    signedIn: boolean;
+    isBusinessBuyer: boolean;
+    addressId: string | null;
+    /**
+     * The bulk preorder note: which version is current, and whether this
+     * account has acknowledged it. The server's record, never the browser's.
+     */
+    preorderInfo: { policyVersion: string; acknowledged: boolean };
+  };
 }
 
 export interface PreorderFormInput {
@@ -161,15 +202,60 @@ export interface PreorderPreview {
     hasPublishedTransit: boolean;
   };
   instantStockBaseUnits: number;
+  /** The container breakdown from the seller's verified loading. */
+  container: {
+    unit: ContainerSize;
+    containers: number;
+    piecesPerContainer: number;
+    cartonsPerContainer: number | null;
+    piecesPerCarton: number | null;
+    totalPieces: number;
+  } | null;
+  /** Whether the whole quantity is available now. Informational, never reserved. */
+  availability: { sufficient: boolean; requested: number; availableNow: number; remaining: number };
+  logistics: { status: 'TO_BE_CONFIRMED' };
+}
+
+export type PreorderOfferKind =
+  | 'ACCEPT_AS_REQUESTED'
+  | 'COUNTER'
+  | 'FULL_ON_REVISED_DATE'
+  | 'SPLIT_DELIVERY';
+
+export interface UnitEquivalent {
+  unit: string;
+  fullUnits: number;
+  remainderPieces: number;
+  isWholeUnits: boolean;
+}
+
+export interface PreorderInstallment {
+  sequence: number;
+  quantityBaseUnits: number;
+  committedDeliveryDate: string;
+  source: 'AVAILABLE_STOCK' | 'FUTURE_SUPPLY';
+  status: 'PROPOSED' | 'PLANNED' | 'STOCK_RESERVED' | 'CANCELLED';
+  quantityInOrderedUnit: UnitEquivalent | null;
 }
 
 export interface PreorderOffer {
   id: string;
   revision: number;
   author: 'BUYER' | 'SELLER';
-  kind: 'ACCEPT_AS_REQUESTED' | 'COUNTER';
-  state: 'PROPOSED' | 'ACCEPTED' | 'DECLINED' | 'SUPERSEDED' | 'EXPIRED' | 'WITHDRAWN';
+  kind: PreorderOfferKind;
+  state:
+    | 'PROPOSED'
+    | 'ACCEPTED'
+    | 'DECLINED'
+    | 'SUPERSEDED'
+    | 'EXPIRED'
+    | 'WITHDRAWN'
+    | 'INVALIDATED';
   quantityBaseUnits: number;
+  quantityInOrderedUnit?: UnitEquivalent | null;
+  availableNowBaseUnits?: number | null;
+  stockAllocationBaseUnits?: number;
+  installments?: PreorderInstallment[];
   unitPrice: Money;
   goodsTotal: Money;
   freight: Money;
@@ -232,7 +318,42 @@ export interface Preorder {
     fxRate: string | null;
     fxRateAsOf: string | null;
   };
-  currentOffer: PreorderOffer | null;
+  container?: {
+    unit: string;
+    containers: number;
+    piecesPerContainer: number;
+    totalPieces: number;
+    cartonsPerContainer: number | null;
+    piecesPerCarton: number | null;
+    verifiedAt: string | null;
+    version: number | null;
+  } | null;
+  availability?: {
+    atSubmission: { requested: number; availableNow: number; remaining: number; sufficient: boolean };
+    /** The seller's own live stock. Null for a buyer. */
+    live: {
+      availableToPromise: number;
+      onHand: number;
+      unacceptedOrderQuantity: number;
+      safetyStock: number;
+      shortfall: { sufficient: boolean; requested: number; availableNow: number; remaining: number };
+      byLocation?: { locationId: string; availableQuantity: number }[];
+    } | null;
+  };
+  stockHolds?:
+    | {
+        quantityBaseUnits: number;
+        status: 'HELD' | 'RELEASED' | 'TRANSFERRED';
+        locationId?: string;
+        createdAt: string;
+        releasedAt: string | null;
+      }[]
+    | null;
+  currentOffer: (PreorderOffer & {
+    quote?: OfferQuote | { unavailable: string } | null;
+    stockStillAvailable?: boolean;
+    isExpired?: boolean;
+  }) | null;
   offers: PreorderOffer[];
   confirmed: {
     termsHash: string;
@@ -269,11 +390,30 @@ export interface Preorder {
   version: number;
 }
 
+/** The whole price of a set of terms, from the server's one pricing engine. */
+export interface OfferQuote {
+  subtotal: Money;
+  discount: Money;
+  tax: Money;
+  shipping: Money;
+  grandTotal: Money;
+  taxRatePercent: string;
+  taxInclusive: boolean;
+  logisticsIncluded: boolean;
+}
+
+export function isQuote(value: unknown): value is OfferQuote {
+  return typeof value === 'object' && value !== null && 'grandTotal' in value;
+}
+
 export interface PreorderListItem {
   id: string;
   requestNumber: string;
   status: PreorderStatus;
   baseUnits: number;
+  orderingUnit?: PreorderUnit;
+  unitQuantity?: number;
+  shortfallAtSubmission?: number;
   requestedDeliveryDate: string;
   committedDeliveryDate: string | null;
   value: Money | null;
@@ -332,6 +472,13 @@ export function confirmPreorder(id: string, offer: { id: string; termsHash: stri
       { offerId: offer.id, termsHash: offer.termsHash },
       { idempotencyKey: newIdempotencyKey() },
     )
+    .then((body) => body.preorder);
+}
+
+/** "Request a change": the message goes to the seller with the preorder. */
+export function requestPreorderChange(id: string, message: string) {
+  return api
+    .post<{ preorder: Preorder }>(`/preorders/${id}/request-change`, { message })
     .then((body) => body.preorder);
 }
 
@@ -413,6 +560,66 @@ export function sellerCounterPreorder(
     .then((response) => response.preorder);
 }
 
+export interface AvailabilityProposalBody {
+  kind: 'FULL_ON_REVISED_DATE' | 'SPLIT_DELIVERY';
+  unitPriceMinor: string;
+  freightMinor: string;
+  revisedDate: string | null;
+  reserveAvailableStock: boolean;
+  installments: { date: string; baseUnits: number }[] | null;
+  expiresAt: string;
+  originLocationId: string | null;
+  note: string | null;
+  expectedVersion: number;
+}
+
+export interface ProposalProblem {
+  field: string;
+  code: string;
+  message: string;
+  meta?: Record<string, number | string>;
+}
+
+export interface AvailabilityProposalPreview {
+  ok: boolean;
+  problems: ProposalProblem[];
+  earliestCommitDate: string;
+  availability: {
+    availableToPromise: number;
+    sufficient: boolean;
+    requested: number;
+    availableNow: number;
+    remaining: number;
+  };
+  stockAllocationBaseUnits: number | null;
+  committedDeliveryDate: string | null;
+  installments: {
+    sequence: number;
+    date: string;
+    baseUnits: number;
+    source: 'AVAILABLE_STOCK' | 'FUTURE_SUPPLY';
+    quantityInOrderedUnit: UnitEquivalent | null;
+  }[];
+  goodsTotal: Money;
+  freight: Money;
+  quote: { subtotal: Money; tax: Money; shipping: Money; grandTotal: Money } | { unavailable: string } | null;
+}
+
+export function previewAvailabilityProposal(id: string, body: AvailabilityProposalBody) {
+  return api
+    .post<{ preview: AvailabilityProposalPreview }>(
+      `/seller/preorders/${id}/availability-proposal/preview`,
+      body,
+    )
+    .then((response) => response.preview);
+}
+
+export function sendAvailabilityProposal(id: string, body: AvailabilityProposalBody) {
+  return api
+    .post<{ preorder: Preorder }>(`/seller/preorders/${id}/availability-proposal`, body)
+    .then((response) => response.preorder);
+}
+
 export function sellerRejectPreorder(id: string, reason: string, expectedVersion: number) {
   return api
     .post<{ preorder: Preorder }>(`/seller/preorders/${id}/reject`, { reason, expectedVersion })
@@ -442,6 +649,8 @@ export interface PreorderPolicy {
   maxQuantity: number | null;
   capacityBaseUnits: number | null;
   capacityPeriod: 'DAY' | 'WEEK' | 'MONTH';
+  /** Pieces kept back from preorders. */
+  safetyStockBaseUnits?: number;
   minLeadTimeDays: number | null;
   maxAdvanceDays: number | null;
   deliveryCountries: string[];

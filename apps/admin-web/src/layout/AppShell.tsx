@@ -37,6 +37,9 @@ import {
 } from '@/components/ui/sidebar';
 import { cx } from '@/lib/cx';
 import { useAttention, type AttentionView } from '@/lib/attention';
+import { usePreorderChatLive } from '@/lib/use-preorder-chat-live';
+import { useChatViewportHeight } from '@/lib/chat-kit/viewport';
+import { isPreorderChatsPath } from '@/lib/preorder-chats';
 import { roleLabel } from '@/lib/permissions';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
@@ -379,6 +382,21 @@ export function AppShell(): React.JSX.Element {
   const location = useLocation();
   const navigationType = useNavigationType();
   const mainRef = useRef<HTMLElement>(null);
+  // The Preorder Chats badge moves the moment a customer writes. See the hook.
+  usePreorderChatLive();
+
+  /*
+   * Preorder Chats is an application pane: exactly the window's height, the
+   * document never scrolling, and the inbox's own panes - queue, message
+   * history, context - scrolling inside it, each on its own. As an ordinary
+   * page, a long conversation grew the document: the history scrolled inside
+   * a page that also scrolled, and the reply box started below the fold.
+   * The height follows the visual viewport, so a tablet's keyboard shrinks
+   * the frame instead of covering the reply box (lib/chat-kit/viewport.ts).
+   */
+  const isAppPane = isPreorderChatsPath(location.pathname);
+  useChatViewportHeight(isAppPane);
+  const previousPath = useRef(location.pathname);
 
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
@@ -394,17 +412,22 @@ export function AppShell(): React.JSX.Element {
   // reader was.
   useEffect(() => {
     setIsDrawerOpen(false);
+    const from = previousPath.current;
+    previousPath.current = location.pathname;
+    // Moving between conversations is not a new page: the conversation moves
+    // focus to its own heading, and there is no document scroll to reset.
+    if (from !== location.pathname && isPreorderChatsPath(from) && isPreorderChatsPath(location.pathname)) return;
     if (navigationType !== NavigationType.Pop) window.scrollTo({ top: 0, behavior: 'instant' });
     mainRef.current?.focus({ preventScroll: true });
   }, [location.pathname, navigationType]);
 
   return (
-    <div className="min-h-screen">
+    <div className={isAppPane ? 'h-[var(--chat-viewport-height,100dvh)] overflow-hidden' : 'min-h-screen'}>
       <a href="#main" className="skip-link">
         {t('shell.skipToContent')}
       </a>
 
-      <div className="flex min-h-screen">
+      <div className={cx('flex', isAppPane ? 'h-full' : 'min-h-screen')}>
         <Sidebar open={isDrawerOpen} setOpen={setIsDrawerOpen}>
           <SidebarBody
             label={t('shell.mainNav')}
@@ -419,7 +442,7 @@ export function AppShell(): React.JSX.Element {
           </SidebarBody>
         </Sidebar>
 
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <div className={cx('flex min-w-0 flex-1 flex-col', isAppPane ? 'h-full min-h-0' : 'min-h-screen')}>
           {/* Opaque, not the translucent white this replaced: a sticky bar
               that lets the page through is a bar with table rows sliding
               behind its own text. */}
@@ -486,7 +509,10 @@ export function AppShell(): React.JSX.Element {
             id="main"
             ref={mainRef}
             tabIndex={-1}
-            className="flex-1 px-4 py-6 outline-none lg:px-6 lg:py-8"
+            className={cx(
+              'flex-1 outline-none',
+              isAppPane ? 'flex min-h-0 flex-col p-2 sm:p-3 lg:px-4' : 'px-4 py-6 lg:px-6 lg:py-8',
+            )}
           >
             <Outlet />
           </main>

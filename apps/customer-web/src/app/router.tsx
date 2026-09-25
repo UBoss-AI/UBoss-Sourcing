@@ -304,6 +304,20 @@ export const router = createBrowserRouter([
               import('@/pages/PreorderDetailPage').then((m) => m.PreorderDetailPage),
             ),
           },
+          // Preorder chats with the UBOSS team. `:id` is what the "a reply is
+          // waiting" email links to.
+          {
+            path: 'messages',
+            ...accountPage(() =>
+              import('@/pages/account/MessagesPage').then((m) => m.MessagesPage),
+            ),
+          },
+          {
+            path: 'messages/:id',
+            ...accountPage(() =>
+              import('@/pages/account/MessagesPage').then((m) => m.MessagesPage),
+            ),
+          },
           {
             path: 'profile',
             ...accountPage(() =>

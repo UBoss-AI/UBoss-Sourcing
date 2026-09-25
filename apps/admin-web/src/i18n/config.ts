@@ -93,7 +93,8 @@ void i18n
       escapeValue: false,
       // `{{marketplace}}`: the name this deployment trades under. The product's
       // own name until `setMarketplaceName` is handed the operator's.
-      defaultVariables: { marketplace: PRODUCT_BRAND },
+      // `{{team}}`: who answers a preorder chat. See `setChatTeamName`.
+      defaultVariables: { marketplace: PRODUCT_BRAND, team: PRODUCT_BRAND },
     },
 
     react: {
@@ -143,5 +144,31 @@ export function setMarketplaceName(name: string | null | undefined): void {
   const variables = (interpolation.defaultVariables ??= {}) as Record<string, unknown>;
   if (variables['marketplace'] === next) return;
   variables['marketplace'] = next;
+  i18n.emit(MARKETPLACE_CHANGED);
+}
+
+/**
+ * Fill `{{team}}` - the name the preorder chat's team goes by - in every string.
+ *
+ * Usually the marketplace's own name, and it falls back to that. It is its
+ * own setting (`PREORDER_CHAT_TEAM_NAME`, sent as
+ * `marketplace.chatTeamName` by `GET /config`) because an operator can
+ * trade under one name and answer as a team with another: a storefront
+ * called Glovia whose buyers talk to "the UBoss team". Renaming the store to
+ * get the team's name right would rename the header, the emails and the
+ * payment sheets too.
+ *
+ * The catalogues say `{{team}}` in every sentence about the people who
+ * answer ("the {{team}} team is available", "{{team}} closed this
+ * conversation") and `{{marketplace}}` in every sentence about the platform
+ * ("Chat with {{marketplace}}").
+ */
+export function setChatTeamName(name: string | null | undefined): void {
+  const trimmed = (name ?? '').trim();
+  const interpolation = (i18n.options.interpolation ??= {});
+  const variables = (interpolation.defaultVariables ??= {}) as Record<string, unknown>;
+  const next = trimmed.length > 0 ? trimmed : (variables['marketplace'] as string | undefined) ?? PRODUCT_BRAND;
+  if (variables['team'] === next) return;
+  variables['team'] = next;
   i18n.emit(MARKETPLACE_CHANGED);
 }

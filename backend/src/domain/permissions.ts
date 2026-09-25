@@ -70,6 +70,27 @@ export const Permission = {
   /// conversation is a distinct thing to be trusted with.
   ASSISTANT_CHAT_READ: 'assistant_chat.read',
 
+  // --- Preorder chats ---
+  //
+  // A signed-in buyer asking the operator's team about a preorder, from the
+  // product page. Five keys rather than one because the five things are
+  // trusted to different people: reading a private negotiation, speaking for
+  // the business in it, handing it to a colleague, silencing a customer, and
+  // taking a copy of it out of the building.
+  /// Read the inbox, every conversation in it, and its internal notes.
+  PREORDER_CHAT_VIEW: 'preorder_chat.view',
+  /// Reply to the customer, write internal notes, take a conversation, change
+  /// its status, priority and tags, link a preorder and propose preorder terms.
+  PREORDER_CHAT_REPLY: 'preorder_chat.reply',
+  /// Give a conversation to somebody else, or take it off them.
+  PREORDER_CHAT_ASSIGN: 'preorder_chat.assign',
+  /// Mark spam, block a customer from chatting, and redact a message. Each is
+  /// audited; a redaction removes the words and keeps the record that they
+  /// were there.
+  PREORDER_CHAT_MODERATE: 'preorder_chat.moderate',
+  /// Download a conversation's transcript.
+  PREORDER_CHAT_EXPORT: 'preorder_chat.export',
+
   // --- Orders ---
   ORDER_READ: 'order.read',
   ORDER_APPROVE: 'order.approve',
@@ -258,6 +279,12 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // Enquiries from the chat widget are unqualified leads, and following
       // one up is order work.
       Permission.ASSISTANT_CHAT_READ,
+      // Preorder chats are the order desk's front line: this role reads and
+      // answers them. It does not hand them to colleagues, silence customers
+      // or take transcripts away - those are the business owner's, unless a
+      // deployment grants them further.
+      Permission.PREORDER_CHAT_VIEW,
+      Permission.PREORDER_CHAT_REPLY,
       Permission.ORDER_READ,
       Permission.ORDER_FULFIL,
       Permission.ORDER_CANCEL,
@@ -290,6 +317,9 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.CUSTOMER_READ,
       Permission.CUSTOMER_LIMITS_WRITE,
       Permission.ASSISTANT_CHAT_READ,
+      // Reads a negotiation to check what was said before approving it.
+      // Does not speak for the business in one.
+      Permission.PREORDER_CHAT_VIEW,
       Permission.ORDER_READ,
       Permission.ORDER_APPROVE,
       Permission.ORDER_CANCEL,

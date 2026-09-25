@@ -42,7 +42,12 @@ import {
   assertSellerPermission,
   type SellerMembership,
 } from './account.service.js';
-import { consumeReservation, releaseReservation, reserveStock } from './inventory.service.js';
+import {
+  consumeReservation,
+  releaseReservation,
+  reservedForOrderAt,
+  reserveStock,
+} from './inventory.service.js';
 import { syncOrderWithSellerGroups } from './order-split.service.js';
 import { enqueueIfConnected } from '../seller-erp/job.service.js';
 
@@ -88,7 +93,9 @@ export async function listSellerOrders(
   const where: Prisma.SellerOrderGroupWhereInput = {
     sellerAccountId: membership.sellerAccountId,
     ...(query.status === null || query.status === undefined ? {} : { status: query.status }),
-    ...(query.locationId === null || query.locationId === undefined ? {} : { locationId: query.locationId }),
+    ...(query.locationId === null || query.locationId === undefined
+      ? {}
+      : { locationId: query.locationId }),
     ...(query.overdueOnly === true
       ? {
           dispatchDueAt: { lt: now },
@@ -124,9 +131,7 @@ export async function listSellerOrders(
     }),
   ]);
 
-  const locationIds = rows
-    .map((row) => row.locationId)
-    .filter((id): id is string => id !== null);
+  const locationIds = rows.map((row) => row.locationId).filter((id): id is string => id !== null);
 
   const locations =
     locationIds.length === 0
@@ -335,10 +340,7 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
       createdAt: entry.createdAt.toISOString(),
     })),
     /** What this member may do next. The panel renders exactly these buttons. */
-    allowedTransitions: allowedSellerOrderTransitions(
-      group.status,
-      'SELLER',
-    ),
+    allowedTransitions: allowedSellerOrderTransitions(group.status, 'SELLER'),
   };
 }
 
@@ -437,21 +439,40 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
        * where the hold is taken, and it is refused outright if the shelf
        * cannot cover it rather than accepting an order that cannot ship.
        */
+      // A preorder's own stock hold is handed to this order first, in this
+      // transaction, so the units it held are reserved for the order below and
+      // never for anybody else in between.
+      const preorders = await import('../preorders/request.service.js');
+      const handover = await preorders.preparePreorderGroupAcceptance(group.orderId, tx);
+
       for (const line of group.lines) {
         const outstanding = line.quantity - line.fulfilledQuantity;
         if (outstanding <= 0) continue;
 
+        // A split-delivery preorder is accepted with what is on the shelf now
+        // - its first shipment - and each later shipment reserves its own
+        // stock when it is dispatched (`recordShipment`). Every other order
+        // still needs all of it on hand to be accepted.
+        let reserving = outstanding;
+        if (handover.allowsPartial) {
+          const stock = await tx.sellerInventory.findUnique({
+            where: { offerId_locationId: { offerId: line.offerId, locationId } },
+            select: { availableQuantity: true },
+          });
+          reserving = Math.min(outstanding, Math.max(0, stock?.availableQuantity ?? 0));
+          if (reserving <= 0) continue;
+        }
+
         await reserveStock(tx, {
           offerId: line.offerId,
           locationId,
-          quantity: outstanding,
+          quantity: reserving,
           orderId: group.orderId,
         });
       }
 
       // A preorder's goods now exist and are held against it, so the preorder
       // has done its job and hands over to ordinary fulfilment.
-      const preorders = await import('../preorders/request.service.js');
       await preorders.onPreorderSellerGroupAccepted(group.orderId, tx);
 
       /*
@@ -486,8 +507,22 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
     }
 
     if (input.to === 'CANCELLED' && locationId !== null) {
+      // A split-delivery preorder may hold less than it has outstanding - its
+      // later shipments reserve when they go - so it gives back only what it
+      // actually holds, never another order's units at the same location.
+      const { isSplitPreorderOrder } = await import('../preorders/request.service.js');
+      const partial = await isSplitPreorderOrder(group.orderId, tx);
+
       for (const line of group.lines) {
-        const outstanding = line.quantity - line.fulfilledQuantity;
+        let outstanding = line.quantity - line.fulfilledQuantity;
+        if (partial) {
+          const held = await reservedForOrderAt(tx, {
+            orderId: group.orderId,
+            offerId: line.offerId,
+            locationId,
+          });
+          outstanding = Math.min(outstanding, Math.max(0, held - line.fulfilledQuantity));
+        }
         if (outstanding <= 0) continue;
 
         await releaseReservation(tx, {
@@ -609,18 +644,15 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
    */
   if (input.to === 'ACCEPTED' && env.FEATURE_LOGISTICS_PORTAL) {
     try {
-      const { createShipmentsForOrder } = await import(
-        '../logistics/shipment-create.service.js'
-      );
+      const { createShipmentsForOrder } = await import('../logistics/shipment-create.service.js');
 
       await createShipmentsForOrder(orderId, null);
 
       // Raising is idempotent, so a consignment raised at payment comes back
       // unchanged and was NOT handed to anybody then - the seller had not
       // confirmed. Now they have.
-      const { handConsignmentOnAfterConfirmation } = await import(
-        '../logistics/shipment-create.service.js'
-      );
+      const { handConsignmentOnAfterConfirmation } =
+        await import('../logistics/shipment-create.service.js');
       const mine = await prisma.logisticsShipment.findMany({
         where: { sellerOrderGroupId: input.groupId, sellerAccountId: membership.sellerAccountId },
         select: { id: true },
@@ -648,7 +680,10 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       if (input.to === 'ACCEPTED') await legs.createLegsForSellerOrder(input.groupId);
       else await legs.cancelLegsForSellerOrder(input.groupId, input.reason ?? null);
     } catch (error: unknown) {
-      logger.warn({ err: error, orderId, groupId: input.groupId }, 'could not update the delivery legs of a seller order');
+      logger.warn(
+        { err: error, orderId, groupId: input.groupId },
+        'could not update the delivery legs of a seller order',
+      );
     }
   }
 }
@@ -707,6 +742,9 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
 
     const byItem = new Map(group.lines.map((line) => [line.orderItemId, line]));
 
+    const { isSplitPreorderOrder } = await import('../preorders/request.service.js');
+    const splitPreorder = await isSplitPreorderOrder(group.orderId, tx);
+
     for (const entry of contents) {
       const line = byItem.get(entry.orderItemId);
       if (line === undefined) throw notFound('Order line');
@@ -719,6 +757,28 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
           `Only ${String(remaining)} of that item are still to go.`,
           [{ field: 'contents', code: 'OUT_OF_RANGE', meta: { remaining } }],
         );
+      }
+
+      // A split-delivery preorder was accepted holding only its first
+      // shipment. A later shipment reserves what it needs now - from stock
+      // that exists, or not at all - before it is consumed, so it never draws
+      // on units reserved for another order.
+      if (group.locationId !== null && splitPreorder) {
+        const reservedForOrder = await reservedForOrderAt(tx, {
+          orderId: group.orderId,
+          offerId: line.offerId,
+          locationId: group.locationId,
+        });
+        const stillHeld = Math.max(0, reservedForOrder - line.fulfilledQuantity);
+        if (entry.quantity > stillHeld) {
+          await reserveStock(tx, {
+            offerId: line.offerId,
+            locationId: group.locationId,
+            quantity: entry.quantity - stillHeld,
+            orderId: group.orderId,
+            idempotencyKey: `reserve:${group.orderId}:${line.offerId}:${group.locationId}:${shipmentId}`,
+          });
+        }
       }
 
       await tx.sellerOrderLine.update({

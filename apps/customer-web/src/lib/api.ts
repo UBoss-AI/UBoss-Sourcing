@@ -163,6 +163,18 @@ async function refreshSession(): Promise<boolean> {
   return refreshInFlight;
 }
 
+/**
+ * The same one-at-a-time refresh, for a caller that is not a fetch - the chat
+ * socket, closed by the server with 4401 because the access token expired.
+ * True when the session was renewed; false announces it ended, exactly as a
+ * failed REST refresh does.
+ */
+export async function renewSession(): Promise<boolean> {
+  const renewed = await refreshSession();
+  if (!renewed) announceSessionEnded();
+  return renewed;
+}
+
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;

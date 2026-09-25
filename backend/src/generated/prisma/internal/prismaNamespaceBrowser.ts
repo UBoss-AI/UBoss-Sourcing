@@ -243,6 +243,7 @@ export const ModelName = {
   SellerPackagingProfile: 'SellerPackagingProfile',
   SellerPackagingOption: 'SellerPackagingOption',
   SellerPackagingTier: 'SellerPackagingTier',
+  SellerContainerLoading: 'SellerContainerLoading',
   CartItemPackaging: 'CartItemPackaging',
   OrderItemPackaging: 'OrderItemPackaging',
   SellerFreightQuoteRequest: 'SellerFreightQuoteRequest',
@@ -272,6 +273,17 @@ export const ModelName = {
   PreorderRequest: 'PreorderRequest',
   PreorderOffer: 'PreorderOffer',
   PreorderStatusHistory: 'PreorderStatusHistory',
+  PreorderFulfilmentInstallment: 'PreorderFulfilmentInstallment',
+  PreorderStockHold: 'PreorderStockHold',
+  CustomerAcknowledgement: 'CustomerAcknowledgement',
+  PreorderChatConversation: 'PreorderChatConversation',
+  PreorderChatParticipant: 'PreorderChatParticipant',
+  PreorderChatMessage: 'PreorderChatMessage',
+  PreorderChatNote: 'PreorderChatNote',
+  PreorderChatProposal: 'PreorderChatProposal',
+  PreorderChatAttachment: 'PreorderChatAttachment',
+  PreorderChatCustomerBlock: 'PreorderChatCustomerBlock',
+  RealtimeEvent: 'RealtimeEvent',
   SellerInvoiceSettings: 'SellerInvoiceSettings',
   LogisticsShipmentLine: 'LogisticsShipmentLine',
   LogisticsShipmentPackageLine: 'LogisticsShipmentPackageLine',
@@ -4578,6 +4590,38 @@ export const SellerPackagingTierScalarFieldEnum = {
 export type SellerPackagingTierScalarFieldEnum = (typeof SellerPackagingTierScalarFieldEnum)[keyof typeof SellerPackagingTierScalarFieldEnum]
 
 
+export const SellerContainerLoadingScalarFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  sellerAccountId: 'sellerAccountId',
+  piecesPerCarton: 'piecesPerCarton',
+  cartonLengthMm: 'cartonLengthMm',
+  cartonWidthMm: 'cartonWidthMm',
+  cartonHeightMm: 'cartonHeightMm',
+  grossWeightPerCartonGrams: 'grossWeightPerCartonGrams',
+  maxStackLayers: 'maxStackLayers',
+  loadingMethod: 'loadingMethod',
+  cartonsPerPallet: 'cartonsPerPallet',
+  palletsPer20FtContainer: 'palletsPer20FtContainer',
+  cartonsPer20FtContainer: 'cartonsPer20FtContainer',
+  piecesPer20FtContainer: 'piecesPer20FtContainer',
+  source20Ft: 'source20Ft',
+  verified20FtAt: 'verified20FtAt',
+  palletsPer40FtContainer: 'palletsPer40FtContainer',
+  cartonsPer40FtContainer: 'cartonsPer40FtContainer',
+  piecesPer40FtContainer: 'piecesPer40FtContainer',
+  source40Ft: 'source40Ft',
+  verified40FtAt: 'verified40FtAt',
+  notes: 'notes',
+  version: 'version',
+  updatedByLabel: 'updatedByLabel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerContainerLoadingScalarFieldEnum = (typeof SellerContainerLoadingScalarFieldEnum)[keyof typeof SellerContainerLoadingScalarFieldEnum]
+
+
 export const CartItemPackagingScalarFieldEnum = {
   id: 'id',
   cartItemId: 'cartItemId',
@@ -5209,6 +5253,7 @@ export const PreorderPolicyScalarFieldEnum = {
   maxQuantity: 'maxQuantity',
   capacityBaseUnits: 'capacityBaseUnits',
   capacityPeriod: 'capacityPeriod',
+  safetyStockBaseUnits: 'safetyStockBaseUnits',
   minLeadTimeDays: 'minLeadTimeDays',
   maxAdvanceDays: 'maxAdvanceDays',
   deliveryCountriesJson: 'deliveryCountriesJson',
@@ -5273,6 +5318,10 @@ export const PreorderRequestScalarFieldEnum = {
   unitQuantity: 'unitQuantity',
   unitsPerPackage: 'unitsPerPackage',
   requestedBaseUnits: 'requestedBaseUnits',
+  containerLoadingSnapshotJson: 'containerLoadingSnapshotJson',
+  containerLoadingVersion: 'containerLoadingVersion',
+  availableToPromiseAtSubmission: 'availableToPromiseAtSubmission',
+  shortfallAtSubmission: 'shortfallAtSubmission',
   requestedDeliveryDate: 'requestedDeliveryDate',
   earliestDeliveryDate: 'earliestDeliveryDate',
   timezone: 'timezone',
@@ -5343,6 +5392,8 @@ export const PreorderOfferScalarFieldEnum = {
   committedDeliveryDate: 'committedDeliveryDate',
   deliverySplitsJson: 'deliverySplitsJson',
   originLocationId: 'originLocationId',
+  availableNowBaseUnits: 'availableNowBaseUnits',
+  stockAllocationBaseUnits: 'stockAllocationBaseUnits',
   note: 'note',
   expiresAt: 'expiresAt',
   termsHash: 'termsHash',
@@ -5372,6 +5423,214 @@ export const PreorderStatusHistoryScalarFieldEnum = {
 } as const
 
 export type PreorderStatusHistoryScalarFieldEnum = (typeof PreorderStatusHistoryScalarFieldEnum)[keyof typeof PreorderStatusHistoryScalarFieldEnum]
+
+
+export const PreorderFulfilmentInstallmentScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  offerId: 'offerId',
+  sequence: 'sequence',
+  quantityBaseUnits: 'quantityBaseUnits',
+  committedDeliveryDate: 'committedDeliveryDate',
+  source: 'source',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderFulfilmentInstallmentScalarFieldEnum = (typeof PreorderFulfilmentInstallmentScalarFieldEnum)[keyof typeof PreorderFulfilmentInstallmentScalarFieldEnum]
+
+
+export const PreorderStockHoldScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  quantityBaseUnits: 'quantityBaseUnits',
+  status: 'status',
+  createdAt: 'createdAt',
+  releasedAt: 'releasedAt'
+} as const
+
+export type PreorderStockHoldScalarFieldEnum = (typeof PreorderStockHoldScalarFieldEnum)[keyof typeof PreorderStockHoldScalarFieldEnum]
+
+
+export const CustomerAcknowledgementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  policyVersion: 'policyVersion',
+  acknowledgedAt: 'acknowledgedAt'
+} as const
+
+export type CustomerAcknowledgementScalarFieldEnum = (typeof CustomerAcknowledgementScalarFieldEnum)[keyof typeof CustomerAcknowledgementScalarFieldEnum]
+
+
+export const PreorderChatConversationScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  startedByUserId: 'startedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  preorderRequestId: 'preorderRequestId',
+  preorderKey: 'preorderKey',
+  activeKey: 'activeKey',
+  status: 'status',
+  priority: 'priority',
+  assignedAdminId: 'assignedAdminId',
+  assignedAt: 'assignedAt',
+  customerLocale: 'customerLocale',
+  contextSnapshotJson: 'contextSnapshotJson',
+  productName: 'productName',
+  productSku: 'productSku',
+  sellerName: 'sellerName',
+  tagsJson: 'tagsJson',
+  lastSequence: 'lastSequence',
+  customerMessageCount: 'customerMessageCount',
+  staffMessageCount: 'staffMessageCount',
+  customerReadStaffCount: 'customerReadStaffCount',
+  staffReadCustomerCount: 'staffReadCustomerCount',
+  customerDeliveredSeq: 'customerDeliveredSeq',
+  customerReadSeq: 'customerReadSeq',
+  staffDeliveredSeq: 'staffDeliveredSeq',
+  staffReadSeq: 'staffReadSeq',
+  lastMessagePreview: 'lastMessagePreview',
+  lastMessageSender: 'lastMessageSender',
+  lastMessageAt: 'lastMessageAt',
+  lastCustomerMessageAt: 'lastCustomerMessageAt',
+  lastStaffMessageAt: 'lastStaffMessageAt',
+  awaitingReplySince: 'awaitingReplySince',
+  firstResponseAt: 'firstResponseAt',
+  customerEmailedSeq: 'customerEmailedSeq',
+  slaAlertedAt: 'slaAlertedAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  reopenCount: 'reopenCount',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatConversationScalarFieldEnum = (typeof PreorderChatConversationScalarFieldEnum)[keyof typeof PreorderChatConversationScalarFieldEnum]
+
+
+export const PreorderChatParticipantScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  participantType: 'participantType',
+  userId: 'userId',
+  lastReadSeq: 'lastReadSeq',
+  lastReadAt: 'lastReadAt',
+  joinedAt: 'joinedAt'
+} as const
+
+export type PreorderChatParticipantScalarFieldEnum = (typeof PreorderChatParticipantScalarFieldEnum)[keyof typeof PreorderChatParticipantScalarFieldEnum]
+
+
+export const PreorderChatMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  serverSequence: 'serverSequence',
+  senderType: 'senderType',
+  senderUserId: 'senderUserId',
+  senderKey: 'senderKey',
+  clientMessageId: 'clientMessageId',
+  messageType: 'messageType',
+  body: 'body',
+  systemEvent: 'systemEvent',
+  systemMetaJson: 'systemMetaJson',
+  replyToMessageId: 'replyToMessageId',
+  proposalId: 'proposalId',
+  createdAt: 'createdAt',
+  deliveredAt: 'deliveredAt',
+  editedAt: 'editedAt',
+  redactedAt: 'redactedAt',
+  redactedByUserId: 'redactedByUserId',
+  redactionReason: 'redactionReason'
+} as const
+
+export type PreorderChatMessageScalarFieldEnum = (typeof PreorderChatMessageScalarFieldEnum)[keyof typeof PreorderChatMessageScalarFieldEnum]
+
+
+export const PreorderChatNoteScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatNoteScalarFieldEnum = (typeof PreorderChatNoteScalarFieldEnum)[keyof typeof PreorderChatNoteScalarFieldEnum]
+
+
+export const PreorderChatProposalScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  revision: 'revision',
+  state: 'state',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  equivalentBaseUnits: 'equivalentBaseUnits',
+  indicativeUnitPriceMinor: 'indicativeUnitPriceMinor',
+  currency: 'currency',
+  availabilityNote: 'availabilityNote',
+  deliveryDate: 'deliveryDate',
+  splitDeliveriesJson: 'splitDeliveriesJson',
+  termsNote: 'termsNote',
+  expiresAt: 'expiresAt',
+  createdByUserId: 'createdByUserId',
+  preorderRequestId: 'preorderRequestId',
+  respondedAt: 'respondedAt',
+  declineReason: 'declineReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatProposalScalarFieldEnum = (typeof PreorderChatProposalScalarFieldEnum)[keyof typeof PreorderChatProposalScalarFieldEnum]
+
+
+export const PreorderChatAttachmentScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  messageId: 'messageId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  uploadedByUserId: 'uploadedByUserId',
+  uploaderType: 'uploaderType',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderChatAttachmentScalarFieldEnum = (typeof PreorderChatAttachmentScalarFieldEnum)[keyof typeof PreorderChatAttachmentScalarFieldEnum]
+
+
+export const PreorderChatCustomerBlockScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  reason: 'reason',
+  blockedByUserId: 'blockedByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderChatCustomerBlockScalarFieldEnum = (typeof PreorderChatCustomerBlockScalarFieldEnum)[keyof typeof PreorderChatCustomerBlockScalarFieldEnum]
+
+
+export const RealtimeEventScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  payloadJson: 'payloadJson',
+  createdAt: 'createdAt'
+} as const
+
+export type RealtimeEventScalarFieldEnum = (typeof RealtimeEventScalarFieldEnum)[keyof typeof RealtimeEventScalarFieldEnum]
 
 
 export const SellerInvoiceSettingsScalarFieldEnum = {
@@ -8288,6 +8547,17 @@ export const SellerPackagingTierOrderByRelevanceFieldEnum = {
 export type SellerPackagingTierOrderByRelevanceFieldEnum = (typeof SellerPackagingTierOrderByRelevanceFieldEnum)[keyof typeof SellerPackagingTierOrderByRelevanceFieldEnum]
 
 
+export const SellerContainerLoadingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  sellerAccountId: 'sellerAccountId',
+  notes: 'notes',
+  updatedByLabel: 'updatedByLabel'
+} as const
+
+export type SellerContainerLoadingOrderByRelevanceFieldEnum = (typeof SellerContainerLoadingOrderByRelevanceFieldEnum)[keyof typeof SellerContainerLoadingOrderByRelevanceFieldEnum]
+
+
 export const CartItemPackagingOrderByRelevanceFieldEnum = {
   id: 'id',
   cartItemId: 'cartItemId',
@@ -8725,6 +8995,139 @@ export const PreorderStatusHistoryOrderByRelevanceFieldEnum = {
 } as const
 
 export type PreorderStatusHistoryOrderByRelevanceFieldEnum = (typeof PreorderStatusHistoryOrderByRelevanceFieldEnum)[keyof typeof PreorderStatusHistoryOrderByRelevanceFieldEnum]
+
+
+export const PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  offerId: 'offerId'
+} as const
+
+export type PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum = (typeof PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum)[keyof typeof PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum]
+
+
+export const PreorderStockHoldOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId'
+} as const
+
+export type PreorderStockHoldOrderByRelevanceFieldEnum = (typeof PreorderStockHoldOrderByRelevanceFieldEnum)[keyof typeof PreorderStockHoldOrderByRelevanceFieldEnum]
+
+
+export const CustomerAcknowledgementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  policyVersion: 'policyVersion'
+} as const
+
+export type CustomerAcknowledgementOrderByRelevanceFieldEnum = (typeof CustomerAcknowledgementOrderByRelevanceFieldEnum)[keyof typeof CustomerAcknowledgementOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatConversationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  startedByUserId: 'startedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  preorderRequestId: 'preorderRequestId',
+  preorderKey: 'preorderKey',
+  activeKey: 'activeKey',
+  assignedAdminId: 'assignedAdminId',
+  customerLocale: 'customerLocale',
+  productName: 'productName',
+  productSku: 'productSku',
+  sellerName: 'sellerName',
+  lastMessagePreview: 'lastMessagePreview'
+} as const
+
+export type PreorderChatConversationOrderByRelevanceFieldEnum = (typeof PreorderChatConversationOrderByRelevanceFieldEnum)[keyof typeof PreorderChatConversationOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatParticipantOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  userId: 'userId'
+} as const
+
+export type PreorderChatParticipantOrderByRelevanceFieldEnum = (typeof PreorderChatParticipantOrderByRelevanceFieldEnum)[keyof typeof PreorderChatParticipantOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  senderUserId: 'senderUserId',
+  senderKey: 'senderKey',
+  clientMessageId: 'clientMessageId',
+  body: 'body',
+  systemEvent: 'systemEvent',
+  replyToMessageId: 'replyToMessageId',
+  proposalId: 'proposalId',
+  redactedByUserId: 'redactedByUserId',
+  redactionReason: 'redactionReason'
+} as const
+
+export type PreorderChatMessageOrderByRelevanceFieldEnum = (typeof PreorderChatMessageOrderByRelevanceFieldEnum)[keyof typeof PreorderChatMessageOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatNoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  authorUserId: 'authorUserId',
+  body: 'body'
+} as const
+
+export type PreorderChatNoteOrderByRelevanceFieldEnum = (typeof PreorderChatNoteOrderByRelevanceFieldEnum)[keyof typeof PreorderChatNoteOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatProposalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  currency: 'currency',
+  availabilityNote: 'availabilityNote',
+  termsNote: 'termsNote',
+  createdByUserId: 'createdByUserId',
+  preorderRequestId: 'preorderRequestId',
+  declineReason: 'declineReason'
+} as const
+
+export type PreorderChatProposalOrderByRelevanceFieldEnum = (typeof PreorderChatProposalOrderByRelevanceFieldEnum)[keyof typeof PreorderChatProposalOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatAttachmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  messageId: 'messageId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  uploadedByUserId: 'uploadedByUserId'
+} as const
+
+export type PreorderChatAttachmentOrderByRelevanceFieldEnum = (typeof PreorderChatAttachmentOrderByRelevanceFieldEnum)[keyof typeof PreorderChatAttachmentOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatCustomerBlockOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  reason: 'reason',
+  blockedByUserId: 'blockedByUserId'
+} as const
+
+export type PreorderChatCustomerBlockOrderByRelevanceFieldEnum = (typeof PreorderChatCustomerBlockOrderByRelevanceFieldEnum)[keyof typeof PreorderChatCustomerBlockOrderByRelevanceFieldEnum]
+
+
+export const RealtimeEventOrderByRelevanceFieldEnum = {
+  instanceId: 'instanceId'
+} as const
+
+export type RealtimeEventOrderByRelevanceFieldEnum = (typeof RealtimeEventOrderByRelevanceFieldEnum)[keyof typeof RealtimeEventOrderByRelevanceFieldEnum]
 
 
 export const SellerInvoiceSettingsOrderByRelevanceFieldEnum = {

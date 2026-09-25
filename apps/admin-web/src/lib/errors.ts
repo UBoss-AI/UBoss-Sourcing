@@ -47,6 +47,25 @@ const PREORDER_CODES = new Set([
   'PREORDER_CAPACITY_EXCEEDED',
   'PREORDER_EXPIRED',
   'PREORDER_POLICY_INVALID',
+  'PREORDER_ACKNOWLEDGEMENT_REQUIRED',
+  'PREORDER_INFO_OUTDATED',
+  'PREORDER_CONTAINER_NOT_CONFIGURED',
+  'PREORDER_PROPOSAL_INVALID',
+  'PREORDER_STOCK_CHANGED',
+]);
+
+/** Preorder chat refusals, worded in the reader's language. */
+const PREORDER_CHAT_CODES = new Set([
+  'PREORDER_CHAT_CLOSED',
+  'PREORDER_CHAT_BLOCKED',
+  'PREORDER_CHAT_MESSAGE_TOO_LONG',
+  'PREORDER_CHAT_MESSAGE_ID_REUSED',
+  'PREORDER_CHAT_TRANSITION_NOT_ALLOWED',
+  'PREORDER_CHAT_DUPLICATE_CONVERSATION',
+  'PREORDER_CHAT_ASSIGNEE_NOT_ELIGIBLE',
+  'PREORDER_CHAT_PREORDER_MISMATCH',
+  'PREORDER_CHAT_PROPOSAL_NOT_OPEN',
+  'PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE',
 ]);
 
 export function errorMessage(t: Translate, error: unknown, fallback?: string): string {
@@ -70,6 +89,9 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
         earliest: day('earliest'),
         latest: day('latest'),
       });
+    }
+    if (PREORDER_CHAT_CODES.has(error.code)) {
+      return t(`errors.preorderChat.${error.code}` as TranslationKey);
     }
     if (error.message.length > 0) return error.message;
   }

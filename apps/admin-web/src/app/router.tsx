@@ -252,6 +252,19 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'preorder-chats',
+        ...lazyRoute(() => import('@/pages/preorder-chat/PreorderChatsPage').then((m) => m.PreorderChatsPage), [
+          Permission.PREORDER_CHAT_VIEW,
+        ]),
+      },
+      {
+        // The notification bell and the assignment email link here.
+        path: 'preorder-chats/:id',
+        ...lazyRoute(() => import('@/pages/preorder-chat/PreorderChatsPage').then((m) => m.PreorderChatsPage), [
+          Permission.PREORDER_CHAT_VIEW,
+        ]),
+      },
+      {
         path: 'chat-enquiries',
         ...lazyRoute(() => import('@/pages/ChatEnquiriesPage').then((m) => m.ChatEnquiriesPage), [
           Permission.ASSISTANT_CHAT_READ,

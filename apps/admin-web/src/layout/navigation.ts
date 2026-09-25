@@ -251,6 +251,20 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        /*
+         * Customers asking the team about a preorder, from a product page. Not
+         * the AI widget's enquiries below it: these are signed-in buyers with
+         * a product in hand, answered by a person, live. Badged with the
+         * conversations still waiting for an answer.
+         */
+        labelKey: 'nav.preorderChats',
+        to: '/preorder-chats',
+        icon: ChatIcon,
+        permissions: [Permission.PREORDER_CHAT_VIEW],
+        matchPrefix: true,
+        attentionKeys: ['preorderChats'],
+      },
+      {
         labelKey: 'nav.chatEnquiries',
         to: '/chat-enquiries',
         icon: ChatIcon,

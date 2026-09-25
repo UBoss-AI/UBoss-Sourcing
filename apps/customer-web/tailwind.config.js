@@ -143,7 +143,7 @@ export default {
 
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
-        // The Glovia wordmark, and nothing else. Dancing Script is bundled
+        // The Glovia wordmark and its tagline, and nothing else. Dancing Script is bundled
         // from `@fontsource/dancing-script` rather than fetched from a font
         // CDN, because the production CSP is `font-src 'self' data:`.
         // `Dancing Script Fallback` is Arial Bold resized to its metrics in

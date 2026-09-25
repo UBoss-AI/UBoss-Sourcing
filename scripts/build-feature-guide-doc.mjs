@@ -107,7 +107,7 @@ page();
 // 1
 h1('1. The Product in Simple Words');
 h2('1.0 What the product is called');
-p('The product is called Glovia, and its tagline is The Way to the World. Wherever the Glovia name appears in the top-left corner, the tagline sits directly underneath it. The name itself is written in its own flowing script lettering, so it reads as a logo rather than as ordinary text.');
+p('The product is called Glovia, and its tagline is The Way to the World. Wherever the Glovia name appears in the top-left corner, the tagline sits directly underneath it. The name and the tagline are both written in the same flowing script lettering, so together they read as a logo rather than as ordinary text. That lettering is built into the software, so they look exactly the same on a Windows computer, a Mac, an iPhone or an Android phone, and in the shop, the admin console and the logistics portal alike.');
 p('The welcome screen of the shop opens with the Glovia name in that script, the tagline The Way to the World underneath it, and below that a line that gently alternates between Source with Intelligence and Deliver with Confidence, in the customer\'s own language.');
 p('UBOSS is the company behind the product. That is shown as small print: Powered by UBOSS appears once at the bottom of every shop page, and at the foot of the sign-in screens for staff and delivery companies.');
 p('If your business has its own name, your shop shows your name at the top in the normal lettering, on its own. The Glovia tagline and typeface are only used when the shop is called Glovia, so the software never puts its own slogan under your name.');
@@ -452,7 +452,7 @@ note('Repeat-purchase safety', 'A failed automatic charge does not silently canc
 h2('5.4 Preorder: asking a seller to make a large quantity');
 p('Add to Cart buys what is on the shelf. Buy Later and Subscribe & Reorder buy it later, or again. Preorder is for something different: a quantity so large that the seller has to make it — forty thousand gloves for December, twelve pallets for a new clinic. It asks the seller whether they can, by when, and at what price, and nothing is ordered until both sides agree.');
 table(['Step', 'What the customer does', 'What the system does back'], [
-  ['1', 'Presses Preorder on the product page, beside Add to Cart.', 'Opens a request form, already filled in with the quantity the customer typed on the product page (raised to the seller’s minimum or next allowed step if needed). If the customer is not signed in, it signs them in first and brings them straight back to the same product and option, with the form open.'],
+  ['1', 'Presses Preorder on the product page, beside Add to Cart.', 'The first time, it first shows a short note: preorder is for large quantities, this product’s minimum, that the seller confirms quantity, price and date, and that nothing is charged yet. The customer ticks “I understand the minimum quantity and preorder process.” and presses Agree and continue. After that it goes straight to the request form, already filled in with the quantity the customer typed on the product page (raised to the seller’s minimum or next allowed step if needed). If the customer is not signed in, it signs them in first and brings them straight back to the same product and option, with the form open.'],
   ['2', 'Chooses how many (in pieces, cartons, pallets or containers), where it goes, and the date they need it by.', 'Shows the number of pieces, the seller’s minimum and step, the earliest date that can be asked for, the price per piece from the seller’s own price bands, and an estimated total. The figures come from the system, not from the page.'],
   ['3', 'Adds a purchase order number and any notes, ticks the box to say they understand this is a request, and sends it.', 'Sends the request to the seller and emails the customer a copy. Nothing is charged and no stock is set aside.'],
   ['4', 'Waits for the seller’s answer, which arrives by email and in My preorders.', 'Shows the seller’s terms in full: pieces, price per piece, delivery charge, the date the seller commits to, and any split into several deliveries.'],
@@ -461,7 +461,10 @@ table(['Step', 'What the customer does', 'What the system does back'], [
   ['7', 'Follows progress: production started, ready for dispatch, then the delivery on the order.', 'Warns both sides if the committed date is close and the goods are not ready.'],
 ], [700, 4000, 5300]);
 bullets([
-  'Every product can be preordered. Where the seller has not set their own preorder terms, standard terms apply: the product’s own minimum and price, and the seller still answers every request. Products the shop sells itself are preordered from the shop, and the shop’s staff answer.',
+  'Every product can be preordered. Where the seller has not set their own preorder terms, standard terms apply: a minimum of 1,000 pieces (the business can change this figure, and a product that already needs more keeps its own), the product’s own price, and the seller still answers every request. Products the shop sells itself are preordered from the shop, and the shop’s staff answer.',
+  'A small round “i” button sits inside the right end of the Preorder button. Pressing it shows the same note at any time: the minimum for this product, in the unit the seller set it in, and how a preorder works. On a computer it opens next to the button; on a phone it slides up from the bottom of the screen.',
+  'When the customer raises the quantity on the product page to the preorder minimum, the page asks once, “Ordering in bulk?”, and offers Start preorder. Continue with regular order is offered too, but only where the product can be bought in the basket at that quantity. It does not keep asking as the number goes up, and it asks again only in a new visit or if the minimum changes.',
+  'The customer confirms the note once. The system remembers it for their account, so they are not asked every time. If the business changes how preorders work, it can ask every customer to read the note again. Confirming the note only says the customer has read it: it does not accept any terms, does not place an order and does not charge anything. A request cannot be sent without it.',
   'A seller can switch preorders off for a listing; the button then stays visible and greyed out, and says why. The business can also limit preorders to listings whose seller has set terms.',
   'Preorders are for business accounts. An account without a company name is told so, with a link to add one.',
   'A request is refused with a specific reason the customer can act on: “Minimum preorder quantity is 1,000 pieces.”, “Preorders must be placed in multiples of 100 pieces.”, “The earliest available delivery date is 15 December 2026.”',
@@ -469,6 +472,51 @@ bullets([
   'If the seller changes their terms while the customer is looking at them, pressing Confirm is refused and the new terms are shown. A customer can only ever agree to terms they have actually seen.',
   'A request nobody answers in time expires, and the customer is told. An agreed preorder that is not paid for in time is cancelled, and the seller’s capacity is released.',
 ]);
+h3('Ordering by the container');
+p('A customer who ships by sea can ask for whole containers instead of counting pieces. In the preorder form, “Order in” offers Pieces, 20-ft Container and 40-ft Container, and then any cartons or pallets the seller already offers.');
+bullets([
+  'Choosing a container changes the box to “Number of containers”, which takes whole numbers only. The form then says what that means in pieces, for example “1 × 20-ft Container = 12,000 pieces” and “2 × 20-ft Container = 24,000 pieces in total”.',
+  'The number of pieces in a container is the seller’s own figure for that exact version of the product, which the seller has checked. A different size or pack has its own figure, and changing the version on the page updates it.',
+  'The summary shows the number of containers, the pieces in each, the total pieces, the price per piece, the product subtotal and an estimated total. Delivery says “To be confirmed”: the seller quotes it in their answer.',
+  'If the seller has not given a checked figure for a container size, that size is shown greyed out as “not available”, and the form says why. Pieces can still be ordered. The customer is never shown a guess.',
+  'Containers are not offered on products the shop sells itself.',
+  'The system works out every figure itself from the number of containers the customer chose. A later change by the seller does not change a request that was already sent.',
+]);
+h3('When the customer asks for more than the seller has');
+p('Sometimes a customer asks for 40,000 pieces and the seller has 15,000 ready today. The system works out how many the seller could send now, and tells the customer honestly.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Sends a preorder for more than the seller has ready.', 'Says “The complete requested quantity is not currently available.”, with how many were asked for, how many are available for a first delivery, and how many remain. It says the seller will propose a later date or a split delivery. Nothing is set aside yet.'],
+  ['2', 'Waits for the seller’s proposal, which arrives by email.', 'Shows the proposal in full: the delivery dates and how many pieces come on each, the same in containers, the price, tax, delivery, the total, when the offer expires and the seller’s note.'],
+  ['3', 'Presses Accept offer, Reject offer, or Request a change with a message.', 'Accept checks everything again and, if the stock is still there, sets it aside for this customer and creates the order waiting for payment. Reject ends the preorder. Request a change sends the message back to the seller, who can make a new proposal; every earlier proposal is kept.'],
+  ['4', 'Pays for the order in the usual way.', 'Nothing is charged before this point.'],
+], [700, 4000, 5300]);
+bullets([
+  'If the stock has gone by the time the customer accepts — another buyer took it, for example — nothing is set aside and nothing is charged. The customer is told “Stock changed; seller revision required”, and the seller is asked to make a new proposal. The page also warns the customer before they press Accept if it can already see the stock has gone.',
+  'Two customers accepting against the same stock at the same moment cannot both get it.',
+  'An offer that has expired cannot be accepted.',
+  'The customer never sees which warehouse the stock is in.',
+  'Anything set aside for the customer is given back if the preorder is cancelled, expires or is rejected, or if its order is cancelled.',
+]);
+h2('5.4b Asking the team about a preorder');
+p('Beside the Preorder button on every product page there is a Chat button that carries the name of the business running the marketplace — for example “Chat with Northwind”. It lets a customer ask that business’s own team a question before they decide: how many fit in a container, whether a date is possible, what a bulk price might be. The seller of the product is not part of this conversation and does not see it.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Presses the Chat button.', 'Opens a chat panel on the right of the screen (the whole screen on a phone). At the top it shows the product: its picture, name, seller, code, option and minimum preorder quantity. If the customer is not signed in, it asks them to sign in first and then brings them straight back to the same product with the chat open.'],
+  ['2', 'Says what they need: pieces, a 20-ft container or a 40-ft container, how many, and a date if they have one.', 'Shows how many pieces that comes to, using the seller’s own checked figures for a container. Nothing is saved yet — simply opening the chat does not start a conversation.'],
+  ['3', 'Writes a message, or taps one of the quick questions to fill it in, and presses Enter or the Send button. Shift+Enter starts a new line; on a phone, Enter starts a new line and the Send button sends.', 'Sends it only once, however the key is pressed. Saves the message, starts the conversation and sends it straight to the team. The message shows Sent, then Delivered, then Read.'],
+  ['4', 'Waits for the reply, with the chat open or closed.', 'Shows the reply the moment the team sends it. If the customer has closed the page, it sends an email a few minutes later saying a reply is waiting — the email never contains the reply itself.'],
+  ['5', 'Reads a proposal the team sends, if they reach an agreement.', 'Shows a card with the quantity, pieces, an estimated price, a date and how long the proposal is open. Review proposal opens the normal preorder form already filled in; the customer checks it and sends the preorder request themselves.'],
+], [700, 4000, 5300]);
+bullets([
+  'The chat says honestly whether somebody from the team is online right now, and shows the business’s usual response time.',
+  'A short safety note asks the customer to keep product and preorder talk inside the marketplace, for their security and a correct order record, and never to share passwords, one-time codes, card details, bank logins or access keys in the chat.',
+  'Nothing typed in the chat is an order or a promise. Writing “yes” does not accept anything. Only a preorder request, answered by the supplier and confirmed by the customer, commits anybody.',
+  'Asking about the same product again continues the same conversation. When the team marks a conversation as answered, writing again reopens it. A closed conversation can still be read, and a new question starts a new one.',
+  'All of a customer’s conversations are under Account → Messages, with a count of unread replies. The list sits beside the open conversation, which says clearly that the customer is talking to the marketplace’s team — the seller is named only as the maker of the product. A strip under the heading shows the product, what was asked for and the latest proposal, marked as a record of the request and never as a price quote. The screen fits the window: only the messages scroll, and the box to write in always stays in view, even above a phone’s keyboard.',
+  'The conversation opens at the first unread reply. While the customer reads older messages, a new reply does not pull them away; a “new messages” button appears instead.',
+  'If the connection drops, the chat says so, keeps what the customer was typing, reconnects by itself and fetches anything it missed. A message that did not send can be sent again without it arriving twice.',
+  'Where the business allows it, the customer can attach a PDF or a picture. Each file is checked for viruses before it is kept, and only the people in the conversation can open it.',
+]);
+
 h2('5.4a Paying less per piece for more');
 p('Many sellers charge less per piece when a customer buys more — for example 10.00 each, 9.50 each from 100 pieces, 9.20 each from 500. The product page shows this as the customer chooses a quantity, and the basket charges it.');
 bullets([
@@ -975,7 +1023,35 @@ bullets([
   'Fixed price bands (“from 10,000 pieces, ₹80 per piece”) or “quoted per request”. A larger quantity can never be priced higher per piece than a smaller one.',
   'Cancellation terms and instructions for buyers.',
   'A minimum set in pallets is converted to pieces using that listing’s own pallet size, and the panel shows the piece figure buyers will see.',
-  'If the seller sets no terms at all, buyers can still preorder on standard terms — the listing’s own minimum and price — and the panel says so. The seller still accepts, counters or refuses every request. To stop preorders on a listing, the seller switches them off.',
+  'If the seller sets no terms at all, buyers can still preorder on standard terms — a minimum of 1,000 pieces (or the listing’s own minimum, if higher) and the listing’s own price — and the panel says so. The seller still accepts, counters or refuses every request. To stop preorders on a listing, the seller switches them off.',
+  'Stock kept back from preorders: a number of pieces the seller never promises to a preorder, so ordinary basket orders are not left short.',
+]);
+h3('Saying how many fit in a container');
+p('Before buyers can preorder by the container, the seller says how many pieces fit. This is on the listing, in a card called “Container loading for preorders”, just below Bulk packaging. Each version of a product has its own figure.');
+table(['What the seller does', 'What the system does'], [
+  ['Describes the carton: pieces in it, its length, width and height, and its weight when full. Any common unit can be used.', 'Uses the carton as the building block for everything below.'],
+  ['Says how high cartons may be stacked, if there is a limit, and whether they are loaded loose or on pallets.', 'Takes both into account.'],
+  ['For a 20-ft and a 40-ft container, says whether it is offered and how many cartons go in.', 'Works out the pieces per container, the weight of the load against what the container may carry, and how much of the space is used.'],
+  ['Presses “Use the estimate”, if they want a starting point.', 'Fills in the best fit it can work out from the carton’s size, the stacking limit and the weight — never from space alone.'],
+  ['Ticks “I have loaded or checked this figure”.', 'Only then offers that container size to buyers. A figure nobody has checked is never shown to a buyer.'],
+]);
+bullets([
+  'Changing the carton or a count without ticking again takes that size off sale until the seller checks it again.',
+  'An impossible figure is refused with the reason: a load heavier than the container may carry, cartons that take more room than the container has, a carton that fits no way round, or a missing number. The heaviest load allowed is a setting the business can change.',
+  'Every change is kept in the seller’s activity log with the figures before and after.',
+  'A request a buyer already sent keeps the figure it was made with. A later change does not alter it.',
+]);
+h3('When a buyer asks for more than you have');
+p('The system works out how many pieces the seller could promise today: the stock at the locations that serve preorders, less paid orders the seller has not accepted yet, less the stock kept back from preorders. Stock that is still being made or is on its way is not counted, because the system has no checked record of it.');
+bullets([
+  'A request for more than that is marked “More than available” in the preorder list, and the seller’s alert says how many are available. The seller sees how the figure was worked out; the buyer does not see warehouse details.',
+  'The seller presses “Propose a delivery schedule” and chooses one of two answers.',
+  'The complete quantity on a later date: one date the seller commits to, the choice to set aside the pieces available now for this buyer when they accept, the price per piece, the delivery charge, how long the offer stays open, and a note.',
+  'A split delivery: two or more deliveries on later and later dates. The first comes from stock on hand and cannot be more than is available; the rest come from later supply. Together they must add up exactly to what the buyer asked for. The buyer’s quantity is never changed or rounded.',
+  'Before sending, the seller sees a preview: each delivery in pieces and in containers (a part-filled container is shown as such), the stock that will be set aside, and the full price with tax and delivery. Any problem is listed, and leaving a changed proposal asks “Discard this proposal?”.',
+  'Nothing is set aside when the seller sends the proposal. Stock is set aside only when the buyer accepts. If it has gone by then, the buyer is not charged and the seller is asked to propose again.',
+  'When the seller accepts the order, the stock set aside for the buyer becomes the order’s own stock, so nothing is counted twice. In a split delivery, each later delivery needs its own stock before it can be sent.',
+  'If the stock covers the whole request, nothing changes: the seller accepts, counters or rejects as usual.',
 ]);
 
 h2('6a.10c-i Quantity prices');
@@ -1439,6 +1515,7 @@ bullets([
   'On a product the shop sells itself, the shop is the supplier: staff with permission to fulfil orders answer the preorder here — accept, counter, refuse, then mark production started and ready. A new request rings the bell, and the buyer is told the shop’s name, not the staff member’s.',
   'When the buyer has paid and the goods are ready, staff start fulfilling the order as usual, which hands the preorder over to delivery.',
   'A filter shows only the preorders the shop answers itself.',
+  'When a seller proposes a later date or a split delivery, staff see the proposal, its delivery dates and any stock set aside, but cannot change it. Staff answering the shop’s own products cannot yet make this kind of proposal themselves, and the shop’s own products do not offer containers or set stock aside for a preorder.',
 ]);
 
 h2('10.5 Sellers’ invoices and packing lists');
@@ -1480,6 +1557,26 @@ table(['Admin area', 'What staff can do'], [
   ['Customer limit management', 'Apply purchasing/credit limits according to business policy.'],
   ['Customer support context', 'Use order and account history to help the customer without asking them to repeat information.'],
 ], [2900, 7100]);
+h2('11.1a Preorder Chats — answering customers live');
+p('Customers’ questions from the product page arrive in Preorder Chats in the admin menu. The menu item shows how many customers are waiting for an answer, and the number changes the moment somebody writes.');
+table(['Staff member does', 'The system does back'], [
+  ['Opens Preorder Chats.', 'Shows the queue: who is asking, about which product and seller, the last message, how long they have waited, who is handling it, its status and priority. The wait turns amber when it nears the business’s target time and red when it passes it, with words as well as colour. It can be filtered (unassigned, assigned to me, unread, high priority, waiting for the customer, resolved and more), searched and sorted — for example the oldest unanswered first.'],
+  ['Opens a conversation.', 'Shows the messages, and beside them the product as the customer saw it when they asked and a link to the product as it is now, the customer, the seller and any linked preorder.'],
+  ['Replies, pressing Enter to send or Shift+Enter to start a new line.', 'Sends the reply to the customer at once, only once however the key is pressed. The first reply puts the conversation in that staff member’s name.'],
+  ['Scrolls back to read older messages.', 'Keeps their place when the customer writes again, and shows a “new messages” button instead of jumping. Pressing it goes to the newest message.'],
+  ['Takes, hands over or releases a conversation.', 'Moves it between staff. Handing it to a colleague sends them an email. Only people allowed to assign can give a conversation to someone else.'],
+  ['Marks it waiting for the customer, waiting on a colleague, resolved or closed.', 'Tells the customer where it stands, in simple words. A closed conversation stays readable.'],
+  ['Writes an internal note.', 'Keeps it for staff only, on its own tab, in a different colour. Customers never see it. A note is saved with its button (or Ctrl+Enter), never by Enter alone, so it cannot be sent by accident.'],
+  ['Sends a preorder proposal.', 'Works out the pieces from the seller’s checked figures and sends the customer a card they can turn into a preorder request. A new version replaces the old one.'],
+  ['Removes a message that should not be there, or blocks an abusive customer.', 'Keeps a record of who did it and why. Removing a message keeps a secure fingerprint of it, not the words. A blocked customer cannot start new chats on any product.'],
+], [4200, 5800]);
+bullets([
+  'Who can do what is decided by role. By default the business owner can do everything; the order desk can read and reply; finance can read. Giving conversations to others, removing messages, blocking and downloading a transcript are separate permissions.',
+  'If a customer waits longer than the business’s target time, the notification bell raises an alert that only a reply clears.',
+  'Staff can switch on desktop alerts. They say that a customer has written, never what they wrote.',
+  'Everything that is decided about a conversation is recorded in its activity list and the audit log.',
+]);
+
 h2('11.2 Companies — one business, all of its accounts');
 p('The same business can reach the marketplace in three ways at once. It can buy from the shop, it can sell its own products here, and it can carry parcels for the marketplace. Each of those is a separate account, and until now nothing told staff that the three belonged together.');
 p('The Companies screen groups them. Each business is one card, marked with what it does here — buys, sells, carries, or more than one of those. Opening a card shows each of its accounts with the figures that matter for it, and below them the people who work for that business. A person carries a mark for every account they belong to, so staff can see at a glance that the owner of a selling business is the same person who placed last week’s order from the buying side.');
@@ -1772,6 +1869,15 @@ bullets([
 page();
 
 // 14
+h2('13.6 Live chat that does not lose messages');
+bullets([
+  'Every chat message is saved before anybody is told about it, so what appears on a screen is always something the system has kept.',
+  'Messages are numbered by the system in the order they arrived, so two people writing at the same moment always see the same order.',
+  'A screen that lost its connection catches up by itself when it comes back, and never shows a message twice.',
+  'A business that runs the system on more than one server can switch on a setting so that a message sent through one reaches people connected to another.',
+  'Every minute the system emails customers about replies they have not read, raises the alert for customers waiting too long, and closes proposals that have run out of time.',
+]);
+
 h1('14. Security, Accessibility and Quality Features');
 h2('14.1 Security');
 bullets([
@@ -1780,6 +1886,7 @@ bullets([
   'Passwords use secure password hashing; reset/activation/contact tokens are time-limited and single-use.',
   'Every staff session is challenged for a code from an authenticator app, and recovery codes are issued once for a lost phone.',
   'Permissions are enforced on the server for protected actions.',
+  'Preorder chats: a customer can only ever open their own conversations, sellers cannot see them at all, staff need the right role, and a signed-out or disabled account loses the live connection within seconds. Messages are shown as plain text, so nothing a person types can run as code.',
   'Rate limits help protect login, API and expensive assistant actions.',
   'The address a request appears to come from is taken from the shop’s own front door, not from anything the caller can set — so neither the rate limits nor the lock-out after repeated failed sign-ins can be side-stepped by a caller claiming to be somebody else each time.',
   'Provider credentials and integration secrets are encrypted.',
@@ -1814,6 +1921,7 @@ h1('15. Optional Features and Configuration');
 p('Some features are implemented but only appear when the organisation enables the relevant feature flag or connects the required external provider.');
 table(['Optional capability', 'When it appears / what is required'], [
   ['Customer self-registration', 'Enabled by the customer-registration feature. It can still require staff approval after email confirmation.'],
+  ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The team can answer under its own name — for example a shop called Glovia whose customers are told “the UBoss team is available” — without renaming the shop.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],
   ['Any-product scheduling', 'Controls whether all published products or only selected products may be repeated.'],
@@ -1866,6 +1974,17 @@ table(['Step', 'Customer action', 'System response'], [
   ['7', 'Pays securely.', 'Payment provider event verifies payment; then order becomes confirmed and processing can begin.'],
   ['8', 'Checks My orders.', 'Shows order status, history, payment/invoice context and fulfilment progress.'],
 ], [800, 4100, 5200]);
+h2('Example A2 — A customer asks about a container before preordering');
+table(['Step', 'Who', 'What happens'], [
+  ['1', 'Customer', 'On a product page, presses the Chat button and asks: “How many fit in a 40-ft container, and can you deliver two by March?”'],
+  ['2', 'System', 'Shows the question to the team at once and raises the Preorder Chats count.'],
+  ['3', 'Order desk', 'Takes the conversation, checks with the warehouse (writing an internal note the customer cannot see), and replies.'],
+  ['4', 'Customer', 'Agrees in the chat.'],
+  ['5', 'Order desk', 'Sends a preorder proposal: two 40-ft containers, the pieces that makes, an estimated price and a date.'],
+  ['6', 'Customer', 'Presses Review proposal, checks the preorder form it fills in, accepts the preorder terms and sends the request.'],
+  ['7', 'System', 'Links the request to the conversation and sends it to the supplier, who answers with final terms that the customer confirms and pays for as with any preorder.'],
+], [800, 1600, 7600]);
+
 h2('Example B — Inventory manager handles stock');
 table(['Step', 'Staff action', 'System response'], [
   ['1', 'Signs in to Admin Console and completes required location check.', 'Creates staff session and records sign-in place for visibility.'],
@@ -1951,6 +2070,18 @@ table(['Step', 'Who acts', 'What happens'], [
   ['6', 'The buyer', 'Pays for the order.'],
   ['7', 'The system', 'Confirms the preorder when the payment provider confirms the payment, and tells the seller.'],
   ['8', 'The seller', 'Marks production started and, when the gloves are made and booked into stock, ready — then accepts the order, which hands it to ordinary delivery.'],
+], [700, 2300, 7000]);
+
+h2('Example H2 — A distributor asks for two containers and the seller has one ready');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'The seller', 'Has already said, on the listing, that 12,000 pieces of these gloves fit in a 20-ft container, and ticked that they have checked the figure.'],
+  ['2', 'A buyer', 'Opens Preorder, chooses “20-ft Container” and asks for 2. The form shows “2 × 20-ft Container = 24,000 pieces in total”, and sends the request.'],
+  ['3', 'The system', 'Works out that the seller could send 12,000 pieces now. It tells the buyer the full quantity is not currently available — 24,000 asked for, 12,000 available for a first delivery, 12,000 remaining — and that the seller will propose a schedule. Nothing is set aside. The seller’s list marks the request “More than available”.'],
+  ['4', 'The seller', 'Proposes a split delivery: 12,000 pieces from stock on 10 November and 12,000 from new production on 15 December. The preview shows one full container in each delivery and the full price with tax and delivery. The seller sends it.'],
+  ['5', 'The buyer', 'Is emailed, reads the schedule and the total on their preorder page, and presses Accept offer.'],
+  ['6', 'The system', 'Checks the stock again, sets the 12,000 pieces aside for this buyer, holds the seller’s capacity for the other 12,000, and creates one order waiting for payment. Had another buyer taken the stock first, nothing would have been charged and the seller would have been asked to propose again.'],
+  ['7', 'The buyer', 'Pays for the order in the usual way.'],
+  ['8', 'The seller', 'Accepts the order. The first container goes from the stock set aside; the second can only be sent once the new stock is in.'],
 ], [700, 2300, 7000]);
 
 h2('Example K — A hospital preorders a product the shop makes itself');

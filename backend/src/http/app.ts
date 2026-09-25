@@ -18,7 +18,7 @@ import cors from '@fastify/cors';
 import { CSRF_HEADER } from './plugins/auth.js';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import Fastify, { type FastifyError } from 'fastify';
+import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { allowedOrigins, env, isProduction } from '../config/env.js';
 import {
@@ -95,6 +95,9 @@ import { registerSellerLogisticsRoutes } from './routes/seller.logistics.js';
 import { registerSellerPreorderRoutes } from './routes/seller.preorders.js';
 import { registerPreorderRoutes } from './routes/preorders.js';
 import { registerAdminPreorderRoutes } from './routes/preorders.admin.js';
+import { registerPreorderChatRoutes } from './routes/preorder-chats.js';
+import { registerAdminPreorderChatRoutes } from './routes/preorder-chats.admin.js';
+import { registerChatRuntime } from '../modules/preorder-chat/realtime/runtime.js';
 import { registerSellerDocumentRoutes } from './routes/seller.documents.js';
 import { registerSellerQuantityTierRoutes } from './routes/seller.quantity-tiers.js';
 import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
@@ -508,6 +511,15 @@ export async function buildApp() {
     });
   });
 
+  // --- 7b. Live connections ------------------------------------------------
+  //
+  // The WebSocket plugin and the preorder chat's bus and gateway. On the root
+  // app, before any route: the plugin must see every route to upgrade one, and
+  // the health check below reports the bus.
+  // The cast is the same one `app.register` performs for every route plugin:
+  // this app's logger type is pino's, the helper takes the base instance.
+  await registerChatRuntime(app as unknown as FastifyInstance);
+
   // --- 8. Routes -----------------------------------------------------------
   await app.register(registerHealthRoutes);
 
@@ -683,6 +695,10 @@ export async function buildApp() {
   // The operator's side: read every preorder, and answer the ones on the
   // operator's own products (sellers' preorders stay read-only for staff).
   await app.register(registerAdminPreorderRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Preorder chat: a customer asking the operator's team about a preorder, and
+  // the operator's inbox. Customer <-> staff only; no seller route reads it.
+  await app.register(registerPreorderChatRoutes, { prefix: `${API_PREFIX}/preorder-chats` });
+  await app.register(registerAdminPreorderChatRoutes, { prefix: `${API_PREFIX}/admin` });
   // Seller invoices and packing lists: the seller's side, the buyer's and the
   // public check, and read-only for the operator.
   await app.register(registerSellerDocumentRoutes, { prefix: `${API_PREFIX}/seller` });

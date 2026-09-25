@@ -48,6 +48,7 @@ import { cx } from '@/lib/cx';
 import { useDropdownMaxHeight } from '@/lib/dropdown-height';
 import { useI18n } from '@/i18n/i18n-context';
 import { accountMenuGroups } from '@/pages/account/account-nav';
+import { useChatUnreadCount } from '@/lib/use-chat-unread';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 
 export function AccountMenu(): React.JSX.Element {
@@ -305,6 +306,7 @@ function MenuGroup({
 }): React.JSX.Element {
   const { t } = useI18n();
   const headingId = useId();
+  const unread = useChatUnreadCount();
 
   return (
     <div
@@ -341,6 +343,12 @@ function MenuGroup({
               >
                 <Mark aria-hidden="true" className="h-[1.15rem] w-[1.15rem] shrink-0" />
                 <span className="min-w-0 truncate">{t(item.menuLabelKey)}</span>
+                {item.id === 'messages' && unread > 0 && (
+                  <span className="ml-auto rounded-full bg-brand-fill px-1.5 text-xxs font-semibold text-white">
+                    <span aria-hidden="true">{unread}</span>
+                    <span className="sr-only">{t('preorderChat.page.unread', { count: unread })}</span>
+                  </span>
+                )}
               </NavLink>
             </li>
           );

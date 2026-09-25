@@ -2042,6 +2042,11 @@ export function ProductPage(): React.JSX.Element {
                       }
                       isReady={scheduleLine !== undefined}
                       pieces={totalPieces}
+                      // Add to Cart takes this quantity exactly when it is
+                      // live: the quantity box already holds it inside the
+                      // product's own ordering rules, and the server applies
+                      // the same rules to the cart.
+                      regularOrderAllowed={canBuy && !isPriceOnRequest}
                       className="w-full sm:w-auto"
                     />
                     <ProductInstructionsButton

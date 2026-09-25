@@ -119,7 +119,7 @@ describe('the header lockup', () => {
     const tagline = screen.getByText(PRODUCT_TAGLINE);
 
     expect(tagline).toBeInTheDocument();
-    // Written as a sentence and uppercased by CSS, not written in capitals.
+    // Written as a sentence, not in capitals.
     // A reader with a stylesheet that does not load, and anything reading the
     // markup, gets `The Way to the World` and not `THE WAY TO THE WORLD`.
     expect(tagline.textContent).toBe('The Way to the World');
@@ -128,11 +128,11 @@ describe('the header lockup', () => {
     expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
   });
 
-  it('sets the product name in the wordmark face, and only the name', () => {
+  it('sets the product name and the tagline in the one wordmark face', () => {
     renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
 
     expect(screen.getByText(PRODUCT_BRAND).className).toContain('font-brand');
-    expect(screen.getByText(PRODUCT_TAGLINE).className).not.toContain('font-brand');
+    expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
   it('shows the operator their own name and not the product name', () => {

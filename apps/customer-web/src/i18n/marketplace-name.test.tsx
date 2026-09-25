@@ -61,7 +61,10 @@ describe('the marketplace name in the catalogue', () => {
     for (const key of WITH_NAME) {
       const text = i18n.t(key, { ns: NAMESPACE });
       expect(text, `${code} ${key}`).toContain('Northwind Supply');
-      expect(text, `${code} ${key}`).not.toContain('{{');
+      // The NAME slot is filled. A sentence may carry other slots of its own -
+      // the preorder chat's welcome names the product too - which its call site
+      // fills; those are not this test's business.
+      expect(text, `${code} ${key}`).not.toContain('{{marketplace}}');
     }
   });
 

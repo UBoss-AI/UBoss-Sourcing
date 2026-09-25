@@ -41,6 +41,12 @@ export const Permission = {
   CUSTOMER_LIMITS_WRITE: 'customer.limits.write',
   CUSTOMER_STATUS_WRITE: 'customer.status.write',
   ASSISTANT_CHAT_READ: 'assistant_chat.read',
+  // Preorder chats with customers. Mirrors backend/src/domain/permissions.ts.
+  PREORDER_CHAT_VIEW: 'preorder_chat.view',
+  PREORDER_CHAT_REPLY: 'preorder_chat.reply',
+  PREORDER_CHAT_ASSIGN: 'preorder_chat.assign',
+  PREORDER_CHAT_MODERATE: 'preorder_chat.moderate',
+  PREORDER_CHAT_EXPORT: 'preorder_chat.export',
 
   ORDER_READ: 'order.read',
   ORDER_APPROVE: 'order.approve',

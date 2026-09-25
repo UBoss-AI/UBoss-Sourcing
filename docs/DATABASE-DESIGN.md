@@ -3654,6 +3654,18 @@ have agreed.**
 | [`PreorderRequest`](reference/DATABASE-TABLES.md#model-preorderrequest) | `preorder_requests` | one buyer's request, with the policy snapshot, the agreed terms and the order it became |
 | [`PreorderOffer`](reference/DATABASE-TABLES.md#model-preorderoffer) | `preorder_offers` | one numbered, hashed proposal of terms. Never edited: a change is a new revision |
 | [`PreorderStatusHistory`](reference/DATABASE-TABLES.md#model-preorderstatushistory) | `preorder_status_history` | one status change |
+| [`CustomerAcknowledgement`](reference/DATABASE-TABLES.md#model-customeracknowledgement) | `customer_acknowledgements` | one person saying they read one version of a piece of information - today only the bulk preorder note (`PREORDER_INFO`) |
+| [`SellerContainerLoading`](reference/DATABASE-TABLES.md#model-sellercontainerloading) | `seller_container_loading` | how many pieces of one listing (`seller_offers` row, so one variant) fit a 20-ft and a 40-ft container: the carton, and per size the carton count, pieces, where the figure came from and when it was verified |
+| [`PreorderFulfilmentInstallment`](reference/DATABASE-TABLES.md#model-preorderfulfilmentinstallment) | `preorder_fulfilment_installments` | one shipment of a delivery schedule, in one revision of the seller's terms |
+| [`PreorderStockHold`](reference/DATABASE-TABLES.md#model-preorderstockhold) | `preorder_stock_holds` | pieces at one seller location held for one accepted preorder |
+
+**The acknowledgement.** `uq_customer_ack (userId, type, policyVersion)` is the
+whole rule: one row per person per version of the note. A new
+`PREORDER_INFO_VERSION` matches no existing row, so every buyer is asked again,
+and the older rows stay as the record of what each person read and when. The
+server writes only the current version, and a preorder submission is refused
+while no row exists at it. The foreign key to `users` is `ON DELETE CASCADE`.
+It is information only - not acceptance of terms, not consent to be charged.
 
 ```mermaid
 erDiagram
@@ -3794,6 +3806,176 @@ confirms that hash: the offer becomes `ACCEPTED`, `confirmedTermsJson` and
 (`source = PREORDER`, `PENDING_PAYMENT`) and the request moves to
 `PAYMENT_REQUIRED`. The payment webhook confirms the order and the preorder
 together.
+
+#### Containers, available-to-promise and delivery schedules
+
+Added by `20260927090000_container_preorders_and_availability`. It is backward
+compatible: every new column is nullable or has a default, and the enums only
+gain members.
+
+**Container loading.** `seller_container_loading` is one-to-one with
+`seller_offers` (`uq_container_loading_offer`, `ON DELETE CASCADE`), so each
+variant has its own figure. The carton is described once (pieces, length,
+width, height in mm, gross weight in grams, an optional stacking limit, loose or
+pallet-loaded - `ContainerLoadingMethod` `CARTON_LOADED` / `PALLET_LOADED`).
+Each size has its own carton count, pieces, source
+(`ContainerCapacitySource`: `SELLER_VERIFIED` or `CALCULATED_ESTIMATE`) and
+verification time. Only a `SELLER_VERIFIED` size is offered to buyers. `version`
+is bumped on every save (optimistic concurrency) and the seller audit log keeps
+the figures before and after.
+
+**New columns.**
+
+| Table | Column | Meaning |
+|---|---|---|
+| `preorder_policies` | `safetyStockBaseUnits` | pieces never promised to a preorder (default 0) |
+| `preorder_requests` | `containerLoadingSnapshotJson`, `containerLoadingVersion` | the container loading as it stood at submission; never rewritten |
+| `preorder_requests` | `availableToPromiseAtSubmission`, `shortfallAtSubmission` | available-to-promise at submission and how far short the request fell (0 = enough). Informational: nothing is reserved at submission |
+| `preorder_offers` | `availableNowBaseUnits` | available-to-promise when the seller wrote the terms |
+| `preorder_offers` | `stockAllocationBaseUnits` | pieces these terms take from stock on hand, reserved when the buyer accepts (default 0) |
+
+**Enums that gained members.** `PreorderQuantityUnit`: `CONTAINER_20_FT`,
+`CONTAINER_40_FT` (beside the existing `PIECE`, carton, pallet and `CONTAINER`
+packaging members). `PreorderOfferKind`:
+`FULL_ON_REVISED_DATE`, `SPLIT_DELIVERY`. `PreorderOfferState`: `INVALIDATED`
+(the stock an offer relied on was gone when the buyer accepted). New enums:
+`PreorderInstallmentSource` (`AVAILABLE_STOCK`, `FUTURE_SUPPLY`),
+`PreorderInstallmentStatus` (`PROPOSED`, `PLANNED`, `STOCK_RESERVED`,
+`CANCELLED`), `PreorderStockHoldStatus` (`HELD`, `RELEASED`, `TRANSFERRED`).
+
+**Installments** belong to the **offer**, not the request
+(`uq_preorder_installment_sequence (offerId, sequence)`), so every revision
+keeps the schedule it proposed and the negotiation history is the offers in
+revision order. A plain accept or counter has none; a revised-date proposal has
+one; a split delivery has two to 24.
+
+**Stock holds** are written in the same transaction as the buyer's acceptance,
+after `SELECT … FOR UPDATE` on the listing's stock rows, by the same conditional
+decrement a basket reservation uses, with matching `seller_inventory_movements`
+rows (`referenceType = 'preorder_request'`). `uq_preorder_stock_hold_location
+(requestId, locationId)` means a retried acceptance cannot hold twice. A hold
+goes `HELD` → `RELEASED` (the preorder is cancelled, expires or is rejected, or
+its order is cancelled) or `HELD` → `TRANSFERRED` (the seller accepts the
+order, in the same transaction as the order's own reservation, so nothing is
+reserved twice).
+
+**CHECK constraints.**
+
+| Constraint | Rule |
+|---|---|
+| `chk_container_loading_carton` | carton pieces, dimensions and weight are positive |
+| `chk_container_loading_stack`, `chk_container_loading_pallets` | stacking limit and pallet figures are positive when set |
+| `chk_container_loading_20ft_pieces`, `…_40ft_pieces` | pieces per container = pieces per carton × cartons per container |
+| `chk_container_loading_20ft_verified`, `…_40ft_verified` | a `SELLER_VERIFIED` size has a verification date |
+| `chk_preorder_policy_safety_stock` | stock kept back ≥ 0 |
+| `chk_preorder_request_base_units` | `requestedBaseUnits` = `unitQuantity` × `unitsPerPackage` |
+| `chk_preorder_request_container_snapshot` | a container unit has a loading snapshot and version |
+| `chk_preorder_request_availability` | the shortfall and the recorded available-to-promise are not negative |
+| `chk_preorder_offer_stock_allocation` | stock allocation between 0 and the offer quantity |
+| `chk_preorder_installment_quantity` | an installment's pieces are positive and its sequence starts at 1 |
+| `chk_preorder_stock_hold_quantity` | a hold's pieces are positive |
+
+The rule that an offer's installments add up to its quantity spans rows, which a
+`CHECK` cannot see. It is enforced in the transaction that writes them
+(`domain/preorder-availability.ts`).
+
+**State model changes.** No new preorder statuses. The new offer kinds sit on
+`SELLER_COUNTERED`. A new SYSTEM edge, `SELLER_ACCEPTED` / `SELLER_COUNTERED` →
+`SELLER_REVIEW_REQUIRED`, is taken when the stock is gone at acceptance (the
+offer becomes `INVALIDATED`). A buyer's *Request a change* uses the existing
+BUYER edge to `SELLER_REVIEW_REQUIRED`, marking the offer `DECLINED` with the
+message.
+
+**Worked example.** A buyer asks for 40,000 pieces; available-to-promise is
+15,000, so the request records `availableToPromiseAtSubmission = 15000` and
+`shortfallAtSubmission = 25000`. The seller proposes a split delivery: a
+`preorder_offers` row (`kind = SPLIT_DELIVERY`, `stockAllocationBaseUnits =
+15000`) and two installments (15,000 `AVAILABLE_STOCK`, 25,000 `FUTURE_SUPPLY`,
+both `PROPOSED`). The buyer accepts: one `preorder_stock_holds` row per location
+(`HELD`, 15,000 in total), the installments become `STOCK_RESERVED` and
+`PLANNED`, capacity is held for 25,000 only, and one order is created awaiting
+payment. When the seller accepts the order the holds become `TRANSFERRED`; the
+second shipment reserves its own stock when it is dispatched.
+
+### 5.23a Preorder chat
+
+**Purpose.** A signed-in buyer asking the operator's own team about a preorder,
+from the product page, answered live in the console. **Customer and operator
+staff only**: the seller is not a participant and no seller route reads these
+tables. The database is the source of truth; the live connection only says
+something changed.
+
+| Model | Table | One row means |
+|---|---|---|
+| [`PreorderChatConversation`](reference/DATABASE-TABLES.md#model-preorderchatconversation) | `preorder_chat_conversations` | one customer's conversation about one product (and option, and linked preorder), with its frozen product snapshot, status, assignee, counters and clocks |
+| [`PreorderChatParticipant`](reference/DATABASE-TABLES.md#model-preorderchatparticipant) | `preorder_chat_participants` | one person's place in a conversation - the customer, or a member of staff who opened it - and how far they have read |
+| [`PreorderChatMessage`](reference/DATABASE-TABLES.md#model-preorderchatmessage) | `preorder_chat_messages` | one message the customer can see: text, a file, a system card, or a proposal card |
+| [`PreorderChatNote`](reference/DATABASE-TABLES.md#model-preorderchatnote) | `preorder_chat_notes` | one internal note by staff. **Never** read by any customer route |
+| [`PreorderChatProposal`](reference/DATABASE-TABLES.md#model-preorderchatproposal) | `preorder_chat_proposals` | one revision of preorder terms staff suggested, and the preorder request the customer made from it |
+| [`PreorderChatAttachment`](reference/DATABASE-TABLES.md#model-preorderchatattachment) | `preorder_chat_attachments` | one file in a conversation: private storage key, safe display name, SHA-256, scan state |
+| [`PreorderChatCustomerBlock`](reference/DATABASE-TABLES.md#model-preorderchatcustomerblock) | `preorder_chat_customer_blocks` | one customer the team has stopped messaging, with the reason |
+| [`RealtimeEvent`](reference/DATABASE-TABLES.md#model-realtimeevent) | `realtime_events` | one live event in flight between API processes (`REALTIME_BUS_DRIVER=database`): ids only, deleted within minutes |
+
+**One live conversation per thing.** `activeKey` is
+`customerProfileId:productId:variantKey:preorderKey` while the conversation is
+live and `NULL` once it is `CLOSED`; `uq_preorder_chat_active` is UNIQUE, and
+MariaDB treats every `NULL` as distinct, so any number of closed conversations may
+share a product while two live ones cannot. `variantKey` and `preorderKey` are
+`''` rather than `NULL` for the same reason. Two first messages racing each other
+meet the index and the second joins the first.
+
+**Order and retries.** `serverSequence` is allocated by incrementing
+`lastSequence` on the conversation row inside the message's own transaction (the
+row lock queues concurrent senders), and `uq_preorder_chat_message_seq
+(conversationId, serverSequence)` holds it. `uq_preorder_chat_message_client
+(senderKey, clientMessageId)` makes a retry return the stored message.
+`senderKey` is `C:<userId>`, `A:<userId>` or `S:<conversationId>`; a system
+card's `clientMessageId` is deterministic (`proposal:<id>`), so the system
+cannot post a card twice either.
+
+**Unread without counting rows.** `customerMessageCount` / `staffMessageCount`
+count each side's messages (system cards count on the staff side);
+`customerReadStaffCount` / `staffReadCustomerCount` record how many of the other
+side's messages existed when that side last read. Unread is the difference.
+Staff unread is the **team's**. `customerDeliveredSeq`, `customerReadSeq`,
+`staffDeliveredSeq`, `staffReadSeq` drive Delivered and Read, and move only
+forward. `awaitingReplySince` is the oldest unanswered customer message; the
+queue's waiting clock, the badge and the SLA alert read it.
+
+**The snapshot.** `contextSnapshotJson` is written once: product, option, seller
+name, SKU, minimum, verified unit sizes and the customer's unit, quantity,
+equivalent pieces and date. `productName`, `productSku` and `sellerName` are
+copied out of it for search. `productId`, `variantId`, `sellerAccountId` and
+`offerId` are not foreign keys, like `preorder_requests`: an archived product
+must not take the conversation with it.
+
+**Foreign keys.** Conversations, messages, participants, notes, proposals and
+attachments cascade from the customer profile (erasure removes them all).
+`assignedAdminId` and `preorderRequestId` are `SET NULL`. Participants cascade
+from `users`. An attachment's `messageId` is UNIQUE and `SET NULL`. Every key is
+`ON UPDATE RESTRICT`.
+
+**State model.** See `domain/preorder-chat-state.ts` and the PRD (7.4a).
+Proposals: `PROPOSED` → `SUPERSEDED` | `WITHDRAWN` | `DECLINED` | `SUBMITTED` |
+`EXPIRED`; a change is a new revision (`uq_preorder_chat_proposal_revision`),
+and `preorderRequestId` is UNIQUE, so one request answers one proposal.
+
+**Personal data.** Disclosed in the Art. 15 bundle as `preorderChats`
+(conversations, messages as the customer saw them, proposals, read position,
+block); internal notes are withheld under `internalNotes`. Art. 17 erasure
+deletes the customer's conversations and blocks and, after commit, the
+attachment files. `PREORDER_CHAT_RETENTION_DAYS` (0 = keep for ever) deletes
+closed conversations older than that.
+
+**Worked example.** A buyer writes about 2,000 pieces: one conversation (`NEW`,
+`lastSequence = 1`, `awaitingReplySince` set), one participant, one message
+(`serverSequence = 1`). Staff reply: message 2, `firstResponseAt` set,
+`awaitingReplySince` cleared, `status = OPEN`, and the conversation is assigned to
+whoever replied. Staff send a proposal: one `preorder_chat_proposals` row
+(revision 1, `PROPOSED`) and a `STRUCTURED_OFFER` message pointing at it. The
+buyer sends a preorder request from it: the proposal becomes `SUBMITTED` with the
+request's id, the conversation's `preorderRequestId` and `activeKey` take it, and
+a system card says so. The request itself is untouched and goes to the supplier.
 
 ### 5.24 Seller documents: invoices and packing lists
 

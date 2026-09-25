@@ -178,6 +178,7 @@ export const QUEUE_LABELS: Readonly<Record<string, TranslationKey>> = Object.fre
   customerApprovals: 'operations.queue.customerApprovals',
   dataRequests: 'operations.queue.dataRequests',
   logisticsExceptions: 'operations.queue.logisticsExceptions',
+  preorderChats: 'operations.queue.preorderChats',
   paymentsUnreconciled: 'operations.queue.paymentsUnreconciled',
   paymentWebhooksRejected: 'operations.queue.paymentWebhooksRejected',
   scheduleOccurrencesFailed: 'operations.queue.scheduleOccurrencesFailed',

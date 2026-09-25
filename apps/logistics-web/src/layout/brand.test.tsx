@@ -92,17 +92,17 @@ describe('the portal’s brand lockup', () => {
     expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
   });
 
-  it('sets the name in the wordmark face, and only the name', () => {
+  it('sets the name and the tagline in the one wordmark face', () => {
     renderBrand();
 
     expect(screen.getByText(PRODUCT_BRAND).className).toContain('font-brand');
-    expect(screen.getByText(PRODUCT_TAGLINE).className).not.toContain('font-brand');
+    expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
   it('spells both of them the one way', () => {
     renderBrand();
 
-    // Written as a sentence and uppercased by CSS, not written in capitals.
+    // Written as a sentence, not in capitals.
     expect(screen.getByText('Glovia').textContent).toBe('Glovia');
     expect(screen.getByText('The Way to the World').textContent).toBe('The Way to the World');
   });

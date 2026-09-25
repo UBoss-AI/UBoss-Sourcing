@@ -55,6 +55,11 @@ export interface StorefrontConfig {
    */
   marketplace?: {
     displayName: string;
+    /**
+     * Who answers a preorder chat (`PREORDER_CHAT_TEAM_NAME`), filling
+     * `{{team}}` through `setChatTeamName`. Usually `displayName`.
+     */
+    chatTeamName?: string;
   };
   business: {
     displayName: string;

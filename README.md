@@ -39,6 +39,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [The four delivery levels: L1 to L4](#the-four-delivery-levels-l1-to-l4) | Who runs and prices each leg of a seller's delivery, and the platform fee on the seller's side |
 | [Buying by the carton, the pallet or the container](#buying-by-the-carton-the-pallet-or-the-container) | Bulk packaging, freight quotes, and the base-unit rule |
 | [Bulk preorders](#bulk-preorders) | Request, seller answer, buyer confirmation, and one order |
+| [Preorder chat](#preorder-chat) | Buyers ask your team live from the product page; the Preorder Chats inbox; proposals into the preorder form |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
 | [Quantity prices and the bulk-savings popover](#quantity-prices-and-the-bulk-savings-popover) | Price bands per piece, charged in the basket and shown on the product page |
 | [A seller's own accounting system: TallyPrime](#a-sellers-own-accounting-system-tallyprime) | The bridge, what "Connected" means, and what posts |
@@ -87,7 +88,8 @@ None of the brand strings is translated. A name is a fact rather than a string,
 the tagline is a brand asset, and `Powered by UBOSS` is a fixed attribution
 lockup, so all three read identically in all eight languages. The word "Glovia"
 wherever it is the brand is set in its own bundled script face, Dancing
-Script Bold; on a
+Script Bold, and so is the tagline under it, so both look the same on every
+device and in all three applications; on a
 deployment with its own business name, that name is set in the ordinary face
 and carries no Glovia tagline.
 
@@ -2280,12 +2282,14 @@ order.
 ### What happens, in order
 
 1. The buyer presses **Preorder**, chooses the quantity (in pieces, cartons,
-   pallets or containers), the delivery address and a date, and sends a
-   request. Nothing is charged and no stock is reserved.
+   pallets, or 20-ft and 40-ft containers), the delivery address and a date,
+   and sends a request. Nothing is charged and no stock is reserved.
 2. The seller sees it at *Seller Hub → Orders → Preorders*, with their own
    capacity for that period drawn beside it, and **accepts** it as asked,
    **counters** with a different quantity, price, committed date or a split
-   into several deliveries, or **rejects** it with a reason. Every answer
+   into several deliveries, or **rejects** it with a reason. For a request larger
+   than the stock on hand, they can propose a **delivery schedule** instead
+   (below). Every answer
    carries a committed delivery date and the delivery charge.
 3. The buyer sees those terms and **confirms** or declines them. Confirming
    names the exact revision by its SHA-256, so terms that changed while the
@@ -2313,7 +2317,76 @@ listing's own active packaging), the step, a maximum, production capacity per
 day, week or month, production lead time, how far ahead a delivery may be
 booked, delivery countries, fixed price bands or "quoted per request", whether
 partial and split deliveries are allowed, how long each side has to answer,
-cancellation terms and instructions.
+cancellation terms and instructions. The same terms carry **Stock kept back
+from preorders (pieces)** — stock never promised to a preorder, kept for
+ordinary orders.
+
+### Ordering by the container
+
+The form's **Order in** list offers *Pieces*, *20-ft Container* and *40-ft
+Container*, then any carton, pallet or container packaging the seller already
+has. Choosing a container turns the quantity into **Number of containers**
+(whole numbers only) and shows what that means — *"2 × 20-ft Container = 24,000
+pieces in total"* — from the seller's own verified figure for that exact
+variant. Delivery is shown as *"Estimated logistics charges: To be confirmed"*;
+the seller quotes it in their answer.
+
+The figure comes from the seller. At *Seller Hub → Listings → (a listing) →
+Container loading for preorders* (below *Bulk packaging*) they describe the
+carton — pieces, size, gross weight, an optional stacking limit, loose or on
+pallets — and how many cartons go in a 20-ft and a 40-ft container. The card
+works out pieces per container, checks the weight against the payload limit and
+the space used, and offers an estimate from space, stacking and weight (never
+volume alone). A size reaches buyers only once the seller ticks *"I have loaded
+or checked this figure"*; changing the carton or a count without ticking again
+takes it off sale. An impossible figure — too heavy, too much room, a carton
+that fits no way round — is refused. Every save is versioned and audited.
+
+A size the seller has not configured or verified is shown *"(not available)"*,
+pieces stay available, and the buyer is told why. The operator's own products
+do not offer container ordering. A request keeps a frozen copy of the loading it
+was made with, and the server works out every figure from just the unit and the
+count.
+
+### When the buyer asks for more than there is
+
+The server works out **available-to-promise**: sellable stock at the seller's
+locations that may serve preorders, less paid orders the seller has not yet
+accepted, less the stock kept back — never below zero. Incoming or planned
+production stock is **not** counted; this product has no verified record of it.
+
+When a request is for more than that, the buyer is told *"The complete requested
+quantity is not currently available."*, with how much is available now and how
+much remains, and nothing is reserved yet. The seller's inbox marks it **More
+than available**, and at *Propose a delivery schedule* they offer either:
+
+- **The complete quantity on a revised date**, optionally holding the pieces
+  available now for this buyer; or
+- **A split delivery** — two to 24 shipments on later and later dates, the
+  first from stock on hand and the rest from later supply, adding up exactly to
+  what was asked.
+
+Both show a live server preview first: the schedule in containers (a part-filled
+container is shown as such, never rounded), the stock that will be held, and the
+full price with tax and delivery. The seller chooses how long the offer stays
+open, up to `PREORDER_PROPOSAL_MAX_EXPIRY_HOURS`.
+
+The buyer is emailed and can **accept**, **reject** (which ends the preorder) or
+**request a change** with a message, which sends it back to the seller as a new
+round and keeps every earlier one. On accept, in one transaction, the server
+checks everything again, locks the stock, reserves the part held, and creates
+the order awaiting payment. If the stock has gone meanwhile, nothing is
+reserved or charged, the offer is withdrawn, both sides are told, and the
+seller revises it (`PREORDER_STOCK_CHANGED`). Two buyers accepting against the
+same stock cannot both get it.
+
+A hold is released if the preorder or its order is cancelled, expires or is
+rejected, and handed over when the seller accepts the order. A split delivery's
+later shipments reserve their own stock when they are dispatched.
+
+Staff answering the operator's own products in the admin panel have no
+revised-date or split screen yet; they see these offers read-only. An ordinary
+accept or counter still holds no stock.
 
 ### Every product can be preordered
 
@@ -2321,7 +2394,10 @@ With `PREORDER_OPEN_TO_ALL` on (the default), the button is live on **every**
 product:
 
 - **A seller's listing with no terms** takes preorders on the platform's
-  standard terms: the listing's own ordering minimum and step, its list price
+  standard terms: a minimum of `PREORDER_DEFAULT_MOQ` pieces (1,000 unless
+  the operator changes it; a listing whose own ordering minimum is higher
+  keeps its own, and the figure is raised onto the listing's step — 1,008 for
+  cartons of 48), the listing's own step, its list price
   as an indicative price (or "quoted" where it has none), no capacity limit,
   `PREORDER_DEFAULT_LEAD_DAYS` of production and bookable
   `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` ahead. The seller still accepts,
@@ -2339,8 +2415,37 @@ product:
 
 With `PREORDER_OPEN_TO_ALL=false`, only listings whose seller configured terms
 take preorders, and everything else shows the button disabled with *"Bulk
-preorder configuration is not currently available for this product."* No
-minimum is invented in either case: the default minimum is the listing's own.
+preorder configuration is not currently available for this product."* The
+minimum a buyer is held to comes from one chain — the version's terms, then
+the product's, then the seller's default, then `PREORDER_DEFAULT_MOQ` — and
+every screen that states it reads it from the same server answer.
+
+### The minimum, said before the buyer asks
+
+Three things on the product page all say the same minimum and all lead into
+the same request form:
+
+- **The ⓘ inside Preorder.** A separate button at Preorder's right end,
+  always there while Preorder is, and still pressable when Preorder is off. It opens *Bulk preorder information* — a popover beside the button on a
+  desktop, a bottom sheet on a phone — with the product's minimum in its own
+  unit ("10 UK pallets (12,000 pieces)"), that the seller confirms quantity,
+  price, availability and date, and that sending a request charges nothing.
+- **"Ordering in bulk?"** When the quantity on the page reaches the minimum
+  from below it (999 → 1,000), a suggestion appears once the number settles,
+  with **Start preorder** and — only where Add to Cart takes that quantity —
+  **Continue with regular order**. Once per product per session; a new
+  minimum or a new version of the note brings it back.
+- **The first press of Preorder.** Before the form, the buyer ticks *"I
+  understand the minimum quantity and preorder process."* and presses *Agree
+  and continue to preorder*, which stays disabled until the box is ticked.
+
+The tick is recorded **on the server**, per person, against
+`PREORDER_INFO_VERSION`; submitting a preorder without a record at the current
+version is refused (`PREORDER_ACKNOWLEDGEMENT_REQUIRED`), whatever the request
+body says. Raising the version asks every buyer again. A guest's tick is kept
+in the browser tab and recorded against their account when they sign in. It is
+an acknowledgement of information only — not acceptance of terms, not consent
+to be charged, not an order.
 
 ### The earliest date
 
@@ -2373,6 +2478,11 @@ same product, the same variant, with the form open. Submitting needs an active
 | `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product: unconfigured listings use the platform default, and the operator's own products are answered by staff. `false` limits preorders to listings with seller terms. |
 | `PREORDER_DEFAULT_LEAD_DAYS` | `14` | Production lead time under the platform default terms. |
 | `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` | `365` | How far ahead a delivery may be booked under the platform default terms. |
+| `PREORDER_DEFAULT_MOQ` | `1000` | Minimum preorder quantity, in pieces, where no seller terms apply — and so the quantity at which the product page suggests a preorder. A seller's own minimum always wins. |
+| `PREORDER_INFO_VERSION` | `PREORDER_INFO_V1` | Version of the "how bulk preorders work" note buyers acknowledge. Raise it (`PREORDER_INFO_V2`) and every buyer is asked again before their next preorder. |
+| `PREORDER_PROPOSAL_MAX_EXPIRY_HOURS` | `720` | The longest a seller may leave a revised-date or split-delivery proposal open. |
+| `CONTAINER_20FT_MAX_PAYLOAD_KG` | `28200` | Heaviest cargo a seller may state for a 20-ft container; a heavier loading is refused. |
+| `CONTAINER_40FT_MAX_PAYLOAD_KG` | `26700` | The same for a 40-ft container. |
 
 The button is on every product page; whether it is live is decided by
 `PREORDER_OPEN_TO_ALL` and, on a listing with its own terms, by the seller.
@@ -2383,6 +2493,96 @@ It takes no **deposit**: this software captures an order's whole amount, and a
 partial capture is not something its payment integration can express. It does
 not issue a **proforma invoice**; the terms the buyer confirms, with their
 reference, are the quotation.
+
+---
+## Preorder chat
+
+A buyer looking at any product can ask **your team** about a preorder before
+sending one - *"how many fit in a 40-ft container?"*, *"can you do 20,000 by
+March?"* - and your staff answer live in the admin console.
+
+It is between the **customer and your staff only**. The seller of the product is
+not in the conversation and never sees it.
+
+### What each side has
+
+- **The buyer:** **Chat with {marketplace}** beside Preorder on every product
+  page, named with your trading name (*Chat with Glovia* until you set one). It
+  opens a drawer (full screen on a phone) with the product card - picture, name,
+  seller, SKU, option, minimum, and the unit (pieces, 20-ft or 40-ft container),
+  quantity, equivalent pieces and date they are asking about - your team's
+  availability, your typical response time, quick questions and a safety
+  notice. Their conversations are under **Account → Messages**: the list beside
+  the open conversation, which names your team (the seller appears only as a
+  fact about the product) and keeps a foldable product strip labelled a
+  snapshot, never a quote. A guest is asked to sign in and brought back with
+  the chat open.
+- **Your staff:** **Preorder Chats** in the sidebar, badged live with the
+  customers waiting for an answer. A three-pane inbox: the queue (search; the
+  views All, Unassigned, Assigned to me, Unread and High priority; a status
+  menu; sorting; how long each customer has waited against the response
+  target), the conversation with internal notes and activity, and the details
+  - the product as the customer saw it and as it is now, the current offer, the
+  customer, the seller, the linked preorder and proposals. Staff can take, give
+  and release conversations, resolve and reopen, set status and priority, tag,
+  block, redact and download a transcript, each as their role allows.
+- **Both screens:** fill the window without the page itself scrolling - only
+  the list, the history and the details panel scroll, and the reply box stays
+  in view, above a phone's keyboard too. **Enter sends, Shift+Enter is a new
+  line** (on a touch keyboard, the Send button sends). The history opens at
+  the first unread message and never jumps while you read older ones - a
+  "new messages" button appears instead.
+
+### The rules it keeps
+
+- **It is real time and nothing is lost.** Messages are stored and committed
+  before anybody is told, in the server's order, with Sent / Delivered / Read
+  marks. A page that loses its connection says so, reconnects on its own and
+  catches up without duplicates; a retried send is never stored twice.
+- **A chat message binds nobody.** When you and a buyer agree, staff send a
+  **proposal**; *Review proposal* opens the ordinary preorder form filled in,
+  and the buyer sends a real preorder request. Only the supplier's answer,
+  confirmed by the buyer, is a commitment.
+- **Honest availability.** "The team is available" only while somebody who can
+  reply is actually connected.
+- **Private.** Internal notes never reach the buyer. Staff appear as "the
+  {marketplace} team", never by name. Emails and desktop alerts say a message is
+  waiting, never what it says.
+
+### Permissions
+
+| Permission | Allows | Granted to |
+|---|---|---|
+| `preorder_chat.view` | Read the inbox, conversations, notes, activity | Business Owner, Order Manager, Finance |
+| `preorder_chat.reply` | Reply, notes, take a conversation, status, priority, tags, link a preorder, proposals | Business Owner, Order Manager |
+| `preorder_chat.assign` | Give a conversation to a colleague | Business Owner |
+| `preorder_chat.moderate` | Spam, block, unblock, redact | Business Owner |
+| `preorder_chat.export` | Download a transcript | Business Owner |
+
+### Configuration
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `FEATURE_PREORDER_CHAT` | `true` | The whole feature. `false` hides the button and answers every chat route 404. |
+| `REALTIME_BUS_DRIVER` | `memory` | `memory` for one API process. **`database` when you run several** behind a load balancer: live events then cross processes through the `realtime_events` table (ids only, cleared within minutes). No Redis needed. |
+| `REALTIME_BUS_POLL_MS` | `750` | How often each process reads that table under `database`. |
+| `PREORDER_CHAT_TYPICAL_RESPONSE` | `within 4 business hours` | Shown as "Typical response time: …", in your words. Empty shows nothing. |
+| `PREORDER_CHAT_TEAM_NAME` | *(empty)* | The name your chat team goes by: "the *name* team is available", "*name* Preorder Team", "*name* closed this conversation". Empty uses your marketplace's display name. Set it when your team answers under a different name from your storefront - the button still says "Chat with" your marketplace. |
+| `PREORDER_CHAT_SLA_MINUTES` | `240` | Minutes a customer may wait before the console bell raises an alert that only a reply closes. |
+| `PREORDER_CHAT_EMAIL_DELAY_MINUTES` | `10` | Minutes a reply sits unread before the customer is emailed that it is waiting. |
+| `PREORDER_CHAT_MESSAGES_PER_MINUTE` | `20` | Messages one person may send per minute. |
+| `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` | `10` | New conversations one customer may open per hour. |
+| `PREORDER_CHAT_MAX_MESSAGE_CHARS` | `4000` | Longest message, in characters. |
+| `PREORDER_CHAT_ATTACHMENTS_ENABLED` | `true` | PDF and image attachments, when a scanner will check them. |
+| `PREORDER_CHAT_ATTACHMENT_MAX_BYTES` | `10485760` | Largest attachment. |
+| `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS` | `false` | Development only - production refuses to start with it on. Without ClamAV and without this, attachments say they are unavailable and text chat still works. |
+| `PREORDER_CHAT_RETENTION_DAYS` | `0` | Days a closed conversation is kept; `0` keeps them for ever. |
+
+### What it does not do
+
+No machine translation of messages yet, no seller in the conversation, no
+mobile push, and no editing a message once sent. Spreadsheets are not accepted
+as attachments.
 
 ---
 ## Seller invoices and packing lists
@@ -2994,6 +3194,12 @@ seam that would have to change.
 
 ---
 
+> **Running more than one API process?** Set `REALTIME_BUS_DRIVER=database` so a
+> preorder chat message sent through one process reaches browsers connected to
+> another. With the default `memory` they only see it when they next catch up.
+> The shipped nginx snippet already forwards the WebSocket upgrade; keep its 30s
+> read timeout above the chat's 25s heartbeat.
+
 ## Verifying a change
 
 Each project gates on the same checks:
@@ -3101,6 +3307,12 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **Tax is charged on the discounted amount.** A coupon's share is apportioned
   across the eligible lines with largest-remainder before tax is calculated, so
   the per-line figures sum to the total charged.
+- **A preorder chat message binds nobody.** Chat is between the customer and
+  the operator's staff only - no seller reads it - and a proposal only fills in
+  the preorder form. Conversation status changes only through
+  `preorder-chat-state.ts`; nothing is announced over the live connection
+  before it is committed; internal notes live in a table no customer route
+  reads.
 - **Order status changes only through `assertTransition`.** No service writes
   `status` itself. Plan and occurrence status go through the assertions in
   `schedule-state.ts` for the same reason, and it matters more there: an
@@ -3142,8 +3354,10 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   confirmation names the exact terms by hash, creates one order awaiting
   payment (`preorder_requests.convertedOrderId` is UNIQUE) and holds the
   seller's capacity with one conditional UPDATE, so two buyers confirming the
-  last of a month cannot both succeed. Every status change goes through
-  `assertPreorderTransition`.
+  last of a month cannot both succeed. Stock is held for a preorder only when
+  the buyer accepts a revised-date or split-delivery offer, in the same
+  transaction and with the same conditional decrement a basket uses. Every
+  status change goes through `assertPreorderTransition`.
 - **A quantity band is applied by `priceForQuantity` and nothing else.** The
   basket, the checkout, a preorder, a scheduled order and the product page's
   popover all call it (the store-wide quantity discounts on the store's own

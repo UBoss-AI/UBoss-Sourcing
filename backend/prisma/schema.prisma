@@ -186,6 +186,12 @@ model User {
   /// erase the record of what they did.
   logisticsAuditLogs  LogisticsAuditLog[]
   logisticsPings      LogisticsLocationPing[]
+  /// Information this person has said they read - the bulk preorder note.
+  acknowledgements    CustomerAcknowledgement[]
+  /// Preorder chats: the ones assigned to this member of staff, and this
+  /// person's own read position in each conversation they have opened.
+  preorderChatsAssigned    PreorderChatConversation[] @relation("PreorderChatAssignee")
+  preorderChatParticipants PreorderChatParticipant[]
 
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
@@ -2196,6 +2202,8 @@ model CustomerProfile {
 
   assistantConversations AssistantConversation[]
   preorderRequests  PreorderRequest[]
+  preorderChats     PreorderChatConversation[]
+  preorderChatBlock PreorderChatCustomerBlock?
 
   /// Their place in a buyer organisation, which is what owns an ERP
   /// connection. At most one - see `BuyerOrganizationMember`, where the
@@ -9749,6 +9757,9 @@ model SellerOffer {
   /// container. Optional, and its absence is the ordinary case: an offer with
   /// no profile sells exactly as it did before bulk ordering existed.
   packagingProfile SellerPackagingProfile?
+  /// How many pieces fit in a 20-ft and a 40-ft container, for container
+  /// preorders. Optional: without it, container ordering is not offered.
+  containerLoading SellerContainerLoading?
   /// Baskets and orders that chose THIS seller's offer. Both are RESTRICT on
   /// delete: an offer somebody has bought is evidence of what was sold, and
   /// removing it would leave the line pointing at nothing. Archive instead.
@@ -14820,6 +14831,80 @@ model SellerPackagingTier {
   @@map("seller_packaging_tiers")
 }
 
+/// How many pieces of one offer fit in a 20-ft and a 40-ft container.
+///
+/// Per OFFER, and an offer is one seller's terms for one variant - so a size
+/// or pack type with a different carton has its own row and a buyer switching
+/// variant never sees another variant's figure.
+///
+/// The carton is described once; each container size has its own carton count
+/// and its own verification, because a seller may have loaded a 20-ft box and
+/// never a 40-ft one. The piece capacity is always
+///
+///     piecesPerContainer = piecesPerCarton x cartonsPerContainer
+///
+/// and is STORED (and checked by chk_container_loading_*_pieces) so a buyer's
+/// snapshot, the seller's screen and this row cannot disagree.
+///
+/// Only a SELLER_VERIFIED size is offered to a buyer. A CALCULATED_ESTIMATE is
+/// the system's arithmetic from carton size and weight - never volume alone -
+/// and is shown to the seller as a starting point until they confirm it.
+///
+/// Every save bumps `version` and writes the seller audit log with the figures
+/// before and after.
+model SellerContainerLoading {
+  id              String @id @db.Char(26)
+  offerId         String @unique(map: "uq_container_loading_offer") @db.Char(26)
+  /// Denormalised from the offer for the tenant filter, as on the packaging
+  /// tables.
+  sellerAccountId String @db.Char(26)
+
+  // --- The carton ------------------------------------------------------------
+
+  piecesPerCarton        Int
+  cartonLengthMm         Int
+  cartonWidthMm          Int
+  cartonHeightMm         Int
+  grossWeightPerCartonGrams BigInt
+
+  /// How many cartons high they may be stacked in the container. Null means
+  /// the seller put no limit on it (floor to roof).
+  maxStackLayers Int?
+
+  /// Pallet-loaded or floor-loaded. On PALLET_LOADED the carton counts below
+  /// are pallets x cartons per pallet.
+  loadingMethod    ContainerLoadingMethod @default(CARTON_LOADED)
+  cartonsPerPallet Int?
+
+  // --- 20-ft -----------------------------------------------------------------
+
+  palletsPer20FtContainer Int?
+  cartonsPer20FtContainer Int?
+  piecesPer20FtContainer  Int?
+  source20Ft              ContainerCapacitySource?
+  verified20FtAt          DateTime? @db.DateTime(3)
+
+  // --- 40-ft -----------------------------------------------------------------
+
+  palletsPer40FtContainer Int?
+  cartonsPer40FtContainer Int?
+  piecesPer40FtContainer  Int?
+  source40Ft              ContainerCapacitySource?
+  verified40FtAt          DateTime? @db.DateTime(3)
+
+  notes String? @db.VarChar(1000)
+
+  version        Int      @default(1)
+  updatedByLabel String?  @db.VarChar(160)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+  updatedAt      DateTime @updatedAt @db.DateTime(3)
+
+  offer SellerOffer @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_container_loading_offer")
+
+  @@index([sellerAccountId, updatedAt], map: "ix_container_loading_seller")
+  @@map("seller_container_loading")
+}
+
 /// The bulk breakdown of one basket line, frozen the moment it was chosen.
 ///
 /// A basket is not a historical record and this table might look like it
@@ -16609,7 +16694,13 @@ enum PreorderQuantityUnit {
   CARTON
   UK_PALLET
   US_PALLET
+  /// The seller's own container packaging option (`SellerPackagingOption`).
   CONTAINER
+  /// A 20-foot container, at the seller-verified loading in
+  /// `SellerContainerLoading`. Never a nominal figure.
+  CONTAINER_20_FT
+  /// A 40-foot container, likewise.
+  CONTAINER_40_FT
 }
 
 enum PreorderCapacityPeriod {
@@ -16678,6 +16769,12 @@ enum PreorderOfferKind {
   ACCEPT_AS_REQUESTED
   /// The seller proposed different terms.
   COUNTER
+  /// More was asked for than is available to promise, and the seller offers
+  /// the WHOLE quantity on one later, committed date.
+  FULL_ON_REVISED_DATE
+  /// More was asked for than is available to promise, and the seller offers
+  /// what is available first and the rest later, as two or more installments.
+  SPLIT_DELIVERY
 }
 
 enum PreorderOfferState {
@@ -16689,6 +16786,50 @@ enum PreorderOfferState {
   EXPIRED
   /// The request ended while this was still open.
   WITHDRAWN
+  /// The stock these terms were built on was no longer there when the buyer
+  /// accepted. Nothing was reserved or charged; the seller must propose again.
+  INVALIDATED
+}
+
+/// Where one installment of a delivery schedule comes from.
+enum PreorderInstallmentSource {
+  /// Stock the seller holds today. Reserved at the buyer's acceptance.
+  AVAILABLE_STOCK
+  /// Goods still to be made, bought or received, on a date the seller
+  /// committed to. Nothing is reserved for it until it exists.
+  FUTURE_SUPPLY
+}
+
+enum PreorderInstallmentStatus {
+  /// Part of terms nobody has accepted yet.
+  PROPOSED
+  /// Accepted, and waiting for its goods.
+  PLANNED
+  /// Accepted, and its stock is held for this buyer.
+  STOCK_RESERVED
+  /// The terms it belonged to were superseded, declined, withdrawn or
+  /// invalidated, or the preorder closed.
+  CANCELLED
+}
+
+enum PreorderStockHoldStatus {
+  /// The units are reserved in the seller's stock for this preorder.
+  HELD
+  /// Given back to available stock: the preorder closed without an order.
+  RELEASED
+  /// Handed to the order's own reservation when the seller accepted it.
+  TRANSFERRED
+}
+
+/// Whether a container capacity is the seller's verified figure or the
+/// system's arithmetic.
+enum ContainerCapacitySource {
+  /// The seller has loaded, or checked, this figure and stands behind it.
+  /// The only source a buyer may order against.
+  SELLER_VERIFIED
+  /// Worked out from carton size, weight and the container's limits. Shown
+  /// to the seller as a starting point and never offered to a buyer.
+  CALCULATED_ESTIMATE
 }
 
 /// One seller's preorder terms, at one level of the fallback chain.
@@ -16728,6 +16869,10 @@ model PreorderPolicy {
   /// not tracked, and nothing is reserved.
   capacityBaseUnits Int?
   capacityPeriod    PreorderCapacityPeriod @default(MONTH)
+
+  /// Pieces of on-hand stock never promised to a preorder - kept back for
+  /// ordinary basket orders and breakages. Subtracted from available-to-promise.
+  safetyStockBaseUnits Int @default(0)
 
   /// Calendar days from today to the earliest delivery the seller will commit
   /// to. Null falls back to the platform notice period alone.
@@ -16856,6 +17001,22 @@ model PreorderRequest {
   unitsPerPackage    Int
   requestedBaseUnits Int
 
+  /// For a 20-ft or 40-ft container request: the seller's container loading as
+  /// it stood at submission - pieces per carton, cartons per container, carton
+  /// weight, where the figure came from and when it was verified. Required for
+  /// those units (chk_preorder_request_container_snapshot) and never rewritten:
+  /// a seller re-specifying the loading next week does not change what this
+  /// buyer asked for.
+  containerLoadingSnapshotJson Json?
+  /// The `SellerContainerLoading.version` it was taken from.
+  containerLoadingVersion      Int?
+
+  /// Available-to-promise stock at submission, and how far short of the
+  /// request it fell (0 = enough). INFORMATIONAL: nothing is reserved at
+  /// submission, and the seller's proposal is checked against live stock.
+  availableToPromiseAtSubmission Int?
+  shortfallAtSubmission          Int  @default(0)
+
   /// Calendar days, not instants - see `domain/delivery-dates.ts`.
   requestedDeliveryDate DateTime @db.Date
   /// What the earliest-date rule said at submission, kept for the dispute
@@ -16951,8 +17112,12 @@ model PreorderRequest {
   offer           SellerOffer?    @relation(fields: [offerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_preorder_request_offer")
   convertedOrder  Order?          @relation(fields: [convertedOrderId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_preorder_request_order")
 
-  offers  PreorderOffer[]
-  history PreorderStatusHistory[]
+  offers       PreorderOffer[]
+  history      PreorderStatusHistory[]
+  installments PreorderFulfilmentInstallment[]
+  stockHolds   PreorderStockHold[]
+  /// Chats with the operator's team that this preorder was linked to.
+  chats        PreorderChatConversation[]
 
   /// The seller's inbox, newest first, narrowed by status.
   @@index([sellerAccountId, status, updatedAt], map: "ix_preorder_request_seller")
@@ -16995,6 +17160,14 @@ model PreorderOffer {
   /// The seller's own location this will be made or shipped from.
   originLocationId      String?  @db.Char(26)
 
+  /// Available-to-promise stock when the seller wrote these terms. What the
+  /// seller and the buyer were both shown.
+  availableNowBaseUnits    Int?
+  /// Pieces these terms take from stock on hand, reserved atomically when the
+  /// buyer accepts. Zero for terms made entirely from future supply. Never
+  /// more than the quantity (chk_preorder_offer_stock_allocation).
+  stockAllocationBaseUnits Int @default(0)
+
   note String? @db.VarChar(2000)
 
   expiresAt DateTime @db.DateTime(3)
@@ -17010,7 +17183,8 @@ model PreorderOffer {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  request PreorderRequest @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_offer_request")
+  request      PreorderRequest                 @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_offer_request")
+  installments PreorderFulfilmentInstallment[]
 
   @@unique([requestId, revision], map: "uq_preorder_offer_revision")
   @@index([sellerAccountId, createdAt], map: "ix_preorder_offer_seller")
@@ -17037,6 +17211,582 @@ model PreorderStatusHistory {
 
   @@index([requestId, createdAt], map: "ix_preorder_history_request")
   @@map("preorder_status_history")
+}
+
+/// One part of a delivery schedule a seller proposed.
+///
+/// Belongs to the TERMS (`PreorderOffer`), not to the request, so every
+/// revision keeps the schedule it actually proposed: the negotiation history is
+/// the offers in revision order, each with its own installments. A plain
+/// acceptance or counter has none; a revised-date proposal has one; a split
+/// delivery has two or more.
+///
+/// The installments of one set of terms add up to that terms' quantity. A
+/// CHECK cannot see across rows, so that is enforced in the transaction that
+/// writes them (`domain/preorder-availability.ts`), and each row is held to
+/// the rules a CHECK can see.
+model PreorderFulfilmentInstallment {
+  id        String @id @db.Char(26)
+  requestId String @db.Char(26)
+  offerId   String @db.Char(26)
+
+  /// 1, 2, 3 - in date order.
+  sequence Int
+
+  /// Pieces. Always positive, and never rounded to a container.
+  quantityBaseUnits     Int
+  committedDeliveryDate DateTime @db.Date
+
+  source PreorderInstallmentSource
+  status PreorderInstallmentStatus @default(PROPOSED)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  request PreorderRequest @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_installment_request")
+  offer   PreorderOffer   @relation(fields: [offerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_installment_offer")
+
+  @@unique([offerId, sequence], map: "uq_preorder_installment_sequence")
+  @@index([requestId, status], map: "ix_preorder_installment_request")
+  @@map("preorder_fulfilment_installments")
+}
+
+/// Stock on a seller's shelf held for one accepted preorder, per location.
+///
+/// Written in the same transaction as the buyer's acceptance, by the same
+/// conditional decrement every basket reservation uses, so two buyers
+/// accepting against the last 15,000 pieces cannot both be given them. The
+/// matching `seller_inventory_movements` rows carry `referenceType =
+/// 'preorder_request'`.
+model PreorderStockHold {
+  id              String @id @db.Char(26)
+  requestId       String @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  offerId         String @db.Char(26)
+  /// The seller's location the units are held at. Not a foreign key, for the
+  /// same reason as `SellerPackagingOption.originLocationId`.
+  locationId      String @db.Char(26)
+
+  quantityBaseUnits Int
+  status            PreorderStockHoldStatus @default(HELD)
+
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  releasedAt DateTime? @db.DateTime(3)
+
+  request PreorderRequest @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_stock_hold_request")
+
+  /// One hold per location per preorder: a retried acceptance cannot hold twice.
+  @@unique([requestId, locationId], map: "uq_preorder_stock_hold_location")
+  @@index([offerId, status], map: "ix_preorder_stock_hold_offer")
+  @@map("preorder_stock_holds")
+}
+
+/// What a customer has said they have read and understood.
+enum AcknowledgementType {
+  /// "Preorder is for bulk quantities, it has a minimum, and a request is sent
+  /// to the seller to confirm." Asked once before a buyer's first preorder.
+  PREORDER_INFO
+}
+
+/**
+ * A customer's record that they read a piece of information, at a version.
+ *
+ * Only an acknowledgement of INFORMATION. It is not acceptance of legal terms,
+ * not consent to be charged and not an order: a preorder request still needs
+ * its own terms box, and nothing is charged until the seller has answered and
+ * the buyer has confirmed and paid. Treating this row as any of those would be
+ * reading more into a tick box than the buyer agreed to.
+ *
+ * VERSIONED, NOT A FLAG
+ *
+ * One row per person, type and version. `policyVersion` is the text the buyer
+ * saw (`PREORDER_INFO_VERSION`, e.g. PREORDER_INFO_V1). When the operator
+ * raises the version, no existing row matches the current one, so every buyer
+ * is asked again - and the older rows stay as the record of what each buyer
+ * read, and when. The server only ever writes the CURRENT version: the browser
+ * cannot record an acknowledgement of text it was never shown.
+ *
+ * Keyed on the person (`userId`) rather than the company: reading a note is
+ * something an individual does, and a colleague who never saw it has not.
+ */
+model CustomerAcknowledgement {
+  id             String              @id @db.Char(26)
+  userId         String              @db.Char(26)
+  type           AcknowledgementType
+  policyVersion  String              @db.VarChar(32)
+  acknowledgedAt DateTime            @default(now()) @db.DateTime(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_customer_ack_user")
+
+  @@unique([userId, type, policyVersion], map: "uq_customer_ack")
+  @@map("customer_acknowledgements")
+}
+
+// ===========================================================================
+// PREORDER CHAT
+//
+// A signed-in buyer, on a product page, asking the OPERATOR's team about a
+// preorder. Customer <-> operator staff, and nobody else: the seller of the
+// product is not a participant, has no route that reads these tables, and is
+// never sent an event about them.
+//
+// The database is the source of truth. The live connection only tells a
+// browser that something changed; every message is persisted and committed
+// before anybody is told about it, and a browser that missed an event reads
+// what it missed from here by sequence number.
+//
+// Four rules the tables below hold:
+//
+//   * ONE open conversation per customer, product, option and preorder.
+//     `activeKey` is that tuple while the conversation is live and NULL once it
+//     is closed - a MariaDB UNIQUE index treats every NULL as distinct, so any
+//     number of closed ones may share a product while two live ones cannot.
+//   * ORDER IS THE SERVER'S. `serverSequence` is allocated by the conversation
+//     row's own counter inside the insert's transaction, so two messages sent
+//     in the same millisecond still have a first and a second, and a browser
+//     clock never decides which came first.
+//   * A RETRY IS NOT A SECOND MESSAGE. (`senderKey`, `clientMessageId`) is
+//     unique: a browser that resends after a dropped connection gets the
+//     message it already sent, not a duplicate.
+//   * INTERNAL NOTES ARE ANOTHER TABLE. Not a flag on a message - a flag is one
+//     forgotten `where` away from a customer reading what staff wrote about
+//     them. No customer query touches `preorder_chat_notes` at all.
+//
+// Assignment is deliberately NOT a status. "Unassigned" is `assignedAdminId
+// IS NULL`, read as a filter; a status that restated a column would one day
+// disagree with it.
+// ===========================================================================
+
+/// Where a conversation stands. Moved only by `domain/preorder-chat-state.ts`.
+enum PreorderChatStatus {
+  /// The customer has written and no member of staff has answered yet.
+  NEW
+  /// Being worked on.
+  OPEN
+  /// Staff asked the customer something and are waiting for the answer. The
+  /// customer's next message moves it back to OPEN.
+  WAITING_FOR_CUSTOMER
+  /// Staff are waiting on somebody inside the business - a warehouse, a
+  /// supplier, a colleague - before they can answer.
+  WAITING_FOR_INTERNAL
+  /// Answered. The customer writing again reopens it; that is counted.
+  RESOLVED
+  /// Finished. History stays readable; a new question starts a new
+  /// conversation. The only status that releases `activeKey`.
+  CLOSED
+  /// Not a genuine enquiry. Kept, so the same sender writing again lands here
+  /// rather than in the queue.
+  SPAM
+  /// Staff stopped this customer messaging. See `PreorderChatCustomerBlock`.
+  BLOCKED
+}
+
+enum PreorderChatPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum PreorderChatSenderType {
+  CUSTOMER
+  ADMIN
+  /// Written by the system itself - "UBOSS has created a preorder proposal",
+  /// "this conversation was resolved". Carries an event key and values, never
+  /// prose, so each reader sees it in their own language.
+  SYSTEM
+}
+
+enum PreorderChatMessageType {
+  TEXT
+  ATTACHMENT
+  SYSTEM_EVENT
+  /// A card pointing at a `PreorderChatProposal`.
+  STRUCTURED_OFFER
+}
+
+enum PreorderChatParticipantType {
+  CUSTOMER
+  ADMIN
+}
+
+/// A proposal's life. It is a suggestion the customer turns into a real
+/// preorder request through the ordinary preorder form - never an order, a
+/// price commitment or a stock reservation by itself.
+enum PreorderChatProposalState {
+  /// Waiting for the customer.
+  PROPOSED
+  /// Replaced by a newer revision before the customer answered.
+  SUPERSEDED
+  /// Staff took it back.
+  WITHDRAWN
+  /// The customer said no.
+  DECLINED
+  /// The customer submitted a preorder request from it. `preorderRequestId`
+  /// names it; from there the ordinary preorder workflow decides everything.
+  SUBMITTED
+  EXPIRED
+}
+
+/// What the malware scanner said about an attachment. There is no INFECTED:
+/// an infected file is refused before it is stored, so no row ever says so.
+enum PreorderChatScanState {
+  CLEAN
+  /// No scanner is configured. Only ever written where the operator has
+  /// explicitly allowed unscanned attachments; production refuses that.
+  SCANNER_UNCONFIGURED
+}
+
+/// One customer's conversation with the operator's team about one product.
+model PreorderChatConversation {
+  id String @id @db.Char(26)
+
+  customerProfileId String @db.Char(26)
+  /// The person who wrote the first message. A company account may have
+  /// colleagues; the conversation belongs to the company profile.
+  startedByUserId   String @db.Char(26)
+
+  /// What it is about. Not foreign keys, on purpose and like
+  /// `preorder_requests`: an archived product must not take the conversation
+  /// with it, and the snapshot below is the authority on what was discussed.
+  productId  String  @db.Char(26)
+  variantId  String? @db.Char(26)
+  /// The variant id, or '' for the base product. Never null, so `activeKey`
+  /// and its uniqueness mean something.
+  variantKey String  @default("") @db.VarChar(26)
+  /// The seller whose listing the customer was looking at, or NULL for the
+  /// operator's own product. Informational: sellers never read this table.
+  sellerAccountId String? @db.Char(26)
+  offerId         String? @db.Char(26)
+
+  /// A preorder the conversation is about, once there is one.
+  preorderRequestId String? @db.Char(26)
+  /// `preorderRequestId`, or '' - never null, for the same reason as
+  /// `variantKey`.
+  preorderKey       String  @default("") @db.VarChar(26)
+
+  /// customerProfileId:productId:variantKey:preorderKey while the conversation
+  /// is live, NULL once CLOSED. See the section header.
+  activeKey String? @unique(map: "uq_preorder_chat_active") @db.VarChar(120)
+
+  status   PreorderChatStatus   @default(NEW)
+  priority PreorderChatPriority @default(NORMAL)
+
+  assignedAdminId String?   @db.Char(26)
+  assignedAt      DateTime? @db.DateTime(3)
+
+  /// The language the customer was browsing in when they wrote first.
+  customerLocale String @default("en") @db.VarChar(10)
+
+  /// The product as the customer saw it when they started: name, image,
+  /// seller, SKU, option, minimum, and the quantity, unit and date they were
+  /// asking about. Written once and never rewritten - a product renamed next
+  /// month must not change what this conversation was about. Staff see the
+  /// product as it is now through a link, beside this.
+  contextSnapshotJson Json
+
+  /// Copied out of the snapshot so the inbox can search them without reading
+  /// JSON. As they were at the start, for the same reason as the snapshot.
+  productName String  @db.VarChar(255)
+  productSku  String? @db.VarChar(96)
+  sellerName  String? @db.VarChar(255)
+
+  /// Staff-only labels ("samples", "export", "urgent quote"). A JSON array of
+  /// short strings; never shown to the customer.
+  tagsJson Json?
+
+  // --- Sequence and read positions -------------------------------------------
+
+  /// The last `serverSequence` handed out. Incremented inside the message
+  /// insert's transaction, which is what makes the order the server's.
+  lastSequence Int @default(0)
+
+  /// How many customer-visible messages each side has sent (SYSTEM cards count
+  /// on the staff side: the customer is the one who reads them).
+  customerMessageCount Int @default(0)
+  staffMessageCount    Int @default(0)
+  /// How many of the OTHER side's messages existed when that side last read.
+  /// Unread is the difference, so neither the inbox nor the customer's badge
+  /// ever counts rows to draw a number.
+  ///
+  /// Staff unread is the TEAM's, not one person's: a shared inbox where a
+  /// colleague has already read and answered a message must not show it as
+  /// unread to everybody else. Each person's own position is on
+  /// `PreorderChatParticipant`.
+  customerReadStaffCount Int @default(0)
+  staffReadCustomerCount Int @default(0)
+
+  /// The furthest message each side has been shown (delivered) and has read.
+  /// "Read" for the customer means any member of staff read it; for staff it
+  /// means the customer did. Written only by the server, from the reader's own
+  /// session - a browser cannot say another person read something.
+  customerDeliveredSeq Int @default(0)
+  customerReadSeq      Int @default(0)
+  staffDeliveredSeq    Int @default(0)
+  staffReadSeq         Int @default(0)
+
+  /// The latest customer-visible message, trimmed, for the inbox row. Never an
+  /// internal note; blanked by a redaction.
+  lastMessagePreview String?                 @db.VarChar(200)
+  lastMessageSender  PreorderChatSenderType?
+  lastMessageAt      DateTime                @default(now()) @db.DateTime(3)
+
+  lastCustomerMessageAt DateTime? @db.DateTime(3)
+  lastStaffMessageAt    DateTime? @db.DateTime(3)
+  /// When the oldest customer message nobody has answered was sent. NULL when
+  /// staff have the last word. The queue's "waiting" clock and the SLA alert
+  /// both read it.
+  awaitingReplySince    DateTime? @db.DateTime(3)
+  /// When staff first answered, for the first-response measure.
+  firstResponseAt       DateTime? @db.DateTime(3)
+  /// When the customer was last emailed about an unread reply, so a burst of
+  /// replies is one email rather than five.
+  customerEmailedSeq    Int       @default(0)
+  /// Set when the SLA alert for the current wait has been raised, so it is
+  /// raised once per wait.
+  slaAlertedAt          DateTime? @db.DateTime(3)
+
+  resolvedAt  DateTime? @db.DateTime(3)
+  closedAt    DateTime? @db.DateTime(3)
+  /// Times it went from RESOLVED back to OPEN.
+  reopenCount Int       @default(0)
+
+  /// Optimistic concurrency for status, assignment and priority writes.
+  version Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile  @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_customer")
+  assignedAdmin   User?            @relation("PreorderChatAssignee", fields: [assignedAdminId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_preorder_chat_assignee")
+  preorderRequest PreorderRequest? @relation(fields: [preorderRequestId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_preorder_chat_preorder")
+
+  messages     PreorderChatMessage[]
+  participants PreorderChatParticipant[]
+  notes        PreorderChatNote[]
+  proposals    PreorderChatProposal[]
+  attachments  PreorderChatAttachment[]
+
+  /// The customer's own list, newest first.
+  @@index([customerProfileId, lastMessageAt], map: "ix_preorder_chat_customer")
+  /// The inbox, by status, newest first.
+  @@index([status, lastMessageAt], map: "ix_preorder_chat_status")
+  /// Assigned to me.
+  @@index([assignedAdminId, status, lastMessageAt], map: "ix_preorder_chat_assignee")
+  /// Oldest unanswered, and the SLA sweep.
+  @@index([awaitingReplySince], map: "ix_preorder_chat_waiting")
+  @@index([productId], map: "ix_preorder_chat_product")
+  @@index([preorderRequestId], map: "ix_preorder_chat_preorder")
+  @@map("preorder_chat_conversations")
+}
+
+/// One person's place in a conversation: when they joined and how far they
+/// have read. One row per person per conversation - a customer, and each
+/// member of staff who has opened it.
+model PreorderChatParticipant {
+  id              String                      @id @db.Char(26)
+  conversationId  String                      @db.Char(26)
+  participantType PreorderChatParticipantType
+  userId          String                      @db.Char(26)
+
+  /// The furthest `serverSequence` this person has read. A sequence rather
+  /// than a message id, because "everything up to here" is then one
+  /// comparison and does not depend on ids sorting in send order.
+  lastReadSeq Int       @default(0)
+  lastReadAt  DateTime? @db.DateTime(3)
+
+  joinedAt DateTime @default(now()) @db.DateTime(3)
+
+  conversation PreorderChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_participant_conversation")
+  user         User                     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_participant_user")
+
+  @@unique([conversationId, userId], map: "uq_preorder_chat_participant")
+  @@index([userId], map: "ix_preorder_chat_participant_user")
+  @@map("preorder_chat_participants")
+}
+
+/// One message the customer can see. Internal notes are NOT here.
+model PreorderChatMessage {
+  id             String @id @db.Char(26)
+  conversationId String @db.Char(26)
+
+  /// 1, 2, 3 ... within the conversation, allocated by the server.
+  serverSequence Int
+
+  senderType   PreorderChatSenderType
+  /// The person, or NULL for SYSTEM.
+  senderUserId String?                 @db.Char(26)
+  /// "C:<userId>", "A:<userId>" or "S:<conversationId>". The half of the retry
+  /// key that says whose attempt this was.
+  senderKey    String                  @db.VarChar(40)
+  /// The browser's own id for this attempt (a UUID), or a deterministic key
+  /// for a SYSTEM message ("proposal:<id>:created") so the system cannot post
+  /// the same card twice either.
+  clientMessageId String @db.VarChar(80)
+
+  messageType PreorderChatMessageType @default(TEXT)
+  /// Exactly as submitted, for TEXT. Rendered as plain text everywhere - never
+  /// as HTML. Empty for SYSTEM_EVENT and after a redaction.
+  body        String                  @db.Text
+  /// For SYSTEM_EVENT: which event ("status.resolved", "proposal.created").
+  systemEvent String?                 @db.VarChar(48)
+  /// The values that fill it, primitives only.
+  systemMetaJson Json?
+
+  replyToMessageId String? @db.Char(26)
+  proposalId       String? @db.Char(26)
+
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+  /// When the other side's browser was first shown it.
+  deliveredAt DateTime? @db.DateTime(3)
+  editedAt    DateTime? @db.DateTime(3)
+  /// A moderator removed the words. The row, its sequence and who sent it stay;
+  /// `redactionReason` says why, and the audit trail says who.
+  redactedAt       DateTime? @db.DateTime(3)
+  redactedByUserId String?   @db.Char(26)
+  redactionReason  String?   @db.VarChar(255)
+
+  conversation PreorderChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_message_conversation")
+  attachment   PreorderChatAttachment?
+
+  @@unique([conversationId, serverSequence], map: "uq_preorder_chat_message_seq")
+  @@unique([senderKey, clientMessageId], map: "uq_preorder_chat_message_client")
+  /// The per-sender rate limit.
+  @@index([senderKey, createdAt], map: "ix_preorder_chat_message_sender")
+  @@map("preorder_chat_messages")
+}
+
+/// Something staff wrote for each other. Never shown to the customer, never
+/// sent to a customer's connection, never in a customer's response.
+model PreorderChatNote {
+  id             String @id @db.Char(26)
+  conversationId String @db.Char(26)
+  authorUserId   String @db.Char(26)
+  body           String @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  conversation PreorderChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_note_conversation")
+
+  @@index([conversationId, createdAt], map: "ix_preorder_chat_note_conversation")
+  @@map("preorder_chat_notes")
+}
+
+/// Terms staff suggest, for the customer to turn into a preorder request.
+///
+/// NOT an offer in the preorder workflow's sense. A proposal fills in the
+/// preorder form; the customer reviews it, accepts the preorder terms and
+/// submits it there, and the supplier's answer - with its hashed terms the
+/// customer confirms - is what binds anybody. Typing "yes" in the chat does
+/// nothing to this row.
+model PreorderChatProposal {
+  id             String @id @db.Char(26)
+  conversationId String @db.Char(26)
+  /// 1, 2, 3 within the conversation. A change is a new revision.
+  revision       Int
+
+  state PreorderChatProposalState @default(PROPOSED)
+
+  orderingUnit        PreorderQuantityUnit
+  unitQuantity        Int
+  /// Pieces, from the seller's own unit sizes at the time. Never a nominal
+  /// container figure.
+  equivalentBaseUnits Int
+
+  /// An INDICATIVE price per piece, in `currency` minor units. The supplier
+  /// confirms the real one in their answer; the card says so.
+  indicativeUnitPriceMinor BigInt?
+  currency                 String  @db.Char(3)
+
+  availabilityNote String?  @db.VarChar(500)
+  deliveryDate     DateTime @db.Date
+  /// `[{ date, baseUnits }]` where staff suggest delivering in parts.
+  splitDeliveriesJson Json?
+  termsNote           String? @db.VarChar(1000)
+
+  expiresAt DateTime @db.DateTime(3)
+
+  createdByUserId String @db.Char(26)
+  /// The preorder request the customer made from it. Checked on write to be
+  /// theirs, for this product. Not a foreign key: the request is the
+  /// preorder workflow's, and this row only points at it.
+  preorderRequestId String?   @unique(map: "uq_preorder_chat_proposal_request") @db.Char(26)
+  respondedAt       DateTime? @db.DateTime(3)
+  declineReason     String?   @db.VarChar(500)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  conversation PreorderChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_proposal_conversation")
+
+  @@unique([conversationId, revision], map: "uq_preorder_chat_proposal_revision")
+  @@map("preorder_chat_proposals")
+}
+
+/// A file sent in a conversation. The bytes are under the PRIVATE storage
+/// prefix and leave only through a short-lived, single-use link redeemed by a
+/// signed-in participant.
+model PreorderChatAttachment {
+  id             String  @id @db.Char(26)
+  conversationId String  @db.Char(26)
+  messageId      String? @unique(map: "uq_preorder_chat_attachment_message") @db.Char(26)
+
+  storageKey String @db.VarChar(512)
+  /// Shown back to people, never used to build a path. Control characters
+  /// and path separators are removed on the way in.
+  fileName    String                @db.VarChar(255)
+  contentType String                @db.VarChar(128)
+  byteSize    Int
+  contentHash String                @db.Char(64)
+  scanState   PreorderChatScanState
+
+  uploadedByUserId String                 @db.Char(26)
+  uploaderType     PreorderChatSenderType
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  conversation PreorderChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_attachment_conversation")
+  message      PreorderChatMessage?     @relation(fields: [messageId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_preorder_chat_attachment_message")
+
+  @@index([conversationId], map: "ix_preorder_chat_attachment_conversation")
+  @@map("preorder_chat_attachments")
+}
+
+/// A customer the operator's team has stopped messaging. Per customer rather
+/// than per conversation, so a blocked sender cannot start a fresh thread on
+/// the next product. Unblocking deletes the row; both are audited.
+model PreorderChatCustomerBlock {
+  id                String @id @db.Char(26)
+  customerProfileId String @unique(map: "uq_preorder_chat_block_customer") @db.Char(26)
+  reason            String @db.VarChar(500)
+  blockedByUserId   String @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_preorder_chat_block_customer")
+
+  @@map("preorder_chat_customer_blocks")
+}
+
+/// Live events in flight between API processes, under
+/// REALTIME_BUS_DRIVER=database.
+///
+/// A REFERENCE, never content: which conversation, which message sequence,
+/// which kind of change. The process that delivers it reads the message itself
+/// from the tables above, through the same visibility rules as every other
+/// read - so nothing written here could ever show a customer an internal
+/// note, and a message body never sits in a second table. Deleted within
+/// minutes by every process; nothing here is history.
+model RealtimeEvent {
+  id          BigInt   @id @default(autoincrement())
+  /// Which process wrote it, so it does not deliver its own event twice.
+  instanceId  String   @db.VarChar(40)
+  payloadJson Json
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+
+  @@index([createdAt], map: "ix_realtime_event_time")
+  @@map("realtime_events")
 }
 
 // ===========================================================================

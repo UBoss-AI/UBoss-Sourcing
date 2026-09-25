@@ -57,6 +57,11 @@ const PREORDER_CODES = new Set([
   'PREORDER_CAPACITY_EXCEEDED',
   'PREORDER_EXPIRED',
   'PREORDER_POLICY_INVALID',
+  'PREORDER_ACKNOWLEDGEMENT_REQUIRED',
+  'PREORDER_INFO_OUTDATED',
+  'PREORDER_CONTAINER_NOT_CONFIGURED',
+  'PREORDER_PROPOSAL_INVALID',
+  'PREORDER_STOCK_CHANGED',
 ]);
 
 /** Seller invoices and packing lists. */
@@ -68,6 +73,20 @@ const SELLER_DOCUMENT_CODES = new Set([
   'SHIPMENT_CONTENTS_MISMATCH',
   'SHIPMENT_SPLIT_INVALID',
   'DOCUMENT_RENDER_FAILED',
+]);
+
+/** Preorder chat refusals. Each says what to do next, in the reader's language. */
+const PREORDER_CHAT_CODES = new Set([
+  'PREORDER_CHAT_CLOSED',
+  'PREORDER_CHAT_BLOCKED',
+  'PREORDER_CHAT_MESSAGE_TOO_LONG',
+  'PREORDER_CHAT_MESSAGE_ID_REUSED',
+  'PREORDER_CHAT_TRANSITION_NOT_ALLOWED',
+  'PREORDER_CHAT_DUPLICATE_CONVERSATION',
+  'PREORDER_CHAT_ASSIGNEE_NOT_ELIGIBLE',
+  'PREORDER_CHAT_PREORDER_MISMATCH',
+  'PREORDER_CHAT_PROPOSAL_NOT_OPEN',
+  'PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE',
 ]);
 
 /** The reader's locale for a date inside an error sentence. */
@@ -161,6 +180,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      */
     // Quantity price bands: the panel marks each band; this is the summary.
     if (error.code === 'QUANTITY_TIERS_INVALID') return t('errors.quantityTiersInvalid');
+    // Container loading: the panel marks each figure; this is the summary.
+    if (error.code === 'CONTAINER_LOADING_INVALID') return t('errors.containerLoadingInvalid');
+
+    if (PREORDER_CHAT_CODES.has(error.code)) {
+      return t(`errors.preorderChat.${error.code}` as TranslationKey);
+    }
 
     if (SELLER_DOCUMENT_CODES.has(error.code)) {
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);

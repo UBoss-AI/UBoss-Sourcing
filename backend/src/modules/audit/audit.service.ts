@@ -355,6 +355,16 @@ export const AuditAction = {
   PREORDER_CANCELLED: 'preorder.cancelled',
   PREORDER_EXPIRED: 'preorder.expired',
   PREORDER_POLICY_SAVED: 'preorder.policy_saved',
+  /// The seller answered a request for more than is available with a revised
+  /// date or a split delivery. The schedule and its stock allocation are in
+  /// `after`, with the terms hash.
+  PREORDER_AVAILABILITY_PROPOSED: 'preorder.availability_proposed',
+  /// The buyer accepted, and the stock the proposal was built on had gone.
+  /// Nothing was reserved or charged; the proposal was invalidated.
+  PREORDER_STOCK_INVALIDATED: 'preorder.stock_invalidated',
+  /// A buyer acknowledged the bulk preorder information, at a version. Only
+  /// the version is recorded - never the product they were looking at.
+  PREORDER_INFO_ACKNOWLEDGED: 'preorder.info_acknowledged',
   /// A seller's invoices and packing lists. Every preview, issue, download,
   /// credit and supersession is recorded, with the document number and the
   /// SHA-256 of the PDF where one exists.
@@ -367,6 +377,31 @@ export const AuditAction = {
   PACKING_LIST_SUPERSEDED: 'packing_list.superseded',
   CONSIGNMENT_PACKED: 'consignment.packed',
   SELLER_DOCUMENT_DOWNLOADED: 'seller_document.downloaded',
+  /// Preorder chat. What was decided about a conversation and who decided it -
+  /// never what anybody wrote in it. A message body is not an audit value: the
+  /// conversation itself is the record of what was said, and copying it here
+  /// would put a private negotiation in front of everybody who may read the
+  /// trail.
+  PREORDER_CHAT_STARTED: 'preorder_chat.started',
+  PREORDER_CHAT_VIEWED: 'preorder_chat.viewed',
+  PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
+  PREORDER_CHAT_STATUS_CHANGED: 'preorder_chat.status_changed',
+  PREORDER_CHAT_PRIORITY_CHANGED: 'preorder_chat.priority_changed',
+  PREORDER_CHAT_TAGS_CHANGED: 'preorder_chat.tags_changed',
+  PREORDER_CHAT_NOTE_ADDED: 'preorder_chat.note_added',
+  PREORDER_CHAT_PREORDER_LINKED: 'preorder_chat.preorder_linked',
+  PREORDER_CHAT_PROPOSAL_CREATED: 'preorder_chat.proposal_created',
+  PREORDER_CHAT_PROPOSAL_WITHDRAWN: 'preorder_chat.proposal_withdrawn',
+  PREORDER_CHAT_PROPOSAL_ANSWERED: 'preorder_chat.proposal_answered',
+  PREORDER_CHAT_CUSTOMER_BLOCKED: 'preorder_chat.customer_blocked',
+  PREORDER_CHAT_CUSTOMER_UNBLOCKED: 'preorder_chat.customer_unblocked',
+  /// The words of one message were removed. `after` carries the reason, the
+  /// length and a SHA-256 of what was removed - enough to prove later what
+  /// was redacted without keeping the card number somebody pasted.
+  PREORDER_CHAT_MESSAGE_REDACTED: 'preorder_chat.message_redacted',
+  PREORDER_CHAT_EXPORTED: 'preorder_chat.exported',
+  PREORDER_CHAT_ATTACHMENT_UPLOADED: 'preorder_chat.attachment_uploaded',
+  PREORDER_CHAT_ATTACHMENT_DOWNLOADED: 'preorder_chat.attachment_downloaded',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];
@@ -522,4 +557,3 @@ export async function recordAudit(entry: AuditEntry, tx?: unknown): Promise<void
     );
   }
 }
-

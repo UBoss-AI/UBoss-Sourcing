@@ -827,6 +827,9 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
      */
     marketplace: {
       displayName: marketplaceNameFrom(profile?.displayName),
+      // Who answers a preorder chat: `PREORDER_CHAT_TEAM_NAME`, or the
+      // marketplace's own name when that is not set.
+      chatTeamName: env.PREORDER_CHAT_TEAM_NAME.length > 0 ? env.PREORDER_CHAT_TEAM_NAME : marketplaceNameFrom(profile?.displayName),
     },
     business: {
       // The product's own name where a deployment has not yet said what its

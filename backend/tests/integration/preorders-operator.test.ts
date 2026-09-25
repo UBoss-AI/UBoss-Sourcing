@@ -236,6 +236,13 @@ describe('a preorder on the operator’s own product', () => {
       shippingAddressId: addressId,
       acceptTerms: true,
     });
+    const { acknowledgePreorderInfo } =
+      await import('../../src/modules/preorders/acknowledgement.service.js');
+    await acknowledgePreorderInfo({
+      userId: buyerUserId,
+      email: BUYER,
+      policyVersion: 'PREORDER_INFO_V1',
+    });
     const submitted = (await service.submitPreorder(
       { userId: buyerUserId, email: BUYER, customerProfileId: buyerProfileId },
       input,

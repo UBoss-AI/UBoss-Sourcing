@@ -67,6 +67,10 @@ export const JobType = {
   /// close to their committed date that are not ready.
   PREORDER_EXPIRE: 'preorder.expire',
   PREORDER_RISK_SWEEP: 'preorder.risk_sweep',
+  /// The preorder chat's minute: email customers about replies they have not
+  /// read, raise the SLA alert for customers left waiting, expire proposals,
+  /// and apply the operator's retention period to closed conversations.
+  PREORDER_CHAT_SWEEP: 'preorder_chat.sweep',
   REFUND_POLL: 'refund.poll',
   IMPORT_PROCESS: 'import.process',
   EXPORT_GENERATE: 'export.generate',

@@ -67,7 +67,9 @@ describe('GET /api/v1/config', () => {
 
     expect(Object.keys(body.ordering).sort()).toEqual(['piecesPerCarton']);
 
-    expect(Object.keys(body.marketplace).sort()).toEqual(['displayName']);
+    // The chat team's name is shown to every customer who opens a chat, so it
+    // is public by nature (PREORDER_CHAT_TEAM_NAME, else the trading name).
+    expect(Object.keys(body.marketplace).sort()).toEqual(['chatTeamName', 'displayName']);
 
     expect(Object.keys(body.fulfilment).sort()).toEqual([
       // How long a warehouse option stays an offer, so the checkout page can

@@ -4,10 +4,10 @@
  * Two lines rather than one: the mark and the product name are the thing you
  * look at once, and `The Way to the World` underneath is the product's
  * tagline. Both come from `lib/brand.ts`, which is the one place either
- * string is written in any of the three applications. The name is set in
- * `font-brand` (Dancing Script Bold) — the wordmark's own face, and used for
- * nothing else — so it reads as a mark rather than as one more Inter label on
- * the rail. A step larger than the label it replaced, because a script's short
+ * string is written in any of the three applications. Both are set in
+ * `font-brand` (Dancing Script Bold) — the wordmark's own face, used for the
+ * name and its tagline and nothing else — so they read as one mark rather than
+ * as more Inter labels on the rail. A step larger than the label it replaced, because a script's short
  * x-height reads a size smaller than Inter at the same number. `Powered by UBOSS` is not here: it is the small print on the sign-in
  * screens, as it is in the storefront's footer. The whole block
  * is a link home, since a logo that is not clickable is the single most
@@ -59,7 +59,7 @@ export function BrandLockup({
         </span>
         <span
           aria-hidden="true"
-          className="block truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle"
+          className="block truncate font-brand text-sm font-bold leading-5 text-ink-subtle"
         >
           {PRODUCT_TAGLINE}
         </span>

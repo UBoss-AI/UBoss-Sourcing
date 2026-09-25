@@ -8,7 +8,45 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { formatIsoDate } from '@/lib/calendar-date';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
-import { preorderTone, type Preorder, type PreorderOffer, type PreorderStatus } from '@/lib/preorders';
+import {
+  isContainerSize,
+  preorderTone,
+  type Preorder,
+  type PreorderOffer,
+  type PreorderStatus,
+  type UnitEquivalent,
+} from '@/lib/preorders';
+
+const TERMS_TITLE: Record<PreorderOffer['kind'], TranslationKey> = {
+  ACCEPT_AS_REQUESTED: 'preorder.terms.accepted',
+  COUNTER: 'preorder.terms.counter',
+  FULL_ON_REVISED_DATE: 'preorder.terms.revisedDate',
+  SPLIT_DELIVERY: 'preorder.terms.split',
+};
+
+/**
+ * A piece count as containers, WITHOUT rounding: whole containers, and a
+ * part-filled one where there is a balance. Nothing for a piece order.
+ */
+export function ContainerEquivalent({
+  equivalent,
+}: {
+  equivalent: UnitEquivalent | null | undefined;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+  if (equivalent === null || equivalent === undefined || !isContainerSize(equivalent.unit)) return null;
+  const unit = t(`preorder.unit.${equivalent.unit}` as TranslationKey);
+  const text = equivalent.isWholeUnits
+    ? t('preorder.equivalentWhole', { containers: formatNumber(equivalent.fullUnits), unit })
+    : equivalent.fullUnits > 0
+      ? t('preorder.equivalentPartial', {
+          containers: formatNumber(equivalent.fullUnits),
+          unit,
+          pieces: formatNumber(equivalent.remainderPieces),
+        })
+      : t('preorder.equivalentPartialOnly', { pieces: formatNumber(equivalent.remainderPieces) });
+  return <span className="text-xs text-ink-muted">{text}</span>;
+}
 
 export function PreorderStatusBadge({ status }: { status: PreorderStatus }): React.JSX.Element {
   const { t } = useI18n();
@@ -38,17 +76,32 @@ export function OfferTerms({ offer, highlight = false }: { offer: PreorderOffer;
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-semibold text-ink">
-          {t(offer.kind === 'ACCEPT_AS_REQUESTED' ? 'preorder.terms.accepted' : 'preorder.terms.counter', {
-            revision: String(offer.revision),
-          })}
+          {t(TERMS_TITLE[offer.kind], { revision: String(offer.revision) })}
         </p>
-        <Badge tone={offer.state === 'PROPOSED' ? 'warning' : offer.state === 'ACCEPTED' ? 'success' : 'neutral'}>
+        <Badge
+          tone={
+            offer.state === 'PROPOSED'
+              ? 'warning'
+              : offer.state === 'ACCEPTED'
+                ? 'success'
+                : offer.state === 'INVALIDATED'
+                  ? 'danger'
+                  : 'neutral'
+          }
+        >
           {t(`preorder.offerState.${offer.state}` as TranslationKey)}
         </Badge>
       </div>
 
       <dl className="mt-2 divide-y divide-border-subtle">
-        <Row label={t('preorder.pieces')}>{formatNumber(offer.quantityBaseUnits)}</Row>
+        <Row label={t('preorder.pieces')}>
+          {formatNumber(offer.quantityBaseUnits)}
+          {offer.quantityInOrderedUnit !== null && offer.quantityInOrderedUnit !== undefined && (
+            <span className="block">
+              <ContainerEquivalent equivalent={offer.quantityInOrderedUnit} />
+            </span>
+          )}
+        </Row>
         <Row label={t('preorder.perPiece')}>{formatMoney(offer.unitPrice)}</Row>
         <Row label={t('preorder.goodsTotal')}>{formatMoney(offer.goodsTotal)}</Row>
         <Row label={t('preorder.freight')}>
@@ -60,7 +113,39 @@ export function OfferTerms({ offer, highlight = false }: { offer: PreorderOffer;
         </Row>
       </dl>
 
-      {offer.deliverySplits !== null && offer.deliverySplits.length > 0 && (
+      {offer.installments !== undefined && offer.installments.length > 0 && (
+        <div className="mt-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{t('preorder.schedule')}</p>
+          <ol className="mt-1 space-y-2">
+            {offer.installments.map((part) => (
+              <li key={part.sequence} className="rounded-md border border-border-subtle bg-surface-sunken p-2.5 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium text-ink">{t('preorder.shipmentN', { n: String(part.sequence) })}</span>
+                  {part.status !== 'PROPOSED' && (
+                    <Badge tone={part.status === 'CANCELLED' ? 'neutral' : part.status === 'STOCK_RESERVED' ? 'success' : 'operational'}>
+                      {t(`preorder.installmentStatus.${part.status}` as TranslationKey)}
+                    </Badge>
+                  )}
+                </div>
+                <p className="tabular-nums text-ink">
+                  {t('preorder.shipmentLine', {
+                    pieces: formatNumber(part.quantityBaseUnits),
+                    date: formatIsoDate(part.committedDeliveryDate, intlLocale, { dateStyle: 'long' }),
+                  })}
+                </p>
+                <p className="flex flex-wrap gap-x-2 text-xs text-ink-muted">
+                  <span>{t(`preorder.source.${part.source}` as TranslationKey)}</span>
+                  <ContainerEquivalent equivalent={part.quantityInOrderedUnit} />
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {(offer.installments === undefined || offer.installments.length === 0) &&
+        offer.deliverySplits !== null &&
+        offer.deliverySplits.length > 0 && (
         <div className="mt-2">
           <p className="text-xs font-medium text-ink">{t('preorder.splitDeliveries')}</p>
           <ul className="mt-1 space-y-0.5 text-xs text-ink-muted">
@@ -76,7 +161,12 @@ export function OfferTerms({ offer, highlight = false }: { offer: PreorderOffer;
         </div>
       )}
 
-      {offer.note !== null && <p className="mt-2 whitespace-pre-line text-sm text-ink">{offer.note}</p>}
+      {offer.note !== null && (
+        <div className="mt-2">
+          <p className="text-xs font-medium text-ink-muted">{t('preorder.sellerNote')}</p>
+          <p className="whitespace-pre-line text-sm text-ink">{offer.note}</p>
+        </div>
+      )}
 
       <p className="mt-2 text-xs text-ink-muted">
         {offer.state === 'PROPOSED'
@@ -100,6 +190,22 @@ export function RequestSummary({ preorder }: { preorder: Preorder }): React.JSX.
 
   return (
     <dl className="divide-y divide-border-subtle">
+      {preorder.container !== null && preorder.container !== undefined && (
+        <>
+          <Row label={t('preorder.orderedAs')}>
+            {t('preorder.containerCountLine', {
+              containers: formatNumber(preorder.container.containers),
+              unit: t(`preorder.unit.${preorder.container.unit}` as TranslationKey),
+            })}
+          </Row>
+          <Row label={t('preorder.piecesPerContainer')}>{formatNumber(preorder.container.piecesPerContainer)}</Row>
+        </>
+      )}
+      {preorder.availability !== undefined && !preorder.availability.atSubmission.sufficient && (
+        <Row label={t('preorder.availableAtRequest')}>
+          {t('preorder.piecesCount', { pieces: formatNumber(preorder.availability.atSubmission.availableNow) })}
+        </Row>
+      )}
       <Row label={t('preorder.requested')}>
         {preorder.quantity.orderingUnit === 'PIECE'
           ? t('preorder.piecesCount', { pieces: formatNumber(preorder.quantity.baseUnits) })

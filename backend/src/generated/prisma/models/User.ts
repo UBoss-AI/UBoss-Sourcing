@@ -394,6 +394,9 @@ export type UserWhereInput = {
   logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
+  acknowledgements?: Prisma.CustomerAcknowledgementListRelationFilter
+  preorderChatsAssigned?: Prisma.PreorderChatConversationListRelationFilter
+  preorderChatParticipants?: Prisma.PreorderChatParticipantListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -433,6 +436,9 @@ export type UserOrderByWithRelationInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserOrderByWithRelationInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogOrderByRelationAggregateInput
   logisticsPings?: Prisma.LogisticsLocationPingOrderByRelationAggregateInput
+  acknowledgements?: Prisma.CustomerAcknowledgementOrderByRelationAggregateInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationOrderByRelationAggregateInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -476,6 +482,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
   logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
   logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
+  acknowledgements?: Prisma.CustomerAcknowledgementListRelationFilter
+  preorderChatsAssigned?: Prisma.PreorderChatConversationListRelationFilter
+  preorderChatParticipants?: Prisma.PreorderChatParticipantListRelationFilter
 }, "id" | "emailNormalized">
 
 export type UserOrderByWithAggregationInput = {
@@ -581,6 +590,9 @@ export type UserCreateInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -620,6 +632,9 @@ export type UserUncheckedCreateInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -659,6 +674,9 @@ export type UserUpdateInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -698,6 +716,9 @@ export type UserUncheckedUpdateInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1090,6 +1111,50 @@ export type UserUpdateOneWithoutLogisticsAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogisticsAuditLogsInput, Prisma.UserUpdateWithoutLogisticsAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutLogisticsAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutAcknowledgementsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAcknowledgementsInput, Prisma.UserUncheckedCreateWithoutAcknowledgementsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAcknowledgementsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAcknowledgementsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAcknowledgementsInput, Prisma.UserUncheckedCreateWithoutAcknowledgementsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAcknowledgementsInput
+  upsert?: Prisma.UserUpsertWithoutAcknowledgementsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAcknowledgementsInput, Prisma.UserUpdateWithoutAcknowledgementsInput>, Prisma.UserUncheckedUpdateWithoutAcknowledgementsInput>
+}
+
+export type UserCreateNestedOneWithoutPreorderChatsAssignedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedCreateWithoutPreorderChatsAssignedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreorderChatsAssignedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutPreorderChatsAssignedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedCreateWithoutPreorderChatsAssignedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreorderChatsAssignedInput
+  upsert?: Prisma.UserUpsertWithoutPreorderChatsAssignedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPreorderChatsAssignedInput, Prisma.UserUpdateWithoutPreorderChatsAssignedInput>, Prisma.UserUncheckedUpdateWithoutPreorderChatsAssignedInput>
+}
+
+export type UserCreateNestedOneWithoutPreorderChatParticipantsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedCreateWithoutPreorderChatParticipantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreorderChatParticipantsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPreorderChatParticipantsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedCreateWithoutPreorderChatParticipantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreorderChatParticipantsInput
+  upsert?: Prisma.UserUpsertWithoutPreorderChatParticipantsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPreorderChatParticipantsInput, Prisma.UserUpdateWithoutPreorderChatParticipantsInput>, Prisma.UserUncheckedUpdateWithoutPreorderChatParticipantsInput>
+}
+
 export type UserCreateWithoutRolesInput = {
   id: string
   type: $Enums.UserType
@@ -1126,6 +1191,9 @@ export type UserCreateWithoutRolesInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -1164,6 +1232,9 @@ export type UserUncheckedCreateWithoutRolesInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1218,6 +1289,9 @@ export type UserUpdateWithoutRolesInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1256,6 +1330,9 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1294,6 +1371,9 @@ export type UserCreateWithoutSessionsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1332,6 +1412,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1386,6 +1469,9 @@ export type UserUpdateWithoutSessionsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1424,6 +1510,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -1462,6 +1551,9 @@ export type UserCreateWithoutAuthTokensInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -1500,6 +1592,9 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -1554,6 +1649,9 @@ export type UserUpdateWithoutAuthTokensInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -1592,6 +1690,9 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCustomerProfileInput = {
@@ -1630,6 +1731,9 @@ export type UserCreateWithoutCustomerProfileInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerProfileInput = {
@@ -1668,6 +1772,9 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerProfileInput = {
@@ -1722,6 +1829,9 @@ export type UserUpdateWithoutCustomerProfileInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerProfileInput = {
@@ -1760,6 +1870,9 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsResolvedInput = {
@@ -1798,6 +1911,9 @@ export type UserCreateWithoutNotificationsResolvedInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
@@ -1836,6 +1952,9 @@ export type UserUncheckedCreateWithoutNotificationsResolvedInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsResolvedInput = {
@@ -1890,6 +2009,9 @@ export type UserUpdateWithoutNotificationsResolvedInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
@@ -1928,6 +2050,9 @@ export type UserUncheckedUpdateWithoutNotificationsResolvedInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationReadsInput = {
@@ -1966,6 +2091,9 @@ export type UserCreateWithoutNotificationReadsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationReadsInput = {
@@ -2004,6 +2132,9 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationReadsInput = {
@@ -2058,6 +2189,9 @@ export type UserUpdateWithoutNotificationReadsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationReadsInput = {
@@ -2096,6 +2230,9 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -2134,6 +2271,9 @@ export type UserCreateWithoutAuditLogsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -2172,6 +2312,9 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -2226,6 +2369,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -2264,6 +2410,9 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogisticsMembershipInput = {
@@ -2302,6 +2451,9 @@ export type UserCreateWithoutLogisticsMembershipInput = {
   notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
@@ -2340,6 +2492,9 @@ export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsMembershipInput = {
@@ -2394,6 +2549,9 @@ export type UserUpdateWithoutLogisticsMembershipInput = {
   notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
@@ -2432,6 +2590,9 @@ export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogisticsPingsInput = {
@@ -2470,6 +2631,9 @@ export type UserCreateWithoutLogisticsPingsInput = {
   notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsPingsInput = {
@@ -2508,6 +2672,9 @@ export type UserUncheckedCreateWithoutLogisticsPingsInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsPingsInput = {
@@ -2562,6 +2729,9 @@ export type UserUpdateWithoutLogisticsPingsInput = {
   notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
@@ -2600,6 +2770,9 @@ export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogisticsAuditLogsInput = {
@@ -2638,6 +2811,9 @@ export type UserCreateWithoutLogisticsAuditLogsInput = {
   notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
   logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
@@ -2676,6 +2852,9 @@ export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogisticsAuditLogsInput = {
@@ -2730,6 +2909,9 @@ export type UserUpdateWithoutLogisticsAuditLogsInput = {
   notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
@@ -2768,6 +2950,549 @@ export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
   notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
   logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
   logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAcknowledgementsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAcknowledgementsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAcknowledgementsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAcknowledgementsInput, Prisma.UserUncheckedCreateWithoutAcknowledgementsInput>
+}
+
+export type UserUpsertWithoutAcknowledgementsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAcknowledgementsInput, Prisma.UserUncheckedUpdateWithoutAcknowledgementsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAcknowledgementsInput, Prisma.UserUncheckedCreateWithoutAcknowledgementsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAcknowledgementsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAcknowledgementsInput, Prisma.UserUncheckedUpdateWithoutAcknowledgementsInput>
+}
+
+export type UserUpdateWithoutAcknowledgementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAcknowledgementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPreorderChatsAssignedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPreorderChatsAssignedInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPreorderChatsAssignedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedCreateWithoutPreorderChatsAssignedInput>
+}
+
+export type UserUpsertWithoutPreorderChatsAssignedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedUpdateWithoutPreorderChatsAssignedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedCreateWithoutPreorderChatsAssignedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPreorderChatsAssignedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPreorderChatsAssignedInput, Prisma.UserUncheckedUpdateWithoutPreorderChatsAssignedInput>
+}
+
+export type UserUpdateWithoutPreorderChatsAssignedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPreorderChatsAssignedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatParticipants?: Prisma.PreorderChatParticipantUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPreorderChatParticipantsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationCreateNestedManyWithoutAssignedAdminInput
+}
+
+export type UserUncheckedCreateWithoutPreorderChatParticipantsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedCreateNestedManyWithoutResolvedByInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedCreateNestedManyWithoutUserInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutAssignedAdminInput
+}
+
+export type UserCreateOrConnectWithoutPreorderChatParticipantsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedCreateWithoutPreorderChatParticipantsInput>
+}
+
+export type UserUpsertWithoutPreorderChatParticipantsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedUpdateWithoutPreorderChatParticipantsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedCreateWithoutPreorderChatParticipantsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPreorderChatParticipantsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPreorderChatParticipantsInput, Prisma.UserUncheckedUpdateWithoutPreorderChatParticipantsInput>
+}
+
+export type UserUpdateWithoutPreorderChatParticipantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUpdateManyWithoutAssignedAdminNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPreorderChatParticipantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  notificationsResolved?: Prisma.AdminNotificationUncheckedUpdateManyWithoutResolvedByNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+  acknowledgements?: Prisma.CustomerAcknowledgementUncheckedUpdateManyWithoutUserNestedInput
+  preorderChatsAssigned?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutAssignedAdminNestedInput
 }
 
 
@@ -2784,6 +3509,9 @@ export type UserCountOutputType = {
   notificationsResolved: number
   logisticsAuditLogs: number
   logisticsPings: number
+  acknowledgements: number
+  preorderChatsAssigned: number
+  preorderChatParticipants: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2795,6 +3523,9 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notificationsResolved?: boolean | UserCountOutputTypeCountNotificationsResolvedArgs
   logisticsAuditLogs?: boolean | UserCountOutputTypeCountLogisticsAuditLogsArgs
   logisticsPings?: boolean | UserCountOutputTypeCountLogisticsPingsArgs
+  acknowledgements?: boolean | UserCountOutputTypeCountAcknowledgementsArgs
+  preorderChatsAssigned?: boolean | UserCountOutputTypeCountPreorderChatsAssignedArgs
+  preorderChatParticipants?: boolean | UserCountOutputTypeCountPreorderChatParticipantsArgs
 }
 
 /**
@@ -2863,6 +3594,27 @@ export type UserCountOutputTypeCountLogisticsPingsArgs<ExtArgs extends runtime.T
   where?: Prisma.LogisticsLocationPingWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAcknowledgementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerAcknowledgementWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPreorderChatsAssignedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderChatConversationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPreorderChatParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderChatParticipantWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2901,6 +3653,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
   logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
   logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
+  acknowledgements?: boolean | Prisma.User$acknowledgementsArgs<ExtArgs>
+  preorderChatsAssigned?: boolean | Prisma.User$preorderChatsAssignedArgs<ExtArgs>
+  preorderChatParticipants?: boolean | Prisma.User$preorderChatParticipantsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2947,6 +3702,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
   logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
   logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
+  acknowledgements?: boolean | Prisma.User$acknowledgementsArgs<ExtArgs>
+  preorderChatsAssigned?: boolean | Prisma.User$preorderChatsAssignedArgs<ExtArgs>
+  preorderChatParticipants?: boolean | Prisma.User$preorderChatParticipantsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2982,6 +3740,16 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     logisticsAuditLogs: Prisma.$LogisticsAuditLogPayload<ExtArgs>[]
     logisticsPings: Prisma.$LogisticsLocationPingPayload<ExtArgs>[]
+    /**
+     * Information this person has said they read - the bulk preorder note.
+     */
+    acknowledgements: Prisma.$CustomerAcknowledgementPayload<ExtArgs>[]
+    /**
+     * Preorder chats: the ones assigned to this member of staff, and this
+     * person's own read position in each conversation they have opened.
+     */
+    preorderChatsAssigned: Prisma.$PreorderChatConversationPayload<ExtArgs>[]
+    preorderChatParticipants: Prisma.$PreorderChatParticipantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3442,6 +4210,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   logisticsMembership<T extends Prisma.User$logisticsMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsMembershipArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerUserClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   logisticsAuditLogs<T extends Prisma.User$logisticsAuditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsAuditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   logisticsPings<T extends Prisma.User$logisticsPingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsPingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsLocationPingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  acknowledgements<T extends Prisma.User$acknowledgementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$acknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preorderChatsAssigned<T extends Prisma.User$preorderChatsAssignedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preorderChatsAssignedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderChatConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preorderChatParticipants<T extends Prisma.User$preorderChatParticipantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preorderChatParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderChatParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4072,6 +4843,78 @@ export type User$logisticsPingsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.LogisticsLocationPingScalarFieldEnum | Prisma.LogisticsLocationPingScalarFieldEnum[]
+}
+
+/**
+ * User.acknowledgements
+ */
+export type User$acknowledgementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerAcknowledgement
+   */
+  select?: Prisma.CustomerAcknowledgementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerAcknowledgement
+   */
+  omit?: Prisma.CustomerAcknowledgementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerAcknowledgementInclude<ExtArgs> | null
+  where?: Prisma.CustomerAcknowledgementWhereInput
+  orderBy?: Prisma.CustomerAcknowledgementOrderByWithRelationInput | Prisma.CustomerAcknowledgementOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerAcknowledgementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerAcknowledgementScalarFieldEnum | Prisma.CustomerAcknowledgementScalarFieldEnum[]
+}
+
+/**
+ * User.preorderChatsAssigned
+ */
+export type User$preorderChatsAssignedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderChatConversation
+   */
+  select?: Prisma.PreorderChatConversationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderChatConversation
+   */
+  omit?: Prisma.PreorderChatConversationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderChatConversationInclude<ExtArgs> | null
+  where?: Prisma.PreorderChatConversationWhereInput
+  orderBy?: Prisma.PreorderChatConversationOrderByWithRelationInput | Prisma.PreorderChatConversationOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderChatConversationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderChatConversationScalarFieldEnum | Prisma.PreorderChatConversationScalarFieldEnum[]
+}
+
+/**
+ * User.preorderChatParticipants
+ */
+export type User$preorderChatParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderChatParticipant
+   */
+  select?: Prisma.PreorderChatParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderChatParticipant
+   */
+  omit?: Prisma.PreorderChatParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderChatParticipantInclude<ExtArgs> | null
+  where?: Prisma.PreorderChatParticipantWhereInput
+  orderBy?: Prisma.PreorderChatParticipantOrderByWithRelationInput | Prisma.PreorderChatParticipantOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderChatParticipantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderChatParticipantScalarFieldEnum | Prisma.PreorderChatParticipantScalarFieldEnum[]
 }
 
 /**

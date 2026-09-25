@@ -49,6 +49,9 @@ import {
 import { MenuIcon, SignOutIcon, UserIcon } from '@/components/icons';
 import { useI18n } from '@/i18n/i18n-context';
 import { ACCOUNT_NAV, accountNavGroups } from './account-nav';
+import { useChatUnreadCount } from '@/lib/use-chat-unread';
+import { isMessagesPath } from '@/lib/preorder-chat';
+import { cx } from '@/lib/cx';
 import type { AccountNavGroup } from './account-nav';
 import { useAccountIdentity } from './useAccountIdentity';
 import type { AccountIdentity } from './useAccountIdentity';
@@ -94,6 +97,7 @@ function NavGroup({
   onNavigate: () => void;
 }): React.JSX.Element {
   const { t } = useI18n();
+  const unread = useChatUnreadCount();
 
   return (
     <SidebarSection label={t(group.titleKey)}>
@@ -105,6 +109,9 @@ function NavGroup({
             to: item.to,
             label: t(item.labelKey),
             icon: item.icon,
+            ...(item.id === 'messages' && unread > 0
+              ? { badge: unread, ariaLabel: `${t(item.labelKey)} - ${t('preorderChat.page.unread', { count: unread })}` }
+              : {}),
             // A detail page belongs to the section its list is in, so
             // /account/orders/ORD-1 keeps "My orders" lit.
             matchPrefix: true,
@@ -147,12 +154,20 @@ export function AccountLayout(): React.JSX.Element {
     .filter((item) => location.pathname.startsWith(item.to))
     .sort((a, b) => b.to.length - a.to.length)[0];
 
+  // Messages is an application pane (see StoreLayout): this frame passes the
+  // window's height down instead of growing with its content.
+  const isAppPane = isMessagesPath(location.pathname);
+
   const closeDrawer = (): void => {
     setIsDrawerOpen(false);
   };
 
   return (
-    <div className="md:flex md:items-start md:gap-6">
+    <div
+      className={cx(
+        isAppPane ? 'flex min-h-0 flex-1 flex-col md:flex-row md:gap-4 lg:gap-6' : 'md:flex md:items-start md:gap-6',
+      )}
+    >
       {/* ---------------------------------------------------------------- */}
       {/* The left column                                                  */}
       {/* ---------------------------------------------------------------- */}
@@ -165,7 +180,11 @@ export function AccountLayout(): React.JSX.Element {
           setIsDrawerOpen(true);
         }}
         aria-expanded={isDrawerOpen}
-        className="mb-4 flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-medium text-ink shadow-card transition-colors hover:bg-surface-hover md:hidden"
+        className={cx(
+          'flex w-full shrink-0 items-center gap-3 rounded-lg border border-border bg-surface text-sm font-medium text-ink shadow-card transition-colors hover:bg-surface-hover md:hidden',
+          // A conversation needs the height more than this button needs its padding.
+          isAppPane ? 'mb-2 px-3 py-2' : 'mb-4 px-4 py-3',
+        )}
       >
         <MenuIcon aria-hidden="true" className="h-[1.15rem] w-[1.15rem] shrink-0 text-ink-subtle" />
         <span className="min-w-0 truncate">
@@ -180,7 +199,10 @@ export function AccountLayout(): React.JSX.Element {
           // A card rather than a full-height rail: this sits inside the
           // storefront's page, under a header that is already there, so it
           // stops where the page's own content stops.
-          className="md:sticky md:top-24 md:max-h-[calc(100vh-8rem)] md:rounded-lg md:border md:shadow-card"
+          className={cx(
+            'md:rounded-lg md:border md:shadow-card',
+            isAppPane ? 'md:max-h-full md:self-start' : 'md:sticky md:top-24 md:max-h-[calc(100vh-8rem)]',
+          )}
         >
           <div className="flex flex-1 flex-col">
             <Identity identity={identity} />
@@ -223,7 +245,7 @@ export function AccountLayout(): React.JSX.Element {
        * refuses to shrink and the whole page scrolls sideways, taking the
        * sidebar with it.
        */}
-      <div className="min-w-0 md:flex-1">
+      <div className={cx('min-w-0 md:flex-1', isAppPane && 'flex min-h-0 flex-1 flex-col')}>
         <Outlet />
       </div>
 

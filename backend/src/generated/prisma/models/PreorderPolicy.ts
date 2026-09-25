@@ -38,6 +38,7 @@ export type PreorderPolicyAvgAggregateOutputType = {
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
+  safetyStockBaseUnits: number | null
   minLeadTimeDays: number | null
   maxAdvanceDays: number | null
   requestExpiryHours: number | null
@@ -50,6 +51,7 @@ export type PreorderPolicySumAggregateOutputType = {
   incrementQuantity: number | null
   maxQuantity: number | null
   capacityBaseUnits: number | null
+  safetyStockBaseUnits: number | null
   minLeadTimeDays: number | null
   maxAdvanceDays: number | null
   requestExpiryHours: number | null
@@ -71,6 +73,7 @@ export type PreorderPolicyMinAggregateOutputType = {
   maxQuantity: number | null
   capacityBaseUnits: number | null
   capacityPeriod: $Enums.PreorderCapacityPeriod | null
+  safetyStockBaseUnits: number | null
   minLeadTimeDays: number | null
   maxAdvanceDays: number | null
   pricingMode: $Enums.PreorderPricingMode | null
@@ -100,6 +103,7 @@ export type PreorderPolicyMaxAggregateOutputType = {
   maxQuantity: number | null
   capacityBaseUnits: number | null
   capacityPeriod: $Enums.PreorderCapacityPeriod | null
+  safetyStockBaseUnits: number | null
   minLeadTimeDays: number | null
   maxAdvanceDays: number | null
   pricingMode: $Enums.PreorderPricingMode | null
@@ -129,6 +133,7 @@ export type PreorderPolicyCountAggregateOutputType = {
   maxQuantity: number
   capacityBaseUnits: number
   capacityPeriod: number
+  safetyStockBaseUnits: number
   minLeadTimeDays: number
   maxAdvanceDays: number
   deliveryCountriesJson: number
@@ -154,6 +159,7 @@ export type PreorderPolicyAvgAggregateInputType = {
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
+  safetyStockBaseUnits?: true
   minLeadTimeDays?: true
   maxAdvanceDays?: true
   requestExpiryHours?: true
@@ -166,6 +172,7 @@ export type PreorderPolicySumAggregateInputType = {
   incrementQuantity?: true
   maxQuantity?: true
   capacityBaseUnits?: true
+  safetyStockBaseUnits?: true
   minLeadTimeDays?: true
   maxAdvanceDays?: true
   requestExpiryHours?: true
@@ -187,6 +194,7 @@ export type PreorderPolicyMinAggregateInputType = {
   maxQuantity?: true
   capacityBaseUnits?: true
   capacityPeriod?: true
+  safetyStockBaseUnits?: true
   minLeadTimeDays?: true
   maxAdvanceDays?: true
   pricingMode?: true
@@ -216,6 +224,7 @@ export type PreorderPolicyMaxAggregateInputType = {
   maxQuantity?: true
   capacityBaseUnits?: true
   capacityPeriod?: true
+  safetyStockBaseUnits?: true
   minLeadTimeDays?: true
   maxAdvanceDays?: true
   pricingMode?: true
@@ -245,6 +254,7 @@ export type PreorderPolicyCountAggregateInputType = {
   maxQuantity?: true
   capacityBaseUnits?: true
   capacityPeriod?: true
+  safetyStockBaseUnits?: true
   minLeadTimeDays?: true
   maxAdvanceDays?: true
   deliveryCountriesJson?: true
@@ -364,6 +374,7 @@ export type PreorderPolicyGroupByOutputType = {
   maxQuantity: number | null
   capacityBaseUnits: number | null
   capacityPeriod: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits: number
   minLeadTimeDays: number | null
   maxAdvanceDays: number | null
   deliveryCountriesJson: runtime.JsonValue | null
@@ -419,6 +430,7 @@ export type PreorderPolicyWhereInput = {
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFilter<"PreorderPolicy"> | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFilter<"PreorderPolicy"> | number
   minLeadTimeDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   maxAdvanceDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   deliveryCountriesJson?: Prisma.JsonNullableFilter<"PreorderPolicy">
@@ -454,6 +466,7 @@ export type PreorderPolicyOrderByWithRelationInput = {
   maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityPeriod?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrderInput | Prisma.SortOrder
   deliveryCountriesJson?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -494,6 +507,7 @@ export type PreorderPolicyWhereUniqueInput = Prisma.AtLeast<{
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFilter<"PreorderPolicy"> | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFilter<"PreorderPolicy"> | number
   minLeadTimeDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   maxAdvanceDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   deliveryCountriesJson?: Prisma.JsonNullableFilter<"PreorderPolicy">
@@ -529,6 +543,7 @@ export type PreorderPolicyOrderByWithAggregationInput = {
   maxQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrderInput | Prisma.SortOrder
   capacityPeriod?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrderInput | Prisma.SortOrder
   deliveryCountriesJson?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -569,6 +584,7 @@ export type PreorderPolicyScalarWhereWithAggregatesInput = {
   maxQuantity?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodWithAggregatesFilter<"PreorderPolicy"> | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntWithAggregatesFilter<"PreorderPolicy"> | number
   minLeadTimeDays?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
   maxAdvanceDays?: Prisma.IntNullableWithAggregatesFilter<"PreorderPolicy"> | number | null
   deliveryCountriesJson?: Prisma.JsonNullableWithAggregatesFilter<"PreorderPolicy">
@@ -600,6 +616,7 @@ export type PreorderPolicyCreateInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -635,6 +652,7 @@ export type PreorderPolicyUncheckedCreateInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -668,6 +686,7 @@ export type PreorderPolicyUpdateInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -703,6 +722,7 @@ export type PreorderPolicyUncheckedUpdateInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -737,6 +757,7 @@ export type PreorderPolicyCreateManyInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -768,6 +789,7 @@ export type PreorderPolicyUpdateManyMutationInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -800,6 +822,7 @@ export type PreorderPolicyUncheckedUpdateManyInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -854,6 +877,7 @@ export type PreorderPolicyCountOrderByAggregateInput = {
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
   capacityPeriod?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrder
   deliveryCountriesJson?: Prisma.SortOrder
@@ -877,6 +901,7 @@ export type PreorderPolicyAvgOrderByAggregateInput = {
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrder
   requestExpiryHours?: Prisma.SortOrder
@@ -898,6 +923,7 @@ export type PreorderPolicyMaxOrderByAggregateInput = {
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
   capacityPeriod?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
@@ -927,6 +953,7 @@ export type PreorderPolicyMinOrderByAggregateInput = {
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
   capacityPeriod?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
@@ -947,6 +974,7 @@ export type PreorderPolicySumOrderByAggregateInput = {
   incrementQuantity?: Prisma.SortOrder
   maxQuantity?: Prisma.SortOrder
   capacityBaseUnits?: Prisma.SortOrder
+  safetyStockBaseUnits?: Prisma.SortOrder
   minLeadTimeDays?: Prisma.SortOrder
   maxAdvanceDays?: Prisma.SortOrder
   requestExpiryHours?: Prisma.SortOrder
@@ -1058,6 +1086,7 @@ export type PreorderPolicyCreateWithoutSellerAccountInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1091,6 +1120,7 @@ export type PreorderPolicyUncheckedCreateWithoutSellerAccountInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1154,6 +1184,7 @@ export type PreorderPolicyScalarWhereInput = {
   maxQuantity?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityBaseUnits?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFilter<"PreorderPolicy"> | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFilter<"PreorderPolicy"> | number
   minLeadTimeDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   maxAdvanceDays?: Prisma.IntNullableFilter<"PreorderPolicy"> | number | null
   deliveryCountriesJson?: Prisma.JsonNullableFilter<"PreorderPolicy">
@@ -1185,6 +1216,7 @@ export type PreorderPolicyCreateWithoutTiersInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1219,6 +1251,7 @@ export type PreorderPolicyUncheckedCreateWithoutTiersInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1267,6 +1300,7 @@ export type PreorderPolicyUpdateWithoutTiersInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1301,6 +1335,7 @@ export type PreorderPolicyUncheckedUpdateWithoutTiersInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1333,6 +1368,7 @@ export type PreorderPolicyCreateWithoutCapacityInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1367,6 +1403,7 @@ export type PreorderPolicyUncheckedCreateWithoutCapacityInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1415,6 +1452,7 @@ export type PreorderPolicyUpdateWithoutCapacityInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1449,6 +1487,7 @@ export type PreorderPolicyUncheckedUpdateWithoutCapacityInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1481,6 +1520,7 @@ export type PreorderPolicyCreateManySellerAccountInput = {
   maxQuantity?: number | null
   capacityBaseUnits?: number | null
   capacityPeriod?: $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: number
   minLeadTimeDays?: number | null
   maxAdvanceDays?: number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1512,6 +1552,7 @@ export type PreorderPolicyUpdateWithoutSellerAccountInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1545,6 +1586,7 @@ export type PreorderPolicyUncheckedUpdateWithoutSellerAccountInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1578,6 +1620,7 @@ export type PreorderPolicyUncheckedUpdateManyWithoutSellerAccountInput = {
   maxQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   capacityPeriod?: Prisma.EnumPreorderCapacityPeriodFieldUpdateOperationsInput | $Enums.PreorderCapacityPeriod
+  safetyStockBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
   minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxAdvanceDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   deliveryCountriesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1650,6 +1693,7 @@ export type PreorderPolicySelect<ExtArgs extends runtime.Types.Extensions.Intern
   maxQuantity?: boolean
   capacityBaseUnits?: boolean
   capacityPeriod?: boolean
+  safetyStockBaseUnits?: boolean
   minLeadTimeDays?: boolean
   maxAdvanceDays?: boolean
   deliveryCountriesJson?: boolean
@@ -1688,6 +1732,7 @@ export type PreorderPolicySelectScalar = {
   maxQuantity?: boolean
   capacityBaseUnits?: boolean
   capacityPeriod?: boolean
+  safetyStockBaseUnits?: boolean
   minLeadTimeDays?: boolean
   maxAdvanceDays?: boolean
   deliveryCountriesJson?: boolean
@@ -1706,7 +1751,7 @@ export type PreorderPolicySelectScalar = {
   updatedAt?: boolean
 }
 
-export type PreorderPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "scope" | "scopeKey" | "offerId" | "productId" | "isEnabled" | "moqUnit" | "moqQuantity" | "incrementQuantity" | "maxQuantity" | "capacityBaseUnits" | "capacityPeriod" | "minLeadTimeDays" | "maxAdvanceDays" | "deliveryCountriesJson" | "eligibleLocationIdsJson" | "packagingTypesJson" | "pricingMode" | "allowPartialFulfilment" | "allowSplitDelivery" | "requestExpiryHours" | "offerExpiryHours" | "cancellationTerms" | "specialInstructions" | "version" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderPolicy"]>
+export type PreorderPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "scope" | "scopeKey" | "offerId" | "productId" | "isEnabled" | "moqUnit" | "moqQuantity" | "incrementQuantity" | "maxQuantity" | "capacityBaseUnits" | "capacityPeriod" | "safetyStockBaseUnits" | "minLeadTimeDays" | "maxAdvanceDays" | "deliveryCountriesJson" | "eligibleLocationIdsJson" | "packagingTypesJson" | "pricingMode" | "allowPartialFulfilment" | "allowSplitDelivery" | "requestExpiryHours" | "offerExpiryHours" | "cancellationTerms" | "specialInstructions" | "version" | "updatedByLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderPolicy"]>
 export type PreorderPolicyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   tiers?: boolean | Prisma.PreorderPolicy$tiersArgs<ExtArgs>
@@ -1753,6 +1798,11 @@ export type $PreorderPolicyPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     capacityBaseUnits: number | null
     capacityPeriod: $Enums.PreorderCapacityPeriod
+    /**
+     * Pieces of on-hand stock never promised to a preorder - kept back for
+     * ordinary basket orders and breakages. Subtracted from available-to-promise.
+     */
+    safetyStockBaseUnits: number
     /**
      * Calendar days from today to the earliest delivery the seller will commit
      * to. Null falls back to the platform notice period alone.
@@ -2179,6 +2229,7 @@ export interface PreorderPolicyFieldRefs {
   readonly maxQuantity: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly capacityBaseUnits: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly capacityPeriod: Prisma.FieldRef<"PreorderPolicy", 'PreorderCapacityPeriod'>
+  readonly safetyStockBaseUnits: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly minLeadTimeDays: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly maxAdvanceDays: Prisma.FieldRef<"PreorderPolicy", 'Int'>
   readonly deliveryCountriesJson: Prisma.FieldRef<"PreorderPolicy", 'Json'>

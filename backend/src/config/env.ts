@@ -20,22 +20,19 @@ const booleanFromString = z
   .enum(['true', 'false', '1', '0', 'yes', 'no'])
   .transform((v) => v === 'true' || v === '1' || v === 'yes');
 
-const intFromString = (min: number, max: number) =>
-  z.coerce.number().int().min(min).max(max);
+const intFromString = (min: number, max: number) => z.coerce.number().int().min(min).max(max);
 
 /** Comma-separated origin list -> deduplicated array of exact origins. */
-const originList = z
-  .string()
-  .transform((raw) =>
-    Array.from(
-      new Set(
-        raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0),
-      ),
+const originList = z.string().transform((raw) =>
+  Array.from(
+    new Set(
+      raw
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0),
     ),
-  );
+  ),
+);
 
 /**
  * The same list, for a surface a deployment may not serve at all.
@@ -439,10 +436,10 @@ const envSchema = z
     // --- Bulk preorders ---
     //
     // The PLATFORM level of the preorder fallback chain (offer -> product ->
-    // seller default -> these). Deliberately none of them is a minimum
-    // quantity, a price or a capacity: those are the seller's commercial
-    // terms, and a product whose seller has stated none is not open for
-    // preorder rather than open at a figure this file made up.
+    // seller default -> these). Deliberately none of them is a price or a
+    // capacity: those are the seller's commercial terms. The one quantity is
+    // PREORDER_DEFAULT_MOQ, the operator's own statement of what "bulk" means
+    // on this deployment, and it applies only where no seller terms do.
 
     /// Notice for a preorder delivery, calendar days on the buyer's clock.
     /// Never below 1 (today is never bookable) and never below the Schedule
@@ -472,6 +469,120 @@ const envSchema = z
     PREORDER_DEFAULT_LEAD_DAYS: intFromString(0, 365).default(14),
     /** How far ahead a delivery may be booked under the platform default terms. */
     PREORDER_DEFAULT_MAX_ADVANCE_DAYS: intFromString(1, 1095).default(365),
+    /**
+     * The minimum preorder quantity, in pieces, under the platform default
+     * terms - the last step of the chain, used only where no seller terms
+     * apply. It is also the bulk threshold at which the product page suggests
+     * a preorder, because the storefront reads the threshold from the same
+     * eligibility answer. A listing whose own ordering minimum is higher keeps
+     * its higher figure. Seller-configured terms always win over this.
+     */
+    PREORDER_DEFAULT_MOQ: intFromString(1, 1_000_000_000).default(1000),
+    /**
+     * The version of the "how bulk preorders work" information a buyer must
+     * acknowledge before their first preorder. Change it (PREORDER_INFO_V2,
+     * ...) when the preorder process or the default minimum changes in a way
+     * buyers should read again: every buyer is asked once more, and an older
+     * acknowledgement no longer lets a request through.
+     */
+    PREORDER_INFO_VERSION: z
+      .string()
+      .regex(/^[A-Z0-9_]{1,32}$/, 'Use capital letters, digits and underscores, 32 at most.')
+      .default('PREORDER_INFO_V1'),
+    /**
+     * The longest a seller may give a buyer to answer an availability
+     * proposal (a revised date or a split delivery), in hours. The seller
+     * chooses the expiry; this is the ceiling.
+     */
+    PREORDER_PROPOSAL_MAX_EXPIRY_HOURS: intFromString(1, 2160).default(720),
+
+    // --- Preorder chat (customer <-> the operator's staff) ---
+    //
+    // A buyer looking at a product asks the OPERATOR's team about a preorder.
+    // Never the seller: the seller is not a party to these conversations and
+    // no seller route reads them. Everything here is operational tuning; none
+    // of it is a price or a promise.
+
+    /** Off hides the chat button and refuses every chat route with 404. */
+    FEATURE_PREORDER_CHAT: booleanFromString.default(true),
+    /**
+     * How live events reach browsers connected to OTHER API processes.
+     *
+     *   memory   - one API process. Events stay inside it. The default, and
+     *              correct for the single-process deployment this ships as.
+     *   database - several API processes behind one load balancer. Each event
+     *              is written as a reference (ids only, never a message body)
+     *              to `realtime_events`, which every process polls, and rows
+     *              are deleted within minutes. No Redis is needed.
+     *
+     * Running two processes on `memory` is the one wrong answer: a customer
+     * connected to one would not see a reply sent through the other until
+     * they reloaded. Nothing is lost - the database is the source of truth
+     * and the page recovers on reconnect - but it is not real time.
+     */
+    REALTIME_BUS_DRIVER: z.enum(['memory', 'database']).default('memory'),
+    /** How often each process polls `realtime_events` under the database bus. */
+    REALTIME_BUS_POLL_MS: intFromString(100, 10_000).default(750),
+    /**
+     * What the chat says about response time, in the operator's own words
+     * ("within 4 business hours"). Shown as written, labelled as typical, and
+     * never turned into a promise. Empty shows no figure at all.
+     */
+    PREORDER_CHAT_TYPICAL_RESPONSE: z.string().trim().max(80).default('within 4 business hours'),
+    /**
+     * The name the team answering preorder chats goes by - "the {team} team
+     * is available". Empty uses the marketplace's own name. Its own setting
+     * because an operator may trade under one name (the storefront, emails,
+     * payment sheets) and answer as a team under another.
+     */
+    PREORDER_CHAT_TEAM_NAME: z.string().trim().max(80).default(''),
+    /** The longest message a person may send, in characters. */
+    PREORDER_CHAT_MAX_MESSAGE_CHARS: intFromString(200, 10_000).default(4000),
+    /** Messages one person may send per minute, across every conversation. */
+    PREORDER_CHAT_MESSAGES_PER_MINUTE: intFromString(1, 600).default(20),
+    /** New conversations one customer may open per hour. */
+    PREORDER_CHAT_CONVERSATIONS_PER_HOUR: intFromString(1, 200).default(10),
+    /**
+     * Minutes a customer message may wait for a first answer before the
+     * console raises an alert. The alert closes when somebody replies.
+     */
+    PREORDER_CHAT_SLA_MINUTES: intFromString(5, 10_080).default(240),
+    /**
+     * Minutes an unread reply waits before the customer is emailed about it.
+     * The email says a reply is waiting and links to it; it never carries the
+     * reply itself, because an inbox is not the place for a price.
+     */
+    PREORDER_CHAT_EMAIL_DELAY_MINUTES: intFromString(1, 1440).default(10),
+    /** Attachments on/off. Text-only chat still works with this off. */
+    PREORDER_CHAT_ATTACHMENTS_ENABLED: booleanFromString.default(true),
+    /** Largest attachment, in bytes. */
+    PREORDER_CHAT_ATTACHMENT_MAX_BYTES: intFromString(1024, 26_214_400).default(10_485_760),
+    /**
+     * Accept attachments that no malware scanner has looked at.
+     *
+     * False by default, and refused in production. With no scanner configured
+     * and this false, attachments report themselves unavailable rather than
+     * storing a file nobody may ever open - the honest state for a
+     * development machine.
+     */
+    PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS: booleanFromString.default(false),
+    /**
+     * Days a CLOSED conversation is kept before it is deleted. Zero keeps
+     * closed conversations for ever, which is the default: a negotiation that
+     * preceded an order is evidence, and the operator decides how long that
+     * evidence lives, not this software.
+     */
+    PREORDER_CHAT_RETENTION_DAYS: intFromString(0, 3650).default(0),
+
+    // --- Container loading ---
+    //
+    // The heaviest cargo a seller may say one container carries, in kilograms.
+    // A seller's container loading is refused above it. The defaults are the
+    // nominal maximum payload of a standard dry 20GP and 40GP; set them to
+    // what the carriers this deployment books actually accept, which is often
+    // less (road weight limits at either end are usually the tighter figure).
+    CONTAINER_20FT_MAX_PAYLOAD_KG: intFromString(1000, 40_000).default(28_200),
+    CONTAINER_40FT_MAX_PAYLOAD_KG: intFromString(1000, 40_000).default(26_700),
 
     // --- The selling unit ---
     //
@@ -711,9 +822,7 @@ const envSchema = z
     /// Least privilege, and shown to the buyer before they authorise. Widen
     /// this and every buyer is asked for more than they were before, so it is
     /// configuration rather than a constant.
-    MONDAY_OAUTH_SCOPES: z
-      .string()
-      .default('boards:read boards:write workspaces:read me:read'),
+    MONDAY_OAUTH_SCOPES: z.string().default('boards:read boards:write workspaces:read me:read'),
 
     /// Host suffixes a buyer's ERP address is allowed to end in.
     ///
@@ -911,7 +1020,9 @@ const envSchema = z
     FEATURE_ADMIN_LOGIN_LOCATION: booleanFromString.default(false),
     GEOCODE_REVERSE_URL: z
       .string()
-      .default('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat={lat}&lon={lon}'),
+      .default(
+        'https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat={lat}&lon={lon}',
+      ),
     GEOCODE_TIMEOUT_MS: intFromString(500, 30_000).default(5000),
 
     // --- Warehouse map ---
@@ -1647,10 +1758,7 @@ const envSchema = z
     // secret, every buyer who presses "Connect monday.com" gets as far as
     // their own consent screen and then fails at token exchange, which looks
     // like a fault in their account rather than a gap in ours.
-    if (
-      (value.MONDAY_OAUTH_CLIENT_ID.length > 0) !==
-      (value.MONDAY_OAUTH_CLIENT_SECRET.length > 0)
-    ) {
+    if (value.MONDAY_OAUTH_CLIENT_ID.length > 0 !== value.MONDAY_OAUTH_CLIENT_SECRET.length > 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['MONDAY_OAUTH_CLIENT_SECRET'],
@@ -1671,7 +1779,8 @@ const envSchema = z
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['CUSTOMER_ERP_OAUTH_REDIRECT_URI'],
-            message: 'must be an https address in production - an authorisation code ' +
+            message:
+              'must be an https address in production - an authorisation code ' +
               'delivered over plain HTTP is readable by anybody on the path.',
           });
         }
@@ -1851,8 +1960,7 @@ const envSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['PAYMENT_MOCK_SUCCESS'],
-          message:
-            'must be false in production. It confirms orders nobody has paid for.',
+          message: 'must be false in production. It confirms orders nobody has paid for.',
         });
       }
 
@@ -1908,6 +2016,13 @@ const envSchema = z
           code: z.ZodIssueCode.custom,
           path: ['MALWARE_SCANNER_DRIVER'],
           message: 'must be clamav in production so uploaded documents are scanned before storage',
+        });
+      }
+      if (value.PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS'],
+          message: 'unscanned chat attachments cannot be accepted in production',
         });
       }
       if (value.SELLER_ALLOW_UNSCANNED_DOCUMENTS || value.LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS) {

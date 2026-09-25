@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**226 tables · 203 enums · 550 extra indexes and unique keys**, in 42 groups. The groups follow the section banners in the schema file.
+**238 tables · 215 enums · 571 extra indexes and unique keys**, in 43 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -61,11 +61,12 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ who is responsible for moving a seller's goods. / / read together with `sellerfulfilmentmethod.status`: a mode says what kind / of delivery this is, the status says whether it may be used yet. a seller / can have a dedicated_partner method sitting in pending_approval for a / fortnight while their integrated_carrier method carries everything.](#group-who-is-responsible-for-moving-a-seller-s-goods-read-together-with-sellerfulfilmentmethod-status-a-mode-says-what-kind-of-delivery-this-is-the-status-says-whether-it-may-be-used-yet-a-seller-can-have-a-dedicated-partner-method-sitting-in-pending-approval-for-a-fortnight-while-their-integrated-carrier-method-carries-everything) | 11 | 12 |
 | [Logistics partner portal](#group-logistics-partner-portal) | 27 | 28 |
 | [Demo catalogue](#group-demo-catalogue) | 1 | 0 |
-| [/ a package a buyer can order by. / / parallel to the four bulk members of `orderingunit` rather than the same / enum, because the two answer different questions: this one is configuration / ("may this be bought by the pallet?") and that one is a historical fact on / a line ("this was bought by the pallet"). keeping them apart is what lets a / package type be retired from the configuration without rewriting the / meaning of every order that used it.](#group-a-package-a-buyer-can-order-by-parallel-to-the-four-bulk-members-of-orderingunit-rather-than-the-same-enum-because-the-two-answer-different-questions-this-one-is-configuration-may-this-be-bought-by-the-pallet-and-that-one-is-a-historical-fact-on-a-line-this-was-bought-by-the-pallet-keeping-them-apart-is-what-lets-a-package-type-be-retired-from-the-configuration-without-rewriting-the-meaning-of-every-order-that-used-it) | 5 | 9 |
+| [/ a package a buyer can order by. / / parallel to the four bulk members of `orderingunit` rather than the same / enum, because the two answer different questions: this one is configuration / ("may this be bought by the pallet?") and that one is a historical fact on / a line ("this was bought by the pallet"). keeping them apart is what lets a / package type be retired from the configuration without rewriting the / meaning of every order that used it.](#group-a-package-a-buyer-can-order-by-parallel-to-the-four-bulk-members-of-orderingunit-rather-than-the-same-enum-because-the-two-answer-different-questions-this-one-is-configuration-may-this-be-bought-by-the-pallet-and-that-one-is-a-historical-fact-on-a-line-this-was-bought-by-the-pallet-keeping-them-apart-is-what-lets-a-package-type-be-retired-from-the-configuration-without-rewriting-the-meaning-of-every-order-that-used-it) | 6 | 9 |
 | [/ what kind of transport a consignment actually needs.](#group-what-kind-of-transport-a-consignment-actually-needs) | 1 | 2 |
 | [/ which accounting system. one member today; the abstraction is the point. / / the connector interface, the job pipeline, the mapping table and the bridge / are all provider-agnostic; only the payload builder and the response parser / are tally-specific. a second provider is a new module, not a new schema.](#group-which-accounting-system-one-member-today-the-abstraction-is-the-point-the-connector-interface-the-job-pipeline-the-mapping-table-and-the-bridge-are-all-provider-agnostic-only-the-payload-builder-and-the-response-parser-are-tally-specific-a-second-provider-is-a-new-module-not-a-new-schema) | 11 | 10 |
 | [Seller logistics policy - who controls each of the four delivery levels, what each level costs, and what the seller is owed afterwards](#group-seller-logistics-policy-who-controls-each-of-the-four-delivery-levels-what-each-level-costs-and-what-the-seller-is-owed-afterwards) | 9 | 12 |
-| [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 6 | 9 |
+| [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
+| [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
 
 <a id="group-identity-access"></a>
@@ -160,6 +161,9 @@ Table `users`
 - `logisticsMembership` ← [LogisticsPartnerUser](#model-logisticspartneruser) - has zero or one
 - `logisticsAuditLogs` ← [LogisticsAuditLog](#model-logisticsauditlog) - has many
 - `logisticsPings` ← [LogisticsLocationPing](#model-logisticslocationping) - has many
+- `acknowledgements` ← [CustomerAcknowledgement](#model-customeracknowledgement) - has many
+- `preorderChatsAssigned` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
+- `preorderChatParticipants` ← [PreorderChatParticipant](#model-preorderchatparticipant) - has many
 
 **Indexes and keys**
 
@@ -1585,6 +1589,8 @@ Table `customer_profiles`
 - `fulfilmentQuotes` ← [FulfilmentQuote](#model-fulfilmentquote) - has many
 - `assistantConversations` ← [AssistantConversation](#model-assistantconversation) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `preorderChats` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
+- `preorderChatBlock` ← [PreorderChatCustomerBlock](#model-preorderchatcustomerblock) - has zero or one
 - `organizationMembership` ← [BuyerOrganizationMember](#model-buyerorganizationmember) - has zero or one
 - `sellerMembership` ← [SellerMember](#model-sellermember) - has zero or one
 
@@ -7347,6 +7353,7 @@ One seller's terms for one catalogue product.
 - `inventory` ← [SellerInventory](#model-sellerinventory) - has many
 - `orderLines` ← [SellerOrderLine](#model-sellerorderline) - has many
 - `packagingProfile` ← [SellerPackagingProfile](#model-sellerpackagingprofile) - has zero or one
+- `containerLoading` ← [SellerContainerLoading](#model-sellercontainerloading) - has zero or one
 - `cartItems` ← [CartItem](#model-cartitem) - has many
 - `orderItems` ← [OrderItem](#model-orderitem) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
@@ -11034,7 +11041,7 @@ Table `demo_catalog_entries`
 
 ##  / a package a buyer can order by. / / parallel to the four bulk members of `orderingunit` rather than the same / enum, because the two answer different questions: this one is configuration / ("may this be bought by the pallet?") and that one is a historical fact on / a line ("this was bought by the pallet"). keeping them apart is what lets a / package type be retired from the configuration without rewriting the / meaning of every order that used it.
 
-[SellerPackagingProfile](#model-sellerpackagingprofile) · [SellerPackagingOption](#model-sellerpackagingoption) · [SellerPackagingTier](#model-sellerpackagingtier) · [CartItemPackaging](#model-cartitempackaging) · [OrderItemPackaging](#model-orderitempackaging)
+[SellerPackagingProfile](#model-sellerpackagingprofile) · [SellerPackagingOption](#model-sellerpackagingoption) · [SellerPackagingTier](#model-sellerpackagingtier) · [SellerContainerLoading](#model-sellercontainerloading) · [CartItemPackaging](#model-cartitempackaging) · [OrderItemPackaging](#model-orderitempackaging)
 
 ```mermaid
 erDiagram
@@ -11042,6 +11049,7 @@ erDiagram
     SellerOffer ||--o| SellerPackagingProfile : "offer"
     SellerPackagingProfile ||--o{ SellerPackagingOption : "profile"
     SellerPackagingOption ||--o{ SellerPackagingTier : "option"
+    SellerOffer ||--o| SellerContainerLoading : "offer"
     CartItem ||--o| CartItemPackaging : "cartItem"
     OrderItem ||--o| OrderItemPackaging : "orderItem"
     SellerPackagingProfile {
@@ -11058,6 +11066,10 @@ erDiagram
         String id PK
         String optionId FK
         BigInt pricePerPackageMinor
+    }
+    SellerContainerLoading {
+        String id PK
+        String offerId FK
     }
     CartItemPackaging {
         String id PK
@@ -11199,6 +11211,51 @@ Table `seller_packaging_tiers`
 
 - `@@unique([optionId, minPackages], map: "uq_packaging_tier_band")`
 - `@@index([optionId, minPackages], map: "ix_packaging_tier_band")`
+
+<a id="model-sellercontainerloading"></a>
+
+### SellerContainerLoading
+
+Table `seller_container_loading`
+
+How many pieces of one offer fit in a 20-ft and a 40-ft container.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `offerId` | String · Char(26) |  | UNIQUE, FK → [SellerOffer](#model-selleroffer) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  | Denormalised from the offer for the tenant filter, as on the packaging tables. |
+| `piecesPerCarton` | Int |  |  |  |  |
+| `cartonLengthMm` | Int |  |  |  |  |
+| `cartonWidthMm` | Int |  |  |  |  |
+| `cartonHeightMm` | Int |  |  |  |  |
+| `grossWeightPerCartonGrams` | BigInt |  |  |  |  |
+| `maxStackLayers` | Int | yes |  |  | How many cartons high they may be stacked in the container. Null means the seller put no limit on it (floor to roof). |
+| `loadingMethod` | [enum ContainerLoadingMethod](#enum-containerloadingmethod) |  |  | CARTON_LOADED | Pallet-loaded or floor-loaded. On PALLET_LOADED the carton counts below are pallets x cartons per pallet. |
+| `cartonsPerPallet` | Int | yes |  |  |  |
+| `palletsPer20FtContainer` | Int | yes |  |  |  |
+| `cartonsPer20FtContainer` | Int | yes |  |  |  |
+| `piecesPer20FtContainer` | Int | yes |  |  |  |
+| `source20Ft` | [enum ContainerCapacitySource](#enum-containercapacitysource) | yes |  |  |  |
+| `verified20FtAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `palletsPer40FtContainer` | Int | yes |  |  |  |
+| `cartonsPer40FtContainer` | Int | yes |  |  |  |
+| `piecesPer40FtContainer` | Int | yes |  |  |  |
+| `source40Ft` | [enum ContainerCapacitySource](#enum-containercapacitysource) | yes |  |  |  |
+| `verified40FtAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `notes` | String · VarChar(1000) | yes |  |  |  |
+| `version` | Int |  |  | 1 |  |
+| `updatedByLabel` | String · VarChar(160) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `offer` → [SellerOffer](#model-selleroffer) via `offerId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([sellerAccountId, updatedAt], map: "ix_container_loading_seller")`
 
 <a id="model-cartitempackaging"></a>
 
@@ -12801,7 +12858,7 @@ One leg of a confirmed order, moving. Changed only through `assertLegTransition`
 
 ##  / which level of the fallback chain a policy sits at. / /   offer -> product -> seller_default -> the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.
 
-[PreorderPolicy](#model-preorderpolicy) · [PreorderPriceTier](#model-preorderpricetier) · [PreorderCapacityBucket](#model-preordercapacitybucket) · [PreorderRequest](#model-preorderrequest) · [PreorderOffer](#model-preorderoffer) · [PreorderStatusHistory](#model-preorderstatushistory)
+[PreorderPolicy](#model-preorderpolicy) · [PreorderPriceTier](#model-preorderpricetier) · [PreorderCapacityBucket](#model-preordercapacitybucket) · [PreorderRequest](#model-preorderrequest) · [PreorderOffer](#model-preorderoffer) · [PreorderStatusHistory](#model-preorderstatushistory) · [PreorderFulfilmentInstallment](#model-preorderfulfilmentinstallment) · [PreorderStockHold](#model-preorderstockhold) · [CustomerAcknowledgement](#model-customeracknowledgement)
 
 ```mermaid
 erDiagram
@@ -12814,6 +12871,10 @@ erDiagram
     Order |o--o| PreorderRequest : "convertedOrder"
     PreorderRequest ||--o{ PreorderOffer : "request"
     PreorderRequest ||--o{ PreorderStatusHistory : "request"
+    PreorderRequest ||--o{ PreorderFulfilmentInstallment : "request"
+    PreorderOffer ||--o{ PreorderFulfilmentInstallment : "offer"
+    PreorderRequest ||--o{ PreorderStockHold : "request"
+    User ||--o{ CustomerAcknowledgement : "user"
     PreorderPolicy {
         String id PK
         String sellerAccountId FK
@@ -12853,6 +12914,21 @@ erDiagram
         PreorderStatus fromStatus
         PreorderStatus toStatus
     }
+    PreorderFulfilmentInstallment {
+        String id PK
+        String requestId FK
+        String offerId FK
+        PreorderInstallmentStatus status
+    }
+    PreorderStockHold {
+        String id PK
+        String requestId FK
+        PreorderStockHoldStatus status
+    }
+    CustomerAcknowledgement {
+        String id PK
+        String userId FK
+    }
 ```
 
 <a id="model-preorderpolicy"></a>
@@ -12878,6 +12954,7 @@ One seller's preorder terms, at one level of the fallback chain.
 | `maxQuantity` | Int | yes |  |  |  |
 | `capacityBaseUnits` | Int | yes |  |  | Pieces the seller can make per `capacityPeriod`. Null means capacity is not tracked, and nothing is reserved. |
 | `capacityPeriod` | [enum PreorderCapacityPeriod](#enum-preordercapacityperiod) |  |  | MONTH |  |
+| `safetyStockBaseUnits` | Int |  |  | 0 | Pieces of on-hand stock never promised to a preorder - kept back for ordinary basket orders and breakages. Subtracted from available-to-promise. |
 | `minLeadTimeDays` | Int | yes |  |  | Calendar days from today to the earliest delivery the seller will commit to. Null falls back to the platform notice period alone. |
 | `maxAdvanceDays` | Int | yes |  |  | How far ahead a delivery may be booked. Null means no limit. |
 | `deliveryCountriesJson` | Json | yes |  |  | ISO-3166 alpha-2 codes. Null or empty means wherever the offer sells. |
@@ -12985,6 +13062,10 @@ One buyer's preorder request, and where the negotiation over it stands.
 | `unitQuantity` | Int |  |  |  |  |
 | `unitsPerPackage` | Int |  |  |  |  |
 | `requestedBaseUnits` | Int |  |  |  |  |
+| `containerLoadingSnapshotJson` | Json | yes |  |  | For a 20-ft or 40-ft container request: the seller's container loading as it stood at submission - pieces per carton, cartons per container, carton weight, where the figure came from and when it was verified. Required for those units (chk_preorder_request_container_snapshot) and never rewritten: a seller… |
+| `containerLoadingVersion` | Int | yes |  |  | The `SellerContainerLoading.version` it was taken from. |
+| `availableToPromiseAtSubmission` | Int | yes |  |  | Available-to-promise stock at submission, and how far short of the request it fell (0 = enough). INFORMATIONAL: nothing is reserved at submission, and the seller's proposal is checked against live stock. |
+| `shortfallAtSubmission` | Int |  |  | 0 |  |
 | `requestedDeliveryDate` | DateTime · Date |  |  |  | Calendar days, not instants - see `domain/delivery-dates.ts`. |
 | `earliestDeliveryDate` | DateTime · Date |  |  |  | What the earliest-date rule said at submission, kept for the dispute about whether the date asked for was ever possible. |
 | `timezone` | String · VarChar(64) |  |  |  |  |
@@ -13043,6 +13124,9 @@ One buyer's preorder request, and where the negotiation over it stands.
 - `convertedOrder` → [Order](#model-order) via `convertedOrderId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
 - `offers` ← [PreorderOffer](#model-preorderoffer) - has many
 - `history` ← [PreorderStatusHistory](#model-preorderstatushistory) - has many
+- `installments` ← [PreorderFulfilmentInstallment](#model-preorderfulfilmentinstallment) - has many
+- `stockHolds` ← [PreorderStockHold](#model-preorderstockhold) - has many
+- `chats` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
 
 **Indexes and keys**
 
@@ -13076,6 +13160,8 @@ One proposal of terms. Immutable apart from its state.
 | `committedDeliveryDate` | DateTime · Date |  |  |  |  |
 | `deliverySplitsJson` | Json | yes |  |  | `[{ date, baseUnits }]` when the seller proposes to deliver in parts. Null means one delivery on the committed date. |
 | `originLocationId` | String · Char(26) | yes |  |  | The seller's own location this will be made or shipped from. |
+| `availableNowBaseUnits` | Int | yes |  |  | Available-to-promise stock when the seller wrote these terms. What the seller and the buyer were both shown. |
+| `stockAllocationBaseUnits` | Int |  |  | 0 | Pieces these terms take from stock on hand, reserved atomically when the buyer accepts. Zero for terms made entirely from future supply. Never more than the quantity (chk_preorder_offer_stock_allocation). |
 | `note` | String · VarChar(2000) | yes |  |  |  |
 | `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
 | `termsHash` | String · Char(64) |  |  |  |  |
@@ -13090,6 +13176,7 @@ One proposal of terms. Immutable apart from its state.
 **Relations**
 
 - `request` → [PreorderRequest](#model-preorderrequest) via `requestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `installments` ← [PreorderFulfilmentInstallment](#model-preorderfulfilmentinstallment) - has many
 
 **Indexes and keys**
 
@@ -13125,6 +13212,88 @@ Every status a preorder has been through. Append-only.
 
 - `@@index([requestId, createdAt], map: "ix_preorder_history_request")`
 
+<a id="model-preorderfulfilmentinstallment"></a>
+
+### PreorderFulfilmentInstallment
+
+Table `preorder_fulfilment_installments`
+
+One part of a delivery schedule a seller proposed.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requestId` | String · Char(26) |  | FK → [PreorderRequest](#model-preorderrequest) |  | (on delete: Cascade) |
+| `offerId` | String · Char(26) |  | FK → [PreorderOffer](#model-preorderoffer) |  | (on delete: Cascade) |
+| `sequence` | Int |  |  |  | 1, 2, 3 - in date order. |
+| `quantityBaseUnits` | Int |  |  |  | Pieces. Always positive, and never rounded to a container. |
+| `committedDeliveryDate` | DateTime · Date |  |  |  |  |
+| `source` | [enum PreorderInstallmentSource](#enum-preorderinstallmentsource) |  |  |  |  |
+| `status` | [enum PreorderInstallmentStatus](#enum-preorderinstallmentstatus) |  |  | PROPOSED |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `request` → [PreorderRequest](#model-preorderrequest) via `requestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `offer` → [PreorderOffer](#model-preorderoffer) via `offerId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([offerId, sequence], map: "uq_preorder_installment_sequence")`
+- `@@index([requestId, status], map: "ix_preorder_installment_request")`
+
+<a id="model-preorderstockhold"></a>
+
+### PreorderStockHold
+
+Table `preorder_stock_holds`
+
+Stock on a seller's shelf held for one accepted preorder, per location.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `requestId` | String · Char(26) |  | FK → [PreorderRequest](#model-preorderrequest) |  | (on delete: Cascade) |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `offerId` | String · Char(26) |  |  |  |  |
+| `locationId` | String · Char(26) |  |  |  | The seller's location the units are held at. Not a foreign key, for the same reason as `SellerPackagingOption.originLocationId`. |
+| `quantityBaseUnits` | Int |  |  |  |  |
+| `status` | [enum PreorderStockHoldStatus](#enum-preorderstockholdstatus) |  |  | HELD |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `releasedAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `request` → [PreorderRequest](#model-preorderrequest) via `requestId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([requestId, locationId], map: "uq_preorder_stock_hold_location")`
+- `@@index([offerId, status], map: "ix_preorder_stock_hold_offer")`
+
+<a id="model-customeracknowledgement"></a>
+
+### CustomerAcknowledgement
+
+Table `customer_acknowledgements`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `type` | [enum AcknowledgementType](#enum-acknowledgementtype) |  |  |  |  |
+| `policyVersion` | String · VarChar(32) |  |  |  |  |
+| `acknowledgedAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([userId, type, policyVersion], map: "uq_customer_ack")`
+
 ### Enums in  / which level of the fallback chain a policy sits at. / /   offer -> product -> seller_default -> the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.
 
 <a id="enum-preorderpolicyscope"></a>
@@ -13149,7 +13318,9 @@ What a preorder quantity is counted in. Whatever it is, the stored quantity is A
 | `CARTON` |  |
 | `UK_PALLET` |  |
 | `US_PALLET` |  |
-| `CONTAINER` |  |
+| `CONTAINER` | The seller's own container packaging option (`SellerPackagingOption`). |
+| `CONTAINER_20_FT` | A 20-foot container, at the seller-verified loading in `SellerContainerLoading`. Never a nominal figure. |
+| `CONTAINER_40_FT` | A 40-foot container, likewise. |
 
 <a id="enum-preordercapacityperiod"></a>
 
@@ -13223,6 +13394,8 @@ Where a preorder request stands.
 |---|---|
 | `ACCEPT_AS_REQUESTED` | The seller agreed to the request as asked. |
 | `COUNTER` | The seller proposed different terms. |
+| `FULL_ON_REVISED_DATE` | More was asked for than is available to promise, and the seller offers the WHOLE quantity on one later, committed date. |
+| `SPLIT_DELIVERY` | More was asked for than is available to promise, and the seller offers what is available first and the rest later, as two or more installments. |
 
 <a id="enum-preorderofferstate"></a>
 
@@ -13236,6 +13409,482 @@ Where a preorder request stands.
 | `SUPERSEDED` | A newer revision replaced it before anybody answered. |
 | `EXPIRED` |  |
 | `WITHDRAWN` | The request ended while this was still open. |
+| `INVALIDATED` | The stock these terms were built on was no longer there when the buyer accepted. Nothing was reserved or charged; the seller must propose again. |
+
+<a id="enum-preorderinstallmentsource"></a>
+
+#### enum PreorderInstallmentSource
+
+Where one installment of a delivery schedule comes from.
+
+| Value | Meaning |
+|---|---|
+| `AVAILABLE_STOCK` | Stock the seller holds today. Reserved at the buyer's acceptance. |
+| `FUTURE_SUPPLY` | Goods still to be made, bought or received, on a date the seller committed to. Nothing is reserved for it until it exists. |
+
+<a id="enum-preorderinstallmentstatus"></a>
+
+#### enum PreorderInstallmentStatus
+
+| Value | Meaning |
+|---|---|
+| `PROPOSED` | Part of terms nobody has accepted yet. |
+| `PLANNED` | Accepted, and waiting for its goods. |
+| `STOCK_RESERVED` | Accepted, and its stock is held for this buyer. |
+| `CANCELLED` | The terms it belonged to were superseded, declined, withdrawn or invalidated, or the preorder closed. |
+
+<a id="enum-preorderstockholdstatus"></a>
+
+#### enum PreorderStockHoldStatus
+
+| Value | Meaning |
+|---|---|
+| `HELD` | The units are reserved in the seller's stock for this preorder. |
+| `RELEASED` | Given back to available stock: the preorder closed without an order. |
+| `TRANSFERRED` | Handed to the order's own reservation when the seller accepted it. |
+
+<a id="enum-containercapacitysource"></a>
+
+#### enum ContainerCapacitySource
+
+Whether a container capacity is the seller's verified figure or the system's arithmetic.
+
+| Value | Meaning |
+|---|---|
+| `SELLER_VERIFIED` | The seller has loaded, or checked, this figure and stands behind it. The only source a buyer may order against. |
+| `CALCULATED_ESTIMATE` | Worked out from carton size, weight and the container's limits. Shown to the seller as a starting point and never offered to a buyer. |
+
+<a id="enum-acknowledgementtype"></a>
+
+#### enum AcknowledgementType
+
+What a customer has said they have read and understood.
+
+| Value | Meaning |
+|---|---|
+| `PREORDER_INFO` | "Preorder is for bulk quantities, it has a minimum, and a request is sent to the seller to confirm." Asked once before a buyer's first preorder. |
+
+<a id="group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts"></a>
+
+##  / where a conversation stands. moved only by `domain/preorder-chat-state.ts`.
+
+[PreorderChatConversation](#model-preorderchatconversation) · [PreorderChatParticipant](#model-preorderchatparticipant) · [PreorderChatMessage](#model-preorderchatmessage) · [PreorderChatNote](#model-preorderchatnote) · [PreorderChatProposal](#model-preorderchatproposal) · [PreorderChatAttachment](#model-preorderchatattachment) · [PreorderChatCustomerBlock](#model-preorderchatcustomerblock) · [RealtimeEvent](#model-realtimeevent)
+
+```mermaid
+erDiagram
+    CustomerProfile ||--o{ PreorderChatConversation : "customerProfile"
+    User |o--o{ PreorderChatConversation : "assignedAdmin"
+    PreorderRequest |o--o{ PreorderChatConversation : "preorderRequest"
+    PreorderChatConversation ||--o{ PreorderChatParticipant : "conversation"
+    User ||--o{ PreorderChatParticipant : "user"
+    PreorderChatConversation ||--o{ PreorderChatMessage : "conversation"
+    PreorderChatConversation ||--o{ PreorderChatNote : "conversation"
+    PreorderChatConversation ||--o{ PreorderChatProposal : "conversation"
+    PreorderChatConversation ||--o{ PreorderChatAttachment : "conversation"
+    PreorderChatMessage |o--o| PreorderChatAttachment : "message"
+    CustomerProfile ||--o| PreorderChatCustomerBlock : "customerProfile"
+    PreorderChatConversation {
+        String id PK
+        String customerProfileId FK
+        String preorderRequestId FK
+        PreorderChatStatus status
+        String assignedAdminId FK
+    }
+    PreorderChatParticipant {
+        String id PK
+        String conversationId FK
+        String userId FK
+    }
+    PreorderChatMessage {
+        String id PK
+        String conversationId FK
+    }
+    PreorderChatNote {
+        String id PK
+        String conversationId FK
+    }
+    PreorderChatProposal {
+        String id PK
+        String conversationId FK
+        BigInt indicativeUnitPriceMinor
+    }
+    PreorderChatAttachment {
+        String id PK
+        String conversationId FK
+        String messageId FK
+    }
+    PreorderChatCustomerBlock {
+        String id PK
+        String customerProfileId FK
+    }
+    RealtimeEvent {
+        BigInt id PK
+    }
+```
+
+<a id="model-preorderchatconversation"></a>
+
+### PreorderChatConversation
+
+Table `preorder_chat_conversations`
+
+One customer's conversation with the operator's team about one product.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `startedByUserId` | String · Char(26) |  |  |  | The person who wrote the first message. A company account may have colleagues; the conversation belongs to the company profile. |
+| `productId` | String · Char(26) |  |  |  | What it is about. Not foreign keys, on purpose and like `preorder_requests`: an archived product must not take the conversation with it, and the snapshot below is the authority on what was discussed. |
+| `variantId` | String · Char(26) | yes |  |  |  |
+| `variantKey` | String · VarChar(26) |  |  | "" | The variant id, or '' for the base product. Never null, so `activeKey` and its uniqueness mean something. |
+| `sellerAccountId` | String · Char(26) | yes |  |  | The seller whose listing the customer was looking at, or NULL for the operator's own product. Informational: sellers never read this table. |
+| `offerId` | String · Char(26) | yes |  |  |  |
+| `preorderRequestId` | String · Char(26) | yes | FK → [PreorderRequest](#model-preorderrequest) |  | A preorder the conversation is about, once there is one. (on delete: SetNull) |
+| `preorderKey` | String · VarChar(26) |  |  | "" | `preorderRequestId`, or '' - never null, for the same reason as `variantKey`. |
+| `activeKey` | String · VarChar(120) | yes | UNIQUE |  | customerProfileId:productId:variantKey:preorderKey while the conversation is live, NULL once CLOSED. See the section header. |
+| `status` | [enum PreorderChatStatus](#enum-preorderchatstatus) |  |  | NEW |  |
+| `priority` | [enum PreorderChatPriority](#enum-preorderchatpriority) |  |  | NORMAL |  |
+| `assignedAdminId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `assignedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `customerLocale` | String · VarChar(10) |  |  | "en" | The language the customer was browsing in when they wrote first. |
+| `contextSnapshotJson` | Json |  |  |  | The product as the customer saw it when they started: name, image, seller, SKU, option, minimum, and the quantity, unit and date they were asking about. Written once and never rewritten - a product renamed next month must not change what this conversation was about. Staff see the product as it is now through a link,… |
+| `productName` | String · VarChar(255) |  |  |  | Copied out of the snapshot so the inbox can search them without reading JSON. As they were at the start, for the same reason as the snapshot. |
+| `productSku` | String · VarChar(96) | yes |  |  |  |
+| `sellerName` | String · VarChar(255) | yes |  |  |  |
+| `tagsJson` | Json | yes |  |  | Staff-only labels ("samples", "export", "urgent quote"). A JSON array of short strings; never shown to the customer. |
+| `lastSequence` | Int |  |  | 0 | The last `serverSequence` handed out. Incremented inside the message insert's transaction, which is what makes the order the server's. |
+| `customerMessageCount` | Int |  |  | 0 | How many customer-visible messages each side has sent (SYSTEM cards count on the staff side: the customer is the one who reads them). |
+| `staffMessageCount` | Int |  |  | 0 |  |
+| `customerReadStaffCount` | Int |  |  | 0 | How many of the OTHER side's messages existed when that side last read. Unread is the difference, so neither the inbox nor the customer's badge ever counts rows to draw a number. |
+| `staffReadCustomerCount` | Int |  |  | 0 |  |
+| `customerDeliveredSeq` | Int |  |  | 0 | The furthest message each side has been shown (delivered) and has read. "Read" for the customer means any member of staff read it; for staff it means the customer did. Written only by the server, from the reader's own session - a browser cannot say another person read something. |
+| `customerReadSeq` | Int |  |  | 0 |  |
+| `staffDeliveredSeq` | Int |  |  | 0 |  |
+| `staffReadSeq` | Int |  |  | 0 |  |
+| `lastMessagePreview` | String · VarChar(200) | yes |  |  | The latest customer-visible message, trimmed, for the inbox row. Never an internal note; blanked by a redaction. |
+| `lastMessageSender` | [enum PreorderChatSenderType](#enum-preorderchatsendertype) | yes |  |  |  |
+| `lastMessageAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `lastCustomerMessageAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `lastStaffMessageAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `awaitingReplySince` | DateTime · DateTime(3) | yes |  |  | When the oldest customer message nobody has answered was sent. NULL when staff have the last word. The queue's "waiting" clock and the SLA alert both read it. |
+| `firstResponseAt` | DateTime · DateTime(3) | yes |  |  | When staff first answered, for the first-response measure. |
+| `customerEmailedSeq` | Int |  |  | 0 | When the customer was last emailed about an unread reply, so a burst of replies is one email rather than five. |
+| `slaAlertedAt` | DateTime · DateTime(3) | yes |  |  | Set when the SLA alert for the current wait has been raised, so it is raised once per wait. |
+| `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reopenCount` | Int |  |  | 0 | Times it went from RESOLVED back to OPEN. |
+| `version` | Int |  |  | 0 | Optimistic concurrency for status, assignment and priority writes. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `assignedAdmin` → [User](#model-user) via `assignedAdminId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `preorderRequest` → [PreorderRequest](#model-preorderrequest) via `preorderRequestId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `messages` ← [PreorderChatMessage](#model-preorderchatmessage) - has many
+- `participants` ← [PreorderChatParticipant](#model-preorderchatparticipant) - has many
+- `notes` ← [PreorderChatNote](#model-preorderchatnote) - has many
+- `proposals` ← [PreorderChatProposal](#model-preorderchatproposal) - has many
+- `attachments` ← [PreorderChatAttachment](#model-preorderchatattachment) - has many
+
+**Indexes and keys**
+
+- `@@index([customerProfileId, lastMessageAt], map: "ix_preorder_chat_customer")`
+- `@@index([status, lastMessageAt], map: "ix_preorder_chat_status")`
+- `@@index([assignedAdminId, status, lastMessageAt], map: "ix_preorder_chat_assignee")`
+- `@@index([awaitingReplySince], map: "ix_preorder_chat_waiting")`
+- `@@index([productId], map: "ix_preorder_chat_product")`
+- `@@index([preorderRequestId], map: "ix_preorder_chat_preorder")`
+
+<a id="model-preorderchatparticipant"></a>
+
+### PreorderChatParticipant
+
+Table `preorder_chat_participants`
+
+One person's place in a conversation: when they joined and how far they have read. One row per person per conversation - a customer, and each member of staff who has opened it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `conversationId` | String · Char(26) |  | FK → [PreorderChatConversation](#model-preorderchatconversation) |  | (on delete: Cascade) |
+| `participantType` | [enum PreorderChatParticipantType](#enum-preorderchatparticipanttype) |  |  |  |  |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `lastReadSeq` | Int |  |  | 0 | The furthest `serverSequence` this person has read. A sequence rather than a message id, because "everything up to here" is then one comparison and does not depend on ids sorting in send order. |
+| `lastReadAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `joinedAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `conversation` → [PreorderChatConversation](#model-preorderchatconversation) via `conversationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([conversationId, userId], map: "uq_preorder_chat_participant")`
+- `@@index([userId], map: "ix_preorder_chat_participant_user")`
+
+<a id="model-preorderchatmessage"></a>
+
+### PreorderChatMessage
+
+Table `preorder_chat_messages`
+
+One message the customer can see. Internal notes are NOT here.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `conversationId` | String · Char(26) |  | FK → [PreorderChatConversation](#model-preorderchatconversation) |  | (on delete: Cascade) |
+| `serverSequence` | Int |  |  |  | 1, 2, 3 ... within the conversation, allocated by the server. |
+| `senderType` | [enum PreorderChatSenderType](#enum-preorderchatsendertype) |  |  |  |  |
+| `senderUserId` | String · Char(26) | yes |  |  | The person, or NULL for SYSTEM. |
+| `senderKey` | String · VarChar(40) |  |  |  | "C:&lt;userId&gt;", "A:&lt;userId&gt;" or "S:&lt;conversationId&gt;". The half of the retry key that says whose attempt this was. |
+| `clientMessageId` | String · VarChar(80) |  |  |  | The browser's own id for this attempt (a UUID), or a deterministic key for a SYSTEM message ("proposal:&lt;id&gt;:created") so the system cannot post the same card twice either. |
+| `messageType` | [enum PreorderChatMessageType](#enum-preorderchatmessagetype) |  |  | TEXT |  |
+| `body` | String · Text |  |  |  | Exactly as submitted, for TEXT. Rendered as plain text everywhere - never as HTML. Empty for SYSTEM_EVENT and after a redaction. |
+| `systemEvent` | String · VarChar(48) | yes |  |  | For SYSTEM_EVENT: which event ("status.resolved", "proposal.created"). |
+| `systemMetaJson` | Json | yes |  |  | The values that fill it, primitives only. |
+| `replyToMessageId` | String · Char(26) | yes |  |  |  |
+| `proposalId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `deliveredAt` | DateTime · DateTime(3) | yes |  |  | When the other side's browser was first shown it. |
+| `editedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `redactedAt` | DateTime · DateTime(3) | yes |  |  | A moderator removed the words. The row, its sequence and who sent it stay; `redactionReason` says why, and the audit trail says who. |
+| `redactedByUserId` | String · Char(26) | yes |  |  |  |
+| `redactionReason` | String · VarChar(255) | yes |  |  |  |
+
+**Relations**
+
+- `conversation` → [PreorderChatConversation](#model-preorderchatconversation) via `conversationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `attachment` ← [PreorderChatAttachment](#model-preorderchatattachment) - has zero or one
+
+**Indexes and keys**
+
+- `@@unique([conversationId, serverSequence], map: "uq_preorder_chat_message_seq")`
+- `@@unique([senderKey, clientMessageId], map: "uq_preorder_chat_message_client")`
+- `@@index([senderKey, createdAt], map: "ix_preorder_chat_message_sender")`
+
+<a id="model-preorderchatnote"></a>
+
+### PreorderChatNote
+
+Table `preorder_chat_notes`
+
+Something staff wrote for each other. Never shown to the customer, never sent to a customer's connection, never in a customer's response.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `conversationId` | String · Char(26) |  | FK → [PreorderChatConversation](#model-preorderchatconversation) |  | (on delete: Cascade) |
+| `authorUserId` | String · Char(26) |  |  |  |  |
+| `body` | String · Text |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `conversation` → [PreorderChatConversation](#model-preorderchatconversation) via `conversationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([conversationId, createdAt], map: "ix_preorder_chat_note_conversation")`
+
+<a id="model-preorderchatproposal"></a>
+
+### PreorderChatProposal
+
+Table `preorder_chat_proposals`
+
+Terms staff suggest, for the customer to turn into a preorder request.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `conversationId` | String · Char(26) |  | FK → [PreorderChatConversation](#model-preorderchatconversation) |  | (on delete: Cascade) |
+| `revision` | Int |  |  |  | 1, 2, 3 within the conversation. A change is a new revision. |
+| `state` | [enum PreorderChatProposalState](#enum-preorderchatproposalstate) |  |  | PROPOSED |  |
+| `orderingUnit` | [enum PreorderQuantityUnit](#enum-preorderquantityunit) |  |  |  |  |
+| `unitQuantity` | Int |  |  |  |  |
+| `equivalentBaseUnits` | Int |  |  |  | Pieces, from the seller's own unit sizes at the time. Never a nominal container figure. |
+| `indicativeUnitPriceMinor` | BigInt | yes |  |  | An INDICATIVE price per piece, in `currency` minor units. The supplier confirms the real one in their answer; the card says so. |
+| `currency` | String · Char(3) |  |  |  |  |
+| `availabilityNote` | String · VarChar(500) | yes |  |  |  |
+| `deliveryDate` | DateTime · Date |  |  |  |  |
+| `splitDeliveriesJson` | Json | yes |  |  | `[{ date, baseUnits }]` where staff suggest delivering in parts. |
+| `termsNote` | String · VarChar(1000) | yes |  |  |  |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `createdByUserId` | String · Char(26) |  |  |  |  |
+| `preorderRequestId` | String · Char(26) | yes | UNIQUE |  | The preorder request the customer made from it. Checked on write to be theirs, for this product. Not a foreign key: the request is the preorder workflow's, and this row only points at it. |
+| `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `declineReason` | String · VarChar(500) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `conversation` → [PreorderChatConversation](#model-preorderchatconversation) via `conversationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([conversationId, revision], map: "uq_preorder_chat_proposal_revision")`
+
+<a id="model-preorderchatattachment"></a>
+
+### PreorderChatAttachment
+
+Table `preorder_chat_attachments`
+
+A file sent in a conversation. The bytes are under the PRIVATE storage prefix and leave only through a short-lived, single-use link redeemed by a signed-in participant.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `conversationId` | String · Char(26) |  | FK → [PreorderChatConversation](#model-preorderchatconversation) |  | (on delete: Cascade) |
+| `messageId` | String · Char(26) | yes | UNIQUE, FK → [PreorderChatMessage](#model-preorderchatmessage) |  | (on delete: SetNull) |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  | Shown back to people, never used to build a path. Control characters and path separators are removed on the way in. |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | [enum PreorderChatScanState](#enum-preorderchatscanstate) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `uploaderType` | [enum PreorderChatSenderType](#enum-preorderchatsendertype) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `conversation` → [PreorderChatConversation](#model-preorderchatconversation) via `conversationId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `message` → [PreorderChatMessage](#model-preorderchatmessage) via `messageId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([conversationId], map: "ix_preorder_chat_attachment_conversation")`
+
+<a id="model-preorderchatcustomerblock"></a>
+
+### PreorderChatCustomerBlock
+
+Table `preorder_chat_customer_blocks`
+
+A customer the operator's team has stopped messaging. Per customer rather than per conversation, so a blocked sender cannot start a fresh thread on the next product. Unblocking deletes the row; both are audited.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `customerProfileId` | String · Char(26) |  | UNIQUE, FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `reason` | String · VarChar(500) |  |  |  |  |
+| `blockedByUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - one-to-one, required, on delete **Cascade**, on update **Restrict**
+
+<a id="model-realtimeevent"></a>
+
+### RealtimeEvent
+
+Table `realtime_events`
+
+Live events in flight between API processes, under REALTIME_BUS_DRIVER=database.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | BigInt |  | PK | autoincrement() |  |
+| `instanceId` | String · VarChar(40) |  |  |  | Which process wrote it, so it does not deliver its own event twice. |
+| `payloadJson` | Json |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Indexes and keys**
+
+- `@@index([createdAt], map: "ix_realtime_event_time")`
+
+### Enums in  / where a conversation stands. moved only by `domain/preorder-chat-state.ts`.
+
+<a id="enum-preorderchatstatus"></a>
+
+#### enum PreorderChatStatus
+
+| Value | Meaning |
+|---|---|
+| `NEW` | The customer has written and no member of staff has answered yet. |
+| `OPEN` | Being worked on. |
+| `WAITING_FOR_CUSTOMER` | Staff asked the customer something and are waiting for the answer. The customer's next message moves it back to OPEN. |
+| `WAITING_FOR_INTERNAL` | Staff are waiting on somebody inside the business - a warehouse, a supplier, a colleague - before they can answer. |
+| `RESOLVED` | Answered. The customer writing again reopens it; that is counted. |
+| `CLOSED` | Finished. History stays readable; a new question starts a new conversation. The only status that releases `activeKey`. |
+| `SPAM` | Not a genuine enquiry. Kept, so the same sender writing again lands here rather than in the queue. |
+| `BLOCKED` | Staff stopped this customer messaging. See `PreorderChatCustomerBlock`. |
+
+<a id="enum-preorderchatpriority"></a>
+
+#### enum PreorderChatPriority
+
+| Value | Meaning |
+|---|---|
+| `LOW` |  |
+| `NORMAL` |  |
+| `HIGH` |  |
+| `URGENT` |  |
+
+<a id="enum-preorderchatsendertype"></a>
+
+#### enum PreorderChatSenderType
+
+| Value | Meaning |
+|---|---|
+| `CUSTOMER` |  |
+| `ADMIN` |  |
+| `SYSTEM` | Written by the system itself - "UBOSS has created a preorder proposal", "this conversation was resolved". Carries an event key and values, never prose, so each reader sees it in their own language. |
+
+<a id="enum-preorderchatmessagetype"></a>
+
+#### enum PreorderChatMessageType
+
+| Value | Meaning |
+|---|---|
+| `TEXT` |  |
+| `ATTACHMENT` |  |
+| `SYSTEM_EVENT` |  |
+| `STRUCTURED_OFFER` | A card pointing at a `PreorderChatProposal`. |
+
+<a id="enum-preorderchatparticipanttype"></a>
+
+#### enum PreorderChatParticipantType
+
+| Value | Meaning |
+|---|---|
+| `CUSTOMER` |  |
+| `ADMIN` |  |
+
+<a id="enum-preorderchatproposalstate"></a>
+
+#### enum PreorderChatProposalState
+
+A proposal's life. It is a suggestion the customer turns into a real preorder request through the ordinary preorder form - never an order, a price commitment or a stock reservation by itself.
+
+| Value | Meaning |
+|---|---|
+| `PROPOSED` | Waiting for the customer. |
+| `SUPERSEDED` | Replaced by a newer revision before the customer answered. |
+| `WITHDRAWN` | Staff took it back. |
+| `DECLINED` | The customer said no. |
+| `SUBMITTED` | The customer submitted a preorder request from it. `preorderRequestId` names it; from there the ordinary preorder workflow decides everything. |
+| `EXPIRED` |  |
+
+<a id="enum-preorderchatscanstate"></a>
+
+#### enum PreorderChatScanState
+
+What the malware scanner said about an attachment. There is no INFECTED: an infected file is refused before it is stored, so no row ever says so.
+
+| Value | Meaning |
+|---|---|
+| `CLEAN` |  |
+| `SCANNER_UNCONFIGURED` | No scanner is configured. Only ever written where the operator has explicitly allowed unscanned attachments; production refuses that. |
 
 <a id="group-seller-documents-invoices-and-packing-lists"></a>
 

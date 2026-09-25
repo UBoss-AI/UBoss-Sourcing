@@ -1276,6 +1276,80 @@ export const ErrorCode = {
   /// increment larger than the maximum, a band below the minimum.
   PREORDER_POLICY_INVALID: 'PREORDER_POLICY_INVALID',
 
+  /// The buyer has not acknowledged the current version of the bulk preorder
+  /// information (minimum quantity, seller confirmation, nothing charged yet).
+  /// The storefront shows the note again. meta.policyVersion.
+  PREORDER_ACKNOWLEDGEMENT_REQUIRED: 'PREORDER_ACKNOWLEDGEMENT_REQUIRED',
+
+  /// The acknowledgement named a version of the information that is not the
+  /// current one - the page was open while the operator changed it. Reload
+  /// and read it again. meta.policyVersion is the current version.
+  PREORDER_INFO_OUTDATED: 'PREORDER_INFO_OUTDATED',
+
+  /// A 20-ft or 40-ft container was asked for, and the seller has not
+  /// configured and verified how many pieces of this product fit in one.
+  /// Pieces are still available. meta.unit.
+  PREORDER_CONTAINER_NOT_CONFIGURED: 'PREORDER_CONTAINER_NOT_CONFIGURED',
+
+  /// A revised-date or split-delivery proposal does not hold together - the
+  /// shipments do not add up, a date is not later than the one before, the
+  /// first shipment is more than is available now. `details` lists each
+  /// problem with its field and code.
+  PREORDER_PROPOSAL_INVALID: 'PREORDER_PROPOSAL_INVALID',
+
+  /// The buyer accepted, and the stock the seller's proposal was built on is
+  /// no longer there. Nothing was reserved or charged; the proposal is
+  /// withdrawn and the seller has been asked for a new one.
+  /// meta.availableToPromise, meta.required.
+  PREORDER_STOCK_CHANGED: 'PREORDER_STOCK_CHANGED',
+
+  /// A seller's container loading is impossible or unsafe - heavier than the
+  /// container's configured payload, larger than its volume, or missing a
+  /// figure. `details` lists each problem with its field and code.
+  CONTAINER_LOADING_INVALID: 'CONTAINER_LOADING_INVALID',
+
+  // --- Preorder chat ---------------------------------------------------------------
+
+  /// This conversation is closed. Its history stays readable; a new question
+  /// starts a new conversation from the product page.
+  PREORDER_CHAT_CLOSED: 'PREORDER_CHAT_CLOSED',
+
+  /// The operator's team has stopped this account sending chat messages. The
+  /// customer can still reach the business by its published contact details.
+  PREORDER_CHAT_BLOCKED: 'PREORDER_CHAT_BLOCKED',
+
+  /// The message is longer than this installation accepts. meta.maxChars.
+  PREORDER_CHAT_MESSAGE_TOO_LONG: 'PREORDER_CHAT_MESSAGE_TOO_LONG',
+
+  /// A retry carried a `clientMessageId` this sender already used for a
+  /// DIFFERENT message or conversation. A genuine retry repeats the same
+  /// message and is answered with the original instead of this.
+  PREORDER_CHAT_MESSAGE_ID_REUSED: 'PREORDER_CHAT_MESSAGE_ID_REUSED',
+
+  /// The conversation cannot move to that status from where it is, or not by
+  /// you. meta.from, meta.to.
+  PREORDER_CHAT_TRANSITION_NOT_ALLOWED: 'PREORDER_CHAT_TRANSITION_NOT_ALLOWED',
+
+  /// Linking would give this customer two open conversations about the same
+  /// product, option and preorder. meta.conversationId is the other one.
+  PREORDER_CHAT_DUPLICATE_CONVERSATION: 'PREORDER_CHAT_DUPLICATE_CONVERSATION',
+
+  /// The staff member named cannot answer preorder chats - deactivated, or
+  /// without the reply permission.
+  PREORDER_CHAT_ASSIGNEE_NOT_ELIGIBLE: 'PREORDER_CHAT_ASSIGNEE_NOT_ELIGIBLE',
+
+  /// The preorder named belongs to a different customer or a different
+  /// product, so it cannot be linked to this conversation.
+  PREORDER_CHAT_PREORDER_MISMATCH: 'PREORDER_CHAT_PREORDER_MISMATCH',
+
+  /// That proposal is no longer open - replaced by a newer one, withdrawn,
+  /// declined, already used for a preorder, or past its expiry.
+  PREORDER_CHAT_PROPOSAL_NOT_OPEN: 'PREORDER_CHAT_PROPOSAL_NOT_OPEN',
+
+  /// Attachments are switched off here, or no malware scanner is configured
+  /// to look at them. Text messages still work.
+  PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE: 'PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE',
+
   // --- Seller invoices and packing lists -----------------------------------------
 
   /// This consignment cannot have that document yet - the order is not paid,

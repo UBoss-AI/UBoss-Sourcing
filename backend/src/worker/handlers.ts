@@ -27,6 +27,8 @@ import { sweepExpiredReservations } from '../modules/inventory/inventory.service
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
 import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
+import { runPreorderChatMaintenance } from '../modules/preorder-chat/maintenance.service.js';
+import { createChatBus, type ChatBus } from '../modules/preorder-chat/realtime/bus.js';
 import { runSync } from '../modules/integrations/connector.service.js';
 import { generateExport, markExportFailed } from '../modules/reports/export.service.js';
 import {
@@ -447,6 +449,34 @@ const preorderRiskSweep: JobHandler = async () => {
   if (flagged > 0) logger.info({ flagged }, 'flagged preorders at risk of missing their committed date');
 };
 
+/**
+ * The worker has no sockets. Events it causes - a proposal expiring - go on a
+ * bus of its own: under REALTIME_BUS_DRIVER=database the API processes pick
+ * them up and tell open pages; under `memory` they go nowhere, and a page
+ * sees the change on its next read, which already shows an expired proposal
+ * as expired.
+ */
+let chatBus: ChatBus | null = null;
+
+const preorderChatSweep: JobHandler = async () => {
+  const result = await runPreorderChatMaintenance();
+  if (result.events.length > 0) {
+    chatBus ??= createChatBus();
+    for (const event of result.events) await chatBus.publish(event);
+  }
+  if (result.emailed + result.alerted + result.retained + result.events.length > 0) {
+    logger.info(
+      {
+        emailed: result.emailed,
+        alerted: result.alerted,
+        retained: result.retained,
+        proposalsExpired: result.events.length,
+      },
+      'preorder chat maintenance',
+    );
+  }
+};
+
 const expireLinks: JobHandler = async () => {
   const expired = await expirePaymentLinks();
   if (expired > 0) logger.info({ expired }, 'expired payment links');
@@ -860,6 +890,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
   [JobType.PREORDER_EXPIRE]: expirePreorders,
   [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
+  [JobType.PREORDER_CHAT_SWEEP]: preorderChatSweep,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,

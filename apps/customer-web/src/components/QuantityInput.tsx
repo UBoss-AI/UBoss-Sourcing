@@ -11,7 +11,7 @@
  * The steppers move by the increment, not by one, because stepping by one
  * through a multiple-of-5 rule produces three invalid values out of every four.
  */
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { Button } from './ui';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import type { PurchaseRules } from '@/lib/types';
@@ -63,6 +63,21 @@ export function QuantityInput({
   const min = Math.max(1, rules.minOrderQty);
   const description = ruleHint ? describeRules(t, rules) : null;
 
+  /*
+   * What the box SHOWS while somebody types, kept apart from the number.
+   *
+   * The box used to show `value` directly. Backspacing it empty handed the
+   * page `Number('') === 0`, so the box refilled with 0; typing 1000 after it
+   * then read "01000", and stayed that way, because React leaves a number
+   * input alone when its text already equals the value as a number. Now an
+   * empty box stays empty while it has focus (the page keeps its last good
+   * quantity), leading zeros are dropped as they are typed, and the rules
+   * settle the number when the field is left. `null` means "not being typed
+   * in" - the box shows the value, so the steppers and the page stay in charge.
+   */
+  const [draft, setDraft] = useState<string | null>(null);
+  const shown = draft ?? String(value);
+
   const canDecrease = !disabled && value > min;
   const canIncrease =
     !disabled && (rules.maxOrderQty === null || value + step <= rules.maxOrderQty);
@@ -105,22 +120,27 @@ export function QuantityInput({
           id={inputId}
           type="number"
           inputMode="numeric"
-          value={value}
+          value={shown}
           min={min}
           step={step}
           disabled={disabled}
           aria-describedby={description === null ? undefined : hintId}
           onChange={(event) => {
-            const parsed = Number(event.target.value);
+            // Digits only, no leading zeros, and not so many that the number
+            // stops being exact.
+            const digits = event.target.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
+            setDraft(digits);
             // Typed input is not clamped on every keystroke — that fights the
-            // person typing "15" by rewriting it to "10" after the "1".
-            if (Number.isFinite(parsed)) onChange(parsed);
+            // person typing "15" by rewriting it to "10" after the "1". And an
+            // empty box is not a quantity of zero: it is a box being retyped.
+            if (digits !== '') onChange(Number(digits));
           }}
-          onBlur={(event) => {
+          onBlur={() => {
             // Clamping happens when they stop, so the field always settles on
-            // something the server will accept.
-            const parsed = Number(event.target.value);
-            onChange(clampToRules(Number.isFinite(parsed) ? parsed : min, rules));
+            // something the server will accept. Left empty, it is the minimum.
+            const typed = draft === null ? value : draft === '' ? min : Number(draft);
+            setDraft(null);
+            onChange(clampToRules(typed, rules));
           }}
           className="w-16 min-w-0 shrink rounded-md border border-border-strong bg-surface px-3 py-2.5 text-center text-sm tabular text-ink disabled:bg-surface-sunken sm:w-20"
         />

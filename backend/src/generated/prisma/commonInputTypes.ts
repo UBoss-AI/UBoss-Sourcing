@@ -3417,6 +3417,40 @@ export type EnumPackagingPriceModeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPackagingPriceModeFilter<$PrismaModel>
 }
 
+export type EnumContainerLoadingMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerLoadingMethod | Prisma.EnumContainerLoadingMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ContainerLoadingMethod[]
+  notIn?: $Enums.ContainerLoadingMethod[]
+  not?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel> | $Enums.ContainerLoadingMethod
+}
+
+export type EnumContainerCapacitySourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerCapacitySource | Prisma.EnumContainerCapacitySourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ContainerCapacitySource[] | null
+  notIn?: $Enums.ContainerCapacitySource[] | null
+  not?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel> | $Enums.ContainerCapacitySource | null
+}
+
+export type EnumContainerLoadingMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerLoadingMethod | Prisma.EnumContainerLoadingMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ContainerLoadingMethod[]
+  notIn?: $Enums.ContainerLoadingMethod[]
+  not?: Prisma.NestedEnumContainerLoadingMethodWithAggregatesFilter<$PrismaModel> | $Enums.ContainerLoadingMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel>
+}
+
+export type EnumContainerCapacitySourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerCapacitySource | Prisma.EnumContainerCapacitySourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ContainerCapacitySource[] | null
+  notIn?: $Enums.ContainerCapacitySource[] | null
+  not?: Prisma.NestedEnumContainerCapacitySourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ContainerCapacitySource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel>
+}
+
 export type EnumFreightQuoteStateFilter<$PrismaModel = never> = {
   equals?: $Enums.FreightQuoteState | Prisma.EnumFreightQuoteStateFieldRefInput<$PrismaModel>
   in?: $Enums.FreightQuoteState[]
@@ -4061,6 +4095,210 @@ export type EnumPreorderStatusNullableWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPreorderStatusNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPreorderStatusNullableFilter<$PrismaModel>
+}
+
+export type EnumPreorderInstallmentSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentSource | Prisma.EnumPreorderInstallmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentSource[]
+  notIn?: $Enums.PreorderInstallmentSource[]
+  not?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel> | $Enums.PreorderInstallmentSource
+}
+
+export type EnumPreorderInstallmentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentStatus | Prisma.EnumPreorderInstallmentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentStatus[]
+  notIn?: $Enums.PreorderInstallmentStatus[]
+  not?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel> | $Enums.PreorderInstallmentStatus
+}
+
+export type EnumPreorderInstallmentSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentSource | Prisma.EnumPreorderInstallmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentSource[]
+  notIn?: $Enums.PreorderInstallmentSource[]
+  not?: Prisma.NestedEnumPreorderInstallmentSourceWithAggregatesFilter<$PrismaModel> | $Enums.PreorderInstallmentSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel>
+}
+
+export type EnumPreorderInstallmentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentStatus | Prisma.EnumPreorderInstallmentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentStatus[]
+  notIn?: $Enums.PreorderInstallmentStatus[]
+  not?: Prisma.NestedEnumPreorderInstallmentStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderInstallmentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel>
+}
+
+export type EnumPreorderStockHoldStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderStockHoldStatus | Prisma.EnumPreorderStockHoldStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderStockHoldStatus[]
+  notIn?: $Enums.PreorderStockHoldStatus[]
+  not?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel> | $Enums.PreorderStockHoldStatus
+}
+
+export type EnumPreorderStockHoldStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderStockHoldStatus | Prisma.EnumPreorderStockHoldStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderStockHoldStatus[]
+  notIn?: $Enums.PreorderStockHoldStatus[]
+  not?: Prisma.NestedEnumPreorderStockHoldStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderStockHoldStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel>
+}
+
+export type EnumAcknowledgementTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AcknowledgementType | Prisma.EnumAcknowledgementTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AcknowledgementType[]
+  notIn?: $Enums.AcknowledgementType[]
+  not?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel> | $Enums.AcknowledgementType
+}
+
+export type EnumAcknowledgementTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AcknowledgementType | Prisma.EnumAcknowledgementTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AcknowledgementType[]
+  notIn?: $Enums.AcknowledgementType[]
+  not?: Prisma.NestedEnumAcknowledgementTypeWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatStatus | Prisma.EnumPreorderChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatStatus[]
+  notIn?: $Enums.PreorderChatStatus[]
+  not?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel> | $Enums.PreorderChatStatus
+}
+
+export type EnumPreorderChatPriorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatPriority | Prisma.EnumPreorderChatPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatPriority[]
+  notIn?: $Enums.PreorderChatPriority[]
+  not?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel> | $Enums.PreorderChatPriority
+}
+
+export type EnumPreorderChatSenderTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderChatSenderType[] | null
+  notIn?: $Enums.PreorderChatSenderType[] | null
+  not?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel> | $Enums.PreorderChatSenderType | null
+}
+
+export type EnumPreorderChatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatStatus | Prisma.EnumPreorderChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatStatus[]
+  notIn?: $Enums.PreorderChatStatus[]
+  not?: Prisma.NestedEnumPreorderChatStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatPriorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatPriority | Prisma.EnumPreorderChatPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatPriority[]
+  notIn?: $Enums.PreorderChatPriority[]
+  not?: Prisma.NestedEnumPreorderChatPriorityWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatPriority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatSenderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderChatSenderType[] | null
+  notIn?: $Enums.PreorderChatSenderType[] | null
+  not?: Prisma.NestedEnumPreorderChatSenderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatSenderType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatParticipantTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatParticipantType | Prisma.EnumPreorderChatParticipantTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatParticipantType[]
+  notIn?: $Enums.PreorderChatParticipantType[]
+  not?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel> | $Enums.PreorderChatParticipantType
+}
+
+export type EnumPreorderChatParticipantTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatParticipantType | Prisma.EnumPreorderChatParticipantTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatParticipantType[]
+  notIn?: $Enums.PreorderChatParticipantType[]
+  not?: Prisma.NestedEnumPreorderChatParticipantTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatParticipantType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatSenderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatSenderType[]
+  notIn?: $Enums.PreorderChatSenderType[]
+  not?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel> | $Enums.PreorderChatSenderType
+}
+
+export type EnumPreorderChatMessageTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatMessageType | Prisma.EnumPreorderChatMessageTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatMessageType[]
+  notIn?: $Enums.PreorderChatMessageType[]
+  not?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel> | $Enums.PreorderChatMessageType
+}
+
+export type EnumPreorderChatSenderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatSenderType[]
+  notIn?: $Enums.PreorderChatSenderType[]
+  not?: Prisma.NestedEnumPreorderChatSenderTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatSenderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatMessageTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatMessageType | Prisma.EnumPreorderChatMessageTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatMessageType[]
+  notIn?: $Enums.PreorderChatMessageType[]
+  not?: Prisma.NestedEnumPreorderChatMessageTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatMessageType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatProposalStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatProposalState | Prisma.EnumPreorderChatProposalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatProposalState[]
+  notIn?: $Enums.PreorderChatProposalState[]
+  not?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel> | $Enums.PreorderChatProposalState
+}
+
+export type EnumPreorderChatProposalStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatProposalState | Prisma.EnumPreorderChatProposalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatProposalState[]
+  notIn?: $Enums.PreorderChatProposalState[]
+  not?: Prisma.NestedEnumPreorderChatProposalStateWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatProposalState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel>
+}
+
+export type EnumPreorderChatScanStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatScanState | Prisma.EnumPreorderChatScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatScanState[]
+  notIn?: $Enums.PreorderChatScanState[]
+  not?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel> | $Enums.PreorderChatScanState
+}
+
+export type EnumPreorderChatScanStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatScanState | Prisma.EnumPreorderChatScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatScanState[]
+  notIn?: $Enums.PreorderChatScanState[]
+  not?: Prisma.NestedEnumPreorderChatScanStateWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatScanState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel>
 }
 
 export type EnumSellerInvoiceJurisdictionNullableFilter<$PrismaModel = never> = {
@@ -7497,6 +7735,40 @@ export type NestedEnumPackagingPriceModeWithAggregatesFilter<$PrismaModel = neve
   _max?: Prisma.NestedEnumPackagingPriceModeFilter<$PrismaModel>
 }
 
+export type NestedEnumContainerLoadingMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerLoadingMethod | Prisma.EnumContainerLoadingMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ContainerLoadingMethod[]
+  notIn?: $Enums.ContainerLoadingMethod[]
+  not?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel> | $Enums.ContainerLoadingMethod
+}
+
+export type NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerCapacitySource | Prisma.EnumContainerCapacitySourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ContainerCapacitySource[] | null
+  notIn?: $Enums.ContainerCapacitySource[] | null
+  not?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel> | $Enums.ContainerCapacitySource | null
+}
+
+export type NestedEnumContainerLoadingMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerLoadingMethod | Prisma.EnumContainerLoadingMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ContainerLoadingMethod[]
+  notIn?: $Enums.ContainerLoadingMethod[]
+  not?: Prisma.NestedEnumContainerLoadingMethodWithAggregatesFilter<$PrismaModel> | $Enums.ContainerLoadingMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContainerLoadingMethodFilter<$PrismaModel>
+}
+
+export type NestedEnumContainerCapacitySourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContainerCapacitySource | Prisma.EnumContainerCapacitySourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ContainerCapacitySource[] | null
+  notIn?: $Enums.ContainerCapacitySource[] | null
+  not?: Prisma.NestedEnumContainerCapacitySourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ContainerCapacitySource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContainerCapacitySourceNullableFilter<$PrismaModel>
+}
+
 export type NestedEnumFreightQuoteStateFilter<$PrismaModel = never> = {
   equals?: $Enums.FreightQuoteState | Prisma.EnumFreightQuoteStateFieldRefInput<$PrismaModel>
   in?: $Enums.FreightQuoteState[]
@@ -8141,6 +8413,210 @@ export type NestedEnumPreorderStatusNullableWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPreorderStatusNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPreorderStatusNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderInstallmentSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentSource | Prisma.EnumPreorderInstallmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentSource[]
+  notIn?: $Enums.PreorderInstallmentSource[]
+  not?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel> | $Enums.PreorderInstallmentSource
+}
+
+export type NestedEnumPreorderInstallmentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentStatus | Prisma.EnumPreorderInstallmentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentStatus[]
+  notIn?: $Enums.PreorderInstallmentStatus[]
+  not?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel> | $Enums.PreorderInstallmentStatus
+}
+
+export type NestedEnumPreorderInstallmentSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentSource | Prisma.EnumPreorderInstallmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentSource[]
+  notIn?: $Enums.PreorderInstallmentSource[]
+  not?: Prisma.NestedEnumPreorderInstallmentSourceWithAggregatesFilter<$PrismaModel> | $Enums.PreorderInstallmentSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderInstallmentSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderInstallmentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderInstallmentStatus | Prisma.EnumPreorderInstallmentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderInstallmentStatus[]
+  notIn?: $Enums.PreorderInstallmentStatus[]
+  not?: Prisma.NestedEnumPreorderInstallmentStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderInstallmentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderInstallmentStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderStockHoldStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderStockHoldStatus | Prisma.EnumPreorderStockHoldStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderStockHoldStatus[]
+  notIn?: $Enums.PreorderStockHoldStatus[]
+  not?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel> | $Enums.PreorderStockHoldStatus
+}
+
+export type NestedEnumPreorderStockHoldStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderStockHoldStatus | Prisma.EnumPreorderStockHoldStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderStockHoldStatus[]
+  notIn?: $Enums.PreorderStockHoldStatus[]
+  not?: Prisma.NestedEnumPreorderStockHoldStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderStockHoldStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderStockHoldStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAcknowledgementTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AcknowledgementType | Prisma.EnumAcknowledgementTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AcknowledgementType[]
+  notIn?: $Enums.AcknowledgementType[]
+  not?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel> | $Enums.AcknowledgementType
+}
+
+export type NestedEnumAcknowledgementTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AcknowledgementType | Prisma.EnumAcknowledgementTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AcknowledgementType[]
+  notIn?: $Enums.AcknowledgementType[]
+  not?: Prisma.NestedEnumAcknowledgementTypeWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAcknowledgementTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatStatus | Prisma.EnumPreorderChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatStatus[]
+  notIn?: $Enums.PreorderChatStatus[]
+  not?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel> | $Enums.PreorderChatStatus
+}
+
+export type NestedEnumPreorderChatPriorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatPriority | Prisma.EnumPreorderChatPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatPriority[]
+  notIn?: $Enums.PreorderChatPriority[]
+  not?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel> | $Enums.PreorderChatPriority
+}
+
+export type NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderChatSenderType[] | null
+  notIn?: $Enums.PreorderChatSenderType[] | null
+  not?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel> | $Enums.PreorderChatSenderType | null
+}
+
+export type NestedEnumPreorderChatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatStatus | Prisma.EnumPreorderChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatStatus[]
+  notIn?: $Enums.PreorderChatStatus[]
+  not?: Prisma.NestedEnumPreorderChatStatusWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatPriorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatPriority | Prisma.EnumPreorderChatPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatPriority[]
+  notIn?: $Enums.PreorderChatPriority[]
+  not?: Prisma.NestedEnumPreorderChatPriorityWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatPriority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatPriorityFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatSenderTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreorderChatSenderType[] | null
+  notIn?: $Enums.PreorderChatSenderType[] | null
+  not?: Prisma.NestedEnumPreorderChatSenderTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatSenderType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatSenderTypeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatParticipantType | Prisma.EnumPreorderChatParticipantTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatParticipantType[]
+  notIn?: $Enums.PreorderChatParticipantType[]
+  not?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel> | $Enums.PreorderChatParticipantType
+}
+
+export type NestedEnumPreorderChatParticipantTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatParticipantType | Prisma.EnumPreorderChatParticipantTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatParticipantType[]
+  notIn?: $Enums.PreorderChatParticipantType[]
+  not?: Prisma.NestedEnumPreorderChatParticipantTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatParticipantType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatParticipantTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatSenderTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatSenderType[]
+  notIn?: $Enums.PreorderChatSenderType[]
+  not?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel> | $Enums.PreorderChatSenderType
+}
+
+export type NestedEnumPreorderChatMessageTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatMessageType | Prisma.EnumPreorderChatMessageTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatMessageType[]
+  notIn?: $Enums.PreorderChatMessageType[]
+  not?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel> | $Enums.PreorderChatMessageType
+}
+
+export type NestedEnumPreorderChatSenderTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatSenderType | Prisma.EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatSenderType[]
+  notIn?: $Enums.PreorderChatSenderType[]
+  not?: Prisma.NestedEnumPreorderChatSenderTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatSenderType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatSenderTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatMessageTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatMessageType | Prisma.EnumPreorderChatMessageTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatMessageType[]
+  notIn?: $Enums.PreorderChatMessageType[]
+  not?: Prisma.NestedEnumPreorderChatMessageTypeWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatMessageType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatMessageTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatProposalStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatProposalState | Prisma.EnumPreorderChatProposalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatProposalState[]
+  notIn?: $Enums.PreorderChatProposalState[]
+  not?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel> | $Enums.PreorderChatProposalState
+}
+
+export type NestedEnumPreorderChatProposalStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatProposalState | Prisma.EnumPreorderChatProposalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatProposalState[]
+  notIn?: $Enums.PreorderChatProposalState[]
+  not?: Prisma.NestedEnumPreorderChatProposalStateWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatProposalState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatProposalStateFilter<$PrismaModel>
+}
+
+export type NestedEnumPreorderChatScanStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatScanState | Prisma.EnumPreorderChatScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatScanState[]
+  notIn?: $Enums.PreorderChatScanState[]
+  not?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel> | $Enums.PreorderChatScanState
+}
+
+export type NestedEnumPreorderChatScanStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreorderChatScanState | Prisma.EnumPreorderChatScanStateFieldRefInput<$PrismaModel>
+  in?: $Enums.PreorderChatScanState[]
+  notIn?: $Enums.PreorderChatScanState[]
+  not?: Prisma.NestedEnumPreorderChatScanStateWithAggregatesFilter<$PrismaModel> | $Enums.PreorderChatScanState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreorderChatScanStateFilter<$PrismaModel>
 }
 
 export type NestedEnumSellerInvoiceJurisdictionNullableFilter<$PrismaModel = never> = {

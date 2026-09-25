@@ -589,6 +589,7 @@ export const ModelName = {
   SellerPackagingProfile: 'SellerPackagingProfile',
   SellerPackagingOption: 'SellerPackagingOption',
   SellerPackagingTier: 'SellerPackagingTier',
+  SellerContainerLoading: 'SellerContainerLoading',
   CartItemPackaging: 'CartItemPackaging',
   OrderItemPackaging: 'OrderItemPackaging',
   SellerFreightQuoteRequest: 'SellerFreightQuoteRequest',
@@ -618,6 +619,17 @@ export const ModelName = {
   PreorderRequest: 'PreorderRequest',
   PreorderOffer: 'PreorderOffer',
   PreorderStatusHistory: 'PreorderStatusHistory',
+  PreorderFulfilmentInstallment: 'PreorderFulfilmentInstallment',
+  PreorderStockHold: 'PreorderStockHold',
+  CustomerAcknowledgement: 'CustomerAcknowledgement',
+  PreorderChatConversation: 'PreorderChatConversation',
+  PreorderChatParticipant: 'PreorderChatParticipant',
+  PreorderChatMessage: 'PreorderChatMessage',
+  PreorderChatNote: 'PreorderChatNote',
+  PreorderChatProposal: 'PreorderChatProposal',
+  PreorderChatAttachment: 'PreorderChatAttachment',
+  PreorderChatCustomerBlock: 'PreorderChatCustomerBlock',
+  RealtimeEvent: 'RealtimeEvent',
   SellerInvoiceSettings: 'SellerInvoiceSettings',
   LogisticsShipmentLine: 'LogisticsShipmentLine',
   LogisticsShipmentPackageLine: 'LogisticsShipmentPackageLine',
@@ -638,7 +650,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -13314,6 +13326,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SellerContainerLoading: {
+      payload: Prisma.$SellerContainerLoadingPayload<ExtArgs>
+      fields: Prisma.SellerContainerLoadingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SellerContainerLoadingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SellerContainerLoadingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        findFirst: {
+          args: Prisma.SellerContainerLoadingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SellerContainerLoadingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        findMany: {
+          args: Prisma.SellerContainerLoadingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>[]
+        }
+        create: {
+          args: Prisma.SellerContainerLoadingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        createMany: {
+          args: Prisma.SellerContainerLoadingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SellerContainerLoadingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        update: {
+          args: Prisma.SellerContainerLoadingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        deleteMany: {
+          args: Prisma.SellerContainerLoadingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SellerContainerLoadingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SellerContainerLoadingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SellerContainerLoadingPayload>
+        }
+        aggregate: {
+          args: Prisma.SellerContainerLoadingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSellerContainerLoading>
+        }
+        groupBy: {
+          args: Prisma.SellerContainerLoadingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerContainerLoadingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SellerContainerLoadingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SellerContainerLoadingCountAggregateOutputType> | number
+        }
+      }
+    }
     CartItemPackaging: {
       payload: Prisma.$CartItemPackagingPayload<ExtArgs>
       fields: Prisma.CartItemPackagingFieldRefs
@@ -15225,6 +15303,732 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PreorderStatusHistoryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PreorderStatusHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderFulfilmentInstallment: {
+      payload: Prisma.$PreorderFulfilmentInstallmentPayload<ExtArgs>
+      fields: Prisma.PreorderFulfilmentInstallmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderFulfilmentInstallmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderFulfilmentInstallmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderFulfilmentInstallmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderFulfilmentInstallmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderFulfilmentInstallmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderFulfilmentInstallmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderFulfilmentInstallmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderFulfilmentInstallmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        update: {
+          args: Prisma.PreorderFulfilmentInstallmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderFulfilmentInstallmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderFulfilmentInstallmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderFulfilmentInstallmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderFulfilmentInstallmentPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderFulfilmentInstallmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderFulfilmentInstallment>
+        }
+        groupBy: {
+          args: Prisma.PreorderFulfilmentInstallmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderFulfilmentInstallmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderFulfilmentInstallmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderFulfilmentInstallmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderStockHold: {
+      payload: Prisma.$PreorderStockHoldPayload<ExtArgs>
+      fields: Prisma.PreorderStockHoldFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderStockHoldFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderStockHoldFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderStockHoldFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderStockHoldFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderStockHoldFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderStockHoldCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderStockHoldCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderStockHoldDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        update: {
+          args: Prisma.PreorderStockHoldUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderStockHoldDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderStockHoldUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderStockHoldUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderStockHoldPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderStockHoldAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderStockHold>
+        }
+        groupBy: {
+          args: Prisma.PreorderStockHoldGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderStockHoldGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderStockHoldCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderStockHoldCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerAcknowledgement: {
+      payload: Prisma.$CustomerAcknowledgementPayload<ExtArgs>
+      fields: Prisma.CustomerAcknowledgementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerAcknowledgementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerAcknowledgementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerAcknowledgementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerAcknowledgementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerAcknowledgementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerAcknowledgementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerAcknowledgementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerAcknowledgementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        update: {
+          args: Prisma.CustomerAcknowledgementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerAcknowledgementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerAcknowledgementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerAcknowledgementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAcknowledgementPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerAcknowledgementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerAcknowledgement>
+        }
+        groupBy: {
+          args: Prisma.CustomerAcknowledgementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAcknowledgementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerAcknowledgementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAcknowledgementCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatConversation: {
+      payload: Prisma.$PreorderChatConversationPayload<ExtArgs>
+      fields: Prisma.PreorderChatConversationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatConversationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatConversationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatConversationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatConversationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatConversationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatConversationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatConversationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatConversationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        update: {
+          args: Prisma.PreorderChatConversationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatConversationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatConversationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatConversationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatConversationPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatConversationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatConversation>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatConversationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatConversationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatConversationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatConversationCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatParticipant: {
+      payload: Prisma.$PreorderChatParticipantPayload<ExtArgs>
+      fields: Prisma.PreorderChatParticipantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatParticipantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatParticipantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatParticipantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatParticipantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatParticipantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatParticipantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatParticipantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatParticipantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        update: {
+          args: Prisma.PreorderChatParticipantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatParticipantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatParticipantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatParticipantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatParticipantPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatParticipantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatParticipant>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatParticipantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatParticipantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatParticipantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatParticipantCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatMessage: {
+      payload: Prisma.$PreorderChatMessagePayload<ExtArgs>
+      fields: Prisma.PreorderChatMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        update: {
+          args: Prisma.PreorderChatMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatMessage>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatMessageCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatNote: {
+      payload: Prisma.$PreorderChatNotePayload<ExtArgs>
+      fields: Prisma.PreorderChatNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        update: {
+          args: Prisma.PreorderChatNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatNotePayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatNote>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatProposal: {
+      payload: Prisma.$PreorderChatProposalPayload<ExtArgs>
+      fields: Prisma.PreorderChatProposalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatProposalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatProposalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatProposalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatProposalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatProposalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatProposalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatProposalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatProposalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        update: {
+          args: Prisma.PreorderChatProposalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatProposalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatProposalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatProposalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatProposalPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatProposalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatProposal>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatProposalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatProposalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatProposalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatProposalCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatAttachment: {
+      payload: Prisma.$PreorderChatAttachmentPayload<ExtArgs>
+      fields: Prisma.PreorderChatAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        update: {
+          args: Prisma.PreorderChatAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatAttachment>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreorderChatCustomerBlock: {
+      payload: Prisma.$PreorderChatCustomerBlockPayload<ExtArgs>
+      fields: Prisma.PreorderChatCustomerBlockFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreorderChatCustomerBlockFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreorderChatCustomerBlockFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        findFirst: {
+          args: Prisma.PreorderChatCustomerBlockFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreorderChatCustomerBlockFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        findMany: {
+          args: Prisma.PreorderChatCustomerBlockFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>[]
+        }
+        create: {
+          args: Prisma.PreorderChatCustomerBlockCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        createMany: {
+          args: Prisma.PreorderChatCustomerBlockCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PreorderChatCustomerBlockDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        update: {
+          args: Prisma.PreorderChatCustomerBlockUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreorderChatCustomerBlockDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreorderChatCustomerBlockUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PreorderChatCustomerBlockUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreorderChatCustomerBlockPayload>
+        }
+        aggregate: {
+          args: Prisma.PreorderChatCustomerBlockAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreorderChatCustomerBlock>
+        }
+        groupBy: {
+          args: Prisma.PreorderChatCustomerBlockGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatCustomerBlockGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreorderChatCustomerBlockCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreorderChatCustomerBlockCountAggregateOutputType> | number
+        }
+      }
+    }
+    RealtimeEvent: {
+      payload: Prisma.$RealtimeEventPayload<ExtArgs>
+      fields: Prisma.RealtimeEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RealtimeEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RealtimeEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        findFirst: {
+          args: Prisma.RealtimeEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RealtimeEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        findMany: {
+          args: Prisma.RealtimeEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>[]
+        }
+        create: {
+          args: Prisma.RealtimeEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        createMany: {
+          args: Prisma.RealtimeEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RealtimeEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        update: {
+          args: Prisma.RealtimeEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.RealtimeEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RealtimeEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RealtimeEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RealtimeEventPayload>
+        }
+        aggregate: {
+          args: Prisma.RealtimeEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRealtimeEvent>
+        }
+        groupBy: {
+          args: Prisma.RealtimeEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RealtimeEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RealtimeEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RealtimeEventCountAggregateOutputType> | number
         }
       }
     }
@@ -19880,6 +20684,38 @@ export const SellerPackagingTierScalarFieldEnum = {
 export type SellerPackagingTierScalarFieldEnum = (typeof SellerPackagingTierScalarFieldEnum)[keyof typeof SellerPackagingTierScalarFieldEnum]
 
 
+export const SellerContainerLoadingScalarFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  sellerAccountId: 'sellerAccountId',
+  piecesPerCarton: 'piecesPerCarton',
+  cartonLengthMm: 'cartonLengthMm',
+  cartonWidthMm: 'cartonWidthMm',
+  cartonHeightMm: 'cartonHeightMm',
+  grossWeightPerCartonGrams: 'grossWeightPerCartonGrams',
+  maxStackLayers: 'maxStackLayers',
+  loadingMethod: 'loadingMethod',
+  cartonsPerPallet: 'cartonsPerPallet',
+  palletsPer20FtContainer: 'palletsPer20FtContainer',
+  cartonsPer20FtContainer: 'cartonsPer20FtContainer',
+  piecesPer20FtContainer: 'piecesPer20FtContainer',
+  source20Ft: 'source20Ft',
+  verified20FtAt: 'verified20FtAt',
+  palletsPer40FtContainer: 'palletsPer40FtContainer',
+  cartonsPer40FtContainer: 'cartonsPer40FtContainer',
+  piecesPer40FtContainer: 'piecesPer40FtContainer',
+  source40Ft: 'source40Ft',
+  verified40FtAt: 'verified40FtAt',
+  notes: 'notes',
+  version: 'version',
+  updatedByLabel: 'updatedByLabel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerContainerLoadingScalarFieldEnum = (typeof SellerContainerLoadingScalarFieldEnum)[keyof typeof SellerContainerLoadingScalarFieldEnum]
+
+
 export const CartItemPackagingScalarFieldEnum = {
   id: 'id',
   cartItemId: 'cartItemId',
@@ -20511,6 +21347,7 @@ export const PreorderPolicyScalarFieldEnum = {
   maxQuantity: 'maxQuantity',
   capacityBaseUnits: 'capacityBaseUnits',
   capacityPeriod: 'capacityPeriod',
+  safetyStockBaseUnits: 'safetyStockBaseUnits',
   minLeadTimeDays: 'minLeadTimeDays',
   maxAdvanceDays: 'maxAdvanceDays',
   deliveryCountriesJson: 'deliveryCountriesJson',
@@ -20575,6 +21412,10 @@ export const PreorderRequestScalarFieldEnum = {
   unitQuantity: 'unitQuantity',
   unitsPerPackage: 'unitsPerPackage',
   requestedBaseUnits: 'requestedBaseUnits',
+  containerLoadingSnapshotJson: 'containerLoadingSnapshotJson',
+  containerLoadingVersion: 'containerLoadingVersion',
+  availableToPromiseAtSubmission: 'availableToPromiseAtSubmission',
+  shortfallAtSubmission: 'shortfallAtSubmission',
   requestedDeliveryDate: 'requestedDeliveryDate',
   earliestDeliveryDate: 'earliestDeliveryDate',
   timezone: 'timezone',
@@ -20645,6 +21486,8 @@ export const PreorderOfferScalarFieldEnum = {
   committedDeliveryDate: 'committedDeliveryDate',
   deliverySplitsJson: 'deliverySplitsJson',
   originLocationId: 'originLocationId',
+  availableNowBaseUnits: 'availableNowBaseUnits',
+  stockAllocationBaseUnits: 'stockAllocationBaseUnits',
   note: 'note',
   expiresAt: 'expiresAt',
   termsHash: 'termsHash',
@@ -20674,6 +21517,214 @@ export const PreorderStatusHistoryScalarFieldEnum = {
 } as const
 
 export type PreorderStatusHistoryScalarFieldEnum = (typeof PreorderStatusHistoryScalarFieldEnum)[keyof typeof PreorderStatusHistoryScalarFieldEnum]
+
+
+export const PreorderFulfilmentInstallmentScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  offerId: 'offerId',
+  sequence: 'sequence',
+  quantityBaseUnits: 'quantityBaseUnits',
+  committedDeliveryDate: 'committedDeliveryDate',
+  source: 'source',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderFulfilmentInstallmentScalarFieldEnum = (typeof PreorderFulfilmentInstallmentScalarFieldEnum)[keyof typeof PreorderFulfilmentInstallmentScalarFieldEnum]
+
+
+export const PreorderStockHoldScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  quantityBaseUnits: 'quantityBaseUnits',
+  status: 'status',
+  createdAt: 'createdAt',
+  releasedAt: 'releasedAt'
+} as const
+
+export type PreorderStockHoldScalarFieldEnum = (typeof PreorderStockHoldScalarFieldEnum)[keyof typeof PreorderStockHoldScalarFieldEnum]
+
+
+export const CustomerAcknowledgementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  policyVersion: 'policyVersion',
+  acknowledgedAt: 'acknowledgedAt'
+} as const
+
+export type CustomerAcknowledgementScalarFieldEnum = (typeof CustomerAcknowledgementScalarFieldEnum)[keyof typeof CustomerAcknowledgementScalarFieldEnum]
+
+
+export const PreorderChatConversationScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  startedByUserId: 'startedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  preorderRequestId: 'preorderRequestId',
+  preorderKey: 'preorderKey',
+  activeKey: 'activeKey',
+  status: 'status',
+  priority: 'priority',
+  assignedAdminId: 'assignedAdminId',
+  assignedAt: 'assignedAt',
+  customerLocale: 'customerLocale',
+  contextSnapshotJson: 'contextSnapshotJson',
+  productName: 'productName',
+  productSku: 'productSku',
+  sellerName: 'sellerName',
+  tagsJson: 'tagsJson',
+  lastSequence: 'lastSequence',
+  customerMessageCount: 'customerMessageCount',
+  staffMessageCount: 'staffMessageCount',
+  customerReadStaffCount: 'customerReadStaffCount',
+  staffReadCustomerCount: 'staffReadCustomerCount',
+  customerDeliveredSeq: 'customerDeliveredSeq',
+  customerReadSeq: 'customerReadSeq',
+  staffDeliveredSeq: 'staffDeliveredSeq',
+  staffReadSeq: 'staffReadSeq',
+  lastMessagePreview: 'lastMessagePreview',
+  lastMessageSender: 'lastMessageSender',
+  lastMessageAt: 'lastMessageAt',
+  lastCustomerMessageAt: 'lastCustomerMessageAt',
+  lastStaffMessageAt: 'lastStaffMessageAt',
+  awaitingReplySince: 'awaitingReplySince',
+  firstResponseAt: 'firstResponseAt',
+  customerEmailedSeq: 'customerEmailedSeq',
+  slaAlertedAt: 'slaAlertedAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  reopenCount: 'reopenCount',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatConversationScalarFieldEnum = (typeof PreorderChatConversationScalarFieldEnum)[keyof typeof PreorderChatConversationScalarFieldEnum]
+
+
+export const PreorderChatParticipantScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  participantType: 'participantType',
+  userId: 'userId',
+  lastReadSeq: 'lastReadSeq',
+  lastReadAt: 'lastReadAt',
+  joinedAt: 'joinedAt'
+} as const
+
+export type PreorderChatParticipantScalarFieldEnum = (typeof PreorderChatParticipantScalarFieldEnum)[keyof typeof PreorderChatParticipantScalarFieldEnum]
+
+
+export const PreorderChatMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  serverSequence: 'serverSequence',
+  senderType: 'senderType',
+  senderUserId: 'senderUserId',
+  senderKey: 'senderKey',
+  clientMessageId: 'clientMessageId',
+  messageType: 'messageType',
+  body: 'body',
+  systemEvent: 'systemEvent',
+  systemMetaJson: 'systemMetaJson',
+  replyToMessageId: 'replyToMessageId',
+  proposalId: 'proposalId',
+  createdAt: 'createdAt',
+  deliveredAt: 'deliveredAt',
+  editedAt: 'editedAt',
+  redactedAt: 'redactedAt',
+  redactedByUserId: 'redactedByUserId',
+  redactionReason: 'redactionReason'
+} as const
+
+export type PreorderChatMessageScalarFieldEnum = (typeof PreorderChatMessageScalarFieldEnum)[keyof typeof PreorderChatMessageScalarFieldEnum]
+
+
+export const PreorderChatNoteScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  authorUserId: 'authorUserId',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatNoteScalarFieldEnum = (typeof PreorderChatNoteScalarFieldEnum)[keyof typeof PreorderChatNoteScalarFieldEnum]
+
+
+export const PreorderChatProposalScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  revision: 'revision',
+  state: 'state',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  equivalentBaseUnits: 'equivalentBaseUnits',
+  indicativeUnitPriceMinor: 'indicativeUnitPriceMinor',
+  currency: 'currency',
+  availabilityNote: 'availabilityNote',
+  deliveryDate: 'deliveryDate',
+  splitDeliveriesJson: 'splitDeliveriesJson',
+  termsNote: 'termsNote',
+  expiresAt: 'expiresAt',
+  createdByUserId: 'createdByUserId',
+  preorderRequestId: 'preorderRequestId',
+  respondedAt: 'respondedAt',
+  declineReason: 'declineReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PreorderChatProposalScalarFieldEnum = (typeof PreorderChatProposalScalarFieldEnum)[keyof typeof PreorderChatProposalScalarFieldEnum]
+
+
+export const PreorderChatAttachmentScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  messageId: 'messageId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  uploadedByUserId: 'uploadedByUserId',
+  uploaderType: 'uploaderType',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderChatAttachmentScalarFieldEnum = (typeof PreorderChatAttachmentScalarFieldEnum)[keyof typeof PreorderChatAttachmentScalarFieldEnum]
+
+
+export const PreorderChatCustomerBlockScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  reason: 'reason',
+  blockedByUserId: 'blockedByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type PreorderChatCustomerBlockScalarFieldEnum = (typeof PreorderChatCustomerBlockScalarFieldEnum)[keyof typeof PreorderChatCustomerBlockScalarFieldEnum]
+
+
+export const RealtimeEventScalarFieldEnum = {
+  id: 'id',
+  instanceId: 'instanceId',
+  payloadJson: 'payloadJson',
+  createdAt: 'createdAt'
+} as const
+
+export type RealtimeEventScalarFieldEnum = (typeof RealtimeEventScalarFieldEnum)[keyof typeof RealtimeEventScalarFieldEnum]
 
 
 export const SellerInvoiceSettingsScalarFieldEnum = {
@@ -23590,6 +24641,17 @@ export const SellerPackagingTierOrderByRelevanceFieldEnum = {
 export type SellerPackagingTierOrderByRelevanceFieldEnum = (typeof SellerPackagingTierOrderByRelevanceFieldEnum)[keyof typeof SellerPackagingTierOrderByRelevanceFieldEnum]
 
 
+export const SellerContainerLoadingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  sellerAccountId: 'sellerAccountId',
+  notes: 'notes',
+  updatedByLabel: 'updatedByLabel'
+} as const
+
+export type SellerContainerLoadingOrderByRelevanceFieldEnum = (typeof SellerContainerLoadingOrderByRelevanceFieldEnum)[keyof typeof SellerContainerLoadingOrderByRelevanceFieldEnum]
+
+
 export const CartItemPackagingOrderByRelevanceFieldEnum = {
   id: 'id',
   cartItemId: 'cartItemId',
@@ -24027,6 +25089,139 @@ export const PreorderStatusHistoryOrderByRelevanceFieldEnum = {
 } as const
 
 export type PreorderStatusHistoryOrderByRelevanceFieldEnum = (typeof PreorderStatusHistoryOrderByRelevanceFieldEnum)[keyof typeof PreorderStatusHistoryOrderByRelevanceFieldEnum]
+
+
+export const PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  offerId: 'offerId'
+} as const
+
+export type PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum = (typeof PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum)[keyof typeof PreorderFulfilmentInstallmentOrderByRelevanceFieldEnum]
+
+
+export const PreorderStockHoldOrderByRelevanceFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId'
+} as const
+
+export type PreorderStockHoldOrderByRelevanceFieldEnum = (typeof PreorderStockHoldOrderByRelevanceFieldEnum)[keyof typeof PreorderStockHoldOrderByRelevanceFieldEnum]
+
+
+export const CustomerAcknowledgementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  policyVersion: 'policyVersion'
+} as const
+
+export type CustomerAcknowledgementOrderByRelevanceFieldEnum = (typeof CustomerAcknowledgementOrderByRelevanceFieldEnum)[keyof typeof CustomerAcknowledgementOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatConversationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  startedByUserId: 'startedByUserId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  preorderRequestId: 'preorderRequestId',
+  preorderKey: 'preorderKey',
+  activeKey: 'activeKey',
+  assignedAdminId: 'assignedAdminId',
+  customerLocale: 'customerLocale',
+  productName: 'productName',
+  productSku: 'productSku',
+  sellerName: 'sellerName',
+  lastMessagePreview: 'lastMessagePreview'
+} as const
+
+export type PreorderChatConversationOrderByRelevanceFieldEnum = (typeof PreorderChatConversationOrderByRelevanceFieldEnum)[keyof typeof PreorderChatConversationOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatParticipantOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  userId: 'userId'
+} as const
+
+export type PreorderChatParticipantOrderByRelevanceFieldEnum = (typeof PreorderChatParticipantOrderByRelevanceFieldEnum)[keyof typeof PreorderChatParticipantOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  senderUserId: 'senderUserId',
+  senderKey: 'senderKey',
+  clientMessageId: 'clientMessageId',
+  body: 'body',
+  systemEvent: 'systemEvent',
+  replyToMessageId: 'replyToMessageId',
+  proposalId: 'proposalId',
+  redactedByUserId: 'redactedByUserId',
+  redactionReason: 'redactionReason'
+} as const
+
+export type PreorderChatMessageOrderByRelevanceFieldEnum = (typeof PreorderChatMessageOrderByRelevanceFieldEnum)[keyof typeof PreorderChatMessageOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatNoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  authorUserId: 'authorUserId',
+  body: 'body'
+} as const
+
+export type PreorderChatNoteOrderByRelevanceFieldEnum = (typeof PreorderChatNoteOrderByRelevanceFieldEnum)[keyof typeof PreorderChatNoteOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatProposalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  currency: 'currency',
+  availabilityNote: 'availabilityNote',
+  termsNote: 'termsNote',
+  createdByUserId: 'createdByUserId',
+  preorderRequestId: 'preorderRequestId',
+  declineReason: 'declineReason'
+} as const
+
+export type PreorderChatProposalOrderByRelevanceFieldEnum = (typeof PreorderChatProposalOrderByRelevanceFieldEnum)[keyof typeof PreorderChatProposalOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatAttachmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  messageId: 'messageId',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  uploadedByUserId: 'uploadedByUserId'
+} as const
+
+export type PreorderChatAttachmentOrderByRelevanceFieldEnum = (typeof PreorderChatAttachmentOrderByRelevanceFieldEnum)[keyof typeof PreorderChatAttachmentOrderByRelevanceFieldEnum]
+
+
+export const PreorderChatCustomerBlockOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  reason: 'reason',
+  blockedByUserId: 'blockedByUserId'
+} as const
+
+export type PreorderChatCustomerBlockOrderByRelevanceFieldEnum = (typeof PreorderChatCustomerBlockOrderByRelevanceFieldEnum)[keyof typeof PreorderChatCustomerBlockOrderByRelevanceFieldEnum]
+
+
+export const RealtimeEventOrderByRelevanceFieldEnum = {
+  instanceId: 'instanceId'
+} as const
+
+export type RealtimeEventOrderByRelevanceFieldEnum = (typeof RealtimeEventOrderByRelevanceFieldEnum)[keyof typeof RealtimeEventOrderByRelevanceFieldEnum]
 
 
 export const SellerInvoiceSettingsOrderByRelevanceFieldEnum = {
@@ -25345,6 +26540,13 @@ export type EnumPackagingPriceModeFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'ContainerCapacitySource'
+ */
+export type EnumContainerCapacitySourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContainerCapacitySource'>
+    
+
+
+/**
  * Reference to a field of type 'FreightQuoteState'
  */
 export type EnumFreightQuoteStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FreightQuoteState'>
@@ -25572,6 +26774,83 @@ export type EnumPreorderOfferKindFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'PreorderOfferState'
  */
 export type EnumPreorderOfferStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderOfferState'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderInstallmentSource'
+ */
+export type EnumPreorderInstallmentSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderInstallmentSource'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderInstallmentStatus'
+ */
+export type EnumPreorderInstallmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderInstallmentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderStockHoldStatus'
+ */
+export type EnumPreorderStockHoldStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderStockHoldStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AcknowledgementType'
+ */
+export type EnumAcknowledgementTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcknowledgementType'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatStatus'
+ */
+export type EnumPreorderChatStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatPriority'
+ */
+export type EnumPreorderChatPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatSenderType'
+ */
+export type EnumPreorderChatSenderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatSenderType'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatParticipantType'
+ */
+export type EnumPreorderChatParticipantTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatParticipantType'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatMessageType'
+ */
+export type EnumPreorderChatMessageTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatMessageType'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatProposalState'
+ */
+export type EnumPreorderChatProposalStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatProposalState'>
+    
+
+
+/**
+ * Reference to a field of type 'PreorderChatScanState'
+ */
+export type EnumPreorderChatScanStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreorderChatScanState'>
     
 
 
@@ -25945,6 +27224,7 @@ export type GlobalOmitConfig = {
   sellerPackagingProfile?: Prisma.SellerPackagingProfileOmit
   sellerPackagingOption?: Prisma.SellerPackagingOptionOmit
   sellerPackagingTier?: Prisma.SellerPackagingTierOmit
+  sellerContainerLoading?: Prisma.SellerContainerLoadingOmit
   cartItemPackaging?: Prisma.CartItemPackagingOmit
   orderItemPackaging?: Prisma.OrderItemPackagingOmit
   sellerFreightQuoteRequest?: Prisma.SellerFreightQuoteRequestOmit
@@ -25974,6 +27254,17 @@ export type GlobalOmitConfig = {
   preorderRequest?: Prisma.PreorderRequestOmit
   preorderOffer?: Prisma.PreorderOfferOmit
   preorderStatusHistory?: Prisma.PreorderStatusHistoryOmit
+  preorderFulfilmentInstallment?: Prisma.PreorderFulfilmentInstallmentOmit
+  preorderStockHold?: Prisma.PreorderStockHoldOmit
+  customerAcknowledgement?: Prisma.CustomerAcknowledgementOmit
+  preorderChatConversation?: Prisma.PreorderChatConversationOmit
+  preorderChatParticipant?: Prisma.PreorderChatParticipantOmit
+  preorderChatMessage?: Prisma.PreorderChatMessageOmit
+  preorderChatNote?: Prisma.PreorderChatNoteOmit
+  preorderChatProposal?: Prisma.PreorderChatProposalOmit
+  preorderChatAttachment?: Prisma.PreorderChatAttachmentOmit
+  preorderChatCustomerBlock?: Prisma.PreorderChatCustomerBlockOmit
+  realtimeEvent?: Prisma.RealtimeEventOmit
   sellerInvoiceSettings?: Prisma.SellerInvoiceSettingsOmit
   logisticsShipmentLine?: Prisma.LogisticsShipmentLineOmit
   logisticsShipmentPackageLine?: Prisma.LogisticsShipmentPackageLineOmit

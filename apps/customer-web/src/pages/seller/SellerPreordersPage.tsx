@@ -9,7 +9,7 @@
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PreorderStatusBadge } from '@/components/preorder/PreorderParts';
-import { Card, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui';
+import { Badge, Card, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { formatIsoDate } from '@/lib/calendar-date';
@@ -103,6 +103,9 @@ export function SellerPreordersPage(): React.JSX.Element {
                     <span className="tabular-nums text-ink">
                       {t('sellerPreorders.pieces', { pieces: formatNumber(preorder.baseUnits) })}
                     </span>
+                    {(preorder.shortfallAtSubmission ?? 0) > 0 && (
+                      <Badge tone="warning">{t('sellerPreorders.moreThanAvailable')}</Badge>
+                    )}
                     <span className="text-ink-muted">
                       {formatIsoDate(preorder.committedDeliveryDate ?? preorder.requestedDeliveryDate, intlLocale, {
                         dateStyle: 'medium',

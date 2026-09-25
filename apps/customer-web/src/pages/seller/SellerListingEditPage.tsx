@@ -86,6 +86,7 @@ import {
 } from '@/lib/seller';
 import { AxisValueEditor, CustomAxisAdder } from './VariantStepPanel';
 import { SellerPackagingPanel } from './SellerPackagingPanel';
+import { SellerContainerLoadingPanel } from './SellerContainerLoadingPanel';
 import { SellerPreorderTermsPanel } from './SellerPreorderTermsPanel';
 import { SellerTradeCodesPanel } from './SellerTradeCodesPanel';
 import { SellerQuantityTiersPanel } from './SellerQuantityTiersPanel';
@@ -735,6 +736,10 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
         currency={view.currency}
         currencyExponent={currencyExponent(view.currency)}
       />
+
+      {/* How many pieces of this option fit in a 20-ft and a 40-ft container,
+          for container preorders. Per listing, so per option. */}
+      <SellerContainerLoadingPanel offerId={view.offerId} />
 
       {/* Preorder terms: minimum, lead time, capacity and price bands for a
           quantity the seller makes to order. Below packaging, because a

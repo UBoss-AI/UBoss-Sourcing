@@ -1967,6 +1967,31 @@ export type SellerPackagingOption = Prisma.SellerPackagingOptionModel
  */
 export type SellerPackagingTier = Prisma.SellerPackagingTierModel
 /**
+ * Model SellerContainerLoading
+ * How many pieces of one offer fit in a 20-ft and a 40-ft container.
+ * 
+ * Per OFFER, and an offer is one seller's terms for one variant - so a size
+ * or pack type with a different carton has its own row and a buyer switching
+ * variant never sees another variant's figure.
+ * 
+ * The carton is described once; each container size has its own carton count
+ * and its own verification, because a seller may have loaded a 20-ft box and
+ * never a 40-ft one. The piece capacity is always
+ * 
+ * piecesPerContainer = piecesPerCarton x cartonsPerContainer
+ * 
+ * and is STORED (and checked by chk_container_loading_*_pieces) so a buyer's
+ * snapshot, the seller's screen and this row cannot disagree.
+ * 
+ * Only a SELLER_VERIFIED size is offered to a buyer. A CALCULATED_ESTIMATE is
+ * the system's arithmetic from carton size and weight - never volume alone -
+ * and is shown to the seller as a starting point until they confirm it.
+ * 
+ * Every save bumps `version` and writes the seller audit log with the figures
+ * before and after.
+ */
+export type SellerContainerLoading = Prisma.SellerContainerLoadingModel
+/**
  * Model CartItemPackaging
  * The bulk breakdown of one basket line, frozen the moment it was chosen.
  * 
@@ -2284,6 +2309,118 @@ export type PreorderOffer = Prisma.PreorderOfferModel
  * Every status a preorder has been through. Append-only.
  */
 export type PreorderStatusHistory = Prisma.PreorderStatusHistoryModel
+/**
+ * Model PreorderFulfilmentInstallment
+ * One part of a delivery schedule a seller proposed.
+ * 
+ * Belongs to the TERMS (`PreorderOffer`), not to the request, so every
+ * revision keeps the schedule it actually proposed: the negotiation history is
+ * the offers in revision order, each with its own installments. A plain
+ * acceptance or counter has none; a revised-date proposal has one; a split
+ * delivery has two or more.
+ * 
+ * The installments of one set of terms add up to that terms' quantity. A
+ * CHECK cannot see across rows, so that is enforced in the transaction that
+ * writes them (`domain/preorder-availability.ts`), and each row is held to
+ * the rules a CHECK can see.
+ */
+export type PreorderFulfilmentInstallment = Prisma.PreorderFulfilmentInstallmentModel
+/**
+ * Model PreorderStockHold
+ * Stock on a seller's shelf held for one accepted preorder, per location.
+ * 
+ * Written in the same transaction as the buyer's acceptance, by the same
+ * conditional decrement every basket reservation uses, so two buyers
+ * accepting against the last 15,000 pieces cannot both be given them. The
+ * matching `seller_inventory_movements` rows carry `referenceType =
+ * 'preorder_request'`.
+ */
+export type PreorderStockHold = Prisma.PreorderStockHoldModel
+/**
+ * Model CustomerAcknowledgement
+ * *
+ *  * A customer's record that they read a piece of information, at a version.
+ *  *
+ *  * Only an acknowledgement of INFORMATION. It is not acceptance of legal terms,
+ *  * not consent to be charged and not an order: a preorder request still needs
+ *  * its own terms box, and nothing is charged until the seller has answered and
+ *  * the buyer has confirmed and paid. Treating this row as any of those would be
+ *  * reading more into a tick box than the buyer agreed to.
+ *  *
+ *  * VERSIONED, NOT A FLAG
+ *  *
+ *  * One row per person, type and version. `policyVersion` is the text the buyer
+ *  * saw (`PREORDER_INFO_VERSION`, e.g. PREORDER_INFO_V1). When the operator
+ *  * raises the version, no existing row matches the current one, so every buyer
+ *  * is asked again - and the older rows stay as the record of what each buyer
+ *  * read, and when. The server only ever writes the CURRENT version: the browser
+ *  * cannot record an acknowledgement of text it was never shown.
+ *  *
+ *  * Keyed on the person (`userId`) rather than the company: reading a note is
+ *  * something an individual does, and a colleague who never saw it has not.
+ */
+export type CustomerAcknowledgement = Prisma.CustomerAcknowledgementModel
+/**
+ * Model PreorderChatConversation
+ * One customer's conversation with the operator's team about one product.
+ */
+export type PreorderChatConversation = Prisma.PreorderChatConversationModel
+/**
+ * Model PreorderChatParticipant
+ * One person's place in a conversation: when they joined and how far they
+ * have read. One row per person per conversation - a customer, and each
+ * member of staff who has opened it.
+ */
+export type PreorderChatParticipant = Prisma.PreorderChatParticipantModel
+/**
+ * Model PreorderChatMessage
+ * One message the customer can see. Internal notes are NOT here.
+ */
+export type PreorderChatMessage = Prisma.PreorderChatMessageModel
+/**
+ * Model PreorderChatNote
+ * Something staff wrote for each other. Never shown to the customer, never
+ * sent to a customer's connection, never in a customer's response.
+ */
+export type PreorderChatNote = Prisma.PreorderChatNoteModel
+/**
+ * Model PreorderChatProposal
+ * Terms staff suggest, for the customer to turn into a preorder request.
+ * 
+ * NOT an offer in the preorder workflow's sense. A proposal fills in the
+ * preorder form; the customer reviews it, accepts the preorder terms and
+ * submits it there, and the supplier's answer - with its hashed terms the
+ * customer confirms - is what binds anybody. Typing "yes" in the chat does
+ * nothing to this row.
+ */
+export type PreorderChatProposal = Prisma.PreorderChatProposalModel
+/**
+ * Model PreorderChatAttachment
+ * A file sent in a conversation. The bytes are under the PRIVATE storage
+ * prefix and leave only through a short-lived, single-use link redeemed by a
+ * signed-in participant.
+ */
+export type PreorderChatAttachment = Prisma.PreorderChatAttachmentModel
+/**
+ * Model PreorderChatCustomerBlock
+ * A customer the operator's team has stopped messaging. Per customer rather
+ * than per conversation, so a blocked sender cannot start a fresh thread on
+ * the next product. Unblocking deletes the row; both are audited.
+ */
+export type PreorderChatCustomerBlock = Prisma.PreorderChatCustomerBlockModel
+/**
+ * Model RealtimeEvent
+ * Live events in flight between API processes, under
+ * REALTIME_BUS_DRIVER=database.
+ * 
+ * A REFERENCE, never content: which conversation, which message sequence,
+ * which kind of change. The process that delivers it reads the message itself
+ * from the tables above, through the same visibility rules as every other
+ * read - so nothing written here could ever show a customer an internal
+ * note, and a message body never sits in a second table. Deleted within
+ * minutes by every process; nothing here is history.
+ */
+export type RealtimeEvent = Prisma.RealtimeEventModel
 /**
  * Model SellerInvoiceSettings
  * How one seller numbers and signs their invoices.

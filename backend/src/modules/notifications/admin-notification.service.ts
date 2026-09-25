@@ -187,6 +187,18 @@ export const AdminNotificationKind = {
   /// needs no action: the buyer confirmed or declined, or it closed. The
   /// variables are requestNumber and event.
   PREORDER_UPDATE: 'preorder.update',
+  /// A customer opened a preorder chat. The variables are productName and
+  /// customerName. Carries `preorder_chat.view`. INFORMATION: the queue itself
+  /// is what says it is still waiting.
+  PREORDER_CHAT_STARTED: 'preorder_chat.started',
+  /// A customer has waited longer than PREORDER_CHAT_SLA_MINUTES for an answer.
+  /// The variables are productName and waitingMinutes. An ALERT, closed by a
+  /// member of staff replying and by nothing else - reading about a customer
+  /// who is waiting is not answering them. Carries `preorder_chat.view`.
+  PREORDER_CHAT_SLA_BREACHED: 'preorder_chat.sla_breached',
+  /// The customer answered a proposal: submitted a preorder from it, or
+  /// declined it. The variables are productName and outcome.
+  PREORDER_CHAT_PROPOSAL_ANSWERED: 'preorder_chat.proposal_answered',
 } as const;
 
 export type AdminNotificationKindKey =
@@ -312,6 +324,14 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
   }),
 
   [AdminNotificationKind.PREORDER_UPDATE]: INFORMATION,
+
+  [AdminNotificationKind.PREORDER_CHAT_STARTED]: INFORMATION,
+  [AdminNotificationKind.PREORDER_CHAT_SLA_BREACHED]: Object.freeze({
+    class: 'ALERT',
+    resolutionPolicy: 'DOMAIN_ONLY',
+    resolvedInstead: 'a reply in the conversation',
+  }),
+  [AdminNotificationKind.PREORDER_CHAT_PROPOSAL_ANSWERED]: INFORMATION,
 });
 
 function policyFor(kind: string): KindPolicy {
@@ -346,6 +366,8 @@ export const ResolutionKey = {
   legAssignment: (legId: string): string => `leg-assignment:${legId}`,
   /** A fee policy whose tax rule nobody has verified. */
   feeTaxVerification: (policyId: string): string => `fee-tax:${policyId}`,
+  /** A customer waiting for an answer in a preorder chat. Closed by a staff reply. */
+  preorderChatReply: (conversationId: string): string => `preorder-chat-reply:${conversationId}`,
 } as const;
 
 /**

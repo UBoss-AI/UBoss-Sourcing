@@ -2,8 +2,9 @@
  * The brand block: the product, and its tagline.
  *
  * Two lines, both from `lib/brand.ts`, which is the one place either string is
- * written in any of the three applications. The name is set in `font-brand`
- * (Dancing Script Bold), the wordmark's own face and used for nothing else,
+ * written in any of the three applications. Both are set in `font-brand`
+ * (Dancing Script Bold), the wordmark's own face, used for the name and its
+ * tagline and nothing else,
  * a step larger than an Inter label because a script reads a size smaller. One component for both places the
  * portal shows it — the rail once somebody is through, and the sign-in screen
  * before they are — because a sign-in screen whose mark and wording differ
@@ -51,7 +52,7 @@ export function BrandLockup({
       </span>
       <span
         aria-hidden="true"
-        className="block truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle"
+        className="block truncate font-brand text-sm font-bold leading-5 text-ink-subtle"
       >
         {PRODUCT_TAGLINE}
       </span>

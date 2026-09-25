@@ -167,6 +167,10 @@ export default defineConfig(({ mode }) => {
           // the tunnel's origin, which is not on that list; presenting the origin
           // the API expects means it behaves identically either way.
           headers: { origin: 'http://localhost:5174' },
+          // The preorder chat's live connection is a WebSocket under /api.
+          // Without this the upgrade is not forwarded and the chat falls back
+          // to catching up on each reconnect attempt.
+          ws: true,
         },
         '/media': {
           target: 'http://localhost:4000',

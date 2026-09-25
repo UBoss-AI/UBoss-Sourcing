@@ -30,7 +30,8 @@ export type AttentionKey =
   | 'orderApprovals'
   | 'customerApprovals'
   | 'dataRequests'
-  | 'logisticsExceptions';
+  | 'logisticsExceptions'
+  | 'preorderChats';
 
 export interface AttentionView {
   counts: Partial<Record<AttentionKey, number>>;

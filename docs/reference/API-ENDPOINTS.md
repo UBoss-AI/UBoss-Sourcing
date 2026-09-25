@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**784 endpoints** in 66 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**834 endpoints** in 68 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 306 |
+| [Admin panel (staff)](#admin-panel-staff) | 333 |
 | [Logistics partner portal](#logistics-partner-portal) | 72 |
-| [Seller Hub](#seller-hub) | 218 |
+| [Seller Hub](#seller-hub) | 223 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 146 |
-| [Public and storefront](#public-and-storefront) | 31 |
+| [Customer account](#customer-account) | 162 |
+| [Public and storefront](#public-and-storefront) | 33 |
 
 ## Admin panel (staff)
 
@@ -433,6 +433,40 @@ Defined in `backend/src/http/routes/logistics-levels.admin.ts`.
 | POST | `/api/v1/admin/platform-fees/:id/verify-tax` | Staff | Admin(FINANCE_TAX_VERIFY) | Record, with a note, that the tax rule on a platform fee policy is the legally correct one. Changes no figure. Refused on a retired policy. Writes an audit entry. |
 | GET | `/api/v1/admin/platform-fees/:id/orders` | Staff | Admin(FINANCE_POLICY_READ) | The seller orders that were settled on one platform fee policy version, newest first, with the fee and fee tax charged on each. |
 | POST | `/api/v1/admin/platform-fees/preview` | Staff | Admin(FINANCE_POLICY_READ) | Work out what a seller would be charged and paid on a given sale, using the platform fee policies in force now. Read-only: nothing is saved. |
+
+### `admin/preorder-chats`
+
+Defined in `backend/src/http/routes/preorder-chats.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/preorder-chats/socket` | Public |  | The live connection for the console. Same session cookie, same guards as every admin route; needs `preorder_chat.view`. A refused check upgrades, says why, and closes with 4401 (sign in again) or 4403 (not allowed). |
+| GET | `/api/v1/admin/preorder-chats` | Staff | Admin(PREORDER_CHAT_VIEW) | The inbox: filtered, searched and sorted on the server, one page at a time by cursor. Reads conversation rows only - no message history. |
+| GET | `/api/v1/admin/preorder-chats/counts` | Staff | Admin(PREORDER_CHAT_VIEW) | How many conversations are behind each inbox tab. |
+| GET | `/api/v1/admin/preorder-chats/operations` | Staff | Admin(PREORDER_CHAT_VIEW) | Operational numbers for the inbox header: queue sizes, response and resolution times, reopened conversations. Counts and durations only. |
+| GET | `/api/v1/admin/preorder-chats/assignees` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_ASSIGN) | Staff who may be given a conversation: active, and able to reply. |
+| GET | `/api/v1/admin/preorder-chats/:id` | Staff | Admin(PREORDER_CHAT_VIEW) | One conversation with its context panel: the product as the customer saw it and as it is now, the customer, the seller, the linked preorder. Opening it is recorded on the audit trail. |
+| GET | `/api/v1/admin/preorder-chats/:id/messages` | Staff | Admin(PREORDER_CHAT_VIEW) | A page of history - `after` to catch up, `before` to load earlier. |
+| POST | `/api/v1/admin/preorder-chats/:id/messages` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Reply to the customer. The first reply to an unassigned conversation assigns it to whoever wrote it, and closes any SLA alert. Retrying with the same `clientMessageId` returns the stored message. |
+| POST | `/api/v1/admin/preorder-chats/:id/read` | Staff | Admin(PREORDER_CHAT_VIEW) | Mark read up to a sequence number, for the whole team. |
+| POST | `/api/v1/admin/preorder-chats/:id/assign` | Staff | Admin(PREORDER_CHAT_VIEW) | Take a conversation, give it to a colleague, or put it back in the queue. Taking it yourself needs `reply`; anything else needs `assign`. The new holder is emailed. |
+| POST | `/api/v1/admin/preorder-chats/:id/status` | Staff | Admin(PREORDER_CHAT_VIEW) | Move the conversation: open, waiting for the customer, waiting internally, resolved, closed, reopened, spam. Spam and leaving spam need `moderate`. Blocking has its own route. |
+| POST | `/api/v1/admin/preorder-chats/:id/priority` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Set how urgent the conversation is. |
+| PUT | `/api/v1/admin/preorder-chats/:id/tags` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Replace the conversation's staff-only tags. |
+| GET | `/api/v1/admin/preorder-chats/:id/notes` | Staff | Admin(PREORDER_CHAT_VIEW) | Internal notes. Never shown or sent to the customer. |
+| POST | `/api/v1/admin/preorder-chats/:id/notes` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Add an internal note. Only other staff ever see it. |
+| GET | `/api/v1/admin/preorder-chats/:id/activity` | Staff | Admin(PREORDER_CHAT_VIEW) | What has been decided about the conversation - its audit entries. |
+| POST | `/api/v1/admin/preorder-chats/:id/preorder` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Link the conversation to one of this customer's preorders for this product, or unlink it. The customer sees a card naming the preorder. |
+| GET | `/api/v1/admin/preorder-chats/:id/proposals` | Staff | Admin(PREORDER_CHAT_VIEW) | Every proposal sent in this conversation, newest first. |
+| POST | `/api/v1/admin/preorder-chats/:id/proposals` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Send a preorder proposal - or a new revision of the open one. The pieces come from the seller's verified unit sizes; the price is indicative. The customer turns it into a preorder request through the ordinary preorder form, and nothing is ordered or reserved by the proposal itself. |
+| POST | `/api/v1/admin/preorder-chats/:id/proposals/:proposalId/withdraw` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Withdraw an open proposal. |
+| POST | `/api/v1/admin/preorder-chats/:id/messages/:messageId/redact` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_MODERATE) | Remove the words of one message, giving a reason. The message row stays; the words do not. Audited with a fingerprint of what was removed. |
+| POST | `/api/v1/admin/preorder-chats/:id/block` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_MODERATE) | Stop this customer sending preorder chat messages anywhere. |
+| POST | `/api/v1/admin/preorder-chats/:id/unblock` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_MODERATE) | Let a blocked customer message again. |
+| GET | `/api/v1/admin/preorder-chats/:id/export` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_EXPORT) | Download the whole conversation, notes included, as JSON. Audited. |
+| POST | `/api/v1/admin/preorder-chats/:id/attachments` | Staff | Admin(PREORDER_CHAT_VIEW, PREORDER_CHAT_REPLY) | Send a PDF or an image to the customer. Checked, scanned and stored privately. |
+| POST | `/api/v1/admin/preorder-chats/:id/attachments/:attachmentId/link` | Staff | Admin(PREORDER_CHAT_VIEW) | A download link for one attachment: five minutes, single use. |
+| GET | `/api/v1/admin/preorder-chats/:id/attachments/:attachmentId/download` | Staff | Admin(PREORDER_CHAT_VIEW) | Redeem a download link. Served as an attachment, never inline. |
 
 ### `admin/preorders`
 
@@ -1194,6 +1228,9 @@ Defined in `backend/src/http/routes/seller.listings.ts`, `backend/src/http/route
 | GET | `/api/v1/seller/offers/:id/packaging` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | How a listing can be bought in bulk - by carton, pallet or container - with the details and prices of each. Returns an empty set-up if none has been saved yet. |
 | PUT | `/api/v1/seller/offers/:id/packaging/profile` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save the name of a listing's base unit and the seller's packaging notes. |
 | PUT | `/api/v1/seller/offers/:id/packaging/options` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save one bulk packaging option for a listing - a carton, a UK or US pallet, or a container - with its contents, size, weight, price and order limits. Writes an audit entry. |
+| GET | `/api/v1/seller/offers/:id/container-loading` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | How many pieces of a listing fit in a 20-ft and a 40-ft container: the carton, the cartons per container, the resulting pieces, whether each size is seller-verified or only an estimate, and the configured payload limits. |
+| POST | `/api/v1/seller/offers/:id/container-loading/preview` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | Work out a container loading without saving it - pieces per container, payload, the share of the container used, the system's estimate, and any problem - for the form while the seller types. |
+| PUT | `/api/v1/seller/offers/:id/container-loading` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Save how many pieces of a listing fit in a 20-ft and a 40-ft container. Refused when heavier than the configured payload or larger than the container. A changed figure must be verified again before buyers can order in that container. Existing preorders keep their own snapshot. Writes an audit entry. |
 | POST | `/api/v1/seller/offers/:id/packaging/options/:packageType/enabled` | Seller | Seller(LISTING_READ) + Seller(LISTING_WRITE) | Switch buying by one package type on or off for a listing, keeping what was entered for it. Writes an audit entry. |
 | GET | `/api/v1/seller/offers/:id/packaging/preview` | Seller | Seller(LISTING_READ) + Seller(LISTING_READ) | "What would N of these come to?" |
 | GET | `/api/v1/seller/offers/:id/trade-codes` | Seller | Seller(LISTING_READ) | The HSN (customs) code and country of origin saved on one of the seller's listings. |
@@ -1285,6 +1322,8 @@ Defined in `backend/src/http/routes/seller.preorders.ts`.
 | GET | `/api/v1/seller/preorders/:id` | Seller | Seller(ORDER_READ) | Show one of the seller's preorder requests in full. |
 | POST | `/api/v1/seller/preorders/:id/accept` | Seller | TradingSeller(ORDER_FULFIL) | Accept a preorder on exactly the quantity, price and date the buyer asked for, and email the buyer the terms to confirm. Refused if the price or date differs; that has to be sent as a counter-offer. Writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/counter` | Seller | TradingSeller(ORDER_FULFIL) | Send the buyer a counter-offer on a preorder: a different quantity, price, delivery date or split deliveries. Emails the buyer and writes an audit entry. |
+| POST | `/api/v1/seller/preorders/:id/availability-proposal/preview` | Seller | Seller(ORDER_READ) | Check a revised-date or split-delivery proposal without sending it: live available stock, the schedule with container equivalents, the stock it would hold, and the full price with tax and delivery. |
+| POST | `/api/v1/seller/preorders/:id/availability-proposal` | Seller | TradingSeller(ORDER_FULFIL) | Answer a preorder for more than is available: the complete quantity on a revised date, or a split delivery with what is available first. The buyer must accept before anything is reserved, ordered or charged. Emails the buyer and writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/reject` | Seller | TradingSeller(ORDER_FULFIL) | Turn down a preorder with a reason. Releases any capacity it was holding, withdraws open offers, emails the buyer and writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/start-production` | Seller | TradingSeller(ORDER_FULFIL) | Mark a confirmed preorder as in production, with an optional note. Emails the buyer and writes an audit entry. |
 | POST | `/api/v1/seller/preorders/:id/ready` | Seller | TradingSeller(ORDER_FULFIL) | Mark a preorder as made and ready to ship, with an optional note. Emails the buyer and writes an audit entry. |
@@ -1675,18 +1714,41 @@ Defined in `backend/src/http/routes/payments.ts`.
 | POST | `/api/v1/payments/orders/:orderId/mock-capture` | Customer | Customer | Settle an order without a gateway (testing only) |
 | POST | `/api/v1/payments/orders/:orderId/reconcile` | Customer | Customer | Ask the provider directly. |
 
+### `preorder-chats`
+
+Defined in `backend/src/http/routes/preorder-chats.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/preorder-chats/context` | Customer | Customer | What the chat drawer shows before anything is sent: the product card, as the server reads it, and the conversation this customer already has about it. Creates nothing - opening the drawer does not start a conversation. |
+| POST | `/api/v1/preorder-chats/messages` | Customer | Customer | Send the first message about a product - which starts the conversation - or the next one, if a live conversation about it already exists. A resolved conversation reopens. Retrying with the same `clientMessageId` returns the stored message instead of sending it twice. |
+| GET | `/api/v1/preorder-chats` | Customer | Customer | The customer's conversations, newest activity first. |
+| GET | `/api/v1/preorder-chats/unread` | Customer | Customer | How many replies are waiting to be read, across every conversation. |
+| GET | `/api/v1/preorder-chats/:id` | Customer | Customer | One of the customer's own conversations. Another customer's answers 404. |
+| GET | `/api/v1/preorder-chats/:id/messages` | Customer | Customer | A page of history. `after` returns everything since a sequence number, oldest first - how a page catches up after a dropped connection. `before` loads earlier messages. |
+| POST | `/api/v1/preorder-chats/:id/messages` | Customer | Customer | Send a message in an existing conversation. |
+| POST | `/api/v1/preorder-chats/:id/read` | Customer | Customer | Mark the conversation read up to a sequence number. Never moves backwards. |
+| POST | `/api/v1/preorder-chats/:id/attachments` | Customer | Customer | Attach a PDF or an image. The file is checked by its contents, scanned for malware and stored privately; it is refused when attachments are unavailable on this installation. |
+| POST | `/api/v1/preorder-chats/:id/attachments/:attachmentId/link` | Customer | Customer | A download link for one attachment: five minutes, single use, this session only. |
+| GET | `/api/v1/preorder-chats/:id/attachments/:attachmentId/download` | Customer | Customer | Redeem a download link. Served as an attachment, never inline. |
+| GET | `/api/v1/preorder-chats/:id/proposals/:proposalId` | Customer | Customer | One proposal, with what the preorder form needs to open on it. The form still checks eligibility and asks the customer to accept the preorder terms; this only saves retyping the figures. |
+| POST | `/api/v1/preorder-chats/:id/proposals/:proposalId/decline` | Customer | Customer | Decline a proposal, optionally saying why. Staff are told. |
+| POST | `/api/v1/preorder-chats/:id/proposals/:proposalId/submitted` | Customer | Customer | Record that a preorder request was sent from this proposal. The request must be the customer's own, for the same product and option, and made after the proposal; the conversation is then linked to it. The request itself goes through the ordinary preorder workflow unchanged. |
+
 ### `preorders`
 
 Defined in `backend/src/http/routes/preorders.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| POST | `/api/v1/preorders/acknowledgement` | Customer | Customer | Record that the signed-in buyer read and understood how bulk preorders work - the minimum quantity, and that the seller confirms before anything is charged. Only the current version of that information can be acknowledged; an older one is refused so the buyer reads the new text. This is not acceptance of any terms and places no order. |
 | POST | `/api/v1/preorders/preview` | Customer | Customer | Work out what a preorder would look like - price, delivery window and quantity - before the buyer sends it. Nothing is saved. |
 | POST | `/api/v1/preorders` | Customer | Customer | Send a bulk preorder request to the seller for a product, quantity and delivery date. The buyer must accept the preorder terms; the seller is notified and the request expires if nobody answers in time. |
 | GET | `/api/v1/preorders` | Customer | Customer | List the buyer's own preorders, newest first, with who supplies each one. |
 | GET | `/api/v1/preorders/:id` | Customer | Customer | Show one of the buyer's own preorders in full, including its history. Another buyer's preorder answers "not found". |
 | POST | `/api/v1/preorders/:id/confirm` | Customer | Customer | Agree to the seller's current terms. Creates the order, awaiting payment. The body names the revision and its hash, so only terms the buyer was shown can be confirmed. |
 | POST | `/api/v1/preorders/:id/decline` | Customer | Customer | The buyer turns down the seller's proposed terms, with an optional note, and sends the preorder back to the seller to look at again. The seller is alerted. |
+| POST | `/api/v1/preorders/:id/request-change` | Customer | Customer | The buyer asks the seller to change their offer, with a message saying what should change. The offer is set aside, the preorder goes back to the seller with the message, and the seller is alerted. Nothing is charged. |
 | POST | `/api/v1/preorders/:id/cancel` | Customer | Customer | The buyer withdraws their preorder, giving a reason. If an order has already been created and is waiting for payment, that order is cancelled too; otherwise the request is simply closed and any reserved production capacity is released. |
 
 ### `pricing`
@@ -1835,6 +1897,15 @@ Defined in `backend/src/http/routes/payments.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/payments/links/:token` | Public |  | Open a payment link |
 | POST | `/api/v1/payments/links/:token/pay` | Public |  | Start paying an order through an emailed payment link: the link is used up and a payment is opened with the payment provider, returning what the checkout screen needs. Needs no sign-in; refused if the link has expired, was withdrawn, or has already been used. |
+
+### `preorder-chats`
+
+Defined in `backend/src/http/routes/preorder-chats.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/preorder-chats/availability` | Public |  | Whether the team is here, and what this installation allows. Public: the chat button shows it to a guest before they sign in, and it is only ever true when somebody who can reply is actually connected. |
+| GET | `/api/v1/preorder-chats/socket` | Public |  | The live connection. A GET that upgrades to a WebSocket. |
 
 ### `preorders`
 

@@ -503,6 +503,7 @@ export type SellerOfferWhereInput = {
   inventory?: Prisma.SellerInventoryListRelationFilter
   orderLines?: Prisma.SellerOrderLineListRelationFilter
   packagingProfile?: Prisma.XOR<Prisma.SellerPackagingProfileNullableScalarRelationFilter, Prisma.SellerPackagingProfileWhereInput> | null
+  containerLoading?: Prisma.XOR<Prisma.SellerContainerLoadingNullableScalarRelationFilter, Prisma.SellerContainerLoadingWhereInput> | null
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
@@ -552,6 +553,7 @@ export type SellerOfferOrderByWithRelationInput = {
   inventory?: Prisma.SellerInventoryOrderByRelationAggregateInput
   orderLines?: Prisma.SellerOrderLineOrderByRelationAggregateInput
   packagingProfile?: Prisma.SellerPackagingProfileOrderByWithRelationInput
+  containerLoading?: Prisma.SellerContainerLoadingOrderByWithRelationInput
   cartItems?: Prisma.CartItemOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   preorderRequests?: Prisma.PreorderRequestOrderByRelationAggregateInput
@@ -607,6 +609,7 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   inventory?: Prisma.SellerInventoryListRelationFilter
   orderLines?: Prisma.SellerOrderLineListRelationFilter
   packagingProfile?: Prisma.XOR<Prisma.SellerPackagingProfileNullableScalarRelationFilter, Prisma.SellerPackagingProfileWhereInput> | null
+  containerLoading?: Prisma.XOR<Prisma.SellerContainerLoadingNullableScalarRelationFilter, Prisma.SellerContainerLoadingWhereInput> | null
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   preorderRequests?: Prisma.PreorderRequestListRelationFilter
@@ -734,6 +737,7 @@ export type SellerOfferCreateInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -779,6 +783,7 @@ export type SellerOfferUncheckedCreateInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -824,6 +829,7 @@ export type SellerOfferUpdateInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -869,6 +875,7 @@ export type SellerOfferUncheckedUpdateInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -1433,6 +1440,20 @@ export type SellerOfferUpdateOneRequiredWithoutPackagingProfileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutPackagingProfileInput, Prisma.SellerOfferUpdateWithoutPackagingProfileInput>, Prisma.SellerOfferUncheckedUpdateWithoutPackagingProfileInput>
 }
 
+export type SellerOfferCreateNestedOneWithoutContainerLoadingInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedCreateWithoutContainerLoadingInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutContainerLoadingInput
+  connect?: Prisma.SellerOfferWhereUniqueInput
+}
+
+export type SellerOfferUpdateOneRequiredWithoutContainerLoadingNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedCreateWithoutContainerLoadingInput>
+  connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutContainerLoadingInput
+  upsert?: Prisma.SellerOfferUpsertWithoutContainerLoadingInput
+  connect?: Prisma.SellerOfferWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOfferUpdateToOneWithWhereWithoutContainerLoadingInput, Prisma.SellerOfferUpdateWithoutContainerLoadingInput>, Prisma.SellerOfferUncheckedUpdateWithoutContainerLoadingInput>
+}
+
 export type SellerOfferCreateNestedOneWithoutPreorderRequestsInput = {
   create?: Prisma.XOR<Prisma.SellerOfferCreateWithoutPreorderRequestsInput, Prisma.SellerOfferUncheckedCreateWithoutPreorderRequestsInput>
   connectOrCreate?: Prisma.SellerOfferCreateOrConnectWithoutPreorderRequestsInput
@@ -1488,6 +1509,7 @@ export type SellerOfferCreateWithoutProductInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -1532,6 +1554,7 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -1642,6 +1665,7 @@ export type SellerOfferCreateWithoutVariantInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -1686,6 +1710,7 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -1757,6 +1782,7 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
@@ -1801,6 +1827,7 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
@@ -1861,6 +1888,7 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
@@ -1905,6 +1933,7 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
@@ -1949,6 +1978,7 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
 }
@@ -1993,6 +2023,7 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
 }
@@ -2053,6 +2084,7 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
 }
@@ -2097,6 +2129,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
 }
@@ -2140,6 +2173,7 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2184,6 +2218,7 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -2254,6 +2289,7 @@ export type SellerOfferCreateWithoutBrandInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2298,6 +2334,7 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -2368,6 +2405,7 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2412,6 +2450,7 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -2472,6 +2511,7 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -2516,6 +2556,7 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -2560,6 +2601,7 @@ export type SellerOfferCreateWithoutInventoryInput = {
   priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2604,6 +2646,7 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -2664,6 +2707,7 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -2708,6 +2752,7 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -2752,6 +2797,7 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2796,6 +2842,7 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -2856,6 +2903,7 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -2900,6 +2948,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -2944,6 +2993,7 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -2988,6 +3038,7 @@ export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -3048,6 +3099,7 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -3092,6 +3144,7 @@ export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -3136,6 +3189,7 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
@@ -3180,6 +3234,7 @@ export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
   preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
@@ -3240,6 +3295,7 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -3284,6 +3340,203 @@ export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
   priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
+}
+
+export type SellerOfferCreateWithoutContainerLoadingInput = {
+  id: string
+  variantKey?: string
+  sellerSku: string
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOffersInput
+  product: Prisma.ProductCreateNestedOneWithoutSellerOffersInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleCreateNestedManyWithoutSellerOfferInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutSellerOffersInput
+  brand?: Prisma.BrandCreateNestedOneWithoutOffersInput
+  priceTiers?: Prisma.SellerPriceTierCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestCreateNestedManyWithoutOfferInput
+}
+
+export type SellerOfferUncheckedCreateWithoutContainerLoadingInput = {
+  id: string
+  sellerAccountId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  sellerSku: string
+  brandId?: string | null
+  status?: $Enums.SellerOfferStatus
+  priceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  taxClassId?: string | null
+  orderingUnit?: $Enums.OrderingUnit
+  minimumOrderQuantity?: number
+  orderIncrement?: number
+  maximumOrderQuantity?: number | null
+  handlingTimeDays?: number | null
+  guaranteedShelfLifeMonths?: number | null
+  warrantyMonths?: number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: number
+  reservedQuantity?: number
+  qualityScore?: number | null
+  statusReason?: string | null
+  pausedAt?: Date | string | null
+  pausedByProfileId?: string | null
+  sourceDraftId?: string | null
+  publishedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  hsnCode?: string | null
+  countryOfOrigin?: string | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedCreateNestedManyWithoutSellerOfferInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedCreateNestedManyWithoutOfferInput
+  inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
+  orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
+  preorderRequests?: Prisma.PreorderRequestUncheckedCreateNestedManyWithoutOfferInput
+}
+
+export type SellerOfferCreateOrConnectWithoutContainerLoadingInput = {
+  where: Prisma.SellerOfferWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedCreateWithoutContainerLoadingInput>
+}
+
+export type SellerOfferUpsertWithoutContainerLoadingInput = {
+  update: Prisma.XOR<Prisma.SellerOfferUpdateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedUpdateWithoutContainerLoadingInput>
+  create: Prisma.XOR<Prisma.SellerOfferCreateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedCreateWithoutContainerLoadingInput>
+  where?: Prisma.SellerOfferWhereInput
+}
+
+export type SellerOfferUpdateToOneWithWhereWithoutContainerLoadingInput = {
+  where?: Prisma.SellerOfferWhereInput
+  data: Prisma.XOR<Prisma.SellerOfferUpdateWithoutContainerLoadingInput, Prisma.SellerOfferUncheckedUpdateWithoutContainerLoadingInput>
+}
+
+export type SellerOfferUpdateWithoutContainerLoadingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOffersNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutSellerOffersNestedInput
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUpdateManyWithoutSellerOfferNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutSellerOffersNestedInput
+  brand?: Prisma.BrandUpdateOneWithoutOffersNestedInput
+  priceTiers?: Prisma.SellerPriceTierUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
+  preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
+}
+
+export type SellerOfferUncheckedUpdateWithoutContainerLoadingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerSku?: Prisma.StringFieldUpdateOperationsInput | string
+  brandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSellerOfferStatusFieldUpdateOperationsInput | $Enums.SellerOfferStatus
+  priceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  taxClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sellingRegionsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  availableQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reservedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qualityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDraftId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hsnCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfOrigin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentRules?: Prisma.SellerFulfilmentRuleUncheckedUpdateManyWithoutSellerOfferNestedInput
+  priceTiers?: Prisma.SellerPriceTierUncheckedUpdateManyWithoutOfferNestedInput
+  inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
+  orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
+  packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -3329,6 +3582,7 @@ export type SellerOfferCreateWithoutPreorderRequestsInput = {
   inventory?: Prisma.SellerInventoryCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutSellerOfferInput
 }
@@ -3373,6 +3627,7 @@ export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
   inventory?: Prisma.SellerInventoryUncheckedCreateNestedManyWithoutOfferInput
   orderLines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOfferInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedCreateNestedOneWithoutOfferInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedCreateNestedOneWithoutOfferInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutSellerOfferInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutSellerOfferInput
 }
@@ -3433,6 +3688,7 @@ export type SellerOfferUpdateWithoutPreorderRequestsInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
 }
@@ -3477,6 +3733,7 @@ export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
 }
@@ -3556,6 +3813,7 @@ export type SellerOfferUpdateWithoutProductInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -3600,6 +3858,7 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -3716,6 +3975,7 @@ export type SellerOfferUpdateWithoutVariantInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -3760,6 +4020,7 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -3876,6 +4137,7 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -3920,6 +4182,7 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -4036,6 +4299,7 @@ export type SellerOfferUpdateWithoutBrandInput = {
   inventory?: Prisma.SellerInventoryUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUpdateManyWithoutOfferNestedInput
@@ -4080,6 +4344,7 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   inventory?: Prisma.SellerInventoryUncheckedUpdateManyWithoutOfferNestedInput
   orderLines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOfferNestedInput
   packagingProfile?: Prisma.SellerPackagingProfileUncheckedUpdateOneWithoutOfferNestedInput
+  containerLoading?: Prisma.SellerContainerLoadingUncheckedUpdateOneWithoutOfferNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutSellerOfferNestedInput
   preorderRequests?: Prisma.PreorderRequestUncheckedUpdateManyWithoutOfferNestedInput
@@ -4250,6 +4515,7 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   inventory?: boolean | Prisma.SellerOffer$inventoryArgs<ExtArgs>
   orderLines?: boolean | Prisma.SellerOffer$orderLinesArgs<ExtArgs>
   packagingProfile?: boolean | Prisma.SellerOffer$packagingProfileArgs<ExtArgs>
+  containerLoading?: boolean | Prisma.SellerOffer$containerLoadingArgs<ExtArgs>
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
@@ -4306,6 +4572,7 @@ export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.Internal
   inventory?: boolean | Prisma.SellerOffer$inventoryArgs<ExtArgs>
   orderLines?: boolean | Prisma.SellerOffer$orderLinesArgs<ExtArgs>
   packagingProfile?: boolean | Prisma.SellerOffer$packagingProfileArgs<ExtArgs>
+  containerLoading?: boolean | Prisma.SellerOffer$containerLoadingArgs<ExtArgs>
   cartItems?: boolean | Prisma.SellerOffer$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.SellerOffer$orderItemsArgs<ExtArgs>
   preorderRequests?: boolean | Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>
@@ -4329,6 +4596,11 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      * no profile sells exactly as it did before bulk ordering existed.
      */
     packagingProfile: Prisma.$SellerPackagingProfilePayload<ExtArgs> | null
+    /**
+     * How many pieces fit in a 20-ft and a 40-ft container, for container
+     * preorders. Optional: without it, container ordering is not offered.
+     */
+    containerLoading: Prisma.$SellerContainerLoadingPayload<ExtArgs> | null
     /**
      * Baskets and orders that chose THIS seller's offer. Both are RESTRICT on
      * delete: an offer somebody has bought is evidence of what was sold, and
@@ -4809,6 +5081,7 @@ export interface Prisma__SellerOfferClient<T, Null = never, ExtArgs extends runt
   inventory<T extends Prisma.SellerOffer$inventoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$inventoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerInventoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderLines<T extends Prisma.SellerOffer$orderLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$orderLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerOrderLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   packagingProfile<T extends Prisma.SellerOffer$packagingProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$packagingProfileArgs<ExtArgs>>): Prisma.Prisma__SellerPackagingProfileClient<runtime.Types.Result.GetResult<Prisma.$SellerPackagingProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  containerLoading<T extends Prisma.SellerOffer$containerLoadingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$containerLoadingArgs<ExtArgs>>): Prisma.Prisma__SellerContainerLoadingClient<runtime.Types.Result.GetResult<Prisma.$SellerContainerLoadingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   cartItems<T extends Prisma.SellerOffer$cartItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$cartItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.SellerOffer$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preorderRequests<T extends Prisma.SellerOffer$preorderRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOffer$preorderRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5373,6 +5646,25 @@ export type SellerOffer$packagingProfileArgs<ExtArgs extends runtime.Types.Exten
    */
   include?: Prisma.SellerPackagingProfileInclude<ExtArgs> | null
   where?: Prisma.SellerPackagingProfileWhereInput
+}
+
+/**
+ * SellerOffer.containerLoading
+ */
+export type SellerOffer$containerLoadingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerContainerLoading
+   */
+  select?: Prisma.SellerContainerLoadingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SellerContainerLoading
+   */
+  omit?: Prisma.SellerContainerLoadingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SellerContainerLoadingInclude<ExtArgs> | null
+  where?: Prisma.SellerContainerLoadingWhereInput
 }
 
 /**

@@ -187,6 +187,15 @@ async function maintenance(): Promise<void> {
     // capacity held for an unpaid order, should not wait an hour to be freed.
     await queue.enqueue(JobType.PREORDER_EXPIRE, {}, { dedupeKey: `preorder_expire:${slot}` });
 
+    // The preorder chat's beat. A customer left waiting past the SLA and an
+    // unread reply worth an email are both measured in minutes, so this runs
+    // on the ordinary beat; a pass with nothing to do is a few indexed counts.
+    await queue.enqueue(
+      JobType.PREORDER_CHAT_SWEEP,
+      {},
+      { dedupeKey: `preorder_chat_sweep:${slot}` },
+    );
+
     // Delivery risk is measured in days, so hourly is plenty.
     await queue.enqueue(
       JobType.PREORDER_RISK_SWEEP,

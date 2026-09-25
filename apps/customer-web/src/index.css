@@ -13,7 +13,7 @@
  * line box as Dancing Script Bold: size-adjust from the two fonts' advance
  * widths for that word (2.300 / 3.057 em), and the ascent and descent from
  * Dancing Script's own table divided by the same factor. It is only ever
- * asked to draw that one word.
+ * asked to draw that word and the tagline under it.
  */
 @font-face {
   font-family: 'Dancing Script Fallback';

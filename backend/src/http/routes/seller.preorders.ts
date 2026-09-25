@@ -17,14 +17,17 @@ import {
   savePolicy,
 } from '../../modules/preorders/policy.service.js';
 import {
+  availabilityProposalSchema,
   getSellerPreorder,
   listSellerPreorders,
+  previewAvailabilityProposal,
   reasonSchema,
   sellerAccept,
   sellerAcceptSchema,
   sellerAdvanceProduction,
   sellerCounter,
   sellerCounterSchema,
+  sellerProposeAvailability,
   sellerReject,
 } from '../../modules/preorders/request.service.js';
 import { sellerResponder } from '../../modules/preorders/supplier.js';
@@ -99,11 +102,55 @@ export function registerSellerPreorderRoutes(app: FastifyInstance): Promise<void
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       const input = sellerCounterSchema.parse(request.body);
-      return reply
-        .status(200)
-        .send({
-          preorder: await sellerCounter(sellerResponder(currentSeller(request)), id, input),
-        });
+      return reply.status(200).send({
+        preorder: await sellerCounter(sellerResponder(currentSeller(request)), id, input),
+      });
+    },
+  );
+
+  /**
+   * Check a revised-date or split-delivery proposal without sending it: live
+   * available stock, the schedule with container equivalents, the stock it
+   * would hold, and the full price with tax and delivery.
+   */
+  app.post(
+    '/preorders/:id/availability-proposal/preview',
+    { preHandler: requireSeller(SellerPermission.ORDER_READ) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const input = availabilityProposalSchema.parse(request.body);
+      return reply.status(200).send({
+        preview: await previewAvailabilityProposal(
+          sellerResponder(currentSeller(request)),
+          id,
+          input,
+        ),
+      });
+    },
+  );
+
+  /**
+   * Answer a preorder for more than is available: the complete quantity on a
+   * revised date, or a split delivery with what is available first. The buyer
+   * must accept before anything is reserved, ordered or charged. Emails the
+   * buyer and writes an audit entry.
+   */
+  app.post(
+    '/preorders/:id/availability-proposal',
+    {
+      preHandler: requireTradingSeller(SellerPermission.ORDER_FULFIL),
+      config: { rateLimit: WRITE_RATE_LIMIT },
+    },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const input = availabilityProposalSchema.parse(request.body);
+      return reply.status(200).send({
+        preorder: await sellerProposeAvailability(
+          sellerResponder(currentSeller(request)),
+          id,
+          input,
+        ),
+      });
     },
   );
 

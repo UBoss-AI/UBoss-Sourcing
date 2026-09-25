@@ -214,7 +214,7 @@ gloves run the same code. See Appendix A for where older text still says
 | Name | What it is | Translated? |
 |---|---|---|
 | **Glovia** | The product. Set in its own script face (Dancing Script Bold) where it is the brand | Never |
-| **The Way to the World** | The product's tagline | Never |
+| **The Way to the World** | The product's tagline. Set in the same script face as the name (Dancing Script Bold), so the two look the same on every device | Never |
 | **Powered by UBOSS** | The attribution, as small print | Never |
 | The operator's business name | Whoever runs the deployment (Settings → Business profile) | It is a name, not a string |
 
@@ -353,7 +353,7 @@ they already hold **every** permission in it, and only if they hold
 
 ### 3.3.1 Staff permission matrix
 
-56 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
+61 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
 Catalog Manager, **IM** Inventory Manager, **OM** Order Manager, **FA** Finance /
 Approver.
 
@@ -387,6 +387,11 @@ Approver.
 | Customers | `customer.limits.write` | Set purchasing limits and terms | Y | | | | Y |
 | Customers | `customer.status.write` | Activate/deactivate/approve accounts | Y | | | | |
 | Customers | `assistant_chat.read` | Read storefront chat enquiries | Y | | | Y | Y |
+| Preorder chat | `preorder_chat.view` | Read the Preorder Chats inbox, conversations, notes and activity | Y | | | Y | Y |
+| Preorder chat | `preorder_chat.reply` | Reply, notes, take a conversation, status, priority, tags, link a preorder, send proposals | Y | | | Y | |
+| Preorder chat | `preorder_chat.assign` | Give a conversation to a colleague or take it off them | Y | | | | |
+| Preorder chat | `preorder_chat.moderate` | Spam, block and unblock a customer, redact a message | Y | | | | |
+| Preorder chat | `preorder_chat.export` | Download a transcript | Y | | | | |
 | Orders | `order.read` | Read orders | Y | | Y | Y | Y |
 | Orders | `order.approve` | Approve/reject high-value orders | Y | | | | Y |
 | Orders | `order.fulfil` | Move orders through fulfilment | Y | | | Y | |
@@ -1547,18 +1552,363 @@ How each requirement is written:
 ### FR-PRE-007 — Every product can be preordered
 
 - **Statement.** With `PREORDER_OPEN_TO_ALL=true` (default), a seller listing
-  with no terms takes preorders on platform defaults (its own minimum and step,
-  list price as indicative, `PREORDER_DEFAULT_LEAD_DAYS` 14,
+  with no terms takes preorders on platform defaults (a minimum of
+  `PREORDER_DEFAULT_MOQ` pieces, 1,000 by default, or its own ordering minimum
+  where higher, on its own step; list price as indicative; `PREORDER_DEFAULT_LEAD_DAYS` 14,
   `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` 365), and the **operator's own products**
   are answered by staff at **Sales → Preorders** (gated on `order.fulfil`), with
   an alert on the admin bell. With it off, only listings with seller terms take
   preorders and others show the button disabled.
-- **Rules.** A seller who switches preorders off keeps it off. No minimum is invented. The buyer is told the store's name, never the staff member's.
+- **Rules.** A seller who switches preorders off keeps it off. The minimum comes from one chain — version, product, seller default, then the operator's `PREORDER_DEFAULT_MOQ` setting — never from a figure in code. The buyer is told the store's name, never the staff member's.
+- **Status.** Built.
+
+### FR-PRE-009 — The minimum, said before the buyer asks
+
+- **Statement.** Inside the right end of **Preorder** is a separate ⓘ button that opens *Bulk
+  preorder information*: the product's minimum in its own unit, that the
+  seller confirms quantity, price, availability and a committed date, and that
+  a request charges nothing. When the quantity on the page reaches the minimum
+  from below, an *Ordering in bulk?* suggestion offers **Start preorder** and,
+  only where Add to Cart takes that quantity, **Continue with regular order**.
+- **Acceptance criteria.** The ⓘ is visible whenever Preorder is, is never
+  nested inside it, works by mouse, keyboard, touch and screen reader, closes on
+  Escape and returns focus. It is a popover on a desktop and a bottom sheet on a
+  phone. The suggestion fires on 999 → 1,000 but not 1,000 → 1,001, once the
+  quantity settles, once per product per session (a new minimum or note version
+  brings it back). All three entry points state the same minimum, from the
+  eligibility answer, and lead into the same form with the product, variant and
+  quantity kept (at least the minimum).
+- **Status.** Built.
+
+### FR-PRE-010 — First-use acknowledgement
+
+- **Statement.** A buyer's first press of Preorder opens the note with *"I
+  understand the minimum quantity and preorder process."*; *Agree and continue
+  to preorder* is disabled until it is ticked, then records the acknowledgement
+  and opens the form.
+- **Rules.** Recorded on the server per person against `PREORDER_INFO_VERSION`
+  (`customer_acknowledgements`); a request from an account with no record at the
+  current version is refused (`PREORDER_ACKNOWLEDGEMENT_REQUIRED`), whatever the
+  request says. Only the current version can be recorded
+  (`PREORDER_INFO_OUTDATED`). Raising the version asks every buyer again. A
+  guest's tick is kept in the browser tab and recorded after sign-in. It is an
+  acknowledgement of information only — not acceptance of terms, payment
+  authority or an order.
+- **Status.** Built.
+
+### FR-PRE-011 — Ordering in 20-ft and 40-ft containers
+
+- **Statement.** On the Preorder form, **Order in** offers *Pieces*, *20-ft
+  Container* and *40-ft Container* (internal values `PIECE`,
+  `CONTAINER_20_FT`, `CONTAINER_40_FT`), followed by the seller's existing
+  carton, pallet and container packaging. Choosing a container renames the
+  quantity to **Number of containers** (whole numbers only) and shows, for
+  example, *"1 × 20-ft Container = 12,000 pieces"* and *"2 × 20-ft Container =
+  24,000 pieces in total"*, from the seller's **verified** capacity for that
+  exact variant. The summary shows order in containers, pieces per container,
+  total pieces, price per piece, product subtotal, *"Estimated logistics
+  charges: To be confirmed"* and the estimated total.
+- **Acceptance criteria.**
+  - Changing the variant reloads eligibility for that variant; if the chosen
+    unit stops being available, the form switches to Pieces and says so.
+  - A size that is not configured or not verified is shown disabled *"(not
+    available)"*, Pieces stays available, and the form says *"Container
+    ordering is not available because the seller has not configured the
+    packing capacity for this product."* It never shows 0 pieces or an
+    estimate.
+  - The buyer sends only the unit and the count. The server works out pieces
+    per container, total pieces, price, stock and every figure again, and
+    refuses any extra field (400). Minimum, price bands, capacity and stock use
+    the total equivalent pieces.
+  - The request keeps a frozen copy of the capacity it was made with; a later
+    change never alters it.
+  - The order line records `orderingUnit` `CONTAINER` with its pieces per unit,
+    and a packaging breakdown (container type `DRY_20GP` / `DRY_40GP`, cartons
+    per container, gross weight) for the packing list and invoice.
+- **Rules.** Capacity is per seller listing (one seller's terms for one
+  variant). The operator's own products show container ordering as not
+  available. Refusal: `PREORDER_CONTAINER_NOT_CONFIGURED`.
+- **Status.** Built.
+
+### FR-PRE-012 — Seller container loading
+
+- **Statement.** At **Seller Hub → Listing → Container loading for preorders**
+  (below Bulk packaging) a seller enters pieces per carton, carton length,
+  width and height (mm/cm/m/in), gross weight per carton (g/kg/lb), an optional
+  stacking limit, loose cartons or pallets (then cartons per pallet and pallets
+  per container), and for each of 20-ft and 40-ft whether it is offered and
+  cartons per container.
+- **Acceptance criteria.**
+  - The card shows pieces per container (pieces per carton × cartons per
+    container), cargo weight against the allowed payload, the share of space
+    used, and a system estimate with *Use the estimate*. The estimate is the
+    best single-orientation fit, capped by the stacking limit and payload —
+    space, stacking and weight, never volume alone.
+  - Ticking *"I have loaded or checked this figure"* marks a size
+    **seller-verified**. Only verified sizes are offered to buyers; an
+    unverified size is a calculated estimate and never shown to buyers.
+    Changing the carton or a count without re-verifying drops that size back to
+    an estimate.
+  - Refused (`CONTAINER_LOADING_INVALID`) when cargo is heavier than the payload
+    limit, cartons take more room than the container's nominal internal
+    volume, one carton fits in no orientation, or a figure is missing or not a
+    whole number.
+  - Every save is versioned (optimistic concurrency) and written to the seller
+    audit log with the figures before and after.
+- **Rules.** Payload limits are settings: `CONTAINER_20FT_MAX_PAYLOAD_KG`
+  (28,200) and `CONTAINER_40FT_MAX_PAYLOAD_KG` (26,700).
+- **Status.** Built.
+
+### FR-PRE-013 — Requests for more than is available
+
+- **Statement.** The server works out **available-to-promise** (ATP): sellable
+  stock at the seller's locations that may serve preorders (the policy's
+  eligible locations, or all), minus paid orders the seller has not yet
+  accepted, minus the seller's **Stock kept back from preorders (pieces)** — a
+  new field in the preorder terms — never below zero. Sellable stock already
+  excludes reserved and quarantined stock and other preorders' holds.
+- **Acceptance criteria.**
+  - ATP and the shortfall are recorded at submission. Nothing is reserved then.
+  - If the request is more than ATP, the buyer sees *"The complete requested
+    quantity is not currently available."* with requested, available for the
+    first fulfilment and remaining, and that the seller will propose a revised
+    date or a split delivery. The seller's alert says how many are available
+    and the inbox shows a **More than available** badge.
+  - A buyer never sees warehouse details; the seller sees the ATP breakdown.
+  - If stock covers the request, the flow is unchanged (FR-PRE-002).
+- **Rules.** Inbound and production quantities are not counted; later supply is
+  a future-supply shipment on a date the seller commits to.
+- **Status.** Built.
+
+### FR-PRE-014 — Seller proposes a delivery schedule
+
+- **Statement.** At **Seller Hub → Preorders → (a request) → Propose a delivery
+  schedule** the seller chooses:
+  - **A. Complete quantity on a revised date** — one committed date after the
+    buyer's requested date and not before the platform notice; optionally hold
+    the pieces available now for this buyer when they accept; price per piece;
+    delivery charge (0 = included); offer expiry between 1 hour and
+    `PREORDER_PROPOSAL_MAX_EXPIRY_HOURS` (720); optional location; note.
+  - **B. Split delivery** — two to 24 shipments on strictly later dates; the
+    first from stock available now and no more than ATP; the rest from later
+    supply; adding up exactly to the requested pieces; no zero or negative
+    quantity; the buyer's quantity is never changed or rounded.
+- **Acceptance criteria.** Before sending, a live server preview shows the
+  schedule with container equivalents (whole containers, or "a part-filled
+  container of N pieces", never rounded), the stock that will be held, and the
+  full price (subtotal, tax, delivery, total) from the same pricing engine as
+  the order. Closing a changed proposal asks *"Discard this proposal?"*.
+  Problems are refused with `PREORDER_PROPOSAL_INVALID`, listing each one.
+- **Rules.** Stored as offer kinds `FULL_ON_REVISED_DATE` and `SPLIT_DELIVERY`
+  on the existing `SELLER_COUNTERED` status (no new statuses). The terms hash
+  covers the schedule and the stock allocation.
+- **Status.** Built.
+
+### FR-PRE-015 — Buyer accepts, rejects or asks for a change
+
+- **Statement.** The buyer is emailed and, on their preorder page, sees the
+  unit and containers, pieces per container, total pieces, what was available
+  when they asked, the schedule, price, subtotal, tax, delivery, total, expiry
+  and the seller's note, with **Accept offer**, **Reject offer** (ends the
+  preorder) and **Request a change** (message required; back to the seller as
+  `SELLER_REVIEW_REQUIRED`, the offer declined with the message; each round a
+  new revision, so the history is kept).
+- **Acceptance criteria.**
+  - Nothing is ordered or charged until Accept and then the normal payment.
+  - On Accept, in one transaction, the server revalidates offer, product, price
+    and tax, locks the listing's stock rows, recomputes ATP, reserves the stock
+    allocation with a conditional decrement, marks shipments reserved or
+    planned, reserves production capacity only for the part still to be made,
+    freezes the terms and creates the order awaiting payment.
+  - If the stock is no longer there, nothing is reserved or charged, the offer
+    is invalidated, the request returns to the seller, both are told, and the
+    buyer sees `PREORDER_STOCK_CHANGED` ("Stock changed; seller revision
+    required"). The page warns before Accept when stock has already gone; an
+    expired offer cannot be accepted. Two buyers accepting against the same
+    stock at once cannot both get it (tested).
+  - Holds are released if the preorder is cancelled, expires or is rejected, or
+    its order is cancelled; they are handed over when the seller accepts the
+    order, in the same transaction as the order's own reservation, so nothing
+    is reserved twice.
+  - A split-delivery order can be accepted with only the first shipment's stock
+    on hand; each later shipment reserves its own stock when dispatched and
+    cannot be dispatched before the stock exists.
+- **Rules.** Every seller read and write is limited to the seller's own
+  listings and preorders (another seller's answers 404); a buyer sees only
+  their own preorders (404 otherwise).
 - **Status.** Built.
 
 ### FR-PRE-008 — What preorders do not do
 
 - **Status.** **Not built (by decision):** deposits (partial capture) and proforma invoices. The confirmed terms with their reference are the quotation.
+- **Status.** **Not built:** verified inbound or production stock in
+  available-to-promise (this product has no verified inbound record);
+  container ordering and preorder stock holds on the operator's own products;
+  a revised-date or split-delivery screen for staff answering the operator's
+  own products (the admin console shows these offers read-only). An ordinary
+  accept or counter still holds no stock.
+
+## 5.11a Preorder chat (PCH)
+
+A signed-in buyer on any product page asks **the operator's own team** about a
+preorder, and staff answer live in the console. It is **customer ↔ operator
+staff only**: the seller of the product is not a participant, is sent nothing
+and has no route that reads these conversations.
+
+### FR-PCH-001 — A chat button on every product
+
+- **Statement.** Beside **Preorder** in the product page's preorder row there is
+  a **Chat with {marketplace}** button (`[ Preorder ] [ Chat with … ] [ i ]`), named
+  with the operator's own trading name (**Chat with Glovia** until one is set),
+  whether or not the product can be preordered right now.
+- **Acceptance criteria.** It has an accessible name and the tooltip "Ask UBOSS
+  about this preorder". A guest who presses it is sent to sign in and brought
+  back to the same product and option with the chat open; the quantity and unit
+  they were looking at wait in that browser tab only. No conversation exists for
+  a guest.
+- **Status.** Built. Off with `FEATURE_PREORDER_CHAT=false`.
+
+### FR-PCH-002 — The conversation and its product card
+
+- **Statement.** The chat opens as a drawer on the right on a desktop and full
+  screen on a phone. Its header card shows the product picture, name, seller,
+  SKU, option, minimum preorder quantity, and the buyer's order unit (pieces,
+  20-ft or 40-ft container), quantity, equivalent pieces and desired date.
+- **Rules.** The card is built by the **server** from the catalogue and the
+  preorder terms; the browser only names the product, option, unit, quantity and
+  date. Container pieces come from the seller's **verified** loading, never a
+  nominal figure. When the conversation starts the card is saved as a snapshot
+  that never changes; staff also see a link to the product as it is now. The card
+  never shows stock, cost, margin or other buyers.
+- **Rules.** Opening the drawer creates nothing. The conversation is created with
+  the first message, in the same transaction.
+- **Status.** Built.
+
+### FR-PCH-003 — Honest welcome, availability and quick questions
+
+- **Statement.** A fixed welcome (labelled "Automatic message", never stored and
+  never presented as a person), the team's availability, the operator's typical
+  response time (`PREORDER_CHAT_TYPICAL_RESPONSE`), a safety notice not to share
+  passwords, card details, bank credentials, API keys or OTPs, and nine quick
+  questions that fill the message box for the buyer to send.
+- **Rules.** "{marketplace} team is available" only while a member of staff who can reply
+  is actually connected (across every API process); otherwise "currently
+  offline". Quick questions are never answers.
+- **Status.** Built.
+
+### FR-PCH-004 — One conversation per product, reopened not duplicated
+
+- **Rules.** One live conversation per customer, product, option and linked
+  preorder (`preorder_chat_conversations.activeKey`, UNIQUE, NULL once closed).
+  Writing about the same product again continues it; a resolved one reopens (and
+  is counted); a closed one stays readable and refuses new messages, and a new
+  question starts a new conversation.
+- **Status.** Built.
+
+### FR-PCH-005 — Real-time, reliable delivery
+
+- **Statement.** Messages appear on the other side without a reload, with
+  Sending, Sent, Delivered, Read and Failed marks and a Retry.
+- **Rules.** Sending is REST; the message is validated, stored and committed
+  before anybody is told, and the response is the acknowledgement. The WebSocket
+  only announces changes. Order is the server's sequence number. A retry reuses
+  the browser's `clientMessageId` (UNIQUE per sender) and gets the stored message
+  back. After a dropped connection the page reconnects with backoff and fetches
+  everything after its last sequence. Typing and presence are never stored.
+  Several API processes share events through `REALTIME_BUS_DRIVER=database`.
+- **Status.** Built.
+
+### FR-PCH-006 — The Preorder Chats inbox
+
+- **Statement.** **Preorder Chats** in the console sidebar, badged live with the
+  conversations waiting for a reply. Queue, conversation and context panel side
+  by side on a wide screen; one at a time on a phone.
+- **Acceptance criteria.** Filters: all, unassigned, assigned to me, unread,
+  high priority (high and urgent, still being worked), open, waiting for
+  customer, waiting for internal response, resolved, closed, spam/blocked. Sorts: newest message, oldest unanswered, priority, longest
+  waiting. Search: customer name, company, email (only with `customer.read`),
+  product, SKU, seller, conversation id, preorder id or number, message word.
+  Server-side keyset pagination; the queue never loads message history. Each
+  row shows how long the customer has waited against the response target, in
+  words as well as colour. From 1280 px the details panel sits beside the
+  thread; below that it opens over it.
+- **Status.** Built.
+
+### FR-PCH-006a — Both chat screens are application panes
+
+- **Statement.** Account → Messages and Preorder Chats fill the window; the
+  document never scrolls, only the list, the message history and the details
+  panel do, and the conversation header and reply box stay in view - above a
+  phone's on-screen keyboard too.
+- **Acceptance criteria.** Enter sends and Shift+Enter starts a new line in
+  both reply boxes; an input method composing a character, a held key, a double
+  press, a paste and a click on top of a key press never send twice or send
+  early; on a touch keyboard Enter is a new line and the Send button sends. The
+  internal-note box saves only with its button or Ctrl+Enter. The history opens
+  at the first unread message (or the newest), follows new messages only while
+  the reader is at the newest, otherwise shows "N new messages", keeps the
+  reader's place when older messages load, and never animates. The history is
+  a  with one polite announcement per new message. The customer's
+  header names the team; the seller appears only as a fact about the product,
+  and the product strip is labelled a snapshot, never a quote.
+- **Status.** Built. Not virtualised: a history of several hundred messages
+  renders in full, loaded fifty at a time.
+
+### FR-PCH-007 — Working a conversation
+
+- **Statement.** Staff reply; take, give or release a conversation; move it to
+  waiting for customer, waiting internally, resolved, closed, reopened or spam;
+  block and unblock the customer; add internal notes and tags; set priority;
+  link a preorder; send a preorder proposal; redact a message; download the
+  transcript.
+- **Rules.** The first reply to an unassigned conversation assigns it to whoever
+  wrote it. Internal notes are in their own table, on their own tab, and never
+  reach a customer response or socket. A redaction removes the words and keeps
+  the row; the audit trail records a SHA-256 and length of what was removed,
+  never the text. A block is per customer, so a new thread cannot go round it.
+  Every action is audited.
+- **Status.** Built.
+
+### FR-PCH-008 — Preorder proposals use the preorder workflow
+
+- **Statement.** When staff and buyer agree, staff send a structured proposal:
+  unit, quantity, equivalent pieces (server-computed), an **indicative** price,
+  availability, delivery date, split schedule, terms and expiry. The buyer's
+  **Review proposal** opens the ordinary preorder form filled in.
+- **Rules.** A proposal orders, reserves and charges nothing, and nothing a buyer
+  types in chat accepts it. The buyer accepts the preorder terms and sends a real
+  preorder request; the supplier's answer, confirmed by its terms hash
+  (FR-PRE-003), is what binds. The request is then linked to the conversation. A
+  change is a new revision; the old one is marked superseded.
+- **Status.** Built.
+
+### FR-PCH-009 — Notifications
+
+- **Rules.** Buyer: an email when a reply, proposal, "response requested" or
+  "resolved" has sat unread for `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, with a link
+  and never the message; an unread badge on **Account → Messages**. Staff: the
+  live sidebar badge; the bell for a new conversation, a proposal answered, and
+  an SLA alert after `PREORDER_CHAT_SLA_MINUTES` that only a reply closes; an email
+  to a colleague given a conversation; optional desktop alerts after the browser
+  grants permission, which never include message text.
+- **Status.** Built. Mobile push: **not built** (no push system exists).
+
+### FR-PCH-010 — Attachments
+
+- **Rules.** PDF and JPEG/PNG/WebP/GIF only, recognised by content; size limit
+  `PREORDER_CHAT_ATTACHMENT_MAX_BYTES`; scanned by ClamAV before storage; private
+  storage at a random key; five-minute single-use download links bound to the
+  signed-in participant; uploads and downloads audited. With no scanner and
+  `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS=false` (the default, and required in
+  production) attachments say they are unavailable and text chat still works.
+- **Status.** Built. Spreadsheets: **not built** (not accepted).
+
+### FR-PCH-011 — What preorder chat does not do
+
+- **Status.** **Not built:** machine translation of messages ("View
+  translation"); a seller participant; mobile push; message editing by the
+  sender. **By decision:** staff appear to the customer as "the {marketplace} team",
+  never by name.
 
 ---
 
@@ -2498,6 +2848,41 @@ Timers: request expiry 72 h, offer expiry 120 h, payment expiry 168 h
 (cancels the order, returns capacity), risk flag 3 days before the committed
 date.
 
+### 6.5.1 More requested than is available
+
+(FR-PRE-013…015.)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor B as Buyer
+    actor S as Seller
+    participant A as API
+    B->>A: Preorder request (pieces or containers)
+    Note over A: ATP recorded, shortfall recorded. Nothing reserved.
+    A->>B: "The complete requested quantity is not currently available."
+    A->>S: Alert: N available; inbox badge "More than available"
+    S->>A: Preview, then propose: complete on a revised date, or split delivery
+    Note over A: Offer kind FULL_ON_REVISED_DATE / SPLIT_DELIVERY<br/>on SELLER_COUNTERED, installments written
+    A->>B: Email: delivery schedule proposed
+    alt accept
+        B->>A: Accept (existing confirm endpoint)
+        Note over A: One transaction: lock stock rows, recompute ATP,<br/>hold stock, capacity for the rest, order awaiting payment
+        alt stock gone
+            Note over A: Nothing reserved or charged. Offer INVALIDATED.<br/>SYSTEM → SELLER_REVIEW_REQUIRED. PREORDER_STOCK_CHANGED
+            A->>S: Stock changed: revise
+        end
+    else request a change (message)
+        B->>A: Offer DECLINED → SELLER_REVIEW_REQUIRED (new revision next)
+    else reject
+        B->>A: Preorder ends
+    end
+```
+
+Holds are released on cancel, expiry, rejection or order cancellation, and
+handed over (not doubled) when the seller accepts the order. Each later
+split-delivery shipment reserves its own stock at dispatch.
+
 ## 6.6 Seller onboarding and a listing going on sale
 
 (FR-SEL-001…008, FR-SLOG-001.)
@@ -2700,12 +3085,12 @@ stateDiagram-v2
     SELLER_REVIEW_REQUIRED --> CANCELLED: BUYER/ADMIN
     SELLER_REVIEW_REQUIRED --> EXPIRED: SYSTEM
     SELLER_ACCEPTED --> BUYER_CONFIRMED: BUYER
-    SELLER_ACCEPTED --> SELLER_REVIEW_REQUIRED: BUYER (declined, asks again)
+    SELLER_ACCEPTED --> SELLER_REVIEW_REQUIRED: BUYER (declined, asks again) / SYSTEM (stock changed)
     SELLER_ACCEPTED --> SELLER_COUNTERED: SELLER (revise)
     SELLER_ACCEPTED --> CANCELLED: BUYER/SELLER/ADMIN, reason
     SELLER_ACCEPTED --> EXPIRED: SYSTEM
     SELLER_COUNTERED --> BUYER_CONFIRMED: BUYER
-    SELLER_COUNTERED --> SELLER_REVIEW_REQUIRED: BUYER
+    SELLER_COUNTERED --> SELLER_REVIEW_REQUIRED: BUYER (declined or change requested) / SYSTEM (stock changed)
     SELLER_COUNTERED --> SELLER_COUNTERED: SELLER (revise again)
     SELLER_COUNTERED --> CANCELLED: BUYER/SELLER/ADMIN, reason
     SELLER_COUNTERED --> EXPIRED: SYSTEM
@@ -2730,7 +3115,17 @@ stateDiagram-v2
 
 - Seller owes an answer: SUBMITTED, SELLER_REVIEW_REQUIRED. Buyer owes one: SELLER_ACCEPTED, SELLER_COUNTERED.
 - Capacity held: PAYMENT_REQUIRED, CONFIRMED, IN_PRODUCTION, READY_FOR_FULFILLMENT.
+- A revised-date or split-delivery offer (offer kinds `FULL_ON_REVISED_DATE`, `SPLIT_DELIVERY`) uses SELLER_COUNTERED; there are no extra statuses. Its stock hold is written when the buyer accepts and lasts until it is released (the preorder is cancelled, expires or is rejected, or its order is cancelled) or handed over to the order when the seller accepts it.
+- SYSTEM moves SELLER_ACCEPTED or SELLER_COUNTERED back to SELLER_REVIEW_REQUIRED when the stock an offer relied on is gone at acceptance; the offer becomes INVALIDATED.
 - Invariants: the seller cannot move a request to anything the buyer pays for; nothing returns to negotiation once an order exists; CONFIRMED comes only from SYSTEM.
+
+## 7.4a Preorder chat status (`backend/src/domain/preorder-chat-state.ts`)
+
+`NEW` (nobody from the business has answered) → `OPEN` → `WAITING_FOR_CUSTOMER` / `WAITING_FOR_INTERNAL` → `RESOLVED` → `CLOSED`, with `SPAM` and `BLOCKED` set aside by moderation.
+
+- **Staff moves** need `preorder_chat.reply`; into or out of `SPAM`/`BLOCKED` needs `preorder_chat.moderate`. `NEW` is never a target. `CLOSED` → `OPEN` is a reopen and is refused if the customer has since started a newer conversation about the same product.
+- **Messages imply moves:** a customer's message moves `WAITING_FOR_CUSTOMER` to `OPEN` and reopens `RESOLVED` (counted); it is refused in `CLOSED` and `BLOCKED`, and kept silently in `SPAM`. The first staff reply moves `NEW` to `OPEN`.
+- **The customer sees fewer words:** Open, Waiting for your reply, Resolved, Closed, Messaging unavailable. Spam and waiting-internally both read as Open.
 
 ## 7.5 Buyer ERP connection (`backend/src/domain/customer-erp-state.ts`)
 
@@ -3061,6 +3456,16 @@ Enforced in code. Changing one is a deliberate decision, not an edit.
 | BR-SCH-006 | **A new `ScheduleFrequency` member needs a migration** for `chk_schedule_frequency_field_present`. |
 | BR-PRE-001 | **A preorder becomes an order only when the buyer confirms, only once**, naming the terms by hash; capacity is held with one conditional UPDATE; status only via `assertPreorderTransition`. |
 | BR-PRE-002 | **A preorder is never faster than the schedule notice rule.** |
+| BR-PRE-003 | **Only a seller-verified container capacity is offered to a buyer.** An estimate is never shown; a changed carton or count without re-verifying drops the size back to an estimate. |
+| BR-PRE-004 | **The server decides every preorder figure.** The buyer sends the unit and the count only; extra fields are refused. Minimum, bands, capacity and stock use the total equivalent pieces. |
+| BR-PRE-005 | **Available-to-promise never counts inbound or production stock**, and never goes below zero. |
+| BR-PRE-006 | **A split delivery adds up exactly to the requested pieces**; the buyer's quantity is never changed or rounded, and the first shipment is never more than available-to-promise. |
+| BR-PCH-001 | **Preorder chat is customer and operator staff only.** No seller route reads it and no seller is sent an event. Staff appear to the customer as "the {marketplace} team". |
+| BR-PCH-002 | **A chat message binds nobody.** Only a preorder request, answered by the supplier and confirmed by its terms hash, is a commitment; a proposal only fills in the preorder form. |
+| BR-PCH-003 | **Conversation status changes only through `preorder-chat-state.ts`.** Assignment is not a status; "unassigned" is `assignedAdminId IS NULL`. |
+| BR-PCH-004 | **Nothing is announced before it is committed**, and the database is the source of truth: a page that missed an event catches up by sequence number. |
+| BR-PCH-005 | **Internal notes never reach a customer**: separate table, no customer route, never on a customer socket. |
+| BR-PRE-007 | **Preorder stock is held only when the buyer accepts**, in one transaction with a conditional decrement; if it is gone, nothing is reserved or charged and the seller must revise. A hold is released or handed over to the order, never reserved twice. |
 
 ## 8.5 Catalogue, packaging and freight
 
@@ -3271,6 +3676,7 @@ Remove-Item Env:\DATABASE_URL
 | `ASSISTANT_ENABLED` | `true` | Master switch for AI Mode, image search and AI insights (still needs a key) |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | AI Mode answers visitors with no account |
 | `PREORDER_OPEN_TO_ALL` | `true` | Preorders on every product (platform default terms; staff answer the operator's own) |
+| `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on product pages and the **Preorder Chats** inbox (FR-PCH). Tuning: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `PREORDER_CHAT_TEAM_NAME` (empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES` (240), `PREORDER_CHAT_EMAIL_DELAY_MINUTES` (10), `PREORDER_CHAT_MESSAGES_PER_MINUTE` (20), `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` (10), `PREORDER_CHAT_MAX_MESSAGE_CHARS` (4000), `PREORDER_CHAT_ATTACHMENTS_ENABLED` (`true`), `PREORDER_CHAT_ATTACHMENT_MAX_BYTES` (10 MB), `PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`, refused in production), `PREORDER_CHAT_RETENTION_DAYS` (0 = keep) |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Development-only "Mark this order as paid" test path |
 | `ENABLE_DEMO_CATALOG` | `true` outside production, `false` in production | Shows the demonstration catalogue |
 | `SELLER_ERP_ALLOW_DIRECT_MODE` | `false` | Direct Tally URL mode for private networks (needs `SELLER_ERP_DIRECT_HOST_SUFFIXES`) |
@@ -3352,6 +3758,9 @@ VAT), `gpsrEnforced`, `mdrEnforced`, automatic exchange-rate updates and
 | `PREORDER_RISK_WINDOW_DAYS` | 3 |
 | `PREORDER_DEFAULT_LEAD_DAYS` | 14 |
 | `PREORDER_DEFAULT_MAX_ADVANCE_DAYS` | 365 |
+| `PREORDER_PROPOSAL_MAX_EXPIRY_HOURS` | 720 (the longest a revised-date or split-delivery proposal may stay open) |
+| `CONTAINER_20FT_MAX_PAYLOAD_KG` | 28200 (heaviest cargo a seller's 20-ft loading may state) |
+| `CONTAINER_40FT_MAX_PAYLOAD_KG` | 26700 (the same for 40-ft) |
 
 ## 10.7 AI
 
@@ -3531,6 +3940,8 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **Apportionment (largest remainder)** | Splitting a discount across lines so the pieces add up exactly to the total. |
 | **Approximate price** | A price converted from the base currency because no real price exists (opt-in); always labelled. |
 | **Argon2id** | A slow, memory-hard password hashing method. |
+| **Available-to-promise (ATP)** | Pieces a seller could give a preorder today: sellable stock at eligible locations, less paid orders not yet accepted, less stock kept back; never below zero, never counting inbound stock. |
+| **Container loading** | A seller's statement of how many pieces of one listing fit a 20-ft and a 40-ft container; offered to buyers only once verified. |
 | **assertTransition** | The one function allowed to change an order's status. |
 | **Audit log** | The append-only record of who changed what, when and why. |
 | **Autopay** | The customer's standing permission to be charged off-session for scheduled orders, with their own limits. |
@@ -3601,6 +4012,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **Platform fee** | What the marketplace deducts from a seller's proceeds. |
 | **POD** | Proof of delivery (photo, signature per policy). |
 | **Preorder** | A request asking a seller to make a quantity by a date; becomes one order only when the buyer confirms. |
+| **Preorder stock hold** | Pieces on a seller's shelf set aside for one buyer when they accept a revised-date or split-delivery offer. |
 | **Price band / quantity tier** | A lower per-piece price from a quantity upwards. |
 | **Publication gate** | A product reaches buyers only when Active and Published. |
 | **quoteSchedule** | The only function that prices a scheduled basket. |

@@ -133,6 +133,13 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // A bulk preorder this person asked for, with every set of terms put to
   // them. Disclosed whole, as `preorderRequests`.
   PreorderRequest: 'preorderRequests',
+  // The versions of the bulk preorder note this person said they read.
+  CustomerAcknowledgement: 'preorderAcknowledgements',
+  // Their preorder chats with the operator's team, their own read position in
+  // each, and a messaging block if there is one - all under `preorderChats`.
+  PreorderChatConversation: 'preorderChats',
+  PreorderChatParticipant: 'preorderChats',
+  PreorderChatCustomerBlock: 'preorderChats',
   PreorderStatusHistory:
     'Who moved a preorder between statuses. The history itself is disclosed inside ' +
     '`preorderRequests` (from, to, when and why); `actorUserId` names whoever acted - the ' +

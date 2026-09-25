@@ -145,13 +145,18 @@ function BrandMark(): React.JSX.Element {
           <span
             aria-hidden="true"
             // The tagline from `lg`, the seller line from `sm` as before. Between
-            // the two the header controls leave the lockup about 110px, and
-            // "The Way to the World" needs 167px at this tracking: shown there
-            // it could only ever read "THE WAY TO T…", and half a slogan is
-            // worse than none. `truncate` stays as the net for a long locale.
+            // the two the header controls leave the lockup about 110px, which
+            // is not enough for the whole tagline, and half a slogan is worse
+            // than none. `truncate` stays as the net for a long locale.
+            // The tagline is in the wordmark's own script, the same face as
+            // "Glovia" above it. The seller line in its place stays in the
+            // ordinary face: it is translated, Greek included, and the script
+            // is bundled as Latin only.
             className={cx(
-              'hidden truncate text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle',
-              seller === undefined ? 'lg:block' : 'sm:block',
+              'hidden truncate text-ink-subtle',
+              seller === undefined
+                ? 'font-brand text-sm font-bold leading-5 lg:block'
+                : 'text-xxs font-medium uppercase tracking-[0.14em] sm:block',
             )}
           >
             {/*

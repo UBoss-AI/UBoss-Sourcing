@@ -586,7 +586,10 @@ browse.
 
 **On the screen, top to bottom**
 
-1. **The greeting card**, over a turning earth.
+1. **The greeting**, over a turning earth. It is not a separate card: one
+   background (light washes, a faint grid and points) starts right under the
+   header, runs to both edges of the window and carries on behind every
+   section of the page. The turning earth stays in the greeting only.
    - "One connected flow" (guest) or "Welcome back, …" (customer), the store's
      name, and a line that changes ("Source with Intelligence" / "Deliver with
      Confidence").
@@ -725,7 +728,59 @@ category shows an empty list, not an error.
     `/schedules/new?productId=…&quantity=…`.
   - **Preorder**: ask the seller for a large quantity by a date. Needs one
     version chosen and a business account. Opens a dialog with the address,
-    a preview, and **Send**.
+    a preview, and **Send**. The first time (per version of the note), it
+    opens **Bulk preorder information** first: the minimum, how the seller
+    confirms, that nothing is charged, and a checkbox *"I understand the
+    minimum quantity and preorder process."*; **Agree and continue to
+    preorder** stays disabled until it is ticked. **Not now** closes it.
+  - **ⓘ** inside Preorder's right end (its own button, laid over it, label *Preorder
+    information*): the same note, to read at any time — a popover beside the
+    button on a desktop, a bottom sheet on a phone. Already acknowledged, it
+    offers **Continue to preorder** with no checkbox.
+  - **Chat with {marketplace}** right after Preorder (the operator's own
+    name; *Chat with Glovia* until one is set), with the tooltip *"Ask
+    {marketplace} about this preorder"*, on every product whether or not it
+    can be preordered. A guest goes to sign in and comes back with the chat
+    open. It opens a drawer on the right (full screen on a phone): the team's
+    availability and typical response time; the product card (picture, name,
+    seller, SKU, option, minimum, and **Your requirement**: order unit -
+    Pieces, 20-ft or 40-ft container - quantity, equivalent pieces from the
+    seller's verified figures, desired date; editable until the first
+    message); an automatic welcome; the history with Sending / Sent /
+    Delivered / Read / Not sent and Retry; nine **Quick questions** that fill
+    the box; the security notice; the message box (Enter sends, Shift+Enter
+    is a new line) with a paperclip for a PDF or image when attachments are
+    available. A proposal card shows the figures, "indicative" price and
+    expiry, with **Review proposal** (opens the preorder form filled in, with
+    a note to check every field) and **Decline**. Opening the drawer creates
+    nothing. API: `GET /api/v1/preorder-chats/availability`,
+    `POST /api/v1/preorder-chats/context`, `POST /api/v1/preorder-chats/messages`,
+    `GET .../:id/messages`, `POST .../:id/read`, the socket
+    `/api/v1/preorder-chats/socket`, and `GET/POST .../proposals/:proposalId…`.
+  - **In the preorder dialog, Order in** is a dropdown: *Pieces*, *20-ft
+    Container*, *40-ft Container*, then any carton, pallet or container
+    packaging the seller has. Choosing a container renames the quantity to
+    **Number of containers** (whole numbers only) and shows *"1 × 20-ft
+    Container = 12,000 pieces"* and *"2 × 20-ft Container = 24,000 pieces in
+    total"* from the seller's verified figure for this version. The summary
+    shows order in containers, pieces per container, total pieces, price per
+    piece, product subtotal, *"Estimated logistics charges: To be confirmed"*
+    and the estimated total. A size the seller has not configured or verified
+    is shown disabled *"(not available)"* with *"Container ordering is not
+    available because the seller has not configured the packing capacity for
+    this product."*; Pieces stays available. Changing the version reloads the
+    options; if the chosen unit is no longer available the dialog switches to
+    Pieces and says so. When the request is for more than is available, the
+    preview says *"The complete requested quantity is not currently
+    available."* with requested, available for the first fulfilment and
+    remaining, and that the seller will propose a revised date or a split
+    delivery. On the store's own products containers are not available.
+- **"Ordering in bulk?"**: when the quantity reaches the product's preorder
+  minimum from below (999 → 1,000), a dialog shows the quantity chosen and the
+  minimum, with **Start preorder** and — only where Add to Cart takes that
+  quantity — **Continue with regular order**. Once per product per session.
+  Start preorder goes through the note (if not yet acknowledged) into the
+  form, keeping the version and the quantity.
   - **Add instructions**: a standing note to the seller about this product,
     without buying anything.
   - **Save for later**.
@@ -745,6 +800,7 @@ category shows an empty list, not an error.
 - `GET /api/v1/catalog/bulk-pricing?productId=…&variantId=…&quantity=…`
 - `POST /api/v1/cart/items/bulk` (Add to cart and Order by)
 - `GET /api/v1/preorders/eligibility?productId=…&variantId=…`
+- `POST /api/v1/preorders/acknowledgement` (Agree and continue to preorder)
 - `GET /api/v1/account/addresses`, `POST /api/v1/preorders/preview`,
   `POST /api/v1/preorders` (the preorder dialog)
 - `GET` and `POST /api/v1/account/product-instructions`
@@ -1505,9 +1561,20 @@ is then paid the normal way.
   before tax, committed delivery date, split deliveries, how long the offer is
   open. Buttons **Confirm these terms** and **Decline and ask again** (with an
   optional "What would work for you").
+- **A proposed delivery schedule**, when the seller answered a request for more
+  than was available: ordered as (containers), pieces per container, total
+  pieces, how many were available when you asked, the schedule (each shipment's
+  date and pieces, with container equivalents), price, subtotal, tax, delivery,
+  total, when the offer expires, and the seller's note. Buttons **Accept
+  offer**, **Reject offer** (ends the preorder) and **Request a change** (a
+  message is required; it goes back to the seller as a new round). If the stock
+  the offer relied on has already gone, the page warns before you press
+  Accept; an expired offer cannot be accepted. If the stock goes while you
+  accept, you are told *"Stock changed; seller revision required"* and nothing
+  is reserved or charged.
 - **What you asked for**, **Earlier terms**, **History**.
-- **Cancel preorder** (a reason is required; any capacity held for you is
-  released) and **View the product**.
+- **Cancel preorder** (a reason is required; any capacity or stock held for you
+  is released) and **View the product**.
 
 If the terms changed while you were reading, confirming is refused and the
 page reloads the new terms.
@@ -1515,9 +1582,41 @@ page reloads the new terms.
 **API calls**
 
 - `GET /api/v1/preorders/:id`
-- `POST /api/v1/preorders/:id/confirm` (with an `Idempotency-Key`)
+- `POST /api/v1/preorders/:id/confirm` (with an `Idempotency-Key`; also
+  Accept offer)
+- `POST /api/v1/preorders/:id/request-change` (Request a change)
 - `POST /api/v1/preorders/:id/decline`
 - `POST /api/v1/preorders/:id/cancel`
+
+#### `/account/messages` and `/account/messages/:id` — Messages
+
+| | |
+|---|---|
+| **Who** | Activated customer, for their own conversations |
+| **File** | `pages/account/MessagesPage.tsx`, `components/preorder-chat/ChatThread.tsx` |
+
+**Purpose.** Every preorder chat with the operator's team, to reread and
+answer. The "a reply is waiting" email links to `/account/messages/:id`.
+
+**On the screen.** The screen fills the window and the page itself does not
+scroll: the list and the message history scroll on their own, the header and
+the reply box stay in view. The list (product picture and name, "{marketplace}
+Preorder Team · Seller: …", last message, time, status, unread count) sits
+beside the open conversation from `md`; on a phone they are separate views and
+the conversation's back arrow returns to the list. The conversation header
+names the team, with status, availability, **View product** and **View
+preorder**; under it a foldable product strip (option, minimum, what was asked
+for, date, the newest proposal's state - labelled a snapshot). The history
+has day separators, an **Unread messages** marker, grouped bubbles, Sent /
+Delivered / Read marks and a **New messages** / **Jump to latest** button.
+Enter sends, Shift+Enter is a new line; a one-line safety notice sits under
+the reply box. The thread is the same component as the product page drawer. A closed conversation is read-only and says
+to start a new one from the product page; **Review proposal** opens the
+product page with the preorder form filled in. No conversation starts here.
+
+**API calls:** `GET /api/v1/preorder-chats`, `GET /api/v1/preorder-chats/:id`,
+`GET .../:id/messages`, `POST .../:id/messages`, `POST .../:id/read`,
+`GET /api/v1/preorder-chats/unread`, and the socket.
 
 #### `/account/autopay` — Autopay
 
@@ -1583,6 +1682,7 @@ be opened without it.
 | Orders | My orders | `/account/orders` | Always |
 | Orders | Scheduled orders | `/account/schedules` | Only when the store has recurring orders switched on (`features.recurringOrders`) |
 | Orders | Preorders | `/account/preorders` | Always |
+| Orders | Messages | `/account/messages` | Unless `FEATURE_PREORDER_CHAT` is off. Badged with unread replies |
 | Account settings | Profile information | `/account/profile` | Always |
 | Account settings | Company information | `/account/company` | Always |
 | Account settings | Manage addresses | `/account/addresses` | Always |
@@ -2326,7 +2426,7 @@ it.
 | | |
 |---|---|
 | **Who** | Approved sellers with the listing permission (checked by the server) |
-| **File** | `pages/seller/SellerListingEditPage.tsx`, `SellerPackagingPanel.tsx`, `SellerPreorderTermsPanel.tsx`, `SellerTradeCodesPanel.tsx`, `SellerQuantityTiersPanel.tsx` |
+| **File** | `pages/seller/SellerListingEditPage.tsx`, `SellerPackagingPanel.tsx`, `SellerContainerLoadingPanel.tsx`, `SellerPreorderTermsPanel.tsx`, `SellerTradeCodesPanel.tsx`, `SellerQuantityTiersPanel.tsx` |
 
 **Purpose.** Change a listing that has already been approved. Prices, order
 rules and stock can be changed while it is on sale; its options and
@@ -2342,7 +2442,8 @@ it on arrival.
 | What you are selling | Read-only facts from the catalogue |
 | Price and order rules | Price, smallest order, steps, largest order, days to dispatch, shelf life, warranty |
 | Bulk packaging | Tabs Carton, UK pallet, US pallet, Container. Offer it or not, units per package, layers, sizes and weights, terms (smallest order, how it is priced: from the unit price, a package price, or on request), price bands, dangerous goods and handling notes, and a preview of what buyers see |
-| Preorder terms | For this version, every version, or all your products: take preorders, minimum and step, capacity, lead time, how far ahead, countries, pricing, partial and split delivery, answer and confirm times, price bands |
+| Container loading for preorders | Below Bulk packaging. Pieces per carton; carton length, width and height (mm, cm, m or in); gross weight per carton (g, kg or lb); an optional stacking limit (cartons high); loose cartons or on pallets (then cartons per pallet and pallets per container); and for each of 20-ft and 40-ft whether it is offered and cartons per container. Shows pieces per container, cargo weight against the allowed payload, the share of the container's space used, and a system estimate with **Use the estimate**. The tick *"I have loaded or checked this figure"* makes a size available to buyers; changing the carton or a count without ticking again takes it back to an estimate. An impossible or incomplete figure is refused with the reason |
+| Preorder terms | For this version, every version, or all your products: take preorders, minimum and step, capacity, lead time, how far ahead, countries, pricing, partial and split delivery, answer and confirm times, price bands, and **Stock kept back from preorders (pieces)** |
 | Trade codes | HSN or HS code, country of origin |
 | Quantity prices | Up to 20 bands: from and up to how many pieces, price per piece, dates, countries, business accounts only, preorders only |
 | Product variants & inventory | Options and values (only while paused), and every version with its code, price, recommended price, stock, smallest order, and more per row |
@@ -2360,6 +2461,8 @@ with unsaved changes asks "Leave without saving?".
   `GET /api/v1/seller/packaging/presets`,
   `PUT /api/v1/seller/offers/:id/packaging/options`,
   `POST /api/v1/seller/offers/:id/packaging/options/:packageType/enabled`
+- `GET` and `PUT /api/v1/seller/offers/:id/container-loading`,
+  `POST /api/v1/seller/offers/:id/container-loading/preview`
 - `GET` and `PUT /api/v1/seller/preorder-policies`
 - `GET` and `PUT /api/v1/seller/offers/:id/trade-codes`
 - `GET` and `PUT /api/v1/seller/offers/:id/quantity-tiers`
@@ -2546,7 +2649,8 @@ buyer confirms and pays."
 **On the screen.** Filters with counts: Awaiting your answer (default), New,
 Countered, Awaiting buyer, Confirmed, In production, Handed to fulfilment,
 Rejected, Expired, Cancelled, All. A row per request: product, number, buyer,
-pieces, delivery date, value, status, and "Answer by …".
+pieces, delivery date, value, status, and "Answer by …". A request for more
+than is available carries a **More than available** badge.
 
 **API call:** `GET /api/v1/seller/preorders?filter=…`
 
@@ -2555,7 +2659,7 @@ pieces, delivery date, value, status, and "Answer by …".
 | | |
 |---|---|
 | **Who** | Approved sellers |
-| **File** | `pages/seller/SellerPreorderDetailPage.tsx` |
+| **File** | `pages/seller/SellerPreorderDetailPage.tsx`, `SellerAvailabilityProposal.tsx` |
 
 **Purpose.** Answer one request, and later record production.
 
@@ -2566,13 +2670,36 @@ price, delivery charge, committed date, optional split deliveries), **Reject**
 (a reason the buyer sees). **Production**: **Production has started**, **Ready
 for fulfilment**, and **Open the order** once there is one. Also the current
 terms, the request, earlier terms, the buyer, **Your capacity** (whether it
-fits), and history.
+fits), and history. For a container request the page shows the containers,
+pieces per container and total pieces. It also shows the stock picture
+(available-to-promise and how it was worked out) and any stock held for this
+buyer.
+
+**Propose a delivery schedule** (for a request larger than the stock
+available). Two options:
+
+- **Complete quantity on a revised date**: one committed date (after the
+  buyer's date, not before the platform notice), an option to hold the pieces
+  available now for this buyer when they accept, price per piece, delivery
+  charge (0 = included), offer expiry date and time, an optional location, a
+  note to the buyer.
+- **Split delivery**: two or more shipments (up to 24) on later and later
+  dates. The first comes from stock available now and cannot be more than is
+  available; the rest from later supply. They must add up exactly to the
+  requested pieces.
+
+A live preview from the server shows the schedule with container equivalents
+(whole containers, or "a part-filled container of N pieces"), the stock that
+will be held, and the full price (subtotal, tax, delivery, total). Each problem
+is listed. Closing a changed proposal asks *"Discard this proposal?"*.
 
 **API calls**
 
 - `GET /api/v1/seller/preorders/:id`, `GET /api/v1/seller/locations`
 - `POST /api/v1/seller/preorders/:id/accept`, `/counter`, `/reject`,
   `/start-production`, `/ready`
+- `POST /api/v1/seller/preorders/:id/availability-proposal/preview`,
+  `POST /api/v1/seller/preorders/:id/availability-proposal`
 
 #### `/seller/payments` — Payments
 
@@ -3014,6 +3141,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Sales | Customers | `/customers` | `customer.read` | Accounts to approve |
 | Sales | Sellers | `/sellers` | `customer.read` | Applications and documents |
 | Sales | Carrier arrangements | `/seller-carriers` | `customer.read` | |
+| Sales | Preorder Chats | `/preorder-chats` | `preorder_chat.view` | Customers waiting for a reply (live) |
 | Sales | Chat enquiries | `/chat-enquiries` | `assistant_chat.read` | |
 | Logistics | Consignments | `/logistics/shipments` | `logistics.read` | |
 | Logistics | Delivery problems | `/logistics/exceptions` | `logistics.read` | Open problems |
@@ -3589,6 +3717,10 @@ server): **Accept as asked**, **Send a counter-offer** (quantity, price,
 freight, date, note), **Decline** (a reason), **Production has started**,
 **Ready for fulfilment**.
 
+A seller's revised-date or split-delivery offer is shown read-only, with its
+schedule and any stock held. There is no screen here for staff to propose one
+on the store's own products.
+
 **API calls**
 
 - `GET /api/v1/admin/preorders/:id`
@@ -3760,6 +3892,58 @@ seller reads it) and the buttons for the current state:
 
 **API calls:** `GET /api/v1/admin/seller-carriers?status=…`,
 `PATCH /api/v1/admin/seller-carriers/:linkId`
+
+#### `/preorder-chats` and `/preorder-chats/:id` — Preorder Chats
+
+| | |
+|---|---|
+| **Who** | `preorder_chat.view`. Replying and most actions: `preorder_chat.reply`; giving a conversation to someone else: `preorder_chat.assign`; spam, block, redact: `preorder_chat.moderate`; transcript: `preorder_chat.export` |
+| **File** | `src/pages/preorder-chat/PreorderChatsPage.tsx`, `ConversationPane.tsx`, `ContextPanel.tsx`, `ProposalForm.tsx` |
+
+**Purpose.** Answer customers' preorder questions live. The seller of the
+product is not part of these conversations.
+
+**On the screen.** The screen fills the window and the page itself does not
+scroll; the queue, the history and the details panel scroll on their own. One
+line across the top: the title, the desk's figures (open, unassigned, waiting
+for a reply, past the response target, 30-day average first response) and
+**Turn on desktop alerts**. Then three panes from 1280 px; below that
+**Show details** opens the third over the conversation; below `lg` the queue
+and the conversation are separate views.
+
+- **Queue:** search (customer, company, email with `customer.read`,
+  product, SKU, seller, conversation or preorder id, a word in a message),
+  sort (newest message, oldest unanswered, priority, longest waiting), view
+  chips with counts (All, Unassigned, Assigned to me, Unread, High priority),
+  a status menu with counts (Open, Waiting for customer, Waiting for internal
+  response, Resolved, Closed, Spam and blocked), and rows with the customer's
+  initials, customer, product and seller, last message, unread count, status,
+  priority, waiting time (with "near" / "past the response target") and
+  assignee.
+  **Load more** pages on.
+- **Conversation:** header with the customer, product and seller, status,
+  priority and assignee; **Assign to me** / **Put back in the queue**,
+  **Resolve** / **Reopen**, and **More actions** (another status, priority,
+  **Download transcript**). Tabs **Conversation** (history with day
+  separators, an unread marker, Sent / Delivered / Read by the customer,
+  proposal cards, typing, **Redact** with a reason, **New messages** / **Jump
+  to latest**, and the reply box - Enter sends, Shift+Enter is a new line), **Internal notes** (amber, "never seen by the
+  customer"; saved with the button or Ctrl+Enter, never plain Enter),
+  **Activity** (the audit entries).
+- **Details:** the product as the customer saw it and a link to it as it is
+  now; the current offer (the open proposal, price labelled indicative); a
+  shortcut to the internal notes; the customer (with a link, and **Block from chat** / **Unblock**); the
+  seller; **Assign to**; tags; the linked preorder with **Link** / **Unlink**;
+  proposals with **Create preorder proposal** / **Update preorder
+  proposal** (unit, quantity, indicative price per piece in the offer's
+  currency, date, availability, schedule, terms, hours open) and
+  **Withdraw**.
+
+The sidebar badge and the queue update live over
+`/api/v1/admin/preorder-chats/socket`.
+
+**API calls:** everything under `/api/v1/admin/preorder-chats` - see
+[API.md](API.md#preorder-chat).
 
 #### `/chat-enquiries` — Chat enquiries
 

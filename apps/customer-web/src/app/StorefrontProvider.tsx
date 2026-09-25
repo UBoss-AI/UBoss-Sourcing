@@ -14,7 +14,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, type ReactNode } from 'react';
-import { setMarketplaceName } from '@/i18n/config';
+import { setChatTeamName, setMarketplaceName } from '@/i18n/config';
 import { api } from '@/lib/api';
 import type { StorefrontConfig } from '@/lib/types';
 import { FALLBACK_CONFIG, StorefrontContext } from './storefront-context';
@@ -30,9 +30,12 @@ export function StorefrontProvider({ children }: { children: ReactNode }): React
   });
 
   const marketplaceName = query.data?.marketplace?.displayName;
+  const chatTeamName = query.data?.marketplace?.chatTeamName;
   useEffect(() => {
+    // The store's name first: the team's falls back to it.
     setMarketplaceName(marketplaceName);
-  }, [marketplaceName]);
+    setChatTeamName(chatTeamName);
+  }, [marketplaceName, chatTeamName]);
 
   return (
     <StorefrontContext.Provider value={query.data ?? FALLBACK_CONFIG}>

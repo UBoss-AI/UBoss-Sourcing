@@ -43,6 +43,7 @@ import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
+import { storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 
 /**
@@ -218,6 +219,12 @@ export async function executeErasure(input: {
    */
   const detachable: string[] = [];
 
+  /**
+   * Private storage objects of erased preorder chat attachments, deleted once
+   * the rows that point at them have committed - the same reason as above.
+   */
+  const chatFiles: string[] = [];
+
   const result = await prisma.$transaction(async (tx) => {
     const deleted: Record<string, number> = {};
     const pseudonymised: Record<string, number> = {};
@@ -232,6 +239,11 @@ export async function executeErasure(input: {
 
     deleted.sessions = (await tx.session.deleteMany({ where: { userId: input.userId } })).count;
     deleted.authTokens = (await tx.authToken.deleteMany({ where: { userId: input.userId } })).count;
+    // Which versions of the bulk preorder note they read. Nothing requires
+    // keeping it once the account is gone, and every row names them.
+    deleted.acknowledgements = (
+      await tx.customerAcknowledgement.deleteMany({ where: { userId: input.userId } })
+    ).count;
 
     // Sign-in attempts are keyed by email, not by user id, and hold the IP the
     // attempt came from. They are a security record with no bearer once the
@@ -325,6 +337,29 @@ export async function executeErasure(input: {
        * Art. 17(3)(b): its confirmed terms are what the order was built from,
        * and the order is anonymised rather than removed.
        */
+      /*
+       * Preorder chats with the operator's team.
+       *
+       * Deleted, with their messages, read positions, staff notes, proposals
+       * and attachments (cascade). A conversation is not the record of any
+       * sale - where one led to an order, the order and its preorder carry the
+       * agreed terms and are retained on their own footing - and every row is
+       * this person's words or a reply to them. The attachment FILES go after
+       * commit, below. Removed BEFORE the preorders, because a conversation
+       * points at one.
+       */
+      const chats = await tx.preorderChatConversation.findMany({
+        where: { customerProfileId: profile.id },
+        select: { id: true, attachments: { select: { storageKey: true } } },
+      });
+      for (const chat of chats) chatFiles.push(...chat.attachments.map((file) => file.storageKey));
+      deleted.preorderChats = (
+        await tx.preorderChatConversation.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+      deleted.preorderChatBlocks = (
+        await tx.preorderChatCustomerBlock.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
       deleted.preorderRequests = (
         await tx.preorderRequest.deleteMany({
           where: { customerProfileId: profile.id, convertedOrderId: null },
@@ -750,6 +785,14 @@ export async function executeErasure(input: {
   // exposure, and it is logged loudly enough to be cleaned up by hand.
   if (detachable.length > 0) {
     await detachErasedPaymentMethods(detachable, input.userId);
+  }
+
+  // The erased chat attachments' bytes. Same rule: after, and not fatal - a
+  // file whose row is gone can no longer be reached through any route.
+  for (const key of chatFiles) {
+    await storage.delete(key).catch((error: unknown) => {
+      logger.error({ err: error, userId: input.userId }, 'erased chat attachment not deleted');
+    });
   }
 
   logger.info(

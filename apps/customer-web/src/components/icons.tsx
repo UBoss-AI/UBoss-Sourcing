@@ -469,6 +469,16 @@ export function PaperclipIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** A conversation: two overlapping speech bubbles, because it has two sides. */
+export function ChatBubblesIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M14.5 4.5h-9A2.5 2.5 0 0 0 3 7v5.2a2.5 2.5 0 0 0 2.5 2.5H7v3l3.4-3h4.1a2.5 2.5 0 0 0 2.5-2.5V7a2.5 2.5 0 0 0-2.5-2.5Z" />
+      <path d="M17 9h1.5A2.5 2.5 0 0 1 21 11.5v4.2a2.5 2.5 0 0 1-2.5 2.5H18v2.3l-2.7-2.3" />
+    </Icon>
+  );
+}
+
 /** Send a message. A paper plane, pointing where it is going. */
 export function SendIcon(props: IconProps): React.JSX.Element {
   return (

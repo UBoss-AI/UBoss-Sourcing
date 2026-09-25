@@ -20,6 +20,8 @@ import { CountryPicker } from '@/components/CountryPicker';
 import { MarketSuggestionBanner } from '@/components/MarketSuggestionBanner';
 import { cx } from '@/lib/cx';
 import { AI_MODE_PATH } from '@/lib/ai-mode';
+import { useChatViewportHeight } from '@/lib/chat-kit/viewport';
+import { isMessagesPath } from '@/lib/preorder-chat';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { useI18n } from '@/i18n/i18n-context';
@@ -115,10 +117,48 @@ export function StoreLayout(): React.JSX.Element {
    */
   const isFullBleed = location.pathname === '/login' || location.pathname === '/register';
 
+  /*
+   * The home page draws its own ground, edge to edge.
+   *
+   * The greeting used to be a rounded card inside the reading measure, and
+   * `<main>`'s `py-6 sm:py-8` left a band of the body's sunken colour between
+   * the header and the top of that card - the dark strip under the header
+   * that nobody had asked for. The page now paints one backdrop behind all of
+   * its sections and sets the measure and gutters on its own content, so
+   * here it only needs the frame to get out of the way. See `HomePage`.
+   */
+  const isHome = location.pathname === '/';
+
+  /*
+   * Account -> Messages is an application pane, like AI Mode: the window's
+   * height exactly, the document never scrolling, and ONE element inside -
+   * the message history - scrolling instead.
+   *
+   * It used to be an ordinary page. The page was the header, the account
+   * rail, a page heading, the list and a thread given a fixed `36rem` (or
+   * `70dvh` on a phone) - taller than a laptop's window, so the DOCUMENT
+   * scrolled: the history scrolled inside a page that also scrolled, the
+   * composer started below the fold, and a wheel that reached the end of one
+   * carried on into the other. Nothing inside the page could fix that; the
+   * frame had to stop being taller than the window.
+   *
+   * The height is the visual viewport's where there is one (see
+   * `lib/chat-kit/viewport.ts`), so a phone's keyboard shrinks the frame
+   * instead of covering the composer.
+   */
+  const isAppPane = isMessagesPath(location.pathname);
+  useChatViewportHeight(isAppPane);
+
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
   // region is what a full page load would have done.
+  const previousPath = useRef(location.pathname);
   useEffect(() => {
+    const from = previousPath.current;
+    previousPath.current = location.pathname;
+    // Moving between conversations is not a new page: the conversation
+    // screen moves focus itself, and the document has nothing to scroll.
+    if (from !== location.pathname && isMessagesPath(from) && isMessagesPath(location.pathname)) return;
     mainRef.current?.focus();
     // Scrolling to the top is what a page load does too. Without it, arriving
     // at a product from halfway down a category list starts mid-description.
@@ -144,7 +184,7 @@ export function StoreLayout(): React.JSX.Element {
     <div
       className={cx(
         'flex flex-col',
-        isImmersive ? 'h-[100dvh]' : 'min-h-screen',
+        isImmersive ? 'h-[100dvh]' : isAppPane ? 'h-[var(--chat-viewport-height,100dvh)] overflow-hidden' : 'min-h-screen',
         // The signed-out screens, from `lg` up only: a window-height column
         // with nothing below it to scroll to, so the earth beside the form
         // holds still. `min-h-screen` stays for the narrow case underneath it.
@@ -187,9 +227,13 @@ export function StoreLayout(): React.JSX.Element {
         className={cx(
           'w-full flex-1 outline-none',
           isImmersive && 'min-h-0',
+          // The reading measure stays; the height is the frame's, handed down
+          // as a flex column so the pane inside has a definite height to fill.
+          isAppPane &&
+            'mx-auto flex min-h-0 max-w-content flex-col px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:px-4 sm:pt-4 md:pb-4',
           // Full width and no padding of its own: the split inside supplies
           // both halves' gutters, and it needs the whole frame to divide.
-          !isImmersive && !isFullBleed && 'mx-auto max-w-content px-4 py-6 sm:py-8',
+          !isImmersive && !isAppPane && !isFullBleed && !isHome && 'mx-auto max-w-content px-4 py-6 sm:py-8',
           // `min-h-0` is the load-bearing half of the sentence above about the
           // sign-in screens: without it a flex child refuses to shrink below
           // its content, the split pushes the column past the window, and the
@@ -210,7 +254,7 @@ export function StoreLayout(): React.JSX.Element {
           thing putting a scrollbar back on the document — and the scrollbar
           is what was taking the globe with it. On a phone, where there is no
           globe and the page scrolls normally, the footer is untouched. */}
-      {!isImmersive && <Footer className={cx(isFullBleed && 'lg:hidden')} />}
+      {!isImmersive && !isAppPane && <Footer className={cx(isFullBleed && 'lg:hidden')} />}
     </div>
   );
 }

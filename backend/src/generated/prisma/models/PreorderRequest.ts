@@ -31,6 +31,9 @@ export type PreorderRequestAvgAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  containerLoadingVersion: number | null
+  availableToPromiseAtSubmission: number | null
+  shortfallAtSubmission: number | null
   indicativeUnitPriceMinor: number | null
   indicativeTotalMinor: number | null
   indicativeTierMinBaseUnits: number | null
@@ -47,6 +50,9 @@ export type PreorderRequestSumAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  containerLoadingVersion: number | null
+  availableToPromiseAtSubmission: number | null
+  shortfallAtSubmission: number | null
   indicativeUnitPriceMinor: bigint | null
   indicativeTotalMinor: bigint | null
   indicativeTierMinBaseUnits: number | null
@@ -75,6 +81,9 @@ export type PreorderRequestMinAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  containerLoadingVersion: number | null
+  availableToPromiseAtSubmission: number | null
+  shortfallAtSubmission: number | null
   requestedDeliveryDate: Date | null
   earliestDeliveryDate: Date | null
   timezone: string | null
@@ -141,6 +150,9 @@ export type PreorderRequestMaxAggregateOutputType = {
   unitQuantity: number | null
   unitsPerPackage: number | null
   requestedBaseUnits: number | null
+  containerLoadingVersion: number | null
+  availableToPromiseAtSubmission: number | null
+  shortfallAtSubmission: number | null
   requestedDeliveryDate: Date | null
   earliestDeliveryDate: Date | null
   timezone: string | null
@@ -208,6 +220,10 @@ export type PreorderRequestCountAggregateOutputType = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson: number
+  containerLoadingVersion: number
+  availableToPromiseAtSubmission: number
+  shortfallAtSubmission: number
   requestedDeliveryDate: number
   earliestDeliveryDate: number
   timezone: number
@@ -266,6 +282,9 @@ export type PreorderRequestAvgAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  containerLoadingVersion?: true
+  availableToPromiseAtSubmission?: true
+  shortfallAtSubmission?: true
   indicativeUnitPriceMinor?: true
   indicativeTotalMinor?: true
   indicativeTierMinBaseUnits?: true
@@ -282,6 +301,9 @@ export type PreorderRequestSumAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  containerLoadingVersion?: true
+  availableToPromiseAtSubmission?: true
+  shortfallAtSubmission?: true
   indicativeUnitPriceMinor?: true
   indicativeTotalMinor?: true
   indicativeTierMinBaseUnits?: true
@@ -310,6 +332,9 @@ export type PreorderRequestMinAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  containerLoadingVersion?: true
+  availableToPromiseAtSubmission?: true
+  shortfallAtSubmission?: true
   requestedDeliveryDate?: true
   earliestDeliveryDate?: true
   timezone?: true
@@ -376,6 +401,9 @@ export type PreorderRequestMaxAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  containerLoadingVersion?: true
+  availableToPromiseAtSubmission?: true
+  shortfallAtSubmission?: true
   requestedDeliveryDate?: true
   earliestDeliveryDate?: true
   timezone?: true
@@ -443,6 +471,10 @@ export type PreorderRequestCountAggregateInputType = {
   unitQuantity?: true
   unitsPerPackage?: true
   requestedBaseUnits?: true
+  containerLoadingSnapshotJson?: true
+  containerLoadingVersion?: true
+  availableToPromiseAtSubmission?: true
+  shortfallAtSubmission?: true
   requestedDeliveryDate?: true
   earliestDeliveryDate?: true
   timezone?: true
@@ -599,6 +631,10 @@ export type PreorderRequestGroupByOutputType = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson: runtime.JsonValue | null
+  containerLoadingVersion: number | null
+  availableToPromiseAtSubmission: number | null
+  shortfallAtSubmission: number
   requestedDeliveryDate: Date
   earliestDeliveryDate: Date
   timezone: string
@@ -691,6 +727,10 @@ export type PreorderRequestWhereInput = {
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
+  containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  shortfallAtSubmission?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   timezone?: Prisma.StringFilter<"PreorderRequest"> | string
@@ -746,6 +786,9 @@ export type PreorderRequestWhereInput = {
   convertedOrder?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   offers?: Prisma.PreorderOfferListRelationFilter
   history?: Prisma.PreorderStatusHistoryListRelationFilter
+  installments?: Prisma.PreorderFulfilmentInstallmentListRelationFilter
+  stockHolds?: Prisma.PreorderStockHoldListRelationFilter
+  chats?: Prisma.PreorderChatConversationListRelationFilter
 }
 
 export type PreorderRequestOrderByWithRelationInput = {
@@ -766,6 +809,10 @@ export type PreorderRequestOrderByWithRelationInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   requestedDeliveryDate?: Prisma.SortOrder
   earliestDeliveryDate?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -821,6 +868,9 @@ export type PreorderRequestOrderByWithRelationInput = {
   convertedOrder?: Prisma.OrderOrderByWithRelationInput
   offers?: Prisma.PreorderOfferOrderByRelationAggregateInput
   history?: Prisma.PreorderStatusHistoryOrderByRelationAggregateInput
+  installments?: Prisma.PreorderFulfilmentInstallmentOrderByRelationAggregateInput
+  stockHolds?: Prisma.PreorderStockHoldOrderByRelationAggregateInput
+  chats?: Prisma.PreorderChatConversationOrderByRelationAggregateInput
   _relevance?: Prisma.PreorderRequestOrderByRelevanceInput
 }
 
@@ -847,6 +897,10 @@ export type PreorderRequestWhereUniqueInput = Prisma.AtLeast<{
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
+  containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  shortfallAtSubmission?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   timezone?: Prisma.StringFilter<"PreorderRequest"> | string
@@ -900,6 +954,9 @@ export type PreorderRequestWhereUniqueInput = Prisma.AtLeast<{
   convertedOrder?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   offers?: Prisma.PreorderOfferListRelationFilter
   history?: Prisma.PreorderStatusHistoryListRelationFilter
+  installments?: Prisma.PreorderFulfilmentInstallmentListRelationFilter
+  stockHolds?: Prisma.PreorderStockHoldListRelationFilter
+  chats?: Prisma.PreorderChatConversationListRelationFilter
 }, "id" | "requestNumber" | "acceptedOfferId" | "convertedOrderId">
 
 export type PreorderRequestOrderByWithAggregationInput = {
@@ -920,6 +977,10 @@ export type PreorderRequestOrderByWithAggregationInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   requestedDeliveryDate?: Prisma.SortOrder
   earliestDeliveryDate?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -997,6 +1058,10 @@ export type PreorderRequestScalarWhereWithAggregatesInput = {
   unitQuantity?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
+  containerLoadingSnapshotJson?: Prisma.JsonNullableWithAggregatesFilter<"PreorderRequest">
+  containerLoadingVersion?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
+  availableToPromiseAtSubmission?: Prisma.IntNullableWithAggregatesFilter<"PreorderRequest"> | number | null
+  shortfallAtSubmission?: Prisma.IntWithAggregatesFilter<"PreorderRequest"> | number
   requestedDeliveryDate?: Prisma.DateTimeWithAggregatesFilter<"PreorderRequest"> | Date | string
   earliestDeliveryDate?: Prisma.DateTimeWithAggregatesFilter<"PreorderRequest"> | Date | string
   timezone?: Prisma.StringWithAggregatesFilter<"PreorderRequest"> | string
@@ -1063,6 +1128,10 @@ export type PreorderRequestCreateInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -1117,6 +1186,9 @@ export type PreorderRequestCreateInput = {
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateInput = {
@@ -1137,6 +1209,10 @@ export type PreorderRequestUncheckedCreateInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -1188,6 +1264,9 @@ export type PreorderRequestUncheckedCreateInput = {
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUpdateInput = {
@@ -1205,6 +1284,10 @@ export type PreorderRequestUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1259,6 +1342,9 @@ export type PreorderRequestUpdateInput = {
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateInput = {
@@ -1279,6 +1365,10 @@ export type PreorderRequestUncheckedUpdateInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1330,6 +1420,9 @@ export type PreorderRequestUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestCreateManyInput = {
@@ -1350,6 +1443,10 @@ export type PreorderRequestCreateManyInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -1416,6 +1513,10 @@ export type PreorderRequestUpdateManyMutationInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1484,6 +1585,10 @@ export type PreorderRequestUncheckedUpdateManyInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1574,6 +1679,10 @@ export type PreorderRequestCountOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingSnapshotJson?: Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   requestedDeliveryDate?: Prisma.SortOrder
   earliestDeliveryDate?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -1630,6 +1739,9 @@ export type PreorderRequestAvgOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   indicativeUnitPriceMinor?: Prisma.SortOrder
   indicativeTotalMinor?: Prisma.SortOrder
   indicativeTierMinBaseUnits?: Prisma.SortOrder
@@ -1658,6 +1770,9 @@ export type PreorderRequestMaxOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   requestedDeliveryDate?: Prisma.SortOrder
   earliestDeliveryDate?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -1724,6 +1839,9 @@ export type PreorderRequestMinOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   requestedDeliveryDate?: Prisma.SortOrder
   earliestDeliveryDate?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -1778,6 +1896,9 @@ export type PreorderRequestSumOrderByAggregateInput = {
   unitQuantity?: Prisma.SortOrder
   unitsPerPackage?: Prisma.SortOrder
   requestedBaseUnits?: Prisma.SortOrder
+  containerLoadingVersion?: Prisma.SortOrder
+  availableToPromiseAtSubmission?: Prisma.SortOrder
+  shortfallAtSubmission?: Prisma.SortOrder
   indicativeUnitPriceMinor?: Prisma.SortOrder
   indicativeTotalMinor?: Prisma.SortOrder
   indicativeTierMinBaseUnits?: Prisma.SortOrder
@@ -1992,6 +2113,50 @@ export type PreorderRequestUpdateOneRequiredWithoutHistoryNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PreorderRequestUpdateToOneWithWhereWithoutHistoryInput, Prisma.PreorderRequestUpdateWithoutHistoryInput>, Prisma.PreorderRequestUncheckedUpdateWithoutHistoryInput>
 }
 
+export type PreorderRequestCreateNestedOneWithoutInstallmentsInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedCreateWithoutInstallmentsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutInstallmentsInput
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+}
+
+export type PreorderRequestUpdateOneRequiredWithoutInstallmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedCreateWithoutInstallmentsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutInstallmentsInput
+  upsert?: Prisma.PreorderRequestUpsertWithoutInstallmentsInput
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PreorderRequestUpdateToOneWithWhereWithoutInstallmentsInput, Prisma.PreorderRequestUpdateWithoutInstallmentsInput>, Prisma.PreorderRequestUncheckedUpdateWithoutInstallmentsInput>
+}
+
+export type PreorderRequestCreateNestedOneWithoutStockHoldsInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedCreateWithoutStockHoldsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutStockHoldsInput
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+}
+
+export type PreorderRequestUpdateOneRequiredWithoutStockHoldsNestedInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedCreateWithoutStockHoldsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutStockHoldsInput
+  upsert?: Prisma.PreorderRequestUpsertWithoutStockHoldsInput
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PreorderRequestUpdateToOneWithWhereWithoutStockHoldsInput, Prisma.PreorderRequestUpdateWithoutStockHoldsInput>, Prisma.PreorderRequestUncheckedUpdateWithoutStockHoldsInput>
+}
+
+export type PreorderRequestCreateNestedOneWithoutChatsInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutChatsInput, Prisma.PreorderRequestUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutChatsInput
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+}
+
+export type PreorderRequestUpdateOneWithoutChatsNestedInput = {
+  create?: Prisma.XOR<Prisma.PreorderRequestCreateWithoutChatsInput, Prisma.PreorderRequestUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.PreorderRequestCreateOrConnectWithoutChatsInput
+  upsert?: Prisma.PreorderRequestUpsertWithoutChatsInput
+  disconnect?: Prisma.PreorderRequestWhereInput | boolean
+  delete?: Prisma.PreorderRequestWhereInput | boolean
+  connect?: Prisma.PreorderRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PreorderRequestUpdateToOneWithWhereWithoutChatsInput, Prisma.PreorderRequestUpdateWithoutChatsInput>, Prisma.PreorderRequestUncheckedUpdateWithoutChatsInput>
+}
+
 export type PreorderRequestCreateWithoutCustomerProfileInput = {
   id: string
   requestNumber: string
@@ -2007,6 +2172,10 @@ export type PreorderRequestCreateWithoutCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2060,6 +2229,9 @@ export type PreorderRequestCreateWithoutCustomerProfileInput = {
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutCustomerProfileInput = {
@@ -2079,6 +2251,10 @@ export type PreorderRequestUncheckedCreateWithoutCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2130,6 +2306,9 @@ export type PreorderRequestUncheckedCreateWithoutCustomerProfileInput = {
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutCustomerProfileInput = {
@@ -2179,6 +2358,10 @@ export type PreorderRequestScalarWhereInput = {
   unitQuantity?: Prisma.IntFilter<"PreorderRequest"> | number
   unitsPerPackage?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedBaseUnits?: Prisma.IntFilter<"PreorderRequest"> | number
+  containerLoadingSnapshotJson?: Prisma.JsonNullableFilter<"PreorderRequest">
+  containerLoadingVersion?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  availableToPromiseAtSubmission?: Prisma.IntNullableFilter<"PreorderRequest"> | number | null
+  shortfallAtSubmission?: Prisma.IntFilter<"PreorderRequest"> | number
   requestedDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFilter<"PreorderRequest"> | Date | string
   timezone?: Prisma.StringFilter<"PreorderRequest"> | string
@@ -2245,6 +2428,10 @@ export type PreorderRequestCreateWithoutConvertedOrderInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2298,6 +2485,9 @@ export type PreorderRequestCreateWithoutConvertedOrderInput = {
   offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutConvertedOrderInput = {
@@ -2318,6 +2508,10 @@ export type PreorderRequestUncheckedCreateWithoutConvertedOrderInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2368,6 +2562,9 @@ export type PreorderRequestUncheckedCreateWithoutConvertedOrderInput = {
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutConvertedOrderInput = {
@@ -2401,6 +2598,10 @@ export type PreorderRequestUpdateWithoutConvertedOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2454,6 +2655,9 @@ export type PreorderRequestUpdateWithoutConvertedOrderInput = {
   offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutConvertedOrderInput = {
@@ -2474,6 +2678,10 @@ export type PreorderRequestUncheckedUpdateWithoutConvertedOrderInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2524,6 +2732,9 @@ export type PreorderRequestUncheckedUpdateWithoutConvertedOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestCreateWithoutSellerAccountInput = {
@@ -2541,6 +2752,10 @@ export type PreorderRequestCreateWithoutSellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2594,6 +2809,9 @@ export type PreorderRequestCreateWithoutSellerAccountInput = {
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutSellerAccountInput = {
@@ -2613,6 +2831,10 @@ export type PreorderRequestUncheckedCreateWithoutSellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2664,6 +2886,9 @@ export type PreorderRequestUncheckedCreateWithoutSellerAccountInput = {
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutSellerAccountInput = {
@@ -2707,6 +2932,10 @@ export type PreorderRequestCreateWithoutOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2760,6 +2989,9 @@ export type PreorderRequestCreateWithoutOfferInput = {
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutOfferInput = {
@@ -2779,6 +3011,10 @@ export type PreorderRequestUncheckedCreateWithoutOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2830,6 +3066,9 @@ export type PreorderRequestUncheckedCreateWithoutOfferInput = {
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutOfferInput = {
@@ -2873,6 +3112,10 @@ export type PreorderRequestCreateWithoutOffersInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2926,6 +3169,9 @@ export type PreorderRequestCreateWithoutOffersInput = {
   offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutOffersInput = {
@@ -2946,6 +3192,10 @@ export type PreorderRequestUncheckedCreateWithoutOffersInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -2996,6 +3246,9 @@ export type PreorderRequestUncheckedCreateWithoutOffersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutOffersInput = {
@@ -3029,6 +3282,10 @@ export type PreorderRequestUpdateWithoutOffersInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3082,6 +3339,9 @@ export type PreorderRequestUpdateWithoutOffersInput = {
   offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutOffersInput = {
@@ -3102,6 +3362,10 @@ export type PreorderRequestUncheckedUpdateWithoutOffersInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3152,6 +3416,9 @@ export type PreorderRequestUncheckedUpdateWithoutOffersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestCreateWithoutHistoryInput = {
@@ -3169,6 +3436,10 @@ export type PreorderRequestCreateWithoutHistoryInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -3222,6 +3493,9 @@ export type PreorderRequestCreateWithoutHistoryInput = {
   offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
   convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
   offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestUncheckedCreateWithoutHistoryInput = {
@@ -3242,6 +3516,10 @@ export type PreorderRequestUncheckedCreateWithoutHistoryInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -3292,6 +3570,9 @@ export type PreorderRequestUncheckedCreateWithoutHistoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
 }
 
 export type PreorderRequestCreateOrConnectWithoutHistoryInput = {
@@ -3325,6 +3606,10 @@ export type PreorderRequestUpdateWithoutHistoryInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3378,6 +3663,9 @@ export type PreorderRequestUpdateWithoutHistoryInput = {
   offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutHistoryInput = {
@@ -3398,6 +3686,10 @@ export type PreorderRequestUncheckedUpdateWithoutHistoryInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3448,6 +3740,981 @@ export type PreorderRequestUncheckedUpdateWithoutHistoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
+}
+
+export type PreorderRequestCreateWithoutInstallmentsInput = {
+  id: string
+  requestNumber: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPreorderRequestsInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPreorderRequestsInput
+  offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
+  convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
+  offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
+}
+
+export type PreorderRequestUncheckedCreateWithoutInstallmentsInput = {
+  id: string
+  requestNumber: string
+  sellerAccountId?: string | null
+  customerProfileId: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  offerId?: string | null
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  convertedOrderId?: string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
+}
+
+export type PreorderRequestCreateOrConnectWithoutInstallmentsInput = {
+  where: Prisma.PreorderRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedCreateWithoutInstallmentsInput>
+}
+
+export type PreorderRequestUpsertWithoutInstallmentsInput = {
+  update: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedUpdateWithoutInstallmentsInput>
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedCreateWithoutInstallmentsInput>
+  where?: Prisma.PreorderRequestWhereInput
+}
+
+export type PreorderRequestUpdateToOneWithWhereWithoutInstallmentsInput = {
+  where?: Prisma.PreorderRequestWhereInput
+  data: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutInstallmentsInput, Prisma.PreorderRequestUncheckedUpdateWithoutInstallmentsInput>
+}
+
+export type PreorderRequestUpdateWithoutInstallmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPreorderRequestsNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPreorderRequestsNestedInput
+  offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
+  convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
+  offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
+}
+
+export type PreorderRequestUncheckedUpdateWithoutInstallmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  offerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedOrderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
+}
+
+export type PreorderRequestCreateWithoutStockHoldsInput = {
+  id: string
+  requestNumber: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPreorderRequestsInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPreorderRequestsInput
+  offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
+  convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
+  offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationCreateNestedManyWithoutPreorderRequestInput
+}
+
+export type PreorderRequestUncheckedCreateWithoutStockHoldsInput = {
+  id: string
+  requestNumber: string
+  sellerAccountId?: string | null
+  customerProfileId: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  offerId?: string | null
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  convertedOrderId?: string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  chats?: Prisma.PreorderChatConversationUncheckedCreateNestedManyWithoutPreorderRequestInput
+}
+
+export type PreorderRequestCreateOrConnectWithoutStockHoldsInput = {
+  where: Prisma.PreorderRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedCreateWithoutStockHoldsInput>
+}
+
+export type PreorderRequestUpsertWithoutStockHoldsInput = {
+  update: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedUpdateWithoutStockHoldsInput>
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedCreateWithoutStockHoldsInput>
+  where?: Prisma.PreorderRequestWhereInput
+}
+
+export type PreorderRequestUpdateToOneWithWhereWithoutStockHoldsInput = {
+  where?: Prisma.PreorderRequestWhereInput
+  data: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutStockHoldsInput, Prisma.PreorderRequestUncheckedUpdateWithoutStockHoldsInput>
+}
+
+export type PreorderRequestUpdateWithoutStockHoldsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPreorderRequestsNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPreorderRequestsNestedInput
+  offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
+  convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
+  offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
+}
+
+export type PreorderRequestUncheckedUpdateWithoutStockHoldsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  offerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedOrderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
+}
+
+export type PreorderRequestCreateWithoutChatsInput = {
+  id: string
+  requestNumber: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerAccount?: Prisma.SellerAccountCreateNestedOneWithoutPreorderRequestsInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPreorderRequestsInput
+  offer?: Prisma.SellerOfferCreateNestedOneWithoutPreorderRequestsInput
+  convertedOrder?: Prisma.OrderCreateNestedOneWithoutPreorderRequestInput
+  offers?: Prisma.PreorderOfferCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldCreateNestedManyWithoutRequestInput
+}
+
+export type PreorderRequestUncheckedCreateWithoutChatsInput = {
+  id: string
+  requestNumber: string
+  sellerAccountId?: string | null
+  customerProfileId: string
+  requestedByUserId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  offerId?: string | null
+  policyId?: string | null
+  policyVersion: number
+  policySnapshotJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.PreorderStatus
+  orderingUnit: $Enums.PreorderQuantityUnit
+  unitQuantity: number
+  unitsPerPackage: number
+  requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
+  requestedDeliveryDate: Date | string
+  earliestDeliveryDate: Date | string
+  timezone: string
+  shippingAddressId?: string | null
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry: string
+  destinationWarehouseLabel?: string | null
+  packagingPreference?: $Enums.PreorderQuantityUnit | null
+  transportPreference?: $Enums.PreorderTransportMode
+  allowPartialDelivery?: boolean
+  purchaseOrderReference?: string | null
+  customerNotes?: string | null
+  handlingInstructions?: string | null
+  termsAcceptedAt: Date | string
+  pricingMode: $Enums.PreorderPricingMode
+  currency: string
+  indicativeUnitPriceMinor?: bigint | number | null
+  indicativeTotalMinor?: bigint | number | null
+  indicativeTierMinBaseUnits?: number | null
+  displayCurrency?: string | null
+  fxSnapshotId?: string | null
+  fxRate?: string | null
+  fxRateAsOf?: Date | string | null
+  currentOfferId?: string | null
+  acceptedOfferId?: string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: string | null
+  confirmedBaseUnits?: number | null
+  confirmedUnitPriceMinor?: bigint | number | null
+  confirmedFreightMinor?: bigint | number | null
+  confirmedGoodsTotalMinor?: bigint | number | null
+  committedDeliveryDate?: Date | string | null
+  convertedOrderId?: string | null
+  capacityBucketId?: string | null
+  capacityReservedBaseUnits?: number
+  expiresAt?: Date | string | null
+  closedReason?: string | null
+  submittedAt?: Date | string
+  sellerRespondedAt?: Date | string | null
+  buyerConfirmedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  productionStartedAt?: Date | string | null
+  readyAt?: Date | string | null
+  convertedAt?: Date | string | null
+  closedAt?: Date | string | null
+  deliveryRiskNotifiedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  offers?: Prisma.PreorderOfferUncheckedCreateNestedManyWithoutRequestInput
+  history?: Prisma.PreorderStatusHistoryUncheckedCreateNestedManyWithoutRequestInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedCreateNestedManyWithoutRequestInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedCreateNestedManyWithoutRequestInput
+}
+
+export type PreorderRequestCreateOrConnectWithoutChatsInput = {
+  where: Prisma.PreorderRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutChatsInput, Prisma.PreorderRequestUncheckedCreateWithoutChatsInput>
+}
+
+export type PreorderRequestUpsertWithoutChatsInput = {
+  update: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutChatsInput, Prisma.PreorderRequestUncheckedUpdateWithoutChatsInput>
+  create: Prisma.XOR<Prisma.PreorderRequestCreateWithoutChatsInput, Prisma.PreorderRequestUncheckedCreateWithoutChatsInput>
+  where?: Prisma.PreorderRequestWhereInput
+}
+
+export type PreorderRequestUpdateToOneWithWhereWithoutChatsInput = {
+  where?: Prisma.PreorderRequestWhereInput
+  data: Prisma.XOR<Prisma.PreorderRequestUpdateWithoutChatsInput, Prisma.PreorderRequestUncheckedUpdateWithoutChatsInput>
+}
+
+export type PreorderRequestUpdateWithoutChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerAccount?: Prisma.SellerAccountUpdateOneWithoutPreorderRequestsNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPreorderRequestsNestedInput
+  offer?: Prisma.SellerOfferUpdateOneWithoutPreorderRequestsNestedInput
+  convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
+  offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+}
+
+export type PreorderRequestUncheckedUpdateWithoutChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  requestNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  offerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  policyVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  policySnapshotJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumPreorderStatusFieldUpdateOperationsInput | $Enums.PreorderStatus
+  orderingUnit?: Prisma.EnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
+  requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  destinationCountry?: Prisma.StringFieldUpdateOperationsInput | string
+  destinationWarehouseLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packagingPreference?: Prisma.NullableEnumPreorderQuantityUnitFieldUpdateOperationsInput | $Enums.PreorderQuantityUnit | null
+  transportPreference?: Prisma.EnumPreorderTransportModeFieldUpdateOperationsInput | $Enums.PreorderTransportMode
+  allowPartialDelivery?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  purchaseOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handlingInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pricingMode?: Prisma.EnumPreorderPricingModeFieldUpdateOperationsInput | $Enums.PreorderPricingMode
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  indicativeUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  indicativeTierMinBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  displayCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxSnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fxRateAsOf?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedOfferId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedTermsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confirmedTermsHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmedBaseUnits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confirmedUnitPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedFreightMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  confirmedGoodsTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  committedDeliveryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedOrderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityBucketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacityReservedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerRespondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readyAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveryRiskNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
+  history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
 }
 
 export type PreorderRequestCreateManyCustomerProfileInput = {
@@ -3467,6 +4734,10 @@ export type PreorderRequestCreateManyCustomerProfileInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -3533,6 +4804,10 @@ export type PreorderRequestUpdateWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3586,6 +4861,9 @@ export type PreorderRequestUpdateWithoutCustomerProfileInput = {
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutCustomerProfileInput = {
@@ -3605,6 +4883,10 @@ export type PreorderRequestUncheckedUpdateWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3656,6 +4938,9 @@ export type PreorderRequestUncheckedUpdateWithoutCustomerProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -3675,6 +4960,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutCustomerProfileInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3743,6 +5032,10 @@ export type PreorderRequestCreateManySellerAccountInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -3809,6 +5102,10 @@ export type PreorderRequestUpdateWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3862,6 +5159,9 @@ export type PreorderRequestUpdateWithoutSellerAccountInput = {
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutSellerAccountInput = {
@@ -3881,6 +5181,10 @@ export type PreorderRequestUncheckedUpdateWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3932,6 +5236,9 @@ export type PreorderRequestUncheckedUpdateWithoutSellerAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -3951,6 +5258,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutSellerAccountInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4019,6 +5330,10 @@ export type PreorderRequestCreateManyOfferInput = {
   unitQuantity: number
   unitsPerPackage: number
   requestedBaseUnits: number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: number | null
+  availableToPromiseAtSubmission?: number | null
+  shortfallAtSubmission?: number
   requestedDeliveryDate: Date | string
   earliestDeliveryDate: Date | string
   timezone: string
@@ -4085,6 +5400,10 @@ export type PreorderRequestUpdateWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4138,6 +5457,9 @@ export type PreorderRequestUpdateWithoutOfferInput = {
   convertedOrder?: Prisma.OrderUpdateOneWithoutPreorderRequestNestedInput
   offers?: Prisma.PreorderOfferUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateWithoutOfferInput = {
@@ -4157,6 +5479,10 @@ export type PreorderRequestUncheckedUpdateWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4208,6 +5534,9 @@ export type PreorderRequestUncheckedUpdateWithoutOfferInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offers?: Prisma.PreorderOfferUncheckedUpdateManyWithoutRequestNestedInput
   history?: Prisma.PreorderStatusHistoryUncheckedUpdateManyWithoutRequestNestedInput
+  installments?: Prisma.PreorderFulfilmentInstallmentUncheckedUpdateManyWithoutRequestNestedInput
+  stockHolds?: Prisma.PreorderStockHoldUncheckedUpdateManyWithoutRequestNestedInput
+  chats?: Prisma.PreorderChatConversationUncheckedUpdateManyWithoutPreorderRequestNestedInput
 }
 
 export type PreorderRequestUncheckedUpdateManyWithoutOfferInput = {
@@ -4227,6 +5556,10 @@ export type PreorderRequestUncheckedUpdateManyWithoutOfferInput = {
   unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   unitsPerPackage?: Prisma.IntFieldUpdateOperationsInput | number
   requestedBaseUnits?: Prisma.IntFieldUpdateOperationsInput | number
+  containerLoadingSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  containerLoadingVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availableToPromiseAtSubmission?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shortfallAtSubmission?: Prisma.IntFieldUpdateOperationsInput | number
   requestedDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   earliestDeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4286,11 +5619,17 @@ export type PreorderRequestUncheckedUpdateManyWithoutOfferInput = {
 export type PreorderRequestCountOutputType = {
   offers: number
   history: number
+  installments: number
+  stockHolds: number
+  chats: number
 }
 
 export type PreorderRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   offers?: boolean | PreorderRequestCountOutputTypeCountOffersArgs
   history?: boolean | PreorderRequestCountOutputTypeCountHistoryArgs
+  installments?: boolean | PreorderRequestCountOutputTypeCountInstallmentsArgs
+  stockHolds?: boolean | PreorderRequestCountOutputTypeCountStockHoldsArgs
+  chats?: boolean | PreorderRequestCountOutputTypeCountChatsArgs
 }
 
 /**
@@ -4317,6 +5656,27 @@ export type PreorderRequestCountOutputTypeCountHistoryArgs<ExtArgs extends runti
   where?: Prisma.PreorderStatusHistoryWhereInput
 }
 
+/**
+ * PreorderRequestCountOutputType without action
+ */
+export type PreorderRequestCountOutputTypeCountInstallmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderFulfilmentInstallmentWhereInput
+}
+
+/**
+ * PreorderRequestCountOutputType without action
+ */
+export type PreorderRequestCountOutputTypeCountStockHoldsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderStockHoldWhereInput
+}
+
+/**
+ * PreorderRequestCountOutputType without action
+ */
+export type PreorderRequestCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PreorderChatConversationWhereInput
+}
+
 
 export type PreorderRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4336,6 +5696,10 @@ export type PreorderRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   unitQuantity?: boolean
   unitsPerPackage?: boolean
   requestedBaseUnits?: boolean
+  containerLoadingSnapshotJson?: boolean
+  containerLoadingVersion?: boolean
+  availableToPromiseAtSubmission?: boolean
+  shortfallAtSubmission?: boolean
   requestedDeliveryDate?: boolean
   earliestDeliveryDate?: boolean
   timezone?: boolean
@@ -4391,6 +5755,9 @@ export type PreorderRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   convertedOrder?: boolean | Prisma.PreorderRequest$convertedOrderArgs<ExtArgs>
   offers?: boolean | Prisma.PreorderRequest$offersArgs<ExtArgs>
   history?: boolean | Prisma.PreorderRequest$historyArgs<ExtArgs>
+  installments?: boolean | Prisma.PreorderRequest$installmentsArgs<ExtArgs>
+  stockHolds?: boolean | Prisma.PreorderRequest$stockHoldsArgs<ExtArgs>
+  chats?: boolean | Prisma.PreorderRequest$chatsArgs<ExtArgs>
   _count?: boolean | Prisma.PreorderRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["preorderRequest"]>
 
@@ -4414,6 +5781,10 @@ export type PreorderRequestSelectScalar = {
   unitQuantity?: boolean
   unitsPerPackage?: boolean
   requestedBaseUnits?: boolean
+  containerLoadingSnapshotJson?: boolean
+  containerLoadingVersion?: boolean
+  availableToPromiseAtSubmission?: boolean
+  shortfallAtSubmission?: boolean
   requestedDeliveryDate?: boolean
   earliestDeliveryDate?: boolean
   timezone?: boolean
@@ -4465,7 +5836,7 @@ export type PreorderRequestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PreorderRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestNumber" | "sellerAccountId" | "customerProfileId" | "requestedByUserId" | "productId" | "variantId" | "variantKey" | "offerId" | "policyId" | "policyVersion" | "policySnapshotJson" | "status" | "orderingUnit" | "unitQuantity" | "unitsPerPackage" | "requestedBaseUnits" | "requestedDeliveryDate" | "earliestDeliveryDate" | "timezone" | "shippingAddressId" | "shippingAddressJson" | "destinationCountry" | "destinationWarehouseLabel" | "packagingPreference" | "transportPreference" | "allowPartialDelivery" | "purchaseOrderReference" | "customerNotes" | "handlingInstructions" | "termsAcceptedAt" | "pricingMode" | "currency" | "indicativeUnitPriceMinor" | "indicativeTotalMinor" | "indicativeTierMinBaseUnits" | "displayCurrency" | "fxSnapshotId" | "fxRate" | "fxRateAsOf" | "currentOfferId" | "acceptedOfferId" | "confirmedTermsJson" | "confirmedTermsHash" | "confirmedBaseUnits" | "confirmedUnitPriceMinor" | "confirmedFreightMinor" | "confirmedGoodsTotalMinor" | "committedDeliveryDate" | "convertedOrderId" | "capacityBucketId" | "capacityReservedBaseUnits" | "expiresAt" | "closedReason" | "submittedAt" | "sellerRespondedAt" | "buyerConfirmedAt" | "confirmedAt" | "productionStartedAt" | "readyAt" | "convertedAt" | "closedAt" | "deliveryRiskNotifiedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderRequest"]>
+export type PreorderRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "requestNumber" | "sellerAccountId" | "customerProfileId" | "requestedByUserId" | "productId" | "variantId" | "variantKey" | "offerId" | "policyId" | "policyVersion" | "policySnapshotJson" | "status" | "orderingUnit" | "unitQuantity" | "unitsPerPackage" | "requestedBaseUnits" | "containerLoadingSnapshotJson" | "containerLoadingVersion" | "availableToPromiseAtSubmission" | "shortfallAtSubmission" | "requestedDeliveryDate" | "earliestDeliveryDate" | "timezone" | "shippingAddressId" | "shippingAddressJson" | "destinationCountry" | "destinationWarehouseLabel" | "packagingPreference" | "transportPreference" | "allowPartialDelivery" | "purchaseOrderReference" | "customerNotes" | "handlingInstructions" | "termsAcceptedAt" | "pricingMode" | "currency" | "indicativeUnitPriceMinor" | "indicativeTotalMinor" | "indicativeTierMinBaseUnits" | "displayCurrency" | "fxSnapshotId" | "fxRate" | "fxRateAsOf" | "currentOfferId" | "acceptedOfferId" | "confirmedTermsJson" | "confirmedTermsHash" | "confirmedBaseUnits" | "confirmedUnitPriceMinor" | "confirmedFreightMinor" | "confirmedGoodsTotalMinor" | "committedDeliveryDate" | "convertedOrderId" | "capacityBucketId" | "capacityReservedBaseUnits" | "expiresAt" | "closedReason" | "submittedAt" | "sellerRespondedAt" | "buyerConfirmedAt" | "confirmedAt" | "productionStartedAt" | "readyAt" | "convertedAt" | "closedAt" | "deliveryRiskNotifiedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["preorderRequest"]>
 export type PreorderRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.PreorderRequest$sellerAccountArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
@@ -4473,6 +5844,9 @@ export type PreorderRequestInclude<ExtArgs extends runtime.Types.Extensions.Inte
   convertedOrder?: boolean | Prisma.PreorderRequest$convertedOrderArgs<ExtArgs>
   offers?: boolean | Prisma.PreorderRequest$offersArgs<ExtArgs>
   history?: boolean | Prisma.PreorderRequest$historyArgs<ExtArgs>
+  installments?: boolean | Prisma.PreorderRequest$installmentsArgs<ExtArgs>
+  stockHolds?: boolean | Prisma.PreorderRequest$stockHoldsArgs<ExtArgs>
+  chats?: boolean | Prisma.PreorderRequest$chatsArgs<ExtArgs>
   _count?: boolean | Prisma.PreorderRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -4485,6 +5859,12 @@ export type $PreorderRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     convertedOrder: Prisma.$OrderPayload<ExtArgs> | null
     offers: Prisma.$PreorderOfferPayload<ExtArgs>[]
     history: Prisma.$PreorderStatusHistoryPayload<ExtArgs>[]
+    installments: Prisma.$PreorderFulfilmentInstallmentPayload<ExtArgs>[]
+    stockHolds: Prisma.$PreorderStockHoldPayload<ExtArgs>[]
+    /**
+     * Chats with the operator's team that this preorder was linked to.
+     */
+    chats: Prisma.$PreorderChatConversationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4517,6 +5897,26 @@ export type $PreorderRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     unitQuantity: number
     unitsPerPackage: number
     requestedBaseUnits: number
+    /**
+     * For a 20-ft or 40-ft container request: the seller's container loading as
+     * it stood at submission - pieces per carton, cartons per container, carton
+     * weight, where the figure came from and when it was verified. Required for
+     * those units (chk_preorder_request_container_snapshot) and never rewritten:
+     * a seller re-specifying the loading next week does not change what this
+     * buyer asked for.
+     */
+    containerLoadingSnapshotJson: runtime.JsonValue | null
+    /**
+     * The `SellerContainerLoading.version` it was taken from.
+     */
+    containerLoadingVersion: number | null
+    /**
+     * Available-to-promise stock at submission, and how far short of the
+     * request it fell (0 = enough). INFORMATIONAL: nothing is reserved at
+     * submission, and the seller's proposal is checked against live stock.
+     */
+    availableToPromiseAtSubmission: number | null
+    shortfallAtSubmission: number
     /**
      * Calendar days, not instants - see `domain/delivery-dates.ts`.
      */
@@ -4954,6 +6354,9 @@ export interface Prisma__PreorderRequestClient<T, Null = never, ExtArgs extends 
   convertedOrder<T extends Prisma.PreorderRequest$convertedOrderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$convertedOrderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   offers<T extends Prisma.PreorderRequest$offersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$offersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderOfferPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   history<T extends Prisma.PreorderRequest$historyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$historyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  installments<T extends Prisma.PreorderRequest$installmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$installmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderFulfilmentInstallmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockHolds<T extends Prisma.PreorderRequest$stockHoldsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$stockHoldsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderStockHoldPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chats<T extends Prisma.PreorderRequest$chatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PreorderRequest$chatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PreorderChatConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5000,6 +6403,10 @@ export interface PreorderRequestFieldRefs {
   readonly unitQuantity: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly unitsPerPackage: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly requestedBaseUnits: Prisma.FieldRef<"PreorderRequest", 'Int'>
+  readonly containerLoadingSnapshotJson: Prisma.FieldRef<"PreorderRequest", 'Json'>
+  readonly containerLoadingVersion: Prisma.FieldRef<"PreorderRequest", 'Int'>
+  readonly availableToPromiseAtSubmission: Prisma.FieldRef<"PreorderRequest", 'Int'>
+  readonly shortfallAtSubmission: Prisma.FieldRef<"PreorderRequest", 'Int'>
   readonly requestedDeliveryDate: Prisma.FieldRef<"PreorderRequest", 'DateTime'>
   readonly earliestDeliveryDate: Prisma.FieldRef<"PreorderRequest", 'DateTime'>
   readonly timezone: Prisma.FieldRef<"PreorderRequest", 'String'>
@@ -5499,6 +6906,78 @@ export type PreorderRequest$historyArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.PreorderStatusHistoryScalarFieldEnum | Prisma.PreorderStatusHistoryScalarFieldEnum[]
+}
+
+/**
+ * PreorderRequest.installments
+ */
+export type PreorderRequest$installmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderFulfilmentInstallment
+   */
+  select?: Prisma.PreorderFulfilmentInstallmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderFulfilmentInstallment
+   */
+  omit?: Prisma.PreorderFulfilmentInstallmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderFulfilmentInstallmentInclude<ExtArgs> | null
+  where?: Prisma.PreorderFulfilmentInstallmentWhereInput
+  orderBy?: Prisma.PreorderFulfilmentInstallmentOrderByWithRelationInput | Prisma.PreorderFulfilmentInstallmentOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderFulfilmentInstallmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderFulfilmentInstallmentScalarFieldEnum | Prisma.PreorderFulfilmentInstallmentScalarFieldEnum[]
+}
+
+/**
+ * PreorderRequest.stockHolds
+ */
+export type PreorderRequest$stockHoldsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderStockHold
+   */
+  select?: Prisma.PreorderStockHoldSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderStockHold
+   */
+  omit?: Prisma.PreorderStockHoldOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderStockHoldInclude<ExtArgs> | null
+  where?: Prisma.PreorderStockHoldWhereInput
+  orderBy?: Prisma.PreorderStockHoldOrderByWithRelationInput | Prisma.PreorderStockHoldOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderStockHoldWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderStockHoldScalarFieldEnum | Prisma.PreorderStockHoldScalarFieldEnum[]
+}
+
+/**
+ * PreorderRequest.chats
+ */
+export type PreorderRequest$chatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PreorderChatConversation
+   */
+  select?: Prisma.PreorderChatConversationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PreorderChatConversation
+   */
+  omit?: Prisma.PreorderChatConversationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PreorderChatConversationInclude<ExtArgs> | null
+  where?: Prisma.PreorderChatConversationWhereInput
+  orderBy?: Prisma.PreorderChatConversationOrderByWithRelationInput | Prisma.PreorderChatConversationOrderByWithRelationInput[]
+  cursor?: Prisma.PreorderChatConversationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PreorderChatConversationScalarFieldEnum | Prisma.PreorderChatConversationScalarFieldEnum[]
 }
 
 /**

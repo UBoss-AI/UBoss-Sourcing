@@ -42,6 +42,7 @@ function policy(overrides: Partial<PolicyTerms> = {}): PolicyTerms {
     maxQuantity: null,
     capacityBaseUnits: null,
     capacityPeriod: 'MONTH',
+    safetyStockBaseUnits: 0,
     minLeadTimeDays: null,
     maxAdvanceDays: null,
     deliveryCountries: [],

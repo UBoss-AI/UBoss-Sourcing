@@ -128,6 +128,8 @@ const ATTENTION_PLACEMENT: Readonly<
   // any count above zero, rather than attention like the queues around them.
   dataRequests: { group: 'approvals', severity: 'urgent', href: '/data-requests' },
   logisticsExceptions: { group: 'logistics', severity: 'urgent', href: '/logistics/shipments?exception=open' },
+  // A customer waiting for an answer is somebody waiting on the business.
+  preorderChats: { group: 'approvals', severity: 'attention', href: '/preorder-chats?sort=oldest_unanswered' },
 });
 
 // ---------------------------------------------------------------------------

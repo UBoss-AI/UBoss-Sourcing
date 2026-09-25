@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import {
+  POLICY_MOQ_UNITS,
   PREORDER_UNITS,
   orderableUnits,
   preorderDeliveryWindow,
@@ -36,6 +37,11 @@ import type { SellerMembership } from '../seller/account.service.js';
 import { recordSellerAudit } from '../seller/audit.service.js';
 import { getAvailabilityMap } from '../inventory/inventory.service.js';
 import { listBuyableOptions } from '../seller/packaging.service.js';
+import {
+  containerOptionsForOffer,
+  type ContainerOption,
+} from '../seller/container-loading.service.js';
+import { CONTAINER_SIZES } from '../../domain/container-loading.js';
 
 // ---------------------------------------------------------------------------
 // Reading a policy
@@ -81,6 +87,7 @@ export function toPolicyTerms(row: PolicyRow): PolicyTerms {
     maxQuantity: row.maxQuantity,
     capacityBaseUnits: row.capacityBaseUnits,
     capacityPeriod: row.capacityPeriod,
+    safetyStockBaseUnits: row.safetyStockBaseUnits,
     minLeadTimeDays: row.minLeadTimeDays,
     maxAdvanceDays: row.maxAdvanceDays,
     deliveryCountries: stringList(row.deliveryCountriesJson),
@@ -113,12 +120,40 @@ export function serialisePolicyTerms(policy: PolicyTerms): Record<string, unknow
   };
 }
 
-/** Pieces per carton, pallet and container, from the offer's ACTIVE packaging. */
+/**
+ * Pieces per carton, pallet and container, from the offer's ACTIVE packaging,
+ * and per 20-ft and 40-ft container from its VERIFIED container loading.
+ *
+ * A container size the seller has not verified is simply absent - the same
+ * rule as an incomplete pallet - so nothing downstream can price, check or
+ * convert a quantity against a figure nobody stands behind.
+ */
 export async function unitSizesForOffer(offerId: string): Promise<UnitSizes> {
-  const options = await listBuyableOptions(offerId);
+  const [options, containers] = await Promise.all([
+    listBuyableOptions(offerId),
+    containerOptionsForOffer(offerId),
+  ]);
   const sizes: UnitSizes = { PIECE: 1 };
   for (const option of options) sizes[option.packageType] = option.unitsPerPackage;
+  for (const option of containers.options) {
+    if (option.available && option.piecesPerContainer !== null) {
+      sizes[option.unit] = option.piecesPerContainer;
+    }
+  }
   return sizes;
+}
+
+/** Every container size, unavailable, for a product no seller loads. */
+function noContainerOptions(): ContainerOption[] {
+  return CONTAINER_SIZES.map((unit) => ({
+    unit,
+    available: false,
+    piecesPerContainer: null,
+    cartonsPerContainer: null,
+    piecesPerCarton: null,
+    verifiedAt: null,
+    reason: 'NOT_CONFIGURED',
+  }));
 }
 
 /**
@@ -200,6 +235,8 @@ export type Eligibility =
       rules: QuantityRules;
       units: PreorderUnit[];
       sizes: UnitSizes;
+      /** 20-ft and 40-ft, each available or not with a reason. */
+      containerOptions: ContainerOption[];
       window: DeliveryWindow;
       timezone: string;
       hasPublishedTransit: boolean;
@@ -281,8 +318,9 @@ const MESSAGES: Readonly<Record<IneligibleReason, string>> = Object.freeze({
  * The terms a product gets when nobody configured any.
  *
  * Deliberately modest, because nobody chose them: the buyer's minimum is the
- * listing's own ordering minimum, there is no capacity limit to promise
- * against, and the price shown is the list price (or the quantity band, when
+ * deployment's bulk minimum (`PREORDER_DEFAULT_MOQ`, 1,000 pieces unless the
+ * operator changed it) or the listing's own ordering minimum where that is
+ * higher, there is no capacity limit to promise against, and the price shown is the list price (or the quantity band, when
  * lower) - indicative only, as one band starting at the minimum. A product
  * with no price is "quote required". Every request still goes to the supplier
  * to accept, counter or refuse, and the supplier sets the final price and date.
@@ -292,8 +330,15 @@ export function platformDefaultPolicy(input: {
   increment: number | null;
   listPriceMinor: bigint;
   currency: string;
+  /** The deployment's bulk minimum in pieces. `PREORDER_DEFAULT_MOQ` unless a test says otherwise. */
+  defaultMinimum?: number;
 }): PolicyTerms {
-  const minimum = Math.max(1, input.minimum ?? 1);
+  const increment = Math.max(1, input.increment ?? 1);
+  const minimum = defaultMinimumOnGrid(
+    Math.max(1, input.minimum ?? 1),
+    increment,
+    input.defaultMinimum ?? env.PREORDER_DEFAULT_MOQ,
+  );
   const priced = input.listPriceMinor > 0n;
   return {
     id: '',
@@ -302,10 +347,11 @@ export function platformDefaultPolicy(input: {
     isEnabled: true,
     moqUnit: 'PIECE',
     moqQuantity: minimum,
-    incrementQuantity: Math.max(1, input.increment ?? 1),
+    incrementQuantity: increment,
     maxQuantity: null,
     capacityBaseUnits: null,
     capacityPeriod: 'WEEK',
+    safetyStockBaseUnits: 0,
     minLeadTimeDays: env.PREORDER_DEFAULT_LEAD_DAYS,
     maxAdvanceDays: env.PREORDER_DEFAULT_MAX_ADVANCE_DAYS,
     deliveryCountries: [],
@@ -322,6 +368,24 @@ export function platformDefaultPolicy(input: {
       ? [{ minBaseUnits: minimum, unitPriceMinor: input.listPriceMinor, currency: input.currency }]
       : [],
   };
+}
+
+/**
+ * The platform minimum, raised onto the listing's own steps.
+ *
+ * A listing sold in cartons of 48 cannot be bought as exactly 1,000 pieces, so
+ * its minimum becomes 1,008 - the first quantity at or above the deployment's
+ * figure that the listing's own step can reach. A listing whose minimum is
+ * already higher keeps it: the platform figure is a floor, never a cap.
+ */
+export function defaultMinimumOnGrid(
+  listingMinimum: number,
+  increment: number,
+  platformMinimum: number,
+): number {
+  if (listingMinimum >= platformMinimum) return listingMinimum;
+  const step = Math.max(1, increment);
+  return listingMinimum + Math.ceil((platformMinimum - listingMinimum) / step) * step;
 }
 
 /** What one piece of the operator's own product costs, and how many are on hand. */
@@ -427,6 +491,9 @@ async function operatorEligibility(input: {
     rules: quantity.rules,
     units: orderableUnits(policy, sizes),
     sizes,
+    // The operator's own product has no seller to load a container, so
+    // container ordering is unavailable and says so.
+    containerOptions: noContainerOptions(),
     window,
     timezone,
     hasPublishedTransit: false,
@@ -525,6 +592,22 @@ export async function evaluateEligibility(input: {
   if (quantity.rules === null) return refuse('INCOMPLETE', offer, quantity.issues);
 
   const units = orderableUnits(policy, sizes);
+  const { options: loadedContainers } = await containerOptionsForOffer(row.id);
+  // A verified size the seller's terms do not permit is unavailable too, and
+  // says why rather than quietly vanishing.
+  const containerOptions = loadedContainers.map((option) =>
+    option.available && !units.includes(option.unit)
+      ? {
+          ...option,
+          available: false,
+          piecesPerContainer: null,
+          cartonsPerContainer: null,
+          piecesPerCarton: null,
+          verifiedAt: null,
+          reason: 'NOT_OFFERED' as const,
+        }
+      : option,
+  );
   if (units.length === 0) {
     return refuse('INCOMPLETE', offer, [
       {
@@ -566,6 +649,7 @@ export async function evaluateEligibility(input: {
     rules: quantity.rules,
     units,
     sizes,
+    containerOptions,
     window,
     timezone,
     hasPublishedTransit: route.hasPublishedTransit,
@@ -597,6 +681,16 @@ export function serialiseEligibility(result: Eligibility): Record<string, unknow
     units: result.units.map((unit) => ({
       unit,
       baseUnits: unit === 'PIECE' ? 1 : (result.sizes[unit] ?? 0),
+    })),
+    // Always both sizes, so the form can show a container it cannot sell as
+    // disabled with the reason. An unavailable size carries no figure.
+    containerOptions: result.containerOptions.map((option) => ({
+      unit: option.unit,
+      available: option.available,
+      piecesPerContainer: option.piecesPerContainer,
+      cartonsPerContainer: option.cartonsPerContainer,
+      piecesPerCarton: option.piecesPerCarton,
+      reason: option.reason,
     })),
     moq: {
       unit: policy.moqUnit,
@@ -634,7 +728,17 @@ export function serialiseEligibility(result: Eligibility): Record<string, unknow
 // The seller's side
 // ---------------------------------------------------------------------------
 
-const unitEnum = z.enum(['PIECE', 'CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER']);
+const unitEnum = z.enum(POLICY_MOQ_UNITS);
+/** What a seller may permit buyers to order in, containers included. */
+const orderUnitEnum = z.enum([
+  'PIECE',
+  'CARTON',
+  'UK_PALLET',
+  'US_PALLET',
+  'CONTAINER',
+  'CONTAINER_20_FT',
+  'CONTAINER_40_FT',
+]);
 const positiveInt = z.number().int().positive().max(1_000_000_000);
 const optionalPositive = positiveInt.nullable();
 
@@ -650,6 +754,7 @@ export const policyInputSchema = z
     maxQuantity: optionalPositive.default(null),
     capacityBaseUnits: optionalPositive.default(null),
     capacityPeriod: z.enum(['DAY', 'WEEK', 'MONTH']).default('MONTH'),
+    safetyStockBaseUnits: z.number().int().min(0).max(1_000_000_000).default(0),
     minLeadTimeDays: z.number().int().min(0).max(730).nullable().default(null),
     maxAdvanceDays: z.number().int().min(1).max(1095).nullable().default(null),
     deliveryCountries: z
@@ -657,7 +762,7 @@ export const policyInputSchema = z
       .max(250)
       .default([]),
     eligibleLocationIds: z.array(z.string().length(26)).max(50).default([]),
-    packagingTypes: z.array(unitEnum).max(5).nullable().default(null),
+    packagingTypes: z.array(orderUnitEnum).max(7).nullable().default(null),
     pricingMode: z.enum(['FIXED', 'QUOTE_REQUIRED']),
     allowPartialFulfilment: z.boolean().default(false),
     allowSplitDelivery: z.boolean().default(false),
@@ -822,6 +927,7 @@ export async function savePolicy(
     maxQuantity: input.maxQuantity,
     capacityBaseUnits: input.capacityBaseUnits,
     capacityPeriod: input.capacityPeriod,
+    safetyStockBaseUnits: input.safetyStockBaseUnits,
     minLeadTimeDays: input.minLeadTimeDays,
     maxAdvanceDays: input.maxAdvanceDays,
     deliveryCountriesJson: input.deliveryCountries,

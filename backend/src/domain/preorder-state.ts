@@ -72,7 +72,9 @@ const TRANSITIONS: Readonly<Record<PreorderStatusName, readonly Rule[]>> = Objec
 
   SELLER_ACCEPTED: [
     { to: 'BUYER_CONFIRMED', actors: ['BUYER'] },
-    { to: 'SELLER_REVIEW_REQUIRED', actors: ['BUYER'] },
+    // The buyer asked for a change - or SYSTEM found, at the buyer's
+    // acceptance, that the stock these terms were built on had gone.
+    { to: 'SELLER_REVIEW_REQUIRED', actors: ['BUYER', 'SYSTEM'] },
     // A seller may revise terms nobody has agreed to yet. The earlier
     // revision is SUPERSEDED, and the buyer's confirmation, which names a
     // terms hash, cannot land on the old one.
@@ -83,7 +85,7 @@ const TRANSITIONS: Readonly<Record<PreorderStatusName, readonly Rule[]>> = Objec
 
   SELLER_COUNTERED: [
     { to: 'BUYER_CONFIRMED', actors: ['BUYER'] },
-    { to: 'SELLER_REVIEW_REQUIRED', actors: ['BUYER'] },
+    { to: 'SELLER_REVIEW_REQUIRED', actors: ['BUYER', 'SYSTEM'] },
     { to: 'SELLER_COUNTERED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['BUYER', 'SELLER', 'ADMIN'], requiresReason: true },
     { to: 'EXPIRED', actors: ['SYSTEM'] },

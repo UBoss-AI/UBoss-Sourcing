@@ -10,8 +10,8 @@
  * `showModal()` also makes the rest of the page inert, so a screen reader
  * cannot wander out of the dialog either.
  */
-import { useEffect, useId, useRef } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, ReactNode, RefObject } from 'react';
 import { Button } from './ui';
 import { cx } from '@/lib/cx';
 import { lockPageScroll } from '@/lib/scroll-lock';
@@ -26,6 +26,50 @@ interface ModalProps {
   footer?: ReactNode;
   /** Wider dialog for a form with two columns. */
   size?: 'md' | 'lg';
+  /**
+   * Where the dialog sits. `center` (the default) is every dialog in the app.
+   * `anchored` is a popover: on a desktop it opens beside `anchorRef` - under
+   * it, or above where there is no room below - and on a phone it becomes a
+   * bottom sheet, because a popover beside a thumb-sized button on a 360px
+   * screen covers the button and half the page. Either way it is still a
+   * modal `<dialog>`: focus is trapped, Escape closes it, the page is inert.
+   */
+  placement?: 'center' | 'anchored';
+  anchorRef?: RefObject<HTMLElement | null>;
+}
+
+/** Tailwind's `sm`: at and above it a popover, below it a sheet. */
+const DESKTOP_QUERY = '(min-width: 640px)';
+const GAP_PX = 8;
+const EDGE_PX = 16;
+
+function isDesktop(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia(DESKTOP_QUERY).matches;
+}
+
+/**
+ * Where an anchored dialog goes: under its anchor, right edges aligned, kept
+ * inside the viewport; above the anchor when below would run off the bottom.
+ */
+function anchoredPosition(
+  anchor: DOMRect,
+  dialog: { width: number; height: number },
+): CSSProperties | undefined {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  // An anchor scrolled out of sight is no place to point from: centre instead.
+  if (anchor.bottom < 0 || anchor.top > viewportHeight) return undefined;
+  const left = Math.min(
+    Math.max(EDGE_PX, anchor.right - dialog.width),
+    Math.max(EDGE_PX, viewportWidth - dialog.width - EDGE_PX),
+  );
+  const below = anchor.bottom + GAP_PX;
+  const above = anchor.top - GAP_PX - dialog.height;
+  const top =
+    below + dialog.height <= viewportHeight - EDGE_PX || above < EDGE_PX
+      ? Math.min(below, Math.max(EDGE_PX, viewportHeight - dialog.height - EDGE_PX))
+      : above;
+  return { margin: 0, position: 'fixed', top, left };
 }
 
 export function Modal({
@@ -36,8 +80,11 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  placement = 'center',
+  anchorRef,
 }: ModalProps): React.JSX.Element {
   const { t } = useI18n();
+  const [anchoredStyle, setAnchoredStyle] = useState<CSSProperties | undefined>(undefined);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   // Generated, not the literal "modal-title" this used to hardcode. Two
@@ -54,6 +101,34 @@ export function Modal({
     if (isOpen && !dialog.open) dialog.showModal();
     if (!isOpen && dialog.open) dialog.close();
   }, [isOpen]);
+
+  // An anchored dialog is measured once it is open, and again on resize. The
+  // page behind is scroll-locked, so the anchor cannot move any other way.
+  useLayoutEffect(() => {
+    if (!isOpen || placement !== 'anchored') return undefined;
+    const place = (): void => {
+      const dialog = dialogRef.current;
+      const anchor = anchorRef?.current ?? null;
+      if (dialog === null || anchor === null || !isDesktop()) {
+        setAnchoredStyle(undefined);
+        return;
+      }
+      // offsetWidth/offsetHeight, not getBoundingClientRect: the dialog is
+      // mid scale-in animation here, and a transformed box measures small -
+      // which put the bottom of a tall dialog off the screen.
+      setAnchoredStyle(
+        anchoredPosition(anchor.getBoundingClientRect(), {
+          width: dialog.offsetWidth,
+          height: dialog.offsetHeight,
+        }),
+      );
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('resize', place);
+    };
+  }, [isOpen, placement, anchorRef]);
 
   // The page behind holds still while this is open. See `lib/scroll-lock.ts`.
   useEffect(() => {
@@ -91,9 +166,14 @@ export function Modal({
       ref={dialogRef}
       aria-labelledby={titleId}
       {...(description === undefined ? {} : { 'aria-describedby': descriptionId })}
+      style={anchoredStyle}
       className={cx(
         'w-full p-0',
-        size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
+        placement === 'anchored' ? 'sm:max-w-sm' : size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
+        // A bottom sheet on a phone: full width, sat on the bottom edge, square
+        // at the bottom. Above `sm` the inline position above takes over.
+        placement === 'anchored' &&
+          'max-sm:mb-0 max-sm:mt-auto max-sm:max-w-none max-sm:rounded-b-none max-sm:border-b-0',
         // A column, capped to the viewport, with only the body scrolling.
         //
         // The body used to carry `max-h-[70vh]` on its own, which is fine

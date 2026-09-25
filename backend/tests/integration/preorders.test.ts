@@ -134,6 +134,18 @@ async function submitAsBuyerTwo(overrides: Record<string, unknown> = {}): Promis
   const actor = { userId: 'x'.repeat(26), email: EMAIL_TWO, customerProfileId: buyerTwoProfileId };
   const user = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: EMAIL_TWO } });
   actor.userId = user.id;
+  // The second buyer has read the bulk preorder note, as every buyer must.
+  await prisma.customerAcknowledgement.upsert({
+    where: {
+      userId_type_policyVersion: {
+        userId: user.id,
+        type: 'PREORDER_INFO',
+        policyVersion: 'PREORDER_INFO_V1',
+      },
+    },
+    create: { id: newId(), userId: user.id, type: 'PREORDER_INFO', policyVersion: 'PREORDER_INFO_V1' },
+    update: {},
+  });
   const parsed = service.preorderInputSchema.parse(
     request({ shippingAddressId: addressTwoId, ...overrides }),
   );
@@ -554,12 +566,195 @@ describe('the Preorder button', () => {
       };
     };
     // Preorders on every product: nobody configured terms, so the platform
-    // default applies - the listing's own minimum, its own list price as an
-    // indicative band, and the seller still answers every request.
+    // default applies - the deployment's bulk minimum (PREORDER_DEFAULT_MOQ,
+    // 1,000) because the listing's own minimum of 1 is lower, its own list
+    // price as an indicative band, and the seller still answers every request.
     expect(body.eligibility.available).toBe(true);
     expect(body.eligibility.pricingMode).toBe('FIXED');
-    expect(body.eligibility.moq.minimumBaseUnits).toBe(1);
-    expect(body.eligibility.tiers).toEqual([{ minBaseUnits: 1, unitPriceMinor: '2000' }]);
+    expect(body.eligibility.moq.minimumBaseUnits).toBe(1000);
+    expect(body.eligibility.tiers).toEqual([{ minBaseUnits: 1000, unitPriceMinor: '2000' }]);
+  });
+
+  it('lets a seller’s own minimum override the platform default', async () => {
+    // The configured listing's policy says 1,000 in steps of 100; set it to
+    // 250 and the button, the form and the threshold all read 250.
+    const { savePolicy, policyInputSchema } =
+      await import('../../src/modules/preorders/policy.service.js');
+    const current = await prisma.preorderPolicy.findFirstOrThrow({
+      where: { scope: 'OFFER', scopeKey: offerId },
+      select: { version: true },
+    });
+    const base = {
+      scope: 'OFFER',
+      offerId,
+      isEnabled: true,
+      moqUnit: 'PIECE',
+      incrementQuantity: 100,
+      capacityBaseUnits: 20_000,
+      capacityPeriod: 'MONTH',
+      minLeadTimeDays: 10,
+      pricingMode: 'FIXED',
+      allowSplitDelivery: true,
+      tiers: [
+        { minBaseUnits: 1000, unitPriceMinor: '9000' },
+        { minBaseUnits: 10_000, unitPriceMinor: '8000' },
+      ],
+    };
+    await savePolicy(
+      seller,
+      policyInputSchema.parse({ ...base, moqQuantity: 250, expectedVersion: current.version }),
+    );
+    try {
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/v1/preorders/eligibility?productId=${productId}&offerId=${offerId}`,
+      });
+      const body = JSON.parse(response.body) as {
+        eligibility: { moq: { quantity: number; minimumBaseUnits: number } };
+      };
+      expect(body.eligibility.moq).toMatchObject({ quantity: 250, minimumBaseUnits: 250 });
+    } finally {
+      await savePolicy(
+        seller,
+        policyInputSchema.parse({
+          ...base,
+          moqQuantity: 1000,
+          expectedVersion: current.version + 1,
+        }),
+      );
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The bulk preorder note: read once per version, recorded by the server
+// ---------------------------------------------------------------------------
+
+describe('the bulk preorder information acknowledgement', () => {
+  async function viewerInfo(): Promise<{ policyVersion: string; acknowledged: boolean }> {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/preorders/eligibility?productId=${productId}&offerId=${offerId}`,
+      headers: { cookie: cookieHeader },
+    });
+    return (
+      JSON.parse(response.body) as {
+        viewer: { preorderInfo: { policyVersion: string; acknowledged: boolean } };
+      }
+    ).viewer.preorderInfo;
+  }
+
+  it('is not acknowledged by a guest, and names the current version', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/preorders/eligibility?productId=${productId}&offerId=${offerId}`,
+    });
+    const body = JSON.parse(response.body) as {
+      viewer: { preorderInfo: { policyVersion: string; acknowledged: boolean } };
+    };
+    expect(body.viewer.preorderInfo).toEqual({
+      policyVersion: 'PREORDER_INFO_V1',
+      acknowledged: false,
+    });
+  });
+
+  it('refuses a submission before the buyer has acknowledged it', async () => {
+    expect((await viewerInfo()).acknowledged).toBe(false);
+    const response = await post('/api/v1/preorders', request({ offerId }), newId());
+    expect(response.statusCode).toBe(409);
+    const error = errorOf(response.body);
+    expect(error.code).toBe('PREORDER_ACKNOWLEDGEMENT_REQUIRED');
+    expect(error.details[0]?.meta?.['policyVersion']).toBe('PREORDER_INFO_V1');
+    expect(await prisma.preorderRequest.count({ where: { customerProfileId: buyerProfileId } })).toBe(0);
+  });
+
+  it('cannot be forged with a flag in the request body', async () => {
+    const response = await post(
+      '/api/v1/preorders',
+      request({ offerId, acknowledged: true, policyVersion: 'PREORDER_INFO_V1' }),
+      newId(),
+    );
+    // The body schema is strict: an unknown field is refused outright.
+    expect(response.statusCode).toBe(400);
+    expect(errorOf(response.body).code).toBe('VALIDATION_FAILED');
+  });
+
+  it('does not count an acknowledgement of an older version', async () => {
+    const user = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: EMAIL } });
+    await prisma.customerAcknowledgement.create({
+      data: { id: newId(), userId: user.id, type: 'PREORDER_INFO', policyVersion: 'PREORDER_INFO_V0' },
+    });
+    expect((await viewerInfo()).acknowledged).toBe(false);
+    const response = await post('/api/v1/preorders', request({ offerId }), newId());
+    expect(errorOf(response.body).code).toBe('PREORDER_ACKNOWLEDGEMENT_REQUIRED');
+  });
+
+  it('refuses to record a version that is not the current one', async () => {
+    const response = await post('/api/v1/preorders/acknowledgement', {
+      policyVersion: 'PREORDER_INFO_V0',
+    });
+    expect(response.statusCode).toBe(409);
+    const error = errorOf(response.body);
+    expect(error.code).toBe('PREORDER_INFO_OUTDATED');
+    expect(error.details[0]?.meta?.['policyVersion']).toBe('PREORDER_INFO_V1');
+  });
+
+  it('needs a signed-in customer to record one', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/preorders/acknowledgement',
+      payload: { policyVersion: 'PREORDER_INFO_V1' },
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('records the current version once, audits it, and then lets a request through', async () => {
+    const first = await post('/api/v1/preorders/acknowledgement', {
+      policyVersion: 'PREORDER_INFO_V1',
+    });
+    expect(first.statusCode, first.body).toBe(200);
+    const second = await post('/api/v1/preorders/acknowledgement', {
+      policyVersion: 'PREORDER_INFO_V1',
+    });
+    const at = (body: string) =>
+      (JSON.parse(body) as { acknowledgement: { acknowledgedAt: string } }).acknowledgement
+        .acknowledgedAt;
+    // Idempotent: the second press answers with the first record.
+    expect(at(second.body)).toBe(at(first.body));
+
+    const user = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: EMAIL } });
+    expect(
+      await prisma.customerAcknowledgement.count({
+        where: { userId: user.id, policyVersion: 'PREORDER_INFO_V1' },
+      }),
+    ).toBe(1);
+    expect(
+      await prisma.auditLog.count({
+        where: { action: 'preorder.info_acknowledged', actorUserId: user.id },
+      }),
+    ).toBe(1);
+    expect((await viewerInfo()).acknowledged).toBe(true);
+  });
+
+  it('still refuses a quantity below the minimum once acknowledged', async () => {
+    const response = await post(
+      '/api/v1/preorders',
+      request({ offerId, unitQuantity: 999 }),
+      newId(),
+    );
+    expect(response.statusCode).toBe(400);
+    expect(errorOf(response.body).code).toBe('PREORDER_BELOW_MINIMUM');
+  });
+});
+
+describe('preorder quantities are the server’s to judge', () => {
+  it('refuses below the minimum even when the unit is changed to dodge it', async () => {
+    // 20 cartons of 48 is 960 pieces - under the 1,000 minimum in pieces.
+    const response = await post(
+      '/api/v1/preorders/preview',
+      request({ offerId, orderingUnit: 'CARTON', unitQuantity: 20 }),
+    );
+    expect(errorOf(response.body).code).toBe('PREORDER_BELOW_MINIMUM');
   });
 
   it('opens the operator’s own product, answered by the store, quoted when it has no price', async () => {

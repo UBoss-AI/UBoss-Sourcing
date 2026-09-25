@@ -29,15 +29,27 @@ import {
   type CalendarDay,
 } from './delivery-dates.js';
 
-export type PreorderUnit = 'PIECE' | 'CARTON' | 'UK_PALLET' | 'US_PALLET' | 'CONTAINER';
+export type PreorderUnit =
+  | 'PIECE'
+  | 'CARTON'
+  | 'UK_PALLET'
+  | 'US_PALLET'
+  | 'CONTAINER'
+  | 'CONTAINER_20_FT'
+  | 'CONTAINER_40_FT';
 
 export const PREORDER_UNITS: readonly PreorderUnit[] = Object.freeze([
   'PIECE',
+  'CONTAINER_20_FT',
+  'CONTAINER_40_FT',
   'CARTON',
   'UK_PALLET',
   'US_PALLET',
   'CONTAINER',
 ]);
+
+/** The units a seller may set a policy's minimum in. Containers are not among them. */
+export const POLICY_MOQ_UNITS = ['PIECE', 'CARTON', 'UK_PALLET', 'US_PALLET', 'CONTAINER'] as const;
 
 /**
  * Where a request's terms came from. `PLATFORM_DEFAULT` is never a stored
@@ -77,6 +89,8 @@ export interface PolicyTerms {
   maxQuantity: number | null;
   capacityBaseUnits: number | null;
   capacityPeriod: CapacityPeriod;
+  /** Stock kept back from preorders, in pieces. Zero means none. */
+  safetyStockBaseUnits: number;
   minLeadTimeDays: number | null;
   maxAdvanceDays: number | null;
   deliveryCountries: string[];
@@ -380,7 +394,8 @@ export function indicativePrice(input: {
   // A preorder band dearer than the offer's own price for this quantity
   // (its list price, or its quantity band) is not applied: ordering more, and
   // waiting for it, never costs more per piece than the basket would.
-  const band = applied !== null && applied.unitPriceMinor < input.offerUnitPriceMinor ? applied : null;
+  const band =
+    applied !== null && applied.unitPriceMinor < input.offerUnitPriceMinor ? applied : null;
   const unitPriceMinor = band?.unitPriceMinor ?? input.offerUnitPriceMinor;
   if (unitPriceMinor <= 0n) return null;
 
@@ -439,6 +454,22 @@ export interface PreorderTerms {
   currency: string;
   committedDeliveryDate: CalendarDay;
   deliverySplits: { date: CalendarDay; baseUnits: number }[] | null;
+  /**
+   * A revised-date or split-delivery answer: its kind, the stock it takes and
+   * its schedule. Absent on an ordinary acceptance or counter, and then left
+   * out of the canonical form entirely - so every hash written before this
+   * existed still matches its terms.
+   */
+  fulfilment?: {
+    kind: 'FULL_ON_REVISED_DATE' | 'SPLIT_DELIVERY';
+    stockAllocationBaseUnits: number;
+    installments: {
+      sequence: number;
+      date: CalendarDay;
+      baseUnits: number;
+      source: 'AVAILABLE_STOCK' | 'FUTURE_SUPPLY';
+    }[];
+  };
 }
 
 /**
@@ -462,6 +493,20 @@ export function canonicalTerms(terms: PreorderTerms): string {
       terms.deliverySplits === null
         ? null
         : terms.deliverySplits.map((split) => ({ date: split.date, baseUnits: split.baseUnits })),
+    ...(terms.fulfilment === undefined
+      ? {}
+      : {
+          fulfilment: {
+            kind: terms.fulfilment.kind,
+            stockAllocationBaseUnits: terms.fulfilment.stockAllocationBaseUnits,
+            installments: terms.fulfilment.installments.map((part) => ({
+              sequence: part.sequence,
+              date: part.date,
+              baseUnits: part.baseUnits,
+              source: part.source,
+            })),
+          },
+        }),
   });
 }
 

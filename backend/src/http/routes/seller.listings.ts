@@ -35,10 +35,12 @@ import {
 } from '../../modules/seller/listing-draft.service.js';
 import { loadListingSchema } from '../../modules/seller/listing-schema.service.js';
 import {
-  CONTAINER_PRESETS,
-  INCOTERMS,
-  PALLET_FOOTPRINTS,
-} from '../../domain/packaging.js';
+  containerLoadingInputSchema,
+  previewContainerLoading,
+  readContainerLoading,
+  saveContainerLoading,
+} from '../../modules/seller/container-loading.service.js';
+import { CONTAINER_PRESETS, INCOTERMS, PALLET_FOOTPRINTS } from '../../domain/packaging.js';
 import {
   previewBulkOrder,
   readPackagingProfile,
@@ -228,7 +230,11 @@ const draftPatchSchema = z.object({
         availableQuantity: z.number().int().min(0).max(100_000_000),
         reorderThreshold: z.number().int().min(0).nullable().optional(),
         batchNumber: z.string().trim().max(64).nullable().optional(),
-        expiresOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+        expiresOn: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable()
+          .optional(),
       }),
     )
     .max(100)
@@ -267,9 +273,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
   app.get('/listings', async (request, reply) => {
     const query = z
       .object({
-        status: z
-          .enum(['INACTIVE', 'ACTIVE', 'PAUSED', 'NEEDS_CHANGES', 'ARCHIVED'])
-          .nullish(),
+        status: z.enum(['INACTIVE', 'ACTIVE', 'PAUSED', 'NEEDS_CHANGES', 'ARCHIVED']).nullish(),
         search: z.string().trim().max(200).nullish(),
         categoryId: z.string().length(26).nullish(),
         brandId: z.string().length(26).nullish(),
@@ -505,11 +509,7 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
     async (request, reply) => {
       const params = idParam.parse(request.params);
 
-      const result = await pauseForEdit(
-        currentSeller(request),
-        params.id,
-        request.correlationId,
-      );
+      const result = await pauseForEdit(currentSeller(request), params.id, request.correlationId);
 
       return reply.status(200).send(result);
     },
@@ -1212,7 +1212,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
           grossWeight: z.number().min(0).max(100_000_000).nullable().optional(),
           maxGrossWeight: z.number().min(0).max(100_000_000).nullable().optional(),
 
-          cargoVolumeCm3: z.string().regex(/^\d{1,19}$/).nullable().optional(),
+          cargoVolumeCm3: z
+            .string()
+            .regex(/^\d{1,19}$/)
+            .nullable()
+            .optional(),
 
           minimumPackages: z.number().int().min(1).max(100_000).optional(),
           packageIncrement: z.number().int().min(1).max(100_000).optional(),
@@ -1222,7 +1226,11 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
           // Money as a STRING, always. See the schema header: a 19-digit minor
           // figure crossing as a JS number loses its last digit, and a pallet
           // price is exactly the size that reaches there.
-          pricePerPackageMinor: z.string().regex(/^\d{1,19}$/).nullable().optional(),
+          pricePerPackageMinor: z
+            .string()
+            .regex(/^\d{1,19}$/)
+            .nullable()
+            .optional(),
 
           handlingLeadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
           productionLeadTimeDays: z.number().int().min(0).max(365).nullable().optional(),
@@ -1252,6 +1260,65 @@ export function registerSellerListingRoutes(app: FastifyInstance): Promise<void>
       );
 
       return reply.status(200).send(profile);
+    },
+  );
+
+  // --- Container loading, for 20-ft and 40-ft preorders ----------------------
+
+  /**
+   * How many pieces of a listing fit in a 20-ft and a 40-ft container: the
+   * carton, the cartons per container, the resulting pieces, whether each size
+   * is seller-verified or only an estimate, and the configured payload limits.
+   */
+  app.get(
+    '/offers/:id/container-loading',
+    { preHandler: requireSeller(SellerPermission.LISTING_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      return reply.status(200).send(await readContainerLoading(currentSeller(request), params.id));
+    },
+  );
+
+  /**
+   * Work out a container loading without saving it - pieces per container,
+   * payload, the share of the container used, the system's estimate, and any
+   * problem - for the form while the seller types.
+   */
+  app.post(
+    '/offers/:id/container-loading/preview',
+    { preHandler: requireSeller(SellerPermission.LISTING_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = containerLoadingInputSchema.parse(request.body);
+      return reply
+        .status(200)
+        .send(await previewContainerLoading(currentSeller(request), params.id, body));
+    },
+  );
+
+  /**
+   * Save how many pieces of a listing fit in a 20-ft and a 40-ft container.
+   * Refused when heavier than the configured payload or larger than the
+   * container. A changed figure must be verified again before buyers can order
+   * in that container. Existing preorders keep their own snapshot. Writes an
+   * audit entry.
+   */
+  app.put(
+    '/offers/:id/container-loading',
+    { preHandler: requireSeller(SellerPermission.LISTING_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const body = containerLoadingInputSchema.parse(request.body);
+      return reply
+        .status(200)
+        .send(
+          await saveContainerLoading(
+            currentSeller(request),
+            params.id,
+            body,
+            request.auth?.id ?? null,
+          ),
+        );
     },
   );
 

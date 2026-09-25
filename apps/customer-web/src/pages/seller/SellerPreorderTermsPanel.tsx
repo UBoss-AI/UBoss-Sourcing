@@ -25,6 +25,7 @@ import { errorMessage } from '@/lib/errors';
 import { formatMoneyMinor, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   PREORDER_UNITS,
+  isContainerSize,
   fetchPolicyChain,
   savePreorderPolicy,
   type PolicyChain,
@@ -41,6 +42,7 @@ interface Draft {
   incrementQuantity: string;
   maxQuantity: string;
   capacityBaseUnits: string;
+  safetyStockBaseUnits: string;
   capacityPeriod: 'DAY' | 'WEEK' | 'MONTH';
   minLeadTimeDays: string;
   maxAdvanceDays: string;
@@ -62,6 +64,7 @@ const EMPTY: Draft = {
   incrementQuantity: '1',
   maxQuantity: '',
   capacityBaseUnits: '',
+  safetyStockBaseUnits: '',
   capacityPeriod: 'MONTH',
   minLeadTimeDays: '',
   maxAdvanceDays: '',
@@ -86,6 +89,7 @@ function draftFrom(policy: PreorderPolicy | null, exponent: number): Draft {
     incrementQuantity: String(policy.incrementQuantity),
     maxQuantity: text(policy.maxQuantity),
     capacityBaseUnits: text(policy.capacityBaseUnits),
+    safetyStockBaseUnits: text(policy.safetyStockBaseUnits ?? null),
     capacityPeriod: policy.capacityPeriod,
     minLeadTimeDays: text(policy.minLeadTimeDays),
     maxAdvanceDays: text(policy.maxAdvanceDays),
@@ -180,6 +184,7 @@ export function SellerPreorderTermsPanel({
         incrementQuantity: step ?? 1,
         maxQuantity: intOrNull(draft.maxQuantity),
         capacityBaseUnits: intOrNull(draft.capacityBaseUnits),
+        safetyStockBaseUnits: intOrNull(draft.safetyStockBaseUnits) ?? 0,
         capacityPeriod: draft.capacityPeriod,
         minLeadTimeDays: intOrNull(draft.minLeadTimeDays),
         maxAdvanceDays: intOrNull(draft.maxAdvanceDays),
@@ -303,7 +308,7 @@ export function SellerPreorderTermsPanel({
                 update({ moqUnit: event.currentTarget.value as PreorderUnit });
               }}
             >
-              {PREORDER_UNITS.map((unit) => (
+              {PREORDER_UNITS.filter((unit) => !isContainerSize(unit)).map((unit) => (
                 <option key={unit} value={unit} disabled={unit !== 'PIECE' && sizes[unit] === undefined}>
                   {t(`preorder.unit.${unit}` as TranslationKey)}
                   {unit !== 'PIECE' && sizes[unit] !== undefined ? ` (${formatNumber(sizes[unit])})` : ''}
@@ -367,6 +372,20 @@ export function SellerPreorderTermsPanel({
               value={draft.capacityBaseUnits}
               onChange={(event) => {
                 update({ capacityBaseUnits: event.currentTarget.value.replace(/[^\d]/g, '') });
+              }}
+            />
+          )}
+        </Field>
+
+        <Field label={t('sellerPreorderTerms.safetyStock')} hint={t('sellerPreorderTerms.safetyStockHint')}>
+          {({ inputId, describedBy }) => (
+            <Input
+              id={inputId}
+              aria-describedby={describedBy}
+              inputMode="numeric"
+              value={draft.safetyStockBaseUnits}
+              onChange={(event) => {
+                update({ safetyStockBaseUnits: event.currentTarget.value.replace(/[^\d]/g, '') });
               }}
             />
           )}

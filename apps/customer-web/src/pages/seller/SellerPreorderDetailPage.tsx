@@ -13,6 +13,10 @@
  *   - Counter: any quantity, price, committed date, and optionally a split
  *     into several deliveries.
  *   - Reject, with a reason the buyer is shown.
+ *   - When more is asked for than is available to promise: the complete
+ *     quantity on a revised date, or a split delivery (see
+ *     `SellerAvailabilityProposal.tsx`). The stock card beside it shows the
+ *     live figure those are checked against.
  *
  * None of them charges the buyer. Money moves only after the BUYER confirms
  * and pays, and the page says so beside the buttons.
@@ -40,8 +44,9 @@ import {
 } from '@/lib/preorders';
 import { fetchLocations } from '@/lib/seller';
 import { ApprovalRequiredNotice, type SellerOutletContext } from './SellerLayout';
+import { AvailabilityProposalDialog } from './SellerAvailabilityProposal';
 
-type Mode = 'accept' | 'counter' | 'reject' | null;
+type Mode = 'accept' | 'counter' | 'reject' | 'propose' | null;
 
 export function SellerPreorderDetailPage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
@@ -87,6 +92,8 @@ export function SellerPreorderDetailPage(): React.JSX.Element {
   const preorder = query.data;
   const allowed = new Set(preorder.allowedActions);
   const locationOptions = locations.data?.locations ?? [];
+  const live = preorder.availability?.live ?? null;
+  const short = live !== null && !live.shortfall.sufficient;
 
   return (
     <>
@@ -108,7 +115,26 @@ export function SellerPreorderDetailPage(): React.JSX.Element {
         <div className="space-y-4">
           {(allowed.has('SELLER_ACCEPTED') || allowed.has('SELLER_COUNTERED') || allowed.has('REJECTED')) && (
             <Card title={t('sellerPreorders.yourAnswer')} description={t('sellerPreorders.noCharge')}>
+              {short && (
+                <p role="status" className="mb-3 rounded-md border border-warning/40 bg-warning-soft px-3 py-2 text-sm text-ink">
+                  {t('sellerPreorders.shortfallLine', {
+                    available: formatNumber(live.shortfall.availableNow),
+                    requested: formatNumber(live.shortfall.requested),
+                    remaining: formatNumber(live.shortfall.remaining),
+                  })}
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
+                {allowed.has('SELLER_COUNTERED') && (
+                  <Button
+                    variant={short ? 'action' : 'secondary'}
+                    onClick={() => {
+                      setMode('propose');
+                    }}
+                  >
+                    {t('sellerPreorders.proposeSchedule')}
+                  </Button>
+                )}
                 {allowed.has('SELLER_ACCEPTED') && (
                   <Button
                     variant="action"
@@ -221,6 +247,45 @@ export function SellerPreorderDetailPage(): React.JSX.Element {
             </dl>
           </Card>
 
+          {live !== null && (
+            <Card title={t('sellerPreorders.stockTitle')}>
+              <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-sm">
+                <dt className="text-ink-muted">{t('sellerPreorders.onHand')}</dt>
+                <dd className="text-right tabular-nums text-ink">{formatNumber(live.onHand)}</dd>
+                <dt className="text-ink-muted">{t('sellerPreorders.unacceptedOrders')}</dt>
+                <dd className="text-right tabular-nums text-ink">− {formatNumber(live.unacceptedOrderQuantity)}</dd>
+                <dt className="text-ink-muted">{t('sellerPreorders.safetyStock')}</dt>
+                <dd className="text-right tabular-nums text-ink">− {formatNumber(live.safetyStock)}</dd>
+                <dt className="font-semibold text-ink">{t('sellerPreorders.atp')}</dt>
+                <dd className="text-right font-semibold tabular-nums text-ink">{formatNumber(live.availableToPromise)}</dd>
+              </dl>
+              <p className={short ? 'mt-2 text-xs font-medium text-warning' : 'mt-2 text-xs text-ink-muted'}>
+                {short
+                  ? t('sellerPreorders.shortfallLine', {
+                      available: formatNumber(live.shortfall.availableNow),
+                      requested: formatNumber(live.shortfall.requested),
+                      remaining: formatNumber(live.shortfall.remaining),
+                    })
+                  : t('sellerPreorders.sufficientLine', { requested: formatNumber(live.shortfall.requested) })}
+              </p>
+            </Card>
+          )}
+
+          {preorder.stockHolds !== null && preorder.stockHolds !== undefined && preorder.stockHolds.length > 0 && (
+            <Card title={t('sellerPreorders.holds')}>
+              <ul className="space-y-1 text-sm">
+                {preorder.stockHolds.map((hold) => (
+                  <li key={hold.createdAt + hold.status} className="text-ink">
+                    {t('sellerPreorders.holdLine', {
+                      pieces: formatNumber(hold.quantityBaseUnits),
+                      status: t(`sellerPreorders.holdStatus.${hold.status}` as TranslationKey),
+                    })}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
           <Card title={t('sellerPreorders.terms')}>
             <dl className="space-y-1 text-sm">
               <dt className="text-ink-muted">{t('sellerPreorders.minimum')}</dt>
@@ -305,6 +370,16 @@ export function SellerPreorderDetailPage(): React.JSX.Element {
       )}
       {mode === 'counter' && (
         <CounterDialog preorder={preorder} locations={locationOptions} onClose={() => { setMode(null); }} onDone={settle} />
+      )}
+      {mode === 'propose' && (
+        <AvailabilityProposalDialog
+          preorder={preorder}
+          locations={locationOptions}
+          onClose={() => {
+            setMode(null);
+          }}
+          onDone={settle}
+        />
       )}
       {mode === 'reject' && (
         <RejectDialog preorder={preorder} onClose={() => { setMode(null); }} onDone={settle} />

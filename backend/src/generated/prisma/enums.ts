@@ -2181,7 +2181,9 @@ export const PreorderQuantityUnit = {
   CARTON: 'CARTON',
   UK_PALLET: 'UK_PALLET',
   US_PALLET: 'US_PALLET',
-  CONTAINER: 'CONTAINER'
+  CONTAINER: 'CONTAINER',
+  CONTAINER_20_FT: 'CONTAINER_20_FT',
+  CONTAINER_40_FT: 'CONTAINER_40_FT'
 } as const
 
 export type PreorderQuantityUnit = (typeof PreorderQuantityUnit)[keyof typeof PreorderQuantityUnit]
@@ -2244,7 +2246,9 @@ export type PreorderParty = (typeof PreorderParty)[keyof typeof PreorderParty]
 
 export const PreorderOfferKind = {
   ACCEPT_AS_REQUESTED: 'ACCEPT_AS_REQUESTED',
-  COUNTER: 'COUNTER'
+  COUNTER: 'COUNTER',
+  FULL_ON_REVISED_DATE: 'FULL_ON_REVISED_DATE',
+  SPLIT_DELIVERY: 'SPLIT_DELIVERY'
 } as const
 
 export type PreorderOfferKind = (typeof PreorderOfferKind)[keyof typeof PreorderOfferKind]
@@ -2256,10 +2260,124 @@ export const PreorderOfferState = {
   DECLINED: 'DECLINED',
   SUPERSEDED: 'SUPERSEDED',
   EXPIRED: 'EXPIRED',
-  WITHDRAWN: 'WITHDRAWN'
+  WITHDRAWN: 'WITHDRAWN',
+  INVALIDATED: 'INVALIDATED'
 } as const
 
 export type PreorderOfferState = (typeof PreorderOfferState)[keyof typeof PreorderOfferState]
+
+
+export const PreorderInstallmentSource = {
+  AVAILABLE_STOCK: 'AVAILABLE_STOCK',
+  FUTURE_SUPPLY: 'FUTURE_SUPPLY'
+} as const
+
+export type PreorderInstallmentSource = (typeof PreorderInstallmentSource)[keyof typeof PreorderInstallmentSource]
+
+
+export const PreorderInstallmentStatus = {
+  PROPOSED: 'PROPOSED',
+  PLANNED: 'PLANNED',
+  STOCK_RESERVED: 'STOCK_RESERVED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PreorderInstallmentStatus = (typeof PreorderInstallmentStatus)[keyof typeof PreorderInstallmentStatus]
+
+
+export const PreorderStockHoldStatus = {
+  HELD: 'HELD',
+  RELEASED: 'RELEASED',
+  TRANSFERRED: 'TRANSFERRED'
+} as const
+
+export type PreorderStockHoldStatus = (typeof PreorderStockHoldStatus)[keyof typeof PreorderStockHoldStatus]
+
+
+export const ContainerCapacitySource = {
+  SELLER_VERIFIED: 'SELLER_VERIFIED',
+  CALCULATED_ESTIMATE: 'CALCULATED_ESTIMATE'
+} as const
+
+export type ContainerCapacitySource = (typeof ContainerCapacitySource)[keyof typeof ContainerCapacitySource]
+
+
+export const AcknowledgementType = {
+  PREORDER_INFO: 'PREORDER_INFO'
+} as const
+
+export type AcknowledgementType = (typeof AcknowledgementType)[keyof typeof AcknowledgementType]
+
+
+export const PreorderChatStatus = {
+  NEW: 'NEW',
+  OPEN: 'OPEN',
+  WAITING_FOR_CUSTOMER: 'WAITING_FOR_CUSTOMER',
+  WAITING_FOR_INTERNAL: 'WAITING_FOR_INTERNAL',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED',
+  SPAM: 'SPAM',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type PreorderChatStatus = (typeof PreorderChatStatus)[keyof typeof PreorderChatStatus]
+
+
+export const PreorderChatPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type PreorderChatPriority = (typeof PreorderChatPriority)[keyof typeof PreorderChatPriority]
+
+
+export const PreorderChatSenderType = {
+  CUSTOMER: 'CUSTOMER',
+  ADMIN: 'ADMIN',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type PreorderChatSenderType = (typeof PreorderChatSenderType)[keyof typeof PreorderChatSenderType]
+
+
+export const PreorderChatMessageType = {
+  TEXT: 'TEXT',
+  ATTACHMENT: 'ATTACHMENT',
+  SYSTEM_EVENT: 'SYSTEM_EVENT',
+  STRUCTURED_OFFER: 'STRUCTURED_OFFER'
+} as const
+
+export type PreorderChatMessageType = (typeof PreorderChatMessageType)[keyof typeof PreorderChatMessageType]
+
+
+export const PreorderChatParticipantType = {
+  CUSTOMER: 'CUSTOMER',
+  ADMIN: 'ADMIN'
+} as const
+
+export type PreorderChatParticipantType = (typeof PreorderChatParticipantType)[keyof typeof PreorderChatParticipantType]
+
+
+export const PreorderChatProposalState = {
+  PROPOSED: 'PROPOSED',
+  SUPERSEDED: 'SUPERSEDED',
+  WITHDRAWN: 'WITHDRAWN',
+  DECLINED: 'DECLINED',
+  SUBMITTED: 'SUBMITTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type PreorderChatProposalState = (typeof PreorderChatProposalState)[keyof typeof PreorderChatProposalState]
+
+
+export const PreorderChatScanState = {
+  CLEAN: 'CLEAN',
+  SCANNER_UNCONFIGURED: 'SCANNER_UNCONFIGURED'
+} as const
+
+export type PreorderChatScanState = (typeof PreorderChatScanState)[keyof typeof PreorderChatScanState]
 
 
 export const SellerInvoiceJurisdiction = {

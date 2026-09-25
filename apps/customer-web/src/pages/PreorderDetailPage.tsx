@@ -8,7 +8,14 @@
  * the seller changed while the page was open are refused rather than accepted
  * unseen.
  *
- * Confirming charges nothing. It creates the order, awaiting payment, and the
+ * Three answers: Accept offer, Reject offer (which ends the preorder), and
+ * Request a change (which sends it back to the seller with the buyer's
+ * message). The offer is shown with its full price from the server - goods,
+ * tax, delivery and total - and, for a revised date or a split delivery, its
+ * schedule with container equivalents. An offer whose stock has gone since it
+ * was sent says so BEFORE the buyer presses Accept, and cannot be accepted.
+ *
+ * Accepting charges nothing. It creates the order, awaiting payment, and the
  * page then sends the buyer to that order to pay for it through the ordinary
  * payment flow - where the payment is confirmed by the signed webhook, never
  * by the redirect back.
@@ -25,7 +32,14 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime, formatMoney } from '@/lib/format';
-import { cancelPreorder, confirmPreorder, declinePreorder, fetchMyPreorder, type Preorder } from '@/lib/preorders';
+import {
+  cancelPreorder,
+  confirmPreorder,
+  fetchMyPreorder,
+  isQuote,
+  requestPreorderChange,
+  type Preorder,
+} from '@/lib/preorders';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 export function PreorderDetailPage(): React.JSX.Element {
@@ -35,7 +49,7 @@ export function PreorderDetailPage(): React.JSX.Element {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const toast = useToast();
-  const [dialog, setDialog] = useState<'decline' | 'cancel' | null>(null);
+  const [dialog, setDialog] = useState<'change' | 'reject' | 'cancel' | null>(null);
   const [note, setNote] = useState('');
 
   const query = useQuery({ queryKey: ['preorder', id], queryFn: () => fetchMyPreorder(id) });
@@ -67,7 +81,7 @@ export function PreorderDetailPage(): React.JSX.Element {
   });
 
   const decline = useMutation({
-    mutationFn: () => declinePreorder(id, note.trim() === '' ? null : note.trim()),
+    mutationFn: () => requestPreorderChange(id, note.trim()),
     onSuccess: (preorder) => {
       refresh(preorder);
       setDialog(null);
@@ -100,9 +114,14 @@ export function PreorderDetailPage(): React.JSX.Element {
 
   const preorder = query.data;
   const offer = preorder.currentOffer;
-  const canConfirm = preorder.allowedActions.includes('BUYER_CONFIRMED') && offer !== null;
-  const canDecline = preorder.allowedActions.includes('SELLER_REVIEW_REQUIRED');
+  const offerOpen = offer !== null && offer.state === 'PROPOSED';
+  const expired = offerOpen && offer.isExpired === true;
+  const stockGone = offerOpen && offer.stockStillAvailable === false;
+  const canConfirm =
+    preorder.allowedActions.includes('BUYER_CONFIRMED') && offerOpen && !expired && !stockGone;
+  const canDecline = preorder.allowedActions.includes('SELLER_REVIEW_REQUIRED') && offerOpen;
   const canCancel = preorder.allowedActions.includes('CANCELLED');
+  const quote = offer?.quote;
 
   return (
     <>
@@ -150,28 +169,79 @@ export function PreorderDetailPage(): React.JSX.Element {
                 {t('preorder.sellersTerms')}
               </h2>
               <OfferTerms offer={offer} highlight />
-              {canConfirm && (
+
+              {offerOpen && quote !== undefined && quote !== null && (
+                <Card>
+                  {isQuote(quote) ? (
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                      <dt className="text-ink-muted">{t('preorder.productSubtotal')}</dt>
+                      <dd className="text-right tabular-nums text-ink">{formatMoney(quote.subtotal)}</dd>
+                      <dt className="text-ink-muted">{t('preorder.tax')}</dt>
+                      <dd className="text-right tabular-nums text-ink">{formatMoney(quote.tax)}</dd>
+                      <dt className="text-ink-muted">{t('preorder.estimatedLogistics')}</dt>
+                      <dd className="text-right tabular-nums text-ink">
+                        {quote.logisticsIncluded ? t('preorder.freightIncluded') : formatMoney(quote.shipping)}
+                      </dd>
+                      <dt className="font-semibold text-ink">{t('preorder.grandTotal')}</dt>
+                      <dd className="text-right text-base font-semibold tabular-nums text-ink">
+                        {formatMoney(quote.grandTotal)}
+                      </dd>
+                    </dl>
+                  ) : (
+                    <p className="text-sm text-ink-muted">{t('preorder.taxLater')}</p>
+                  )}
+                </Card>
+              )}
+
+              {expired && (
+                <div role="alert" className="rounded-md border border-warning/40 bg-warning-soft p-3 text-sm text-ink">
+                  <p className="font-semibold">{t('preorder.offerExpired')}</p>
+                  <p className="mt-0.5">{t('preorder.offerExpiredBody')}</p>
+                </div>
+              )}
+              {stockGone && !expired && (
+                <div role="alert" className="rounded-md border border-danger/30 bg-danger-soft p-3 text-sm text-ink">
+                  <p className="font-semibold">{t('preorder.stockChanged')}</p>
+                  <p className="mt-0.5">{t('preorder.stockChangedBody')}</p>
+                </div>
+              )}
+
+              {offerOpen && (canConfirm || canDecline || canCancel) && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    variant="action"
-                    isLoading={confirm.isPending}
-                    onClick={() => {
-                      confirm.mutate(preorder);
-                    }}
-                  >
-                    {t('preorder.confirmTerms')}
-                  </Button>
+                  {canConfirm && (
+                    <Button
+                      variant="action"
+                      isLoading={confirm.isPending}
+                      onClick={() => {
+                        confirm.mutate(preorder);
+                      }}
+                    >
+                      {t('preorder.acceptOffer')}
+                    </Button>
+                  )}
                   {canDecline && (
                     <Button
                       variant="secondary"
                       onClick={() => {
-                        setDialog('decline');
+                        setNote('');
+                        setDialog('change');
                       }}
                     >
-                      {t('preorder.declineTerms')}
+                      {t('preorder.requestChange')}
                     </Button>
                   )}
-                  <p className="w-full text-xs text-ink-muted">{t('preorder.confirmNote')}</p>
+                  {canCancel && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setNote('');
+                        setDialog('reject');
+                      }}
+                    >
+                      {t('preorder.rejectOffer')}
+                    </Button>
+                  )}
+                  {canConfirm && <p className="w-full text-xs text-ink-muted">{t('preorder.acceptOfferNote')}</p>}
                 </div>
               )}
             </section>
@@ -236,8 +306,20 @@ export function PreorderDetailPage(): React.JSX.Element {
         onClose={() => {
           setDialog(null);
         }}
-        title={dialog === 'cancel' ? t('preorder.cancelRequest') : t('preorder.declineTerms')}
-        description={dialog === 'cancel' ? t('preorder.cancelBody') : t('preorder.declineBody')}
+        title={
+          dialog === 'cancel'
+            ? t('preorder.cancelRequest')
+            : dialog === 'reject'
+              ? t('preorder.rejectOffer')
+              : t('preorder.requestChange')
+        }
+        description={
+          dialog === 'cancel'
+            ? t('preorder.cancelBody')
+            : dialog === 'reject'
+              ? t('preorder.rejectOfferBody')
+              : t('preorder.requestChangeBody')
+        }
         footer={
           <div className="flex justify-end gap-2">
             <Button
@@ -249,20 +331,24 @@ export function PreorderDetailPage(): React.JSX.Element {
               {t('common.cancel')}
             </Button>
             <Button
-              variant={dialog === 'cancel' ? 'danger' : 'primary'}
-              disabled={dialog === 'cancel' && note.trim().length < 3}
+              variant={dialog === 'change' ? 'primary' : 'danger'}
+              disabled={note.trim().length < 3}
               isLoading={decline.isPending || cancel.isPending}
               onClick={() => {
-                if (dialog === 'cancel') cancel.mutate();
-                else decline.mutate();
+                if (dialog === 'change') decline.mutate();
+                else cancel.mutate();
               }}
             >
-              {dialog === 'cancel' ? t('preorder.cancelRequest') : t('preorder.sendBack')}
+              {dialog === 'cancel'
+                ? t('preorder.cancelRequest')
+                : dialog === 'reject'
+                  ? t('preorder.rejectOffer')
+                  : t('preorder.sendChangeRequest')}
             </Button>
           </div>
         }
       >
-        <Field label={dialog === 'cancel' ? t('preorder.reason') : t('preorder.whatWouldWork')}>
+        <Field label={dialog === 'change' ? t('preorder.yourMessage') : t('preorder.reason')}>
           {({ inputId }) => (
             <Textarea
               id={inputId}

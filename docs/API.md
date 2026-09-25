@@ -750,6 +750,7 @@ routes it guards refuse to work. What they answer is shown below.
 | `FEATURE_LOGISTICS_PORTAL` | `false` | Every guarded `/api/v1/logistics/*` route (the shared sign-in routes under `/api/v1/logistics/auth` are registered regardless), and the carrier webhook | `403 FEATURE_DISABLED`; the carrier webhook answers `404` |
 | `PAYMENT_MOCK_SUCCESS` | `false` | `POST /api/v1/payments/orders/:orderId/mock-capture` (never in production) | `403 FEATURE_DISABLED` |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | Whether the AI assistant answers visitors who are not signed in | `401` for a guest |
+| `FEATURE_PREORDER_CHAT` | `true` | Every `/api/v1/preorder-chats/*` and `/api/v1/admin/preorder-chats/*` route, including both sockets | `404 NOT_FOUND`; `GET /api/v1/preorder-chats/availability` still answers, with `"enabled": false` |
 
 A webhook answers `404` rather than `403` when its feature is off, so that
 somebody probing cannot learn which integrations a deployment has.
@@ -2047,7 +2048,7 @@ confirmed by guessing its slug.
 
 | Endpoint | What |
 |---|---|
-| `GET /api/v1/config` | Branding, support contacts, capability flags. Cached for a minute |
+| `GET /api/v1/config` | Branding, support contacts, capability flags. `marketplace` is `{ displayName, chatTeamName }` - the operator's trading name, and the name the preorder chat's team answers as (`PREORDER_CHAT_TEAM_NAME`, else the trading name). Cached for a minute |
 | `GET /api/v1/catalog/categories`, `/categories/:slug` | The category tree, one category |
 | `GET /api/v1/catalog/products`, `/products/:slug` | Product list and detail, priced for `country` and `currency` |
 | `GET /api/v1/catalog/filters` | Price range and attribute facets |
@@ -2150,12 +2151,55 @@ counters or rejects; the buyer confirms, which creates the order.
 
 | Endpoint | Who | What |
 |---|---|---|
-| `GET /api/v1/preorders/eligibility` | Anyone | Can this be preordered |
-| `POST /api/v1/preorders/preview`, `POST /api/v1/preorders` | Customer | Preview and send (Idempotency-Key required on send) |
+| `GET /api/v1/preorders/eligibility` | Anyone | Can this be preordered; `viewer.preorderInfo` says which version of the bulk preorder note is current and whether this account has acknowledged it |
+| `POST /api/v1/preorders/acknowledgement` | Customer | Record that the buyer read the bulk preorder note, body `{ "policyVersion": "PREORDER_INFO_V1" }`. Only the current version is accepted (`409 PREORDER_INFO_OUTDATED`); repeating it returns the first record |
+| `POST /api/v1/preorders/preview`, `POST /api/v1/preorders` | Customer | Preview and send (Idempotency-Key required on send). Sending is refused with `409 PREORDER_ACKNOWLEDGEMENT_REQUIRED` until the buyer has acknowledged the current version of the note — the server checks its own record, and the strict body schema rejects any flag claiming otherwise |
 | `GET /api/v1/preorders`, `/:id`; `POST .../:id/confirm` (Idempotency-Key required), `/decline`, `/cancel` | Customer | Follow and answer |
 | `GET /api/v1/seller/preorders`, `POST .../:id/accept`, `/counter`, `/reject`, `/start-production`, `/ready` | Seller | Answer requests |
 | `GET`/`PUT /api/v1/seller/preorder-policies` | Seller | Preorder terms |
 | `GET /api/v1/admin/preorders`, `/:id`, and the same answers | Staff, `order.read` / `order.fulfil` | The operator's view |
+| `POST /api/v1/preorders/:id/request-change` | Customer | Ask the seller to change their proposal. A message is required. The request goes back to the seller (`SELLER_REVIEW_REQUIRED`) and the offer is declined with the message. Nothing is charged |
+| `GET`/`PUT /api/v1/seller/offers/:id/container-loading` | Seller, `seller.listing.read` / `seller.listing.write` | Read or save how many pieces of this listing fit a 20-ft and a 40-ft container. The save carries the version it was read at (optimistic concurrency) and is audited |
+| `POST /api/v1/seller/offers/:id/container-loading/preview` | Seller, `seller.listing.read` | The server's figures for a draft loading while the seller types: pieces per container, weight against payload, space used, the system estimate, and any problem |
+| `POST /api/v1/seller/preorders/:id/availability-proposal/preview` | Seller, `seller.order.read` | Preview a revised-date or split-delivery proposal: the schedule with container equivalents, the stock that would be held, and the full price with tax and delivery |
+| `POST /api/v1/seller/preorders/:id/availability-proposal` | Seller, `seller.order.fulfil` | Send that proposal to the buyer |
+
+### Containers and more than is available
+
+**Only the unit and the count.** For a container preorder the buyer sends the
+unit (`CONTAINER_20_FT` or `CONTAINER_40_FT`) and the number of containers. The
+server works out pieces per container, total pieces, price and stock. The body
+is strict: an extra field such as `unitsPerPackage` is refused with `400`.
+
+**What the answers now carry.**
+
+- `GET /api/v1/preorders/eligibility` returns `containerOptions`: both sizes,
+  each available or not, with the reason `NOT_CONFIGURED`, `NOT_VERIFIED` or
+  `NOT_OFFERED`.
+- `POST /api/v1/preorders/preview` returns the container, the availability and
+  the logistics status (delivery is quoted by the seller later).
+- A buyer's and a seller's preorder view return `container`, `availability` (the
+  seller sees live available-to-promise; the buyer never sees warehouse
+  details), `stockHolds` (seller and admin only), and for the current offer a
+  `quote`, `stockStillAvailable` and `isExpired`.
+
+**Accepting.** A revised-date or split-delivery offer is accepted through the
+existing `POST /api/v1/preorders/:id/confirm`. If the stock it relied on has
+gone, nothing is reserved or charged, and the answer is
+`PREORDER_STOCK_CHANGED`.
+
+**Error codes (added, none repurposed).**
+
+| Code | When |
+|---|---|
+| `PREORDER_CONTAINER_NOT_CONFIGURED` | A container size was asked for that the seller has not configured or verified |
+| `PREORDER_PROPOSAL_INVALID` | A revised-date or split-delivery proposal breaks a rule; `details` lists each problem |
+| `PREORDER_STOCK_CHANGED` | The stock an offer relied on was gone when the buyer accepted; the seller must revise |
+| `CONTAINER_LOADING_INVALID` | A container loading is impossible (too heavy, too much room, a carton that fits no way round) or incomplete |
+
+**Who may.** Every seller read and write is limited to the seller's own
+listings and preorders; another seller's answers `404`. A buyer sees only their
+own preorders (`404` otherwise).
 
 ## Documents
 
@@ -2258,6 +2302,116 @@ Two separate features that must not be confused:
 
 A third, the **seller's own accounting system** (TallyPrime through the Tally
 Bridge), is under `/api/v1/seller/erp/*` and `/api/v1/integrations/tally-bridge/*`.
+
+## Preorder chat
+
+`preorder-chats.ts` (customer) and `preorder-chats.admin.ts` (staff). A
+signed-in buyer asks the operator's team about a preorder from a product page.
+**Customer and operator staff only**: there is no seller route, and a seller's
+customer credential reaches only that seller's own conversations as a buyer.
+
+**Writes are REST; the socket only announces.** A message is validated, stored
+and committed, then announced, and the `201` response carrying the stored
+message is the sender's acknowledgement. Everything the socket says can be read
+back over REST.
+
+### Customer endpoints
+
+All need a customer session except `availability`. Every conversation route
+narrows to the caller's own profile inside the query; another customer's id
+answers `404` exactly as a missing one.
+
+| Endpoint | What |
+|---|---|
+| `GET /api/v1/preorder-chats/availability` | Public. `{ enabled, teamAvailable, typicalResponse, maxMessageChars, attachments: { available, reason, maxBytes, types } }`. `teamAvailable` is true only while staff who can reply are connected |
+| `POST /api/v1/preorder-chats/context` | Body `{ productId, variantId, orderingUnit, unitQuantity, desiredDeliveryDate }` (strict). The product card as the server builds it, and the live conversation about it if one exists. **Creates nothing** |
+| `POST /api/v1/preorder-chats/messages` | The first message about a product: `{ clientMessageId, body, replyToMessageId, context, locale }`. Creates the conversation in the same transaction, or continues the live one. `201`, or `200` with `duplicate: true` for a retry |
+| `GET /api/v1/preorder-chats`, `/unread`, `/:id` | The customer's conversations (cursor), total unread, one conversation |
+| `GET /api/v1/preorder-chats/:id/messages?after=&before=&limit=` | History. `after` = everything since a sequence, oldest first (reconnect); `before` = earlier messages |
+| `POST /api/v1/preorder-chats/:id/messages` | `{ clientMessageId, body, replyToMessageId }` |
+| `POST /api/v1/preorder-chats/:id/read` | `{ seq }`, clamped to what exists; returns `{ readSeq, unreadCount }` |
+| `POST /api/v1/preorder-chats/:id/attachments` | Multipart: field `clientMessageId`, then `file` |
+| `POST .../attachments/:attachmentId/link`, `GET .../download?token=` | A five-minute, single-use link, redeemed by the same signed-in person. Served as an attachment with `nosniff` and `sandbox` |
+| `GET /api/v1/preorder-chats/:id/proposals/:proposalId` | A proposal and the figures to prefill the preorder form |
+| `POST .../proposals/:proposalId/decline` | `{ reason }` |
+| `POST .../proposals/:proposalId/submitted` | `{ preorderRequestId }`: a request made through `POST /api/v1/preorders` from this proposal. Checked: the customer's own, same product and option, made after the proposal |
+
+### Staff endpoints
+
+Under `/api/v1/admin/preorder-chats`. Every route needs `preorder_chat.view`;
+the others are named per route.
+
+| Endpoint | Permission | What |
+|---|---|---|
+| `GET /` `?filter=&sort=&q=&cursor=&limit=` | view | The inbox. Filters `all`, `unassigned`, `mine`, `unread`, `priority` (high and urgent, still being worked), `open`, `waiting_customer`, `waiting_internal`, `resolved`, `closed`, `spam`; sorts `newest`, `oldest_unanswered`, `priority`, `longest_waiting`. Keyset cursor. No message history |
+| `GET /counts`, `/operations`, `/assignees` | view (`assignees`: + assign) | Tab counts; queue sizes and 30-day response and resolution times; staff who can reply |
+| `GET /:id`, `/:id/messages`, `/:id/notes`, `/:id/activity`, `/:id/proposals` | view | One conversation (opening it is audited once per person per 30 minutes), history, internal notes, audit entries, proposals |
+| `POST /:id/messages`, `/:id/read` | reply / view | Reply (first reply assigns it to the writer and closes the SLA alert); read for the team |
+| `POST /:id/assign` `{ assigneeUserId }` | reply for yourself, assign for anyone else | Take, give or release |
+| `POST /:id/status` `{ status, reason }` | reply; moderate for `SPAM` | Move the conversation. `409 PREORDER_CHAT_TRANSITION_NOT_ALLOWED` for a move the lifecycle lacks |
+| `POST /:id/priority`, `PUT /:id/tags`, `POST /:id/notes`, `POST /:id/preorder` | reply | Priority, tags, a note, link or unlink a preorder |
+| `POST /:id/proposals`, `/:id/proposals/:proposalId/withdraw` | reply | Send (or revise) a proposal, withdraw it |
+| `POST /:id/messages/:messageId/redact` `{ reason }`, `/:id/block` `{ reason }`, `/:id/unblock` | moderate | Moderation |
+| `GET /:id/export` | export | The transcript as JSON, notes included. Audited |
+| `POST /:id/attachments`, `.../attachments/:attachmentId/link`, `.../download` | reply / view | Files, as for the customer |
+
+### The WebSocket
+
+`GET /api/v1/preorder-chats/socket` (customer) and
+`GET /api/v1/admin/preorder-chats/socket` (staff, `preorder_chat.view`) upgrade
+to a WebSocket. **Authentication is the same session cookie** as every REST call,
+checked with the same guard. An `Origin` that is present and not on the CORS
+allowlist is refused before the upgrade. A failed session check still upgrades,
+sends `{ "type": "error", "code": "..." }` and closes with **4401** (sign in
+again: refresh and reconnect) or **4403** (not allowed). Every ten seconds the
+server re-checks each socket's session, account and permissions and closes it
+the same way when they no longer hold. Frames are JSON, at most 4 KB inbound,
+60 per 10 seconds.
+
+| From the browser | Meaning |
+|---|---|
+| `{ "type": "subscribe", "conversationId" }` | Open a conversation. Checked: the customer must own it. Needed for typing |
+| `{ "type": "unsubscribe", "conversationId" }` | |
+| `{ "type": "typing", "conversationId", "state": "start" \| "stop" }` | Throttled; never stored |
+| `{ "type": "delivered", "conversationId", "seq" }` | This side has been shown up to `seq` |
+| `{ "type": "ping" }` | Answered with `pong` |
+
+| From the server | Meaning |
+|---|---|
+| `hello`, `presence` | `teamAvailable` |
+| `message.created`, `message.updated` | `{ conversationId, message }`, serialised for the receiving side |
+| `conversation.updated` | The conversation, as this side sees it. Staff-only changes (notes, tags, assignment) are never sent to a customer |
+| `receipt` | `{ conversationId, side, deliveredSeq, readSeq }` |
+| `typing` | `{ conversationId, side, state }` |
+| `error` | `{ code }`, before a close |
+
+**Reconnecting.** Browsers reconnect after 1, 2, 4 … up to 30 seconds with
+jitter, and at once when back online, then fetch
+`GET .../messages?after=<last sequence held>` and merge on the sequence, so
+nothing is lost or doubled.
+
+**Several API processes.** Set `REALTIME_BUS_DRIVER=database`. Each event is
+written to `realtime_events` as ids only, polled by every process every
+`REALTIME_BUS_POLL_MS`, and deleted within minutes.
+
+### Retries, limits, errors
+
+- **Retries.** `clientMessageId` (8-64 of `A-Z a-z 0-9 _ -`) is UNIQUE per
+  sender. The same id with the same text returns the stored message; with other
+  text or another conversation, `409 PREORDER_CHAT_MESSAGE_ID_REUSED`.
+- **Limits.** `PREORDER_CHAT_MESSAGES_PER_MINUTE` per sender and
+  `PREORDER_CHAT_CONVERSATIONS_PER_HOUR` per customer, counted in the database
+  (so across processes), answer `429 RATE_LIMITED`; the routes also carry the
+  usual per-IP limit. Over `PREORDER_CHAT_MAX_MESSAGE_CHARS` code points:
+  `400 PREORDER_CHAT_MESSAGE_TOO_LONG`.
+- **Text.** Stored as written, minus control characters and bidirectional
+  overrides. Clients render it as text, never HTML, and link only `http(s)`.
+- **Codes.** `PREORDER_CHAT_CLOSED`, `PREORDER_CHAT_BLOCKED`,
+  `PREORDER_CHAT_DUPLICATE_CONVERSATION`, `PREORDER_CHAT_ASSIGNEE_NOT_ELIGIBLE`,
+  `PREORDER_CHAT_PREORDER_MISMATCH`, `PREORDER_CHAT_PROPOSAL_NOT_OPEN`,
+  `PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE`; files reuse `MEDIA_TYPE_NOT_ALLOWED`,
+  `MEDIA_TOO_LARGE` and `MALWARE_DETECTED`. See
+  [ERROR-CODES.md](reference/ERROR-CODES.md).
 
 ## AI assistant and insights
 
@@ -2371,7 +2525,7 @@ These three live outside `/api/v1` and need no sign-in.
 | Endpoint | Purpose | Answer |
 |---|---|---|
 | `GET /health/live` | **Liveness**: is the process running? It touches nothing else, so a database outage never restarts the process | `200 { "status": "ok", "uptimeSeconds": 5321 }` |
-| `GET /health/ready` | **Readiness**: can it serve traffic? Checks the database and the job queue | `200 { "status": "ready", "uptimeSeconds": 5321, "dependencies": { "database": { "ok": true, "latencyMs": 2 }, "queue": { "ok": true, "latencyMs": 1 } } }`, or `503` with `"status": "not_ready"` so a load balancer stops sending requests to this instance |
+| `GET /health/ready` | **Readiness**: can it serve traffic? Checks the database, the job queue and the preorder chat's live bus (under `REALTIME_BUS_DRIVER=database`, a process that cannot read `realtime_events` is not ready) | `200 { "status": "ready", "uptimeSeconds": 5321, "dependencies": { "database": { "ok": true, "latencyMs": 2 }, "queue": { "ok": true, "latencyMs": 1 }, "realtime": { "ok": true, "latencyMs": 0 } } }`, or `503` with `"status": "not_ready"` so a load balancer stops sending requests to this instance |
 | `GET /metrics` | **Prometheus** metrics, in Prometheus' text format | Counters and gauges, for example `uboss_http_requests_total`, `uboss_http_request_duration_seconds`, `uboss_http_errors_total`, `uboss_orders_created_total`, `uboss_payment_events_total`, `uboss_payment_rejections_total`, `uboss_queue_depth`, `uboss_payments_unreconciled`, `uboss_low_stock_products` |
 
 Readiness hides the reason for a failure from the caller and writes it to the

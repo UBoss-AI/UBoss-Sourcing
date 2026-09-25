@@ -177,8 +177,19 @@ export const NotificationEvent = {
   PREORDER_EXPIRED: 'preorder.expired',
   PREORDER_CANCELLED: 'preorder.cancelled',
   PREORDER_DELIVERY_RISK: 'preorder.delivery_risk',
+  PREORDER_AVAILABILITY_PROPOSED: 'preorder.availability_proposed',
+  PREORDER_STOCK_CHANGED: 'preorder.stock_changed',
   /// A seller issued the tax invoice for a consignment of the buyer's order.
   SELLER_INVOICE_ISSUED: 'seller_invoice.issued',
+  /// Preorder chat, told to the BUYER - only once a reply has sat unread for
+  /// PREORDER_CHAT_EMAIL_DELAY_MINUTES, so a customer with the page open is
+  /// not emailed about a message they are reading. Never carries the message.
+  PREORDER_CHAT_REPLY: 'preorder_chat.reply',
+  PREORDER_CHAT_PROPOSAL: 'preorder_chat.proposal',
+  PREORDER_CHAT_RESPONSE_REQUESTED: 'preorder_chat.response_requested',
+  PREORDER_CHAT_RESOLVED: 'preorder_chat.resolved',
+  /// Told to a member of STAFF: a colleague handed them a conversation.
+  PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -228,8 +239,8 @@ function renderTemplate(template: string, variables: TemplateVariables): string 
 }
 
 /** Built-in fallbacks, used when no notification_settings row exists yet. */
-const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string }>> = Object.freeze(
-  {
+const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string }>> =
+  Object.freeze({
     [NotificationEvent.SHIPMENT_PICKED_UP]: {
       subject: 'Part of order {{orderNumber}} has been collected',
       body:
@@ -731,6 +742,26 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Nothing has been charged. Review and confirm or decline before {{expiresAt}}:\n' +
         '{{preorderUrl}}\n',
     },
+    [NotificationEvent.PREORDER_AVAILABILITY_PROPOSED]: {
+      subject: 'Preorder {{requestNumber}}: {{sellerName}} proposed a delivery schedule',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The complete quantity you asked for ({{quantity}} of {{productName}}) is not ' +
+        'available right now. {{sellerName}} has proposed this instead:\n\n' +
+        '{{schedule}}\n\n' +
+        'Price per piece: {{unitPrice}}. Total before tax: {{total}}.\n\n' +
+        'Nothing has been charged and nothing is confirmed until you accept. Review it and ' +
+        'accept, reject or ask for a change before {{expiresAt}}:\n{{preorderUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_STOCK_CHANGED]: {
+      subject: 'Preorder {{requestNumber}}: the stock changed - a new offer is coming',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'You accepted the offer on preorder {{requestNumber}} for {{productName}}, but the ' +
+        'stock it was based on is no longer available.\n\n' +
+        'Nothing has been reserved or charged. {{sellerName}} has been asked to send you a ' +
+        'revised offer, and you will be told as soon as they do:\n{{preorderUrl}}\n',
+    },
     [NotificationEvent.PREORDER_REJECTED]: {
       subject: 'Preorder {{requestNumber}} was declined',
       body:
@@ -742,7 +773,7 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
       subject: 'Preorder {{requestNumber}} agreed - order {{orderNumber}} is ready to pay',
       body:
         'Hello {{recipientName}},\n\n' +
-        'Nothing has been charged yet. You confirmed {{sellerName}}\'s terms, and order ' +
+        "Nothing has been charged yet. You confirmed {{sellerName}}'s terms, and order " +
         '{{orderNumber}} for {{total}} is waiting for payment.\n\n' +
         'Pay for it here before {{expiresAt}}, or the capacity held for you is released:\n' +
         '{{orderUrl}}\n',
@@ -796,8 +827,47 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Your preorder {{requestNumber}} is due by {{committedDate}} and is not yet ready for ' +
         'dispatch. {{sellerName}} has been asked to update you.\n\n{{preorderUrl}}\n',
     },
-  },
-);
+    // --- Preorder chat. Each says a message is WAITING and links to it; none
+    // carries the message itself. A reply may name a price, and an inbox that
+    // is forwarded, previewed on a lock screen or read by a colleague is not
+    // where it belongs. The link opens the conversation after sign-in.
+    [NotificationEvent.PREORDER_CHAT_REPLY]: {
+      subject: '{{businessName}} replied about {{productName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The {{businessName}} preorder team has replied to your question about {{productName}}.\n\n' +
+        'Read the reply and answer here:\n{{chatUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_CHAT_PROPOSAL]: {
+      subject: '{{businessName}} sent you a preorder proposal for {{productName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The {{businessName}} preorder team has prepared a preorder proposal for {{productName}}. ' +
+        'Nothing has been ordered or charged: review it, and send it as a preorder request if it ' +
+        'suits you.\n\n{{chatUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_CHAT_RESPONSE_REQUESTED]: {
+      subject: '{{businessName}} is waiting for your answer about {{productName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The {{businessName}} preorder team needs a little more information about {{productName}} ' +
+        'before they can go further.\n\n{{chatUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_CHAT_RESOLVED]: {
+      subject: 'Your question about {{productName}} has been answered',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The {{businessName}} preorder team has marked your conversation about {{productName}} as ' +
+        'resolved. Write in it again at any time and it reopens.\n\n{{chatUrl}}\n',
+    },
+    [NotificationEvent.PREORDER_CHAT_ASSIGNED]: {
+      subject: 'A preorder chat has been assigned to you',
+      body:
+        'Hello,\n\n' +
+        'A preorder chat about {{productName}} has been assigned to you by {{assignedBy}}.\n\n' +
+        'Open it in the console:\n{{consoleUrl}}\n',
+    },
+  });
 
 const FALLBACK_TEMPLATE = {
   subject: '{{businessName}} notification',
@@ -817,8 +887,9 @@ export async function enqueueNotification(
   tx?: unknown,
 ): Promise<string | null> {
   const client =
-    (tx as Pick<typeof prisma, 'notificationOutbox' | 'notificationSetting' | 'businessProfile'> | undefined) ??
-    prisma;
+    (tx as
+      | Pick<typeof prisma, 'notificationOutbox' | 'notificationSetting' | 'businessProfile'>
+      | undefined) ?? prisma;
 
   const setting = await client.notificationSetting.findUnique({
     where: { eventKey: input.eventKey },
@@ -843,7 +914,8 @@ export async function enqueueNotification(
    * name to be had, and the address is the one this deployment sends from.
    */
   const needsProfile =
-    input.variables?.['businessName'] === undefined || input.variables['supportEmail'] === undefined;
+    input.variables?.['businessName'] === undefined ||
+    input.variables['supportEmail'] === undefined;
   const profile = needsProfile
     ? await client.businessProfile.findFirst({ select: { displayName: true, supportEmail: true } })
     : null;

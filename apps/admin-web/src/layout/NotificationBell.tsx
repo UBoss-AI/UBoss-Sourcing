@@ -92,6 +92,15 @@ const PREORDER_AWAITING_OPERATOR = 'preorder.awaiting_operator';
 /** Something happened on a preorder for the store's own product that needs no action. */
 const PREORDER_UPDATE = 'preorder.update';
 
+/**
+ * Preorder chat. A customer started one (news), a customer has waited past the
+ * SLA (an ALERT, closed only by a reply), or a customer answered a proposal.
+ * None of them carries what anybody wrote - only the product and the facts.
+ */
+const PREORDER_CHAT_STARTED = 'preorder_chat.started';
+const PREORDER_CHAT_SLA_BREACHED = 'preorder_chat.sla_breached';
+const PREORDER_CHAT_PROPOSAL_ANSWERED = 'preorder_chat.proposal_answered';
+
 /** The steps a preorder notification can name. Anything else reads as the generic line. */
 const PREORDER_EVENTS = new Set([
   'PREORDER_REQUEST_RECEIVED',
@@ -267,6 +276,43 @@ function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18
       detail: PREORDER_EVENTS.has(event)
         ? t(`notifications.preorder.${event}` as TranslationKey)
         : t('notifications.preorder.generic'),
+    };
+  }
+
+  if (notification.kind === PREORDER_CHAT_STARTED) {
+    return {
+      title: t('notifications.preorderChat.started', {
+        productName: textVariable(variables, 'productName', '—'),
+      }),
+      detail: t('notifications.preorderChat.startedDetail', {
+        customerName: textVariable(variables, 'customerName', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === PREORDER_CHAT_SLA_BREACHED) {
+    return {
+      title: t('notifications.preorderChat.slaBreached', {
+        productName: textVariable(variables, 'productName', '—'),
+      }),
+      detail: t('notifications.preorderChat.slaBreachedDetail', {
+        minutes: numberVariable(variables, 'waitingMinutes'),
+      }),
+    };
+  }
+
+  if (notification.kind === PREORDER_CHAT_PROPOSAL_ANSWERED) {
+    const outcome = textVariable(variables, 'outcome', '');
+    return {
+      title:
+        outcome === 'SUBMITTED'
+          ? t('notifications.preorderChat.proposalSubmitted', {
+              productName: textVariable(variables, 'productName', '—'),
+            })
+          : t('notifications.preorderChat.proposalDeclined', {
+              productName: textVariable(variables, 'productName', '—'),
+            }),
+      detail: null,
     };
   }
 

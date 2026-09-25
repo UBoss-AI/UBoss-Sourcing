@@ -22,11 +22,18 @@ import {
   serialiseEligibility,
 } from '../../modules/preorders/policy.service.js';
 import {
+  acknowledgePreorderInfo,
+  currentPreorderInfoVersion,
+  hasAcknowledgedPreorderInfo,
+} from '../../modules/preorders/acknowledgement.service.js';
+import {
   buyerCancel,
   buyerConfirm,
   buyerConfirmSchema,
   buyerDecline,
   buyerDeclineSchema,
+  buyerRequestChange,
+  buyerRequestChangeSchema,
   getBuyerPreorder,
   listBuyerPreorders,
   preorderInputSchema,
@@ -124,6 +131,49 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
           // Whether THIS account could submit: a business name is required.
           isBusinessBuyer: (buyer?.organization ?? '').trim() !== '',
           addressId: address?.id ?? null,
+          // Which version of the bulk preorder note is current, and whether
+          // this account has acknowledged it. A guest has not: their tick is
+          // kept in the browser until they sign in and it can be recorded.
+          preorderInfo: {
+            policyVersion: currentPreorderInfoVersion(),
+            acknowledged:
+              request.auth === undefined || profileId === null
+                ? false
+                : await hasAcknowledgedPreorderInfo(request.auth.id),
+          },
+        },
+      });
+    },
+  );
+
+  /**
+   * Record that the signed-in buyer read and understood how bulk preorders
+   * work - the minimum quantity, and that the seller confirms before anything
+   * is charged. Only the current version of that information can be
+   * acknowledged; an older one is refused so the buyer reads the new text.
+   * This is not acceptance of any terms and places no order.
+   */
+  app.post(
+    '/acknowledgement',
+    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const body = z
+        .object({ policyVersion: z.string().min(1).max(32) })
+        .strict()
+        .parse(request.body);
+      const actor = buyerActor(request);
+      const acknowledgement = await acknowledgePreorderInfo({
+        userId: actor.userId,
+        email: actor.email,
+        policyVersion: body.policyVersion,
+        ipAddress: actor.ipAddress ?? null,
+        correlationId: actor.correlationId ?? null,
+      });
+      return reply.status(200).send({
+        acknowledgement: {
+          type: 'PREORDER_INFO',
+          policyVersion: acknowledgement.policyVersion,
+          acknowledgedAt: acknowledgement.acknowledgedAt.toISOString(),
         },
       });
     },
@@ -230,6 +280,23 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
       return reply
         .status(200)
         .send({ preorder: await buyerDecline(buyerActor(request), id, input) });
+    },
+  );
+
+  /**
+   * The buyer asks the seller to change their offer, with a message saying
+   * what should change. The offer is set aside, the preorder goes back to the
+   * seller with the message, and the seller is alerted. Nothing is charged.
+   */
+  app.post(
+    '/:id/request-change',
+    { preHandler: requireCustomer, config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const input = buyerRequestChangeSchema.parse(request.body ?? {});
+      return reply
+        .status(200)
+        .send({ preorder: await buyerRequestChange(buyerActor(request), id, input) });
     },
   );
 

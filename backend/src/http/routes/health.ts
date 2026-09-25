@@ -47,7 +47,13 @@ export function registerHealthRoutes(app: FastifyInstance): Promise<void> {
   app.get('/health/ready', async (request, reply) => {
     const [database, queue] = await Promise.all([checkDatabase(), checkQueue()]);
 
-    const ready = database.ok && queue.ok;
+    // The preorder chat's live bus. Under REALTIME_BUS_DRIVER=database a
+    // process that cannot read `realtime_events` delivers nothing another
+    // process sent, so it should not take traffic; under `memory` there is
+    // nothing outside the process to fail.
+    const realtime = app.preorderChat.health();
+
+    const ready = database.ok && queue.ok && realtime.healthy;
 
     if (!ready) {
       // The whole reason, once, where an operator can read it. Never in the
@@ -57,6 +63,7 @@ export function registerHealthRoutes(app: FastifyInstance): Promise<void> {
           correlationId: request.correlationId,
           database: { ok: database.ok, error: database.error },
           queue: { ok: queue.ok, error: queue.error },
+          realtime: { ok: realtime.healthy, driver: realtime.driver, error: realtime.lastError },
         },
         'readiness check failed',
       );
@@ -65,6 +72,8 @@ export function registerHealthRoutes(app: FastifyInstance): Promise<void> {
     const dependencies: Record<string, PublicDependencyResult> = {
       database: { ok: database.ok, latencyMs: database.latencyMs },
       queue: { ok: queue.ok, latencyMs: queue.latencyMs },
+      // No latency to report for a poller; 0 keeps the public shape identical.
+      realtime: { ok: realtime.healthy, latencyMs: 0 },
     };
 
     return reply.status(ready ? 200 : 503).send({

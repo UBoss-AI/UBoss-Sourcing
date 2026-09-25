@@ -54,6 +54,8 @@ export const AttentionKey = {
   DATA_REQUESTS: 'dataRequests',
   /// Consignments in trouble and nobody yet holding them.
   LOGISTICS_EXCEPTIONS: 'logisticsExceptions',
+  /// Preorder chats where a customer is waiting for the team to answer.
+  PREORDER_CHATS: 'preorderChats',
 } as const;
 
 export type AttentionKeyName = (typeof AttentionKey)[keyof typeof AttentionKey];
@@ -140,6 +142,20 @@ const QUEUES: readonly Queue[] = Object.freeze([
     count: () =>
       prisma.logisticsShipmentException.count({
         where: { state: { in: ['OPEN', 'ESCALATED'] } },
+      }),
+  },
+  {
+    key: AttentionKey.PREORDER_CHATS,
+    permission: Permission.PREORDER_CHAT_VIEW,
+    // A customer's message nobody has answered. Not "unread": a colleague
+    // reading a message is not the customer being answered, and the badge is
+    // for the thing that still needs doing. Spam and blocked never count.
+    count: () =>
+      prisma.preorderChatConversation.count({
+        where: {
+          awaitingReplySince: { not: null },
+          status: { in: ['NEW', 'OPEN', 'WAITING_FOR_INTERNAL'] },
+        },
       }),
   },
 ]);
