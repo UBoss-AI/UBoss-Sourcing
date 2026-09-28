@@ -2,38 +2,46 @@
  * The last line of defence.
  *
  * A render error anywhere below this unmounts the tree and React shows a blank
- * page. A blank page in an admin panel reads as "the server is down" and
- * produces a support call about the wrong thing, so this catches it and says
- * what actually happened.
+ * page, which in the panel reads as "the system is down" to somebody in the
+ * middle of their work. This catches it and shows the same full-page error
+ * every route shows, filling the screen because the frame it would sit in is
+ * gone.
  *
- * Reload rather than "try again": the component tree that threw is not in a
- * state worth resuming from.
+ * Route errors normally stop at the router's `errorElement` long before they
+ * reach here. What gets this far is a crash in a provider or in the router
+ * itself, so the page cannot use a router link or a React context: its links
+ * are plain `href`s, and it translates through the i18next instance directly.
+ *
+ * **The error's own message is never shown.** It used to be, in small print.
+ * A message written for a developer can name a file, a table or an address,
+ * and this page cannot tell which, so the visitor gets the kind's wording and
+ * the console gets the details.
  */
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import { ErrorPage } from '@/components/error-page/ErrorPage';
+import { errorActions } from '@/components/error-page/error-actions';
+import { classifyError } from '@/components/error-page/error-kind';
 import { i18n } from '@/i18n/config';
+import type { Translate } from '@/i18n/i18n-context';
 
 interface Props {
   children: ReactNode;
 }
 
 interface State {
-  error: Error | null;
+  error: unknown;
+  hasError: boolean;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  /**
-   * Translated through the i18next instance directly, not `useI18n`.
-   *
-   * This boundary wraps the provider in `main.tsx` - it has to, or a crash
-   * inside the provider would have nothing to catch it - so there is no React
-   * context to read here, and a class component could not use a hook anyway.
-   * The instance is a module singleton, so `i18n.t` works regardless.
-   */
-  override state: State = { error: null };
+/** The module singleton, so it works with no provider above it. */
+const translate = i18n.t.bind(i18n) as unknown as Translate;
 
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
+export class ErrorBoundary extends Component<Props, State> {
+  override state: State = { error: null, hasError: false };
+
+  static getDerivedStateFromError(error: unknown): State {
+    return { error, hasError: true };
   }
 
   override componentDidCatch(error: Error, info: ErrorInfo): void {
@@ -43,27 +51,27 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   override render(): ReactNode {
-    const { error } = this.state;
+    if (!this.state.hasError) return this.props.children;
 
-    if (error === null) return this.props.children;
+    const { kind, statusCode, reference } = classifyError(this.state.error);
 
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div role="alert" className="max-w-md text-center">
-          <h1 className="text-lg font-semibold text-ink">{i18n.t('errorBoundary.heading')}</h1>
-          <p className="mt-2 text-sm text-ink-muted">{i18n.t('errorBoundary.body')}</p>
-          <p className="mt-3 break-words font-mono text-xxs text-ink-subtle">{error.message}</p>
-          <button
-            type="button"
-            onClick={() => {
-              window.location.reload();
-            }}
-            className="mt-5 inline-flex h-9 items-center rounded-md bg-brand-fill px-4 text-sm font-medium text-white hover:bg-brand-fill-hover"
-          >
-            {i18n.t('errorBoundary.reload')}
-          </button>
-        </div>
-      </div>
+      <ErrorPage
+        kind={kind}
+        t={translate}
+        statusCode={statusCode}
+        reference={reference}
+        fullScreen
+        actions={errorActions(kind, {
+          t: translate,
+          home: { href: import.meta.env.BASE_URL },
+          // Reload rather than re-render: the tree that threw is not in a
+          // state worth resuming from.
+          retry: () => {
+            window.location.reload();
+          },
+        })}
+      />
     );
   }
 }

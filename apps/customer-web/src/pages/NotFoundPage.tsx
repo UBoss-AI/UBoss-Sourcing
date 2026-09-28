@@ -1,42 +1,50 @@
 /**
- * 404.
+ * 404, inside the store's own header and footer.
  *
- * Offers a route onward rather than a dead end — a product that has been
- * unpublished is the most common way somebody lands here, and "browse the
- * catalogue" is the useful next step.
+ * Offers a route onward rather than a dead end. An unpublished product is the
+ * most common way somebody lands here, so the page carries the catalogue
+ * search: it submits to `/products?q=`, the same destination as the search on
+ * the home page, with the query URL-encoded. "Go back" appears only when this
+ * tab has somewhere to go back to — on a link opened in a fresh tab it would
+ * leave the site.
  */
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { ErrorPage } from '@/components/error-page/ErrorPage';
+import { errorActions } from '@/components/error-page/error-actions';
 import { useI18n } from '@/i18n/i18n-context';
+import { useDocumentMeta } from '@/lib/useDocumentMeta';
+
+/** React Router numbers its history entries; 0 is the first in this tab. */
+function hasHistoryToGoBackTo(): boolean {
+  const state: unknown = window.history.state;
+  return typeof state === 'object' && state !== null && 'idx' in state && Number(state.idx) > 0;
+}
 
 export function NotFoundPage(): React.JSX.Element {
   const { t } = useI18n();
+  const navigate = useNavigate();
 
   const { business } = useStorefront();
-  useDocumentMeta({ title: t('notFound.pageNotFound'), noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('errorPage.notFound.title'), noIndex: true }, business.displayName);
 
   return (
-    <div className="mx-auto max-w-lg py-20 text-center">
-      <p className="text-sm font-semibold uppercase tracking-wider text-ink-subtle">404</p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
-        {t('notFound.weCouldNotFindThat')}
-      </h1>
-      <p className="mt-3 text-sm text-ink-muted">{t('notFound.theLinkMayBeOut')}</p>
-      <div className="mt-6 flex justify-center gap-2">
-        <Link
-          to="/products"
-          className="inline-flex h-10 items-center rounded-md bg-brand-fill px-5 text-sm font-medium text-white hover:bg-brand-fill-hover"
-        >
-          {t('notFound.browseProducts')}
-        </Link>
-        <Link
-          to="/"
-          className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"
-        >
-          {t('notFound.home')}
-        </Link>
-      </div>
-    </div>
+    <ErrorPage
+      kind="notFound"
+      t={t}
+      statusCode={404}
+      onSearch={(query) => {
+        void navigate(query.length === 0 ? '/products' : `/products?q=${encodeURIComponent(query)}`);
+      }}
+      actions={errorActions('notFound', {
+        t,
+        home: { to: '/' },
+        goBack: hasHistoryToGoBackTo()
+          ? () => {
+              void navigate(-1);
+            }
+          : undefined,
+      })}
+    />
   );
 }

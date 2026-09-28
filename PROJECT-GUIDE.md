@@ -930,6 +930,64 @@ comes back in the exact same shape:
   thrown `ERROR 1406` on the strict one production runs — inside a transaction
   in several places, taking the order down with the audit row.
 
+## The page somebody sees when a whole screen fails
+
+A form field, one widget or a toast keeps its own small inline message. When a
+whole screen cannot be shown, all three apps show **one full-page error**: a
+large status numeral with a ghost standing in for its zero ("4 👻 4"), a
+heading, one sentence, and the ways onward. It lives in
+`src/components/error-page/`, which is **the same files in all three apps** —
+`error-page-sync.test.ts` in the admin and logistics apps fails the build if a
+copy drifts, so edit the storefront's and copy it across.
+
+| Kind | Numeral | Heading | Ways onward |
+|---|---|---|---|
+| Not found | 404 | This page has gone missing | Back to home (dashboard in the panels), Go back; the storefront adds a catalogue search |
+| Sign-in needed | 401 | Sign in to continue | Sign in, returning to this page afterwards |
+| Refused | 403 | Access restricted | Back to home / dashboard, and nothing else |
+| Timed out | 408 (a 504 shows 504) | The request timed out | Try again, home, support |
+| Too many requests | 429 | Too many requests | Try again, home, support |
+| A crash, or a server error | 500 when the server said so; none for a crash in the page | Something went wrong | Try again, home, support |
+| Connection problem | 502, or none when the request got no answer | Service connection problem | Try again, home, support |
+| Unavailable | 503 | Service temporarily unavailable | Try again, home, support |
+| Offline | none | You are offline | Try again; reloads by itself once the browser is back online |
+| New version | none | A newer version is available | Refresh the page, home |
+
+"Support" is the storefront's `/support` page, and the logistics portal's own
+`/support`. The admin panel offers none: its staff are the support team.
+
+The rules it keeps:
+
+- **Nothing from the error reaches the screen.** Not the message, not a stack,
+  not the server's wording. The one value that does is the server's
+  `correlationId` (above), shown as "Reference for support", and only when it
+  has the shape of an id.
+- **"Try again" reloads the page** — a GET — and only for the kinds where that
+  cannot do harm. It never repeats an order, a payment or a submission.
+- **Offline recovers on the `online` event**, once per reconnection. There is
+  no timer, so it cannot loop.
+- **A file that failed to load** (usually because a deployment replaced it)
+  offers one refresh, pressed by a person. Never an automatic reload.
+- **The 403 names nothing** — not the screen, not the permission. In the panels
+  it is what `RequirePermission` shows. A signed-out visitor is still sent to
+  sign-in by the session guards before any of this.
+- **The sign-in return path is checked** (`safeInternalPath`): one leading
+  slash, never `//` or `/\`.
+- **The storefront search** submits to `/products?q=`, URL-encoded — the same
+  place the home page's search goes.
+- **The ghost is inline SVG**, not a picture from a CDN: production's
+  `img-src 'self'` would block one, and the offline page could not load it. It
+  is drawn in the theme's tokens, so it follows light and dark.
+- **Reduced motion** shows the finished frame: no entrance, no float, no hover.
+
+Where it is wired: every lazily-loaded route has it as its `errorElement`, so a
+page that fails is caught inside the app's own header and sidebar; the layout
+routes have a full-screen copy for when the frame itself fails; each app ends
+in a 404 route (the admin panel and logistics portal used to redirect home
+silently); and `app/ErrorBoundary.tsx` shows it full-screen for a crash above
+the router. In a development build, `/dev/errors/<kind>` on the storefront
+shows any kind on demand; a production build does not contain that route.
+
 ---
 
 # 4. The customer storefront

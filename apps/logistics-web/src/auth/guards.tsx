@@ -15,6 +15,8 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner } from '@/components/ui';
+import { ErrorPage } from '@/components/error-page/ErrorPage';
+import { errorActions } from '@/components/error-page/error-actions';
 import { useI18n } from '@/i18n/i18n-context';
 import type { PermissionKey } from '@/lib/permissions';
 import { MfaChallengePage, MfaSetupPage } from '@/pages/MfaPage';
@@ -64,11 +66,15 @@ export function RequirePermission({
   const { canAny } = useSession();
 
   if (anyOf.length > 0 && !canAny(...anyOf)) {
+    // The same 403 page as everywhere else, inside the shell. It names no
+    // screen and no permission: a refusal that describes the thing refused is
+    // a directory of what exists.
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-lg font-semibold text-ink">{t('common.noAccessTitle')}</h1>
-        <p className="mt-2 text-sm text-ink-muted">{t('common.noAccessBody')}</p>
-      </div>
+      <ErrorPage
+        kind="forbidden"
+        t={t}
+        actions={errorActions('forbidden', { t, home: { to: '/' }, homeIsDashboard: true })}
+      />
     );
   }
 

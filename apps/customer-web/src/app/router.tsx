@@ -20,15 +20,27 @@ import { RequireCustomer } from '@/auth/RequireCustomer';
 import { StoreLayout } from '@/layout/StoreLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { HomeRedirect } from './HomeRedirect';
+import { RouteErrorPage } from './RouteErrorPage';
 import { RouteFallback } from './RouteFallback';
 
 type PageComponent = () => React.JSX.Element;
 
-/** A lazily-loaded public route. */
-function publicRoute(load: () => Promise<PageComponent>): {
+/**
+ * A lazily-loaded route, with the error page beside it.
+ *
+ * `errorElement` is declared on the route rather than returned by `lazy`, so
+ * it is in place before the page's file is fetched: a file that cannot be
+ * fetched is one of the things it exists to catch.
+ */
+interface LazyRoute {
+  errorElement: React.JSX.Element;
   lazy: () => Promise<{ element: React.JSX.Element }>;
-} {
+}
+
+/** A lazily-loaded public route. */
+function publicRoute(load: () => Promise<PageComponent>): LazyRoute {
   return {
+    errorElement: <RouteErrorPage />,
     lazy: async () => {
       const Component = await load();
       return {
@@ -43,10 +55,9 @@ function publicRoute(load: () => Promise<PageComponent>): {
 }
 
 /** A lazily-loaded route that needs an activated customer. */
-function customerRoute(load: () => Promise<PageComponent>): {
-  lazy: () => Promise<{ element: React.JSX.Element }>;
-} {
+function customerRoute(load: () => Promise<PageComponent>): LazyRoute {
   return {
+    errorElement: <RouteErrorPage />,
     lazy: async () => {
       const Component = await load();
       return {
@@ -71,10 +82,9 @@ function customerRoute(load: () => Promise<PageComponent>): {
  * inside a layout that had already rendered a sidebar for a signed-out
  * visitor.
  */
-function accountPage(load: () => Promise<PageComponent>): {
-  lazy: () => Promise<{ element: React.JSX.Element }>;
-} {
+function accountPage(load: () => Promise<PageComponent>): LazyRoute {
   return {
+    errorElement: <RouteErrorPage />,
     lazy: async () => {
       const Component = await load();
       return {
@@ -92,6 +102,9 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <StoreLayout />,
+    // Fills the screen: this one only renders when the store's own frame is
+    // what failed, so there is no header left to sit under.
+    errorElement: <RouteErrorPage fullScreen />,
     children: [
       // --- Public: browse without an account --------------------------------
       { index: true, ...publicRoute(() => import('@/pages/HomePage').then((m) => m.HomePage)) },
@@ -280,6 +293,7 @@ export const router = createBrowserRouter([
       // pinned, every redirect re-checked — not that the risk went away.
       {
         path: 'account',
+        errorElement: <RouteErrorPage />,
         lazy: async () => {
           const { AccountLayout } = await import('@/pages/account/AccountLayout');
           return {
@@ -547,6 +561,20 @@ export const router = createBrowserRouter([
         ...publicRoute(() => import('@/pages/seller/SellPage').then((m) => m.SellPage)),
       },
 
+      // Every full-page error kind, for checking by eye. Development only:
+      // with `DEV` false this spreads nothing, and the page's file is never
+      // bundled. See pages/dev/ErrorPreviewPage.tsx.
+      ...(import.meta.env.DEV
+        ? [
+            {
+              path: 'dev/errors/:kind',
+              ...publicRoute(() =>
+                import('@/pages/dev/ErrorPreviewPage').then((m) => m.ErrorPreviewPage),
+              ),
+            },
+          ]
+        : []),
+
       { path: '*', element: <NotFoundPage /> },
     ],
   },
@@ -567,6 +595,7 @@ export const router = createBrowserRouter([
    */
   {
     path: '/seller',
+    errorElement: <RouteErrorPage fullScreen />,
     lazy: async () => {
       const { SellerLayout } = await import('@/pages/seller/SellerLayout');
       return {
@@ -788,6 +817,10 @@ export const router = createBrowserRouter([
           import('@/pages/account/SupportTicketsPage').then((m) => m.SellerSupportTicketDetailPage),
         ),
       },
+
+      // An unknown address inside the Hub stays inside the Hub's frame,
+      // rather than falling through to the storefront's catch-all.
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);

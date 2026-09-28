@@ -651,7 +651,7 @@ call fails, everything below counts as off.
 | `/sell` | Sell on Gloviaa Mart | Anybody |
 | `/support` | Support | Anybody can open it; raising a ticket needs a signed-in customer |
 | `/about` | About {marketplace} | Anybody |
-| any other address | We could not find that page | Anybody |
+| any other address | This page has gone missing (404) | Anybody |
 
 #### `/` — Home
 
@@ -1583,16 +1583,30 @@ links: somebody who cannot sign in cannot raise a ticket.
 - `POST /api/v1/support/tickets` (with an `Idempotency-Key`)
 - `POST /api/v1/support/tickets/:reference/attachments` (once per file)
 
-#### Any other address — We could not find that page
+#### Any other address — This page has gone missing
 
 | | |
 |---|---|
 | **Who** | Anybody |
-| **File** | `pages/NotFoundPage.tsx` |
+| **File** | `pages/NotFoundPage.tsx`, built on `components/error-page/` |
 
-"We could not find that page. The link may be out of date, or the product may
-no longer be available." with **Browse products** and **Home**. The product
-page shows the same screen for a product that does not exist.
+A large "4 👻 4" (a ghost stands in for the zero), then "This page has gone
+missing" and one line saying the link may be out of date. Below it, a
+**catalogue search**: it opens `/products?q=` with the words typed, the same
+place the home page's search goes. Then **Back to home**, and **Go back** when
+this tab has a page to go back to. The product page shows the same screen for
+a product that does not exist. An unknown address under `/seller` shows it
+inside the Seller Hub's frame.
+
+**When a whole page fails.** Every storefront page has the same full-page
+error for when it cannot be shown: its code crashed, its file could not be
+loaded, or the server refused or failed. The ghost and layout stay; the number,
+heading and buttons change with what went wrong (sign in, try again, refresh,
+contact support). It never shows the technical message. When the server gave a
+reference number, it shows that for support. Offline, it reloads by itself when
+the connection returns. The full list of kinds is in PROJECT-GUIDE.md, "The page
+somebody sees when a whole screen fails". In a development build,
+`/dev/errors/<kind>` shows any of them.
 
 ### 4.2 Storefront: buying
 
@@ -4139,7 +4153,11 @@ Some screens have no sidebar row and are reached from another screen:
 `/logistics/managed-levels/:sellerAccountId`, `/logistics/legs/:legId` and
 `/settings/erp`.
 
-**Any other address** inside the panel goes back to the dashboard, `/`.
+**Any other address** inside the panel shows the same full-page 404 as the
+storefront, inside the panel's frame, with **Back to dashboard** and **Go back**.
+It used to go back to the dashboard without saying why. A screen the account may
+not open shows "Access restricted" with **Back to dashboard**, and names neither
+the screen nor the permission.
 
 ### 6.4 Overview
 
@@ -5974,10 +5992,14 @@ while the tab is visible.
 | `/driver/tasks` | My tasks | Driver task list |
 | `/support` | Support, with your tickets under the form | Every member |
 | `/support/:reference` | One ticket | Every member, for their own tickets |
-| any other address | Goes home, like `/` | Signed in |
+| any other address | This page has gone missing (404), inside the portal | Signed in |
 
-There is no "page not found" screen inside the portal. A wrong address inside
-a signed-in application is almost always an old link, so it goes home.
+A wrong address inside the portal shows the same full-page 404 as the other two
+apps, with **Back to dashboard** and **Go back**. It used to go home without
+saying why, which made a stale bookmark look like a working one. Signed out, the
+portal still sends somebody to `/login` first, so it never says which addresses
+exist. A screen the account may not open shows "Access restricted"; a failure
+offers **Contact support**, which opens the portal's `/support`.
 
 #### `/login` — Sign in to the logistics portal
 
@@ -6846,7 +6868,7 @@ these. Paths are relative to each app's `src` folder.
 | QR code | `components/QrCode.tsx` (admin), `pages/QrCode.tsx` (logistics) | Drawn in the browser for two-step sign-in; nothing is sent anywhere |
 | Sign-in layout | `components/ui/auth-split.tsx`, `auth-globe.tsx` (all three) | The two-column sign-in screen with the earth |
 | Demo sign-ins | `components/DemoLoginPanel.tsx` (all three) | Only when built with `VITE_DEMO_LOGINS` |
-| Page not found, crash | `pages/NotFoundPage.tsx` (storefront), `app/ErrorBoundary.tsx` and `app/RouteFallback.tsx` (all three) | The 404 page, the crash screen, and the spinner while a page loads. The admin panel and logistics portal have no 404 page: an unknown address goes home |
+| Full-page errors | `components/error-page/` (the same files in all three), `pages/NotFoundPage.tsx`, `app/RouteErrorPage.tsx`, `app/ErrorBoundary.tsx` and `app/RouteFallback.tsx` (all three) | The ghost 404 and every other full-page error (401, 403, 408, 429, 500, 502, 503, offline, new version), the crash screen, and the spinner while a page loads |
 
 ---
 

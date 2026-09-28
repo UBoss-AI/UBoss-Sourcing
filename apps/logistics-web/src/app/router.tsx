@@ -22,6 +22,8 @@ import { ActivatePage } from '@/pages/ActivatePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { Permission, type PermissionKey } from '@/lib/permissions';
 import { HomeRedirect } from './HomeRedirect';
+import { NotFoundPage } from '@/pages/NotFoundPage';
+import { RouteErrorPage } from './RouteErrorPage';
 import { RouteFallback } from './RouteFallback';
 
 type PageComponent = () => React.JSX.Element;
@@ -36,8 +38,12 @@ type PageComponent = () => React.JSX.Element;
 function lazyRoute(
   load: () => Promise<PageComponent>,
   anyOf: PermissionKey[],
-): { lazy: () => Promise<{ element: React.JSX.Element }> } {
+): { errorElement: React.JSX.Element; lazy: () => Promise<{ element: React.JSX.Element }> } {
   return {
+    // Declared beside `lazy` rather than returned by it, so it is in place
+    // before the screen's file is fetched: a file that cannot be fetched is
+    // one of the things it catches. Renders inside the shell.
+    errorElement: <RouteErrorPage />,
     lazy: async () => {
       const Component = await load();
 
@@ -57,8 +63,8 @@ function lazyRoute(
 export const router = createBrowserRouter([
   // The two screens that work while signed out. Activation has to live here by
   // definition: somebody redeeming an invitation has no session yet.
-  { path: '/login', element: <LoginPage /> },
-  { path: '/activate', element: <ActivatePage /> },
+  { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage fullScreen /> },
+  { path: '/activate', element: <ActivatePage />, errorElement: <RouteErrorPage fullScreen /> },
 
   {
     path: '/',
@@ -67,6 +73,8 @@ export const router = createBrowserRouter([
         <AppShell />
       </RequireSession>
     ),
+    // Fills the screen: this one only renders when the shell itself failed.
+    errorElement: <RouteErrorPage fullScreen />,
     children: [
       { index: true, element: <HomeRedirect /> },
 
@@ -175,10 +183,10 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // Anything else inside the portal goes home rather than to a blank
-      // screen. A 404 inside an application somebody is signed into is almost
-      // always a stale link rather than a wrong address.
-      { path: '*', element: <HomeRedirect /> },
+      // Anything else inside the portal is a 404 in the portal's own frame. It
+      // used to redirect home silently; a stale link is still the usual cause,
+      // and the page now says so and offers the dashboard.
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ], {

@@ -5184,6 +5184,7 @@ availability is never cached by a proxy.
 | NFR-REL-005 | Graceful shutdown with a 15 s ceiling, so an in-flight checkout commits. | Built |
 | NFR-REL-006 | Degradation, not outage: AI down → shop works; warehouse options down → checkout works; image search failure → its own error codes, not a site banner. | Built |
 | NFR-REL-007 | Backups: nightly encrypted off-site (`uboss-backup.timer`), binary logs every 15 minutes for point-in-time recovery (`uboss-binlog.timer`), a monitor (`uboss-monitor.timer`). RPO/RTO are **operator decisions** (`<APPROVE>` in the runbook). | Built (operator enables) |
+| NFR-REL-008 | A screen that cannot be shown gets one full-page error in all three apps, for ten kinds (404, 401, 403, 408, 429, 500, 502, 503, offline, a file that failed to load). It never shows the technical message; it shows the server's reference number when there is one. "Try again" reloads the page and is offered only where that is safe; offline recovers on reconnection; a failed file offers one refresh, never an automatic loop. | Built |
 
 ## 9.7 Observability (NFR-OBS)
 
@@ -5225,6 +5226,7 @@ availability is never cached by a proxy.
 | NFR-UI-002 | Responsive layouts at phone width; signed-out screens show the earth on wide windows and a drawn globe otherwise. |
 | NFR-UI-003 | The operator's name, never "Gloviaa Mart", heads a deployment that has a business profile. |
 | NFR-UI-004 | No third-party component source whose licence forbids redistribution is shipped (the product is redistributed to every operator). |
+| NFR-UI-005 | Full-page errors and the appearance control draw only from design tokens, so they follow the chosen theme; decorative motion stops under reduced motion; no picture on an error page is fetched from another site. |
 
 ---
 

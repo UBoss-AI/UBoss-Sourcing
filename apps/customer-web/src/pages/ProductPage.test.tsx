@@ -411,8 +411,9 @@ describe('ProductPage', () => {
   it('treats an unpublished product as a clean 404, not a crash', async () => {
     renderProduct(null);
 
-    expect(await screen.findByText('We could not find that page')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /browse products/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'This page has gone missing' })).toBeInTheDocument();
+    // The way onward to the rest of the catalogue: the 404's own search.
+    expect(screen.getByRole('search', { name: 'Search the catalogue' })).toBeInTheDocument();
   });
 
   it('offers a repeat purchase only when the product allows one', async () => {

@@ -15,12 +15,14 @@
  * `products/:id`, so "import" is not read as a product id.
  */
 import { Suspense } from 'react';
-import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { RequireAuth, RequirePermission } from '@/auth/guards';
 import { AppShell } from '@/layout/AppShell';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
+import { RouteErrorPage } from './RouteErrorPage';
 import { RouteFallback } from './RouteFallback';
 import { Permission } from '@/lib/permissions';
 import type { PermissionKey } from '@/lib/permissions';
@@ -37,8 +39,12 @@ type PageComponent = () => React.JSX.Element;
 function lazyRoute(
   load: () => Promise<PageComponent>,
   anyOf: PermissionKey[],
-): { lazy: () => Promise<{ element: React.JSX.Element }> } {
+): { errorElement: React.JSX.Element; lazy: () => Promise<{ element: React.JSX.Element }> } {
   return {
+    // Declared beside `lazy` rather than returned by it, so it is in place
+    // before the screen's file is fetched: a file that cannot be fetched is
+    // one of the things it catches. Renders inside the shell.
+    errorElement: <RouteErrorPage />,
     lazy: async () => {
       const Component = await load();
 
@@ -58,9 +64,9 @@ function lazyRoute(
 export const router = createBrowserRouter([
   // The screens that work while signed out. Password recovery has to live here
   // by definition: somebody who cannot sign in cannot pass RequireAuth.
-  { path: '/login', element: <LoginPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
-  { path: '/reset-password', element: <ResetPasswordPage /> },
+  { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage fullScreen /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage />, errorElement: <RouteErrorPage fullScreen /> },
+  { path: '/reset-password', element: <ResetPasswordPage />, errorElement: <RouteErrorPage fullScreen /> },
   {
     path: '/',
     element: (
@@ -68,6 +74,8 @@ export const router = createBrowserRouter([
         <AppShell />
       </RequireAuth>
     ),
+    // Fills the screen: this one only renders when the shell itself failed.
+    errorElement: <RouteErrorPage fullScreen />,
     children: [
       {
         index: true,
@@ -514,7 +522,7 @@ export const router = createBrowserRouter([
           Permission.INTEGRATION_READ,
         ]),
       },
-      { path: '*', element: <Navigate to="/" replace /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ], {

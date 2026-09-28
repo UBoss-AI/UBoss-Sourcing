@@ -1024,6 +1024,16 @@ take, rather than marking it dead and silently losing the work.
 
 </details>
 
+**Shared by all three web apps.** The appearance switch in the top bar offers
+*match my device*, *light* and *dark*, remembered per browser. When a whole
+screen cannot be shown, each app shows the same full-page error: a status
+numeral with a ghost for its zero, plain words, and the ways onward. There are
+ten kinds, from 404 and 403 to offline and "a newer version is available". It
+never shows the technical message, gives the server's reference number when
+there is one, and only offers "Try again" where reloading is safe. The
+storefront's 404 carries a catalogue search. See "The page somebody sees when
+a whole screen fails" in [PROJECT-GUIDE.md](PROJECT-GUIDE.md).
+
 ---
 
 ## Role dashboards
