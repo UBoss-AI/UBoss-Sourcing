@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model SellerErpBridgeDevice
- * A machine running the Glovia Tally Bridge.
+ * A machine running the Gloviaa Mart Tally Bridge.
  * 
  * THE TOKEN IS NOT STORED. Only its SHA-256 and a short display prefix are,
  * exactly as `AuthToken` and the carrier webhook secrets already work here.

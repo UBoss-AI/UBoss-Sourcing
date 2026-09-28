@@ -21,6 +21,7 @@
  *      Issues carry a section and an attribute key, and the wizard puts each
  *      one beside the input that caused it.
  */
+import { b2cLimitProblemMessage, validateB2cMaxOrderQuantity } from '../../domain/b2c-order-limit.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import {
   evaluatePackHierarchy,
@@ -83,6 +84,8 @@ export interface DraftOffer {
   minimumOrderQuantity?: number | null;
   orderIncrement?: number | null;
   maximumOrderQuantity?: number | null;
+  /** The B2C maximum order quantity. Required to submit; see `b2c-order-limit.ts`. */
+  b2cMaxOrderQuantity?: number | null;
   handlingTimeDays?: number | null;
   guaranteedShelfLifeMonths?: number | null;
   warrantyMonths?: number | null;
@@ -324,6 +327,29 @@ async function evaluateDraft(
         })),
       ),
     );
+  }
+
+  /*
+   * The B2C maximum order quantity: required before a NEW listing can be
+   * sent for review.
+   *
+   * A blocker, not a warning, because it decides who can buy how much from
+   * the moment the listing goes live, and nothing sensible can be assumed
+   * for a seller who has not said. Drafting is never blocked - the autosave
+   * accepts an empty box - only submission is. Offers that existed before
+   * the rule are not drafts and are not affected; Seller Hub flags them.
+   */
+  const b2c = validateB2cMaxOrderQuantity(offer.b2cMaxOrderQuantity ?? null, {
+    minimumOrderQuantity: offer.minimumOrderQuantity ?? 1,
+  });
+  if (!b2c.ok) {
+    issues.push({
+      severity: 'BLOCKER',
+      code: b2c.code === 'REQUIRED' ? 'B2C_MAX_ORDER_QUANTITY_REQUIRED' : 'B2C_MAX_ORDER_QUANTITY_INVALID',
+      section: 'PRICE_STOCK_SHIPPING',
+      attributeKey: 'offer.b2cMaxOrderQuantity',
+      message: b2cLimitProblemMessage(b2c.code),
+    });
   }
 
   /*

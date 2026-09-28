@@ -1,8 +1,8 @@
 /**
  * What the portal calls itself — and, more importantly, what it does not.
  *
- * The portal used to be "UBOSS Logistics" on one line. It is Glovia now, over
- * `The Way to the World`: the product, and its tagline. Both strings live in
+ * The portal used to be "UBOSS Logistics" on one line. It is Gloviaa Mart now, over
+ * `The Way to the Global Sourcing`: the product, and its tagline. Both strings live in
  * `lib/brand.ts` and nowhere else, and `Powered by UBOSS` is the sign-in
  * screen's small print.
  *
@@ -103,8 +103,8 @@ describe('the portal’s brand lockup', () => {
     renderBrand();
 
     // Written as a sentence, not in capitals.
-    expect(screen.getByText('Glovia').textContent).toBe('Glovia');
-    expect(screen.getByText('The Way to the World').textContent).toBe('The Way to the World');
+    expect(screen.getByText('Gloviaa Mart').textContent).toBe('Gloviaa Mart');
+    expect(screen.getByText('The Way to the Global Sourcing').textContent).toBe('The Way to the Global Sourcing');
   });
 
   it('is named with both lines, for a rail too narrow to show them', () => {
@@ -131,7 +131,7 @@ describe('the portal’s brand lockup', () => {
 
 describe('the tab', () => {
   it('is what says which portal this is', () => {
-    expect(PORTAL_TITLE).toBe('Glovia Logistics');
+    expect(PORTAL_TITLE).toBe('Gloviaa Mart Logistics');
   });
 });
 
@@ -159,7 +159,7 @@ describe('the carrier’s own name', () => {
 
     // The brand is on the same screen, and the two are not the same thing.
     expect(screen.getByText(PRODUCT_BRAND)).toBeDefined();
-    expect(screen.queryByText(/signed in as Glovia/i)).toBeNull();
+    expect(screen.queryByText(/signed in as Gloviaa Mart/i)).toBeNull();
 
     // Who makes the portal is the column's small print — once, and not the
     // lockup's second line.

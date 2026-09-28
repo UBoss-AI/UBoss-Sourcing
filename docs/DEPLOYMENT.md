@@ -1,7 +1,7 @@
-# Deploying Glovia
+# Deploying Gloviaa Mart
 
 Production deployment, security, compliance, scaling, migration, rollback and
-operations plan for **Glovia** on a **Hostinger KVM 4** VPS.
+operations plan for **Gloviaa Mart** on a **Hostinger KVM 4** VPS.
 
 `SETUP.md` covers a developer's machine. This covers everything after that.
 `backend/docs/RUNBOOK.md` remains the authority on backup policy, restore
@@ -15,7 +15,7 @@ this document points at it rather than repeating it.
 | Field | Value |
 |---|---|
 | **Document owner** | `<DECIDE>` — named individual accountable for this plan |
-| **Application** | Glovia (B2B sourcing and marketplace platform), formerly UBOSS Sourcing. The repository, the service units, the nginx site, the database and the deployment user all keep their `uboss` names — a product rename does not rename infrastructure other systems already point at |
+| **Application** | Gloviaa Mart (B2B sourcing and marketplace platform), formerly UBOSS Sourcing. The repository, the service units, the nginx site, the database and the deployment user all keep their `uboss` names — a product rename does not rename infrastructure other systems already point at |
 | **Repository** | `https://github.com/UBoss-AI/UBoss-Sourcing.git` (branch `main`) — *Verified from repository:* `git remote -v` |
 | **Environment** | Production, initial single-node — Hostinger KVM 4 |
 | **Version** | 2.3 |

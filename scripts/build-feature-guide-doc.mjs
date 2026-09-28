@@ -88,13 +88,13 @@ function table(headers, rows, widths) {
 function page() { children.push(new Paragraph({ children: [new PageBreak()] })); }
 
 // Cover
-title('Glovia', 'Simple Feature Guide — Customer Storefront, Admin Console, Warehouses, Orders and Automation');
+title('Gloviaa Mart', 'Simple Feature Guide — Customer Storefront, Admin Console, Warehouses, Orders and Automation');
 p('Prepared from the current project implementation', { align: AlignmentType.CENTER, color: C.muted, size: 11 });
 p('English edition • September 2026', { align: AlignmentType.CENTER, color: C.muted, size: 10 });
 children.push(new Paragraph({ text: '', spacing: { before: 300, after: 60 } }));
 note('Purpose', 'This document explains, in simple English, what customers, staff and the system can do. It describes implemented features and clearly marks features that depend on configuration.', C.blue);
 h2('Quick answer');
-p('Glovia is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a cart, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
+p('Gloviaa Mart is a business-to-business ordering system for medical and industrial supplies. Customers browse products, build a cart, choose delivery preferences, place orders and manage their account. Staff manage products, warehouses, stock, orders, payments, customers, reports, security and integrations.');
 h2('How to use this guide');
 bullets([
   'Read “Customer features” to understand what a buyer can do on the storefront.',
@@ -107,12 +107,13 @@ page();
 // 1
 h1('1. The Product in Simple Words');
 h2('1.0 What the product is called');
-p('The product is called Glovia, and its tagline is The Way to the World. Wherever the Glovia name appears in the top-left corner, the tagline sits directly underneath it. The name and the tagline are both written in the same flowing script lettering, so together they read as a logo rather than as ordinary text. That lettering is built into the software, so they look exactly the same on a Windows computer, a Mac, an iPhone or an Android phone, and in the shop, the admin console and the logistics portal alike.');
-p('The welcome screen of the shop opens with the Glovia name in that script, the tagline The Way to the World underneath it, and below that a line that gently alternates between Source with Intelligence and Deliver with Confidence, in the customer\'s own language.');
+p('The product is called Gloviaa Mart, and its tagline is The Way to the Global Sourcing. Wherever the Gloviaa Mart name appears in the top-left corner, the tagline sits directly underneath it. The name and the tagline are both written in the same flowing script lettering, so together they read as a logo rather than as ordinary text. That lettering is built into the software, so they look exactly the same on a Windows computer, a Mac, an iPhone or an Android phone, and in the shop, the admin console and the logistics portal alike.');
+p('The welcome screen of the shop opens with the Gloviaa Mart name in that script, the tagline The Way to the Global Sourcing underneath it, and below that a line that gently alternates between Source with Intelligence and Deliver with Confidence, in the customer\'s own language.');
 p('UBOSS is the company behind the product. That is shown as small print: Powered by UBOSS appears once at the bottom of every shop page, and at the foot of the sign-in screens for staff and delivery companies.');
-p('If your business has its own name, your shop shows your name at the top in the normal lettering, on its own. The Glovia tagline and typeface are only used when the shop is called Glovia, so the software never puts its own slogan under your name.');
-p('The product used to be called UBOSS Sourcing. That name is no longer shown to anybody using the system. Apart from the small Powered by UBOSS line, no screen, message or email calls the marketplace UBOSS.');
-p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices, in your emails and on the payment screen they pay through. Glovia is the name of the software you are running; it never replaces the name of the business running it.');
+p('If your business has its own name, your shop shows your name at the top in the normal lettering, on its own. The Gloviaa Mart tagline and typeface are only used when the shop is called Gloviaa Mart, so the software never puts its own slogan under your name.');
+p('Where there is only room for one word, the product uses its short name, Gloviaa. On a phone the header of the shop says Gloviaa, and the globe at the centre of the welcome screen shows Gloviaa on its own. Everywhere else the full name, Gloviaa Mart, is used. It is always spelled with a double a at the end of Gloviaa.');
+p('The product used to be called UBOSS Sourcing, and after that Glovia. Neither name is shown to anybody using the system any more. Apart from the small Powered by UBOSS line, no screen, message or email calls the marketplace UBOSS.');
+p('The name of your own business is separate again, and it is yours. Whatever you type into Settings as your display name is what your customers see at the top of your shop, on your invoices, in your emails and on the payment screen they pay through. Gloviaa Mart is the name of the software you are running; it never replaces the name of the business running it.');
 p('Your name is also used wherever the system has to say who runs the marketplace. A seller choosing who handles their deliveries sees your name on the choice, for example "Self + Northwind". A delivery company is told to contact "Northwind operations". Your staff and delivery companies see your name in their authenticator app. This works in all eight languages. Records that are kept for later, such as the history of a delivery, say "Marketplace operations" instead, so they stay correct if you ever change your name.');
 p('Some names inside the system were left exactly as they were on purpose: folder names, database names, addresses, file names and settings that other systems already point at. Changing those would break working connections and would change nothing anybody sees.');
 h2('1.1 The four working parts');
@@ -152,6 +153,17 @@ table(['Feature', 'What the customer can do', 'Important detail'], [
   ['Forgot / reset password', 'Request a secure reset link and choose a new password.', 'The application avoids revealing whether an email address is registered.'],
   ['Terms acceptance', 'Read and accept business terms where required.', 'The same controlled consent is used across sign-in, registration and activation.'],
 ], [2500, 4200, 3600]);
+h2('2.2a Signing in as yourself or for your company');
+p('A buyer can shop as themselves, or for a company they belong to. The sign-in page has two tabs, Individual and Company, so the person says which they mean before they start. Both tabs use the same email and password. There is one account per person, not one per company.');
+table(['The buyer does', 'The system does back'], [
+  ['Signs in on the Individual tab.', 'Opens the shop for them as a private buyer, exactly as before.'],
+  ['Signs in on the Company tab and belongs to one company.', 'Opens the shop for that company straight away.'],
+  ['Signs in on the Company tab and belongs to several companies.', 'Asks which company they are buying for today.'],
+  ['Signs in on the Company tab but has no company yet.', 'Signs them in as themselves and offers to start a company application.'],
+  ['Types a wrong password on either tab.', 'Gives the same short message on both tabs. It never reveals whether that person has a company.'],
+  ['Presses “Create account” under the Company tab.', 'Creates an ordinary account first, with the usual email confirmation. The form shows it is step 1 of 6 of registering the company. Pressing “Create account” twice sends it only once. Once the account is made, a new page opens at its top saying to check the email; if something went wrong, the form stays as it was, with everything typed, and says why. After confirming, the person is taken to the Company tab to sign in and apply.'],
+], [4200, 5800]);
+p('The password box has a button to show or hide what has been typed. The tabs can be used with the keyboard alone. The tabs only appear when the business offers company buying, which it does unless it has switched it off (see chapter 15).');
 h2('2.3 Language, country and currency');
 bullets([
   'The storefront supports English, Dutch, French, German, Greek, Italian, Polish and Spanish.',
@@ -280,6 +292,19 @@ bullets([
 ]);
 note('Why this is not a comment section', 'A public thread under a product is a different thing with different problems, and it is not what this is. This is one buyer telling one set of sellers what they need, in private, so the honest answer — "yes, we can do 8 mm" — comes back as a real conversation about an order rather than as a post.', C.teal);
 
+h2('3.2g Star ratings and reviews');
+p('Every product shows what earlier buyers thought of it. Under the product name there is a row of stars with the average score and how many reviews it is based on. The same small row appears on every product card and in every catalogue list. A product nobody has reviewed yet shows no stars at all, so it never looks as if it scored zero.');
+p('A buyer scores four separate things, each from one to five stars: the quality of the product, the delivery, the overall experience of ordering and using it, and the support they received. There are four scores rather than one because they are different questions. A well-made part that arrived three weeks late deserves five stars for quality and one for delivery, and a single average of three would tell the next buyer neither.');
+p('At the foot of the product page there is a Ratings and reviews section. It shows the overall score, how the reviews spread from one star to five, and the four categories drawn as raised columns: the taller the column, the better that part scored. Below are the reviews themselves, newest first, which a buyer can also sort from highest or lowest. Each one shows the reviewer’s first name and the first letter of their surname, the four scores and a Verified purchase mark.');
+bullets([
+  'Only somebody who has actually received the product can review it. An order of theirs containing the product must have been delivered. This keeps reviews honest: nobody can review a product they never bought, and delivery cannot be scored before anything was delivered.',
+  'A buyer can review from three places: the product page, the order once it has been delivered (each line has a Rate this product button), and Account → My reviews, which lists everything delivered but not yet rated.',
+  'All four scores are required, and that is the whole review — there is no comment box to fill in.',
+  'Each buyer has one review per product. Writing again changes it rather than adding a second one, and the buyer can delete it at any time.',
+  'A review appears straight away. There is no waiting for approval.',
+  'The store’s staff can hide a review that breaks the rules, and must say why. The buyer sees that it was hidden and the reason. Changing a hidden review does not bring it back; only staff can.',
+  'The public never sees the buyer’s surname, company or email address.',
+]);
 h2('3.2a Choosing between forms of the same product');
 p('Many things are sold in more than one form. A safety shoe comes in two colours and six sizes. A bag of seeds comes as a single packet or as a pack of ten. A cable comes in three thicknesses and two lengths. Each of those is a separate thing to pick, weigh and ship, with its own reference number and often its own price — so the page has to let a buyer get to the exact one they want, and stop them asking for one that does not exist.');
 p('There are two ways of choosing, and the product decides which one a buyer sees. A hospital ordering syringes usually wants several sizes at once, so those products keep a list where every size can be switched on and given its own quantity. A buyer choosing a shoe wants one shoe, so those products narrow the choice down instead: pick a colour, then pick a size, with anything the business does not stock switched off as you go.');
@@ -411,6 +436,23 @@ bullets([
   'Use the two purchase workspaces: Instant Buy cart and Schedule Cart.',
   'Change a line by the carton, with the piece total updating beside it.',
   'Add, change or remove the special instructions on any line, right up until the order is placed.',
+]);
+h2('4.1a How much one person can buy at once');
+p('A seller can set the most units of a product that one person may buy in a single order. It is called the individual purchase limit. It applies to people buying for themselves, to visitors who have not signed in, and to anybody buying for a company that has not been approved yet. A company the marketplace has approved can buy more. The limit is about buying, not about stock: it never changes how many the seller has.');
+table(['What the customer does', 'What the system does back'], [
+  ['Opens a product that has a limit.', 'Shows “Individual purchase limit: 50 units” under the quantity box. A buyer who is buying for an approved company is told the limit does not apply to them.'],
+  ['Chooses more than the limit, or presses Add to Cart with too many.', 'Opens a short message: “Individual buyers can order up to 50 units of this product. To order a larger quantity, switch to an approved Company account.” It says how many are already in the basket.'],
+  ['Reads the choices in that message.', 'Offers the next step that fits them. A visitor can sign in as a company or create a company account. Somebody with an approved company can switch to it. Somebody whose company is still being checked can see how that is going. Somebody with no company can create one. Everybody can press “Reduce to” the largest amount they may still add, or Cancel to put the quantity back.'],
+  ['Adds the same product again, or several sizes of it.', 'Counts every size and every basket line of that seller’s product together, so the limit cannot be got round by adding it in pieces.'],
+  ['Opens the basket after the seller lowered the limit.', 'Keeps the basket exactly as it was, but warns on each line of that product how many the basket holds and what the limit is, with “Reduce to” and “See options”. Checkout waits until it is fixed. Lowering a quantity always works; raising it past the limit does not.'],
+], [3600, 6400]);
+bullets([
+  'Nothing changes on the customer’s behalf. The system never switches account, starts a company application or cuts a basket down unless the customer presses the button that says so.',
+  'Where several sellers sell the same product, each seller’s limit covers only what that seller sells.',
+  'A product with no limit set has no limit. Products that were on sale before this feature keep selling exactly as before.',
+  'The same limit is checked again at checkout, for repeat and scheduled orders, and for preorders, so an order is never placed for more than the limit allows.',
+  'A company has its own basket, separate from the person’s own. Switching to a company does not move the basket across.',
+  'The message and every button are in all eight languages, and work fully with the keyboard and screen readers.',
 ]);
 h2('4.2 Customer warehouse choice — exact behaviour');
 p('Yes. Once a customer has cart items, the cart can show a “Where this can ship from” panel. It helps the buyer decide which eligible warehouse they prefer for the order.');
@@ -646,6 +688,7 @@ h2('6.1 Profile and company');
 table(['Account page', 'What the customer can do'], [
   ['Profile', 'Edit personal details in separate panels, change password, view purchasing limits, request contact changes, view own data and deactivate/close account.'],
   ['Company', 'Maintain company name, department and delivery contact number.'],
+  ['Companies', 'See each company account they belong to, its status and their role in it; open an application, answer the reviewer, or apply for another company (see 6.5).'],
   ['Addresses', 'Add, edit, select default and archive shipping/billing addresses.'],
   ['Region', 'Choose language, country and currency together.'],
   ['Payment methods', 'Manage saved cards where payment provider features are enabled. A card saved on Stripe’s payment page is marked “Checkout only”. A card that AutoPay is using cannot be removed until AutoPay stops using it; the page says why.'],
@@ -663,12 +706,14 @@ h2('6.3 My stuff');
 table(['Feature', 'Customer benefit'], [
   ['Coupons', 'See available coupon codes and code-use history.'],
   ['Wishlist', 'Save product lines without buying them immediately.'],
+  ['My reviews', 'Rate products that have been delivered, and change or delete the reviews already written. A hidden review shows the reason staff gave.'],
+  ['Support', 'See every support ticket they have raised, read the team’s replies, write again and add files (see 6.6).'],
   ['Notifications', 'See account-related notifications and delivery messages.'],
   ['My orders', 'Open past orders and their detailed order history.'],
   ['Schedules', 'Manage Buy Later and Subscribe & Reorder plans.'],
 ], [3000, 6500]);
 h2('6.4 Customer’s own ERP connection');
-p('A customer can connect its own purchasing or business system to Glovia through Account → Integrations → ERP. This is separate from the supplier/admin ERP connection.');
+p('A customer can connect its own purchasing or business system to Gloviaa Mart through Account → Integrations → ERP. This is separate from the supplier/admin ERP connection.');
 p('The setup runs as six short steps. Each one opens at the top of the page when the previous is finished, so a long step never leaves the next question somewhere above the screen.');
 bullets([
   'Use a guided setup flow for supported named systems or a documented API.',
@@ -676,17 +721,84 @@ bullets([
   'Keep customer-supplied credentials encrypted and protected.',
   'The application rejects unsafe outbound destinations in normal production configuration.',
 ]);
-p('Some systems ask the customer to sign in rather than to type a password into Glovia. For those, the connection screen shows a Connect button. The customer presses it, is taken to their own system, signs in there, and approves the list of permissions being asked for. Their system then sends them back to UBOSS, the connection is ready to test, and UBOSS is told which permissions were actually granted — so a customer whose administrator allowed less than was asked for is told straight away rather than at the first order that quietly fails.');
+p('Some systems ask the customer to sign in rather than to type a password into Gloviaa Mart. For those, the connection screen shows a Connect button. The customer presses it, is taken to their own system, signs in there, and approves the list of permissions being asked for. Their system then sends them back to UBOSS, the connection is ready to test, and UBOSS is told which permissions were actually granted — so a customer whose administrator allowed less than was asked for is told straight away rather than at the first order that quietly fails.');
 p('A customer who changes their mind and cancels on that screen is told nothing was connected, and can start again whenever they are ready. The same button later reads Sign in again, for when their system’s access is withdrawn or expires.');
 p('A connection does not have to send anything. A customer whose own system is a product or price list, rather than a purchasing system, can switch every outgoing item off and use the connection only to read from their system. When they do, UBOSS asks them to match up only the information that connection actually uses — it does not ask a customer to describe a purchase order they have said they will never send.');
 p('A Product matching screen answers the question customers ask first: do both systems hold the same products? Pressing Check now reads the full product list from their system and compares it with their catalogue in UBOSS. It changes nothing — it only looks. The answer is three counts: products found in both systems, products their system has that are not sold here, and products here that their system has never mentioned. That last group is the one worth acting on, because UBOSS will never receive figures for them.');
 p('Products are matched on the product code, exactly as written on each side. Where nothing matches at all, the screen says so in plain words and explains the usual reason: the two systems use different codes for the same item.');
-p('When that happens, and it is common, the same screen is where the customer fixes it. They can tell Glovia which product in this catalogue each of their own codes means. Rather than pairing them one at a time, they paste two columns straight out of a spreadsheet — their code, then the code used here — separated by a comma, semicolon or tab, so a file exported by any spreadsheet is accepted as it is. A heading row is ignored.');
+p('When that happens, and it is common, the same screen is where the customer fixes it. They can tell Gloviaa Mart which product in this catalogue each of their own codes means. Rather than pairing them one at a time, they paste two columns straight out of a spreadsheet — their code, then the code used here — separated by a comma, semicolon or tab, so a file exported by any spreadsheet is accepted as it is. A heading row is ignored.');
 p('Any line that names a product this catalogue does not have is reported back with its line number and the reason, and everything else is still saved. A long list will usually contain a few codes that have since been retired, and refusing the whole file because of three of them would leave the customer with nothing.');
 p('Once a code is paired, every sync from then on uses that pairing, and the matching screen counts that product as found in both systems. A pairing the customer has made is always preferred over two codes that merely happen to look the same. Nothing is ever guessed: UBOSS will not decide that two codes probably mean the same product, because a wrong pairing quietly attaches real stock figures to the wrong item and is believed for months.');
-p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in Glovia. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
+p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in Gloviaa Mart. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
 p('Setting up a live connection to monday.com needs the store to have registered an application with monday.com first. Where the store has not, the setup wizard says so on its first step and offers a test connection instead, rather than letting the customer fill in every step and be refused at the end.');
 p('Checking a connection never switches it off. A customer can press Test at any time, including on a connection that is switched on and carrying their orders, and it is left exactly as it was — switched on if it was switched on, paused if it was paused. Only the result changes: the screen shows whether the check succeeded, when it ran and what the customer’s system said. A connection is taken out of service by repeated real failures, never by a single check.');
+note('Not the same as a company account', 'This connection to a buyer’s own purchasing system is a separate feature from the company accounts in 6.5. A company account is a checked business that a person buys for. The two are not linked today.', C.orange);
+
+h2('6.5 Buying for a company');
+p('A buyer who works for a hospital, a clinic, a distributor or any other business can open a company account for it. The company is checked first, by the system against official registers where it can, and then by a person at the marketplace. Only a company that a person has approved can buy.');
+h2('6.5a Applying for a company account');
+p('The application has six steps. The first one starts on the sign-up form, which already shows “Step 1 of 6”, so nobody who creates their sign-in thinks the company is registered yet. Each step is saved on the marketplace’s side when the buyer presses “Save and continue”, not in their browser. So they can stop at any point and carry on later, even from another computer or a phone. If something on a step is wrong, nothing on that step is saved, and each problem is shown beside the box it belongs to, in the buyer’s own language.');
+p('Beside the form, a list of the six steps shows how far the buyer has got, and says in words where each step stands: complete, in progress, needs attention, or not started. The buyer can press any step to go to it. When they come back to an application, it opens on the first step that still needs something.');
+table(['Step', 'What the buyer gives', 'What the system does'], [
+  ['1. Account and representative', 'Their job title, how they stand to the business (a director or officer, an owner or partner, an employee, or an agent acting for it from outside), a tick to say they are allowed to act for the company, and a business email address.', 'Shows their name and phone number from their profile, so they see what the reviewer will see. Fills in the email they signed in with. If they give a different business email, it sends a six-digit code there, which they type in to prove the mailbox is theirs. If they are an agent from outside the company, it asks for a letter of authority later.'],
+  ['2. Business details', 'The legal name, trading name, type of business, country of registration, registration number, date it was formed where the type needs one, industry, website and phone number. Optionally, how they plan to buy: how much each month, how many people will buy, and which kinds of product interest them.', 'Names the right register for that country and type of business, so the buyer knows which number is meant. The buying plans are folded away and are never used to check the company.'],
+  ['3. Registration and tax details', 'The numbers that apply in that country — for example the VAT number, or in India the PAN and GST number, or in Poland the NIP and REGON.', 'Shows only the numbers that fit the country the buyer chose, and checks each one is well formed. Numbers that should agree with each other are compared, and a difference is shown to the reviewer.'],
+  ['4. Addresses', 'The registered office, and where needed an operating, billing and shipping address. Each can be “the same as the registered office”.', 'Checks the postcode has the right shape for countries it knows.'],
+  ['5. Verification documents', 'Only the documents that are needed.', 'Shows beside each one why it is asked for, and how far each upload has got. See below.'],
+  ['6. Review and submit', 'Reads a summary and ticks four separate declarations: the details are true, the business terms, the privacy notice, and their authority to act.', 'Records each tick on its own, with the exact wording that was shown and its version. Then it sends the application for checking.'],
+], [2000, 3900, 4100]);
+bullets([
+  'A business that genuinely has no number of a certain kind can say “Not registered / not applicable” and choose why — for example not registered, exempt, or below the threshold. Where the law says a company of that kind must have the number, that choice is not offered.',
+  'Documents are kept to the minimum. Proof that the company exists is needed, except for a Polish company in the national court register, because the system reads that register directly. An Indian GST certificate is needed when a GST number is given. A letter of authority is needed only from an agent acting for the company from outside it. Proof of the registered address and a business licence (for example a drug licence) can be added by anyone, and are never required.',
+  'While a document uploads, the buyer sees how much of it has been sent. A file that is empty, or is not a PDF or a picture, is turned away before it is sent. Every file is also checked by the system itself, stored privately, and can only be opened by the company’s own people and the marketplace’s reviewers.',
+  'A buyer who also runs a seller account here can start the application from that seller’s details instead of typing them again. It is still a separate application with its own review: being approved to sell does not approve a company to buy, and being approved to buy never lets anyone sell.',
+  'The system never asks by default for identity papers of the people who run the company, or for papers about who owns it. A reviewer can ask for them in a particular case. Bank details are never collected.',
+  'A person can have up to three unfinished applications at a time. The business can change that number.',
+]);
+h2('6.5b While the company is being checked');
+table(['The buyer can', 'The buyer cannot yet'], [
+  ['Browse the whole shop for the company.', 'Go to checkout for the company.'],
+  ['Fill the company’s basket, ready for the day it is approved.', 'Pay for anything as the company.'],
+  ['Add and edit the company’s delivery addresses.', 'Send or confirm a preorder as the company.'],
+], [5000, 5000]);
+p('A banner under the page header says the company is not approved yet and why. The basket and checkout pages say the same thing next to the checkout button, so it is never a mystery why a button does nothing. If a company is later suspended or rejected, the buyer stays in the company’s view and is told why they cannot buy, rather than being quietly moved.');
+h2('6.5c Switching between yourself and your company');
+p('The account menu has a switcher. The buyer picks “Myself” or one of their companies, and the whole shop changes to match. Everything shown from the view they left is cleared first, so nothing from one view is ever shown in the other.');
+bullets([
+  'Each view has its own basket. The buyer’s personal basket and each company’s basket are kept apart.',
+  'Each view has its own orders. A person buying for a company sees the company orders they placed. The company’s owner and its managers see all of the company’s orders.',
+  'Each view has its own address book. When a company is first approved, the billing and shipping addresses that were checked are copied into its address book.',
+  'Preorders are kept apart in the same way, and an order made from a company preorder belongs to the company.',
+]);
+h2('6.5d Hearing back, and answering questions');
+p('The buyer gets an email, in the language they chose, when the application is received, when a code is sent to the business email, when more information is needed, when the company is approved, rejected, suspended, asked to check its details again or restored, and when a document is refused. These emails are also listed on the account’s Notifications page.');
+p('The company page under Account → Companies shows where the application stands, a history of what has happened to it, and every question the reviewer has asked. The buyer answers a question on that page and uploads anything that was asked for, then sends the application back. A rejected application can be corrected and sent again when the reviewer allowed that.');
+note('Not built yet', 'A company account has one person in it today: the person who applied, who becomes its owner. Inviting colleagues into a company account is not built yet. Repeat and scheduled orders (Buy Later and Subscribe & Reorder) cannot be set up for a company yet, only for a person. Tax on a company order is still worked out from the person’s own billing details.', C.orange);
+
+h2('6.6 Getting help: raising a support ticket');
+p('When something goes wrong — a late delivery, a payment that did not go through, a question about an account — a customer can write to the marketplace’s support team. This is called raising a ticket. A ticket is a private written conversation between the customer and the team, with a number so both sides can refer to it.');
+p('There are several ways in. On a computer or tablet there is a small headset button at the top of every page. On any screen size, Support is in the account menu, in the account area’s side menu and at the bottom of every page. On an order there is a link, Contact support about this order, which opens the form with the order number and topic already filled in.');
+p('The Support page is open to everybody. It says “How can we help?”, lists the support email address and phone number the business has published, beside a slowly turning globe, and has a card called Raise a ticket. If the business has not published an email or phone number, the page says so plainly; it never shows made-up contact details. A visitor who is not signed in sees the contact details and a Sign in to continue button, which brings them back to the same page. A ticket can only be raised from an account.');
+p('Before the contact details and the ticket card, the Support page answers the questions people ask most. They are grouped into six topics: accounts and verification, orders and payments, bulk orders and preorders, shipping and tracking, sellers and logistics partners, and ERP and technical help. The customer picks a topic, then a question, and the answer opens underneath. Some answers end with a next step, such as View your orders or Contact support. Contact support takes the customer straight to the ticket card, and anything already typed there stays.');
+p('The answers follow how the business has set the system up. Where company accounts are switched off, the questions about companies do not appear. Where accounts are by invitation, the answer about signing up says so. A link to a page that needs an account is only shown to someone who is signed in. No answer promises a refund time, a delivery time or a reply time, because the system does not set one.');
+table(['Step', 'What the customer does', 'What the system does back'], [
+  ['1', 'Chooses a topic: orders, payments, preorders, products, Seller Hub, logistics and tracking, company verification, ERP integration, account and security, or other.', 'Shows the rest of the form. It does not ask for a name, email address or company. Instead it says who the ticket will be raised as — for example “Raised as Anna Kowalska for Northwind Clinic. Replies go to anna@example.com.” — because the system takes those from the account itself.'],
+  ['2', 'Writes a short subject and describes the problem, between 10 and 5,000 characters.', 'Checks the length and keeps everything typed if something needs fixing.'],
+  ['3', 'Adds an order number, if the problem is about an order.', 'Accepts it only if it is one of the customer’s own orders. Somebody else’s order and a mistyped number get the same answer, so nobody can find out which orders exist.'],
+  ['4', 'Adds files if they help: photographs, short videos or PDF documents.', 'Accepts pictures (JPEG, PNG, WebP, GIF), videos (MP4, WebM, MOV) and PDFs, up to 10 per ticket and up to the size the business allows (25 MB each unless it changed it). It decides what a file is from its contents, not its name. Office documents and zipped folders are not accepted. Each file is checked for viruses before it is kept.'],
+  ['5', 'Presses send.', 'Creates the ticket and shows its number, for example SR-7KQ2-M9XD. The number is random, so it does not reveal how many tickets exist. It says whether a confirmation email is on its way (only when one really is), and how each file went. A file that is refused does not lose the ticket. View your ticket opens it.'],
+], [700, 4000, 5300]);
+bullets([
+  'If sending fails, nothing typed is lost. Pressing send twice, or the connection retrying on its own, still creates one ticket, never two.',
+  'Account → Support lists the customer’s tickets. Opening one shows the first message, the team’s replies, each change of status and the files. Replies are signed “Support team”, never with a person’s name.',
+  'A ticket shows one of five simple states: Sent (nobody has picked it up yet), Being handled, Waiting for your reply, Resolved and Closed.',
+  'The customer can write again and add more files until the ticket is closed. Writing on a ticket that was waiting for them, or that was resolved, puts it back with the team. A closed ticket is final: a new problem needs a new ticket.',
+  'The customer gets an email when the ticket arrives and when the team replies. The email gives the ticket number and a link. It never contains the message itself, so nothing private sits in a mailbox.',
+  'A file is opened through a link that works once, for five minutes, and only for the person signed in.',
+  'Only the person who raised a ticket can read it. A colleague at the same company does not see it, and somebody else’s ticket number simply shows “not found”.',
+  'To stop misuse, one account can raise a limited number of tickets a day (ten unless the business changed it).',
+]);
+note('Not built yet', 'A visitor cannot raise a ticket without an account; they use the published email or phone instead. The support team cannot attach files to their replies yet. An open ticket does not update on screen by itself while the customer is looking at it, and tickets have no response-time targets.', C.orange);
 page();
 
 // 6a
@@ -799,6 +911,21 @@ bullets([
   'While the listing is with the reviewer it cannot be changed, so the reviewer approves what they read.',
   'Once a listing is on sale, the seller who first described the product can still change its description and specifications, and the change shows at once. A seller who added their stock to a product page somebody else wrote cannot change that page, because other sellers sell it too.',
   'No seller can see or change another seller’s listing.',
+]);
+h2('6a.5c Setting the most one person may buy');
+p('In the price, stock and shipping section, every listing asks for a “B2C Maximum Order Quantity”. It is the most units one person buying for themselves may buy of this product in one order. Buyers who need more must buy through a company the marketplace has approved. It is a limit on buying only: it does not change the seller’s stock.');
+table(['What the seller does', 'What the system does back'], [
+  ['Types a number, or uses the minus and plus buttons.', 'Accepts a whole number from 1 to 1,000,000 that is not below the listing’s smallest order. Anything else — zero, a negative number, a part of a unit, letters — is refused with a message under the box. It is never quietly changed into something else.'],
+  ['Saves the draft without filling it in.', 'Saves the draft. Only sending it for review needs the number.'],
+  ['Sends the listing for review.', 'Refuses until the number is filled in correctly, and shows the figure beside the send button. The marketplace reviewer sees it with the rest of the listing.'],
+  ['Sells the product in several sizes.', 'Uses the one number for every size, and counts all sizes together for each buyer.'],
+  ['Changes the number on a listing that is already on sale.', 'Applies it to new baskets and new orders from then on. Orders already placed never change, and baskets already filled are not cut down. The change is recorded in the seller’s activity with the old and new number.'],
+], [3600, 6400]);
+bullets([
+  'Once set, the number can be changed but not removed.',
+  'Listings put on sale before this feature have no limit, and keep selling as before. The listings page marks each one “B2C limit not configured”, with a link to set it.',
+  'Only the seller who owns the listing, or the marketplace’s staff, can change it.',
+  'It is not the smallest order, and it is not the smallest preorder. Those are minimums. This is a maximum, and only for people buying for themselves.',
 ]);
 h2('6a.5a Selling one thing in several versions');
 p('Most things are sold in more than one form. A T-shirt comes in sizes and colours; a shoe comes in sizes and widths; a laptop comes with different memory and storage; seeds come in a 500 gram packet or a kilo, singly or in a box of ten. Each of those is a separate thing to price, count and pack, and each needs its own code — but they are all one product as far as a buyer is concerned, and they belong on one page with a chooser rather than on a dozen separate pages.');
@@ -951,6 +1078,12 @@ bullets([
   'Changing the listing afterwards does not change what an order says. The invoice and packing list describe the product the same way as this panel.',
   'For an order placed before this was kept, the panel shows the listing as it is now and says so clearly at the top.',
   'A seller only ever sees their own part of an order. When one order includes products from several sellers, each sees only their own products.',
+]);
+h2('6a.8f Asking the marketplace for help');
+p('Support in the Seller Hub menu lets a person at a seller raise a ticket with the marketplace’s team, for example about a listing that is stuck, a payout or a delivery. It works exactly like a customer’s ticket (see 6.6): the same form, the same files, the same five states and the same emails. The ticket records which seller it was raised for, taken from the Hub itself rather than typed in.');
+bullets([
+  'Your tickets in the Hub lists the tickets that person raised from the Hub, and opening one shows the whole conversation.',
+  'Tickets are personal. A colleague at the same seller does not see them, and a ticket raised from the shop side is not listed in the Hub.',
 ]);
 h2('6a.9 Who can do what inside a seller business');
 table(['Role', 'What they can do'], [
@@ -1208,7 +1341,7 @@ p('On each listing, the seller gives the product’s HSN code and country of ori
 
 h2('6a.12 Sending your sales into TallyPrime');
 p('A seller who keeps their books in TallyPrime can have their orders appear there automatically, instead of being typed in again at the end of the month. It is set up in the Seller Hub under ERP integrations, and it is switched on by the marketplace — a seller who does not see it should ask whether their marketplace offers it.');
-p('TallyPrime runs on a computer in the seller’s own office. Nothing in this system ever connects to that computer. Instead a small program — the Glovia Tally Bridge — runs on the same machine as Tally, and it connects outwards to fetch whatever is waiting to be sent. The seller’s books are never exposed to the internet.');
+p('TallyPrime runs on a computer in the seller’s own office. Nothing in this system ever connects to that computer. Instead a small program — the Gloviaa Mart Tally Bridge — runs on the same machine as Tally, and it connects outwards to fetch whatever is waiting to be sent. The seller’s books are never exposed to the internet.');
 table(['What the seller does', 'What the system does'], [
   ['Installs the bridge on the machine that runs TallyPrime.', 'Nothing yet. The bridge has no permission until it is paired.'],
   ['Generates a pairing code in the Seller Hub.', 'Shows a short code, once, that is good for fifteen minutes and can be used one time.'],
@@ -1224,7 +1357,7 @@ note('Told exactly what is wrong, not just that something is', 'A machine switch
 bullets([
   'An order confirmed at two in the morning, while the office computer is off, is not lost. It waits, and it posts when the machine is next switched on.',
   'Placing an order and earning the money from it are two different things in a set of books, so they are two separate switches. A seller who invoices on despatch and one who invoices on payment are both normal.',
-  'Glovia will not create a ledger or a stock item in the seller’s books unless they explicitly allow it. Creating something in somebody’s accounts is a change to a financial record, not a convenience.',
+  'Gloviaa Mart will not create a ledger or a stock item in the seller’s books unless they explicitly allow it. Creating something in somebody’s accounts is a change to a financial record, not a convenience.',
   'If a machine is lost or replaced, pressing Revoke stops it working on its very next attempt. There is no waiting period.',
 ]);
 note('A pallet order arrives in Tally as units, with the pallets written beside it', 'Somebody orders two pallets, each holding fifty cartons of twenty-four. The voucher records 2,400 — because 2,400 is what leaves the warehouse and what the stock has to reconcile to. Recording “2” would tell Tally that two items left the building. The pallets are not thrown away to achieve that: the line and the narration both read “2 UK pallets × 50 cartons × 24 units = 2,400 units”, so the figure can be checked by anybody reading the voucher.', C.purple);
@@ -1315,11 +1448,11 @@ bullets([
 ]);
 h2('7.2 Permission roles');
 table(['Staff role', 'Main abilities'], [
-  ['Business Owner / Super Admin', 'All business areas, staff, roles, security, settings and integrations.'],
-  ['Catalog Manager', 'Categories, products, media, variants, prices, imports and publication.'],
+  ['Business Owner / Super Admin', 'All business areas, staff, roles, security, settings and integrations, including handing support tickets to colleagues.'],
+  ['Catalog Manager', 'Categories, products, media, variants, prices, imports and publication, and reading and hiding product reviews.'],
   ['Inventory Manager', 'Inventory receipts, adjustments, reservations, warehouses and stock alerts.'],
-  ['Order Manager', 'Orders, fulfilment, shipment status, cancellation, return handling.'],
-  ['Finance / Approver', 'Payment review, payment links, refunds and approval work.'],
+  ['Order Manager', 'Orders, fulfilment, shipment status, cancellation, return handling, reading product reviews, and reading and answering support tickets.'],
+  ['Finance / Approver', 'Payment review, payment links, refunds and approval work, and reading support tickets.'],
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
@@ -1370,7 +1503,7 @@ table(['Admin feature', 'What staff can do'], [
   ['Product list', 'Search, filter, sort and open products for management.'],
   ['Product editor', 'Manage title, SKU, description, status, media, specifications, variants, prices, tax context and product availability.'],
   ['Variants', 'Add product options so buyers can choose the correct size, type, pack or configuration.'],
-  ['Quantity rules', 'Set minimum order quantity and other order quantity constraints.'],
+  ['Quantity rules', 'Set minimum order quantity and other order quantity constraints, and, if the business wants one, the most units one person buying for themselves may buy in one order. Left blank, there is no such limit. The change is recorded with the old and new figure.'],
   ['Currency pricing', 'Set a real price per currency/market, or use a controlled bulk price process.'],
   ['Bulk import', 'Upload catalogue data from a spreadsheet into the product area.'],
   ['Availability', 'Mark a product as priced on request, or take it off sale while leaving the listing readable.'],
@@ -1473,7 +1606,7 @@ bullets([
 ]);
 h2('8.8 Checking what sellers want to sell');
 p('Nothing a seller lists goes on sale until staff have looked at it. Submitted listings sit in a queue, oldest first, so whoever has waited longest is dealt with first. Each one shows who sent it, what it is, which brand it claims and how many problems it already has — enough to decide what to pick up next without opening anything.');
-p('The decision itself is made on the listing, never from the queue, because approving something from a list is approving a product nobody has looked at. The listing screen shows exactly what the seller sent: every photograph against the slot it was asked for, every answer they typed, the price, the stock, how it is packed, and anything already flagged.');
+p('The decision itself is made on the listing, never from the queue, because approving something from a list is approving a product nobody has looked at. The listing screen shows exactly what the seller sent: every photograph against the slot it was asked for, every answer they typed, the price, the stock, how it is packed, the most one person may buy in one order, and anything already flagged.');
 table(['What staff can do', 'What the system does'], [
   ['Leave a note beside a single field or photograph', 'Sends that note to the seller attached to that exact field, so it appears beside it on their own screen rather than as one vague paragraph.'],
   ['Approve the listing', 'Creates the product and the seller’s offer. It does not put anything on sale — that stays the seller’s own decision, because somebody who has waited days for a check may not want it live overnight with no stock behind it.'],
@@ -1493,6 +1626,15 @@ table(['What staff can do', 'What the system does'], [
   ['Ask the seller for more', 'Sends the question to the seller and marks the request as waiting on them, so nobody asks the same thing twice.'],
   ['Refuse the name', 'Records the reason on the seller’s own screen. Their drafts carrying the name stay unpublishable.'],
 ], [3200, 6800]);
+h2('8.9a Product reviews');
+p('Staff can read every review buyers have written under Catalogue → Product reviews. Each one shows the product, the buyer’s name and email, the order that allowed them to review it, and the four scores. Any score of two or less is marked, so a problem stands out.');
+p('Staff can narrow the list to hidden reviews, or to reviews with any score at two or below, or at one, and can search by product name, product code or buyer name. That is how the delivery team finds a buyer who loved the product but was let down by the delivery.');
+bullets([
+  'Hide review takes a review off the product page and out of the averages. Staff must write the reason, and the buyer who wrote the review is shown it.',
+  'Show again puts a hidden review back, and it counts towards the averages again.',
+  'Every hide and every show is recorded with who did it and when.',
+  'Catalog Managers can read and hide reviews. Order Managers can read them, because a low delivery score is usually about an order they handled. The Business Owner can do both.',
+]);
 h2('6a.11 A seller’s own shop front');
 p('A seller can be given a web address of their own — their name in front of the marketplace’s, such as northwind.example.com. Opening it shows their shop and nobody else’s: their products, their prices, their name at the top and their support details at the bottom. Somebody buying there is buying from them.');
 table(['What a buyer sees there', 'How it differs from the marketplace’s own shop'], [
@@ -1694,6 +1836,24 @@ bullets([
   'Everything that is decided about a conversation is recorded in its activity list and the audit log.',
 ]);
 
+h2('11.1b Support tickets — answering problems people raise');
+p('Tickets raised by customers, sellers and delivery companies all arrive in one place: Support → Tickets in the admin menu. The notification bell tells staff who can read tickets when a new one arrives and when somebody writes again on one.');
+table(['Staff member does', 'The system does back'], [
+  ['Opens Tickets.', 'Starts on the tickets that need work: sent, being handled and waiting for the customer, with a count for each state. The list can be filtered by state, priority, topic, where the ticket came from (the shop, the Seller Hub or the delivery company portal) and who it is assigned to (me, or nobody), and searched by ticket number, subject, name, email, company or order number.'],
+  ['Opens a ticket.', 'Shows who raised it: their name and email (and the account’s current email if it has changed since), whether they are a buyer, a company buyer, a seller or a delivery company, and which company, seller or delivery company they raised it for, with a link to that record. It shows the order it is about, and one timeline of the conversation and everything that happened to it. Internal notes, priority and assignment changes are marked Staff only. The customer’s files open from here too.'],
+  ['Writes a reply, and can mark the ticket waiting for the customer or resolved at the same time.', 'Sends the reply and emails the customer a link to read it (never the words). The first reply on a new ticket moves it to being handled and, if nobody had it, puts it in that staff member’s name.'],
+  ['Writes an internal note.', 'Keeps it for staff only. The customer never sees it, and it is not included in the customer’s copy of their data.'],
+  ['Changes the state.', 'Allows only sensible moves: for example a resolved ticket can be reopened or closed, and a closed ticket cannot be changed at all.'],
+  ['Sets the priority: low, normal, high or urgent.', 'Records it. Only staff set a priority; the customer cannot choose one.'],
+  ['Takes a ticket, releases it, or gives it to a colleague.', 'Moves it, and emails the colleague who was given it. Giving a ticket to somebody else, or taking it from them, needs a separate permission.'],
+], [4200, 5800]);
+bullets([
+  'By default the business owner can do everything; the order desk can read and answer tickets; finance can read them. Catalogue and stock staff do not see tickets.',
+  'The order number on a ticket is shown to everybody who can read the ticket, but it is a link to the order only for staff who may open orders.',
+  'Replies are signed “Support team” for the customer, never with a staff member’s name.',
+  'Every action on a ticket is kept in the audit log: who created it, replied, wrote a note, changed its state or priority, assigned it, or uploaded or opened a file. The log never keeps what was written or what a file was called.',
+]);
+
 h2('11.2 Companies — one business, all of its accounts');
 p('The same business can reach the marketplace in three ways at once. It can buy from the shop, it can sell its own products here, and it can carry parcels for the marketplace. Each of those is a separate account, and until now nothing told staff that the three belonged together.');
 p('The Companies screen groups them. Each business is one card, marked with what it does here — buys, sells, carries, or more than one of those. Opening a card shows each of its accounts with the figures that matter for it, and below them the people who work for that business. A person carries a mark for every account they belong to, so staff can see at a glance that the owner of a selling business is the same person who placed last week’s order from the buying side.');
@@ -1711,6 +1871,33 @@ note('Money is never added across currencies', 'A business trading in two curren
 note('An address nobody has placed is said so', 'A seller puts an address on the map from their own profile, with a button that looks it up. It is optional: where no map service is set up, where it does not answer in time, or where it simply finds nothing, the address is still saved and the marketplace shows it as not placed. It is never guessed at, because a guessed position is a van sent to the wrong town.', C.orange);
 note('Nothing is changed from this screen', 'Companies is for looking. Approving a seller, pausing a carrier or editing a customer each happens on that account’s own screen, where the decision is recorded. Every panel on a company card is a link to the right place.', C.teal);
 note('Businesses are matched by name', 'Accounts are grouped by the business name, ignoring capital letters, punctuation and the usual company endings such as Ltd, GmbH or B.V. It is a helpful suggestion rather than a legal statement: a buyer types their employer’s name themselves and is never asked for a registration number, so every account keeps its own registered name and country on screen where two similarly named businesses could be confused.', C.orange);
+
+h2('11.2a Company verification — checking a company that wants to buy');
+p('When a buyer applies for a company account (see 6.5), the application arrives under Company verification in the admin menu. This is a different screen from Companies above: Companies only groups accounts by name, while Buyer companies is where a business that wants to buy is checked and decided. The notification bell tells staff when an application is sent in and when an applicant answers a question.');
+table(['Staff member does', 'The system does back'], [
+  ['Opens Company verification.', 'Shows the list, oldest waiting first, with a count for each status. It can be filtered by status, country, reviewer (including “assigned to me” and “nobody yet”) and risk, searched by name, reference, registration or tax number or email, and sorted by newest, latest activity or risk. The last filters the reviewer used are remembered on that reviewer’s own computer.'],
+  ['Opens an application.', 'Shows everything the applicant gave, what is still missing, the result of each automatic check with the register’s answer, links to the official websites for checks a person must do, any possible duplicates, the risk level, the documents, the questions asked so far and the full history.'],
+  ['Starts the review, or gives it to a colleague.', 'Puts the application in that person’s name. It can only be given to a colleague who is allowed to review.'],
+  ['Writes a note.', 'Keeps it for staff only. The applicant never sees it.'],
+  ['Asks for more information.', 'Sends the applicant a message and, if chosen, a list of the documents wanted — including those never asked for by default, such as identity papers. The applicant is emailed.'],
+  ['Opens a document.', 'Opens it through a link that works once, for a short time, and only for that member of staff. The file is downloaded rather than shown inside the console, and every view is recorded.'],
+  ['Accepts or refuses a document.', 'Records the decision. Refusing needs a reason, and the applicant is emailed.'],
+  ['Approves, rejects or suspends.', 'Asks for confirmation first. Rejecting needs a reason from a fixed list, a reason the applicant will read, and a choice of whether they may correct it and apply again. Suspending needs a reason too. The applicant is emailed.'],
+  ['Asks the company to check its details again, or runs the automatic checks again.', 'Moves the application to the right step and records who did it and why.'],
+], [3600, 6400]);
+bullets([
+  'Only a person can approve a company. The automatic checks never approve and never reject.',
+  'The application shows how the person applying stands to the business — a director, an owner, an employee or an outside agent — beside their name and phone number.',
+  'When the application was started from a seller account for the same business, a card shows that seller account and its own status, and an automatic check says whether the two registration numbers still agree. A seller account elsewhere with the same registration number is pointed out too. None of this decides anything: approving the company does not let it sell, and the seller’s approval does not approve the company.',
+  'If two people work on the same application at once, the second decision is refused and the page reloads, so nobody decides on details that have just changed.',
+  'Two companies cannot both be approved with the same registration number. The second one is refused at approval.',
+  'The business can require a second opinion for risky applications. When that is switched on, an application at or above the chosen risk level needs two different reviewers to approve it. The first approval is recorded and the application waits for the second.',
+]);
+table(['Staff role', 'What they may do with buyer companies'], [
+  ['Business Owner', 'Read, review and decide, and suspend an approved company.'],
+  ['Finance / Approver', 'Read, review and decide. Cannot suspend.'],
+  ['Order Manager', 'Read only.'],
+], [3100, 6600]);
 h2('11.3 Chat enquiries');
 p('Staff can open AI/chat enquiries to understand questions that originated from the customer assistant. This creates a better support hand-off from product discovery to human help.');
 h2('11.4 Reports');
@@ -1865,6 +2052,7 @@ table(['Screen', 'What it is for'], [
   ['My Profile', 'The company’s full profile: its details, contacts, where it works, what it can do, its compliance documents, how its connections are doing, and its account security. See below.'],
   ['My company', 'Their own details, their people and their invitations.'],
   ['My round', 'A driver’s stops for the day, made for a phone.'],
+  ['Support', 'Raising a ticket with the marketplace’s team, and following its replies, in the same way a customer does (see 6.6). Everybody at the carrier can use it, drivers included. The ticket records which carrier it was raised for, and only the person who raised it can read it.'],
 ], [2600, 7400]);
 note('No pretend tracking', 'Where nothing has reported a position, the map says so plainly or shows the last place the parcel was actually seen and when. Nothing animates a van along a route it might be taking. Beside every map is the same journey written out as a list of places and times, so it can be read without seeing the map at all.', C.orange);
 note('What the buyer sees when the haulage company moves it', 'The moment a carrier records that they have collected a parcel, the buyer’s own order page moves on with it — to “being prepared” and then “on its way”, each with a line saying a carrier now has it. The buyer is never shown the word consignment, and never has to go looking somewhere else to find out where their order has got to. When the carrier confirms the delivery, and every parcel on the order has arrived, the order says delivered. An order that has already been cancelled is left alone.', C.teal);
@@ -1997,6 +2185,7 @@ table(['Automatic job', 'What it does'], [
   ['Payment link expiry', 'Monitors expiring links and records relevant outcomes.'],
   ['Exports and reports', 'Runs allowed background export/report work.'],
   ['Integration and ERP jobs', 'Runs retryable connection/sync/push work without blocking the user interface.'],
+  ['Company checks', 'Checks a newly sent company application against official registers, then passes it to a person for review (see 13.7).'],
   ['Retries and dead-job follow-up', 'Retries temporary failures under controlled limits and surfaces unrecoverable work for staff follow-up.'],
 ], [3300, 6700]);
 h2('13.2 Reliability controls');
@@ -2022,6 +2211,7 @@ h2('13.5 Notifications');
 bullets([
   'Customer notifications can include registration/activation, password reset, order, payment, schedule and contact-confirmation events.',
   'Staff notifications can include sign-ins, low stock, payment/order actions, customer approval and operational alerts.',
+  'Support tickets send four emails: to the person who raised a ticket when it arrives and when the team replies; to the business’s published support email address when a new ticket arrives; and to a member of staff when a ticket is given to them. Each gives the ticket number and a link, never the message. The business can change the wording of all four under Settings → Notifications.',
   'Notification work is queued after the business record is committed, reducing the risk of an email being sent for an order that was not saved.',
   'On-screen warnings about something going wrong close themselves at the moment the work that fixes them is completed, rather than waiting for anybody to tidy them up. They are kept afterwards, with who closed them and why.',
 ]);
@@ -2035,6 +2225,23 @@ bullets([
   'A screen that lost its connection catches up by itself when it comes back, and never shows a message twice.',
   'A business that runs the system on more than one server can switch on a setting so that a message sent through one reaches people connected to another.',
   'Every minute the system emails customers about replies they have not read, raises the alert for customers waiting too long, and closes proposals that have run out of time.',
+]);
+
+h2('13.7 Checking a company against official registers');
+p('When a company application is sent in, the system checks what it can against official public registers, in the background. The checks help the reviewer. They never decide. Whatever they find, the application always goes on to a person.');
+table(['Register', 'What is checked'], [
+  ['The European Commission’s VAT check', 'Whether an EU VAT number is valid, and the name and address the register holds for it.'],
+  ['The global LEI register', 'Whether a Legal Entity Identifier exists and who it belongs to.'],
+  ['The Polish Ministry of Finance VAT list', 'Whether a Polish business is registered for VAT. Bank account numbers, home addresses and names of people in its answer are thrown away, never stored.'],
+  ['The Polish national court register', 'Whether a Polish company is registered, and its details.'],
+], [3600, 6400]);
+bullets([
+  'All four are free, official services. No paid checking service is used, and no website is copied by a program.',
+  'If a register is down, slow or gives an error, the system records that and the application simply goes to a person. It is never rejected because a register did not answer.',
+  'Some countries and numbers have no official online register the system can use — for example India’s company, GST, PAN, Udyam and import-export registers, the Polish business register for sole traders and the REGON register, other EU business registers and the EORI number. For those, the reviewer is given the link to the official website and checks by hand. Nothing is pretended.',
+  'The system also compares the numbers with each other, and the email address with the website. An email from a free mail service is pointed out.',
+  'Possible duplicates are pointed out to the reviewer: the same registration or tax number, a very similar legal name, the same address, or the same email domain as another application. This is a warning for the reviewer only. Nobody is stopped from sending an application because of it.',
+  'From all of this the system works out a risk level — none, low, raised or high — which the reviewer sees and can sort by.',
 ]);
 
 h1('14. Security, Accessibility and Quality Features');
@@ -2053,6 +2260,44 @@ bullets([
   'Customer-supplied integration addresses are checked to prevent unsafe internal/private network access in normal production use.',
   'Live payment keys are rejected in non-production environments.',
   'Configuration is checked at application start so an incomplete setup fails clearly instead of failing later during business work.',
+]);
+h2('14.1a Company buyers');
+bullets([
+  'The tab a buyer picks at sign-in is only a preference. It never proves anything. Whether a person is buying for a company is held by the marketplace, not by their browser.',
+  'On every single request, the system checks again that the person still belongs to the company they are buying for. If they have been removed, or the company no longer exists, they are put back to buying as themselves and told so.',
+  'A person who does not belong to a company cannot see it, and gets the same answer whatever the reason, so trying other companies reveals nothing.',
+  'Uploaded company documents are checked by their actual contents, not by their name. Only PDF files and ordinary pictures are accepted. A PDF that carries hidden programs or other files inside it is refused, as is anything too large or too long. Every file is scanned for viruses and stored privately under a made-up name.',
+  'Staff open a document only through a short-lived link that works once, for them alone. Every view is recorded.',
+  'Every decision — each status change, assignment, note, question, document decision, email check and switch between a person and a company — is recorded with who did it and when.',
+  'Each of the four declarations a company applicant ticks is recorded separately, with the exact wording that was shown and its version. When the wording changes, the business gives it a new version.',
+  'There are limits on how often a person can switch company, start an application, ask for an email code, type one in, send an application and upload documents.',
+  'Anything an applicant types is shown as plain text, so nothing they type can run as code.',
+  'A person’s copy of their own data includes their company memberships, the company details they entered and their declarations. Erasing a person removes their memberships; the company’s own record stays, because it belongs to the business.',
+]);
+h2('14.1b Product reviews');
+bullets([
+  'Only a buyer whose own order containing the product was delivered can review it. This is checked by the system itself, not only by hiding a button, so it cannot be got around.',
+  'Each score must be a whole number from one to five. The database itself refuses anything else.',
+  'A buyer’s reviews are included in the copy of their data they can ask for, and deleted when their account is erased.',
+]);
+h2('14.1c The individual purchase limit');
+bullets([
+  'Whether a buyer is held to the limit is decided by the marketplace from who is signed in and which approved company they belong to. Nothing a browser claims about the buyer is believed.',
+  'The limit is checked on the marketplace’s side every time the basket changes, and again at the moment the order is created. Two requests sent at the same time cannot both slip under it.',
+  'Each order records whether it was bought by a person or by a company, and each line records the limit that applied. These records never change afterwards, so an old order still shows the rule it was bought under.',
+  'The message a buyer sees says only the limit and the quantities. It never reveals anything about the seller or about any company.',
+]);
+h2('14.1d Support tickets');
+bullets([
+  'Only the person who raised a ticket can read it, and only from the place they raised it: the shop, the Seller Hub or the carrier portal. A colleague at the same company, seller or carrier cannot, and anybody else’s ticket number shows “not found”.',
+  'Who raised a ticket, and for which company, seller or carrier, is taken from the account that is signed in. Nothing typed into the form can change it.',
+  'An order number on a ticket must be one of the sender’s own orders. Anything else gets the same refusal, so a ticket cannot be used to find out which orders exist.',
+  'Everything written is kept and shown as plain text, so nothing a person types can run as code. Invisible characters that could disguise text are removed.',
+  'Files are judged by their contents, scanned for viruses before they are kept, stored privately, and opened only through a link that works once, for five minutes, for the signed-in person. Without a virus scanner, files are not accepted at all.',
+  'Internal notes, priority and who a ticket is assigned to are never shown to the sender.',
+  'There are limits on how many tickets, messages and files can be sent in a short time, and on how many tickets one account can raise in a day.',
+  'The audit log records who did what to a ticket, but never what was written or what a file was called. Emails carry a link, never the message.',
+  'A person’s copy of their own data includes their tickets, the conversation they can see and a list of their files. Internal notes, priority and assignment are held back as the business’s own working notes. Erasing a person deletes their tickets and their files.',
 ]);
 h2('14.2 Accessibility and responsive use');
 bullets([
@@ -2081,7 +2326,11 @@ h1('15. Optional Features and Configuration');
 p('Some features are implemented but only appear when the organisation enables the relevant feature flag or connects the required external provider.');
 table(['Optional capability', 'When it appears / what is required'], [
   ['Customer self-registration', 'Enabled by the customer-registration feature. It can still require staff approval after email confirmation.'],
-  ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The business’s own team can work under its own name — for example a shop called Glovia whose customers are told “the UBoss team is available” and whose sellers choose “Self”, “UBoss” or “Self + UBoss” for each delivery level — without renaming the shop.'],
+  ['Preorder chat', 'On by default and can be switched off. Attachments appear only when a virus scanner is connected. A business running more than one server switches on shared live updates so every server delivers every message. The business’s own team can work under its own name — for example a shop called Gloviaa Mart whose customers are told “the UBoss team is available” and whose sellers choose “Self”, “UBoss” or “Self + UBoss” for each delivery level — without renaming the shop.'],
+  ['Company buyers', 'On by default and can be switched off by a setting. On, the sign-in page has Individual and Company tabs, buyers can apply for a company account and switch between themselves and their companies, and staff get the Buyer companies screen. Off, none of this appears and buyers buy as themselves. The business can also change how many unfinished applications one person may have, the largest document allowed, and the version of the declarations.'],
+  ['Product reviews', 'On by default and can be switched off by a setting. Off, no stars or reviews appear anywhere on the shop and buyers cannot write one. Reviews already written are kept, and staff can still read and hide them, so switching it back on loses nothing.'],
+  ['Support tickets', 'On by default and can be switched off by a setting. Off, the Support page shows only the business’s published email and phone number, and nobody can raise a new ticket. Tickets already raised stay readable, their senders can still reply and add files, and staff keep answering them. The business can also change how many tickets one account may raise in a day and the largest file allowed. Files can be attached only when a virus scanner is connected.'],
+  ['Second reviewer for risky company applications', 'Off by default and turned on by a setting. The business chooses whether applications of raised risk, or only high risk, need two different reviewers to approve them.'],
   ['Order approvals', 'Enabled when the business wants certain orders to wait for an approver.'],
   ['Recurring and scheduled orders', 'Enabled when the business offers Buy Later and Subscribe & Reorder.'],
   ['Any-product scheduling', 'Controls whether all published products or only selected products may be repeated.'],
@@ -2290,12 +2539,50 @@ table(['Step', 'Who acts', 'What happens'], [
   ['8', 'The system', 'Works out, when the order is confirmed, what the seller is owed: the goods plus the delivery for stages 1 and 2, minus the marketplace fee and the tax on it. The money for stages 3 and 4 is the marketplace’s.'],
 ], [700, 2300, 7000]);
 
-note('Document status', 'This guide is based on the current Glovia codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);
+h2('Example M — A hospital buyer opens a company account and places its first order');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer at a hospital in Poland', 'Opens the sign-in page, chooses the Company tab and presses “Create account”, then confirms their email.'],
+  ['2', 'The buyer', 'Signs in on the Company tab. Having no company yet, they are offered a company application and start it.'],
+  ['3', 'The buyer', 'Fills in the first four steps: their role, the hospital’s details and court register number, its addresses and its NIP and VAT numbers. They stop halfway through and finish the next day from another computer; everything they saved is still there.'],
+  ['4', 'The system', 'Asks for no proof-of-existence document, because it can read the Polish court register directly, and shows why for any document it does ask for.'],
+  ['5', 'The buyer', 'Ticks the four declarations and sends the application. While waiting, they switch to the hospital in the account menu and fill its basket. Checkout says the company is not approved yet.'],
+  ['6', 'The system', 'Checks the VAT number with the European Commission, and the court register and the Ministry of Finance VAT list for Poland, records each result, and passes the application to a person.'],
+  ['7', 'A reviewer', 'Opens it under Company verification, sees the registers agree, and asks for a letter of authority because the applicant’s email is from a free mail service.'],
+  ['8', 'The buyer', 'Gets the email in Polish, uploads the letter on the company page and sends the application back.'],
+  ['9', 'The reviewer', 'Opens the letter through its one-time link, accepts it and approves the company.'],
+  ['10', 'The buyer', 'Is emailed that the hospital is approved. The basket they filled is still there, and the hospital’s checked addresses are in its address book. They check out and pay, and the order is the hospital’s, not their own.'],
+], [700, 2300, 7000]);
+
+h2('Example N — A shopper asks for more than one person may buy');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A seller', 'Lists hand sanitiser and sets the most one person may buy in one order to 50 units. The listing is approved and goes on sale.'],
+  ['2', 'A shopper, signed in as themselves', 'Opens the product and sees “Individual purchase limit: 50 units” under the quantity box. They type 80.'],
+  ['3', 'The system', 'Opens a message saying individual buyers can order up to 50 units, and that larger quantities need an approved company account. Because the shopper belongs to a clinic that the marketplace has approved, it offers “Switch to” the clinic, “Reduce to 50” and Cancel.'],
+  ['4', 'The shopper', 'Presses “Switch to” the clinic. They are now buying for the clinic, whose basket is separate from their own.'],
+  ['5', 'The shopper', 'Adds 80 units to the clinic’s basket. No limit applies, because the clinic is approved.'],
+  ['6', 'The seller', 'Later lowers the limit to 30. Nothing changes for the clinic, and no order already placed changes.'],
+  ['7', 'Another shopper, buying for themselves', 'Already has 40 in their basket. The basket keeps all 40, but warns that the limit is now 30 and offers “Reduce to 30”. Checkout waits until they reduce it or buy through an approved company.'],
+], [700, 2300, 7000]);
+
+h2('Example O — A clinic reports a damaged delivery');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer at a clinic, buying for the clinic', 'Opens the delivered order, sees two boxes arrived crushed, and presses Contact support about this order.'],
+  ['2', 'The system', 'Opens the Support page with the order number and the Orders topic already filled in, and says the ticket will be raised as the buyer, for the clinic, with replies to the buyer’s email.'],
+  ['3', 'The buyer', 'Writes a subject and what happened, adds two photographs and a short phone video, and presses send.'],
+  ['4', 'The system', 'Creates ticket SR-7KQ2-M9XD, checks each file for viruses and keeps it privately, and says the confirmation email is on its way. The business’s support mailbox is told a new ticket has arrived, and the bell in the admin console shows it.'],
+  ['5', 'A member of the order desk', 'Opens Support → Tickets, finds it under Needs work, opens the photographs, and writes an internal note for a colleague. The buyer never sees the note.'],
+  ['6', 'The order desk', 'Replies that a replacement is being sent, and marks the ticket Waiting for your reply. Because nobody had the ticket, it is now in their name.'],
+  ['7', 'The buyer', 'Gets an email with a link, reads the reply (signed “Support team”) under Account → Support, and writes back that the replacement arrived.'],
+  ['8', 'The system', 'Moves the ticket back to Being handled, because the buyer has written.'],
+  ['9', 'The order desk', 'Marks it Resolved, and later Closed. Nobody can write on it after that; a new problem would be a new ticket.'],
+], [700, 2300, 7000]);
+
+note('Document status', 'This guide is based on the current Gloviaa Mart codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);
 
 const doc = new Document({
-  creator: 'Glovia',
-  title: 'Glovia Feature Guide',
-  description: 'Simple English feature guide for Glovia.',
+  creator: 'Gloviaa Mart',
+  title: 'Gloviaa Mart Feature Guide',
+  description: 'Simple English feature guide for Gloviaa Mart.',
   styles: {
     default: { document: { run: { font: 'Aptos', size: 21, color: C.ink } } },
   },
@@ -2303,8 +2590,8 @@ const doc = new Document({
     properties: {
       page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } },
     },
-    headers: { default: new Header({ children: [new Paragraph({ text: 'GLOVIA  |  FEATURE GUIDE', spacing: { after: 0 }, run: { size: 7.5, bold: true, color: C.muted } })] }) },
-    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Glovia • Page ', color: C.muted, size: 7 }), new TextRun({ children: [PageNumber.CURRENT], color: C.muted, size: 7 })] })] }) },
+    headers: { default: new Header({ children: [new Paragraph({ text: 'GLOVIAA MART  |  FEATURE GUIDE', spacing: { after: 0 }, run: { size: 7.5, bold: true, color: C.muted } })] }) },
+    footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Gloviaa Mart • Page ', color: C.muted, size: 7 }), new TextRun({ children: [PageNumber.CURRENT], color: C.muted, size: 7 })] })] }) },
     children,
   }],
 });

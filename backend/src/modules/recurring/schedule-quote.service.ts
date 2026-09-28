@@ -40,6 +40,7 @@ import {
   type PricingLineInput,
   type PricingResult,
 } from '../../domain/pricing.js';
+import { findB2cViolations } from '../../domain/b2c-order-limit.js';
 import { variantKeyOf } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
@@ -424,6 +425,30 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
     }
   }
 
+  // --- The B2C maximum order quantity ------------------------------------
+  //
+  // A plan is the person's own, never a company's, so the limit always
+  // binds. HOLD rather than BLOCK: the limit is read LIVE on every quote, so
+  // a seller who lowers it after the plan was set up pauses the next
+  // delivery for the customer to reduce it - the worker never charges for
+  // more than is allowed today, and the plan is not thrown away.
+  for (const violation of findB2cViolations(
+    { kind: 'INDIVIDUAL' },
+    resolved.map((line) => ({
+      productId: line.productId,
+      sellerAccountId: null,
+      quantity: line.quantity,
+      limit: line.b2cMaxOrderQuantity,
+    })),
+  )) {
+    problems.push({
+      severity: 'HOLD',
+      code: ErrorCode.B2C_MAX_ORDER_QUANTITY_EXCEEDED,
+      message: `Individual buyers can order up to ${String(violation.limit)} units of this product. This delivery asks for ${String(violation.totalQuantity)}.`,
+      productId: violation.productId,
+    });
+  }
+
   // --- The ERP's own view of supply --------------------------------------
   if (input.checkErpStock === true && isErpConfigured()) {
     const erp = await verifyErpStock(
@@ -533,6 +558,8 @@ interface ResolvedLine {
   minOrderQty: number;
   maxOrderQty: number | null;
   qtyIncrement: number;
+  /** The product's B2C maximum order quantity. A plan is always individual. */
+  b2cMaxOrderQuantity: number | null;
   substitutedFor: { productId: string; name: string } | null;
 }
 
@@ -704,6 +731,7 @@ async function resolveLines(
         minOrderQty: product.minOrderQty,
         maxOrderQty: product.maxOrderQty,
         qtyIncrement: product.qtyIncrement,
+        b2cMaxOrderQuantity: product.b2cMaxOrderQuantity,
         substitutedFor,
       };
     }
@@ -728,6 +756,7 @@ async function resolveLines(
       minOrderQty: product.minOrderQty,
       maxOrderQty: product.maxOrderQty,
       qtyIncrement: product.qtyIncrement,
+      b2cMaxOrderQuantity: product.b2cMaxOrderQuantity,
       substitutedFor,
     };
   }

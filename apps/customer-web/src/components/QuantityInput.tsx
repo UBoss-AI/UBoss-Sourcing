@@ -65,6 +65,12 @@ interface QuantityInputProps {
    * every row is noise where one copy of it was guidance.
    */
   ruleHint?: boolean;
+  /**
+   * The id of a sentence elsewhere on the page that belongs to this field -
+   * the individual purchase limit, on the product page - so a screen reader
+   * reads it with the field rather than leaving it to be found.
+   */
+  describedBy?: string;
 }
 
 export function QuantityInput({
@@ -80,6 +86,7 @@ export function QuantityInput({
   ruleHint = true,
   onCommit,
   inputRef,
+  describedBy,
 }: QuantityInputProps): React.JSX.Element {
   const { t, intlLocale } = useI18n();
   const inputId = useId();
@@ -241,7 +248,7 @@ export function QuantityInput({
           step={step}
           disabled={disabled}
           aria-describedby={
-            [description === null ? null : hintId, problem === null ? null : problemId]
+            [description === null ? null : hintId, describedBy ?? null, problem === null ? null : problemId]
               .filter((id) => id !== null)
               .join(' ') || undefined
           }

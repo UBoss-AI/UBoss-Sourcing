@@ -167,6 +167,18 @@ export function CurrencyIcon(props: IconProps): React.JSX.Element {
 // Support and small print
 // ---------------------------------------------------------------------------
 
+/** Support: a headset. The header's Support link, the account menu row. */
+export function HeadsetIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="3" y="13" width="4" height="6" rx="1.5" />
+      <rect x="17" y="13" width="4" height="6" rx="1.5" />
+      <path d="M19 19v.5a2.5 2.5 0 0 1-2.5 2.5H13" />
+    </Icon>
+  );
+}
+
 export function MailIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
@@ -598,6 +610,15 @@ export function HeartIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
       <path d="M12 20s-7.4-4.3-7.4-9.1A4.1 4.1 0 0 1 12 8.3a4.1 4.1 0 0 1 7.4 2.6C19.4 15.7 12 20 12 20Z" />
+    </Icon>
+  );
+}
+
+/** Reviews you wrote. A five-pointed star, outline only. */
+export function StarIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.2 14.6 8.6l5.9.7-4.4 4 1.2 5.8L12 16.2l-5.3 2.9 1.2-5.8-4.4-4 5.9-.7Z" />
     </Icon>
   );
 }

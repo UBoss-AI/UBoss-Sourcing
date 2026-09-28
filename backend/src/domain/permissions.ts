@@ -38,6 +38,11 @@ export const Permission = {
   PRODUCT_ARCHIVE: 'product.archive',
   PRODUCT_IMPORT: 'product.import',
   MEDIA_UPLOAD: 'media.upload',
+  /// Reading buyers' product reviews, including hidden ones and who wrote them.
+  REVIEW_READ: 'review.read',
+  /// Hiding a review from the storefront and putting it back. Its own key
+  /// because it changes what every buyer is shown about a product.
+  REVIEW_MODERATE: 'review.moderate',
 
   // --- Coupons ---
   COUPON_READ: 'coupon.read',
@@ -70,6 +75,20 @@ export const Permission = {
   /// conversation is a distinct thing to be trusted with.
   ASSISTANT_CHAT_READ: 'assistant_chat.read',
 
+  // --- Buyer companies ---
+  //
+  // Verifying a business before it may buy in its own name. Three keys because
+  // they are three different trusts: reading an application and its documents,
+  // deciding it, and stopping a company that is already trading.
+  /// The review queue, an application, its registry checks and its documents.
+  BUYER_COMPANY_READ: 'buyer_company.read',
+  /// Start a review, assign it, request information, approve, reject, and ask
+  /// an approved company to re-verify.
+  BUYER_COMPANY_REVIEW: 'buyer_company.review',
+  /// Suspend an approved company, and restore a suspended one. Business Owner
+  /// only by default: it stops a trading customer mid-order.
+  BUYER_COMPANY_SUSPEND: 'buyer_company.suspend',
+
   // --- Preorder chats ---
   //
   // A signed-in buyer asking the operator's team about a preorder, from the
@@ -90,6 +109,19 @@ export const Permission = {
   PREORDER_CHAT_MODERATE: 'preorder_chat.moderate',
   /// Download a conversation's transcript.
   PREORDER_CHAT_EXPORT: 'preorder_chat.export',
+
+  // --- Support ---
+  //
+  // Support requests sent from the Support page by buyers, sellers and
+  // logistics staff. Three keys: reading somebody's problem, answering it for
+  // the business, and deciding which colleague owns it.
+  /// Read the inbox, every request in it, who sent it, and its internal notes.
+  SUPPORT_TICKET_VIEW: 'support_ticket.view',
+  /// Reply to the sender, write internal notes, change status and priority,
+  /// and take a request for yourself.
+  SUPPORT_TICKET_REPLY: 'support_ticket.reply',
+  /// Give a request to somebody else, or take it off them.
+  SUPPORT_TICKET_ASSIGN: 'support_ticket.assign',
 
   // --- Orders ---
   ORDER_READ: 'order.read',
@@ -233,6 +265,10 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.PRODUCT_ARCHIVE,
       Permission.PRODUCT_IMPORT,
       Permission.MEDIA_UPLOAD,
+      // What buyers say about a product is part of how it is presented, so
+      // this role reads reviews and hides the ones that break the rules.
+      Permission.REVIEW_READ,
+      Permission.REVIEW_MODERATE,
       // Coupons are pricing, which is this role's remit.
       Permission.COUPON_READ,
       Permission.COUPON_WRITE,
@@ -285,6 +321,17 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // deployment grants them further.
       Permission.PREORDER_CHAT_VIEW,
       Permission.PREORDER_CHAT_REPLY,
+      // Support requests are mostly "where is my order", so this desk answers
+      // them. Handing one to a colleague is the business owner's call unless a
+      // deployment grants it further - the same line preorder chats draw.
+      Permission.SUPPORT_TICKET_VIEW,
+      Permission.SUPPORT_TICKET_REPLY,
+      // Reads a company application to answer a buyer asking where theirs is.
+      // Does not decide one.
+      Permission.BUYER_COMPANY_READ,
+      // A low delivery or support score is usually about an order this desk
+      // handled, so it reads reviews. Hiding one is the catalogue's call.
+      Permission.REVIEW_READ,
       Permission.ORDER_READ,
       Permission.ORDER_FULFIL,
       Permission.ORDER_CANCEL,
@@ -320,6 +367,12 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // Reads a negotiation to check what was said before approving it.
       // Does not speak for the business in one.
       Permission.PREORDER_CHAT_VIEW,
+      // Reads a payment question before deciding a refund on it. Does not
+      // answer the sender; the order desk does.
+      Permission.SUPPORT_TICKET_VIEW,
+      // Verifying a business before it buys on account is credit work.
+      Permission.BUYER_COMPANY_READ,
+      Permission.BUYER_COMPANY_REVIEW,
       Permission.ORDER_READ,
       Permission.ORDER_APPROVE,
       Permission.ORDER_CANCEL,

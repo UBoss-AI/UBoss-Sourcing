@@ -38,6 +38,7 @@ export type SellerOfferAvgAggregateOutputType = {
   minimumOrderQuantity: number | null
   orderIncrement: number | null
   maximumOrderQuantity: number | null
+  b2cMaxOrderQuantity: number | null
   handlingTimeDays: number | null
   guaranteedShelfLifeMonths: number | null
   warrantyMonths: number | null
@@ -53,6 +54,7 @@ export type SellerOfferSumAggregateOutputType = {
   minimumOrderQuantity: number | null
   orderIncrement: number | null
   maximumOrderQuantity: number | null
+  b2cMaxOrderQuantity: number | null
   handlingTimeDays: number | null
   guaranteedShelfLifeMonths: number | null
   warrantyMonths: number | null
@@ -79,6 +81,7 @@ export type SellerOfferMinAggregateOutputType = {
   minimumOrderQuantity: number | null
   orderIncrement: number | null
   maximumOrderQuantity: number | null
+  b2cMaxOrderQuantity: number | null
   handlingTimeDays: number | null
   guaranteedShelfLifeMonths: number | null
   warrantyMonths: number | null
@@ -115,6 +118,7 @@ export type SellerOfferMaxAggregateOutputType = {
   minimumOrderQuantity: number | null
   orderIncrement: number | null
   maximumOrderQuantity: number | null
+  b2cMaxOrderQuantity: number | null
   handlingTimeDays: number | null
   guaranteedShelfLifeMonths: number | null
   warrantyMonths: number | null
@@ -151,6 +155,7 @@ export type SellerOfferCountAggregateOutputType = {
   minimumOrderQuantity: number
   orderIncrement: number
   maximumOrderQuantity: number
+  b2cMaxOrderQuantity: number
   handlingTimeDays: number
   guaranteedShelfLifeMonths: number
   warrantyMonths: number
@@ -179,6 +184,7 @@ export type SellerOfferAvgAggregateInputType = {
   minimumOrderQuantity?: true
   orderIncrement?: true
   maximumOrderQuantity?: true
+  b2cMaxOrderQuantity?: true
   handlingTimeDays?: true
   guaranteedShelfLifeMonths?: true
   warrantyMonths?: true
@@ -194,6 +200,7 @@ export type SellerOfferSumAggregateInputType = {
   minimumOrderQuantity?: true
   orderIncrement?: true
   maximumOrderQuantity?: true
+  b2cMaxOrderQuantity?: true
   handlingTimeDays?: true
   guaranteedShelfLifeMonths?: true
   warrantyMonths?: true
@@ -220,6 +227,7 @@ export type SellerOfferMinAggregateInputType = {
   minimumOrderQuantity?: true
   orderIncrement?: true
   maximumOrderQuantity?: true
+  b2cMaxOrderQuantity?: true
   handlingTimeDays?: true
   guaranteedShelfLifeMonths?: true
   warrantyMonths?: true
@@ -256,6 +264,7 @@ export type SellerOfferMaxAggregateInputType = {
   minimumOrderQuantity?: true
   orderIncrement?: true
   maximumOrderQuantity?: true
+  b2cMaxOrderQuantity?: true
   handlingTimeDays?: true
   guaranteedShelfLifeMonths?: true
   warrantyMonths?: true
@@ -292,6 +301,7 @@ export type SellerOfferCountAggregateInputType = {
   minimumOrderQuantity?: true
   orderIncrement?: true
   maximumOrderQuantity?: true
+  b2cMaxOrderQuantity?: true
   handlingTimeDays?: true
   guaranteedShelfLifeMonths?: true
   warrantyMonths?: true
@@ -416,6 +426,7 @@ export type SellerOfferGroupByOutputType = {
   minimumOrderQuantity: number
   orderIncrement: number
   maximumOrderQuantity: number | null
+  b2cMaxOrderQuantity: number | null
   handlingTimeDays: number | null
   guaranteedShelfLifeMonths: number | null
   warrantyMonths: number | null
@@ -476,6 +487,7 @@ export type SellerOfferWhereInput = {
   minimumOrderQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   orderIncrement?: Prisma.IntFilter<"SellerOffer"> | number
   maximumOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  b2cMaxOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   handlingTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   guaranteedShelfLifeMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   warrantyMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
@@ -526,6 +538,7 @@ export type SellerOfferOrderByWithRelationInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -582,6 +595,7 @@ export type SellerOfferWhereUniqueInput = Prisma.AtLeast<{
   minimumOrderQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   orderIncrement?: Prisma.IntFilter<"SellerOffer"> | number
   maximumOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  b2cMaxOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   handlingTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   guaranteedShelfLifeMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   warrantyMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
@@ -632,6 +646,7 @@ export type SellerOfferOrderByWithAggregationInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -677,6 +692,7 @@ export type SellerOfferScalarWhereWithAggregatesInput = {
   minimumOrderQuantity?: Prisma.IntWithAggregatesFilter<"SellerOffer"> | number
   orderIncrement?: Prisma.IntWithAggregatesFilter<"SellerOffer"> | number
   maximumOrderQuantity?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
+  b2cMaxOrderQuantity?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
   handlingTimeDays?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
   guaranteedShelfLifeMonths?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
   warrantyMonths?: Prisma.IntNullableWithAggregatesFilter<"SellerOffer"> | number | null
@@ -710,6 +726,7 @@ export type SellerOfferCreateInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -760,6 +777,7 @@ export type SellerOfferUncheckedCreateInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -802,6 +820,7 @@ export type SellerOfferUpdateInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -852,6 +871,7 @@ export type SellerOfferUncheckedUpdateInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -898,6 +918,7 @@ export type SellerOfferCreateManyInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -931,6 +952,7 @@ export type SellerOfferUpdateManyMutationInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -968,6 +990,7 @@ export type SellerOfferUncheckedUpdateManyInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1037,6 +1060,7 @@ export type SellerOfferCountOrderByAggregateInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrder
@@ -1063,6 +1087,7 @@ export type SellerOfferAvgOrderByAggregateInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrder
@@ -1089,6 +1114,7 @@ export type SellerOfferMaxOrderByAggregateInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrder
@@ -1125,6 +1151,7 @@ export type SellerOfferMinOrderByAggregateInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrder
@@ -1150,6 +1177,7 @@ export type SellerOfferSumOrderByAggregateInput = {
   minimumOrderQuantity?: Prisma.SortOrder
   orderIncrement?: Prisma.SortOrder
   maximumOrderQuantity?: Prisma.SortOrder
+  b2cMaxOrderQuantity?: Prisma.SortOrder
   handlingTimeDays?: Prisma.SortOrder
   guaranteedShelfLifeMonths?: Prisma.SortOrder
   warrantyMonths?: Prisma.SortOrder
@@ -1483,6 +1511,7 @@ export type SellerOfferCreateWithoutProductInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1531,6 +1560,7 @@ export type SellerOfferUncheckedCreateWithoutProductInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1606,6 +1636,7 @@ export type SellerOfferScalarWhereInput = {
   minimumOrderQuantity?: Prisma.IntFilter<"SellerOffer"> | number
   orderIncrement?: Prisma.IntFilter<"SellerOffer"> | number
   maximumOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
+  b2cMaxOrderQuantity?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   handlingTimeDays?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   guaranteedShelfLifeMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
   warrantyMonths?: Prisma.IntNullableFilter<"SellerOffer"> | number | null
@@ -1639,6 +1670,7 @@ export type SellerOfferCreateWithoutVariantInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1687,6 +1719,7 @@ export type SellerOfferUncheckedCreateWithoutVariantInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1755,6 +1788,7 @@ export type SellerOfferCreateWithoutCartItemsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1804,6 +1838,7 @@ export type SellerOfferUncheckedCreateWithoutCartItemsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -1861,6 +1896,7 @@ export type SellerOfferUpdateWithoutCartItemsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1910,6 +1946,7 @@ export type SellerOfferUncheckedUpdateWithoutCartItemsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1951,6 +1988,7 @@ export type SellerOfferCreateWithoutOrderItemsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2000,6 +2038,7 @@ export type SellerOfferUncheckedCreateWithoutOrderItemsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2057,6 +2096,7 @@ export type SellerOfferUpdateWithoutOrderItemsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2106,6 +2146,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderItemsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2147,6 +2188,7 @@ export type SellerOfferCreateWithoutSellerAccountInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2195,6 +2237,7 @@ export type SellerOfferUncheckedCreateWithoutSellerAccountInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2263,6 +2306,7 @@ export type SellerOfferCreateWithoutBrandInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2311,6 +2355,7 @@ export type SellerOfferUncheckedCreateWithoutBrandInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2379,6 +2424,7 @@ export type SellerOfferCreateWithoutPriceTiersInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2428,6 +2474,7 @@ export type SellerOfferUncheckedCreateWithoutPriceTiersInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2485,6 +2532,7 @@ export type SellerOfferUpdateWithoutPriceTiersInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2534,6 +2582,7 @@ export type SellerOfferUncheckedUpdateWithoutPriceTiersInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2575,6 +2624,7 @@ export type SellerOfferCreateWithoutInventoryInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2624,6 +2674,7 @@ export type SellerOfferUncheckedCreateWithoutInventoryInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2681,6 +2732,7 @@ export type SellerOfferUpdateWithoutInventoryInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2730,6 +2782,7 @@ export type SellerOfferUncheckedUpdateWithoutInventoryInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2771,6 +2824,7 @@ export type SellerOfferCreateWithoutOrderLinesInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2820,6 +2874,7 @@ export type SellerOfferUncheckedCreateWithoutOrderLinesInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -2877,6 +2932,7 @@ export type SellerOfferUpdateWithoutOrderLinesInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2926,6 +2982,7 @@ export type SellerOfferUncheckedUpdateWithoutOrderLinesInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2967,6 +3024,7 @@ export type SellerOfferCreateWithoutFulfilmentRulesInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3016,6 +3074,7 @@ export type SellerOfferUncheckedCreateWithoutFulfilmentRulesInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3073,6 +3132,7 @@ export type SellerOfferUpdateWithoutFulfilmentRulesInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3122,6 +3182,7 @@ export type SellerOfferUncheckedUpdateWithoutFulfilmentRulesInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3163,6 +3224,7 @@ export type SellerOfferCreateWithoutPackagingProfileInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3212,6 +3274,7 @@ export type SellerOfferUncheckedCreateWithoutPackagingProfileInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3269,6 +3332,7 @@ export type SellerOfferUpdateWithoutPackagingProfileInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3318,6 +3382,7 @@ export type SellerOfferUncheckedUpdateWithoutPackagingProfileInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3359,6 +3424,7 @@ export type SellerOfferCreateWithoutContainerLoadingInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3408,6 +3474,7 @@ export type SellerOfferUncheckedCreateWithoutContainerLoadingInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3465,6 +3532,7 @@ export type SellerOfferUpdateWithoutContainerLoadingInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3514,6 +3582,7 @@ export type SellerOfferUncheckedUpdateWithoutContainerLoadingInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3555,6 +3624,7 @@ export type SellerOfferCreateWithoutPreorderRequestsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3604,6 +3674,7 @@ export type SellerOfferUncheckedCreateWithoutPreorderRequestsInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3661,6 +3732,7 @@ export type SellerOfferUpdateWithoutPreorderRequestsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3710,6 +3782,7 @@ export type SellerOfferUncheckedUpdateWithoutPreorderRequestsInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3754,6 +3827,7 @@ export type SellerOfferCreateManyProductInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3787,6 +3861,7 @@ export type SellerOfferUpdateWithoutProductInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3835,6 +3910,7 @@ export type SellerOfferUncheckedUpdateWithoutProductInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3880,6 +3956,7 @@ export type SellerOfferUncheckedUpdateManyWithoutProductInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3916,6 +3993,7 @@ export type SellerOfferCreateManyVariantInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -3949,6 +4027,7 @@ export type SellerOfferUpdateWithoutVariantInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3997,6 +4076,7 @@ export type SellerOfferUncheckedUpdateWithoutVariantInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4042,6 +4122,7 @@ export type SellerOfferUncheckedUpdateManyWithoutVariantInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4078,6 +4159,7 @@ export type SellerOfferCreateManySellerAccountInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -4111,6 +4193,7 @@ export type SellerOfferUpdateWithoutSellerAccountInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4159,6 +4242,7 @@ export type SellerOfferUncheckedUpdateWithoutSellerAccountInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4204,6 +4288,7 @@ export type SellerOfferUncheckedUpdateManyWithoutSellerAccountInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4240,6 +4325,7 @@ export type SellerOfferCreateManyBrandInput = {
   minimumOrderQuantity?: number
   orderIncrement?: number
   maximumOrderQuantity?: number | null
+  b2cMaxOrderQuantity?: number | null
   handlingTimeDays?: number | null
   guaranteedShelfLifeMonths?: number | null
   warrantyMonths?: number | null
@@ -4273,6 +4359,7 @@ export type SellerOfferUpdateWithoutBrandInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4321,6 +4408,7 @@ export type SellerOfferUncheckedUpdateWithoutBrandInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4366,6 +4454,7 @@ export type SellerOfferUncheckedUpdateManyWithoutBrandInput = {
   minimumOrderQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   maximumOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  b2cMaxOrderQuantity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guaranteedShelfLifeMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4488,6 +4577,7 @@ export type SellerOfferSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   minimumOrderQuantity?: boolean
   orderIncrement?: boolean
   maximumOrderQuantity?: boolean
+  b2cMaxOrderQuantity?: boolean
   handlingTimeDays?: boolean
   guaranteedShelfLifeMonths?: boolean
   warrantyMonths?: boolean
@@ -4541,6 +4631,7 @@ export type SellerOfferSelectScalar = {
   minimumOrderQuantity?: boolean
   orderIncrement?: boolean
   maximumOrderQuantity?: boolean
+  b2cMaxOrderQuantity?: boolean
   handlingTimeDays?: boolean
   guaranteedShelfLifeMonths?: boolean
   warrantyMonths?: boolean
@@ -4561,7 +4652,7 @@ export type SellerOfferSelectScalar = {
   countryOfOrigin?: boolean
 }
 
-export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt" | "hsnCode" | "countryOfOrigin", ExtArgs["result"]["sellerOffer"]>
+export type SellerOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "productId" | "variantId" | "variantKey" | "sellerSku" | "brandId" | "status" | "priceMinor" | "currency" | "compareAtPriceMinor" | "taxClassId" | "orderingUnit" | "minimumOrderQuantity" | "orderIncrement" | "maximumOrderQuantity" | "b2cMaxOrderQuantity" | "handlingTimeDays" | "guaranteedShelfLifeMonths" | "warrantyMonths" | "sellingRegionsJson" | "availableQuantity" | "reservedQuantity" | "qualityScore" | "statusReason" | "pausedAt" | "pausedByProfileId" | "sourceDraftId" | "publishedAt" | "version" | "createdAt" | "updatedAt" | "archivedAt" | "hsnCode" | "countryOfOrigin", ExtArgs["result"]["sellerOffer"]>
 export type SellerOfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -4660,6 +4751,19 @@ export type $SellerOfferPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     orderIncrement: number
     maximumOrderQuantity: number | null
+    /**
+     * The B2C maximum order quantity: the most units of this product, from
+     * THIS seller, that a buyer who is not an approved company may put in one
+     * order - every variant and every line added together.
+     * 
+     * Set once per listing and written to every offer of that product by this
+     * seller, so a product's variants share one figure. Required before a new
+     * listing can be submitted. Null means not configured - every offer that
+     * predates it - which applies no ceiling and is flagged in Seller Hub for
+     * the seller to set. Not `maximumOrderQuantity` above, which is per line
+     * and binds companies too. Rules: `domain/b2c-order-limit.ts`.
+     */
+    b2cMaxOrderQuantity: number | null
     /**
      * Working days from order to dispatch, when it differs from the location's
      * default. Null means "use the location".
@@ -5130,6 +5234,7 @@ export interface SellerOfferFieldRefs {
   readonly minimumOrderQuantity: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly orderIncrement: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly maximumOrderQuantity: Prisma.FieldRef<"SellerOffer", 'Int'>
+  readonly b2cMaxOrderQuantity: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly handlingTimeDays: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly guaranteedShelfLifeMonths: Prisma.FieldRef<"SellerOffer", 'Int'>
   readonly warrantyMonths: Prisma.FieldRef<"SellerOffer", 'Int'>

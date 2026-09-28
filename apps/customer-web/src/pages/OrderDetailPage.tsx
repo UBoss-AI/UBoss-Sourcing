@@ -17,6 +17,8 @@ import { OrderedProductInfo } from '@/pages/seller/OrderedProductInfo';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ReviewDialog } from '@/components/reviews/ReviewDialog';
+import { fetchReviewedProductIds, reviewKeys } from '@/lib/ratings';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import {
@@ -32,7 +34,7 @@ import { Modal } from '@/components/Modal';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { OrderDeliveryLevels } from '@/components/OrderDeliveryLevels';
 import { OrderSellerInvoices } from '@/components/OrderSellerInvoices';
-import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
+import { CheckIcon, DotIcon, HeadsetIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
@@ -124,7 +126,7 @@ export function OrderDetailPage(): React.JSX.Element {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
 
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -134,6 +136,26 @@ export function OrderDetailPage(): React.JSX.Element {
     queryKey: ['order', id],
     queryFn: () => api.get<{ order: OrderDetail }>(`/orders/${String(id)}`),
     enabled: id !== undefined,
+  });
+
+  /*
+   * Rating what arrived.
+   *
+   * Offered on a delivered (or since returned) order only - the server's rule
+   * too, since delivery and support cannot be scored before anything was
+   * delivered. One read for the whole order says which lines already have a
+   * review, so the button can say "Edit your review" instead.
+   */
+  const [reviewing, setReviewing] = useState<{ productId: string; name: string } | null>(null);
+  const orderForReviews = query.data?.order;
+  const canRateOrder =
+    features.productReviews === true &&
+    (orderForReviews?.status === 'DELIVERED' || orderForReviews?.status === 'RETURNED');
+  const orderProductIds = [...new Set(orderForReviews?.items.map((item) => item.productId) ?? [])];
+  const reviewed = useQuery({
+    queryKey: reviewKeys.reviewed(orderProductIds),
+    queryFn: () => fetchReviewedProductIds(orderProductIds),
+    enabled: canRateOrder && orderProductIds.length > 0,
   });
 
   useDocumentMeta(
@@ -363,6 +385,22 @@ export function OrderDetailPage(): React.JSX.Element {
                           same frozen record the seller works from. */}
                       {item.productInfo !== undefined && item.productInfo !== null && (
                         <OrderedProductInfo source="SNAPSHOT" info={item.productInfo} />
+                      )}
+                      {canRateOrder && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => {
+                            setReviewing({ productId: item.productId, name: item.name });
+                          }}
+                        >
+                          <span aria-hidden="true" className="text-rating">★</span>
+                          {reviewed.data?.has(item.productId) === true
+                            ? t('reviews.editYourReview')
+                            : t('reviews.rateThisProduct')}
+                          <span className="sr-only"> {item.name}</span>
+                        </Button>
                       )}
                     </div>
 
@@ -657,21 +695,29 @@ export function OrderDetailPage(): React.JSX.Element {
             </div>
           )}
 
-          {business.supportEmail !== null && (
-            <div className="rounded-lg border border-border bg-surface p-5 text-sm shadow-card">
-              <h2 className="font-medium text-ink">{t('orderDetail.somethingWrong')}</h2>
-              <p className="mt-1 text-ink-muted">
-                Email{' '}
+          {/* The Support page with this order already filled in, so the
+              request arrives linked to it. The email stays as the other way. */}
+          <div className="rounded-lg border border-border bg-surface p-5 text-sm shadow-card">
+            <h2 className="font-medium text-ink">{t('orderDetail.somethingWrong')}</h2>
+            <Link
+              to={`/support?order=${encodeURIComponent(order.orderNumber)}&category=ORDERS`}
+              className="mt-2 inline-flex items-center gap-2 font-medium text-brand hover:underline"
+            >
+              <HeadsetIcon className="h-4 w-4" />
+              {t('orderDetail.contactSupport')}
+            </Link>
+            {business.supportEmail !== null && (
+              <p className="mt-2 text-ink-muted">
+                {t('orderDetail.orEmail')}{' '}
                 <a
-                  href={`mailto:${business.supportEmail}?subject=Order%20${encodeURIComponent(order.orderNumber)}`}
+                  href={`mailto:${business.supportEmail}?subject=${encodeURIComponent(order.orderNumber)}`}
                   className="font-medium text-brand hover:underline"
                 >
                   {business.supportEmail}
-                </a>{' '}
-                quoting {order.orderNumber}.
+                </a>
               </p>
-            </div>
-          )}
+            )}
+          </div>
         </aside>
       </div>
 
@@ -731,6 +777,16 @@ export function OrderDetailPage(): React.JSX.Element {
           </Field>
         </div>
       </Modal>
+
+      {reviewing !== null && (
+        <ReviewDialog
+          productId={reviewing.productId}
+          productName={reviewing.name}
+          onClose={() => {
+            setReviewing(null);
+          }}
+        />
+      )}
     </>
   );
 }

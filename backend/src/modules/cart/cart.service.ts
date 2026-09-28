@@ -67,6 +67,14 @@ import {
   type CouponRejection,
 } from '../coupons/coupon.service.js';
 import { checkPurchasingLimits, type LimitCheckResult } from '../customers/limits.service.js';
+import {
+  assertB2cChangeAllowed,
+  b2cLineOf,
+  b2cLineViews,
+  beginB2cGuardedChange,
+  resolveB2cBuyer,
+  type B2cLineView,
+} from './b2c-limit.service.js';
 import { getAvailabilityMap } from '../inventory/inventory.service.js';
 import { resolveCurrencyFor } from '../settings/currency.service.js';
 import { applyLineTax, loadTaxContext, type TaxSetup } from '../tax/vat.service.js';
@@ -229,6 +237,14 @@ export interface CartLine {
   packaging: CartLinePackaging | null;
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
+  /**
+   * The B2C maximum order quantity for this line's product, or null when
+   * none is configured. `productQuantity` is every line of the product from
+   * this seller added together - the figure the limit is judged on.
+   * `applies` is false in an approved company's basket, where it is shown
+   * for information only.
+   */
+  b2cLimit: B2cLineView | null;
 }
 
 /** The frozen breakdown, as the API returns it. Money as strings, as always. */
@@ -572,12 +588,39 @@ async function resolveCurrency(customerProfileId: string): Promise<string> {
   return resolveCurrencyFor(customerProfileId);
 }
 
-/** Fetch or create the customer's active cart. */
-export async function getOrCreateCart(customerProfileId: string): Promise<string> {
+/**
+ * Whose basket a cart call is about.
+ *
+ * A bare profile id is the person's own basket, which is what every caller
+ * that predates buyer companies passes and still means exactly what it did.
+ * The object form adds the company the basket is being bought for; the
+ * storefront routes build it from the request's CONFIRMED buyer context,
+ * never from anything the client sent.
+ */
+export type CartOwner = string | { customerProfileId: string; buyerCompanyId: string | null };
+
+export function profileOfOwner(owner: CartOwner): string {
+  return typeof owner === 'string' ? owner : owner.customerProfileId;
+}
+
+export function companyOfOwner(owner: CartOwner): string | null {
+  return typeof owner === 'string' ? null : owner.buyerCompanyId;
+}
+
+/**
+ * Fetch or create the active cart for this owner.
+ *
+ * One ACTIVE cart per (person, company) - a person buying for their employer
+ * and for themselves has two baskets and never one mixed one. NULL company is
+ * the person's own basket, which is every cart that existed before.
+ */
+export async function getOrCreateCart(owner: CartOwner): Promise<string> {
+  const customerProfileId = profileOfOwner(owner);
+  const buyerCompanyId = companyOfOwner(owner);
   const currency = await resolveCurrency(customerProfileId);
 
   const existing = await prisma.cart.findFirst({
-    where: { customerProfileId, status: 'ACTIVE' },
+    where: { customerProfileId, buyerCompanyId, status: 'ACTIVE' },
     select: { id: true, currency: true, appliedCouponId: true },
     orderBy: { createdAt: 'desc' },
   });
@@ -600,6 +643,7 @@ export async function getOrCreateCart(customerProfileId: string): Promise<string
     data: {
       id,
       customerProfileId,
+      buyerCompanyId,
       status: 'ACTIVE',
       currency,
       expiresAt: new Date(Date.now() + CART_TTL_DAYS * 86_400_000),
@@ -616,7 +660,7 @@ export async function getOrCreateCart(customerProfileId: string): Promise<string
  * function - so the totals at review and the totals charged cannot diverge.
  */
 export async function resolveCart(
-  customerProfileId: string,
+  owner: CartOwner,
   options: {
     shippingMethodCode?: string | null;
     destinationCountry?: string | null;
@@ -664,7 +708,8 @@ export async function resolveCart(
     fxPurpose?: FxPurpose;
   } = {},
 ): Promise<ResolvedCart> {
-  const cartId = await getOrCreateCart(customerProfileId);
+  const customerProfileId = profileOfOwner(owner);
+  const cartId = await getOrCreateCart(owner);
   const currency = await resolveCurrency(customerProfileId);
 
   // What VAT treatment this basket falls under, and at whose rates.
@@ -751,6 +796,10 @@ export async function resolveCart(
           minimumOrderQuantity: true,
           orderIncrement: true,
           maximumOrderQuantity: true,
+          // The B2C maximum and whose it is: the limit counts one seller's
+          // units of one product across every line. `b2c-limit.service.ts`.
+          sellerAccountId: true,
+          b2cMaxOrderQuantity: true,
           sellerAccount: { select: { displayName: true, status: true } },
           /*
            * The seller's CURRENT packaging, loaded beside the line's frozen
@@ -1356,6 +1405,40 @@ export async function resolveCart(
     }
   }
 
+  /*
+   * The B2C maximum order quantity, judged against the basket as it is now.
+   *
+   * A basket over the limit is KEPT, never trimmed: the seller may have
+   * lowered the figure since, or the company this basket belongs to may no
+   * longer be approved. Every line of an over-limit product carries a
+   * blocking issue, so checkout is refused and the buyer is told which
+   * product and by how much - and chooses whether to reduce or switch.
+   */
+  const b2cBuyer = await resolveB2cBuyer(prisma, {
+    customerProfileId,
+    buyerCompanyId: companyOfOwner(owner),
+  });
+  const b2cViews = b2cLineViews(
+    b2cBuyer,
+    items.map((item) => b2cLineOf(item)),
+  );
+  for (const [index, view] of b2cViews.entries()) {
+    const meta = lineMeta[index];
+    if (view === null || !view.exceeded || meta === undefined) continue;
+    meta.issues.push({
+      code: ErrorCode.B2C_MAX_ORDER_QUANTITY_EXCEEDED,
+      message: `Individual buyers can order up to ${String(view.maxQuantity)} units of this product. This basket holds ${String(view.productQuantity)}.`,
+      meta: {
+        productId: meta.productId,
+        allowedQuantity: view.maxQuantity,
+        requestedQuantity: view.productQuantity,
+        currentCartQuantity: view.productQuantity,
+        lineQuantity: meta.quantity,
+        requiresApprovedCompanyAccount: true,
+      },
+    });
+  }
+
   const lines: CartLine[] = lineMeta.map((meta, index) => {
     const priced = pricing.lines[index];
     const source = pricingInputs[index];
@@ -1390,6 +1473,7 @@ export async function resolveCart(
       note: meta.note,
       packaging: meta.packaging,
       issues: meta.issues,
+      b2cLimit: b2cViews[index] ?? null,
       quantityTier: meta.quantityTier,
       nextQuantityTier: meta.nextQuantityTier,
     };
@@ -1594,8 +1678,9 @@ async function buildOfferedCoupons(input: {
  * then re-validated on every `resolveCart` - a coupon can expire, be switched
  * off, or stop qualifying while the cart sits open.
  */
-export async function applyCoupon(customerProfileId: string, code: string): Promise<void> {
-  const cartId = await getOrCreateCart(customerProfileId);
+export async function applyCoupon(owner: CartOwner, code: string): Promise<void> {
+  const customerProfileId = profileOfOwner(owner);
+  const cartId = await getOrCreateCart(owner);
   const currency = await resolveCurrency(customerProfileId);
 
   const coupon = await findCouponByCode(code);
@@ -1606,7 +1691,7 @@ export async function applyCoupon(customerProfileId: string, code: string): Prom
   }
 
   // Price the cart as it stands so the code is judged against a real basket.
-  const resolved = await resolveCart(customerProfileId);
+  const resolved = await resolveCart(owner);
   const lines = resolved.pricing.lines.map((line, index) => ({
     index,
     productId: line.productId,
@@ -1635,8 +1720,8 @@ export async function applyCoupon(customerProfileId: string, code: string): Prom
   await prisma.cart.update({ where: { id: cartId }, data: { appliedCouponId: coupon.id } });
 }
 
-export async function removeCoupon(customerProfileId: string): Promise<void> {
-  const cartId = await getOrCreateCart(customerProfileId);
+export async function removeCoupon(owner: CartOwner): Promise<void> {
+  const cartId = await getOrCreateCart(owner);
   await prisma.cart.update({ where: { id: cartId }, data: { appliedCouponId: null } });
 }
 
@@ -1765,10 +1850,10 @@ const MAX_LINES_PER_ADD = 50;
  * be added by posting its id directly.
  */
 export async function addItem(
-  customerProfileId: string,
+  owner: CartOwner,
   input: AddItemInput,
 ): Promise<{ itemId: string; quantity: number }> {
-  const [line] = await addLines(customerProfileId, [input], PLAIN_FIELD);
+  const [line] = await addLines(owner, [input], PLAIN_FIELD);
 
   // `addLines` returns one line per distinct SKU it was given, and it was
   // given exactly one. The check is here so the caller gets a defined line
@@ -1804,10 +1889,10 @@ export async function addItem(
  * who asked for three and three meant.
  */
 export async function addItems(
-  customerProfileId: string,
+  owner: CartOwner,
   inputs: AddItemInput[],
 ): Promise<AddedLine[]> {
-  return addLines(customerProfileId, inputs, INDEXED_FIELD);
+  return addLines(owner, inputs, INDEXED_FIELD);
 }
 
 /** One SKU's worth of a request, after validation and after de-duplication. */
@@ -1966,10 +2051,11 @@ function resolveBulkLine(input: {
 }
 
 async function addLines(
-  customerProfileId: string,
+  owner: CartOwner,
   inputs: AddItemInput[],
   nameField: FieldNamer,
 ): Promise<AddedLine[]> {
+  const customerProfileId = profileOfOwner(owner);
   if (inputs.length === 0) {
     throw badRequest(ErrorCode.VALIDATION_FAILED, 'Choose something to add to the cart.', [
       { field: 'items', code: 'REQUIRED' },
@@ -2409,9 +2495,12 @@ async function addLines(
     });
   }
 
-  const cartId = await getOrCreateCart(customerProfileId);
+  const cartId = await getOrCreateCart(owner);
 
   return prisma.$transaction(async (tx) => {
+    // First statement, always: the basket's row lock, then its totals before
+    // anything is written. See `b2c-limit.service.ts`.
+    const b2cGuard = await beginB2cGuardedChange(tx, cartId);
     const added: AddedLine[] = [];
 
     for (const line of wanted.values()) {
@@ -2697,12 +2786,17 @@ async function addLines(
       });
     }
 
+    // Judged on what actually landed, so a merge onto an existing line, a
+    // second variant or one request carrying the product twice is counted
+    // exactly as the basket now holds it. Throwing rolls every line back.
+    await assertB2cChangeAllowed(tx, { cartId, ...b2cGuard });
+
     return added;
   });
 }
 
 export async function updateItemQuantity(
-  customerProfileId: string,
+  owner: CartOwner,
   itemId: string,
   quantity: number,
 ): Promise<void> {
@@ -2712,7 +2806,7 @@ export async function updateItemQuantity(
     ]);
   }
 
-  const cartId = await getOrCreateCart(customerProfileId);
+  const cartId = await getOrCreateCart(owner);
 
   // Scoped by cartId, so an item id from another customer's cart resolves to
   // "not found" rather than being editable.
@@ -2744,9 +2838,13 @@ export async function updateItemQuantity(
     field: 'quantity',
   });
 
-  await prisma.cartItem.update({
-    where: { id: itemId },
-    data: { quantity: resolved.quantity, unitQuantity: resolved.unitQuantity },
+  await prisma.$transaction(async (tx) => {
+    const b2cGuard = await beginB2cGuardedChange(tx, cartId);
+    await tx.cartItem.update({
+      where: { id: itemId },
+      data: { quantity: resolved.quantity, unitQuantity: resolved.unitQuantity },
+    });
+    await assertB2cChangeAllowed(tx, { cartId, ...b2cGuard });
   });
 
   await syncPackagingCounts(itemId, resolved.unitQuantity);
@@ -2873,7 +2971,7 @@ async function sellUnitSpecForItem(item: {
  * here just as they do there.
  */
 export async function updateItemPackQuantity(
-  customerProfileId: string,
+  owner: CartOwner,
   itemId: string,
   unitQuantity: number,
 ): Promise<void> {
@@ -2883,7 +2981,7 @@ export async function updateItemPackQuantity(
     ]);
   }
 
-  const cartId = await getOrCreateCart(customerProfileId);
+  const cartId = await getOrCreateCart(owner);
   const item = await prisma.cartItem.findFirst({ where: { id: itemId, cartId } });
   if (item === null) throw notFound('Cart item');
 
@@ -2902,9 +3000,13 @@ export async function updateItemPackQuantity(
     field: 'unitQuantity',
   });
 
-  await prisma.cartItem.update({
-    where: { id: itemId },
-    data: { unitQuantity: resolved.unitQuantity, quantity: resolved.quantity },
+  await prisma.$transaction(async (tx) => {
+    const b2cGuard = await beginB2cGuardedChange(tx, cartId);
+    await tx.cartItem.update({
+      where: { id: itemId },
+      data: { unitQuantity: resolved.unitQuantity, quantity: resolved.quantity },
+    });
+    await assertB2cChangeAllowed(tx, { cartId, ...b2cGuard });
   });
 
   await syncPackagingCounts(itemId, resolved.unitQuantity);
@@ -2929,11 +3031,11 @@ export async function updateItemPackQuantity(
  * session, never from the request.
  */
 export async function updateItemNote(
-  customerProfileId: string,
+  owner: CartOwner,
   itemId: string,
   note: string | null,
 ): Promise<{ note: string | null }> {
-  const cartId = await getOrCreateCart(customerProfileId);
+  const cartId = await getOrCreateCart(owner);
 
   const item = await prisma.cartItem.findFirst({
     where: { id: itemId, cartId },
@@ -2950,15 +3052,15 @@ export async function updateItemNote(
   return { note: stored };
 }
 
-export async function removeItem(customerProfileId: string, itemId: string): Promise<void> {
-  const cartId = await getOrCreateCart(customerProfileId);
+export async function removeItem(owner: CartOwner, itemId: string): Promise<void> {
+  const cartId = await getOrCreateCart(owner);
 
   const deleted = await prisma.cartItem.deleteMany({ where: { id: itemId, cartId } });
   if (deleted.count === 0) throw notFound('Cart item');
 }
 
-export async function clearCart(customerProfileId: string): Promise<{ removed: number }> {
-  const cartId = await getOrCreateCart(customerProfileId);
+export async function clearCart(owner: CartOwner): Promise<{ removed: number }> {
+  const cartId = await getOrCreateCart(owner);
   const result = await prisma.cartItem.deleteMany({ where: { cartId } });
   return { removed: result.count };
 }

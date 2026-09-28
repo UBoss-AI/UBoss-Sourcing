@@ -3,8 +3,8 @@
  *
  * ONE THING TO KEEP IN MIND READING THIS FILE: nothing here ever reaches the
  * seller's TallyPrime. Their Tally runs on a PC in their office, and this API
- * has no address for it and never will - the Glovia Tally Bridge runs beside
- * Tally and connects OUTWARD. Everything below talks to Glovia, which queues
+ * has no address for it and never will - the Gloviaa Mart Tally Bridge runs beside
+ * Tally and connects OUTWARD. Everything below talks to Gloviaa Mart, which queues
  * work for that agent to collect.
  *
  * So a "test connection" here returns 202 and a job id, not a verdict. The
@@ -304,7 +304,7 @@ export function updateErpPolicy(
 }
 
 /**
- * Whether Glovia may create ledgers and stock items in Tally unprompted.
+ * Whether Gloviaa Mart may create ledgers and stock items in Tally unprompted.
  *
  * Its own call rather than a field on the policy patch, because it is the one
  * setting that lets this software write to somebody's chart of accounts

@@ -151,6 +151,14 @@ process.env.PAYMENT_MOCK_SUCCESS = 'false';
 // unverified number is charged VAT rather than zero-rated.
 process.env.VIES_CHECK_URL = '';
 
+// The buyer-company registries, for the same reason: a test must never ask a
+// real government register about a made-up company. Blank is the supported
+// "switched off" setting, and every such check then reads MANUAL_REQUIRED.
+// The provider tests point these at a local stub server of their own.
+process.env.BUYER_COMPANY_GLEIF_URL = '';
+process.env.BUYER_COMPANY_PL_VAT_URL = '';
+process.env.BUYER_COMPANY_PL_KRS_URL = '';
+
 /*
  * And no AI provider, for the same reason as the two above - which is a reason
  * this file already gives and had simply never applied here.

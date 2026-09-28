@@ -11,7 +11,7 @@
  */
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { env } from '../../config/env.js';
-import { ErrorCode, forbidden, notFound, unauthorized } from '../../domain/errors.js';
+import { AppError, ErrorCode, forbidden, notFound, unauthorized } from '../../domain/errors.js';
 import type { PermissionKey } from '../../domain/permissions.js';
 import { safeCompare } from '../../infra/crypto.js';
 import {
@@ -20,6 +20,15 @@ import {
   type UserKind,
 } from '../../modules/identity/auth.service.js';
 import { getSessionAuthState, verifyAccessToken } from '../../modules/identity/session.service.js';
+import {
+  companyCapabilityBlock,
+  type BuyerCompanyCapability,
+} from '../../domain/buyer-company-state.js';
+import {
+  resetSessionToIndividual,
+  resolveBuyerContext,
+  type BuyerContext,
+} from '../../modules/buyer-companies/context.service.js';
 
 export const CSRF_HEADER = 'x-csrf-token';
 
@@ -91,6 +100,15 @@ declare module 'fastify' {
       sessionSellerUnlockedForId: string | null;
       /** When the Seller Hub last saw deliberate activity; see the seller guard. */
       sessionSellerLastActivityAt: Date | null;
+      /** What the session row asks for. Not an authority - see `buyerContext`. */
+      sessionBuyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+      sessionBuyerCompanyId: string | null;
+      /**
+       * Which buyer this request acts as, CONFIRMED against an active
+       * membership by `requireCustomer` on this very request. Set only by the
+       * customer guards; absent on admin and logistics requests.
+       */
+      buyerContext?: BuyerContext;
     };
   }
 }
@@ -200,6 +218,8 @@ async function authenticate(
     sessionSellerUnlockedAt: Date | null;
     sessionSellerUnlockedForId: string | null;
     sessionSellerLastActivityAt: Date | null;
+    sessionBuyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+    sessionBuyerCompanyId: string | null;
   }
 > {
   const presented = extractAccessToken(request, expectedKind);
@@ -246,6 +266,8 @@ async function authenticate(
     sessionSellerUnlockedAt: session.sellerUnlockedAt,
     sessionSellerUnlockedForId: session.sellerUnlockedForId,
     sessionSellerLastActivityAt: session.sellerLastActivityAt,
+    sessionBuyerContextKind: session.buyerContextKind,
+    sessionBuyerCompanyId: session.buyerCompanyId,
   };
 }
 
@@ -345,7 +367,136 @@ export async function requireCustomer(
     throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
   }
 
-  request.auth = auth;
+  request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
+}
+
+/**
+ * Confirm the buyer context the session row asks for, on this request.
+ *
+ * INDIVIDUAL costs nothing. COMPANY costs one indexed read of the membership,
+ * and it is paid on every request on purpose: the membership is the
+ * authority, and a copy of it cached on the session would outlive the member
+ * being removed.
+ *
+ * A session naming a company the person no longer belongs to is put back in
+ * the individual context AND the request is refused. Refused rather than
+ * quietly re-scoped, because somebody who pressed "place order" believing
+ * they were buying for the company must not find it placed on their own
+ * account instead.
+ */
+async function confirmBuyerContext(auth: {
+  id: string;
+  sessionId: string;
+  sessionBuyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+  sessionBuyerCompanyId: string | null;
+}): Promise<BuyerContext> {
+  const context = await resolveBuyerContext(auth.id, {
+    buyerContextKind: auth.sessionBuyerContextKind,
+    buyerCompanyId: auth.sessionBuyerCompanyId,
+  });
+
+  if (context === null) {
+    await resetSessionToIndividual(auth.sessionId);
+    throw forbidden(
+      ErrorCode.BUYER_CONTEXT_INVALID,
+      'You can no longer buy for that company. You are now shopping for yourself.',
+    );
+  }
+
+  return context;
+}
+
+/**
+ * The confirmed buyer context of a customer request. Individual on any
+ * request whose guard did not set one, which is every non-customer route.
+ */
+export function buyerContextOf(request: FastifyRequest): BuyerContext {
+  return request.auth?.buyerContext ?? { kind: 'INDIVIDUAL' };
+}
+
+/** The company this request acts for, or null for the person themselves. */
+export function buyerCompanyIdOf(request: FastifyRequest): string | null {
+  const context = buyerContextOf(request);
+  return context.kind === 'COMPANY' ? context.companyId : null;
+}
+
+/**
+ * Refuse unless this request may use `capability` in its buyer context.
+ *
+ * The individual context may do everything a customer could always do - that
+ * is how existing behaviour is left exactly as it was. A company context is
+ * judged by `companyCapabilityBlock`: the member's role first, then whether
+ * the company is approved.
+ *
+ * `allowPending` is for the few things a member may do before approval that
+ * still depend on role - building a basket, for one. It never lets a
+ * pending company check out.
+ */
+export function assertBuyerCapability(
+  request: FastifyRequest,
+  capability: BuyerCompanyCapability,
+  options: { allowPending?: boolean } = {},
+): void {
+  const context = buyerContextOf(request);
+  if (context.kind === 'INDIVIDUAL') return;
+
+  const block = companyCapabilityBlock(context.role, context.companyStatus, capability);
+
+  if (block === 'ROLE') {
+    throw forbidden(
+      ErrorCode.BUYER_COMPANY_ROLE_FORBIDDEN,
+      'Your role in this company does not allow that.',
+    );
+  }
+
+  if (block === 'NOT_APPROVED' && options.allowPending !== true) {
+    throw new AppError({
+      statusCode: 403,
+      code: ErrorCode.BUYER_COMPANY_NOT_APPROVED,
+      message:
+        'This company is not verified for purchasing yet. You can keep browsing and building your cart.',
+      details: [
+        {
+          code: context.companyStatus,
+          meta: { status: context.companyStatus, companyId: context.companyId },
+        },
+      ],
+    });
+  }
+}
+
+/**
+ * The `where` fragment that keeps an order query inside this request's
+ * buyer context.
+ *
+ * - Individual: the person's own orders that were not placed for a company.
+ *   Their company orders are not shown here, and that is the isolation rule,
+ *   not an oversight.
+ * - Company, as a BUYER: the orders they placed for this company.
+ * - Company, any other role: every order placed for this company. Those roles
+ *   exist to oversee the company's purchasing.
+ *
+ * `placedByMe` narrows a company context to the caller's own orders, for the
+ * actions only the person who placed an order may take (paying it,
+ * cancelling it).
+ */
+export function orderScopeWhere(
+  request: FastifyRequest,
+  options: { placedByMe?: boolean } = {},
+): { customerProfileId?: string; buyerCompanyId: string | null } {
+  const auth = currentUser(request);
+  const profileId = auth.customerProfileId ?? '';
+  const context = buyerContextOf(request);
+
+  if (context.kind === 'INDIVIDUAL') {
+    return { customerProfileId: profileId, buyerCompanyId: null };
+  }
+
+  if (options.placedByMe === true || context.role === 'BUYER') {
+    return { customerProfileId: profileId, buyerCompanyId: context.companyId };
+  }
+
+  return { buyerCompanyId: context.companyId };
 }
 
 /**
@@ -381,7 +532,7 @@ export async function optionalCustomer(
     throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
   }
 
-  request.auth = auth;
+  request.auth = { ...auth, buyerContext: await confirmBuyerContext(auth) };
 }
 
 /** Any authenticated principal, either surface. For profile and logout routes. */
@@ -403,6 +554,9 @@ export function currentUser(
   sessionSellerUnlockedAt: Date | null;
   sessionSellerUnlockedForId: string | null;
   sessionSellerLastActivityAt: Date | null;
+  sessionBuyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+  sessionBuyerCompanyId: string | null;
+  buyerContext?: BuyerContext;
 } {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.

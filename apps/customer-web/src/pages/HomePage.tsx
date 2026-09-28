@@ -282,7 +282,7 @@ function Greeting(): React.JSX.Element {
 
                 One word beside the name cycled — sourcing, intelligence,
                 optimism, innovation — which made the name itself part of a
-                rotation: "Glovia Sourcing", then "Glovia Intelligence". A brand
+                rotation: "UBOSS Sourcing", then "UBOSS Intelligence". A brand
                 that rewrites itself every three seconds is not a brand, and a
                 reader arriving mid-cycle saw a product this deployment does not
                 sell. The headline is now the name, still, and the moving copy is
@@ -312,7 +312,7 @@ function Greeting(): React.JSX.Element {
               {/*
                * The tagline, still. It is the product's slogan rather than a
                * sentence, so it is a constant and reads the same in every
-               * language — see `lib/brand.ts` — and it belongs to Glovia, so a
+               * language — see `lib/brand.ts` — and it belongs to Gloviaa Mart, so a
                * deployment greeting its customers under its own name does not
                * carry it. Set in the wordmark's script, like the name above it.
                */}

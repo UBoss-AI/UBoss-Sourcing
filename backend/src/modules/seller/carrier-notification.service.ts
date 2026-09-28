@@ -281,7 +281,7 @@ export async function notifyConsignmentNeedsCarrier(params: {
 /**
  * The seller chose DHL, FedEx or India Post by hand, and has not booked it.
  *
- * Says in words what Glovia has NOT done, because that is the misunderstanding
+ * Says in words what Gloviaa Mart has NOT done, because that is the misunderstanding
  * this exists to prevent: nothing has been booked with the carrier, no label
  * exists, and nobody is coming to collect until the seller arranges it.
  * Resolved by the carrier's own tracking number being entered, or by the
@@ -300,7 +300,7 @@ export async function notifyCarrierBookingIncomplete(params: {
       sellerAccountId: seller.sellerAccountId,
       kind: 'CARRIER_BOOKING_INCOMPLETE',
       title: `Book ${seller.reference} with ${params.carrierName}`,
-      body: `You chose ${params.carrierName} for consignment ${seller.reference}. Glovia has not booked anything with ${params.carrierName}: book it with them directly, then enter their tracking number here.`,
+      body: `You chose ${params.carrierName} for consignment ${seller.reference}. Gloviaa Mart has not booked anything with ${params.carrierName}: book it with them directly, then enter their tracking number here.`,
       linkPath:
         params.sellerOrderGroupId === null ? '/seller/orders' : `/seller/orders/${params.sellerOrderGroupId}`,
       severity: 'WARNING',

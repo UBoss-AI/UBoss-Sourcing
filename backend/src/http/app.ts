@@ -68,6 +68,11 @@ import { registerAssistantRoutes } from './routes/assistant.public.js';
 import { registerAdminAssistantRoutes } from './routes/assistant.admin.js';
 import { registerAdminCouponRoutes } from './routes/coupons.admin.js';
 import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
+import {
+  registerAdminProductReviewRoutes,
+  registerCustomerProductReviewRoutes,
+  registerPublicProductReviewRoutes,
+} from './routes/product-reviews.js';
 import { registerSitemapRoutes } from './routes/sitemap.public.js';
 import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
 import { registerPartnerInvitationRoutes } from './routes/partner-invitations.public.js';
@@ -82,6 +87,8 @@ import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
 import { registerSellerErpRoutes } from './routes/seller.erp.js';
 import { registerErpBridgeRoutes } from './routes/erp-bridge.js';
 import { registerAdminSellerRoutes } from './routes/sellers.admin.js';
+import { registerAdminBuyerCompanyRoutes } from './routes/buyer-companies.admin.js';
+import { registerBuyerCompanyRoutes } from './routes/buyer-companies.customer.js';
 import { registerLogisticsPortalRoutes } from './routes/logistics.portal.js';
 import { registerLogisticsOperationsRoutes } from './routes/logistics.operations.js';
 import { registerLogisticsDriverRoutes } from './routes/logistics.driver.js';
@@ -105,6 +112,12 @@ import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
 import { registerDocumentRoutes } from './routes/documents.js';
 import { registerAdminDocumentRoutes } from './routes/documents.admin.js';
 import { registerCarrierWebhookRoutes } from './routes/carrier-webhooks.js';
+import {
+  registerAdminSupportRoutes,
+  registerCustomerSupportRoutes,
+  registerLogisticsSupportRoutes,
+  registerSellerSupportRoutes,
+} from './routes/support.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
 
@@ -544,6 +557,17 @@ export async function buildApp() {
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
   // The bulk-savings popover's figures. See `bulk-pricing.service.ts`.
   await app.register(registerBulkPricingRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // Product reviews: the public list, a buyer's own, and moderation. See
+  // `product-review.service.ts`.
+  await app.register(registerPublicProductReviewRoutes, { prefix: `${API_PREFIX}/catalog` });
+  await app.register(registerCustomerProductReviewRoutes, { prefix: `${API_PREFIX}/account` });
+  await app.register(registerAdminProductReviewRoutes, { prefix: `${API_PREFIX}/admin` });
+  // Support requests: sent from the storefront, Seller Hub and the logistics
+  // portal, answered in the console. See `support-ticket.service.ts`.
+  await app.register(registerCustomerSupportRoutes, { prefix: `${API_PREFIX}/support` });
+  await app.register(registerSellerSupportRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerLogisticsSupportRoutes, { prefix: `${API_PREFIX}/logistics` });
+  await app.register(registerAdminSupportRoutes, { prefix: `${API_PREFIX}/admin` });
   // The sitemap. Unauthenticated because a sitemap has to be, and it discloses
   // nothing a visitor could not find by browsing: the same products, at the
   // same addresses, under the same visibility rules the catalogue uses.
@@ -711,7 +735,7 @@ export async function buildApp() {
   await app.register(registerAdminDocumentRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
-   * Where the Glovia Tally Bridge talks to us.
+   * Where the Gloviaa Mart Tally Bridge talks to us.
    *
    * Outside every session guard, alongside the carrier and ERP webhooks and
    * for the same reason: the caller is an agent on a seller's own machine with
@@ -728,6 +752,12 @@ export async function buildApp() {
   // and brand requests. Guarded by the ADMIN permission catalogue, never the
   // seller one - see `domain/seller-permissions.ts`.
   await app.register(registerAdminSellerRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  // Buyer companies: a registered business applying to buy in its own name,
+  // and the console that verifies it. The storefront side needs a customer
+  // session; the console side is behind the buyer_company.* grants.
+  await app.register(registerBuyerCompanyRoutes, { prefix: `${API_PREFIX}/buyer-companies` });
+  await app.register(registerAdminBuyerCompanyRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
    * The Logistics Partner Portal.

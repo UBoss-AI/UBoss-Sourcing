@@ -60,6 +60,8 @@ export type SessionMinAggregateOutputType = {
   revokedReason: string | null
   replacedBySessionId: string | null
   familyStartedAt: Date | null
+  buyerContextKind: $Enums.BuyerContextKind | null
+  buyerCompanyId: string | null
   createdAt: Date | null
   lastUsedAt: Date | null
 }
@@ -86,6 +88,8 @@ export type SessionMaxAggregateOutputType = {
   revokedReason: string | null
   replacedBySessionId: string | null
   familyStartedAt: Date | null
+  buyerContextKind: $Enums.BuyerContextKind | null
+  buyerCompanyId: string | null
   createdAt: Date | null
   lastUsedAt: Date | null
 }
@@ -112,6 +116,8 @@ export type SessionCountAggregateOutputType = {
   revokedReason: number
   replacedBySessionId: number
   familyStartedAt: number
+  buyerContextKind: number
+  buyerCompanyId: number
   createdAt: number
   lastUsedAt: number
   _all: number
@@ -152,6 +158,8 @@ export type SessionMinAggregateInputType = {
   revokedReason?: true
   replacedBySessionId?: true
   familyStartedAt?: true
+  buyerContextKind?: true
+  buyerCompanyId?: true
   createdAt?: true
   lastUsedAt?: true
 }
@@ -178,6 +186,8 @@ export type SessionMaxAggregateInputType = {
   revokedReason?: true
   replacedBySessionId?: true
   familyStartedAt?: true
+  buyerContextKind?: true
+  buyerCompanyId?: true
   createdAt?: true
   lastUsedAt?: true
 }
@@ -204,6 +214,8 @@ export type SessionCountAggregateInputType = {
   revokedReason?: true
   replacedBySessionId?: true
   familyStartedAt?: true
+  buyerContextKind?: true
+  buyerCompanyId?: true
   createdAt?: true
   lastUsedAt?: true
   _all?: true
@@ -317,6 +329,8 @@ export type SessionGroupByOutputType = {
   revokedReason: string | null
   replacedBySessionId: string | null
   familyStartedAt: Date | null
+  buyerContextKind: $Enums.BuyerContextKind | null
+  buyerCompanyId: string | null
   createdAt: Date
   lastUsedAt: Date
   _count: SessionCountAggregateOutputType | null
@@ -366,9 +380,12 @@ export type SessionWhereInput = {
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
   familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  buyerContextKind?: Prisma.EnumBuyerContextKindNullableFilter<"Session"> | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.StringNullableFilter<"Session"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  buyerCompany?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
 }
 
 export type SessionOrderByWithRelationInput = {
@@ -393,9 +410,12 @@ export type SessionOrderByWithRelationInput = {
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   familyStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerContextKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  buyerCompany?: Prisma.BuyerCompanyOrderByWithRelationInput
   _relevance?: Prisma.SessionOrderByRelevanceInput
 }
 
@@ -424,9 +444,12 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
   familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  buyerContextKind?: Prisma.EnumBuyerContextKindNullableFilter<"Session"> | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.StringNullableFilter<"Session"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  buyerCompany?: Prisma.XOR<Prisma.BuyerCompanyNullableScalarRelationFilter, Prisma.BuyerCompanyWhereInput> | null
 }, "id" | "refreshTokenHash">
 
 export type SessionOrderByWithAggregationInput = {
@@ -451,6 +474,8 @@ export type SessionOrderByWithAggregationInput = {
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   familyStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerContextKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   _count?: Prisma.SessionCountOrderByAggregateInput
@@ -485,6 +510,8 @@ export type SessionScalarWhereWithAggregatesInput = {
   revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   familyStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
+  buyerContextKind?: Prisma.EnumBuyerContextKindNullableWithAggregatesFilter<"Session"> | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
 }
@@ -510,9 +537,11 @@ export type SessionCreateInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
+  buyerCompany?: Prisma.BuyerCompanyCreateNestedOneWithoutSessionsInput
 }
 
 export type SessionUncheckedCreateInput = {
@@ -537,6 +566,8 @@ export type SessionUncheckedCreateInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  buyerCompanyId?: string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -562,9 +593,11 @@ export type SessionUpdateInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
+  buyerCompany?: Prisma.BuyerCompanyUpdateOneWithoutSessionsNestedInput
 }
 
 export type SessionUncheckedUpdateInput = {
@@ -589,6 +622,8 @@ export type SessionUncheckedUpdateInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -615,6 +650,8 @@ export type SessionCreateManyInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  buyerCompanyId?: string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -640,6 +677,7 @@ export type SessionUpdateManyMutationInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -666,6 +704,8 @@ export type SessionUncheckedUpdateManyInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -708,6 +748,8 @@ export type SessionCountOrderByAggregateInput = {
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
   familyStartedAt?: Prisma.SortOrder
+  buyerContextKind?: Prisma.SortOrder
+  buyerCompanyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -740,6 +782,8 @@ export type SessionMaxOrderByAggregateInput = {
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
   familyStartedAt?: Prisma.SortOrder
+  buyerContextKind?: Prisma.SortOrder
+  buyerCompanyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -766,6 +810,8 @@ export type SessionMinOrderByAggregateInput = {
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
   familyStartedAt?: Prisma.SortOrder
+  buyerContextKind?: Prisma.SortOrder
+  buyerCompanyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
 }
@@ -834,6 +880,52 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableEnumBuyerContextKindFieldUpdateOperationsInput = {
+  set?: $Enums.BuyerContextKind | null
+}
+
+export type SessionCreateNestedManyWithoutBuyerCompanyInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput> | Prisma.SessionCreateWithoutBuyerCompanyInput[] | Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput[]
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput | Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput[]
+  createMany?: Prisma.SessionCreateManyBuyerCompanyInputEnvelope
+  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+}
+
+export type SessionUncheckedCreateNestedManyWithoutBuyerCompanyInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput> | Prisma.SessionCreateWithoutBuyerCompanyInput[] | Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput[]
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput | Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput[]
+  createMany?: Prisma.SessionCreateManyBuyerCompanyInputEnvelope
+  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+}
+
+export type SessionUpdateManyWithoutBuyerCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput> | Prisma.SessionCreateWithoutBuyerCompanyInput[] | Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput[]
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput | Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput[]
+  upsert?: Prisma.SessionUpsertWithWhereUniqueWithoutBuyerCompanyInput | Prisma.SessionUpsertWithWhereUniqueWithoutBuyerCompanyInput[]
+  createMany?: Prisma.SessionCreateManyBuyerCompanyInputEnvelope
+  set?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  disconnect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  delete?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  update?: Prisma.SessionUpdateWithWhereUniqueWithoutBuyerCompanyInput | Prisma.SessionUpdateWithWhereUniqueWithoutBuyerCompanyInput[]
+  updateMany?: Prisma.SessionUpdateManyWithWhereWithoutBuyerCompanyInput | Prisma.SessionUpdateManyWithWhereWithoutBuyerCompanyInput[]
+  deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
+}
+
+export type SessionUncheckedUpdateManyWithoutBuyerCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput> | Prisma.SessionCreateWithoutBuyerCompanyInput[] | Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput[]
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput | Prisma.SessionCreateOrConnectWithoutBuyerCompanyInput[]
+  upsert?: Prisma.SessionUpsertWithWhereUniqueWithoutBuyerCompanyInput | Prisma.SessionUpsertWithWhereUniqueWithoutBuyerCompanyInput[]
+  createMany?: Prisma.SessionCreateManyBuyerCompanyInputEnvelope
+  set?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  disconnect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  delete?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  connect?: Prisma.SessionWhereUniqueInput | Prisma.SessionWhereUniqueInput[]
+  update?: Prisma.SessionUpdateWithWhereUniqueWithoutBuyerCompanyInput | Prisma.SessionUpdateWithWhereUniqueWithoutBuyerCompanyInput[]
+  updateMany?: Prisma.SessionUpdateManyWithWhereWithoutBuyerCompanyInput | Prisma.SessionUpdateManyWithWhereWithoutBuyerCompanyInput[]
+  deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
+}
+
 export type SessionCreateWithoutUserInput = {
   id: string
   refreshTokenHash: string
@@ -855,8 +947,10 @@ export type SessionCreateWithoutUserInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
+  buyerCompany?: Prisma.BuyerCompanyCreateNestedOneWithoutSessionsInput
 }
 
 export type SessionUncheckedCreateWithoutUserInput = {
@@ -880,6 +974,8 @@ export type SessionUncheckedCreateWithoutUserInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  buyerCompanyId?: string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -935,8 +1031,90 @@ export type SessionScalarWhereInput = {
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
   replacedBySessionId?: Prisma.StringNullableFilter<"Session"> | string | null
   familyStartedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  buyerContextKind?: Prisma.EnumBuyerContextKindNullableFilter<"Session"> | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.StringNullableFilter<"Session"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   lastUsedAt?: Prisma.DateTimeFilter<"Session"> | Date | string
+}
+
+export type SessionCreateWithoutBuyerCompanyInput = {
+  id: string
+  refreshTokenHash: string
+  familyId: string
+  userAgent?: string | null
+  ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCountry?: string | null
+  locationCapturedAt?: Date | string | null
+  mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  createdAt?: Date | string
+  lastUsedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutSessionsInput
+}
+
+export type SessionUncheckedCreateWithoutBuyerCompanyInput = {
+  id: string
+  userId: string
+  refreshTokenHash: string
+  familyId: string
+  userAgent?: string | null
+  ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCountry?: string | null
+  locationCapturedAt?: Date | string | null
+  mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  createdAt?: Date | string
+  lastUsedAt?: Date | string
+}
+
+export type SessionCreateOrConnectWithoutBuyerCompanyInput = {
+  where: Prisma.SessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput>
+}
+
+export type SessionCreateManyBuyerCompanyInputEnvelope = {
+  data: Prisma.SessionCreateManyBuyerCompanyInput | Prisma.SessionCreateManyBuyerCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type SessionUpsertWithWhereUniqueWithoutBuyerCompanyInput = {
+  where: Prisma.SessionWhereUniqueInput
+  update: Prisma.XOR<Prisma.SessionUpdateWithoutBuyerCompanyInput, Prisma.SessionUncheckedUpdateWithoutBuyerCompanyInput>
+  create: Prisma.XOR<Prisma.SessionCreateWithoutBuyerCompanyInput, Prisma.SessionUncheckedCreateWithoutBuyerCompanyInput>
+}
+
+export type SessionUpdateWithWhereUniqueWithoutBuyerCompanyInput = {
+  where: Prisma.SessionWhereUniqueInput
+  data: Prisma.XOR<Prisma.SessionUpdateWithoutBuyerCompanyInput, Prisma.SessionUncheckedUpdateWithoutBuyerCompanyInput>
+}
+
+export type SessionUpdateManyWithWhereWithoutBuyerCompanyInput = {
+  where: Prisma.SessionScalarWhereInput
+  data: Prisma.XOR<Prisma.SessionUpdateManyMutationInput, Prisma.SessionUncheckedUpdateManyWithoutBuyerCompanyInput>
 }
 
 export type SessionCreateManyUserInput = {
@@ -960,6 +1138,8 @@ export type SessionCreateManyUserInput = {
   revokedReason?: string | null
   replacedBySessionId?: string | null
   familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  buyerCompanyId?: string | null
   createdAt?: Date | string
   lastUsedAt?: Date | string
 }
@@ -985,8 +1165,10 @@ export type SessionUpdateWithoutUserInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  buyerCompany?: Prisma.BuyerCompanyUpdateOneWithoutSessionsNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutUserInput = {
@@ -1010,6 +1192,8 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1035,6 +1219,116 @@ export type SessionUncheckedUpdateManyWithoutUserInput = {
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  buyerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SessionCreateManyBuyerCompanyInput = {
+  id: string
+  userId: string
+  refreshTokenHash: string
+  familyId: string
+  userAgent?: string | null
+  ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCountry?: string | null
+  locationCapturedAt?: Date | string | null
+  mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
+  sellerLastActivityAt?: Date | string | null
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+  revokedReason?: string | null
+  replacedBySessionId?: string | null
+  familyStartedAt?: Date | string | null
+  buyerContextKind?: $Enums.BuyerContextKind | null
+  createdAt?: Date | string
+  lastUsedAt?: Date | string
+}
+
+export type SessionUpdateWithoutBuyerCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  refreshTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  familyId?: Prisma.StringFieldUpdateOperationsInput | string
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
+}
+
+export type SessionUncheckedUpdateWithoutBuyerCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  refreshTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  familyId?: Prisma.StringFieldUpdateOperationsInput | string
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SessionUncheckedUpdateManyWithoutBuyerCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  refreshTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  familyId?: Prisma.StringFieldUpdateOperationsInput | string
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerLastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  replacedBySessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  familyStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  buyerContextKind?: Prisma.NullableEnumBuyerContextKindFieldUpdateOperationsInput | $Enums.BuyerContextKind | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastUsedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1063,9 +1357,12 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   revokedReason?: boolean
   replacedBySessionId?: boolean
   familyStartedAt?: boolean
+  buyerContextKind?: boolean
+  buyerCompanyId?: boolean
   createdAt?: boolean
   lastUsedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  buyerCompany?: boolean | Prisma.Session$buyerCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
 
@@ -1092,19 +1389,23 @@ export type SessionSelectScalar = {
   revokedReason?: boolean
   replacedBySessionId?: boolean
   familyStartedAt?: boolean
+  buyerContextKind?: boolean
+  buyerCompanyId?: boolean
   createdAt?: boolean
   lastUsedAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "sellerLastActivityAt" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "familyStartedAt" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "sellerLastActivityAt" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "familyStartedAt" | "buyerContextKind" | "buyerCompanyId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  buyerCompany?: boolean | Prisma.Session$buyerCompanyArgs<ExtArgs>
 }
 
 export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Session"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    buyerCompany: Prisma.$BuyerCompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1207,6 +1508,19 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * recorded start and are allowed to run out their refresh token normally.
      */
     familyStartedAt: Date | null
+    /**
+     * Which buyer this sign-in is acting as, on the storefront only.
+     * 
+     * Server-controlled and carried across every rotation exactly like the
+     * second factor above. NULL means INDIVIDUAL, which is what every session
+     * that predates this column is. `buyerCompanyId` is only ever written by
+     * `buyer-context.service.ts` after checking an ACTIVE membership, and the
+     * customer guard checks that membership again on every request - so a
+     * member removed from a company loses it on their next click, not at their
+     * next sign-in.
+     */
+    buyerContextKind: $Enums.BuyerContextKind | null
+    buyerCompanyId: string | null
     createdAt: Date
     lastUsedAt: Date
   }, ExtArgs["result"]["session"]>
@@ -1550,6 +1864,7 @@ readonly fields: SessionFieldRefs;
 export interface Prisma__SessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  buyerCompany<T extends Prisma.Session$buyerCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$buyerCompanyArgs<ExtArgs>>): Prisma.Prisma__BuyerCompanyClient<runtime.Types.Result.GetResult<Prisma.$BuyerCompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1600,6 +1915,8 @@ export interface SessionFieldRefs {
   readonly revokedReason: Prisma.FieldRef<"Session", 'String'>
   readonly replacedBySessionId: Prisma.FieldRef<"Session", 'String'>
   readonly familyStartedAt: Prisma.FieldRef<"Session", 'DateTime'>
+  readonly buyerContextKind: Prisma.FieldRef<"Session", 'BuyerContextKind'>
+  readonly buyerCompanyId: Prisma.FieldRef<"Session", 'String'>
   readonly createdAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly lastUsedAt: Prisma.FieldRef<"Session", 'DateTime'>
 }
@@ -1947,6 +2264,25 @@ export type SessionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Sessions to delete.
    */
   limit?: number
+}
+
+/**
+ * Session.buyerCompany
+ */
+export type Session$buyerCompanyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BuyerCompany
+   */
+  select?: Prisma.BuyerCompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BuyerCompany
+   */
+  omit?: Prisma.BuyerCompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BuyerCompanyInclude<ExtArgs> | null
+  where?: Prisma.BuyerCompanyWhereInput
 }
 
 /**

@@ -347,7 +347,7 @@ export async function createConnection(input: {
         state: networkMode === 'BRIDGE' ? 'BRIDGE_REQUIRED' : 'NOT_CONFIGURED',
         stateReason:
           networkMode === 'BRIDGE'
-            ? 'Install the Glovia Tally Bridge on the machine that runs TallyPrime, then pair it.'
+            ? 'Install the Gloviaa Mart Tally Bridge on the machine that runs TallyPrime, then pair it.'
             : 'Choose which Tally company to use.',
         createdByProfileId: input.membership.customerProfileId,
       },
@@ -403,7 +403,7 @@ function assertDirectUrlAllowed(raw: string): string {
   if (!env.SELLER_ERP_ALLOW_DIRECT_MODE) {
     throw badRequest(
       ErrorCode.SELLER_ERP_DIRECT_MODE_REFUSED,
-      'This marketplace does not allow a direct connection to TallyPrime. Use the Glovia Tally Bridge.',
+      'This marketplace does not allow a direct connection to TallyPrime. Use the Gloviaa Mart Tally Bridge.',
       [{ field: 'networkMode', code: 'DIRECT_MODE_DISABLED' }],
     );
   }

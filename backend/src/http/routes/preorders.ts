@@ -42,7 +42,13 @@ import {
   submitPreorder,
   type BuyerActor,
 } from '../../modules/preorders/request.service.js';
-import { currentUser, optionalCustomer, requireCustomer } from '../plugins/auth.js';
+import {
+  assertBuyerCapability,
+  buyerCompanyIdOf,
+  currentUser,
+  optionalCustomer,
+  requireCustomer,
+} from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -52,6 +58,7 @@ function buyerActor(request: FastifyRequest): BuyerActor {
     userId: auth.id,
     email: auth.email,
     customerProfileId: auth.customerProfileId ?? '',
+    buyerCompanyId: buyerCompanyIdOf(request),
     correlationId: request.correlationId,
     ipAddress: request.ip,
   };
@@ -191,7 +198,9 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
       const actor = buyerActor(request);
       return reply
         .status(200)
-        .send({ preview: await previewPreorder(actor.customerProfileId, input) });
+        .send({
+          preview: await previewPreorder(actor.customerProfileId, input, actor.buyerCompanyId ?? null),
+        });
     },
   );
 
@@ -208,6 +217,8 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     { preHandler: requireCustomer, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
     async (request, reply) => {
       const input = preorderInputSchema.parse(request.body);
+      // A company preorder waits for the company to be approved.
+      assertBuyerCapability(request, 'PURCHASE');
       const actor = buyerActor(request);
 
       const result = await runIdempotent({
@@ -225,7 +236,7 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
   /** List the buyer's own preorders, newest first, with who supplies each one. */
   app.get('/', { preHandler: requireCustomer }, async (request, reply) => {
     const actor = buyerActor(request);
-    return reply.status(200).send(await listBuyerPreorders(actor.customerProfileId));
+    return reply.status(200).send(await listBuyerPreorders(actor.customerProfileId, actor.buyerCompanyId ?? null));
   });
 
   /**
@@ -237,7 +248,7 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     const actor = buyerActor(request);
     return reply
       .status(200)
-      .send({ preorder: await getBuyerPreorder(actor.customerProfileId, id) });
+      .send({ preorder: await getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null) });
   });
 
   /**
@@ -251,6 +262,8 @@ export function registerPreorderRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
       const input = buyerConfirmSchema.parse(request.body);
+      // Confirming creates an order; for a company that waits for approval.
+      assertBuyerCapability(request, 'PURCHASE');
       const actor = buyerActor(request);
 
       const result = await runIdempotent({

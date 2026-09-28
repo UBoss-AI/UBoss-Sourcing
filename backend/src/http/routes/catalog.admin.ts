@@ -5,6 +5,7 @@
  * `product.write` on purpose: editing a draft and making it publicly buyable
  * are different levels of authority, and the SOP grants them separately.
  */
+import { B2C_MAX_ORDER_QUANTITY_CEILING } from '../../domain/b2c-order-limit.js';
 import { SPEC_GROUPS, SPEC_UNITS } from '../../domain/product-specifications.js';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '../../generated/prisma/client.js';
@@ -156,6 +157,8 @@ const productBodySchema = z.object({
   minOrderQty: z.number().int().min(1).max(1_000_000).optional(),
   maxOrderQty: z.number().int().min(1).max(1_000_000).nullable().optional(),
   qtyIncrement: z.number().int().min(1).max(1_000_000).optional(),
+  /** The B2C maximum order quantity for the operator's own stock. Null: not configured. */
+  b2cMaxOrderQuantity: z.number().int().min(1).max(B2C_MAX_ORDER_QUANTITY_CEILING).nullable().optional(),
   isRecurringEligible: z.boolean().optional(),
   weightGrams: z.number().int().min(0).max(10_000_000).nullable().optional(),
 

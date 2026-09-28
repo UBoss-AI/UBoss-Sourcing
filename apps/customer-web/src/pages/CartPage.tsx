@@ -30,6 +30,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
+import { useSession } from '@/auth/session-context';
+import { CompanyNotApprovedNotice } from '@/components/CompanyNotApprovedNotice';
 import { useToast } from '@/components/toast-context';
 import { AutoPaySetupDialog } from '@/components/AutoPaySetupDialog';
 import { QuantityInput } from '@/components/QuantityInput';
@@ -56,6 +58,8 @@ import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
 import { errorMessage } from '@/lib/errors';
+import { B2cLimitDialog } from '@/components/B2cLimitDialog';
+import { B2C_LIMIT_CODE, largestValidAtMost } from '@/lib/b2c-limit';
 
 /** The cart's rules, widened back to what the quantity control expects. */
 function toPurchaseRules(line: CartLine): PurchaseRules {
@@ -99,10 +103,18 @@ function IssueNotice({
   issue,
   onCorrect,
   correctionLabel,
+  message,
+  secondaryLabel,
+  onSecondary,
 }: {
   issue: CartIssue;
   onCorrect?: () => void;
   correctionLabel?: string;
+  /** The sentence to show instead of the server's, where this page words it in the reader's language. */
+  message?: string;
+  /** A second way out, beside the correction. */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
 }): React.JSX.Element {
   // Three tones, because three different things are being said: this item
   // cannot be bought at all, this needs a correction, or this simply changed.
@@ -125,17 +137,28 @@ function IssueNotice({
       <AlertIcon className="mt-px h-4 w-4 shrink-0" />
 
       <div className="min-w-0">
-        <p className="font-medium">{issue.message}</p>
+        <p className="font-medium">{message ?? issue.message}</p>
 
-        {onCorrect !== undefined && correctionLabel !== undefined && (
-          <button
-            type="button"
-            onClick={onCorrect}
-            className="mt-1.5 font-semibold text-ink underline underline-offset-2 hover:no-underline"
-          >
-            {correctionLabel}
-          </button>
-        )}
+        <div className="flex flex-wrap gap-x-4">
+          {onCorrect !== undefined && correctionLabel !== undefined && (
+            <button
+              type="button"
+              onClick={onCorrect}
+              className="mt-1.5 font-semibold text-ink underline underline-offset-2 hover:no-underline"
+            >
+              {correctionLabel}
+            </button>
+          )}
+          {onSecondary !== undefined && secondaryLabel !== undefined && (
+            <button
+              type="button"
+              onClick={onSecondary}
+              className="mt-1.5 font-semibold text-ink underline underline-offset-2 hover:no-underline"
+            >
+              {secondaryLabel}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -315,9 +338,24 @@ function LineRow({
   isBusy: boolean;
 }): React.JSX.Element {
   const { t, intlLocale } = useI18n();
+  const [b2cDialogOpen, setB2cDialogOpen] = useState(false);
 
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
+
+  /*
+   * Over the individual purchase limit: this line's share of the excess.
+   *
+   * The limit counts every line of the product together, so the fix offered
+   * on THIS line is to take off what the product as a whole is over by - and
+   * only where what is left is still a quantity this line can be bought in.
+   * The basket is never trimmed without the buyer pressing it.
+   */
+  const b2c = line.b2cLimit ?? null;
+  const b2cTarget =
+    b2c === null || !b2c.exceeded
+      ? null
+      : largestValidAtMost(line.quantity - (b2c.productQuantity - b2c.maxQuantity), rules);
   const packs = cartonsOf(line, t);
 
   // Read off the LINE's own snapshot, so a basket agreed in cartons keeps
@@ -603,6 +641,31 @@ function LineRow({
         <LineNote line={line} isBusy={isBusy} onSave={onNoteChange} />
 
         {line.issues.map((issue) => {
+          if (issue.code === B2C_LIMIT_CODE && b2c !== null) {
+            return (
+              <IssueNotice
+                key={`${issue.code}:${issue.message}`}
+                issue={issue}
+                message={t('b2cLimit.cartLineMessage', {
+                  limit: formatNumber(b2c.maxQuantity),
+                  quantity: formatNumber(b2c.productQuantity),
+                })}
+                secondaryLabel={t('b2cLimit.seeOptions')}
+                onSecondary={() => {
+                  setB2cDialogOpen(true);
+                }}
+                {...(b2cTarget === null
+                  ? {}
+                  : {
+                      correctionLabel: t('cart.reduceTo', { quantity: formatNumber(b2cTarget) }),
+                      onCorrect: () => {
+                        onQuantityChange(b2cTarget);
+                      },
+                    })}
+              />
+            );
+          }
+
           const correction = correctionFor(issue.code);
 
           return (
@@ -620,6 +683,23 @@ function LineRow({
             />
           );
         })}
+
+        {b2c !== null && b2cDialogOpen && (
+          <B2cLimitDialog
+            isOpen
+            limit={b2c.maxQuantity}
+            alreadyInBasket={b2c.productQuantity}
+            reduceTo={b2cTarget}
+            context="cart"
+            onReduce={() => {
+              if (b2cTarget !== null) onQuantityChange(b2cTarget);
+              setB2cDialogOpen(false);
+            }}
+            onClose={() => {
+              setB2cDialogOpen(false);
+            }}
+          />
+        )}
       </div>
     </li>
   );
@@ -799,6 +879,11 @@ export function CartPage(): React.JSX.Element {
   const navigate = useNavigate();
   const toast = useToast();
   const { business, features } = useStorefront();
+  // Buying for a company that is not verified yet: the basket can be built,
+  // checkout waits. Said here, before the button, rather than as a refusal
+  // after it - the server refuses it anyway (BUYER_COMPANY_NOT_APPROVED).
+  const { buyerContext } = useSession();
+  const companyBlocked = buyerContext.kind === 'COMPANY' && buyerContext.companyStatus !== 'APPROVED';
   // The shopper's market, which is the destination the delivery options are
   // measured to. Null until they have answered the country question, and the
   // panel has a state that says so rather than guessing one.
@@ -1166,6 +1251,8 @@ export function CartPage(): React.JSX.Element {
               </div>
             )}
 
+            {companyBlocked && <CompanyNotApprovedNotice className="mt-4" />}
+
             <Button
               variant="action"
               size="lg"
@@ -1173,7 +1260,7 @@ export function CartPage(): React.JSX.Element {
               className="mt-5"
               // The server's verdict, not a count of issues computed here —
               // which would drift the first time a new issue code appeared.
-              disabled={!cart.checkoutReady}
+              disabled={!cart.checkoutReady || companyBlocked}
               onClick={() => {
                 void navigate('/checkout');
               }}
@@ -1214,7 +1301,7 @@ export function CartPage(): React.JSX.Element {
           variant="action"
           size="lg"
           className="shrink-0"
-          disabled={!cart.checkoutReady}
+          disabled={!cart.checkoutReady || companyBlocked}
           onClick={() => {
             void navigate('/checkout');
           }}

@@ -3,7 +3,7 @@
  *
  * WHAT THE "MOCK BRIDGE" IS
  *
- * Not a mock at all, in the usual sense. The real Glovia Tally Bridge is an
+ * Not a mock at all, in the usual sense. The real Gloviaa Mart Tally Bridge is an
  * HTTP CLIENT: it pairs, heartbeats, claims work and posts results, all
  * through the routes under `/integrations/tally-bridge`. So the tests below
  * drive those routes directly, with a bearer token they obtained by redeeming

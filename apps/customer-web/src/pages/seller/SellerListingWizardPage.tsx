@@ -44,7 +44,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
-import { currencyExponent, majorToMinor, minorToMajor } from '@/lib/format';
+import { currencyExponent, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   createDraft,
   fetchBrands,
@@ -62,9 +62,11 @@ import {
   type SectionSummary,
 } from '@/lib/seller';
 import type { CategoryNode } from '@/lib/types';
+import { parseB2cLimitInput, type B2cLimitInputProblem } from '@/lib/b2c-limit';
 import { ApprovalRequiredNotice, type SellerOutletContext } from './SellerLayout';
 import { ListingMediaPanel } from './ListingMediaPanel';
 import { VariantStepPanel } from './VariantStepPanel';
+import { B2cMaxOrderQuantityField } from './B2cMaxOrderQuantityField';
 
 const STEPS = [
   { key: 'category', label: 'Select category' },
@@ -190,6 +192,14 @@ function WizardBody({
 
         {draft !== null && (step === 'details' || step === 'variants') && (
           <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {/* What will be sent for review, stated beside the button that
+                sends it: the individual purchase limit is a term the buyer
+                is held to from the moment the listing goes live. */}
+            <span className="text-xs text-ink-muted tabular" data-testid="b2c-review-line">
+              {typeof draft.offer.b2cMaxOrderQuantity === 'number'
+                ? t('sellerB2c.reviewLine', { limit: formatNumber(draft.offer.b2cMaxOrderQuantity) })
+                : t('sellerB2c.reviewNotSet')}
+            </span>
             <SaveIndicator mutation={saveMutation} updatedAt={draft.updatedAt} />
             <Link to="/seller/listings">
               <Button>Save and go back</Button>
@@ -1718,6 +1728,32 @@ function OfferFields({
   const [sku, setSku] = useState(draft.sellerSku ?? '');
 
   /*
+   * The B2C maximum order quantity, as typed. Kept as text so a bad figure
+   * stays on screen with its reason rather than being replaced by a number
+   * the seller did not type. Required before the listing can be sent for
+   * review - the server's blocker says so under the box until it is set.
+   */
+  const [b2cLimit, setB2cLimit] = useState(
+    draft.offer.b2cMaxOrderQuantity === null || draft.offer.b2cMaxOrderQuantity === undefined
+      ? ''
+      : String(draft.offer.b2cMaxOrderQuantity),
+  );
+  const [b2cProblem, setB2cProblem] = useState<B2cLimitInputProblem | null>(null);
+  const serverB2cIssue = draft.issues.find((issue) => issue.attributeKey === 'offer.b2cMaxOrderQuantity');
+  const shownB2cProblem: B2cLimitInputProblem | null =
+    b2cProblem ??
+    (serverB2cIssue === undefined
+      ? null
+      : serverB2cIssue.code === 'B2C_MAX_ORDER_QUANTITY_REQUIRED'
+        ? 'REQUIRED'
+        : (() => {
+            const parsed = parseB2cLimitInput(b2cLimit, {
+              minimumOrderQuantity: draft.offer.minimumOrderQuantity ?? 1,
+            });
+            return parsed.ok ? null : parsed.problem;
+          })());
+
+  /*
    * Opening stock, per location, in pieces.
    *
    * Applied to `SellerInventory` on approval with a movement each, so the
@@ -1849,6 +1885,19 @@ function OfferFields({
           )}
         </Field>
 
+        <div className="sm:col-span-2">
+          <B2cMaxOrderQuantityField
+            value={b2cLimit}
+            onChange={(next) => {
+              setB2cLimit(next);
+              setB2cProblem(null);
+            }}
+            problem={shownB2cProblem}
+            minimumOrderQuantity={whole(moq, 1)}
+            disabled={isSaving}
+          />
+        </div>
+
         <Field label="Currency" required>
           {({ inputId }) => (
             <Select
@@ -1944,6 +1993,16 @@ function OfferFields({
 
           setPriceError(null);
 
+          // Blank is allowed while drafting - submission is what requires it.
+          // Anything else typed must be a valid figure; it is never quietly
+          // turned into one.
+          const b2cParsed = parseB2cLimitInput(b2cLimit, { minimumOrderQuantity: whole(moq, 1) });
+          if (b2cLimit.trim().length > 0 && !b2cParsed.ok) {
+            setB2cProblem(b2cParsed.problem);
+            return;
+          }
+          setB2cProblem(null);
+
           onSave({
             sellerSku: sku.trim().length === 0 ? null : sku.trim(),
             offer: {
@@ -1954,6 +2013,7 @@ function OfferFields({
               // Blank means no ceiling, which is not the same as zero - and
               // zero would make the offer unbuyable at every quantity.
               maximumOrderQuantity: maximum.trim().length === 0 ? null : whole(maximum, 1),
+              b2cMaxOrderQuantity: b2cParsed.ok ? b2cParsed.value : null,
             },
             ...(locations.length === 0
               ? {}

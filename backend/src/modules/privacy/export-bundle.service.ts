@@ -63,6 +63,10 @@ export const SECTIONS = Object.freeze({
     // words about their own requirements, held indefinitely until they take
     // them back, so plainly theirs and disclosed whole.
     'productInstructions',
+    // What they thought of products they received: four scores, and whether
+    // staff hid them and why. Published under their name, so plainly theirs
+    // and disclosed whole.
+    'productReviews',
     'couponRedemptions',
     // Delivery options this person was shown at checkout, with the price and
     // the dates each one promised. Short-lived and mostly unaccepted, and
@@ -103,6 +107,10 @@ export const SECTIONS = Object.freeze({
     'chatEnquiries',
     'sessions',
     'dataRequests',
+    // Support requests they sent from any surface: their words, and every
+    // reply and status change they were shown, staff named as "the team".
+    // Staff's internal notes on them are withheld under `internalNotes`.
+    'supportTickets',
     // Their standing authority to be charged, and the evidence of when they
     // gave it. Disclosed in full: it is the record a subject would want if they
     // ever disputed a charge.
@@ -116,6 +124,19 @@ export const SECTIONS = Object.freeze({
     // line `organisationMembership` draws. The seller BUSINESS's own data is not
     // theirs and does not come with it.
     'sellerMembership',
+    /*
+     * The BUYER companies they registered or belong to, and what they said
+     * and agreed to in each one's verification.
+     *
+     * The same line as the two memberships beside it: the membership, the role
+     * and the job title they gave are facts about this person, and so are the
+     * four declarations they made when submitting (each with its wording's
+     * version and hash). The company's own registration and tax numbers are
+     * the COMPANY's, but they are also what this person typed, so the
+     * application as the applicant sees it is included for companies they may
+     * manage. Staff's internal review entries are not - see `internalNotes`.
+     */
+    'companyMemberships',
     // Their place in a LOGISTICS organisation, where they work for a carrier
     // that delivers for this marketplace. Same line again: the membership and
     // the driver record are facts about the person; the carrier's consignments
@@ -141,7 +162,8 @@ export const SECTIONS = Object.freeze({
       section: 'internalNotes',
       reason:
         'Free-text notes written by staff about this account, which routinely name other ' +
-        'people. Withheld under Art. 15(4); available on request after a case-by-case review.',
+        'people - including internal notes, priority and assignment on your support ' +
+        'requests. Withheld under Art. 15(4); available on request after a case-by-case review.',
     },
     {
       section: 'credentials',
@@ -299,11 +321,83 @@ export async function buildCustomerBundle(
     downloadedAt: iso(request.downloadedAt),
   }));
 
+  /*
+   * Support requests they sent, from any surface. Keyed by user rather than by
+   * profile for the same reason as `dataRequests`: a logistics partner's staff
+   * send them too and have no customer profile.
+   *
+   * Their own words and every reply and status change they were shown, with
+   * staff named as "the team" - the same line the preorder chats draw. Staff's
+   * internal notes, priority and assignment are not here: they are withheld
+   * under `internalNotes`, on the reasoning written there.
+   */
+  const supportTickets = (
+    await prisma.supportTicket.findMany({
+      where: { requesterUserId: subject.userId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        reference: true,
+        source: true,
+        requesterRole: true,
+        nameSnapshot: true,
+        emailSnapshot: true,
+        companyNameSnapshot: true,
+        category: true,
+        subject: true,
+        message: true,
+        relatedOrderNumber: true,
+        status: true,
+        createdAt: true,
+        resolvedAt: true,
+        closedAt: true,
+        attachments: {
+          orderBy: { createdAt: 'asc' },
+          select: { fileName: true, contentType: true, byteSize: true, createdAt: true },
+        },
+        events: {
+          where: { visibleToRequester: true, kind: { not: 'CREATED' } },
+          orderBy: { createdAt: 'asc' },
+          select: { kind: true, actorIsRequester: true, body: true, toValue: true, createdAt: true },
+        },
+      },
+    })
+  ).map((ticket) => ({
+    reference: ticket.reference,
+    sentFrom: ticket.source,
+    sentAs: ticket.requesterRole,
+    name: ticket.nameSnapshot,
+    email: ticket.emailSnapshot,
+    companyName: ticket.companyNameSnapshot,
+    category: ticket.category,
+    subject: ticket.subject,
+    message: ticket.message,
+    orderNumber: ticket.relatedOrderNumber,
+    status: ticket.status,
+    sentAt: iso(ticket.createdAt),
+    resolvedAt: iso(ticket.resolvedAt),
+    closedAt: iso(ticket.closedAt),
+    // The files they attached, by name, type and size. The bytes are theirs too
+    // and are available on request; a bundle is not the place for a video.
+    files: ticket.attachments.map((file) => ({
+      name: file.fileName,
+      type: file.contentType,
+      bytes: file.byteSize,
+      at: iso(file.createdAt),
+    })),
+    thread: ticket.events.map((event) => ({
+      kind: event.kind,
+      from: event.actorIsRequester ? 'you' : 'the team',
+      text: event.body,
+      status: event.kind === 'STATUS_CHANGED' ? event.toValue : null,
+      at: iso(event.createdAt),
+    })),
+  }));
+
   // A staff account, or a customer whose profile was never created, still gets
   // a bundle - it is just a short one. Returning early here rather than
   // guarding every query below keeps the shape of the file predictable.
   if (profile === null) {
-    return envelope(subject, { account, profile: null, dataRequests });
+    return envelope(subject, { account, profile: null, dataRequests, supportTickets });
   }
 
   const [
@@ -318,6 +412,7 @@ export async function buildCustomerBundle(
     sessions,
     wishlist,
     productInstructions,
+    productReviews,
   ] = await Promise.all([
       prisma.address.findMany({
         where: { customerProfileId: profile.id },
@@ -605,6 +700,31 @@ export async function buildCustomerBundle(
           product: { select: { name: true, sku: true } },
         },
       }),
+
+      /*
+       * Their product reviews, published and hidden alike. Hidden ones are
+       * disclosed with the reason staff gave, because a subject asking what is
+       * held about them is owed the decision taken about their own words. The
+       * member of staff who took it is not named - the same line the preorder
+       * chats draw for staff.
+       */
+      prisma.productReview.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          qualityRating: true,
+          deliveryRating: true,
+          experienceRating: true,
+          supportRating: true,
+          status: true,
+          moderationReason: true,
+          moderatedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          order: { select: { orderNumber: true } },
+          product: { select: { name: true, sku: true } },
+        },
+      }),
     ]);
 
   return envelope(subject, {
@@ -742,6 +862,24 @@ export async function buildCustomerBundle(
       lastChangedAt: iso(instruction.updatedAt),
     })),
 
+    productReviews: productReviews.map((review) => ({
+      productName: review.product.name,
+      sku: review.product.sku,
+      // The order that made them eligible to review, by its number.
+      orderNumber: review.order?.orderNumber ?? null,
+      scores: {
+        quality: review.qualityRating,
+        delivery: review.deliveryRating,
+        experience: review.experienceRating,
+        support: review.supportRating,
+      },
+      shownOnStorefront: review.status === 'PUBLISHED',
+      hiddenReason: review.status === 'HIDDEN' ? review.moderationReason : null,
+      hiddenAt: review.status === 'HIDDEN' && review.moderatedAt !== null ? iso(review.moderatedAt) : null,
+      writtenAt: iso(review.createdAt),
+      lastChangedAt: iso(review.updatedAt),
+    })),
+
     couponRedemptions: redemptions.map((redemption) => ({
       orderId: redemption.orderId,
       code: redemption.codeSnapshot,
@@ -771,6 +909,7 @@ export async function buildCustomerBundle(
     })),
 
     dataRequests,
+    supportTickets,
 
     // The one thing in this feature that IS the subject's: their standing
     // authority to be charged, and the evidence of when they gave it. The ERP
@@ -1143,6 +1282,93 @@ export async function buildCustomerBundle(
       policyVersion: row.policyVersion,
       acknowledgedAt: iso(row.acknowledgedAt),
     })),
+
+    companyMemberships: await (async () => {
+      const memberships = await prisma.buyerCompanyMember.findMany({
+        where: { userId: subject.userId },
+        orderBy: { createdAt: 'asc' },
+        include: {
+          company: {
+            include: {
+              identifiers: true,
+              addresses: true,
+              consents: { where: { userId: subject.userId }, orderBy: { acceptedAt: 'asc' } },
+              reviewEvents: { where: { visibility: 'APPLICANT' }, orderBy: { createdAt: 'asc' } },
+              statusHistory: { orderBy: { createdAt: 'asc' } },
+            },
+          },
+        },
+      });
+
+      return memberships.map((membership) => {
+        const company = membership.company;
+        const manages = membership.role === 'OWNER' || membership.role === 'COMPANY_ADMIN';
+        return {
+          companyName: company.tradingName ?? company.legalName,
+          reference: company.applicationReference,
+          role: membership.role,
+          membershipStatus: membership.status,
+          joinedAt: iso(membership.createdAt),
+          removedAt: iso(membership.removedAt),
+          companyStatus: company.status,
+          // The declarations THIS person made. Each is one row, never one
+          // checkbox for all four.
+          declarations: company.consents.map((consent) => ({
+            purpose: consent.purpose,
+            textVersion: consent.textVersion,
+            textHash: consent.textHash,
+            acceptedAt: iso(consent.acceptedAt),
+            ipAddress: consent.ipAddress,
+            withdrawnAt: iso(consent.withdrawnAt),
+          })),
+          // What the applicant sees on their own application page - nothing
+          // a reviewer wrote for colleagues.
+          application: manages
+            ? {
+                legalName: company.legalName,
+                tradingName: company.tradingName,
+                entityType: company.entityType,
+                registrationCountry: company.registrationCountry,
+                registrationNumber: company.registrationNumber,
+                businessEmail: company.businessEmail,
+                businessPhone: company.businessPhone,
+                jobTitle: company.applicantJobTitle,
+                relationshipToBusiness: company.applicantRelationship,
+                // Whether the application was pre-filled from the person's
+                // seller account - the fact, not the seller account's data,
+                // which has its own section.
+                prefilledFromSellerAccount: company.linkedSellerAccountId !== null,
+                identifiers: company.identifiers.map((row) => ({
+                  scheme: row.scheme,
+                  value: row.value,
+                  notApplicable: row.notApplicable,
+                })),
+                addresses: company.addresses.map((address) => ({
+                  kind: address.kind,
+                  line1: address.line1,
+                  line2: address.line2,
+                  city: address.city,
+                  region: address.region,
+                  postalCode: address.postalCode,
+                  countryCode: address.countryCode,
+                })),
+                procurement: company.procurementProfileJson ?? null,
+                timeline: company.reviewEvents.map((event) => ({
+                  kind: event.kind,
+                  message: event.message,
+                  at: iso(event.createdAt),
+                })),
+                statusHistory: company.statusHistory.map((row) => ({
+                  from: row.fromStatus,
+                  to: row.toStatus,
+                  reason: row.reason,
+                  at: iso(row.createdAt),
+                })),
+              }
+            : null,
+        };
+      });
+    })(),
 
     organisationMembership: await (async () => {
       const membership = await prisma.buyerOrganizationMember.findUnique({

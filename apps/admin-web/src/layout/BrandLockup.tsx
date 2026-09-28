@@ -2,7 +2,7 @@
  * The brand block, at the top of the rail.
  *
  * Two lines rather than one: the mark and the product name are the thing you
- * look at once, and `The Way to the World` underneath is the product's
+ * look at once, and `The Way to the Global Sourcing` underneath is the product's
  * tagline. Both come from `lib/brand.ts`, which is the one place either
  * string is written in any of the three applications. Both are set in
  * `font-brand` (Dancing Script Bold) — the wordmark's own face, used for the
@@ -15,7 +15,7 @@
  *
  * The second line used to say "Admin console", which is what told someone with
  * two tabs open which one they were in. The browser tab does that now — it
- * says "Glovia Admin", which is a thing a person reads when they are looking
+ * says "Gloviaa Mart Admin", which is a thing a person reads when they are looking
  * at two tabs, whereas a rail is a thing they read once they have already
  * picked one. See `lib/brand.ts`.
  *

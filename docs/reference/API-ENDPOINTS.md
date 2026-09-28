@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**858 endpoints** in 68 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**928 endpoints** in 77 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 339 |
-| [Logistics partner portal](#logistics-partner-portal) | 80 |
-| [Seller Hub](#seller-hub) | 227 |
+| [Admin panel (staff)](#admin-panel-staff) | 365 |
+| [Logistics partner portal](#logistics-partner-portal) | 88 |
+| [Seller Hub](#seller-hub) | 235 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
-| [Customer account](#customer-account) | 166 |
-| [Public and storefront](#public-and-storefront) | 35 |
+| [Customer account](#customer-account) | 193 |
+| [Public and storefront](#public-and-storefront) | 36 |
 
 ## Admin panel (staff)
 
@@ -89,6 +89,35 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 |---|---|---|---|---|
 | GET | `/api/v1/admin/brand-requests` | Staff | Admin(PRODUCT_READ) | Sellers' requests for new brands still awaiting a decision, oldest first, with how many listings are waiting on each. |
 | POST | `/api/v1/admin/brand-requests/:id/decision` | Staff | Admin(PRODUCT_PUBLISH) | Approve, refuse or ask for more information about a seller's request to add a brand, optionally approving it under a corrected spelling. Refused if already decided. Notifies the seller and writes an audit entry. |
+
+### `admin/buyer-companies`
+
+Defined in `backend/src/http/routes/buyer-companies.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/buyer-companies` | Staff | Admin(BUYER_COMPANY_READ) | The review queue: filter by status, country, reviewer and risk; search by name, reference, number or email. |
+| GET | `/api/v1/admin/buyer-companies/reviewers` | Staff | Admin(BUYER_COMPANY_READ) | Staff who may be assigned a company review. |
+| GET | `/api/v1/admin/buyer-companies/:id` | Staff | Admin(BUYER_COMPANY_READ) | One application with everything a reviewer needs: details, checks, duplicates, documents, notes and history. |
+| POST | `/api/v1/admin/buyer-companies/:id/start-review` | Staff | Admin(BUYER_COMPANY_REVIEW) | Open a submitted application for review and take it if nobody has. |
+| POST | `/api/v1/admin/buyer-companies/:id/assign` | Staff | Admin(BUYER_COMPANY_REVIEW) | Give the review to a colleague who may review, or unassign it. |
+| POST | `/api/v1/admin/buyer-companies/:id/notes` | Staff | Admin(BUYER_COMPANY_REVIEW) | Add an internal note. Never shown to the applicant. |
+| POST | `/api/v1/admin/buyer-companies/:id/request-information` | Staff | Admin(BUYER_COMPANY_REVIEW) | Send the application back to the applicant with a question, optionally asking for named documents. |
+| POST | `/api/v1/admin/buyer-companies/:id/approve` | Staff | Admin(BUYER_COMPANY_REVIEW) | Approve the company, or restore a suspended or re-verified one. Restoring a suspended company also needs `buyer_company.suspend`. |
+| POST | `/api/v1/admin/buyer-companies/:id/reject` | Staff | Admin(BUYER_COMPANY_REVIEW) | Refuse the application with a reason code and a reason the applicant reads. |
+| POST | `/api/v1/admin/buyer-companies/:id/suspend` | Staff | Admin(BUYER_COMPANY_SUSPEND) | Stop an approved company buying, immediately. |
+| POST | `/api/v1/admin/buyer-companies/:id/reverify` | Staff | Admin(BUYER_COMPANY_REVIEW) | Ask an approved company to confirm its details again. Purchasing stops until it is approved again. |
+| POST | `/api/v1/admin/buyer-companies/:id/checks` | Staff | Admin(BUYER_COMPANY_REVIEW) | Ask every registry again now. The earlier results are kept. |
+
+### `admin/buyer-company-documents`
+
+Defined in `backend/src/http/routes/buyer-companies.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/buyer-company-documents/:id/link` | Staff | Admin(BUYER_COMPANY_READ) | A single-use download link for one company document, valid for a few minutes. |
+| GET | `/api/v1/admin/buyer-company-documents/:id/download` | Staff | Admin(BUYER_COMPANY_READ) | Download a company document with a link from the route above. Served as an attachment; audited. |
+| POST | `/api/v1/admin/buyer-company-documents/:id/decision` | Staff | Admin(BUYER_COMPANY_REVIEW) | Accept or refuse one document. A refusal needs a reason the applicant reads. |
 
 ### `admin/categories`
 
@@ -488,6 +517,15 @@ Defined in `backend/src/http/routes/preorders.admin.ts`.
 | POST | `/api/v1/admin/preorders/:id/start-production` | Public |  | Record that production has started on a confirmed preorder for the store's own product, with an optional note. Emails the buyer and writes an audit entry. |
 | POST | `/api/v1/admin/preorders/:id/ready` | Public |  | Mark a preorder on the store's own product as ready to ship, with an optional note. Emails the buyer and writes an audit entry. |
 
+### `admin/product-reviews`
+
+Defined in `backend/src/http/routes/product-reviews.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/product-reviews` | Staff | Admin(REVIEW_READ) | Every review, newest first, with who wrote it. Filter by status, score or text. |
+| POST | `/api/v1/admin/product-reviews/:reviewId/moderation` | Staff | Admin(REVIEW_MODERATE) | Hide a review from the storefront (a reason is required) or put it back. |
+
 ### `admin/products`
 
 Defined in `backend/src/http/routes/catalog.admin.ts`, `backend/src/http/routes/translations.admin.ts`, `backend/src/http/routes/gpsr.admin.ts`.
@@ -665,6 +703,22 @@ Defined in `backend/src/http/routes/settings.admin.ts`.
 | POST | `/api/v1/admin/staff/:id/temporary-password` | Staff | Admin(STAFF_WRITE, ROLE_ASSIGN) | Email a fresh temporary password |
 | PATCH | `/api/v1/admin/staff/:id/roles` | Staff | Admin(ROLE_ASSIGN) | Replace a staff member's roles. Only roles within your own authority can be added or removed, and the last Business Owner cannot drop that role. Removing access signs the person out. Writes an audit entry. |
 | PATCH | `/api/v1/admin/staff/:id/status` | Staff | Admin(STAFF_WRITE) | Deactivate a staff account, signing it out everywhere, or reactivate it. Refused for your own account, for someone with more access than you, and for the last active Business Owner. Writes an audit entry. |
+
+### `admin/support-tickets`
+
+Defined in `backend/src/http/routes/support.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/support-tickets` | Staff | Admin(SUPPORT_TICKET_VIEW) | The Support inbox: every request, most recently active first, with counts by status. |
+| GET | `/api/v1/admin/support-tickets/assignees` | Staff | Admin(SUPPORT_TICKET_VIEW) | Staff who may be given a support request. |
+| GET | `/api/v1/admin/support-tickets/:id` | Staff | Admin(SUPPORT_TICKET_VIEW) | One request in full: who sent it, for whom, its thread and internal notes, and its history. |
+| POST | `/api/v1/admin/support-tickets/:id/replies` | Staff | Admin(SUPPORT_TICKET_REPLY) | Answer the sender. They are emailed that there is a reply; optionally move the status too. |
+| POST | `/api/v1/admin/support-tickets/:id/notes` | Staff | Admin(SUPPORT_TICKET_REPLY) | Write an internal note. Never shown to the sender. |
+| PATCH | `/api/v1/admin/support-tickets/:id` | Staff | Admin(SUPPORT_TICKET_REPLY) | Change a request's status, its priority, or both. |
+| POST | `/api/v1/admin/support-tickets/:id/attachments/:attachmentId/link` | Staff | Admin(SUPPORT_TICKET_VIEW) | A download link for one file on a ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/admin/support-tickets/:id/attachments/:attachmentId/download` | Staff | Admin(SUPPORT_TICKET_VIEW) | Redeem a download link. Served as a download, never inline. |
+| POST | `/api/v1/admin/support-tickets/:id/assignment` | Staff | Admin(SUPPORT_TICKET_VIEW) | Take a request, give it to a colleague, or put it back in the queue. |
 
 ### `admin/vat-rates`
 
@@ -881,6 +935,21 @@ Defined in `backend/src/http/routes/logistics.portal.ts`, `backend/src/http/rout
 | POST | `/api/v1/logistics/shipments/:id/assign-driver` | Logistics | Logistics(DRIVER_ASSIGN) | Put a driver on a consignment, or move it from one driver to another. |
 | POST | `/api/v1/logistics/shipments/:id/unassign-driver` | Logistics | Logistics(DRIVER_ASSIGN) | Take the driver off, without putting another one on. |
 | GET | `/api/v1/logistics/shipments/:id/driver-history` | Logistics | Logistics(SHIPMENT_READ) | Everyone who has carried this consignment, oldest first. |
+
+### `logistics/support`
+
+Defined in `backend/src/http/routes/support.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/logistics/support/context` | Logistics | Logistics | What the portal's Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/logistics/support/tickets` | Logistics | Logistics | Send a support request from the logistics portal. Needs an Idempotency-Key. |
+| GET | `/api/v1/logistics/support/tickets` | Logistics | Logistics | Your own support requests sent from the portal for this company. |
+| GET | `/api/v1/logistics/support/tickets/:reference` | Logistics | Logistics | One of your portal support requests and its thread. |
+| POST | `/api/v1/logistics/support/tickets/:reference/messages` | Logistics | Logistics | Write again on one of your portal requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/logistics/support/tickets/:reference/attachments` | Logistics | Logistics | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/link` | Logistics | Logistics | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/logistics/support/tickets/:reference/attachments/:attachmentId/download` | Logistics | Logistics | Redeem a download link. Served as a download, never inline. |
 
 ### `logistics/vehicles`
 
@@ -1378,6 +1447,21 @@ Defined in `backend/src/http/routes/seller.account.ts`.
 |---|---|---|---|---|
 | POST | `/api/v1/seller/submit` | Seller | Seller | Hand the application to the marketplace. |
 
+### `seller/support`
+
+Defined in `backend/src/http/routes/support.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/seller/support/context` | Seller | Seller | What the Seller Hub Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/seller/support/tickets` | Seller | Seller | Send a support request from Seller Hub. Needs an Idempotency-Key. |
+| GET | `/api/v1/seller/support/tickets` | Seller | Seller | Your own support requests sent from this seller's Hub. |
+| GET | `/api/v1/seller/support/tickets/:reference` | Seller | Seller | One of your Seller Hub support requests and its thread. |
+| POST | `/api/v1/seller/support/tickets/:reference/messages` | Seller | Seller | Write again on one of your Seller Hub requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/seller/support/tickets/:reference/attachments` | Seller | Seller | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/link` | Seller | Seller | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/seller/support/tickets/:reference/attachments/:attachmentId/download` | Seller | Seller | Redeem a download link. Served as a download, never inline. |
+
 ### `sellers`
 
 Defined in `backend/src/http/routes/seller.account.ts`.
@@ -1625,6 +1709,25 @@ Defined in `backend/src/http/routes/account.customer.ts`.
 | POST | `/api/v1/account/product-instructions` | Customer | Customer | Leave one, or replace the one already there. |
 | DELETE | `/api/v1/account/product-instructions/:instructionId` | Customer | Customer | Take it back. |
 
+### `account/product-reviews`
+
+Defined in `backend/src/http/routes/product-reviews.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/product-reviews` | Customer | Customer | Your reviews, and the delivered products still waiting for one. |
+| GET | `/api/v1/account/product-reviews/reviewed` | Customer | Customer | Which of these products you have already reviewed. For the order page. |
+| DELETE | `/api/v1/account/product-reviews/:reviewId` | Customer | Customer | Take your review back. |
+
+### `account/products`
+
+Defined in `backend/src/http/routes/product-reviews.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/account/products/:productId/review` | Customer | Customer | Whether you may review this product, and your review if you wrote one. |
+| PUT | `/api/v1/account/products/:productId/review` | Customer | Customer | Write your review of a product, or replace the one you wrote. |
+
 ### `account/profile`
 
 Defined in `backend/src/http/routes/account.customer.ts`.
@@ -1667,6 +1770,27 @@ Defined in `backend/src/http/routes/auth.ts`.
 | GET | `/api/v1/auth/language` | Signed in | Authenticated(kind) | The interface language for this account. |
 | PUT | `/api/v1/auth/language` | Signed in | Authenticated(kind) | Save the interface language the signed-in person wants to read. |
 | POST | `/api/v1/auth/password/change` | Signed in | Authenticated(kind) | Change the signed-in person's password, given their current one. Signs the account out of every session, including this one, and writes an audit entry. |
+| GET | `/api/v1/auth/buyer-context` | Signed in | Authenticated(kind) | The buyer this session is acting as, and every company it may switch to. |
+| PUT | `/api/v1/auth/buyer-context` | Signed in | Authenticated(kind) | Switch between buying for yourself and for one of your companies. Refused, with one answer for every reason, for a company you are not an active member of. |
+
+### `buyer-companies`
+
+Defined in `backend/src/http/routes/buyer-companies.customer.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/buyer-companies` | Customer | Customer | The companies the signed-in buyer belongs to, with each one's status and their role. |
+| POST | `/api/v1/buyer-companies` | Customer | Customer | Start a company application, with the signed-in buyer as its owner. The owner cannot buy for the company until staff approve it. |
+| GET | `/api/v1/buyer-companies/:id` | Customer | Customer | One company application as its member sees it: details, requirements, what is missing, requests and timeline. |
+| PATCH | `/api/v1/buyer-companies/:id` | Customer | Customer | Save one or more steps of the application. Refused while it is with a reviewer. |
+| POST | `/api/v1/buyer-companies/:id/email-code` | Customer | Customer | Send a six-digit code to the business email address. |
+| POST | `/api/v1/buyer-companies/:id/email-code/confirm` | Customer | Customer | Enter the business email code. Completes a submission that was waiting on it. |
+| POST | `/api/v1/buyer-companies/:id/submit` | Customer | Customer | Send the application for review, recording each of the four declarations separately. |
+| POST | `/api/v1/buyer-companies/:id/info-requests/:requestId/answer` | Customer | Customer | Answer one of the reviewer's requests. |
+| POST | `/api/v1/buyer-companies/:id/resubmit` | Customer | Customer | Send the application back to the reviewer after answering them. |
+| POST | `/api/v1/buyer-companies/:id/reopen` | Customer | Customer | Take a rejected application back to a draft to correct it, where the reviewer allowed that. |
+| POST | `/api/v1/buyer-companies/:id/documents` | Customer | Customer | Upload a supporting document. PDF, JPEG, PNG or WebP, decided from the file's own bytes; scanned for malware and stored privately under a generated name. Send the `kind` field before the file. |
+| DELETE | `/api/v1/buyer-companies/:id/documents/:documentId` | Customer | Customer | Withdraw a document nobody has decided on yet. |
 
 ### `cart`
 
@@ -1812,6 +1936,21 @@ Defined in `backend/src/http/routes/schedules.ts`.
 | POST | `/api/v1/recurring-schedules/occurrences/:occurrenceId/skip` | Customer | Customer | Skip one named delivery. |
 | DELETE | `/api/v1/recurring-schedules/occurrences/:occurrenceId` | Customer | Customer | Cancel one delivery outright, rather than skipping it. |
 
+### `support`
+
+Defined in `backend/src/http/routes/support.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/support/context` | Customer | Customer | What the Support page needs: whether it takes requests, the contacts and the prefill. |
+| POST | `/api/v1/support/tickets` | Customer | Customer | Send a support request. Needs an Idempotency-Key. |
+| GET | `/api/v1/support/tickets` | Customer | Customer | Your own support requests sent from the storefront, most recently active first. |
+| GET | `/api/v1/support/tickets/:reference` | Customer | Customer | One of your support requests and its thread. Somebody else's answers "not found". |
+| POST | `/api/v1/support/tickets/:reference/messages` | Customer | Customer | Write again on one of your requests. Needs an Idempotency-Key. |
+| POST | `/api/v1/support/tickets/:reference/attachments` | Customer | Customer | Attach one image, video or PDF to your ticket. Checked by its contents, scanned, stored privately. |
+| POST | `/api/v1/support/tickets/:reference/attachments/:attachmentId/link` | Customer | Customer | A download link for one file on your ticket: five minutes, single use, this session only. |
+| GET | `/api/v1/support/tickets/:reference/attachments/:attachmentId/download` | Customer | Customer | Redeem a download link. Served as a download, never inline. |
+
 ## Public and storefront
 
 ### `account/config`
@@ -1848,7 +1987,7 @@ Defined in `backend/src/http/routes/auth.ts`.
 
 ### `catalog`
 
-Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`.
+Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes/bulk-pricing.ts`, `backend/src/http/routes/product-reviews.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -1860,6 +1999,7 @@ Defined in `backend/src/http/routes/catalog.public.ts`, `backend/src/http/routes
 | GET | `/api/v1/catalog/products/:slug` | Public |  | Product detail |
 | GET | `/api/v1/catalog/product-cards` | Public |  | Resolve product references into verified cards |
 | GET | `/api/v1/catalog/bulk-pricing` | Public (customer optional) | optionalCustomer | Show what one piece of a product costs at a given quantity, for each way of buying it, so the shopper can see the price drop as the quantity goes up. Anyone can ask; a signed-in business buyer also sees prices kept for business accounts and for their delivery country. |
+| GET | `/api/v1/catalog/products/:slug/reviews` | Public |  | A product's rating summary and one page of its published reviews. |
 
 ### `config`
 

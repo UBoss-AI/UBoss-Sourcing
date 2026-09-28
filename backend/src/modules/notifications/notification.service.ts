@@ -35,6 +35,19 @@ export const NotificationEvent = {
   CUSTOMER_REGISTRATION_PENDING: 'customer.registration_pending',
   /// Staff let them in; the account can sign in from now on.
   CUSTOMER_REGISTRATION_APPROVED: 'customer.registration_approved',
+  /// Buyer-company verification. Each is written in the recipient's own
+  /// language by `buyer-companies/notifications.ts` and arrives here already
+  /// worded, as {{subjectLine}} and {{bodyText}} - the template itself only
+  /// frames it, and an operator may still replace the frame.
+  BUYER_COMPANY_EMAIL_CODE: 'buyer_company.email_code',
+  BUYER_COMPANY_SUBMITTED: 'buyer_company.submitted',
+  BUYER_COMPANY_REVIEW_STARTED: 'buyer_company.review_started',
+  BUYER_COMPANY_INFO_REQUESTED: 'buyer_company.info_requested',
+  BUYER_COMPANY_APPROVED: 'buyer_company.approved',
+  BUYER_COMPANY_REJECTED: 'buyer_company.rejected',
+  BUYER_COMPANY_SUSPENDED: 'buyer_company.suspended',
+  BUYER_COMPANY_REVERIFICATION: 'buyer_company.reverification',
+  BUYER_COMPANY_RESTORED: 'buyer_company.restored',
   /// A new staff account and the temporary password that opens it once.
   STAFF_TEMPORARY_PASSWORD: 'staff.temporary_password',
   USER_PASSWORD_RESET: 'user.password_reset',
@@ -190,6 +203,14 @@ export const NotificationEvent = {
   PREORDER_CHAT_RESOLVED: 'preorder_chat.resolved',
   /// Told to a member of STAFF: a colleague handed them a conversation.
   PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
+  /// Support requests. Told to the SENDER when it arrives and when staff
+  /// answer, and to the operator's support inbox when a new one comes in.
+  /// None carries what anybody wrote - the link opens it after sign-in.
+  SUPPORT_TICKET_RECEIVED: 'support_ticket.received',
+  SUPPORT_TICKET_REPLY: 'support_ticket.reply',
+  SUPPORT_TICKET_NEW_FOR_TEAM: 'support_ticket.new_for_team',
+  /// Told to a member of STAFF: a colleague handed them a request.
+  SUPPORT_TICKET_ASSIGNED: 'support_ticket.assigned',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -237,6 +258,20 @@ function renderTemplate(template: string, variables: TemplateVariables): string 
     return value === undefined || value === null ? match : String(value);
   });
 }
+
+/**
+ * The frame for a message worded before it reaches the outbox.
+ *
+ * Buyer-company emails are written in the recipient's language, and this
+ * service has no language of its own - its templates are one set of English
+ * strings. So the words arrive as variables and the template only places
+ * them. Single-pass substitution means a value cannot smuggle in another
+ * placeholder.
+ */
+const LOCALISED_FRAME = Object.freeze({
+  subject: '{{subjectLine}}',
+  body: '{{bodyText}}\n\n{{businessName}} · {{supportEmail}}\n',
+});
 
 /** Built-in fallbacks, used when no notification_settings row exists yet. */
 const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string }>> =
@@ -316,6 +351,15 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'registered:\n{{signInUrl}}\n\n' +
         'Questions? Write to {{supportEmail}}.\n',
     },
+    [NotificationEvent.BUYER_COMPANY_EMAIL_CODE]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_SUBMITTED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_REVIEW_STARTED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_INFO_REQUESTED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_APPROVED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_REJECTED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_SUSPENDED]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_REVERIFICATION]: LOCALISED_FRAME,
+    [NotificationEvent.BUYER_COMPANY_RESTORED]: LOCALISED_FRAME,
     [NotificationEvent.STAFF_TEMPORARY_PASSWORD]: {
       subject: 'Your {{businessName}} staff account',
       body:
@@ -865,6 +909,36 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
       body:
         'Hello,\n\n' +
         'A preorder chat about {{productName}} has been assigned to you by {{assignedBy}}.\n\n' +
+        'Open it in the console:\n{{consoleUrl}}\n',
+    },
+    // --- Support requests. The reference and a link; never the message.
+    [NotificationEvent.SUPPORT_TICKET_RECEIVED]: {
+      subject: 'We have your support request {{reference}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Thank you for contacting {{businessName}} support. Your request {{reference}} has ' +
+        'reached our team, and we will reply as soon as we can.\n\n' +
+        'You can read it and add to it here:\n{{ticketUrl}}\n',
+    },
+    [NotificationEvent.SUPPORT_TICKET_REPLY]: {
+      subject: '{{businessName}} support replied to {{reference}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The {{businessName}} support team has replied to your request {{reference}}.\n\n' +
+        'Read the reply and answer here:\n{{ticketUrl}}\n',
+    },
+    [NotificationEvent.SUPPORT_TICKET_NEW_FOR_TEAM]: {
+      subject: 'New support request {{reference}}',
+      body:
+        'Hello,\n\n' +
+        'A new support request {{reference}} ({{category}}) has arrived.\n\n' +
+        'Open it in the console:\n{{consoleUrl}}\n',
+    },
+    [NotificationEvent.SUPPORT_TICKET_ASSIGNED]: {
+      subject: 'Support request {{reference}} has been assigned to you',
+      body:
+        'Hello,\n\n' +
+        'Support request {{reference}} has been assigned to you by {{assignedBy}}.\n\n' +
         'Open it in the console:\n{{consoleUrl}}\n',
     },
   });

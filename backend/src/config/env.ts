@@ -1559,6 +1559,101 @@ const envSchema = z
     /// downloadable on a live installation.
     SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
 
+    // --- Product reviews ---
+    //
+    // Buyers score a product they received for quality, delivery, experience
+    // and support. See the PRODUCT REVIEWS section of schema.prisma.
+
+    /// Whether the storefront shows ratings and lets buyers write them. Off
+    /// hides every star on the storefront and refuses the storefront review
+    /// routes. Reviews already written are kept, and staff can still read and
+    /// moderate them, so turning it back on loses nothing.
+    FEATURE_PRODUCT_REVIEWS: booleanFromString.default(true),
+
+    // --- Support requests ---
+    //
+    // A signed-in buyer, seller or logistics partner sends a support request
+    // from the Support page, and staff answer it under Support in the console.
+    // See the SUPPORT section of schema.prisma.
+
+    /// Whether the Support page takes requests. Off leaves the page showing
+    /// only the published support email and phone, for a deployment that runs
+    /// its own helpdesk; the sending routes refuse. Requests already sent stay
+    /// readable by their senders and staff keep answering them in the console.
+    FEATURE_SUPPORT_TICKETS: booleanFromString.default(true),
+
+    /// How many requests one account may send in 24 hours. A person with a
+    /// real problem sends one or two; the cap is what stops a stuck script or
+    /// an angry afternoon filling the inbox. Replies on an open request are
+    /// not counted.
+    SUPPORT_TICKETS_PER_DAY: intFromString(1, 200).default(10),
+
+    /// Whether a ticket can carry files: photographs, screen recordings and PDF
+    /// paperwork. Off keeps tickets text-only; files already attached stay
+    /// readable. Also needs a malware scanner - see the next two.
+    SUPPORT_ATTACHMENTS_ENABLED: booleanFromString.default(true),
+    /// Largest single file, in bytes. 25 MB by default, because a short phone
+    /// video of a damaged delivery is the file support most often needs.
+    SUPPORT_ATTACHMENT_MAX_BYTES: intFromString(1024, 104_857_600).default(26_214_400),
+    /// Accept files no malware scanner has looked at. False by default and
+    /// refused in production - the same line preorder chat attachments draw.
+    /// With no scanner and this false, the form says files cannot be added
+    /// here rather than storing something nobody may ever open.
+    SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS: booleanFromString.default(false),
+
+    // --- Buyer companies ---
+    //
+    // A registered business buying here, verified by staff before it may
+    // order in its own name. See the BUYER COMPANIES section of schema.prisma.
+
+    /// Whether buyers may register a company at all. Off hides the Company
+    /// sign-in tab and refuses every company route; individual buying is
+    /// untouched either way, and existing companies keep their data.
+    FEATURE_BUYER_COMPANIES: booleanFromString.default(true),
+
+    /// Applications one person may have open (not approved, not rejected) at
+    /// once. Stops a single account filling the review queue.
+    BUYER_COMPANY_MAX_OPEN_APPLICATIONS: intFromString(1, 50).default(3),
+
+    /// Largest company document accepted, in bytes. 10 MB by default.
+    BUYER_COMPANY_DOCUMENT_MAX_BYTES: intFromString(100_000, 50_000_000).default(10_000_000),
+    /// Most pages a PDF document may have. A registry extract is a few pages;
+    /// a 900-page upload is not a registry extract.
+    BUYER_COMPANY_DOCUMENT_MAX_PAGES: intFromString(1, 500).default(50),
+    /// Whether an unscanned company document may be downloaded by staff.
+    /// Development only - refused in production, like the seller equivalent.
+    BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
+
+    /// Whether approving a risky application needs a second, different
+    /// reviewer. OFF by default so ordinary applications are never held up;
+    /// ELEVATED or HIGH turns it on from that risk level upwards.
+    BUYER_COMPANY_SECOND_REVIEW_RISK: z.enum(['OFF', 'ELEVATED', 'HIGH']).default('OFF'),
+
+    /// Version of the declaration, terms and privacy-notice wording an
+    /// applicant agrees to. Change it whenever the wording changes, so each
+    /// consent record says which words were agreed to.
+    BUYER_COMPANY_CONSENT_VERSION: z.string().min(1).max(32).default('2026-09'),
+
+    /// Official registry endpoints. Each is a free public API run by the
+    /// authority itself; an empty value switches that check off and the
+    /// application is shown to the reviewer as "manual verification
+    /// required" instead - never rejected for it.
+    ///
+    /// GLEIF's LEI register. {lei} is the 20-character code.
+    BUYER_COMPANY_GLEIF_URL: z.string().default('https://api.gleif.org/api/v1/lei-records/{lei}'),
+    /// Poland's Ministry of Finance VAT register ("biała lista"). {nip} and
+    /// {date} (YYYY-MM-DD). The answer includes bank accounts; they are
+    /// dropped before anything is stored.
+    BUYER_COMPANY_PL_VAT_URL: z
+      .string()
+      .default('https://wl-api.mf.gov.pl/api/search/nip/{nip}?date={date}'),
+    /// Poland's National Court Register open API. {krs}, and {register} is P
+    /// (entrepreneurs) or S (associations and foundations).
+    BUYER_COMPANY_PL_KRS_URL: z
+      .string()
+      .default('https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/{krs}?rejestr={register}&format=json'),
+    BUYER_COMPANY_REGISTRY_TIMEOUT_MS: intFromString(1000, 60_000).default(10_000),
+
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
     RATE_LIMIT_LOGIN_PER_15MIN: intFromString(1, 1000).default(10),
@@ -1637,7 +1732,7 @@ const envSchema = z
           'required when SELLER_ERP_ALLOW_DIRECT_MODE is on. TallyPrime’s HTTP interface has no ' +
           'authentication of any kind, so an unrestricted direct mode lets a seller point this ' +
           'server at an address of their choosing. List the hosts inside your own network, or ' +
-          'leave direct mode off and use the Glovia Tally Bridge.',
+          'leave direct mode off and use the Gloviaa Mart Tally Bridge.',
       });
     }
 
@@ -2057,11 +2152,25 @@ const envSchema = z
           message: 'must be clamav in production so uploaded documents are scanned before storage',
         });
       }
+      if (value.SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS'],
+          message: 'unscanned support ticket attachments cannot be accepted in production',
+        });
+      }
       if (value.PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['PREORDER_CHAT_ALLOW_UNSCANNED_ATTACHMENTS'],
           message: 'unscanned chat attachments cannot be accepted in production',
+        });
+      }
+      if (value.BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS'],
+          message: 'unscanned company documents cannot be served in production',
         });
       }
       if (value.SELLER_ALLOW_UNSCANNED_DOCUMENTS || value.LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS) {

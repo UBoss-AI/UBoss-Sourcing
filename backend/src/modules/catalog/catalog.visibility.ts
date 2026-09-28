@@ -99,6 +99,8 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
   unavailabilityReason: true,
   minOrderQty: true,
   maxOrderQty: true,
+  // The B2C maximum order quantity of the operator's own stock.
+  b2cMaxOrderQuantity: true,
   qtyIncrement: true,
   isRecurringEligible: true,
   isStockTracked: true,

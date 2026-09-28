@@ -861,6 +861,87 @@ export type WishlistItem = Prisma.WishlistItemModel
  */
 export type ProductInstruction = Prisma.ProductInstructionModel
 /**
+ * Model ProductReview
+ * *
+ *  * What one buyer thought of one product, scored four ways.
+ *  *
+ *  * **Four scores, not one.** Quality, delivery, experience and support are
+ *  * separate columns because they are separate questions with separate owners:
+ *  * a well-made part that arrived three weeks late is a five for quality and a
+ *  * one for delivery, and averaging those into a three tells the next buyer
+ *  * nothing. Each is a whole number from 1 to 5, required, and held to that by
+ *  * a CHECK constraint as well as by the API - MariaDB 10.4 would otherwise
+ *  * store a 7 from any path that skipped the schema.
+ *  *
+ *  * **Only somebody who received it.** A review needs an order of the
+ *  * reviewer's own that contains the product and reached DELIVERED (or
+ *  * RETURNED, which can only follow DELIVERED). Delivery and support cannot be
+ *  * scored by somebody who was never sent anything, and a review anybody can
+ *  * write is a review a competitor can write. `orderId` is the order that
+ *  * qualified them, kept so staff can see why a review was allowed.
+ *  *
+ *  * **One per buyer per product.** Writing again replaces the scores, which is
+ *  * what `uq_product_review` enforces - a buyer who changes their mind edits
+ *  * their review rather than adding a second voice to the average.
+ *  *
+ *  * **Averages are computed, never stored.** A stored average is a second copy
+ *  * of a fact that goes stale the moment a review is edited, hidden or erased.
+ *  * `ix_product_review_product` is what makes the grouped read cheap.
+ *  *
+ *  * Scores only, deliberately - no free-text comment. Four numbers say what a
+ *  * buyer thought without giving anybody a place to publish something that has
+ *  * to be read, checked and answered for.
+ */
+export type ProductReview = Prisma.ProductReviewModel
+/**
+ * Model SupportTicket
+ * *
+ *  * A support request.
+ *  *
+ *  * **Snapshots, not joins, for what the sender told us.** `nameSnapshot`,
+ *  * `emailSnapshot` and `companyNameSnapshot` are copied when the ticket is
+ *  * sent. A person who later changes their email is still the person who wrote
+ *  * this, and staff answering it need the address the conversation started on.
+ *  *
+ *  * **The reference is not the key.** `reference` (for example SR-7K2M-QX9D) is
+ *  * what the sender quotes and what staff search for. It is random rather than
+ *  * sequential, so it does not tell anybody how many tickets exist or let them
+ *  * guess another person's - though a guess would get them nothing anyway,
+ *  * because every read is filtered by `requesterUserId`.
+ *  *
+ *  * **Tenant columns are context, not access.** `buyerCompanyId`,
+ *  * `sellerAccountId` and `logisticsPartnerId` say whom the sender was acting
+ *  * for, so staff can see it. None of them grants anybody else a read.
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model SupportTicketEvent
+ * *
+ *  * One thing that happened to a ticket: a message, a note, or a change.
+ *  *
+ *  * **`visibleToRequester` is the whole privacy line.** It is decided once, when
+ *  * the row is written, by `support-ticket.service.ts` - an INTERNAL_NOTE is
+ *  * false, a STAFF_REPLY is true, a priority or assignment change is false
+ *  * because it is how staff organise themselves, and a status change is true.
+ *  * Every read the sender can make filters on it, so no screen has to remember
+ *  * which kinds are private.
+ */
+export type SupportTicketEvent = Prisma.SupportTicketEventModel
+/**
+ * Model SupportTicketAttachment
+ * *
+ *  * A file the sender attached to a ticket: a photograph of the damage, a screen
+ *  * recording, a PDF invoice.
+ *  *
+ *  * The chat's four rules, because it is the same problem: the bytes decide the
+ *  * type (images, MP4/WebM/MOV video and PDF only - no archives, no Office
+ *  * documents); scanned before stored; stored under the private prefix at a
+ *  * random key; out only through a five-minute, single-use link minted for one
+ *  * signed-in person. Files are listed on the ticket by when they arrived,
+ *  * rather than pinned to one message: each is its own upload.
+ */
+export type SupportTicketAttachment = Prisma.SupportTicketAttachmentModel
+/**
  * Model BuyerOrganization
  * A buyer business, as a tenant.
  * 
@@ -1782,7 +1863,7 @@ export type LogisticsShipmentPackage = Prisma.LogisticsShipmentPackageModel
  * and DHL is not one - so a seller without credentials had no way to say who
  * was carrying their parcel at all.
  * 
- * WHAT THIS ROW NEVER CLAIMS. That Glovia booked anything, that a label
+ * WHAT THIS ROW NEVER CLAIMS. That Gloviaa Mart booked anything, that a label
  * exists, that a rate was quoted, or that DHL has accepted the parcel. It
  * records what the SELLER says they arranged, and it says so on every screen
  * that shows it. A tracking number appears only when a person typed one in.
@@ -2100,7 +2181,7 @@ export type SellerFreightQuoteRequest = Prisma.SellerFreightQuoteRequestModel
 export type SellerErpConnection = Prisma.SellerErpConnectionModel
 /**
  * Model SellerErpBridgeDevice
- * A machine running the Glovia Tally Bridge.
+ * A machine running the Gloviaa Mart Tally Bridge.
  * 
  * THE TOKEN IS NOT STORED. Only its SHA-256 and a short display prefix are,
  * exactly as `AuthToken` and the carrier webhook secrets already work here.
@@ -2520,3 +2601,88 @@ export type SellerInvoice = Prisma.SellerInvoiceModel
  * A packing list for one consignment - one vehicle, one load.
  */
 export type SellerPackingList = Prisma.SellerPackingListModel
+/**
+ * Model BuyerCompany
+ * 
+ */
+export type BuyerCompany = Prisma.BuyerCompanyModel
+/**
+ * Model BuyerCompanyAddress
+ * One of the company's four addresses. At most one of each kind.
+ */
+export type BuyerCompanyAddress = Prisma.BuyerCompanyAddressModel
+/**
+ * Model BuyerCompanyIdentifier
+ * A tax or trade identifier - GSTIN, NIP, an EU VAT number, a LEI.
+ * 
+ * `scheme` is a string checked in `domain/buyer-company-identifiers.ts`
+ * rather than a database enum, because the list grows with every market a
+ * deployment enters and an enum would make each one a migration.
+ * 
+ * A row with `notApplicable = true` is a declaration, not a gap: "we are not
+ * GST registered" is an answer, and a lawful one below the threshold. It
+ * carries a reason code and no value.
+ */
+export type BuyerCompanyIdentifier = Prisma.BuyerCompanyIdentifierModel
+/**
+ * Model BuyerCompanyLocation
+ * A branch, plant or warehouse of the company, for later. Carries its own
+ * tax number because an Indian company has one GSTIN per state.
+ */
+export type BuyerCompanyLocation = Prisma.BuyerCompanyLocationModel
+/**
+ * Model BuyerCompanyMember
+ * One person's place in one company. A person may hold several - unlike
+ * `buyer_organization_members` - because the storefront now asks "as whom?"
+ * at sign-in and remembers the answer on the session.
+ */
+export type BuyerCompanyMember = Prisma.BuyerCompanyMemberModel
+/**
+ * Model BuyerCompanyVerificationCase
+ * One round of review: the first submission, a resubmission after a
+ * rejection, or a re-verification. Holds who is looking at it.
+ */
+export type BuyerCompanyVerificationCase = Prisma.BuyerCompanyVerificationCaseModel
+/**
+ * Model BuyerCompanyCheck
+ * What one registry or rule said about the company, and when. Written once,
+ * never changed: a re-run is a new row, so the reviewer sees the history.
+ */
+export type BuyerCompanyCheck = Prisma.BuyerCompanyCheckModel
+/**
+ * Model BuyerCompanyDocument
+ * A file the applicant uploaded. Stored privately under a generated key,
+ * served only through a single-use, short-lived, audited link.
+ */
+export type BuyerCompanyDocument = Prisma.BuyerCompanyDocumentModel
+/**
+ * Model BuyerCompanyInfoRequest
+ * "Please send us ..." - a reviewer's request the applicant can see and
+ * answer. The answer is kept beside the question.
+ */
+export type BuyerCompanyInfoRequest = Prisma.BuyerCompanyInfoRequestModel
+/**
+ * Model BuyerCompanyReviewEvent
+ * The timeline. Every reviewer action, every upload, every check, every
+ * note. Append-only: no code path updates or deletes a row, and
+ * the append-only test in `tests/unit/buyer-company-providers.test.ts`
+ * fails the build if one appears.
+ */
+export type BuyerCompanyReviewEvent = Prisma.BuyerCompanyReviewEventModel
+/**
+ * Model BuyerCompanyStatusHistory
+ * Every status change, from and to, by whom, and why. Append-only.
+ */
+export type BuyerCompanyStatusHistory = Prisma.BuyerCompanyStatusHistoryModel
+/**
+ * Model ConsentRecord
+ * One thing one person agreed to, with the exact wording's version and hash.
+ * Append-only; a withdrawal is a date on the row, not a deletion.
+ */
+export type ConsentRecord = Prisma.ConsentRecordModel
+/**
+ * Model BuyerCompanyEmailChallenge
+ * A six-digit code sent to the business email address. Stored hashed,
+ * expires, and stops working after five wrong guesses.
+ */
+export type BuyerCompanyEmailChallenge = Prisma.BuyerCompanyEmailChallengeModel

@@ -244,6 +244,23 @@ export function CompaniesIcon(props: IconProps): React.JSX.Element {
 }
 
 /**
+ * Buyer companies waiting to be verified. A building with a tick beside it:
+ * the Companies silhouette, so the two read as related, and the tick so the
+ * row is recognisably the one where businesses are checked.
+ */
+export function BuyerVerificationIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 20.5V6.2a1 1 0 0 1 1-1h6.4a1 1 0 0 1 1 1v14.3" />
+      <path d="M3 20.5h10" />
+      <path d="M6.8 8.6h2.6M6.8 12.2h2.6M6.8 15.8h2.6" />
+      <circle cx="17.2" cy="15.6" r="4.2" />
+      <path d="m15.4 15.7 1.3 1.3 2.4-2.6" />
+    </Icon>
+  );
+}
+
+/**
  * Businesses selling on the marketplace. A shopfront: an awning over a door.
  *
  * Deliberately not a second person-shape. It sits directly under Customers in
@@ -294,12 +311,33 @@ export function BrandRequestIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** Product reviews. A five-pointed star, outline only. */
+export function ReviewStarIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.2 14.6 8.6l5.9.7-4.4 4 1.2 5.8L12 16.2l-5.3 2.9 1.2-5.8-4.4-4 5.9-.7Z" />
+    </Icon>
+  );
+}
+
 /** Chat enquiries from the storefront widget. A speech bubble, nothing more. */
 export function ChatIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
       <path d="M20.4 11.6a7.6 7.6 0 0 1-7.6 7.6 8 8 0 0 1-3.4-.8L4.6 20l1.4-4.4a8 8 0 0 1-.8-3.4 7.6 7.6 0 0 1 15.2-.6z" />
       <path d="M9.2 11.6h6" />
+    </Icon>
+  );
+}
+
+/** Support: a headset. Support -> Tickets. */
+export function HeadsetIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="3" y="13" width="4" height="6" rx="1.5" />
+      <rect x="17" y="13" width="4" height="6" rx="1.5" />
+      <path d="M19 19v.5a2.5 2.5 0 0 1-2.5 2.5H13" />
     </Icon>
   );
 }

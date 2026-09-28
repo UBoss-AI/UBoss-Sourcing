@@ -89,6 +89,37 @@ const PREORDER_CHAT_CODES = new Set([
   'PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE',
 ]);
 
+/** Support request refusals. Each says what to do instead, in the reader's language. */
+const SUPPORT_CODES = new Set([
+  'SUPPORT_TICKET_LIMIT_REACHED',
+  'SUPPORT_ORDER_NOT_FOUND',
+  'SUPPORT_TICKET_CLOSED',
+  'SUPPORT_TICKET_TRANSITION_NOT_ALLOWED',
+  'SUPPORT_ASSIGNEE_NOT_ELIGIBLE',
+  'SUPPORT_ATTACHMENTS_UNAVAILABLE',
+  'SUPPORT_ATTACHMENT_LIMIT_REACHED',
+]);
+
+/**
+ * Buyer-company refusals. Each is reached mid-task - pressing Check out while
+ * buying for a company that is still being verified, sending an application
+ * that is missing something - so each is said in the reader's language.
+ */
+const BUYER_COMPANY_CODES = new Set([
+  'BUYER_COMPANIES_DISABLED',
+  'BUYER_CONTEXT_INVALID',
+  'BUYER_CONTEXT_UNSUPPORTED',
+  'BUYER_COMPANY_NOT_APPROVED',
+  'BUYER_COMPANY_ROLE_FORBIDDEN',
+  'BUYER_COMPANY_TRANSITION_NOT_ALLOWED',
+  'BUYER_COMPANY_NOT_EDITABLE',
+  'BUYER_COMPANY_INCOMPLETE',
+  'BUYER_COMPANY_VERSION_CONFLICT',
+  'BUYER_COMPANY_EMAIL_CODE_INVALID',
+  'BUYER_COMPANY_DOCUMENT_REJECTED',
+  'BUYER_COMPANY_LIMIT_REACHED',
+]);
+
 /** The reader's locale for a date inside an error sentence. */
 function navigatorLocale(): string {
   return typeof document !== 'undefined' && document.documentElement.lang !== ''
@@ -147,6 +178,20 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');
 
     /*
+     * The B2C maximum order quantity. Reached from Add to basket, a reorder,
+     * the assistant's cards, the preorder form and the basket itself - every
+     * one mid-task - so it is worded here, with the limit from the error's
+     * own figures. The pages that can offer a way out (switch to a company,
+     * reduce) open a dialog instead; this is the sentence for the rest.
+     */
+    if (error.code === 'B2C_MAX_ORDER_QUANTITY_EXCEEDED') {
+      const allowed = error.details[0]?.meta?.['allowedQuantity'];
+      if (typeof allowed === 'number') {
+        return t('b2cLimit.individualMessage', { limit: formatNumber(allowed) });
+      }
+    }
+
+    /*
      * The four delivery levels. Reached from Seller Hub -> Logistics and from
      * the checkout, mid-task, so the answer is given in the reader's language.
      * Each code has its own sentence because each sends the reader somewhere
@@ -188,12 +233,32 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     // Container loading: the panel marks each figure; this is the summary.
     if (error.code === 'CONTAINER_LOADING_INVALID') return t('errors.containerLoadingInvalid');
 
+    // Pressed Save on a review form for a product not yet delivered to them -
+    // a page left open, or an order that was cancelled in the meantime.
+    if (error.code === 'REVIEW_NOT_ELIGIBLE') return t('reviews.error.notEligible');
+
     if (PREORDER_CHAT_CODES.has(error.code)) {
       return t(`errors.preorderChat.${error.code}` as TranslationKey);
     }
 
+    if (SUPPORT_CODES.has(error.code)) {
+      return t(`errors.support.${error.code}` as TranslationKey);
+    }
+
     if (SELLER_DOCUMENT_CODES.has(error.code)) {
       return t(`errors.sellerDocument.${error.code}` as TranslationKey);
+    }
+
+    if (BUYER_COMPANY_CODES.has(error.code)) {
+      // A refused upload says which rule it broke - type, size, pages,
+      // scripts - because "that file was refused" leaves nothing to fix.
+      const detail = error.details[0]?.code;
+      if (error.code === 'BUYER_COMPANY_DOCUMENT_REJECTED' && detail !== undefined) {
+        return t(`errors.buyerCompany.document.${detail}` as TranslationKey, {
+          defaultValue: t('errors.buyerCompany.BUYER_COMPANY_DOCUMENT_REJECTED'),
+        });
+      }
+      return t(`errors.buyerCompany.${error.code}` as TranslationKey);
     }
 
     if (error.message.length > 0) return error.message;

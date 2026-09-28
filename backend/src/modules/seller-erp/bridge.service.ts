@@ -1,5 +1,5 @@
 /**
- * What the Glovia Tally Bridge is allowed to do.
+ * What the Gloviaa Mart Tally Bridge is allowed to do.
  *
  * The bridge is a small agent the seller runs on the machine beside
  * TallyPrime. It connects OUTWARD to this API, claims work queued for its own

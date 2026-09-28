@@ -432,7 +432,7 @@ describe('the requests it builds', () => {
         date: new Date('2026-09-23T10:00:00Z'),
         partyLedgerName: 'Acme Hospitals',
         reference: 'ORD-1001',
-        narration: 'Glovia order ORD-1001',
+        narration: 'Gloviaa Mart order ORD-1001',
         lines: [line],
         ledgerEntries: [],
         isInvoice: true,

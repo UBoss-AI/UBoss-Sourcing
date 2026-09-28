@@ -390,7 +390,7 @@ export async function redeemPairingCode(input: {
     // SYSTEM, not CUSTOMER: nobody was signed in for this call. The person who
     // caused it is on the `pairing_code_issued` row a few minutes earlier, and
     // the two are joined by the connection and the label.
-    actor: { type: 'SYSTEM', label: 'Glovia Tally Bridge' },
+    actor: { type: 'SYSTEM', label: 'Gloviaa Mart Tally Bridge' },
     summary: `"${row.deviceLabel}" was paired and can now exchange work with Tally.`,
     meta: {
       deviceId,
@@ -686,7 +686,7 @@ export async function rotateBridgeToken(bridge: AuthenticatedBridge): Promise<{
     sellerAccountId: bridge.sellerAccountId,
     connectionId: bridge.connectionId,
     action: 'seller_erp.token_rotated',
-    actor: { type: 'SYSTEM', label: 'Glovia Tally Bridge' },
+    actor: { type: 'SYSTEM', label: 'Gloviaa Mart Tally Bridge' },
     summary: `"${bridge.label}" rotated its credential.`,
     meta: { deviceId: bridge.deviceId, tokenPrefix: token.slice(0, 8) },
   });

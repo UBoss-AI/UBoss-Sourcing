@@ -14,6 +14,13 @@
  * last one. Nothing is stored to say "this browser already agreed", because a
  * consent that carries itself forward is a consent nobody gave this time.
  *
+ * Two tabs, Individual and Company, over one form. The tab is an INTENT sent
+ * with the credentials, never an authority: the backend decides, after the
+ * password is accepted, whether this person may act for a company at all -
+ * and a failed sign-in is the same generic message on both tabs. Individual is
+ * the default; `?buyerType=company` deep-links the other, and the choice
+ * survives a validation error because it lives in the URL, not the form.
+ *
  * The frame is `AuthSplit`: from `lg` up the form takes the right half and a
  * turning earth takes the left. That panel is decoration and is `aria-hidden`
  * — every word and every control on this screen is in the column below, and
@@ -23,7 +30,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
@@ -38,6 +45,9 @@ import {
   GlowInput,
 } from '@/components/ui/auth-form';
 import { AuthSplit } from '@/components/ui/auth-split';
+import { Tabs } from '@/components/ui/Tabs';
+import type { BuyerType } from '@/auth/session-context';
+import { returnTarget } from '@/lib/return-target';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError } from '@/lib/api';
@@ -66,41 +76,11 @@ function buildSchema(t: ReturnType<typeof useI18n>['t']) {
 
 type FormValues = z.output<ReturnType<typeof buildSchema>>;
 
-interface LocationState {
-  from?: string;
-}
-
-/**
- * Where to go once they are in.
- *
- * Two spellings reach this page and both are in use:
- *
- *   - router state (`state.from`), set by `RequireCustomer`, the service
- *     banner, the product page and AI Mode's sign-in panel;
- *   - `?next=`, in the Seller Hub's plain links, which are `<a href>`s with
- *     nowhere to hang router state.
- *
- * The second was being ignored, so pressing "Sign in" on the Sell page landed
- * somebody on the home page having forgotten what they came for.
- *
- * **Same-origin paths only.** An open redirect is a phishing primitive: a link
- * to our own sign-in page that hands the visitor to somebody else's site
- * afterwards borrows this shop's credibility for it. Anything that is not a
- * single leading slash - `//evil.example`, `https://…`, a backslash Windows
- * clients normalise into a slash - is discarded rather than corrected.
- */
-function returnTarget(state: unknown, search: string): string {
-  const candidate =
-    (state as LocationState | null)?.from ?? new URLSearchParams(search).get('next') ?? null;
-
-  if (candidate === null) return '/';
-
-  // One leading slash, and the next character must not be another slash or a
-  // backslash: `//evil.example` is a protocol-relative URL, and `/\evil.example`
-  // is the same thing after a browser normalises the backslash.
-  if (!/^\/(?![/\\])/.test(candidate)) return '/';
-
-  return candidate;
+/** The tab a URL asks for. Anything but `company` is the individual tab. */
+function buyerTypeFrom(search: string, companiesOffered: boolean): BuyerType {
+  return companiesOffered && new URLSearchParams(search).get('buyerType') === 'company'
+    ? 'company'
+    : 'individual';
 }
 
 export function LoginPage(): React.JSX.Element {
@@ -111,6 +91,18 @@ export function LoginPage(): React.JSX.Element {
   const location = useLocation();
 
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const companiesOffered = features.buyerCompanies === true;
+  const buyerType = buyerTypeFrom(`?${searchParams.toString()}`, companiesOffered);
+
+  const chooseTab = (next: BuyerType): void => {
+    const params = new URLSearchParams(searchParams);
+    if (next === 'company') params.set('buyerType', 'company');
+    else params.delete('buyerType');
+    // Replace, so Back leaves the page rather than flipping between tabs.
+    setSearchParams(params, { replace: true, state: location.state as unknown });
+  };
 
   // The failure is kept as a code plus its retry window, not as a rendered
   // sentence. Somebody who has just failed to sign in and reached for the
@@ -203,8 +195,17 @@ export function LoginPage(): React.JSX.Element {
       // `acceptedTerms` gates the submit and is not sent: `/auth/login` takes
       // an email and a password, and the acceptance that is recorded against
       // an account is the one given at registration or activation.
-      await login(values.email, values.password);
-      void navigate(returnTarget(location.state, location.search), { replace: true });
+      const { next } = companiesOffered
+        ? await login(values.email, values.password, buyerType)
+        : await login(values.email, values.password);
+      const target = returnTarget(location.state, location.search);
+      // Several companies, or none: the selector decides with the person,
+      // after sign-in. Everyone else goes straight to where they were going.
+      if (next === 'CHOOSE_COMPANY' || next === 'NO_COMPANY') {
+        void navigate('/select-company', { replace: true, state: { from: target, next } });
+      } else {
+        void navigate(target, { replace: true });
+      }
     } catch (error) {
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));
@@ -254,9 +255,14 @@ export function LoginPage(): React.JSX.Element {
           {/* Reaching here means not signed in as a customer. A user object
               that still exists is therefore a staff session, which cannot
               shop — saying so beats an unexplained sign-in form. */}
-          {user === null ? t('auth.login.introVisitor') : t('auth.login.introStaff')}
+          {user !== null
+            ? t('auth.login.introStaff')
+            : buyerType === 'company'
+              ? t('auth.login.introCompany')
+              : t('auth.login.introVisitor')}
         </p>
 
+        <LoginTabs offered={companiesOffered} value={buyerType} onChange={chooseTab} label={t('auth.login.tabsLabel')} individual={t('auth.login.tabIndividual')} company={t('auth.login.tabCompany')}>
         <form
           onSubmit={(event) => {
             void handleSubmit(onSubmit)(event);
@@ -289,14 +295,31 @@ export function LoginPage(): React.JSX.Element {
 
           <Field label={t('common.password')} error={errors.password?.message} required>
             {({ inputId, describedBy }) => (
-              <GlowInput
-                id={inputId}
-                type="password"
-                autoComplete="current-password"
-                aria-describedby={describedBy}
-                invalid={errors.password !== undefined}
-                {...register('password')}
-              />
+              <div className="relative">
+                <GlowInput
+                  id={inputId}
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  aria-describedby={describedBy}
+                  invalid={errors.password !== undefined}
+                  className="pr-20"
+                  {...register('password')}
+                />
+                {/* A real button with a state, not an icon: its name says
+                    what pressing it will do, and aria-pressed says which way
+                    round it is now. */}
+                <button
+                  type="button"
+                  aria-controls={inputId}
+                  aria-pressed={showPassword}
+                  onClick={() => {
+                    setShowPassword((shown) => !shown);
+                  }}
+                  className="absolute inset-y-0 right-1 my-1 rounded-md px-2.5 text-xs font-medium text-brand hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                >
+                  {showPassword ? t('auth.login.hidePassword') : t('auth.login.showPassword')}
+                </button>
+              </div>
             )}
           </Field>
 
@@ -330,13 +353,21 @@ export function LoginPage(): React.JSX.Element {
             </Link>
           </p>
         </form>
+        </LoginTabs>
 
         <AuthDivider className="my-8" />
 
         <div className="text-sm">
           <h2 className="font-medium text-ink">{t('auth.login.noAccountHeading')}</h2>
 
-          {features.selfRegistration ? (
+          {features.selfRegistration && buyerType === 'company' ? (
+            <p className="mt-1.5 text-ink-muted">
+              <Link to="/register/company" className="font-medium text-brand hover:underline">
+                {t('auth.login.createCompany')}
+              </Link>{' '}
+              {t('auth.login.createCompanySuffix')}
+            </p>
+          ) : features.selfRegistration ? (
             <p className="mt-1.5 text-ink-muted">
               <Link to="/register" className="font-medium text-brand hover:underline">
                 {t('auth.login.createOne')}
@@ -376,5 +407,43 @@ export function LoginPage(): React.JSX.Element {
           Renders nothing in English. */}
       <TranslationQualityNotice className="mt-5 text-center" />
     </AuthSplit>
+  );
+}
+
+/**
+ * The two tabs over the form, or just the form where this deployment offers no
+ * company accounts - a tablist with one tab is a control that does nothing.
+ */
+function LoginTabs({
+  offered,
+  value,
+  onChange,
+  label,
+  individual,
+  company,
+  children,
+}: {
+  offered: boolean;
+  value: BuyerType;
+  onChange: (next: BuyerType) => void;
+  label: string;
+  individual: string;
+  company: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  if (!offered) return <>{children}</>;
+  return (
+    <Tabs
+      className="mt-6"
+      label={label}
+      value={value}
+      onChange={onChange}
+      tabs={[
+        { key: 'individual', label: individual },
+        { key: 'company', label: company },
+      ]}
+    >
+      {children}
+    </Tabs>
   );
 }

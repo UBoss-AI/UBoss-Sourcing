@@ -24,7 +24,7 @@ import {
   decideApproval,
   transitionOrder,
 } from '../../modules/orders/order.service.js';
-import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { currentUser, orderScopeWhere, requireAdmin, requireCustomer } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -227,13 +227,14 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
   app.addHook('preHandler', requireCustomer);
 
   app.get('/', async (request, reply) => {
-    const auth = currentUser(request);
     const query = listQuerySchema.parse(request.query);
 
-    // Scoped by the session's profile. There is no customer route that accepts
-    // a profile id, so there is nothing here to forget to check.
+    // Scoped by the session's profile AND its confirmed buyer context: the
+    // individual context never lists company orders, and a company context
+    // lists only that company's. There is no customer route that accepts a
+    // profile or company id, so there is nothing here to forget to check.
     const where = {
-      customerProfileId: auth.customerProfileId ?? '',
+      ...orderScopeWhere(request),
       ...(query.status !== undefined ? { status: query.status } : {}),
       ...(query.source !== undefined ? { source: query.source } : {}),
     };
@@ -269,11 +270,10 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
    * for it is creating support work for no reason.
    */
   app.get('/:id/invoice', async (request, reply) => {
-    const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
 
     const order = await prisma.order.findFirst({
-      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      where: { id, ...orderScopeWhere(request) },
       select: { id: true },
     });
 
@@ -284,13 +284,13 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
   });
 
   app.get('/:id', async (request, reply) => {
-    const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
 
     const order = await prisma.order.findFirst({
       // The ownership check is the `where` clause itself: another customer's
-      // order simply does not match, so it 404s rather than 403s.
-      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      // order - or this customer's order from the other buyer context -
+      // simply does not match, so it 404s rather than 403s.
+      where: { id, ...orderScopeWhere(request) },
       include: {
         /*
          * The frozen bulk breakdown travels with the line.
@@ -621,8 +621,10 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
     const { id } = idParam.parse(request.params);
     const body = z.object({ reason: z.string().trim().min(1).max(512) }).parse(request.body);
 
+    // Only the person who placed it may cancel it, in the context it was
+    // placed in.
     const order = await prisma.order.findFirst({
-      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      where: { id, ...orderScopeWhere(request, { placedByMe: true }) },
       select: { id: true },
     });
     if (order === null) throw notFound('Order');

@@ -2060,6 +2060,12 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
             description: 'Counted FROM minOrderQty, not from zero.',
           },
           isRecurringEligible: { type: 'boolean' },
+          b2cMaxOrderQuantity: {
+            type: 'integer',
+            nullable: true,
+            description:
+              'B2C maximum order quantity, in pieces: the most of this product a buyer who is not an approved company may order at once, every variant counted together. A purchasing limit, not stock. Null when not configured. Enforced server-side; exceeding it returns 409 B2C_MAX_ORDER_QUANTITY_EXCEEDED.',
+          },
         },
       },
       primaryImage: { type: 'object', nullable: true },
@@ -2576,10 +2582,10 @@ export function buildOpenApiDocument(routes: RouteRecord[]): Record<string, unkn
   return {
     openapi: '3.1.0',
     info: {
-      title: 'UBOSS Sourcing API',
+      title: 'Gloviaa Mart API',
       version: '1.0.0',
       description: [
-        'Backend for the UBOSS Sourcing Admin Panel and Customer Website.',
+        'Backend for the Gloviaa Mart admin console, storefront, Seller Hub and logistics portal.',
         '',
         '## Money',
         'Money is never a JSON number. Every amount is an object with `minor` -',

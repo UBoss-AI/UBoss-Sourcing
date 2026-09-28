@@ -48,7 +48,7 @@ export async function notifyBridgeOffline(input: {
     kind: 'ERP_BRIDGE_OFFLINE',
     title: 'TallyPrime has stopped answering',
     body:
-      `The Glovia Tally Bridge for "${input.connectionName}" has not checked in. ` +
+      `The Gloviaa Mart Tally Bridge for "${input.connectionName}" has not checked in. ` +
       'Orders are still being recorded and will post when the machine is back on and TallyPrime is open.',
     linkPath: '/seller/integrations',
     severity: 'WARNING',

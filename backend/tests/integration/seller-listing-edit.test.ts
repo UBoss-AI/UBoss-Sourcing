@@ -742,3 +742,119 @@ describe('putting it back on sale', () => {
     expect(entry?.summary).toContain('AUDITED-7');
   });
 });
+
+// ---------------------------------------------------------------------------
+// The B2C maximum order quantity
+// ---------------------------------------------------------------------------
+
+describe('the B2C maximum order quantity', () => {
+  async function b2cOf(productId: string): Promise<(number | null)[]> {
+    const rows = await prisma.sellerOffer.findMany({
+      where: { productId },
+      select: { b2cMaxOrderQuantity: true },
+    });
+    return rows.map((row) => row.b2cMaxOrderQuantity);
+  }
+
+  async function save(offerId: string, b2cMaxOrderQuantity: unknown) {
+    const view = await readListingForEdit(membership, offerId);
+    return saveListingEdit({
+      membership,
+      offerId,
+      expectedVersion: view.version,
+      terms: { b2cMaxOrderQuantity: b2cMaxOrderQuantity as number },
+      rows: view.variants,
+      finish: 'PAUSED',
+    });
+  }
+
+  it('shows a listing from before the rule as not configured', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2CNONE', sizes: ['7'], status: 'PAUSED' });
+    const view = await readListingForEdit(membership, live.offerIds['7'] ?? '');
+    expect(view.terms.b2cMaxOrderQuantity).toBeNull();
+  });
+
+  it('sets one figure for the whole product: every size gets it, whichever size was edited', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2CSET', sizes: ['7', '8', '9'], status: 'PAUSED' });
+    await save(live.offerIds['8'] ?? '', 100);
+    expect(await b2cOf(live.productId)).toEqual([100, 100, 100]);
+  });
+
+  let badCase = 0;
+  it.each([
+    [0, 'NOT_POSITIVE'],
+    [-5, 'NOT_POSITIVE'],
+    [2.5, 'NOT_A_WHOLE_NUMBER'],
+    ['100', 'NOT_A_WHOLE_NUMBER'],
+    [Number.NaN, 'NOT_A_WHOLE_NUMBER'],
+    [1_000_001, 'TOO_LARGE'],
+  ])('refuses %p (%s) and changes nothing', async (value, code) => {
+    const live = await makeLiveListing({
+      sellerAccountId: sellerId,
+      code: `B2CBAD${String((badCase += 1))}`,
+      sizes: ['7'],
+      status: 'PAUSED',
+    });
+    await expect(save(live.offerIds['7'] ?? '', value)).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+      details: [{ field: 'terms.b2cMaxOrderQuantity', code }],
+    });
+    expect(await b2cOf(live.productId)).toEqual([null]);
+  });
+
+  it('refuses a limit below the listing minimum, which no individual could buy', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2CMIN', sizes: ['7'], status: 'PAUSED' });
+    await prisma.sellerOffer.updateMany({ where: { productId: live.productId }, data: { minimumOrderQuantity: 10 } });
+    await expect(save(live.offerIds['7'] ?? '', 5)).rejects.toMatchObject({
+      details: [{ code: 'BELOW_MINIMUM' }],
+    });
+  });
+
+  it('refuses removing a configured limit, and allows leaving an unconfigured one alone', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2CCLR', sizes: ['7'], status: 'PAUSED' });
+    await save(live.offerIds['7'] ?? '', null); // nothing set, nothing sent: fine
+    expect(await b2cOf(live.productId)).toEqual([null]);
+    await save(live.offerIds['7'] ?? '', 40);
+    await expect(save(live.offerIds['7'] ?? '', null)).rejects.toMatchObject({
+      details: [{ code: 'REQUIRED' }],
+    });
+    expect(await b2cOf(live.productId)).toEqual([40]);
+  });
+
+  it('records who changed it, from what to what', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2CAUD', sizes: ['7', '8'], status: 'PAUSED' });
+    await save(live.offerIds['7'] ?? '', 25);
+    await save(live.offerIds['7'] ?? '', 60);
+
+    const entries = await prisma.sellerAuditLog.findMany({
+      where: { sellerAccountId: sellerId, action: 'seller.offer.b2c_limit_changed', resourceId: live.productId },
+      orderBy: { createdAt: 'asc' },
+      select: { beforeJson: true, afterJson: true, createdAt: true },
+    });
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.beforeJson).toEqual({ b2cMaxOrderQuantity: null });
+    expect(entries[0]?.afterJson).toMatchObject({
+      b2cMaxOrderQuantity: 25,
+      offersUpdated: 2,
+      changedByMemberId: membership.memberId,
+    });
+    expect(entries[1]?.beforeJson).toEqual({ b2cMaxOrderQuantity: 25 });
+    expect(entries[1]?.afterJson).toMatchObject({ b2cMaxOrderQuantity: 60 });
+    expect(entries[1]?.createdAt).toBeInstanceOf(Date);
+  });
+
+  it('cannot be changed by another seller', async () => {
+    const live = await makeLiveListing({ sellerAccountId: sellerId, code: 'B2COWN', sizes: ['7'], status: 'PAUSED' });
+    await expect(
+      saveListingEdit({
+        membership: otherMembership,
+        offerId: live.offerIds['7'] ?? '',
+        expectedVersion: 0,
+        terms: { b2cMaxOrderQuantity: 999 },
+        rows: [],
+        finish: 'PAUSED',
+      }),
+    ).rejects.toThrow();
+    expect(await b2cOf(live.productId)).toEqual([null]);
+  });
+});

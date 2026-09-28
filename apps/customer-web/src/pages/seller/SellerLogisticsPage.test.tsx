@@ -61,8 +61,8 @@ describe('delivery control tabs', () => {
   it('names the standalone mode "Self Ship", beside the two others', async () => {
     render(policy('SELF', 'SELF'));
     const selfShip = await screen.findByRole('tab', { name: /^Self Ship/ });
-    expect(screen.getByRole('tab', { name: /^Glovia/ })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /^Self \+ Glovia/ })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /^Gloviaa Mart/ })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /^Self \+ Gloviaa Mart/ })).toBeInTheDocument();
     // The old bare label is gone; the combined one is untouched.
     expect(screen.queryByRole('tab', { name: /^Self$/ })).toBeNull();
 
@@ -73,7 +73,7 @@ describe('delivery control tabs', () => {
 
   it('opens a saved Self configuration on that tab, and still switches', async () => {
     render(policy('SELF', 'SELF'));
-    const hybrid = await screen.findByRole('tab', { name: /^Self \+ Glovia/ });
+    const hybrid = await screen.findByRole('tab', { name: /^Self \+ Gloviaa Mart/ });
     fireEvent.click(hybrid);
     expect(hybrid).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: /^Self Ship/ })).toHaveAttribute('aria-selected', 'false');
@@ -82,7 +82,7 @@ describe('delivery control tabs', () => {
 
   it('opens a saved Self + team configuration on its own tab', async () => {
     render(policy('HYBRID', 'HYBRID'));
-    expect(await screen.findByRole('tab', { name: /^Self \+ Glovia/ })).toHaveAttribute('aria-selected', 'true');
+    expect(await screen.findByRole('tab', { name: /^Self \+ Gloviaa Mart/ })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('says "Self Ship" in the published summary too', async () => {

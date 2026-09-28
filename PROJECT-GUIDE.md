@@ -1,4 +1,4 @@
-# Glovia — The Complete Guide
+# Gloviaa Mart — The Complete Guide
 
 **Read this first.** It explains what this project is, what every piece does,
 and how a real request travels from a customer's click to a row in the
@@ -24,6 +24,8 @@ have to read separately — this *is* the explanation.
 7. [The database](#7-the-database)
 8. [The API](#8-the-api)
 9. [Complete flows, end to end](#9-complete-flows-end-to-end)
+   - [9.1a Buying for a company: Individual and Company buyers](#91a-buying-for-a-company-individual-and-company-buyers)
+   - [9.1b The individual purchase limit: B2C Maximum Order Quantity](#91b-the-individual-purchase-limit-b2c-maximum-order-quantity)
    - [9.3.2 Choosing a fulfilment warehouse](#932-choosing-a-fulfilment-warehouse)
    - [9.3.3 Stripe-hosted Checkout](#933-stripe-hosted-checkout)
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
@@ -39,6 +41,8 @@ have to read separately — this *is* the explanation.
    - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
    - [9.10 A customer closes their own account](#910-a-customer-closes-their-own-account)
    - [9.11 Loading a supplier product sheet](#911-loading-a-supplier-product-sheet)
+   - [9.12 Product reviews: four scores from somebody who received it](#912-product-reviews-four-scores-from-somebody-who-received-it)
+   - [9.13 Support tickets: raising a problem with the team](#913-support-tickets-raising-a-problem-with-the-team)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -53,7 +57,7 @@ have to read separately — this *is* the explanation.
 
 ## What the product is called
 
-The product is **Glovia**, and its tagline is **The Way to the World**. The
+The product is **Gloviaa Mart**, and its tagline is **The Way to the Global Sourcing**. The
 company behind it is **UBOSS**, and that is said as small print:
 **Powered by UBOSS**.
 
@@ -61,27 +65,42 @@ Where each one appears:
 
 | Surface | Top-left brand block | `Powered by UBOSS` |
 |---|---|---|
-| Storefront and Seller Hub | Earth mark, **Glovia** over **The Way to the World** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
-| Admin console | The rail: earth mark, **Glovia** over **The Way to the World** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
+| Storefront and Seller Hub | Earth mark, **Gloviaa Mart** over **The Way to the Global Sourcing** (tagline from 1024px wide; a seller's shop front keeps "Seller storefront" there instead) | Once, in the footer's small-print row beside the copyright |
+| Admin console | The rail: earth mark, **Gloviaa Mart** over **The Way to the Global Sourcing** | Small print on the sign-in, forgot/reset/change-password and MFA screens |
 | Logistics portal | The rail and the sign-in header: the same lockup | Small print at the foot of the sign-in column |
-| Greeting page hero | **Glovia** in the script face, then **The Way to the World** standing still, then a line alternating "Source with Intelligence" and "Deliver with Confidence" | — (it used to be one of the two alternating phrases) |
+| Greeting page hero | **Gloviaa Mart** in the script face, then **The Way to the Global Sourcing** standing still, then a line alternating "Source with Intelligence" and "Deliver with Confidence" | — (it used to be one of the two alternating phrases) |
+
+**The name has a one-word form, Gloviaa.** `PRODUCT_SHORT_NAME` in each
+app's `lib/brand.ts`, used where two words do not fit or do not belong: the
+label on the hub's globe on the greeting page (always `Gloviaa`, never with
+"Mart", the endorsement or the tagline), and the storefront header under 640px,
+where the row beside the controls has room for one word. Everywhere else the
+full name, `PRODUCT_BRAND` = **Gloviaa Mart**. Never "Glovia", "Glovia Mart"
+or "Gloviaa Market".
+
+**The wordmark and the tagline appear only while the business display name
+equals `PRODUCT_BRAND` exactly.** A deployment seeded before the rename still
+had "Glovia" stored, which would have shown in plain lettering with no tagline.
+Migration `20261007090000_rename_product_default_to_gloviaa_mart` changes that
+one exact old default to "Gloviaa Mart"; a name the operator typed is never
+touched.
 
 **The wordmark has its own face: Dancing Script Bold (700), a connected
-script.** It is used for the word "Glovia" wherever it is the brand — the
+script.** It is used for the word "Gloviaa Mart" wherever it is the brand — the
 storefront header and footer, the greeting headline, the label on the hub's
 globe, the admin and logistics rails and the logistics sign-in — and for the
 tagline under it, and nothing else. Body text, headings, and prose that merely contains
-the word ("Sell on Glovia", "Glovia AI Insights") stay in Inter. It is set a
+the word ("Sell on Gloviaa Mart", "Gloviaa Mart AI Insights") stay in Inter. It is set a
 step larger than the Inter it replaced, because a script's short x-height reads
 a size smaller at the same number. It is bundled from the
 `@fontsource/dancing-script` package (Latin subset only, SIL Open Font
 License) rather than fetched from Google Fonts, because the production CSP is
 `font-src 'self' data:`. The Tailwind utility is `font-brand`. While it
 loads, the fallback face `Dancing Script Fallback` — Arial Bold resized to
-Dancing Script's metrics, declared in each app's `index.css` — sets "Glovia"
+Dancing Script's metrics, declared in each app's `index.css` — sets "Gloviaa Mart"
 at the same width and height, so nothing moves when the script arrives.
 
-**The tagline is in the same script as the name.** "The Way to the World" is
+**The tagline is in the same script as the name.** "The Way to the Global Sourcing" is
 set in `font-brand` too, in sentence case (no uppercase, no letter-spacing),
 wherever it appears: the storefront header, the greeting, and the admin and
 logistics lockups. Because the face is bundled with each app, the name and
@@ -95,8 +114,8 @@ face.
 
 **On a deployment with its own name, neither the face nor the tagline
 applies.** The storefront header and footer only use `font-brand` and the
-tagline when the business display name *is* "Glovia". Northwind Industrial's
-header says Northwind Industrial in the ordinary heading face, alone: Glovia's
+tagline when the business display name *is* "Gloviaa Mart". Northwind Industrial's
+header says Northwind Industrial in the ordinary heading face, alone: Gloviaa Mart's
 slogan under another company's name would be the software claiming their shop.
 
 **How visible it is.** The wordmark and tagline have their own colour tokens,
@@ -111,7 +130,7 @@ from `sm` up and 17px on a phone, the tagline 15px from `lg` up; the admin
 and logistics wordmarks 20px over a 15px tagline. The storefront's header is
 the same height it was - the wordmark's line box grew by 2px and the tagline's
 shrank by 2px. On a phone the market and account buttons drop their chevrons
-so "Glovia" fits beside the globe at 375px; at 320px there is room for the
+so "Gloviaa Mart" fits beside the globe at 375px; at 320px there is room for the
 globe alone. Every pair is in each app's `audit:contrast`.
 
 It used to be called *UBOSS Sourcing*. That name is gone from every screen a
@@ -121,8 +140,8 @@ Three names are involved and they are not interchangeable:
 
 | Name | What it is | Where it comes from |
 |---|---|---|
-| **Glovia** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
-| **The Way to the World** | The product's tagline — under the wordmark | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
+| **Gloviaa Mart** | The product — this software | `lib/brand.ts`, one copy per application, a constant |
+| **The Way to the Global Sourcing** | The product's tagline — under the wordmark | `lib/brand.ts` (`PRODUCT_TAGLINE`), the same constant module |
 | **Powered by UBOSS** | The attribution — who makes it | `lib/brand.ts`, the same constant module |
 | The operator's own name | The business running this deployment | `business.displayName`, from the operator's settings, over `GET /api/v1/config` — and `marketplace.displayName`, the same name, which a seller's shop front never replaces |
 
@@ -131,7 +150,7 @@ deployment, so the storefront header, the footer, the e-mails, the invoices and
 the browser tab name *their* business, not ours. A storefront belonging to
 Northwind Industrial says Northwind Industrial at the top of it, and its footer
 says the software is powered by UBOSS. The seed and
-the fallback name a shop "Glovia" only because a fresh install has no business
+the fallback name a shop "Gloviaa Mart" only because a fresh install has no business
 profile to read a name from, and naming the software is the one honest thing to
 put there until somebody fills that in.
 
@@ -140,7 +159,7 @@ a string to translate; the tagline is a brand asset rather than a sentence; and
 `Powered by UBOSS` is a fixed attribution lockup — so all three read
 identically in all eight languages, and the auto-translator never sees them. `scripts/check-i18n.mjs`
 carries the same reasoning for the handful of catalogue entries that name the
-product, such as `aiInsights.title` ("Glovia AI Insights").
+product, such as `aiInsights.title` ("Gloviaa Mart AI Insights").
 
 **UBOSS is still everywhere inside, on purpose.** Package names, the database,
 Prisma models, migrations, API routes, cookie names, session audiences,
@@ -165,7 +184,7 @@ applications, filled with the operator's name:
   each call site, because many of these strings are reached by a key built at
   run time — an error code, a mode, a pricing state. The event it fires is
   bound through `react.bindI18n`, so a screen drawn before the name arrived is
-  redrawn with it. Until then the product's name, "Glovia", stands in.
+  redrawn with it. Until then the product's name, "Gloviaa Mart", stands in.
 - **`marketplace`, not `business`**: on a seller's shop front `business` is the
   seller, and "Northwind manages L2" said to Northwind about its own delivery
   would be wrong.
@@ -176,12 +195,12 @@ applications, filled with the operator's name:
   notification rows, error messages — says "the marketplace" or "Marketplace
   operations" instead, so it stays true after a rename.
 
-"Sell on Glovia", "Glovia Marketplace" and "Disagrees with Glovia" name the
-*product*, and those changed to Glovia.
+"Sell on Gloviaa Mart", "Gloviaa Mart Marketplace" and "Disagrees with Gloviaa Mart" name the
+*product*, and those changed to Gloviaa Mart.
 
 ## The one-sentence version
 
-Glovia is **a shop on the internet for businesses** — a company sells
+Gloviaa Mart is **a shop on the internet for businesses** — a company sells
 supplies to other companies, and other businesses can sell through it too, and
 this software runs everything from the product page to the invoice. It sells
 anything a business buys: fasteners, cables, packaging, tools, electronics,
@@ -590,9 +609,59 @@ would put the document's scrollbar back.
 Below `lg` none of that applies: there is no globe, the page scrolls as it
 always has, and the footer is where it was.
 
+**A split screen missing from the host's list goes wrong in a way that looks
+like a stacking bug, and is not one.** `/register/company` was missing. The
+split still capped itself at one window height, but inside a padded,
+content-height frame that gave it no height to fill, so its form column never
+became the scroller. The form spilled out of its box and the footer - "All
+prices in INR" and the rest - painted underneath it, while the whole document
+scrolled. The fix was to put the page in the list (`layout/frame.ts`), not a
+`z-index`: one window-height frame, one scroller (the form column), no
+footer beside the form. The opposite mistake is as bad - an ordinary page in
+the list is clipped at one window height - which is why `/register/company`
+is in it only while signed out.
+
+### Where a page starts, and where focus lands
+
+A single-page app never reloads, so nothing does what a page load would.
+`layout/useRouteScroll.ts`, called once by `StoreLayout`, does:
+
+- **A new page (a link, or `navigate`) opens at its top, instantly** - not a
+  smooth scroll, which would animate the page just left. The reset runs in a
+  layout effect, after the new page is in the DOM and before it is painted,
+  so the old position is never drawn. It moves the window **and** every
+  element inside `<main>` marked `data-route-scroll`, because from `lg` up the
+  signed-out screens scroll their form column, not the window.
+- **Back and Forward return to where that page was left**, as a browser
+  would. Positions are remembered per history entry as the window scrolls;
+  while the returning page's content is still loading, the position is
+  re-applied as the document grows, for up to 1.5 seconds, and abandoned the
+  moment the person scrolls. `history.scrollRestoration` is `manual` while
+  the app is mounted, so the browser's own restore does not fight it.
+- **Changing only the query - a filter, a sort, a refetch - moves nothing.**
+  The trigger is the path, not the history key.
+- **Focus moves to the page's own heading** when it marks one with
+  `data-route-focus` and `tabIndex={-1}`, otherwise to `<main>`.
+
+**"Check your email" is a page of its own** (`/register/check-email`, the
+`CHECK_EMAIL_PATH` in `lib/sign-up.ts`). It used to be a state of the sign-up
+form: pressing Create account swapped the form for the message in place, so
+nothing navigated, nothing reset the scroll, and the message appeared
+wherever the bottom of the long form had been. Now:
+
+1. Create account is disabled with a spinner while the request runs, and a
+   ref taken synchronously means a double-click sends **one** request.
+2. Only when the server answers does the form navigate to the page. A
+   failure stays on the form with everything typed and says why.
+3. The page opens at its top with its heading focused.
+4. The address travels in the history entry's state - kept by a refresh,
+   never put in the URL, where logs and referrers would copy it. Opened
+   directly with no state, the page still renders, and asks for the address
+   before it will resend the link.
+
 | | Screens that use it |
 |---|---|
-| Storefront | `/login`, `/register` — including the "check your email" screen after a sign-up and the invitation-only page, so posting the form does not change the layout under the reader |
+| Storefront | `/login`, `/register`, `/register/check-email`, and `/register/company` **while signed out** (signed in it is an ordinary page) — plus the invitation-only page, so posting the form does not change the layout under the reader. The list is `layout/frame.ts` |
 | Admin panel | `/login` |
 | Logistics portal | Sign in, activate, and both second-factor screens — they share one frame, so they share this |
 
@@ -715,7 +784,7 @@ small note the browser attaches to every later request to that site
 automatically.
 
 ```
-POST /api/v1/auth/login   { email, password }
+POST /api/v1/auth/login   { email, password, buyerType? }
         │
         ▼
 Backend checks the password (Argon2id — see Security)
@@ -726,6 +795,14 @@ Sets three cookies:
    uboss_shop_rt        — used to get a fresh access cookie (30 days)
    uboss_shop_csrf      — anti-forgery token (explained below)
 ```
+
+**On the storefront the answer also says who you are buying for.** The
+optional `buyerType` (`individual` or `company`) is the sign-in tab the person
+used. It never changes the password check. A customer's login answer carries
+`buyerContext`, `companies` and `next`, and `GET /auth/me` carries
+`buyerContext`, `companies` and `buyerContextReset`. The context is kept on
+the session row and the membership behind it is checked again on every
+request - see *9.1a Buying for a company*.
 
 **How long the first one lasts is a setting, and there are two of them.** The
 storefront, the Seller Hub and the driver app get an hour
@@ -830,7 +907,7 @@ comes back in the exact same shape:
 }
 ```
 
-- **`code`** is a stable machine-readable name. There are 341 of them,
+- **`code`** is a stable machine-readable name. There are 374 of them,
   listed in `backend/src/domain/errors.ts` and in `docs/reference/ERROR-CODES.md`. The frontends map each one to a
   precise message in eight languages. **Renaming a code silently degrades both
   frontends to a generic error toast**, so codes are added, never repurposed.
@@ -859,12 +936,16 @@ comes back in the exact same shape:
 | Path | Page | Sign-in needed? |
 |---|---|---|
 | `/` | Home | No |
+| `/home` | The same home page. Where every sign-in lands, Individual or Company | No |
 | `/products` | All products | No |
 | `/category/:slug` | One category | No |
 | `/search` | Search results | No |
 | `/product/:slug` | One product | No |
 | `/login` | Sign in | No |
 | `/register` | Create an account | No |
+| `/register/check-email` | "Check your email", after either sign-up form. Opens at its top with its heading focused; the address comes from the history entry, never the URL | No |
+| `/register/company` | Register a company: signs up first when signed out, starts a company application when signed in (9.1a). Signed in as somebody who runs a seller account, it also offers to start from that seller's details | No |
+| `/select-company` | Pick which company to buy for after a Company-tab sign-in, or apply for one (9.1a) | **Yes** |
 | `/verify-email` | Confirm your email address (from the emailed link) | No |
 | `/activate` | Set your password (from a staff invitation link) | No |
 | `/forgot-password` | Ask for a reset link | No |
@@ -878,6 +959,7 @@ comes back in the exact same shape:
 | `/confirm-contact` | Confirm a new email address or telephone number (from the emailed link) | Asks for one |
 | `/schedules/new` | Build a repeating order | **Yes** |
 | `/ai` | AI Mode: the assistant. The page opens for anybody; whether it answers a guest is `ASSISTANT_ALLOW_GUESTS`, which ships off. A history needs an account either way | No |
+| `/support` | Support: frequently asked questions, the published contacts, and the **Raise a ticket** form (section 9.13). A guest sees the contacts and a sign-in button; a ticket needs an account | No |
 
 Everything under `/account` shares one frame — a profile card and a grouped
 sidebar on the left, the page on the right — and one session guard, which sits
@@ -892,7 +974,9 @@ on the layout route rather than on each page:
 | `/account/schedules` | Repeating orders | Orders |
 | `/account/schedules/:id` | One repeating order | Orders |
 | `/account/profile` | Name, email, telephone, password, limits, your data, closing the account | Account settings |
-| `/account/company` | Company name, department, delivery contact number | Account settings |
+| `/account/company` | Company name, department, delivery contact number - free text on the person's own profile, not a verified company | Account settings |
+| `/account/companies` | Company accounts: the verified companies this person applied for or belongs to, with status and role (9.1a). Hidden when `buyerCompanies` is off | Account settings |
+| `/account/companies/:id` | One company's application: the six-step wizard, or its status, the reviewer's requests and its timeline | — |
 | `/account/addresses` | Saved addresses | Account settings |
 | `/account/region` | Language, country and currency | Account settings |
 | `/account/payment-methods` | Saved cards | Payments |
@@ -905,7 +989,10 @@ on the layout route rather than on each page:
 | `/account/erp` | Redirects to `/account/integrations/erp` — an old bookmark | — |
 | `/account/coupons` | Codes available, and codes used | My stuff |
 | `/account/wishlist` | Lines saved without buying them | My stuff |
+| `/account/reviews` | Products received but not yet rated, and the reviews written (section 9.12). Only when `features.productReviews` is on | My stuff |
 | `/account/notifications` | A record of what has been sent to this account | My stuff |
+| `/account/support` | **Your tickets**: the support tickets this person raised from the storefront (section 9.13) | My stuff |
+| `/account/support/:reference` | One ticket: the thread, its status, its files, and writing again | — |
 
 **Schedule Cart is a sibling of the cart, not an account page.** `/cart` and
 `/accounts/schedule` are two ways to spend a cart, so they share the cart's
@@ -1493,11 +1580,11 @@ The greeting opens on three lines, and the moving one is the third:
 | Line | What it is |
 |---|---|
 | The eyebrow | `greeting.eyebrow`, or "Welcome back, <name>" once the session is known |
-| The headline | The shop's configured name. Fixed. Nothing cycles after it. In the script wordmark face when the name is "Glovia" |
-| The tagline | **The Way to the World** — `PRODUCT_TAGLINE` from `lib/brand.ts`. Fixed. Only when the name is "Glovia" |
+| The headline | The shop's configured name. Fixed. Nothing cycles after it. In the script wordmark face when the name is "Gloviaa Mart" |
+| The tagline | **The Way to the Global Sourcing** — `PRODUCT_TAGLINE` from `lib/brand.ts`. Fixed. Only when the name is "Gloviaa Mart" |
 | The strapline | Two whole phrases, alternating every 4.2 seconds |
 
-**The headline is the name, still.** It reads "Glovia" on a deployment that has
+**The headline is the name, still.** It reads "Gloviaa Mart" on a deployment that has
 not set a business name of its own, and "Northwind Industrial" on one that has.
 It replaced two paragraphs of prose: a customer's "your catalogue, your standing
 arrangements and your payment authority", and a guest's sentence explaining what
@@ -1506,7 +1593,7 @@ below asks that question in one control.
 
 **It used to move, and that is what changed.** One word cycled after the name —
 sourcing, intelligence, optimism, innovation — which made the name part of a
-rotation: "Glovia Sourcing", then "Glovia Intelligence". A brand that rewrites
+rotation: "Gloviaa Mart Sourcing", then "Gloviaa Mart Intelligence". A brand that rewrites
 itself every three seconds is not a brand, and a reader arriving mid-cycle saw a
 product the deployment does not sell. `lib/greeting-headline.ts` went with it:
 the whole module existed to stop a name ending in a cycling word saying that
@@ -1569,7 +1656,7 @@ shortest of them and clipping it would be worse.
 ## The sourcing hub
 
 Beside the search module, `/` carries one large animated graphic: a central
-glass orb labelled **Glovia**, in the script wordmark face — the product, at the centre of the four
+glass orb labelled **Gloviaa Mart**, in the script wordmark face — the product, at the centre of the four
 capabilities that orbit it, from `lib/brand.ts` rather than the phrase book —
 two orbital rings turning in opposite
 directions, and **four** capabilities riding those rings around it.
@@ -4650,6 +4737,13 @@ applicant has things told to them and things recorded about them from the moment
 they apply, and a screen that refused them until approval would hide exactly the
 notices explaining the delay.
 
+**Support is reachable before approval too.** The last item on the rail,
+**Support** (`/seller/support`), raises a ticket to the marketplace's team in
+the seller's name; **Your tickets** is `/seller/support/requests`, and one
+ticket is `/seller/support/requests/:reference`. A seller stuck in their
+application is exactly who needs it. Only the person who raised a ticket sees
+it — not the other people at the same seller. See 9.13.
+
 **The frame is headed by the seller's own company, not by the marketplace's.**
 Their logo and their trading name sit at the top of the rail, with "Seller Hub"
 as the caption under it, and the logo appears again in the working area's header
@@ -5620,6 +5714,8 @@ meantime.
 | `/companies` | Companies | Every business here as one card: its seller account, its buying accounts, its carrier account, and the people inside them |
 | `/customers` | Customers | Accounts, including "awaiting approval" |
 | `/customers/:id` | Customer detail | Their prices, limits, addresses, orders |
+| `/buyer-companies` | Company verification | The queue of businesses applying to buy as a company: counters, filters, search; the last filters used are remembered (9.1a) |
+| `/buyer-companies/:id` | One buyer company | Everything the applicant sent, the automated checks, duplicates, documents, notes, history, and the decision |
 | `/chat-enquiries` | Chat enquiries | Transcripts from AI Mode, and whose account each one belongs to |
 | `/reports` | Reports | Sales, stock and tax reports; exports |
 | `/data-requests` | Data requests | GDPR access and erasure requests |
@@ -5627,6 +5723,9 @@ meantime.
 | `/listing-review` | Listing review | Listings sellers have submitted for quality review, oldest first |
 | `/listing-review/:id` | One listing | Everything the seller sent, with a note control on every field, and the decision |
 | `/brand-requests` | Brand requests | Names sellers have asked to list under, and the decision on each |
+| `/product-reviews` | Product reviews | Every review buyers have written, and hiding one that breaks the rules, with a reason (section 9.12). Needs `review.read`; hiding needs `review.moderate` |
+| `/support` | Support → Tickets | The inbox of support tickets from the storefront, Seller Hub and the logistics portal, opening on **Needs work** (section 9.13). Needs `support_ticket.view` |
+| `/support/:id` | One ticket | Who raised it and for whom, the timeline with staff-only notes, the customer's files, and the controls: status, priority, assignment, reply, internal note |
 | `/sellers` | Sellers | Businesses applying to sell on the marketplace |
 | `/sellers/:id` | Seller detail | One application: the business, its documents, its people, the decision |
 | `/audit` | Audit log | Who changed what, and when |
@@ -6535,7 +6634,7 @@ controls.
 ## The five staff roles
 
 A member of staff has a role, and a role is a fixed bundle of permissions.
-There are 56 staff permission keys, like `product.write` or `order.approve`.
+There are 69 staff permission keys, like `product.write` or `order.approve`.
 
 | Role | Can do |
 |---|---|
@@ -6544,6 +6643,22 @@ There are 56 staff permission keys, like `product.write` or `order.approve`.
 | **Inventory Manager** | Stock receipts, adjustments, reservations, warehouses, alerts |
 | **Order Manager** | Orders, fulfilment, cancellation, returns |
 | **Finance / Approver** | Payment review, payment links, refunds, high-value approvals |
+
+Buyer company review has three keys of its own: `buyer_company.read` (Business
+Owner, Finance / Approver and Order Manager), `buyer_company.review` (Business
+Owner and Finance / Approver) and `buyer_company.suspend` (Business Owner
+only). See 9.1a.
+
+Product reviews have two: `review.read` (Business Owner, Catalog Manager and
+Order Manager) and `review.moderate`, which hides a review and shows it again
+(Business Owner and Catalog Manager). See 9.12.
+
+Support tickets have three: `support_ticket.view` reads the inbox, the tickets
+and the internal notes (Business Owner, Order Manager and Finance / Approver);
+`support_ticket.reply` replies, writes notes, changes status and priority and
+takes a ticket (Business Owner and Order Manager); `support_ticket.assign` gives
+a ticket to a colleague or takes it from one (Business Owner only). Catalog
+Manager and Inventory Manager have none. See 9.13.
 
 The permission is checked **on the server**, on every request. The admin panel
 also hides buttons a role cannot use, but that is only politeness — hiding a
@@ -7036,6 +7151,8 @@ Shipments, Collections, Dispatch and Problems, all unchanged in the navigation.
 | `/profile` | **My Profile.** The company's full profile in eight tabs: details, contacts, coverage, capabilities, compliance documents, integration status, and account and security. Some fields save at once; legal and licence fields go to the marketplace for review. See "The carrier's own profile" below. |
 | `/company` | The carrier's own profile, members and invitations. |
 | `/driver/tasks` | A driver's round, on a phone. |
+| `/support` | **Support.** The marketplace's published contacts, the **Raise a ticket** form (sent in the logistics company's name) and, under it, the tickets this person raised. Every member sees it, drivers included. See 9.13. |
+| `/support/:reference` | One ticket: the thread, its status, its files, and writing again. |
 
 Two things about the detail page are worth stating because the opposite is the
 usual practice:
@@ -7808,6 +7925,32 @@ invoice and is *composed* from the two parts; the parts are nullable and are
 null for every account created by invitation or by import, which is correct
 rather than a gap to backfill.
 
+`sessions.buyerContextKind` and `sessions.buyerCompanyId` (`SET NULL`) hold
+who a storefront session is buying for - the person or one company. See 9.1a.
+
+**Buyer companies**
+`buyer_companies`, `buyer_company_addresses`, `buyer_company_identifiers`,
+`buyer_company_locations`, `buyer_company_members`,
+`buyer_company_verification_cases`, `buyer_company_checks`,
+`buyer_company_documents`, `buyer_company_info_requests`,
+`buyer_company_review_events`, `buyer_company_status_history`,
+`consent_records`, `buyer_company_email_challenges` - a business a buyer
+applied to buy for, its checks, and the person's decision. See 9.1a.
+
+A few rules live in the tables themselves. One address per kind per company,
+with a fingerprint used to spot duplicates. One identifier per scheme per
+company. One membership per company and user. One verification case per
+review round. `buyer_company_review_events` are marked `APPLICANT` or
+`INTERNAL`, and only the first kind is ever shown to the applicant.
+`buyer_company_status_history` is only ever added to. `buyer_companies.version`
+is the optimistic lock. `registrationClaimKey` and each identifier's `claimKey`
+are unique, and stay NULL until approval - MariaDB treats every NULL as
+distinct, which is what lets unapproved duplicates exist side by side.
+
+`carts`, `orders`, `addresses` and `preorder_requests` gained a nullable
+`buyerCompanyId` (`RESTRICT`, indexed): null means the person's own. Because
+of `RESTRICT`, a company with orders cannot be deleted.
+
 **Bulk preorders**
 `preorder_policies`, `preorder_price_tiers`, `preorder_capacity_buckets`,
 `preorder_requests`, `preorder_offers`, `preorder_status_history` - a
@@ -7822,6 +7965,17 @@ for more than is available. See 9.5.3a.
 `seller_invoice_settings`, `logistics_shipment_lines`,
 `logistics_shipment_package_lines`, `seller_invoices`, `seller_packing_lists` -
 the seller's own tax invoice and packing list, per consignment. See 9.5.4.
+
+**Product reviews**
+`product_reviews` — one buyer's four 1-to-5 scores for one product,
+with whether staff hid it and why. One row per buyer per product. See 9.12.
+
+**Support tickets**
+`support_tickets` (one problem raised by one person, with who they were acting
+for, its status and priority), `support_ticket_events` (the thread and its
+history, each row marked visible to the sender or staff only) and
+`support_ticket_attachments` (the sender's files, scanned and stored
+privately). See 9.13.
 
 **Saved for later**
 `wishlist_items` — a link to a person, a link to a product, a `variantKey` and
@@ -8018,7 +8172,7 @@ Base path: `/api/v1`. About 22 route files.
 | Zone | Prefix | Who may call it |
 |---|---|---|
 | **Public** | `/api/v1/config`, `/api/v1/catalog`, `/api/v1/delivery` | Anyone, no login |
-| **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules`, `/assistant` | A signed-in customer |
+| **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules`, `/assistant`, `/buyer-companies` | A signed-in customer |
 | **Webhooks** | `/api/v1/payments/webhooks/:provider`, `/api/v1/integrations/erp/webhooks/:slug` | A machine, proving itself with a signature over the raw bytes. See *The webhook exception* |
 | **Admin** | `/api/v1/admin/*` | A signed-in member of staff with the right permission |
 
@@ -8095,7 +8249,13 @@ identity, not on the reads.
 | `GET /account/coupons` | Advertised codes for the quoted currency, plus this customer's redemptions |
 | `GET /account/notifications` | Outbox rows for this address, `SENT` only, **subjects without bodies** |
 | `GET`/`POST /account/wishlist`, `DELETE /account/wishlist/:itemId` | Priced through the catalogue's own shelf-pricing path |
+| `GET /account/product-reviews`, `GET`/`PUT /account/products/:productId/review`, `DELETE /account/product-reviews/:reviewId` | Your product reviews. Writing needs a delivered order of the product — see 9.12 |
 | `GET`/`POST /account/data-requests` | Art. 15 and Art. 17. **Deleting an account is this, not `/deactivate`** |
+
+Support tickets sit beside these rather than under `/account`:
+`/api/v1/support/*` for the storefront, with the same set under
+`/seller/support/*` and `/logistics/support/*`. Raising a ticket and writing
+again need an `Idempotency-Key`. See 9.13.
 
 Two of these are worth restating because they are easy to get backwards:
 
@@ -8780,8 +8940,9 @@ is sent until it is ticked.
 Four things about it are deliberate:
 
 - **It is a client-side gate, not a recorded consent.** `POST /auth/login`
-  still takes an email and a password and nothing else, and sending it a field
-  it does not declare would be rejected by its schema. The acceptance that is
+  takes an email, a password and the optional sign-in tab (`buyerType`,
+  see 9.1a) and nothing else, and sending it a field it does not declare
+  would be rejected by its schema. The acceptance that is
   *stored* is the one given at registration or at invitation activation, in
   `customer_profiles.consent_accepted_at` and `consent_version` — and the
   backend refuses either without it (`CONSENT_REQUIRED`). A staff invitation
@@ -8814,6 +8975,817 @@ Four things about it are deliberate:
 The storefront’s three consent ticks — sign-in, sign-up and invitation
 activation — are one component, `components/AcceptTermsCheckbox.tsx`, so the
 sentence and the links cannot drift apart between the screens.
+
+## 9.1a Buying for a company: Individual and Company buyers
+
+A buyer can now buy in one of two ways: **as themselves**, which is how the
+shop has always worked, or **for a company they belong to**. The second way is
+on by default (`FEATURE_BUYER_COMPANIES=true`).
+
+A company is not simply typed in. The buyer applies for it through a
+six-step application. The system checks it against official registers where
+an official API exists. Then **a person on the admin console decides**. Until
+the company is approved, its members can browse and fill a basket for it, but
+they cannot check out, pay, or send or confirm a preorder for it.
+
+### Words you will meet
+
+- **Buyer** - a storefront account (`users.type = CUSTOMER`, platform role
+  `customer`). Every member of a company is still an ordinary buyer. A company
+  role never gives anybody a staff permission.
+- **Buyer company** - a real business that a buyer applied for, that was
+  checked, and that a person approved. Table `buyer_companies`.
+- **Buyer context** - who this session is buying for right now:
+  **Individual** (the person) or **Company** (one named company). It is kept on
+  the server, on the session row.
+- **Member** - a person inside a company. Each member has a **company role**.
+- **Claim** - a company's hold on its registration number or on a tax number,
+  so no second company can be approved with the same one. Taken only at
+  approval.
+
+### Not the same thing as a buyer organisation
+
+Section 9.8.1 has a **buyer organisation** (`BuyerOrganization`): the tenant
+that owns a buyer's connection to their own ERP. A **buyer company** is a
+different thing: a verified legal business that a person buys for. The two are
+not linked today. Do not merge them in code or in conversation - one is an
+integration, the other is an identity check.
+
+### Signing in: the Individual and Company tabs
+
+When `features.buyerCompanies` is true in `GET /api/v1/config`, the
+storefront's `/login` shows two tabs, **Individual** and **Company**. They are
+real accessible tabs (the WAI-ARIA pattern): the arrow keys move between them,
+Home and End jump to the first and last, and only the selected tab is in the
+Tab order.
+
+- **Deep links.** `/login?buyerType=individual` and
+  `/login?buyerType=company` open the matching tab. Any other value opens
+  Individual.
+- **Create account.** The link under each tab goes to `/register`
+  (Individual) or `/register/company` (Company).
+- The password field has a show/hide button.
+
+The chosen tab is sent as an optional `buyerType` (`individual` or `company`)
+on `POST /api/v1/auth/login`. **It is a preference, not a claim.** The password
+check is exactly the same on both tabs. A wrong password or an unknown email
+gives the same `INVALID_CREDENTIALS` on either tab, so the form never tells a
+stranger whether somebody has a company.
+
+Only after the password has been accepted does the server decide the context:
+
+| Tab | Companies the person belongs to | `next` | What happens |
+|---|---|---|---|
+| Individual | any number | `READY` | Signed in as the person |
+| Company | exactly one | `READY` | Signed in for that company |
+| Company | more than one | `CHOOSE_COMPANY` | Signed in as the person; the storefront shows `/select-company` |
+| Company | none | `NO_COMPANY` | Signed in as the person; `/select-company` offers to apply for one |
+
+With more than one company the server does not guess. A guess is how an order
+lands on the wrong company's account.
+
+For a customer, the login answer now also carries `buyerContext` (the context
+chosen), `companies` (every company the person may switch to) and `next`.
+Both tabs land on `/home`, which shows the same page as `/`.
+
+A **return target** (`?next=` or the router's state) is followed only when it
+is a path on this same site. Anything else goes to `/home`
+(`apps/customer-web/src/lib/return-target.ts`). Without that, a link to our
+sign-in page could send people on to any site after they signed in (an "open
+redirect").
+
+**Signing up on the Company tab.** Signed out, `/register/company` first
+creates an ordinary account, with the same email confirmation as `/register`.
+It remembers what the person was trying to do. After they confirm their email
+they are sent to `/login?buyerType=company`. Signed in, the same page starts a
+company application.
+
+### The context is kept on the server, and checked on every request
+
+Two columns on `sessions` hold it: `buyerContextKind` (`INDIVIDUAL` or
+`COMPANY`) and `buyerCompanyId` (a foreign key, `SET NULL`). A refresh-token
+rotation copies both to the new row, like the session's other extra checks.
+
+- `GET /api/v1/auth/buyer-context` - the current context, and every company
+  the person may switch to.
+- `PUT /api/v1/auth/buyer-context` - `{ "kind": "INDIVIDUAL" }` or
+  `{ "kind": "COMPANY", "companyId": "…" }`. CSRF-protected, limited to 30 per
+  15 minutes, and audited as `buyer_context.switched`.
+- A refused switch always gets **one answer**, 403 `BUYER_CONTEXT_INVALID`:
+  not a member, removed, or no such company all look the same. If they looked
+  different, the endpoint would tell a stranger which company ids exist (an
+  "IDOR oracle" - a way to learn about records you are not allowed to see).
+- `GET /auth/me` now includes `buyerContext`, `companies` and
+  `buyerContextReset`.
+
+**Why the browser is not trusted.** A browser can send any company id it
+likes. So the storefront never tells the server which company it is buying
+for. The server already knows, from the session row.
+
+**Why every request is checked.** A membership can end while somebody is
+signed in. On every customer request, `confirmBuyerContext` (in
+`backend/src/http/plugins/auth.ts`) reads the membership again. If the member
+was removed, or the company no longer exists, the session is put back to
+Individual and that request is refused with 403 `BUYER_CONTEXT_INVALID`. The
+next request works as Individual. `buyerContextReset` is true on an
+`/auth/me` answer when the server had to drop the context during that request.
+
+A **suspended or rejected** company is *not* a reset. The person stays in its
+context and the storefront shows why they cannot buy.
+
+**On the storefront.** The account menu has a **context switcher**
+(`BuyerContextSwitcher`). Switching throws away every cached query, so nothing
+from one context is still on screen in the other. When the active company is
+not approved, a **status banner** under the header says so
+(`CompanyStatusBanner`).
+
+### What belongs to which context
+
+`carts`, `orders`, `addresses` and `preorder_requests` each gained a nullable
+`buyerCompanyId` (foreign key `RESTRICT`, indexed). Null means "the person's
+own".
+
+| Thing | Individual context | Company context |
+|---|---|---|
+| Cart | The personal basket | One basket per company - one ACTIVE cart per (profile, company). Each is separate |
+| Orders | Only the person's own orders with no company | A **BUYER** sees the company orders they placed. **OWNER, COMPANY_ADMIN, ORDER_APPROVER, FINANCE and VIEWER** see all of the company's orders |
+| Paying for an order | Unchanged | Every `/orders/:orderId/*` route checks the order belongs to the current context |
+| Addresses | The person's own address book | The company's own address book. On first approval, the verified billing and shipping addresses are copied into it |
+| Preorders | Unchanged | Listed, read and acted on in the context. The order made from a confirmed company preorder carries the company |
+| Repeating and scheduled orders | Unchanged | **Refused** with 403 `BUYER_CONTEXT_UNSUPPORTED` |
+
+Another person's order, or another company's, is a **404, never a 403**. A 403
+would confirm that the order exists.
+
+Two honest gaps, both follow-ups and not built:
+
+- **Scheduled orders are refused for a company**, because the scheduling
+  worker only knows a person's profile.
+- **Tax in the Company context still uses the person's profile** - for
+  example their VAT number when deciding whether a sale is zero-rated.
+
+### The purchasing gate
+
+`assertBuyerCapability(request, capability)` guards the steps that spend
+money. In the Individual context nothing changed. In the Company context:
+
+- **Checkout, payment, and preorder submit and confirm** need the member's
+  role to have `PURCHASE` **and** the company to be `APPROVED`. Otherwise the
+  answer is 403 `BUYER_COMPANY_NOT_APPROVED`, with the company's status in
+  `details[0].meta.status`, so the storefront can say why.
+- **Editing the basket and the address book** is allowed while the company is
+  still waiting (`allowPending`). A member can prepare an order before
+  approval.
+- A member whose role lacks the capability gets 403
+  `BUYER_COMPANY_ROLE_FORBIDDEN`.
+- On screen, the cart disables checkout and shows `CompanyNotApprovedNotice`,
+  and the checkout page shows the same notice.
+
+### Company roles
+
+| Company role | What it may do |
+|---|---|
+| `OWNER` | Everything below. The person who applied becomes the owner |
+| `COMPANY_ADMIN` | Everything below |
+| `BUYER` | `PURCHASE`, `VIEW` |
+| `ORDER_APPROVER` | `APPROVE_ORDERS`, `VIEW` |
+| `FINANCE` | `FINANCE`, `VIEW` |
+| `VIEWER` | `VIEW` |
+
+The capabilities: `MANAGE_APPLICATION` (edit the application, upload
+documents, answer a reviewer), `PURCHASE` (fill the company's cart and check
+out), `APPROVE_ORDERS`, `FINANCE` (invoices, payment methods),
+`MANAGE_MEMBERS` (invite and remove members) and `VIEW`. `PURCHASE`,
+`APPROVE_ORDERS`, `FINANCE` and `MANAGE_MEMBERS` also wait for the company to
+be `APPROVED`, whatever the role. The rules are in
+`backend/src/domain/buyer-company-state.ts`. A membership is `ACTIVE` or
+`REMOVED`.
+
+**Inviting colleagues is not built.** The roles and capabilities exist, but
+there is no invitation screen and no invitation endpoint. Do not describe a
+company as a team yet.
+
+### The application
+
+| Path | What it is |
+|---|---|
+| `/register/company` | "Register a company". Signs up first when signed out; starts an application when signed in |
+| `/select-company` | Pick a company after a Company-tab sign-in, or start an application |
+| `/account/companies` | The person's companies, each with its status and the person's role; "Apply for another company" |
+| `/account/companies/:id` | One application. The six-step wizard while it can be edited; otherwise a status panel, the reviewer's requests (answer them, upload what was asked), a resubmit bar, a summary of what was sent and a timeline of the events the applicant may see. Every company email links here |
+
+A person may have at most `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` (default 3)
+unfinished applications. One more is refused with
+`BUYER_COMPANY_LIMIT_REACHED`.
+
+**Every step is saved on the server** when "Save and continue" is pressed -
+never in the browser - so an application can be finished on another device.
+Only the sections sent are checked. If anything is wrong, nothing is saved,
+and each problem comes back as `{ field, code }`, which the storefront words in
+the reader's own language.
+
+The steps are the same six on both screens the journey spans. The shared
+indicator (`pages/company/OnboardingSteps.tsx`) shows them on the signed-out
+sign-up form as "Step 1 of 6" - creating the sign-in is the first half of
+step 1 - and beside the wizard afterwards. Below `lg` it is a numbered row
+with a bar; from `lg` up it is a card with each step's name and its state in
+words: *Complete*, *In progress*, *Needs attention* or *Not started*. A step
+is only called Complete once it has been saved with nothing missing - never
+for its position alone. A draft opens on the earliest step that still needs
+something.
+
+1. **Account and representative** - the representative's name and phone
+   (shown from their own profile, changed there), job title, **their
+   relationship to the business** (`DIRECTOR_OR_OFFICER`, `OWNER_OR_PARTNER`,
+   `EMPLOYEE`, `AUTHORISED_AGENT` or `OTHER`, stored in
+   `buyer_companies.applicantRelationship`), a tick for "I am authorised to
+   act for this company", and a business email (filled in with the account
+   email). An `AUTHORISED_AGENT` acts for the company from outside it and will
+   never appear in its register, so for them the authorisation letter becomes
+   a required document. If the
+   business email is not the account's confirmed email, a **6-digit code** is
+   sent to it. The code lasts 15 minutes, allows 5 tries, and is stored only
+   as an HMAC hash (a keyed fingerprint, not the code itself). Changing the
+   address means it has to be confirmed again.
+2. **Business details** - legal name, trading name, legal form, country of
+   registration, registration number, date of incorporation (when the legal
+   form has one), industry, website and business phone (with its country
+   code). Which register the number belongs to depends on the country and the
+   form: in India the CIN for companies and the LLPIN for LLPs; in Poland KRS
+   for companies and CEIDG for sole traders; elsewhere "the local register".
+   The optional buying plans - expected monthly spend, number of users,
+   categories, delivery countries, currency, interest in payment terms and in
+   an ERP connection - sit folded away at the bottom of this step. Nothing in
+   them is used to verify the company.
+3. **Registration and tax details** - the identifiers, which depend on the
+   country. India: PAN, GSTIN, Udyam, IEC.
+   Poland: NIP, REGON, EU VAT number. Other EU countries: EU VAT number, EORI.
+   Anywhere else: a tax id. An LEI is optional everywhere. Where a number has
+   a check digit (NIP, REGON, GSTIN, LEI) it is verified; otherwise its format
+   is. Every identifier offers **"Not registered / not applicable"** with a
+   reason (`NOT_REGISTERED`, `EXEMPT`, `BELOW_THRESHOLD`,
+   `NOT_ISSUED_FOR_ENTITY`) - except where the law requires the number for
+   that kind of business (for example the NIP of a Polish company), where
+   "not applicable" is refused. Numbers that should agree with each other
+   (a PAN inside a GSTIN, a NIP inside a Polish VAT number) are compared, and
+   a mismatch is shown to the reviewer, not refused.
+4. **Addresses** - registered office (required), operating address
+   (optional), billing and shipping, each with "same as registered". Separate
+   fields, not one text box; the postcode format is checked for countries we
+   know.
+5. **Verification documents** - only what is needed, each shown with **the
+   reason it is asked for**. Proof that the company exists (a certificate of
+   incorporation or a register extract) is required - **except for a Polish
+   KRS company**, whose register is read directly. An Indian GST registration
+   certificate is required when a GSTIN is given. An authorisation letter is
+   required only from an `AUTHORISED_AGENT` and optional for everybody else.
+   Proof of the registered address and a **business licence**
+   (`BUSINESS_LICENCE` - a drug or food-business licence, say) are offered to
+   everybody and required of nobody; a reviewer asks where it matters.
+   **Identity documents of the people involved, and declarations of who owns
+   the company, are never asked for by default.** A reviewer may ask for them
+   in a particular case. Bank details are never collected. Each upload shows
+   its progress as a percentage while the file is sent (the one request the
+   storefront sends through `XMLHttpRequest`, since `fetch` cannot report
+   upload progress), then "Checking the file…" while the server reads it. An
+   empty file, or one that is not named `.pdf`, `.jpg`, `.jpeg`, `.png` or
+   `.webp`, is refused before it is sent; the server still decides from the
+   file's own bytes and its size ceiling.
+6. **Review and submit** - four declarations, each its own tick: the details
+   are accurate, the business terms, the privacy notice, and the authority to
+   act. Each is stored as its own `consent_records` row with its purpose, the
+   text version (`BUYER_COMPANY_CONSENT_VERSION`, default `2026-09`), a SHA-256
+   hash of the exact words shown, the IP address, the browser and the time.
+
+### The same business as a seller
+
+A registered business can both sell here (a **seller account**, Seller Hub)
+and buy here (a **buyer company**). They stay two things with two reviews:
+
+- **Starting from the seller account.** Somebody who is the `OWNER` or an
+  `ADMIN` of a seller account is offered "Start from my seller details" on
+  `/register/company`. `GET /buyer-companies` returns that one account as
+  `sellerSource` (only ever the caller's own), and
+  `POST /buyer-companies { fromSellerAccountId }` opens a DRAFT pre-filled
+  with the seller's legal name, country, registration number, website and
+  the registered and billing addresses - each copied only if it passes the
+  buyer side's own rules, so no step opens already in error. Any other id -
+  somebody else's seller account, a made-up one - gets the same 404, so the
+  endpoint reveals nothing about which seller accounts exist.
+- **A link, never a shared approval.** The draft records
+  `buyer_companies.linkedSellerAccountId` (`ON DELETE SET NULL`). It starts at
+  `DRAFT` however far the seller account has got, and is verified from
+  scratch. **An approved seller is not an approved buyer, and an approved
+  buyer cannot sell** - the tests in
+  `tests/integration/buyer-company-seller-link.test.ts` hold both.
+- **What the reviewer sees.** A "Same business as a seller" card with the
+  seller account's own status, and a `SELLER_ACCOUNT` check: `PASS` when the
+  linked seller's registration number still matches, `SIGNAL` when it has
+  been changed since, and a `SIGNAL` when an unlinked seller account names
+  the same registration number. It is its own provider rather than a
+  duplicate on purpose: a company that sells and buys is ordinary, and must
+  not read as "an approved duplicate" and push the risk to HIGH.
+- **Nothing seller-only is asked on the buyer side** - no catalogue,
+  commission, payout account, warehouse or carrier set-up.
+
+### The eleven statuses
+
+| Status | Means |
+|---|---|
+| `DRAFT` | Being filled in |
+| `EMAIL_VERIFICATION_PENDING` | Waiting for the business email's code |
+| `SUBMITTED` | Sent; checks not started |
+| `AUTOMATED_CHECK_IN_PROGRESS` | The worker is checking the registers |
+| `UNDER_REVIEW` | Waiting for, or with, a reviewer |
+| `MORE_INFORMATION_REQUIRED` | The reviewer asked the applicant for something |
+| `RESUBMITTED` | The applicant answered; back to the checks |
+| `APPROVED` | Verified. The only status that can buy |
+| `REJECTED` | Refused, with a reason |
+| `SUSPENDED` | Was approved; buying is stopped |
+| `REVERIFICATION_REQUIRED` | Was approved; the details must be confirmed again |
+
+Only `transitionCompany` (`backend/src/modules/buyer-companies/shared.ts`)
+writes the status, and only after `assertBuyerCompanyTransition`
+(`backend/src/domain/buyer-company-state.ts`) allows it - the same rule as
+order status. The movers are `APPLICANT`, `REVIEWER` and `SYSTEM`. Every change
+writes a `buyer_company_status_history` row, a review event and an audit row,
+in one transaction, with a version check: if somebody else changed the
+company first, the answer is 409 `BUYER_COMPANY_VERSION_CONFLICT`.
+
+```
+DRAFT ─► EMAIL_VERIFICATION_PENDING (applicant; the business email needs its code)
+      ─► SUBMITTED (applicant)
+EMAIL_VERIFICATION_PENDING ─► SUBMITTED / DRAFT (applicant)
+
+SUBMITTED / RESUBMITTED ─► AUTOMATED_CHECK_IN_PROGRESS (system)
+                       ─► UNDER_REVIEW (reviewer, system)
+                       ─► MORE_INFORMATION_REQUIRED* / REJECTED* (reviewer)
+AUTOMATED_CHECK_IN_PROGRESS ─► UNDER_REVIEW (system, reviewer)
+UNDER_REVIEW ─► MORE_INFORMATION_REQUIRED* / APPROVED / REJECTED* (reviewer)
+MORE_INFORMATION_REQUIRED ─► RESUBMITTED (applicant) / REJECTED* (reviewer)
+APPROVED ─► SUSPENDED* / REVERIFICATION_REQUIRED* (reviewer, system)
+REJECTED ─► DRAFT (applicant: "correct and reapply", if the reviewer allowed it)
+SUSPENDED ─► APPROVED* (restore) / REVERIFICATION_REQUIRED* / REJECTED* (reviewer)
+REVERIFICATION_REQUIRED ─► RESUBMITTED (applicant) / APPROVED* (reviewer)
+                        ─► SUSPENDED* (reviewer, system)
+
+* a reason is required
+```
+
+**Only a person can approve.** The system never approves and never rejects.
+The applicant can edit only in `DRAFT`, `EMAIL_VERIFICATION_PENDING`,
+`MORE_INFORMATION_REQUIRED` and `REVERIFICATION_REQUIRED`; anywhere else an
+edit is 409 `BUYER_COMPANY_NOT_EDITABLE`.
+
+### Automated checks help a person; they never decide
+
+On submit and on resubmit, a `BUYER_COMPANY_CHECKS` job (run by the worker)
+moves the application to `AUTOMATED_CHECK_IN_PROGRESS`, runs every check that
+applies, writes one `buyer_company_checks` row for each, works out a risk level
+(`NONE`, `LOW`, `ELEVATED`, `HIGH`) and **always ends in `UNDER_REVIEW`**.
+
+A check's outcome is one of `PASS`, `FAIL`, `INCONCLUSIVE`, `UNAVAILABLE`,
+`MANUAL_REQUIRED` or `SIGNAL` (a rule or duplicate flag for the reviewer). **A register that is down, slow or
+failing is recorded as `UNAVAILABLE` or `MANUAL_REQUIRED`, and the application
+goes to a person.** It is never rejected automatically because somebody else's
+server was having a bad day.
+
+Each source sits behind one `BusinessVerificationProvider` interface
+(`backend/src/modules/buyer-companies/providers/`):
+
+| Source | How it is checked |
+|---|---|
+| VIES (the EU Commission's VAT check) | **Live.** Reuses `VIES_CHECK_URL` |
+| GLEIF (LEI records) | **Live.** `BUYER_COMPANY_GLEIF_URL` |
+| Polish Ministry of Finance VAT "white list" | **Live.** `BUYER_COMPANY_PL_VAT_URL`. Bank account numbers, home addresses and people in its answer are dropped, never stored |
+| Polish KRS open API (register P, then S) | **Live.** `BUYER_COMPANY_PL_KRS_URL` |
+| India MCA (CIN, LLPIN), GST portal, PAN, Udyam, IEC (DGFT) | **Manual**, with the official link for the reviewer |
+| Poland CEIDG (needs a token), REGON / GUS BIR (needs a GUS key) | **Manual**, with the official link |
+| EU BRIS (other EU business registers), EORI | **Manual**, with the official link |
+| Any other country's local register | **Manual** |
+
+The live ones are official and free, and need no key. Each call has a time
+limit, `BUYER_COMPANY_REGISTRY_TIMEOUT_MS` (default 10 seconds). Setting one of
+the three `BUYER_COMPANY_*_URL` variables to blank turns that check into a
+manual one. Where there is no public API, or only one that needs a key or a
+contract we do not have, the check is manual - **nothing is faked**. No paid
+verification service is used, nothing is scraped, and no CAPTCHA is worked
+around.
+
+There are also **rule signals**: whether the identifiers agree with each
+other, and whether the email's domain matches the website (a free-mail address
+is flagged).
+
+**Duplicates are flags, never a refusal.** The same registration number, the
+same identifier, a very similar legal name, the same address or the same email
+domain as another application is **shown to the reviewer** - it does not stop
+anybody submitting. The one hard rule comes **at approval**: approving writes a
+unique "claim" key for the registration number (`registrationClaimKey`) and
+for each identifier (`claimKey`). A second company with the same registration
+therefore cannot be approved (409 `BUYER_COMPANY_ALREADY_CLAIMED`). Rejecting
+a company releases its claims. Until approval the key is NULL, and MariaDB
+treats every NULL as different in a UNIQUE index - which is exactly what lets
+unapproved duplicates sit side by side.
+
+### The console: the Company verification screens
+
+Three new staff permissions:
+
+| Permission | What it allows | Held by default |
+|---|---|---|
+| `buyer_company.read` | See the queue and each application | Business Owner, Finance / Approver, Order Manager |
+| `buyer_company.review` | Take, assign, ask for information, approve, reject, re-run checks, decide documents | Business Owner, Finance / Approver |
+| `buyer_company.suspend` | Suspend an approved company | Business Owner |
+
+The **Company verification** item sits under Customers in the navigation.
+
+**The queue, `/buyer-companies`.** A counter per status; filters for status,
+country, reviewer ("mine" and "unassigned" included) and risk; search by name,
+reference, registration or identifier number, or email; sorting (oldest
+submitted first by default, newest, most recent activity, risk); pages; and
+the **last filters used are remembered** in the reviewer's own browser (there
+are no named saved views yet). Each row shows who has
+it.
+
+**One application, `/buyer-companies/:id`.** Every field; which requirements
+are met; each automated check with the register's answer, or the official link
+for a manual one; duplicate flags; risk; documents; requests sent to the
+applicant; **internal notes, never shown to the applicant**; and the full
+history. What a reviewer can do:
+
+- **Start review** (takes it), and **assign** or unassign a colleague who has
+  review permission.
+- **Add a note.**
+- **Ask for more information** - a message, and optionally the kinds of
+  document wanted, including the ones only a reviewer may ask for.
+- **Approve.**
+- **Reject** - a reason code is required (`REGISTRATION_NOT_FOUND`,
+  `DETAILS_DO_NOT_MATCH`, `DOCUMENTS_INSUFFICIENT`, `AUTHORITY_NOT_SHOWN`,
+  `NOT_A_REGISTERED_BUSINESS`, `DUPLICATE_APPLICATION`,
+  `UNSUPPORTED_JURISDICTION`, `NO_RESPONSE`, `OTHER`), plus a reason the
+  applicant will read, and whether they may correct and apply again.
+- **Suspend** (needs `buyer_company.suspend`) and **ask for re-verification**.
+- **Re-run the checks.**
+- **Accept or refuse each document.** A refusal needs a reason.
+
+Approve, reject and suspend ask "are you sure?" first. A decision made on an
+out-of-date copy is refused and the page reloads.
+
+**A second reviewer, when the risk is high.** `BUYER_COMPANY_SECOND_REVIEW_RISK`
+is `OFF` (the default), `ELEVATED` or `HIGH`. At or above that risk, approval
+needs **two different reviewers**: the first approval is recorded and the
+application waits. The same person approving twice gets
+`BUYER_COMPANY_SECOND_REVIEW_REQUIRED`.
+
+The console's bell gets two new kinds: `BUYER_COMPANY_SUBMITTED` and
+`BUYER_COMPANY_RESPONDED`.
+
+### Documents
+
+`POST /api/v1/buyer-companies/:id/documents`, as multipart, with the `kind`
+field before the file.
+
+- The file's type is decided **from its own bytes** (PDF, JPEG, PNG, WebP),
+  never from its name or the type the browser claims.
+- A PDF with active content (JavaScript, launch actions, embedded files, rich
+  media, XFA or submit forms) is refused, and so is a file that is two formats at once (a
+  "polyglot").
+- At most `BUYER_COMPANY_DOCUMENT_MAX_PAGES` pages (50) and
+  `BUYER_COMPANY_DOCUMENT_MAX_BYTES` (10 MB).
+- It goes through the existing malware scanner and is stored privately under
+  a generated name. A file the scanner has not cleared is not served, unless
+  `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS=true` - development only; a
+  production process refuses to start with it on.
+- A kind nobody asked for (for example a representative's identity document)
+  is refused with 403.
+- An undecided document can be withdrawn:
+  `DELETE /api/v1/buyer-companies/:id/documents/:documentId`.
+
+Staff open a document through a signed link that works **once**, for a short
+time, and only for the member of staff it was made for. It is served as a
+download, with `nosniff`, a sandbox Content-Security-Policy and `no-store`,
+and every view is audited.
+
+### Emails
+
+Nine events, each in the applicant's own language (en, pl, de, fr, es, it, nl,
+el): submitted, email code, more information required, approved, rejected,
+suspended, re-verification required, restored, and document refused. They go
+through the normal outbox. The storefront has no in-app notifications of its
+own; `/account/notifications` lists sent emails, so these appear there. A
+rejection email includes the reviewer's reason for the applicant - whether
+that is wanted is a legal and policy question for the operator.
+
+### Security, in one list
+
+- CSRF on every route that changes something (the usual double-submit).
+- A non-member asking for a company gets 404; a refused context switch gets one
+  generic answer.
+- The membership is checked again on every request.
+- Rate limits: switching context 30 per 15 minutes; starting an application 10
+  per hour; sending the email code 5 per 15 minutes; entering it, and
+  submitting, 10 per 15 minutes each; uploads 30 per 15 minutes.
+- Every admin route carries its own permission guard.
+- Audit rows for every status change, assignment, note, information request,
+  document upload, view and decision, consent, email confirmation and context
+  switch.
+- Free text is stored exactly as typed and shown as text, never as HTML.
+  Search uses parameters, never string-built SQL.
+
+### Personal data
+
+- The GDPR copy (Art. 15) has a new `companyMemberships` section: the
+  person's memberships, the company details they entered, and their consents.
+- Erasure removes the person's memberships, blanks the IP address and browser
+  on their consent records, and deletes their email-code challenges. **The
+  company record itself stays** - it belongs to the business and may have to
+  be kept. Whether that is right is a legal question for the operator.
+
+### Settings
+
+| Variable | Default | What it does |
+|---|---|---|
+| `FEATURE_BUYER_COMPANIES` | `true` | The Company tab, the application, the switcher and the console screens. Published as `features.buyerCompanies` in `/config` |
+| `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` | `3` | Unfinished applications per person |
+| `BUYER_COMPANY_DOCUMENT_MAX_BYTES` | `10000000` | Largest upload |
+| `BUYER_COMPANY_DOCUMENT_MAX_PAGES` | `50` | Most PDF pages |
+| `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` | `false` | Serve documents the scanner has not cleared. Refused in production |
+| `BUYER_COMPANY_SECOND_REVIEW_RISK` | `OFF` | `OFF`, `ELEVATED` or `HIGH`: the risk at which two reviewers are needed |
+| `BUYER_COMPANY_CONSENT_VERSION` | `2026-09` | Stamped on each declaration. Change it when the wording changes |
+| `BUYER_COMPANY_GLEIF_URL` | `https://api.gleif.org/api/v1/lei-records/{lei}` | Blank makes the LEI check manual |
+| `BUYER_COMPANY_PL_VAT_URL` | The Ministry of Finance white list | Blank makes it manual |
+| `BUYER_COMPANY_PL_KRS_URL` | The KRS open API | Blank makes it manual |
+| `BUYER_COMPANY_REGISTRY_TIMEOUT_MS` | `10000` | Time limit per register call |
+| `VIES_CHECK_URL` | (existing) | Reused for the EU VAT check |
+
+### New error codes
+
+All mapped to a message in the storefront in eight languages:
+`BUYER_COMPANIES_DISABLED`, `BUYER_CONTEXT_INVALID`,
+`BUYER_CONTEXT_UNSUPPORTED`, `BUYER_COMPANY_NOT_APPROVED`,
+`BUYER_COMPANY_ROLE_FORBIDDEN`, `BUYER_COMPANY_TRANSITION_NOT_ALLOWED`,
+`BUYER_COMPANY_NOT_EDITABLE`, `BUYER_COMPANY_INCOMPLETE`,
+`BUYER_COMPANY_VERSION_CONFLICT`, `BUYER_COMPANY_ALREADY_CLAIMED`,
+`BUYER_COMPANY_EMAIL_CODE_INVALID`, `BUYER_COMPANY_SECOND_REVIEW_REQUIRED`,
+`BUYER_COMPANY_DOCUMENT_REJECTED`, `BUYER_COMPANY_LIMIT_REACHED`.
+
+### The endpoints
+
+- **Customer** (`/api/v1/buyer-companies`, customer session): `GET /`,
+  `POST /`, `GET /:id`, `PATCH /:id`, `POST /:id/email-code`,
+  `POST /:id/email-code/confirm`, `POST /:id/submit`,
+  `POST /:id/info-requests/:requestId/answer`, `POST /:id/resubmit`,
+  `POST /:id/reopen`, `POST /:id/documents`,
+  `DELETE /:id/documents/:documentId`.
+- **Sign-in**: `GET` and `PUT /api/v1/auth/buyer-context`; `buyerType` on
+  login; the new fields on `/auth/me`.
+- **Console** (`/api/v1/admin`): `GET buyer-companies`,
+  `GET buyer-companies/reviewers`, `GET buyer-companies/:id`,
+  `POST buyer-companies/:id/` + `start-review`, `assign`, `notes`,
+  `request-information`, `approve`, `reject`, `suspend`, `reverify`, `checks`;
+  `POST buyer-company-documents/:id/link`,
+  `GET buyer-company-documents/:id/download`,
+  `POST buyer-company-documents/:id/decision`.
+
+### Where it lives
+
+| Concern | File |
+|---|---|
+| Statuses, roles and capabilities | `backend/src/domain/buyer-company-state.ts` |
+| Which documents are needed, and why | `backend/src/domain/buyer-company-requirements.ts` |
+| Identifier formats and check digits | `backend/src/domain/buyer-company-identifiers.ts` |
+| Application, review, checks, documents, context | `backend/src/modules/buyer-companies/` |
+| The registers | `backend/src/modules/buyer-companies/providers/` |
+| Re-checking the context on every request | `backend/src/http/plugins/auth.ts` |
+| The storefront screens | `apps/customer-web/src/pages/company/` |
+| The console screens | `apps/admin-web/src/pages/buyer-companies/` |
+| The migration | `backend/prisma/migrations/20261004090000_buyer_companies/` |
+
+### What is not built
+
+- **Inviting colleagues** into a company. The roles exist; there is no
+  invitation flow.
+- **Repeating and scheduled orders** for a company. Refused.
+- **Tax treatment per company.** The person's own profile is used.
+- **Live CEIDG and REGON checks.** They need a CEIDG token and a GUS BIR key;
+  for now they are manual, with the official links.
+- **Live checks in India.** There is no free official API; manual, with the
+  official links.
+- **In-app notifications on the storefront.** The emails are listed on the
+  notifications page instead.
+- Emails outside these nine are still English only.
+- **None of this makes a deployment legally compliant by itself.** The
+  declaration wording, the privacy notice, how long records are kept, how a
+  sole trader's PAN is treated, and what a rejection email may say are for the
+  operator's own legal review.
+
+## 9.1b The individual purchase limit: B2C Maximum Order Quantity
+
+A seller can say, on each listing, "an Individual buyer may buy at most N units
+of this in one order". Somebody who needs more has to buy for an **approved**
+company. That is the whole idea. The rest of this section is about making it
+impossible to get round.
+
+### Words you will meet
+
+| Word | What it means here |
+|---|---|
+| **B2C Maximum Order Quantity** | The limit itself. "B2C" is business-to-consumer: selling to a private person. The internal name is `b2cMaxOrderQuantity` |
+| **Individual purchase limit** | What the storefront calls it, so a buyer understands it |
+| **Held to it** | A buyer the limit applies to |
+| **Not configured** | A listing or product with no limit set (`NULL`). It means no ceiling |
+
+It is **not** called "MOQ". MOQ means *minimum* order quantity, and this is a
+ceiling. It is also **not stock**: setting it or changing it never changes how
+many units a seller has.
+
+### Who is held to it
+
+- **Held:** guests, people buying as themselves, and anybody buying for a
+  company that is not approved (draft, under review, more information
+  required, rejected, suspended, re-verification).
+- **Not held:** somebody buying for an **approved** company.
+
+The server decides which, from the session: an active membership of a company
+that is approved and not archived. Nothing the browser sends is believed — not
+an account type, not a company id, not an approval flag.
+
+### How it counts
+
+The limit counts **one seller's units of one product**. Every variant and
+every basket line holding that product are added together. So these all fail
+the same way:
+
+- putting the same thing in twice;
+- pressing Add to Cart again;
+- choosing three sizes of 40 each against a limit of 100;
+- one bulk request that names the product twice.
+
+The catalogue product is shared: several sellers can sell the same one. Each
+seller's limit governs **that seller's own units**, and two sellers' units are
+counted apart. A seller cannot decide how much of somebody else's stock a
+buyer may take.
+
+The operator's own stock (a basket line with no seller offer) is its own
+group. Its limit is on the product, and an admin sets it.
+
+It is not the same as the other quantity rules:
+
+- The offer's own minimum and maximum work **per line** and bind every buyer.
+- The preorder minimum is a **floor** on a bulk request, with its own errors.
+- This one is a **ceiling**, for held buyers only, over the whole product.
+
+### Where it is stored
+
+| Column | What it holds |
+|---|---|
+| `seller_offers.b2cMaxOrderQuantity` | The seller's limit. One figure per listing, written to every variant's offer |
+| `products.b2cMaxOrderQuantity` | The limit for the operator's own stock |
+| `orders.buyerContextKind` | `INDIVIDUAL` or `COMPANY`: who the order was placed as |
+| `order_items.b2cMaxOrderQuantityApplied` | The limit in force for that line at checkout, or `NULL` |
+| `order_items.b2cCompanyExemptionApplied` | `true` when an approved company placed it, so the limit did not bind |
+
+Both limit columns are a nullable `INT` with a `CHECK` that allows only `NULL`
+or 1 to 1,000,000 (`chk_seller_offer_b2c_max_order_quantity`,
+`chk_product_b2c_max_order_quantity`). The two order columns are written once
+and never change. No company verification data is copied onto the order.
+
+Every product and offer that existed before the migration got `NULL`: not
+configured, no ceiling, selling exactly as before. Seller Hub marks each one
+**B2C limit not configured** with a link to set it. No figure was invented for
+them, because that would be a business decision nobody made.
+
+### What the seller does
+
+- The field is in the new-listing wizard (*Price, stock and shipping*) and on
+  the live listing's edit page (*Price and order rules*). Label *B2C Maximum
+  Order Quantity*, helper text, an info tooltip ("This limit applies only to
+  Individual buyers. It does not change your available inventory."), − and +
+  buttons, and an inline error. All in eight languages.
+- A whole number from 1 to 1,000,000, and not below the listing's minimum
+  order. Zero, negatives, decimals, text and scientific notation are refused.
+  The keys `e`, `+`, `-` and `.` are blocked. Nothing is quietly corrected.
+- A draft may be saved with the box empty. A new listing cannot be sent for
+  review without a valid value (blocker issue `B2C_MAX_ORDER_QUANTITY_REQUIRED`
+  or `B2C_MAX_ORDER_QUANTITY_INVALID`).
+- The wizard header shows "B2C maximum order quantity: N units" (or "not set
+  yet") beside the submit button. The moderator sees it as a fact on the
+  review screen.
+- On the edit page the current limit is shown. A set limit can be changed, but
+  not removed.
+- Only the seller who owns the offer (checked on the offer row), or an admin,
+  can change it. Every change writes the seller audit entry
+  `seller.offer.b2c_limit_changed` with the old value, the new value, the
+  member, the profile and the time.
+- The admin product form has the field too, for the operator's own products.
+  There it is optional; blank means not configured. The change is in the
+  `PRODUCT_UPDATED` audit entry with before and after.
+
+A change applies to **future** basket changes and checkouts only. A placed
+order never changes. A basket that is already full is never trimmed.
+
+### What the buyer sees
+
+- Under the quantity box: "Individual purchase limit: N units" (or that it
+  does not apply to their approved company). It is linked to the box for
+  screen readers.
+- The basket. A basket that is over the limit (the seller lowered it, or the
+  company lost approval) is kept as it is. Each line of that product shows a
+  warning ("…your basket holds M…") with *Reduce to N* and *See options*. See
+  options opens the same dialog, and notes that a company has its own basket.
+  Checkout is blocked until it is fixed. Lowering is always allowed, even while
+  still over. Raising past the limit is refused.
+
+**The dialog.** It opens when a held buyer settles on more than the limit
+(typed or stepped), presses Add to Cart over it, or the server refuses an add
+because the basket plus the new units would pass it. It says: "Individual
+buyers can order up to N units of this product. To order a larger quantity,
+switch to an approved Company account." The buttons fit who is asking:
+
+| Who | Buttons |
+|---|---|
+| A guest | Sign in as Company, Create Company Account |
+| An individual with an approved company | Switch to Company (one per approved company) |
+| An individual whose company is still being verified | View Verification Status |
+| An individual with no company | Create Company Account |
+| Somebody buying for an unapproved company | That company's status |
+| Everybody | Reduce to N, Cancel |
+
+*Reduce to N* appears where one item is chosen. It rounds down to a quantity
+the product's own rules allow, and counts what is already in the basket.
+*Cancel* puts the quantity back. Nothing switches account or starts a
+registration until the buyer presses a button. Focus goes back to the control
+that opened the dialog.
+
+### Where the server checks it
+
+The browser only helps. The server decides, every time:
+
+1. **Add to basket, bulk add, change quantity, change pack quantity.** Each
+   takes a row lock on the basket, totals the product before and after, and
+   refuses an **increase** that ends over the limit. Two requests at once
+   cannot both slip under it.
+2. **Reading the basket.** Each line carries `b2cLimit` (`maxQuantity`,
+   `productQuantity`, `applies`, `exceeded`), and an over-limit line gets an
+   issue, so checkout is not ready.
+3. **Checkout.** Checked again inside the order transaction, under the same
+   lock, with the live limits and the live company status, before any stock is
+   reserved or any order row written.
+4. **Scheduled orders.** A plan over the limit cannot be created or changed.
+   Each delivery's quote raises a HOLD problem, so the worker never charges for
+   more than today's limit. A backstop check runs inside the order
+   transaction.
+5. **Preorders.** Preview and submit are refused over the limit unless the
+   buyer is in an approved company context. It is checked again when the
+   preorder is confirmed into an order.
+
+There is no separate Buy Now path in this product: checkout always uses the
+basket.
+
+### The error code
+
+`B2C_MAX_ORDER_QUANTITY_EXCEEDED`, status `409`, added to the published
+contract and mapped in eight languages. The message is "Individual buyers can
+order up to N units of this product." `details[0].meta` is `{ productId,
+allowedQuantity, requestedQuantity, currentCartQuantity,
+requiresApprovedCompanyAccount: true }`. Nothing about the seller or the
+company is in it. In a refused checkout it arrives as a line detail of
+`CART_ITEM_UNAVAILABLE`; for a schedule, as a detail of
+`SCHEDULE_PRODUCT_NOT_ELIGIBLE` (400).
+
+### The endpoints that changed
+
+- `GET /api/v1/catalog/products/:slug` returns
+  `product.purchaseRules.b2cMaxOrderQuantity`: the offer's figure for a
+  seller's product, the product's for the operator's own, `null` when not set.
+- Every cart line gains `b2cLimit`, or `null`.
+- The seller's listing draft offer and `PATCH /seller/listings/:id/edit` accept
+  `b2cMaxOrderQuantity`; the seller's offer rows include it.
+- `POST` and `PATCH /admin/products` accept `b2cMaxOrderQuantity`.
+
+### Where it lives
+
+| Concern | File |
+|---|---|
+| The rule: validation, counting, who is held | `backend/src/domain/b2c-order-limit.ts` |
+| Locks, basket checks, the error | `backend/src/modules/cart/b2c-limit.service.ts` |
+| The storefront dialog | `apps/customer-web/src/components/B2cLimitDialog.tsx`, `apps/customer-web/src/lib/b2c-limit.ts` |
+| The Seller Hub field | `apps/customer-web/src/pages/seller/B2cMaxOrderQuantityField.tsx` |
+| The migration | `backend/prisma/migrations/20261006090000_b2c_max_order_quantity/` |
+
+### Decisions still to confirm
+
+These are how it works today. Each is a business choice somebody should
+confirm:
+
+- **Several sellers of one product.** Each seller's limit counts only their own
+  units. One limit across all sellers would work differently.
+- **Old listings.** Not configured means no ceiling. The other choice would
+  close them to individuals until a limit is set.
+- **The operator's own products.** A limit is optional there, while a seller
+  listing must have one.
+- **Switching context.** A company's basket is separate from the person's own,
+  so switching to a company does not carry the lines across.
 
 ## 9.2 Browsing and being quoted a price
 
@@ -11124,7 +12096,7 @@ the rest of the row, and the row never wraps. There is no visible "Chat with …
 text button any more; this icon is the only chat entry in that row.
 
 - **Its name.** Screen readers hear *Chat with {marketplace}* - the operator's
-  trading name (`{{marketplace}}` in the translations; *Chat with Glovia* until
+  trading name (`{{marketplace}}` in the translations; *Chat with Gloviaa Mart* until
   a name is set). With unread replies it is *Chat with {marketplace}. Unread
   replies: N*.
 - **Its tooltip.** *"Ask {marketplace} about this preorder"* shows on hover and
@@ -14255,6 +15227,529 @@ at all: the importer writes them as **filterable specifications**, so they
 appear in the existing `attr=Name:Value` facet panel on both the storefront and
 the admin list automatically.
 
+## 9.12 Product reviews: four scores from somebody who received it
+
+A buyer who has received a product can rate it from 1 to 5 stars on four
+separate things — **quality**, **delivery**, **experience** and **support**.
+There is no comment box: a review is those four scores. Other buyers see the averages on the
+product page and a star line on every product card.
+
+Four scores, not one, because they are four questions with four different
+people responsible for them. A well-made part that arrived three weeks late is a
+five for quality and a one for delivery. Averaging those into a three tells the
+next buyer nothing.
+
+It is switched on by default. `FEATURE_PRODUCT_REVIEWS=false` hides every star
+on the storefront and refuses the storefront review routes. Reviews already
+written are kept, and staff can still read and moderate them, so switching it
+back on loses nothing. The storefront learns the setting as
+`features.productReviews` in `GET /api/v1/config`.
+
+### The rules
+
+- **Only somebody who received it may review it.** The buyer needs an order of
+  their own that contains the product and has reached `DELIVERED` — or
+  `RETURNED`, which can only follow `DELIVERED`. An order that is paid or on its
+  way does not count. Delivery and support cannot be scored before anything was
+  delivered, and a review anybody can write is a review a competitor can write.
+  The server decides this in one function (`findQualifyingOrder`); the screens
+  only hide the button, and a request that gets past them is refused with
+  `REVIEW_NOT_ELIGIBLE` (403).
+- **One review per buyer per product.** Writing again replaces the scores. The
+  unique index `uq_product_review` enforces it.
+- **Published at once.** There is no queue. A buyer who proved they bought the
+  product has earned being heard.
+- **Staff can hide a review, and must say why.** The reason is required and
+  the buyer who wrote the review is shown it. Staff can put the review back,
+  which clears the reason.
+- **Editing a hidden review does not republish it.** Otherwise hiding would be
+  a suggestion. It stays hidden until staff show it again.
+- **Averages are computed on every read.** Nothing stores a total, so an edit,
+  a hide or an erasure shows up the next time anyone looks. A hidden review
+  counts towards nothing.
+- **The public sees a first name and an initial.** "Priya N." — never the
+  surname, the company, the email or the order. A review is marked
+  "Verified purchase", which is true of every review by the first rule.
+
+### Where it appears
+
+**Storefront**
+
+- **Product page.** Under the product name, the average and the number of
+  reviews, linking down to the reviews. At the foot of the page, a
+  **Ratings and reviews** section: the overall figure with how the reviews
+  spread from one to five stars; the four categories drawn as raised columns
+  whose height *is* the average out of five, so "good product, slow delivery"
+  is visible before a number is read (the same figures are in text for screen
+  readers, and the columns stand still under reduced motion); the button to
+  write or edit your review, a sign-in link for a guest, or a sentence
+  explaining the rule for somebody who has not received it; and the reviews
+  themselves, ten at a time, sortable by newest, highest and lowest.
+- **Product cards and catalogue rows.** A small star line with the average and
+  the count. Nothing at all when there are no reviews — five empty stars would
+  read as "rated zero".
+- **A delivered order.** Each line has **Rate this product**, or **Edit your
+  review** when there is one already.
+- **Account → My reviews** (`/account/reviews`). Products that were delivered
+  but not yet rated, then the reviews written, with their status. A hidden
+  review says so, with the reason.
+
+The write form is one dialog in all three places: four star inputs, all
+required, and nothing else.
+
+The star control is `apps/customer-web/src/components/ui/star-rating.tsx`,
+adapted from Spectrum UI's StarRating: hovering previews a score, clicking
+commits it with a small pop, and the arrow keys move it. It is a proper radio
+group for screen readers. Filled stars use the new `--rating` colour token —
+amber, a step darker than the usual amber-400, because filled-or-empty is the
+information and has to clear 3:1 against the card. Both apps' contrast audits
+check it in both themes.
+
+**Admin panel**
+
+- **Catalogue → Product reviews** (`/product-reviews`). Every review, newest
+  first, with the buyer's name and email, the order that made them eligible,
+  and the four scores (any score of 2 or below is marked). Filter by shown or
+  hidden, by "any category at 2 or below" or "at 1", and search by product name,
+  SKU or buyer name. **Hide review** asks for the reason; **Show again** puts it
+  back.
+
+### Who may do what
+
+| Permission | What it allows | Held by default |
+|---|---|---|
+| `review.read` | Read every review, including hidden ones and who wrote them | Business Owner, Catalog Manager, Order Manager |
+| `review.moderate` | Hide a review and show it again | Business Owner, Catalog Manager |
+
+Hiding and showing are written to the audit trail as `product_review.hidden`
+and `product_review.published`. Writing a review is not audited — it is the
+buyer's own record and carries its own timestamps.
+
+### The table
+
+`product_reviews` — one row per buyer per product.
+
+| Column | Meaning |
+|---|---|
+| `productId`, `customerProfileId` | Whose review of what. Unique together (`uq_product_review`) |
+| `orderId` | The delivered order that made them eligible. Set to NULL if that order is ever removed |
+| `qualityRating`, `deliveryRating`, `experienceRating`, `supportRating` | Each a whole number from 1 to 5, held there by the CHECK constraint `chk_product_review_ratings` as well as by the API |
+| `status` | `PUBLISHED` or `HIDDEN` |
+| `moderationReason`, `moderatedByUserId`, `moderatedAt` | Who hid it or showed it again, when, and why (the reason only while hidden) |
+
+Deleting a product or a customer profile deletes their reviews (cascade).
+Migration: `20261005090000_product_reviews`.
+
+### Personal data
+
+A review is the buyer's own record, published under their name, so the Art. 15
+export has a
+`productReviews` section: each review's scores, whether it is shown,
+and — for a hidden one — the reason and when. The member of staff who hid it is
+not named. Erasing an account **deletes** its reviews rather than anonymising
+them: an anonymised review would still be that person's opinion inside the
+average.
+
+### The endpoints
+
+| Method and path | Who | What it does |
+|---|---|---|
+| `GET /api/v1/catalog/products/:slug/reviews` | Public | The summary (overall average, the four category averages, the one-to-five distribution, the count) and one page of published reviews. `?page`, `?limit` (up to 50), `?sort=recent\|highest\|lowest`. 404 for a product nobody may browse |
+| `GET /api/v1/account/product-reviews` | Customer | Your reviews, and delivered products still waiting for one |
+| `GET /api/v1/account/product-reviews/reviewed?productIds=a,b` | Customer | Which of these products you have reviewed. The order page uses it |
+| `GET /api/v1/account/products/:productId/review` | Customer | `{ canReview, review }` — whether you may review it, and what you wrote |
+| `PUT /api/v1/account/products/:productId/review` | Customer | Write or replace your review: `{ scores: { quality, delivery, experience, support } }` |
+| `DELETE /api/v1/account/product-reviews/:reviewId` | Customer | Take your review back |
+| `GET /api/v1/admin/product-reviews` | `review.read` | Every review. `?status`, `?maxScore`, `?search`, `?page`, `?limit` |
+| `POST /api/v1/admin/product-reviews/:reviewId/moderation` | `review.moderate` | `{ status: "HIDDEN", reason }` or `{ status: "PUBLISHED" }` |
+
+The catalogue also carries the short form. Every product in
+`GET /catalog/products`, `GET /catalog/products/:slug` and
+`GET /catalog/product-cards` has `rating: { average, count }`, or `null` when
+there are no published reviews or the feature is off. It comes from one
+grouped query per page, never one per card.
+
+New error code: `REVIEW_NOT_ELIGIBLE` (403) — the storefront says it in the
+reader's language.
+
+The code: `backend/src/modules/catalog/product-review.service.ts` holds every
+rule; `backend/src/http/routes/product-reviews.ts` holds the routes for all
+three audiences; the tests are `backend/tests/integration/product-reviews.test.ts`.
+
+## 9.13 Support tickets: raising a problem with the team
+
+A person with an account can **raise a ticket**: a written problem sent to the
+operator's own support team, with a reference number, a history and replies.
+It works the same way from three places — the storefront, the Seller Hub and
+the logistics portal — and the team answers all of them from one inbox in the
+console.
+
+It is switched on by default. `FEATURE_SUPPORT_TICKETS=false` turns the Support
+page into a page of published contacts only, and a new ticket is refused with
+`403 FEATURE_DISABLED`. Tickets already raised stay readable, their senders can
+still reply and add files, and staff keep working in the console, so switching
+it off strands nobody half-way through a conversation. The apps learn the
+setting as `features.supportTickets` in `GET /api/v1/config`.
+
+### Words you will meet
+
+| Word | Meaning |
+|---|---|
+| **Ticket** | One problem, raised by one person. It has a reference like `SR-7K2M-Q9XD` — random, not sequential, so a reference says nothing about how many tickets exist |
+| **Sender** | The person who raised it. Only they can read it on their side |
+| **Source** | Where it was raised from: `STOREFRONT`, `SELLER_HUB` or `LOGISTICS_PORTAL` |
+| **Acting for** | The company, seller or logistics company the sender was working for when they raised it. It is context for staff, not a key to the ticket |
+| **Internal note** | Something staff write to each other on a ticket. The sender never sees it |
+
+### Frequently asked questions, before the form
+
+The storefront's Support page opens with **Frequently asked questions**,
+straight under "How can we help?" and before the contacts and the form. Six
+topics, shown as tiles with an icon and a question count: Accounts and
+verification, Orders and payments, Bulk orders and preorders, Shipping and
+tracking, Sellers and logistics partners, ERP and technical help. A question
+opens its answer in place; changing topic closes it.
+
+- **Where the content lives.** `apps/customer-web/src/lib/support-faq.ts`
+  lists the topics and questions with stable ids; the words are
+  `support.faq.*` keys in all eight catalogues. There is no console screen for
+  it: the answers describe the code, so they change with the code.
+- **Settings decide some answers.** Company questions are hidden when
+  `features.buyerCompanies` is off; the sign-up answer switches to "by
+  invitation" when `features.selfRegistration` is off; the "reach a person"
+  answer drops tickets when `features.supportTickets` is off.
+- **Links only for who can follow them.** Account links (orders, preorders,
+  region) need a signed-in customer; **View verification status** needs a
+  company membership; sign-up links need sign-up to be open.
+- **Contact support** scrolls to the form and focuses its heading, so nothing
+  typed is lost. `/support#support-faq` lands on the section.
+- **Never promised:** a refund, delivery or reply time, live GPS tracking, a
+  customer returns screen, or a browser list — none of them exists.
+- It is only on `/support`, not on Seller Hub's `/seller/support`. If it fails
+  to render, it vanishes and the form keeps working.
+
+### Where a person starts one
+
+- **The header.** A **Support** button with a headset icon and no text (its
+  accessible name is "Support"), from the `sm` breakpoint up. On a phone it is
+  in the account menu and the footer instead.
+- **The account menu** — "Support", which opens the Support page. On a phone
+  this is the way there.
+- **The account sidebar** — "Support", under My stuff, which opens **Your
+  tickets** (`/account/support`).
+- **The footer**, in a Support column.
+- **An order.** "Contact support about this order" opens `/support` with the
+  order number and the topic already filled in.
+- **Seller Hub.** A **Support** item on the rail (`/seller/support`). It does
+  not need an approved seller account.
+- **The logistics portal.** A **Support** item (`/support` in the portal),
+  shown to every member, drivers included.
+
+The "Contact support" links on the sign-in and activation pages are still email
+links. A person who cannot sign in cannot raise a ticket, so those pages point
+at the published address instead.
+
+### The Support page
+
+`/support` is a public page, built on the approved **ContactWithGlobe** design:
+the eyebrow "{marketplace} Support", the heading "How can we help?", a **Get in
+touch** column and a **Raise a ticket** card.
+
+- **Get in touch** lists the support email and telephone number the operator
+  published in **Settings → Business profile**. If none are published, it says
+  so. There are no placeholder contacts anywhere, because a made-up address is
+  worse than none.
+- Under it sits an animated wireframe globe. Its country outlines are
+  `world-atlas` `countries-110m` (Natural Earth, public domain), shipped with the
+  app as a file from the same origin, because the storefront's CSP is
+  `connect-src 'self'`. If the file does not load, the globe has no countries
+  and the form is not affected. The globe pauses when it is off screen, stops
+  turning under `prefers-reduced-motion`, and is hidden from assistive
+  technology. It follows the light and dark tokens.
+- The globe and its frame (`GlobeWireframe.tsx`, `ContactWithGlobe.tsx`) are one
+  pair of files kept in the storefront and the portal.
+  `support-kit-sync.test.ts` fails if the copies differ, so change the
+  storefront's and copy them across.
+
+**A guest** sees the contacts and a **Sign in to continue** button that comes
+back to `/support`. Tickets are raised only from an account — there are no
+guest tickets.
+
+**Somebody signed in** sees a form that asks only about the problem:
+
+- **Topic** — Orders, Payments, Preorders, Products, Seller Hub, Logistics and
+  tracking, Company verification, ERP integration, Account and security, Other.
+- **Subject**.
+- **Describe the issue** — 10 to 5000 characters.
+- **Order number**, optional. Only the sender's own orders are accepted. A
+  stranger's order and a typing mistake get the same refusal,
+  `SUPPORT_ORDER_NOT_FOUND` (422), so the form cannot be used to find out which
+  order numbers exist.
+- **Files**, optional.
+
+There are no name, email or company fields. A line reads "Raised as {name}
+[for {company}]. Replies go to {email}." The server takes the name, the
+account's email and who they are acting for from the session — the company
+when they are buying for one, the seller in Seller Hub, the logistics company
+in the portal. It never trusts the form for any of them.
+
+**When it is sent**, the page shows the ticket number, whether the
+acknowledgement email was actually queued (it says so only when it was), what
+happened to each file, and **View your ticket**. If sending fails, everything
+typed is kept. A retry reuses the same `Idempotency-Key`, so a double click or
+a network retry makes exactly one ticket.
+
+### Reading a ticket
+
+**Your tickets** is `/account/support` on the storefront,
+`/seller/support/requests` in Seller Hub (also titled "Your tickets"), and the
+list under the form in the portal. One ticket is `/account/support/:reference`,
+`/seller/support/requests/:reference` or `/support/:reference` in the portal.
+
+A ticket shows the first message, the team's replies, status changes and the
+files, each with **Open**. Staff appear as "Support team", never by name. The
+sender can write again and add more files until the ticket is `CLOSED`.
+
+The sender sees the status in their own words:
+
+| Status | The sender sees |
+|---|---|
+| `OPEN` | Sent |
+| `IN_PROGRESS` | Being handled |
+| `WAITING_FOR_CUSTOMER` | Waiting for your reply |
+| `RESOLVED` | Resolved |
+| `CLOSED` | Closed |
+
+### Files
+
+- Images (JPEG, PNG, WebP, GIF), videos (MP4, WebM, MOV) and PDFs. The type is
+  decided from the file's bytes, not its name. Office documents and archives
+  are not accepted.
+- Every file is scanned for malware before it is stored, and it is stored
+  privately.
+- A file opens only through a five-minute, single-use link made for the person
+  who is signed in.
+- Up to 10 files per ticket (`SUPPORT_ATTACHMENT_LIMIT_REACHED`, 409, after
+  that), each up to `SUPPORT_ATTACHMENT_MAX_BYTES` (25 MB by default).
+- Files upload one at a time, after the ticket is created. A refused file does
+  not lose the ticket.
+- Files need a malware scanner (`MALWARE_SCANNER_DRIVER=clamav`).
+  `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS=true` is for a development machine and
+  refused in production. With neither, the form says files cannot be attached
+  here, and a request that tries anyway gets `SUPPORT_ATTACHMENTS_UNAVAILABLE`
+  (409).
+
+Staff cannot attach files to their replies. That is not built.
+
+### The console
+
+A new group on the rail, **Support → Tickets**: `/support` and `/support/:id`.
+
+**The inbox** opens on **Needs work** — Open, In progress and Waiting for
+customer — with a count for each status. It filters by status, priority,
+topic, where it was raised from (Storefront, Seller Hub, Logistics portal) and
+who has it (me, nobody). It searches by reference, subject, name, email,
+company or order number.
+
+**One ticket** shows:
+
+- **Raised by** — the name and email, plus the account's current email if it
+  has changed since; the role; who they were acting for, linked to the buyer
+  company, seller or logistics partner record; and the source.
+- **Related order** — the number for everybody who can read the ticket, a link
+  only for staff with `order.read`.
+- **One timeline** of the conversation and its history. Internal notes,
+  priority changes and assignments are marked **Staff only**.
+- **Files from the customer**, each with **Open**.
+- **Controls**: move the status (only the allowed moves are offered), set the
+  priority (Low, Normal, High, Urgent — only staff set it, never the sender),
+  take it, release it or give it to a colleague, write a reply (and optionally
+  mark it Waiting for customer or Resolved in the same step), or write an
+  internal note.
+
+A reply emails the sender a link, never the words. The console's bell shows
+"New support ticket SR-…" and "Reply on support ticket SR-…" to staff with
+`support_ticket.view`.
+
+### The status model
+
+Only `backend/src/domain/support-ticket-state.ts` changes a ticket's status —
+the same rule as orders.
+
+| From | May move to |
+|---|---|
+| `OPEN` — sent, nobody has picked it up | `IN_PROGRESS`, `WAITING_FOR_CUSTOMER`, `RESOLVED`, `CLOSED` |
+| `IN_PROGRESS` | `WAITING_FOR_CUSTOMER`, `RESOLVED`, `CLOSED` |
+| `WAITING_FOR_CUSTOMER` | `IN_PROGRESS`, `RESOLVED`, `CLOSED` |
+| `RESOLVED` | `IN_PROGRESS`, `CLOSED` |
+| `CLOSED` | Nothing. It is final |
+
+- `OPEN` is never a target. A ticket cannot go back to "nobody has looked".
+- A staff reply on an `OPEN` ticket moves it to `IN_PROGRESS`, and gives it to
+  the person who replied if nobody had it.
+- The sender writing on a `WAITING_FOR_CUSTOMER` or `RESOLVED` ticket moves it
+  back to `IN_PROGRESS`.
+- Nobody writes on a `CLOSED` ticket (`SUPPORT_TICKET_CLOSED`, 409). A new
+  problem is a new ticket.
+- A move the table does not allow is `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED`
+  (409).
+
+### Who may do what
+
+| Permission | What it allows | Held by default |
+|---|---|---|
+| `support_ticket.view` | Read the inbox, the tickets and the internal notes | Business Owner, Order Manager, Finance / Approver |
+| `support_ticket.reply` | Reply, write notes, change the status and priority, take a ticket | Business Owner, Order Manager |
+| `support_ticket.assign` | Give a ticket to a colleague, or take it from one | Business Owner |
+
+Catalog Manager and Inventory Manager have none of them. Giving a ticket to
+somebody who cannot read tickets is refused with
+`SUPPORT_ASSIGNEE_NOT_ELIGIBLE` (400).
+
+### Privacy and who can see a ticket
+
+- **Only the sender reads their ticket.** Every read is filtered by their user
+  id and the surface they sent it from — and, in Seller Hub, by the seller; in
+  the portal, by the logistics company. Colleagues at the same company or seller
+  do not see each other's tickets. Somebody else's reference answers "not
+  found", exactly like one that does not exist.
+- **Message text is plain text.** Control characters and bidirectional-override
+  characters are removed, and it is never rendered as HTML.
+- **The audit trail says who did what, never what was said.** It records
+  `support_ticket.created`, `.status_changed`, `.priority_changed`,
+  `.assigned`, `.replied`, `.note_added`, `.attachment_uploaded` and
+  `.attachment_downloaded` — never message text, never file names.
+- **Emails carry the reference and a link, never the message.**
+- **Art. 15 export.** A `supportTickets` section: the sender's tickets, the
+  thread they can see, and the file list (names, types and sizes). Internal
+  notes, priority and assignment are withheld under the existing
+  `internalNotes` reason.
+- **Art. 17 erasure** deletes the person's tickets, their events and their files,
+  including the stored bytes.
+
+### Stopping abuse
+
+- Route rate limits: 5 new tickets per 10 minutes per IP address; 20 messages
+  and 20 uploads per 10 minutes.
+- A daily cap per account, `SUPPORT_TICKETS_PER_DAY` (10 by default, 1 to 200).
+  Past it: `429 SUPPORT_TICKET_LIMIT_REACHED`.
+- Cookie sessions, so the CSRF double-submit check applies.
+- `Idempotency-Key` is required when creating a ticket and when writing again.
+
+### Emails
+
+Four templates, each editable in **Settings → Notifications**:
+
+| Template | Sent to | When |
+|---|---|---|
+| `support_ticket.received` | The sender | The ticket is created |
+| `support_ticket.reply` | The sender | Staff reply |
+| `support_ticket.new_for_team` | The operator's published support email, if one is set | A ticket is created |
+| `support_ticket.assigned` | The colleague | Somebody gives them a ticket |
+
+### The tables
+
+Migrations `20261009090000_support_tickets` and
+`20261010090000_support_ticket_attachments`. No CHECK constraints.
+
+`support_tickets` — one row per ticket.
+
+| Column | Meaning |
+|---|---|
+| `reference` | `SR-XXXX-XXXX`, unique |
+| `requesterUserId` | The sender. Deleting the user deletes the ticket (cascade) |
+| `requesterRole` | `BUYER`, `COMPANY_BUYER`, `SELLER` or `LOGISTICS_PARTNER` |
+| `source` | `STOREFRONT`, `SELLER_HUB` or `LOGISTICS_PORTAL` |
+| `customerProfileId` | The sender's customer profile, when there is one (cascade) |
+| `buyerCompanyId`, `sellerAccountId`, `logisticsPartnerId` | Who they were acting for. Set to NULL if that record goes. Context, not access |
+| `nameSnapshot`, `emailSnapshot`, `companyNameSnapshot` | Who they were when they raised it |
+| `language`, `category`, `subject` (160), `message` | What they asked, in which language |
+| `relatedOrderId`, `relatedOrderNumber` | The order, if they named one. The id is set to NULL if the order is removed; the number stays |
+| `status`, `priority` | See the status model. Priority is set by staff only |
+| `assignedAdminId` | Who has it. Set to NULL if that user goes |
+| `lastActivityAt`, `resolvedAt`, `closedAt`, `createdAt`, `updatedAt` | When things happened |
+
+`support_ticket_events` — everything that happens on a ticket, in order:
+`CREATED`, `REQUESTER_MESSAGE`, `STAFF_REPLY`, `INTERNAL_NOTE`,
+`STATUS_CHANGED`, `PRIORITY_CHANGED`, `ASSIGNED`. `visibleToRequester` is the
+privacy line, decided when the row is written, so a screen cannot get it wrong
+later. Also `actorUserId` (set NULL), `actorIsRequester`, `body`, `fromValue`
+and `toValue`. Deleting the ticket deletes its events.
+
+`support_ticket_attachments` — one row per file: `storageKey`, `fileName`,
+`contentType`, `kind` (`IMAGE`, `VIDEO`, `DOCUMENT`), `byteSize`,
+`contentHash` (SHA-256), `scanState` (`CLEAN` or `SCANNER_UNCONFIGURED`) and
+`uploadedByUserId` (set NULL). Deleting the ticket deletes them.
+
+### The endpoints
+
+Under `/api/v1`. The storefront set:
+
+| Method and path | What it does |
+|---|---|
+| `GET /support/context` | What the page needs: whether tickets are on, the published contacts, who the ticket will be raised as (name, email, whether it is verified, role, company, whether the company can be edited, whether an order can be named), the file policy (`available`, `reason`, `maxBytes`, `maxFiles`, `types`) and the limits |
+| `POST /support/tickets` | Raise a ticket. Needs `Idempotency-Key`. The name is optional; the server uses the account's |
+| `GET /support/tickets` | Your tickets |
+| `GET /support/tickets/:reference` | One of your tickets, with what you may see of its thread |
+| `POST /support/tickets/:reference/messages` | Write again. Needs `Idempotency-Key` |
+| `POST /support/tickets/:reference/attachments` | Add one file (multipart) |
+| `POST /support/tickets/:reference/attachments/:attachmentId/link` | Make a five-minute, single-use link |
+| `GET /support/tickets/:reference/attachments/:attachmentId/download?token=` | Open the file |
+
+The same set lives under `/seller/support/…` for Seller Hub (behind
+`requireSeller`) and `/logistics/support/…` for the portal (behind
+`requireLogistics`).
+
+Staff:
+
+| Method and path | Needs | What it does |
+|---|---|---|
+| `GET /admin/support-tickets` | `support_ticket.view` | The inbox. `?status` (including `WORKING`, which is "Needs work"), `?priority`, `?category`, `?source`, `?assignee=me\|unassigned\|<id>`, `?search`, `?page`, `?limit` |
+| `GET /admin/support-tickets/assignees` | `support_ticket.view` | Who a ticket can be given to |
+| `GET /admin/support-tickets/:id` | `support_ticket.view` | One ticket, with its whole timeline |
+| `POST /admin/support-tickets/:id/replies` | `support_ticket.reply` | `{ body, nextStatus? }` |
+| `POST /admin/support-tickets/:id/notes` | `support_ticket.reply` | `{ body }` — an internal note |
+| `PATCH /admin/support-tickets/:id` | `support_ticket.reply` | `{ status?, priority? }` |
+| `POST /admin/support-tickets/:id/assignment` | `support_ticket.assign` to give it to somebody else; `support_ticket.reply` to take it or release it yourself | `{ assigneeUserId }`, or `null` to release it |
+| `POST /admin/support-tickets/:id/attachments/:attachmentId/link`, `GET …/download` | `support_ticket.view` | Open a customer's file |
+
+### New error codes
+
+Each is translated in the apps, in all eight languages.
+
+| Code | HTTP | When |
+|---|---|---|
+| `SUPPORT_TICKET_LIMIT_REACHED` | 429 | The account has raised its tickets for today |
+| `SUPPORT_ORDER_NOT_FOUND` | 422 | The order number is not one of the sender's |
+| `SUPPORT_TICKET_CLOSED` | 409 | Writing on a closed ticket |
+| `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED` | 409 | A status move the model does not allow |
+| `SUPPORT_ASSIGNEE_NOT_ELIGIBLE` | 400 | Giving a ticket to somebody who cannot work tickets |
+| `SUPPORT_ATTACHMENTS_UNAVAILABLE` | 409 | Files cannot be attached here (off, or no scanner) |
+| `SUPPORT_ATTACHMENT_LIMIT_REACHED` | 409 | The ticket already has 10 files |
+
+### Where it lives
+
+| What | Where |
+|---|---|
+| Rules | `backend/src/domain/support-ticket-state.ts` |
+| Services | `backend/src/modules/support/support-ticket.service.ts`, `support-attachment.service.ts` |
+| Routes (all four audiences) | `backend/src/http/routes/support.ts` |
+| Storefront and Seller Hub | `pages/SupportPage.tsx`, `pages/account/SupportTicketsPage.tsx`, `components/support/`, `lib/support.ts` |
+| Console | `pages/support/SupportTicketsPage.tsx`, `lib/support-tickets.ts` |
+| Logistics portal | `pages/SupportPage.tsx`, `components/support/` (the globe pair copied from the storefront), `lib/support.ts` |
+| Tests | `backend/tests/integration/support-tickets.test.ts`, `backend/tests/unit/support-ticket-state.test.ts`, `SupportPage.test.tsx` in the storefront and the portal, the console's `SupportTicketsPage.test.tsx`, `support-kit-sync.test.ts` |
+
+Every new screen is in all eight languages — machine translated with DeepL and
+corrected by hand. Greek in particular, and every language really, still wants
+a native reader.
+
+### What it does not do
+
+- No tickets from guests without an account.
+- Staff cannot attach files to a reply.
+- No live updates over a websocket, the way preorder chat has them.
+- No SLA timers on tickets.
+
 ---
 
 # 10. Money — the most important rule
@@ -14741,6 +16236,11 @@ was already looking.
 `audit_log` records who did what, when, from which IP, with a before-and-after
 snapshot. It is written in the same transaction as the change, so an action
 cannot happen without leaving a trace.
+
+What it records is the action, not always the content. Support tickets are the
+clearest case: the trail says who created, replied, noted, moved, assigned or
+opened a file on a ticket, and never holds the message text or a file name
+(9.13).
 
 ## Telling somebody they found a hole
 
@@ -15660,7 +17160,7 @@ So the architecture is outbound-only:
 
 1. The seller, already authenticated in the Seller Hub, generates a short-lived
    single-use **pairing code**.
-2. They run the **Glovia Tally Bridge** on the machine beside TallyPrime.
+2. They run the **Gloviaa Mart Tally Bridge** on the machine beside TallyPrime.
 3. The bridge talks to Tally over the **local** network — their business,
    configured on their side.
 4. The bridge opens an authenticated **HTTPS connection out** to this API and
@@ -16175,6 +17675,9 @@ the carrier portal does not sign a member of staff out of the console.
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `false` | Ask staff's browser for its location at sign-in only after a documented privacy and employment-law assessment |
 | `PAYMENT_MOCK_SUCCESS` | `false` | Settles any order awaiting payment on request, with no gateway and no webhook, through the same code a real capture runs. **Development only — `env.ts` refuses to start a production process with it on, and refuses to start at all beside a live payment key**, because it confirms orders nobody has paid for |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means every guarded `/api/v1/logistics/*` route refuses with `FEATURE_DISABLED`, so the third application has nothing a carrier can use, and carrier webhooks are refused. The admin panel's Logistics group **stays**, and staff can still create carriers and prepare them before the switch is turned on |
+| `FEATURE_BUYER_COMPANIES` | `true` | **Individual and Company buyers** (section 9.1a): the Company sign-in tab, `/register/company`, the company application, the context switcher, and the console's **Company verification** screens. Published as `features.buyerCompanies`. Tuning lives beside it: `BUYER_COMPANY_MAX_OPEN_APPLICATIONS`, `BUYER_COMPANY_DOCUMENT_MAX_BYTES`, `BUYER_COMPANY_DOCUMENT_MAX_PAGES`, `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` (development only; refused in production), `BUYER_COMPANY_SECOND_REVIEW_RISK`, `BUYER_COMPANY_CONSENT_VERSION`, the three register addresses `BUYER_COMPANY_GLEIF_URL`, `BUYER_COMPANY_PL_VAT_URL`, `BUYER_COMPANY_PL_KRS_URL` (blank makes that check manual) and `BUYER_COMPANY_REGISTRY_TIMEOUT_MS`. The EU VAT check reuses `VIES_CHECK_URL` |
+| `FEATURE_PRODUCT_REVIEWS` | `true` | **Product reviews** (section 9.12): the stars on every product card and product page, the review form, a delivered order's **Rate this product** and **Account → My reviews**. Published as `features.productReviews`. Off refuses the storefront review routes; written reviews are kept and the console's **Product reviews** screen still works |
+| `FEATURE_SUPPORT_TICKETS` | `true` | **Support tickets** (section 9.13): the **Raise a ticket** form on the Support page in the storefront, Seller Hub and the logistics portal. Published as `features.supportTickets`. Off, the Support page shows only the published contacts and a new ticket is refused with `403 FEATURE_DISABLED`; existing tickets stay readable, senders can still reply and add files, and staff keep working in the console. Tuning lives beside it: `SUPPORT_TICKETS_PER_DAY` (10; 1 to 200), `SUPPORT_ATTACHMENTS_ENABLED` (`true`), `SUPPORT_ATTACHMENT_MAX_BYTES` (26214400, which is 25 MB) and `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` (`false`; development only, refused in production) |
 | `FEATURE_PREORDER_CHAT` | `true` | **Chat with {marketplace}** on every product page, **Account → Messages** and the console's **Preorder Chats** (section 9.5.3b). Off answers every chat route 404 and hides the button. Tuning lives beside it: `REALTIME_BUS_DRIVER` (`memory`; `database` for several API processes), `PREORDER_CHAT_TYPICAL_RESPONSE`, `OPERATOR_TEAM_NAME` (the name the operator's own team works under - `{{team}}` in the translations, used in chat and in every "who manages this delivery level" sentence; empty = the marketplace name), `PREORDER_CHAT_SLA_MINUTES`, `PREORDER_CHAT_EMAIL_DELAY_MINUTES`, the rate and size limits, the attachment settings and `PREORDER_CHAT_RETENTION_DAYS` |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 — and the value is **published in `/config`**, so the page offers the way in where the composer would be rather than letting somebody type a paragraph and then refusing it. On, and a visitor may ask before signing up; understand what that costs first, because an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
@@ -16664,15 +18167,16 @@ UBoss-Software/
 │
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 226 models.
-│   │   └── migrations/             81 numbered, committed SQL steps
+│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 256 models.
+│   │   └── migrations/             91 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O
 │   │   │   ├── money.ts            BigInt arithmetic, rounding
-│   │   │   ├── errors.ts           ← The 341 error codes
-│   │   │   ├── permissions.ts      ← Roles and 56 staff permissions
+│   │   │   ├── errors.ts           ← The 383 error codes
+│   │   │   ├── permissions.ts      ← Roles and 69 staff permissions
 │   │   │   ├── order-state-machine.ts  ← Legal order transitions
+│   │   │   ├── support-ticket-state.ts ← Legal support ticket transitions
 │   │   │   ├── schedule-state.ts   ← Legal plan and occurrence transitions
 │   │   │   ├── ordering-unit.ts    ← Packs to pieces, done on the server
 │   │   │   ├── logistics-shipment-state.ts  ← The 27 statuses, and what may follow what
@@ -16685,7 +18189,7 @@ UBoss-Software/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
 │   │   │   ├── server.ts           Entry point
 │   │   │   ├── openapi.ts          Hand-written summaries over the live route table
-│   │   │   └── routes/             56 route files
+│   │   │   └── routes/             60 route files
 │   │   ├── modules/                ← The business logic
 │   │   │   ├── catalog/
 │   │   │   │   ├── purchasability.ts   ← The one "may this be bought" rule
@@ -16802,8 +18306,10 @@ UBoss-Software/
 | Change what checkout does | `modules/orders/order.service.ts` |
 | Change who may do something | `domain/permissions.ts` |
 | Add an order status rule | `domain/order-state-machine.ts` |
+| Change how a support ticket's status may move | `domain/support-ticket-state.ts` — the only place a ticket's status changes |
 | Change an error message | `i18n/locales/*.json` in the frontend |
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
+| Change how the individual purchase limit counts or who it binds | `domain/b2c-order-limit.ts` (the rule) and `modules/cart/b2c-limit.service.ts` (the locks and checks) |
 | Change a page's look | `apps/*/src/pages/` |
 | Change the product's name or its attribution | `lib/brand.ts` — one copy in each of the three apps, and all three change together |
 | Change the phrases the greeting alternates | `pages/HomePage.tsx` for which phrases and how long each is up, `components/ui/flip-words.tsx` for how one becomes the next |

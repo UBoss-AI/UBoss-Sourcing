@@ -13,6 +13,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
+import { B2C_MAX_ORDER_QUANTITY_CEILING } from '../../domain/b2c-order-limit.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
   checkBrandName,
@@ -105,6 +106,8 @@ const draftOfferSchema = z.object({
   minimumOrderQuantity: z.number().int().min(1).max(1_000_000).nullable().optional(),
   orderIncrement: z.number().int().min(1).max(1_000_000).nullable().optional(),
   maximumOrderQuantity: z.number().int().min(1).max(10_000_000).nullable().optional(),
+  /** The B2C maximum order quantity. Nullable while drafting; required to submit. */
+  b2cMaxOrderQuantity: z.number().int().min(1).max(B2C_MAX_ORDER_QUANTITY_CEILING).nullable().optional(),
   handlingTimeDays: z.number().int().min(0).max(365).nullable().optional(),
   guaranteedShelfLifeMonths: z.number().int().min(0).max(600).nullable().optional(),
   warrantyMonths: z.number().int().min(0).max(600).nullable().optional(),

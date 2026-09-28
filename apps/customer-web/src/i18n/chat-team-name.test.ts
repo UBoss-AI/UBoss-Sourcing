@@ -2,7 +2,7 @@
  * The operator's team and the marketplace are two names.
  *
  * A storefront can trade as one name and answer preorder chats as a team with
- * another - "Chat with Glovia", answered by "the UBoss team". Sentences about
+ * another - "Chat with Gloviaa Mart", answered by "the UBoss team". Sentences about
  * the people who answer say `{{team}}`; sentences about the platform say
  * `{{marketplace}}`. With no team name set, the team is the marketplace.
  */
@@ -16,13 +16,13 @@ afterEach(() => {
 
 describe('the chat team’s name', () => {
   it('names the team without renaming the marketplace', () => {
-    setMarketplaceName('Glovia');
+    setMarketplaceName('Gloviaa Mart');
     setTeamName('UBoss');
     expect(i18n.t('preorderChat.availability.available')).toBe('UBoss team is available');
     expect(i18n.t('preorderChat.team.name')).toBe('UBoss Preorder Team');
     expect(i18n.t('preorderChat.system.status.closed')).toBe('UBoss closed this conversation.');
-    expect(i18n.t('preorderChat.title')).toBe('Chat with Glovia');
-    expect(i18n.t('preorderChat.safety')).toContain('inside Glovia');
+    expect(i18n.t('preorderChat.title')).toBe('Chat with Gloviaa Mart');
+    expect(i18n.t('preorderChat.safety')).toContain('inside Gloviaa Mart');
     // Who manages a delivery level is the same team.
     expect(i18n.t('sellerLogistics.mode.UBOSS')).toBe('UBoss');
     expect(i18n.t('sellerLogistics.mode.HYBRID')).toBe('Self + UBoss');

@@ -33,6 +33,10 @@ export const IdempotencyScope = {
   PREORDER_SUBMIT: 'preorder.submit',
   /** A buyer confirming the seller's terms, which creates the order. */
   PREORDER_CONFIRM: 'preorder.confirm',
+  /** Somebody sending a support request. A double-click sends one request. */
+  SUPPORT_TICKET_CREATE: 'support_ticket.create',
+  /** The sender writing again on a request. A retry posts one message. */
+  SUPPORT_TICKET_MESSAGE: 'support_ticket.message',
 } as const;
 
 export type IdempotencyScopeValue = (typeof IdempotencyScope)[keyof typeof IdempotencyScope];

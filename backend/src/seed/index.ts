@@ -79,9 +79,9 @@ async function seedBusinessConfiguration(): Promise<void> {
         // Limited. It is what appears on an invoice and in a contract, and a
         // product being renamed does not rename a company — that is an owner's
         // decision, made at a registrar, not a string edited here. The display
-        // name beside it IS the brand a customer reads, and that is Glovia.
+        // name beside it IS the brand a customer reads, and that is Gloviaa Mart.
         legalName: 'UBOSS Sourcing Private Limited',
-        displayName: 'Glovia',
+        displayName: 'Gloviaa Mart',
         supportEmail: 'support@uboss.local',
         supportPhone: '+91 80 4000 0000',
         gstin: '29AAAAA0000A1Z5',

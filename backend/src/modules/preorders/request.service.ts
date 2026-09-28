@@ -75,6 +75,7 @@ import {
   enqueueNotification,
 } from '../notifications/notification.service.js';
 import { nextOrderNumber } from '../orders/order.service.js';
+import { assertOrderLinesWithinB2c } from '../cart/b2c-limit.service.js';
 import { recordSellerAudit } from '../seller/audit.service.js';
 import { notifySupplier, resolveSupplierNotifications, type Responder } from './supplier.js';
 import { applyLineTax, loadTaxContext } from '../tax/vat.service.js';
@@ -111,6 +112,13 @@ export interface BuyerActor {
   userId: string;
   email: string;
   customerProfileId: string;
+  /**
+   * The company the buyer is acting for, from the request's confirmed buyer
+   * context, or null/absent for the person themselves. A preorder belongs to
+   * the context it was asked in: a company's preorders are not listed,
+   * opened or answered from the individual context, and the reverse.
+   */
+  buyerCompanyId?: string | null;
   correlationId?: string | null;
   ipAddress?: string | null;
 }
@@ -315,7 +323,11 @@ async function loadEligibleBuyer(customerProfileId: string) {
   return { ...profile, organization };
 }
 
-async function assess(customerProfileId: string, input: PreorderInput): Promise<Assessment> {
+async function assess(
+  customerProfileId: string,
+  input: PreorderInput,
+  buyerCompanyId: string | null,
+): Promise<Assessment> {
   const buyer = await loadEligibleBuyer(customerProfileId);
 
   const address = await prisma.address.findFirst({
@@ -438,6 +450,21 @@ async function assess(customerProfileId: string, input: PreorderInput): Promise<
       },
     );
   }
+
+  /*
+   * The B2C maximum order quantity. A preorder is not a way round it.
+   *
+   * A separate rule from the preorder minimum above, with its own error:
+   * that one is a FLOOR every preorder must clear, this is a CEILING only
+   * buyers without an approved company are held to. Judged against the
+   * buyer context the request is made in, re-read from the database, so
+   * only an approved company may preorder more than the limit.
+   */
+  await assertOrderLinesWithinB2c(prisma, {
+    customerProfileId,
+    buyerCompanyId,
+    lines: [{ productId: input.productId, sellerOfferId: eligibility.offer.id, quantity: baseUnits }],
+  });
 
   const dateProblem = checkDeliveryDate(input.requestedDeliveryDate, window);
   if (dateProblem?.code === 'INVALID') {
@@ -633,8 +660,9 @@ function serialiseAssessment(assessment: Assessment): Record<string, unknown> {
 export async function previewPreorder(
   customerProfileId: string,
   input: PreorderInput,
+  buyerCompanyId: string | null = null,
 ): Promise<Record<string, unknown>> {
-  return serialiseAssessment(await assess(customerProfileId, input));
+  return serialiseAssessment(await assess(customerProfileId, input, buyerCompanyId));
 }
 
 // ---------------------------------------------------------------------------
@@ -1018,7 +1046,7 @@ export async function submitPreorder(
   // server's own record - nothing in the body can say it was read.
   await assertPreorderInfoAcknowledged(actor.userId);
 
-  const assessment = await assess(actor.customerProfileId, input);
+  const assessment = await assess(actor.customerProfileId, input, actor.buyerCompanyId ?? null);
   const { eligibility, price, conversion } = assessment;
   const policy: PolicyTerms = eligibility.policy;
   const now = new Date();
@@ -1038,6 +1066,7 @@ export async function submitPreorder(
         requestNumber: number,
         sellerAccountId: eligibility.offer.sellerAccountId,
         customerProfileId: actor.customerProfileId,
+        buyerCompanyId: actor.buyerCompanyId ?? null,
         requestedByUserId: actor.userId,
         productId: eligibility.offer.productId,
         variantId: eligibility.offer.variantId,
@@ -1176,7 +1205,7 @@ export async function submitPreorder(
   await dispatchPendingNotifications();
 
   logger.info({ preorderId: id, requestNumber }, 'preorder submitted');
-  return getBuyerPreorder(actor.customerProfileId, id);
+  return getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
 }
 
 // ---------------------------------------------------------------------------
@@ -1555,11 +1584,14 @@ async function serialiseRequest(
 export async function getBuyerPreorder(
   customerProfileId: string,
   id: string,
+  buyerCompanyId: string | null = null,
 ): Promise<Record<string, unknown>> {
   const row = await loadRequest(id);
   // Somebody else's preorder answers exactly as a missing one: no existence
-  // oracle across buyers.
-  if (row === null || row.customerProfileId !== customerProfileId) throw notFound('Preorder');
+  // oracle across buyers - nor across one buyer's two contexts.
+  if (row === null || row.customerProfileId !== customerProfileId || row.buyerCompanyId !== buyerCompanyId) {
+    throw notFound('Preorder');
+  }
   return serialiseRequest(row, 'BUYER');
 }
 
@@ -1682,9 +1714,10 @@ export async function listSellerPreorders(
 
 export async function listBuyerPreorders(
   customerProfileId: string,
+  buyerCompanyId: string | null = null,
 ): Promise<Record<string, unknown>> {
   const rows = await prisma.preorderRequest.findMany({
-    where: { customerProfileId },
+    where: { customerProfileId, buyerCompanyId },
     orderBy: { createdAt: 'desc' },
     take: 200,
     include: { sellerAccount: { select: { displayName: true } } },
@@ -2542,9 +2575,11 @@ export const buyerRequestChangeSchema = z
   .object({ message: z.string().trim().min(3).max(1000) })
   .strict();
 
-async function loadForBuyer(customerProfileId: string, id: string) {
+async function loadForBuyer(customerProfileId: string, id: string, buyerCompanyId: string | null) {
   const row = await prisma.preorderRequest.findUnique({ where: { id } });
-  if (row === null || row.customerProfileId !== customerProfileId) throw notFound('Preorder');
+  if (row === null || row.customerProfileId !== customerProfileId || row.buyerCompanyId !== buyerCompanyId) {
+    throw notFound('Preorder');
+  }
   return row;
 }
 
@@ -2564,7 +2599,7 @@ export async function buyerConfirm(
   id: string,
   input: z.infer<typeof buyerConfirmSchema>,
 ): Promise<Record<string, unknown>> {
-  const request = await loadForBuyer(actor.customerProfileId, id);
+  const request = await loadForBuyer(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
 
   const offer = await prisma.preorderOffer.findUnique({ where: { id: input.offerId } });
   if (offer === null || offer.requestId !== request.id) throw notFound('Preorder terms');
@@ -2797,6 +2832,15 @@ export async function buyerConfirm(
             })
           : null;
 
+      // The B2C limit again, live, at the moment the preorder becomes an
+      // order: the seller may have revised the quantity in their terms, or
+      // lowered the limit, or the company may no longer be approved.
+      const b2c = await assertOrderLinesWithinB2c(tx, {
+        customerProfileId: actor.customerProfileId,
+        buyerCompanyId: request.buyerCompanyId,
+        lines: [{ productId: line.productId, sellerOfferId: request.offerId, quantity: line.quantity }],
+      });
+
       const number = await nextOrderNumber(tx);
       const initialStatus = requiresApproval ? 'PENDING_APPROVAL' : 'PENDING_PAYMENT';
 
@@ -2805,6 +2849,10 @@ export async function buyerConfirm(
           id: orderId,
           orderNumber: number,
           customerProfileId: actor.customerProfileId,
+          // The preorder's own context, so a company's preorder becomes a
+          // company order.
+          buyerCompanyId: request.buyerCompanyId,
+          buyerContextKind: request.buyerCompanyId === null ? 'INDIVIDUAL' : 'COMPANY',
           source: 'PREORDER',
           status: initialStatus,
           currency: offer.currency,
@@ -2855,6 +2903,8 @@ export async function buyerConfirm(
           discountMinor: line.discountMinor,
           lineTotalMinor: line.lineTotalMinor,
           isRecurringEligibleSnapshot: false,
+          b2cMaxOrderQuantityApplied: b2c.perLine[0]?.limitApplied ?? null,
+          b2cCompanyExemptionApplied: b2c.perLine[0]?.companyExempt ?? false,
           orderingUnit: wholePackages ? (lineUnit as never) : 'PIECE',
           unitQuantity: wholePackages
             ? offer.quantityBaseUnits / request.unitsPerPackage
@@ -3101,7 +3151,7 @@ export async function buyerConfirm(
     'preorder confirmed by buyer, order awaiting payment',
   );
 
-  return getBuyerPreorder(actor.customerProfileId, id);
+  return getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
 }
 
 /** Thrown inside the acceptance transaction to roll it back when stock has gone. */
@@ -3239,7 +3289,7 @@ export async function buyerDecline(
   id: string,
   input: z.infer<typeof buyerDeclineSchema>,
 ): Promise<Record<string, unknown>> {
-  const request = await loadForBuyer(actor.customerProfileId, id);
+  const request = await loadForBuyer(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
   const buyer = await loadEligibleBuyer(actor.customerProfileId);
   const expiresAt = hoursFromNow(
     (request.policySnapshotJson as { requestExpiryHours?: number | null }).requestExpiryHours ??
@@ -3307,7 +3357,7 @@ export async function buyerDecline(
   });
 
   await dispatchPendingNotifications();
-  return getBuyerPreorder(actor.customerProfileId, id);
+  return getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
 }
 
 /**
@@ -3336,7 +3386,7 @@ export async function buyerCancel(
   id: string,
   input: z.infer<typeof reasonSchema>,
 ): Promise<Record<string, unknown>> {
-  const request = await loadForBuyer(actor.customerProfileId, id);
+  const request = await loadForBuyer(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
   const buyer = await loadEligibleBuyer(actor.customerProfileId);
 
   if (request.status === 'PAYMENT_REQUIRED' && request.convertedOrderId !== null) {
@@ -3355,7 +3405,7 @@ export async function buyerCancel(
         500,
       ),
     });
-    return getBuyerPreorder(actor.customerProfileId, id);
+    return getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
   }
 
   await closeRequest(
@@ -3364,7 +3414,7 @@ export async function buyerCancel(
     { kind: 'BUYER', userId: actor.userId, label: buyer.fullName.slice(0, 160) },
     input.reason,
   );
-  return getBuyerPreorder(actor.customerProfileId, id);
+  return getBuyerPreorder(actor.customerProfileId, id, actor.buyerCompanyId ?? null);
 }
 
 // ---------------------------------------------------------------------------

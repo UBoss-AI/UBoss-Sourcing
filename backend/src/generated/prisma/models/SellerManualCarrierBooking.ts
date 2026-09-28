@@ -23,7 +23,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
  * and DHL is not one - so a seller without credentials had no way to say who
  * was carrying their parcel at all.
  * 
- * WHAT THIS ROW NEVER CLAIMS. That Glovia booked anything, that a label
+ * WHAT THIS ROW NEVER CLAIMS. That Gloviaa Mart booked anything, that a label
  * exists, that a rate was quoted, or that DHL has accepted the parcel. It
  * records what the SELLER says they arranged, and it says so on every screen
  * that shows it. A tracking number appears only when a person typed one in.

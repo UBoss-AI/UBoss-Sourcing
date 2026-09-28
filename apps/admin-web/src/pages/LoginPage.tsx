@@ -325,7 +325,7 @@ export function LoginPage(): React.JSX.Element {
         there used to be a "U" badge there, the storefront's sign-in has never
         had one, and a badge on one of three otherwise identical screens is a
         difference that says nothing. The product is named in the heading —
-        "Sign in to Glovia Admin" — and in the browser tab. What was missing
+        "Sign in to Gloviaa Mart Admin" — and in the browser tab. What was missing
         was who stands behind it, and small print at the bottom is where that
         belongs on a sign-in screen rather than competing with the field
         somebody came here to type in.

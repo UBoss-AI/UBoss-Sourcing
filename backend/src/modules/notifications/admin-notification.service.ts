@@ -204,6 +204,20 @@ export const AdminNotificationKind = {
   /// or null). Carries `preorder_chat.view`. INFORMATION, like a new chat: the
   /// queue is what says it is still waiting.
   PREORDER_CHAT_HANDOFF: 'preorder_chat.handoff',
+  /// Somebody sent a support request. The variables are reference, category,
+  /// requesterName and requesterRole. Carries `support_ticket.view`, because
+  /// it names a person. INFORMATION: the inbox is what says it is waiting.
+  SUPPORT_TICKET_OPENED: 'support_ticket.opened',
+  /// The sender wrote again on a request. The variables are reference and
+  /// requesterName. Same grant and class.
+  SUPPORT_TICKET_REPLIED: 'support_ticket.requester_replied',
+  /// A buyer company sent its application for review, or sent it back after
+  /// answering a request. The variables are companyName, reference, country and
+  /// resubmitted. Carries `buyer_company.read`. INFORMATION: the review queue
+  /// is what says it is still waiting, and its counters are the badge.
+  BUYER_COMPANY_SUBMITTED: 'buyer_company.submitted',
+  /// The applicant answered a reviewer's request. Same variables and grant.
+  BUYER_COMPANY_RESPONDED: 'buyer_company.responded',
 } as const;
 
 export type AdminNotificationKindKey =
@@ -338,6 +352,10 @@ const KIND_POLICY: Readonly<Record<string, KindPolicy>> = Object.freeze({
   }),
   [AdminNotificationKind.PREORDER_CHAT_PROPOSAL_ANSWERED]: INFORMATION,
   [AdminNotificationKind.PREORDER_CHAT_HANDOFF]: INFORMATION,
+  [AdminNotificationKind.SUPPORT_TICKET_OPENED]: INFORMATION,
+  [AdminNotificationKind.SUPPORT_TICKET_REPLIED]: INFORMATION,
+  [AdminNotificationKind.BUYER_COMPANY_SUBMITTED]: INFORMATION,
+  [AdminNotificationKind.BUYER_COMPANY_RESPONDED]: INFORMATION,
 });
 
 function policyFor(kind: string): KindPolicy {

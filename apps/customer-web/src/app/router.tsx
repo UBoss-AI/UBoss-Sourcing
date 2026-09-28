@@ -94,6 +94,13 @@ export const router = createBrowserRouter([
     children: [
       // --- Public: browse without an account --------------------------------
       { index: true, ...publicRoute(() => import('@/pages/HomePage').then((m) => m.HomePage)) },
+      /*
+       * Where every sign-in lands, individual or company. The same page as
+       * `/` rather than a redirect to it: a sign-in has one destination, and
+       * both kinds of buyer arrive at the same URL. Router paths match without
+       * regard to case, so `/Home` resolves here too.
+       */
+      { path: 'home', ...publicRoute(() => import('@/pages/HomePage').then((m) => m.HomePage)) },
       {
         path: 'products',
         ...publicRoute(() => import('@/pages/CatalogPage').then((m) => m.CatalogPage)),
@@ -131,6 +138,28 @@ export const router = createBrowserRouter([
       {
         path: 'register',
         ...publicRoute(() => import('@/pages/RegisterPage').then((m) => m.RegisterPage)),
+      },
+      {
+        // "Check your email", after either sign-up form. Its own page, so it
+        // opens at its top with its heading focused rather than wherever the
+        // form had been scrolled to. The path is `CHECK_EMAIL_PATH`.
+        path: 'register/check-email',
+        ...publicRoute(() => import('@/pages/RegisterPage').then((m) => m.CheckEmailPage)),
+      },
+      {
+        // The Company tab's "Register your company". Signed out, it creates
+        // the account first; signed in, it starts the company application.
+        path: 'register/company',
+        ...publicRoute(() =>
+          import('@/pages/company/CompanyRegisterPage').then((m) => m.CompanyRegisterPage),
+        ),
+      },
+      {
+        // After a Company-tab sign-in with several companies, or none.
+        path: 'select-company',
+        ...customerRoute(() =>
+          import('@/pages/company/SelectCompanyPage').then((m) => m.SelectCompanyPage),
+        ),
       },
       {
         // Where the confirmation email lands. The path is chosen by the
@@ -342,6 +371,22 @@ export const router = createBrowserRouter([
               ),
             ),
           },
+          // Company accounts: the list, and one company's application and
+          // verification. `:id` is what every company email links to.
+          {
+            path: 'companies',
+            ...accountPage(() =>
+              import('@/pages/company/CompaniesPage').then((m) => m.CompaniesPage),
+            ),
+          },
+          {
+            path: 'companies/:id',
+            ...accountPage(() =>
+              import('@/pages/company/CompanyApplicationPage').then(
+                (m) => m.CompanyApplicationPage,
+              ),
+            ),
+          },
           {
             path: 'addresses',
             ...accountPage(() => import('@/pages/AddressesPage').then((m) => m.AddressesPage)),
@@ -430,13 +475,41 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            // Products received but not rated yet, and the reviews written.
+            path: 'reviews',
+            ...accountPage(() =>
+              import('@/pages/account/MyReviewsPage').then((m) => m.MyReviewsPage),
+            ),
+          },
+          {
             path: 'notifications',
             ...accountPage(() =>
               import('@/pages/account/NotificationsPage').then((m) => m.NotificationsPage),
             ),
           },
+          // Support requests sent from `/support`. `:reference` is what the
+          // acknowledgement and reply emails link to.
+          {
+            path: 'support',
+            ...accountPage(() =>
+              import('@/pages/account/SupportTicketsPage').then((m) => m.SupportTicketsPage),
+            ),
+          },
+          {
+            path: 'support/:reference',
+            ...accountPage(() =>
+              import('@/pages/account/SupportTicketsPage').then((m) => m.SupportTicketDetailPage),
+            ),
+          },
         ],
       },
+
+      /*
+       * Support - the one page every Support and Contact support action opens.
+       * Public, because the published contact details are for everybody; the
+       * request form inside it appears once somebody is signed in.
+       */
+      { path: 'support', ...publicRoute(() => import('@/pages/SupportPage').then((m) => m.SupportPage)) },
 
       /*
        * The public front door to the marketplace programme.
@@ -673,6 +746,23 @@ export const router = createBrowserRouter([
         path: 'profile',
         ...accountPage(() =>
           import('@/pages/seller/SellerProfilePage').then((m) => m.SellerProfilePage),
+        ),
+      },
+      // Support from inside the Hub: sent as the seller, to the marketplace.
+      {
+        path: 'support',
+        ...accountPage(() => import('@/pages/SupportPage').then((m) => m.SellerSupportPage)),
+      },
+      {
+        path: 'support/requests',
+        ...accountPage(() =>
+          import('@/pages/account/SupportTicketsPage').then((m) => m.SellerSupportTicketsPage),
+        ),
+      },
+      {
+        path: 'support/requests/:reference',
+        ...accountPage(() =>
+          import('@/pages/account/SupportTicketsPage').then((m) => m.SellerSupportTicketDetailPage),
         ),
       },
     ],

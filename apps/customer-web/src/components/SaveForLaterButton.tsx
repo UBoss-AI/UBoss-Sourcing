@@ -29,6 +29,7 @@ import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
 import { Button } from '@/components/ui';
 import { HeartIcon } from '@/components/icons';
+import { PulseHeart } from '@/components/PulseHeart';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { useI18n } from '@/i18n/i18n-context';
@@ -141,27 +142,17 @@ export function SaveForLaterButton({
   const isBusy = save.isPending || remove.isPending;
 
   return (
-    <Button
-      variant="ghost"
-      // `aria-pressed` rather than two different labels: it is one control
-      // with a state, and a screen reader announces "Save for later, pressed"
-      // which is exactly what the filled heart says to everybody else.
-      aria-pressed={saved !== null}
-      isLoading={isBusy}
-      onClick={() => {
-        if (saved === null) save.mutate();
-        else remove.mutate(saved.id);
+    <PulseHeart
+      liked={saved !== null}
+      count={null}
+      showCount={false}
+      size="md"
+      disabled={isBusy}
+      ariaLabel={saved === null ? t('saveForLater.action') : t('saveForLater.savedLabel')}
+      onChange={(nextLiked) => {
+        if (nextLiked) save.mutate();
+        else if (saved !== null) remove.mutate(saved.id);
       }}
-      className={saved === null ? undefined : 'text-brand'}
-    >
-      <HeartIcon
-        aria-hidden="true"
-        // Filled by a currentColor stroke plus a tinted fill: the icon set is
-        // stroke-only by design, so "saved" is said with colour rather than by
-        // swapping in a second glyph that would sit at a different weight.
-        className={saved === null ? 'h-[1.15rem] w-[1.15rem]' : 'h-[1.15rem] w-[1.15rem] fill-brand/20'}
-      />
-      {saved === null ? t('saveForLater.action') : t('saveForLater.savedLabel')}
-    </Button>
+    />
   );
 }

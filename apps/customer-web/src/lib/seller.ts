@@ -460,6 +460,8 @@ export interface OfferRow {
   priceMinor: string;
   currency: string;
   minimumOrderQuantity: number;
+  /** The B2C maximum order quantity, or null for a listing from before the rule. */
+  b2cMaxOrderQuantity?: number | null;
   availableQuantity: number;
   reservedQuantity: number;
   qualityScore: number | null;
@@ -587,6 +589,11 @@ export interface DraftOffer {
   minimumOrderQuantity?: number | null;
   orderIncrement?: number | null;
   maximumOrderQuantity?: number | null;
+  /**
+   * The B2C maximum order quantity: the most an Individual buyer may order
+   * of this product at once. Optional while drafting, required to submit.
+   */
+  b2cMaxOrderQuantity?: number | null;
   handlingTimeDays?: number | null;
   warrantyMonths?: number | null;
   sellingRegions?: string[] | null;
@@ -936,6 +943,8 @@ export interface ListingTermsPatch {
   minimumOrderQuantity?: number | null;
   orderIncrement?: number | null;
   maximumOrderQuantity?: number | null;
+  /** The B2C maximum order quantity for the whole listing. Absent leaves it alone. */
+  b2cMaxOrderQuantity?: number | null;
   handlingTimeDays?: number | null;
   guaranteedShelfLifeMonths?: number | null;
   warrantyMonths?: number | null;
@@ -995,6 +1004,8 @@ export interface ListingEditView {
     minimumOrderQuantity: number;
     orderIncrement: number;
     maximumOrderQuantity: number | null;
+    /** The B2C maximum order quantity; null means not configured yet. */
+    b2cMaxOrderQuantity: number | null;
     handlingTimeDays: number | null;
     guaranteedShelfLifeMonths: number | null;
     warrantyMonths: number | null;

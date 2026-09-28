@@ -43,10 +43,10 @@
  * left half; it is decoration, `aria-hidden`, and every word and control is in
  * the column beside it.
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
@@ -64,6 +64,13 @@ import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { errorMessage } from '@/lib/errors';
+import { OnboardingSteps } from '@/pages/company/OnboardingSteps';
+import {
+  CHECK_EMAIL_PATH,
+  readCheckEmailState,
+  type CheckEmailState,
+  type SignUpVariant,
+} from '@/lib/sign-up';
 
 /**
  * Built per render, not once at module scope.
@@ -129,14 +136,33 @@ export function RegisterPage(): React.JSX.Element {
 // The real form
 // ---------------------------------------------------------------------------
 
-function RegistrationForm(): React.JSX.Element {
+/**
+ * Where a sign-up was started from.
+ *
+ * `company` is step 1 of registering a company: the same account, the same
+ * confirmation link, the same password rules - nothing about creating the
+ * sign-in differs - but the words say what comes next, and the sign-in link
+ * afterwards opens the Company tab. The company's own details are asked for
+ * after the address is confirmed, from inside the account, where they are
+ * saved step by step on the server.
+ */
+export type RegistrationVariant = SignUpVariant;
+
+/** A per-device reminder that this sign-up is for a company. Never an authority. */
+export const SIGNUP_INTENT_KEY = 'uboss.signup.buyerType';
+
+export function RegistrationForm({ variant = 'individual' }: { variant?: RegistrationVariant } = {}): React.JSX.Element {
   const { business, localisation, features } = useStorefront();
   const { t, language } = useI18n();
+  const isCompany = variant === 'company';
+  const navigate = useNavigate();
 
-  const [submitted, setSubmitted] = useState<{ email: string; requiresApproval: boolean } | null>(
-    null,
-  );
   const [formError, setFormError] = useState<string | null>(null);
+  // `isSubmitting` disables the button, but only once React has re-rendered;
+  // two clicks inside one frame both reach `onSubmit` before that. This ref
+  // is set synchronously, so the second one finds a request already out and
+  // returns - one press, one account request, however fast the double-click.
+  const inFlight = useRef(false);
 
   useDocumentMeta({ title: t('auth.register.pageTitle'), noIndex: true }, business.displayName);
 
@@ -166,11 +192,9 @@ function RegistrationForm(): React.JSX.Element {
   const dialPrefix =
     localisation.countries.find((entry) => entry.code === selectedCountry)?.phonePrefix ?? null;
 
-  if (submitted !== null) {
-    return <CheckYourEmail email={submitted.email} requiresApproval={submitted.requiresApproval} />;
-  }
-
   const onSubmit = async (values: FormValues): Promise<void> => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setFormError(null);
 
     try {
@@ -187,8 +211,29 @@ function RegistrationForm(): React.JSX.Element {
         language,
       });
 
-      setSubmitted({ email: values.email, requiresApproval: result.requiresApproval });
+      if (isCompany) {
+        // So the sign-in link in the confirmation screen, opened later on
+        // this device, lands on the Company tab. Browser storage can be off;
+        // then the person simply picks the tab.
+        try {
+          window.localStorage.setItem(SIGNUP_INTENT_KEY, 'company');
+        } catch {
+          // Storage unavailable - nothing to remember.
+        }
+      }
+      // Only now, with the server's answer in hand, does the page change. A
+      // new route rather than a new state of this one, so the next page
+      // starts at its own top with its heading focused - see `lib/sign-up.ts`.
+      const state: CheckEmailState = {
+        email: values.email,
+        requiresApproval: result.requiresApproval,
+        variant,
+      };
+      void navigate(CHECK_EMAIL_PATH, { state });
     } catch (error) {
+      // Stay on the form with every value as typed; the person corrects and
+      // presses again.
+      inFlight.current = false;
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));
         return;
@@ -225,9 +270,16 @@ function RegistrationForm(): React.JSX.Element {
           somebody bounced between the two should not feel they have changed
           product. */}
       <AuthCard className="mt-2">
-        <h1 className="text-xl font-bold text-ink">{t('auth.register.formHeading')}</h1>
+        {/* The whole journey, with this form as its first step, so nobody
+            finishing it thinks the company is now registered. */}
+        {isCompany && <OnboardingSteps current="applicant" compact className="mb-5" />}
+        <h1 className="text-xl font-bold text-ink">
+          {isCompany ? t('companyRegister.accountHeading') : t('auth.register.formHeading')}
+        </h1>
         <p className="mt-2 max-w-sm text-sm text-ink-muted">
-          {t('auth.register.formIntro', { business: business.displayName })}
+          {isCompany
+            ? t('companyRegister.accountIntro')
+            : t('auth.register.formIntro', { business: business.displayName })}
         </p>
 
         <form
@@ -431,16 +483,17 @@ function RegistrationForm(): React.JSX.Element {
  * created would be a lie half the time, and telling the reader which case they
  * are in is the enumeration leak the uniform response prevents.
  */
-function CheckYourEmail({
-  email,
-  requiresApproval,
-}: {
-  email: string;
-  requiresApproval: boolean;
-}): React.JSX.Element {
+export function CheckEmailPage(): React.JSX.Element {
   const { t } = useI18n();
   const { business } = useStorefront();
+  const location = useLocation();
+  // Null when the page was opened directly rather than reached from the form.
+  const signUp = readCheckEmailState(location.state);
+  const variant: RegistrationVariant = signUp?.variant ?? 'individual';
+  const requiresApproval = signUp?.requiresApproval ?? false;
 
+  const [typedEmail, setTypedEmail] = useState('');
+  const email = signUp?.email ?? typedEmail.trim();
   const [resent, setResent] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);
@@ -448,6 +501,10 @@ function CheckYourEmail({
   useDocumentMeta({ title: t('auth.register.sentHeading'), noIndex: true }, business.displayName);
 
   const resend = async (): Promise<void> => {
+    if (email.length === 0) {
+      setResendError(t('validation.emailRequired'));
+      return;
+    }
     setResending(true);
     setResendError(null);
 
@@ -464,14 +521,24 @@ function CheckYourEmail({
   return (
     <AuthSplit>
       <div className="rounded-lg border border-success/30 bg-success-soft p-6 text-center">
-        <h1 className="text-lg font-semibold text-success">{t('auth.register.sentHeading')}</h1>
-        <p className="mt-2 text-sm text-ink">{t('auth.register.sentBody', { email })}</p>
+        {/* `data-route-focus`: the layout moves focus here when this page
+            opens, so a screen reader starts with what just happened. */}
+        <h1 data-route-focus tabIndex={-1} className="text-lg font-semibold text-success focus:outline-none">
+          {t('auth.register.sentHeading')}
+        </h1>
+        <p className="mt-2 text-sm text-ink">
+          {signUp === null ? t('auth.register.sentBodyNoAddress') : t('auth.register.sentBody', { email })}
+        </p>
         <p className="mt-2 text-xs text-ink-muted">{t('auth.register.sentSpam')}</p>
 
         {requiresApproval && (
           <p className="mt-3 text-xs leading-relaxed text-ink-muted">
             {t('auth.register.sentApproval')}
           </p>
+        )}
+
+        {variant === 'company' && (
+          <p className="mt-3 text-sm leading-relaxed text-ink">{t('companyRegister.afterConfirm')}</p>
         )}
       </div>
 
@@ -483,6 +550,24 @@ function CheckYourEmail({
         ) : (
           <>
             <p className="text-ink-muted">{t('auth.register.noEmail')}</p>
+            {signUp === null && (
+              <div className="mt-3 text-left">
+              <Field label={t('common.emailAddress')}>
+                {({ inputId, describedBy }) => (
+                  <GlowInput
+                    id={inputId}
+                    type="email"
+                    autoComplete="email"
+                    aria-describedby={describedBy}
+                    value={typedEmail}
+                    onChange={(event) => {
+                      setTypedEmail(event.currentTarget.value);
+                    }}
+                  />
+                )}
+              </Field>
+              </div>
+            )}
             <Button
               variant="secondary"
               className="mt-3"
@@ -504,7 +589,10 @@ function CheckYourEmail({
       </div>
 
       <p className="mt-5 text-center text-sm">
-        <Link to="/login" className="font-medium text-brand hover:underline">
+        <Link
+          to={variant === 'company' ? '/login?buyerType=company' : '/login'}
+          className="font-medium text-brand hover:underline"
+        >
           {t('auth.register.backToSignIn')}
         </Link>
       </p>
@@ -523,7 +611,7 @@ function CheckYourEmail({
  * SELF_REGISTRATION_DISABLED, and no amount of client-side cleverness gets
  * round that.
  */
-function InvitationOnly(): React.JSX.Element {
+export function InvitationOnly(): React.JSX.Element {
   const { business } = useStorefront();
   const { t } = useI18n();
 

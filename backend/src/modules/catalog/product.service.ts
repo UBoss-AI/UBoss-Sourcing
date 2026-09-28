@@ -10,6 +10,7 @@
  * eventually gets asked.
  */
 import type { Prisma } from '../../generated/prisma/client.js';
+import { b2cLimitProblemMessage, validateB2cMaxOrderQuantity } from '../../domain/b2c-order-limit.js';
 import { ErrorCode, badRequest, conflict, notFound, unprocessable } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { sanitiseProductHtml, stripHtml } from '../../infra/sanitize.js';
@@ -56,6 +57,11 @@ export interface CreateProductInput {
   minOrderQty?: number;
   maxOrderQty?: number | null;
   qtyIncrement?: number;
+  /**
+   * The B2C maximum order quantity for the operator's own stock: the most an
+   * individual may buy of this product in one order. Null is not configured.
+   */
+  b2cMaxOrderQuantity?: number | null;
   isRecurringEligible?: boolean;
   weightGrams?: number | null;
 
@@ -216,6 +222,7 @@ export async function createProduct(
         minOrderQty: input.minOrderQty ?? 1,
         maxOrderQty: input.maxOrderQty ?? null,
         qtyIncrement: input.qtyIncrement ?? 1,
+        b2cMaxOrderQuantity: checkedB2cLimit(input.b2cMaxOrderQuantity ?? null, input.minOrderQty ?? 1),
         isRecurringEligible: input.isRecurringEligible ?? false,
         weightGrams: input.weightGrams ?? null,
         manufacturerId: input.manufacturerId ?? null,
@@ -270,6 +277,23 @@ export async function createProduct(
   });
 }
 
+/**
+ * The operator's B2C maximum order quantity, validated, or null.
+ *
+ * Null stays allowed for the operator's own products: the catalogue is the
+ * operator's, a figure is their choice, and null keeps a product selling as
+ * it always has. A figure must be a whole number from 1 to the ceiling and
+ * not below the product's minimum.
+ */
+function checkedB2cLimit(value: number | null, minOrderQty: number): number | null {
+  if (value === null) return null;
+  const checked = validateB2cMaxOrderQuantity(value, { minimumOrderQuantity: minOrderQty });
+  if (checked.ok) return checked.value;
+  throw badRequest(ErrorCode.VALIDATION_FAILED, b2cLimitProblemMessage(checked.code), [
+    { field: 'b2cMaxOrderQuantity', code: checked.code },
+  ]);
+}
+
 export async function updateProduct(
   productId: string,
   input: UpdateProductInput,
@@ -298,6 +322,16 @@ export async function updateProduct(
     if (input.minOrderQty !== undefined) data.minOrderQty = input.minOrderQty;
     if (input.maxOrderQty !== undefined) data.maxOrderQty = input.maxOrderQty;
     if (input.qtyIncrement !== undefined) data.qtyIncrement = input.qtyIncrement;
+    if (input.b2cMaxOrderQuantity !== undefined) {
+      // Judged against the minimum the product will have after this save, so
+      // raising the minimum above an existing limit is refused too.
+      data.b2cMaxOrderQuantity = checkedB2cLimit(
+        input.b2cMaxOrderQuantity,
+        input.minOrderQty ?? existing.minOrderQty,
+      );
+    } else if (input.minOrderQty !== undefined) {
+      checkedB2cLimit(existing.b2cMaxOrderQuantity, input.minOrderQty);
+    }
     if (input.isRecurringEligible !== undefined) data.isRecurringEligible = input.isRecurringEligible;
     if (input.weightGrams !== undefined) data.weightGrams = input.weightGrams;
     if (input.manufacturerId !== undefined) data.manufacturerId = input.manufacturerId;
@@ -448,6 +482,10 @@ export async function updateProduct(
           slug: existing.slug,
           categoryId: existing.categoryId,
           taxClassCode: existing.taxClass.code,
+          // The old figure, so a change to how much an individual may buy is
+          // readable from this entry alone: before, after (in `input`), who
+          // (`actorUserId`) and when (the entry's own timestamp).
+          b2cMaxOrderQuantity: existing.b2cMaxOrderQuantity,
         },
         after: input,
         ipAddress: actor.ipAddress ?? null,

@@ -52,7 +52,7 @@ import {
   type FinanceActor,
 } from '../../modules/settings/platform-fee.service.js';
 import { resolveCart, toCartView } from '../../modules/cart/cart.service.js';
-import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { buyerCompanyIdOf, currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
 import { currentLogistics, requireLogistics } from '../plugins/logistics.js';
 import { assignBody, rateBody, referencesBody, toRateInput, transitionBody } from './seller.logistics.js';
 import { destinationOf } from './cart.customer.js';
@@ -487,8 +487,11 @@ export function registerCustomerLogisticsPricingRoutes(app: FastifyInstance): Pr
   app.post('/logistics/quote', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (request, reply) => {
     const auth = currentUser(request);
     const body = z.object({ shippingAddressId: z.string().length(26) }).strict().parse(request.body);
-    const resolved = await resolveCart(auth.customerProfileId ?? '', {
-      ...(await destinationOf(auth.customerProfileId ?? '', body.shippingAddressId)),
+    // The basket of the buyer context this session is in - the person's own
+    // or their company's - and an address from the same book.
+    const buyerCompanyId = buyerCompanyIdOf(request);
+    const resolved = await resolveCart({ customerProfileId: auth.customerProfileId ?? '', buyerCompanyId }, {
+      ...(await destinationOf(auth.customerProfileId ?? '', body.shippingAddressId, buyerCompanyId)),
     });
     const cart = toCartView(resolved);
     return reply.status(200).send({ delivery: cart.delivery, totals: cart.totals, checkoutReady: cart.checkoutReady, blockingIssues: cart.blockingIssues });

@@ -69,7 +69,7 @@ import {
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
-import { currencyExponent, majorToMinor, minorToMajor } from '@/lib/format';
+import { currencyExponent, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import {
   addListingPhoto,
   fetchListingForEdit,
@@ -91,6 +91,8 @@ import { SellerContainerLoadingPanel } from './SellerContainerLoadingPanel';
 import { SellerPreorderTermsPanel } from './SellerPreorderTermsPanel';
 import { SellerTradeCodesPanel } from './SellerTradeCodesPanel';
 import { SellerQuantityTiersPanel } from './SellerQuantityTiersPanel';
+import { B2cMaxOrderQuantityField } from './B2cMaxOrderQuantityField';
+import { parseB2cLimitInput, type B2cLimitInputProblem } from '@/lib/b2c-limit';
 
 /** The inner padding every card body uses. Stated once so they all match. */
 const BODY = 'px-6 py-5';
@@ -249,6 +251,11 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
   const [minOrder, setMinOrder] = useState(numberInput(view.terms.minimumOrderQuantity));
   const [increment, setIncrement] = useState(numberInput(view.terms.orderIncrement));
   const [maxOrder, setMaxOrder] = useState(numberInput(view.terms.maximumOrderQuantity));
+  // The B2C maximum order quantity, as typed. One figure for the whole
+  // product - saving it here writes it to every size and colour.
+  const [b2cLimit, setB2cLimit] = useState(numberInput(view.terms.b2cMaxOrderQuantity));
+  const [b2cProblem, setB2cProblem] = useState<B2cLimitInputProblem | null>(null);
+  const b2cConfigured = view.terms.b2cMaxOrderQuantity !== null;
   const [handling, setHandling] = useState(numberInput(view.terms.handlingTimeDays));
   const [shelfLife, setShelfLife] = useState(numberInput(view.terms.guaranteedShelfLifeMonths));
   const [warranty, setWarranty] = useState(numberInput(view.terms.warrantyMonths));
@@ -356,6 +363,12 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
           minimumOrderQuantity: parseWhole(minOrder),
           orderIncrement: parseWhole(increment),
           maximumOrderQuantity: parseWhole(maxOrder),
+          // Sent only when something is typed. An untouched, never-set box
+          // leaves the listing as it is; the save guard below refuses a bad
+          // figure, or clearing one that was set, before we get here.
+          ...(b2cLimit.trim() === ''
+            ? {}
+            : { b2cMaxOrderQuantity: Number(b2cLimit.trim()) }),
           handlingTimeDays: parseWhole(handling),
           guaranteedShelfLifeMonths: parseWhole(shelfLife),
           warrantyMonths: parseWhole(warranty),
@@ -393,6 +406,19 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
   });
 
   const save = (finish: 'PAUSED' | 'ACTIVE'): void => {
+    // The individual purchase limit is checked before anything is sent: a
+    // bad figure is shown beside the box, never replaced, and a limit that
+    // was set cannot be emptied - that would lift it for every buyer.
+    if (b2cLimit.trim() !== '' || b2cConfigured) {
+      const parsed = parseB2cLimitInput(b2cLimit, {
+        minimumOrderQuantity: parseWhole(minOrder) ?? view.terms.minimumOrderQuantity,
+      });
+      if (!parsed.ok) {
+        setB2cProblem(parsed.problem);
+        return;
+      }
+    }
+    setB2cProblem(null);
     saveTarget.current = finish;
     saveMutation.mutate(finish);
   };
@@ -669,6 +695,28 @@ function EditForm({ view }: { view: ListingEditView }): React.JSX.Element {
                 />
               )}
             </Field>
+
+            <div className="sm:col-span-2" data-testid="b2c-limit-field">
+              {b2cConfigured && (
+                <p className="mb-2 text-sm text-ink tabular">
+                  {t('sellerB2c.currentLimit', {
+                    limit: formatNumber(view.terms.b2cMaxOrderQuantity ?? 0),
+                  })}
+                </p>
+              )}
+              <B2cMaxOrderQuantityField
+                value={b2cLimit}
+                onChange={(next) => {
+                  setB2cLimit(next);
+                  setB2cProblem(null);
+                  touch();
+                }}
+                problem={b2cProblem}
+                notConfigured={!b2cConfigured}
+                minimumOrderQuantity={parseWhole(minOrder) ?? view.terms.minimumOrderQuantity}
+                disabled={isSaving}
+              />
+            </div>
 
             <Field label="Days to dispatch" hint="Working days from order to hand-over.">
               {({ inputId, describedBy }) => (

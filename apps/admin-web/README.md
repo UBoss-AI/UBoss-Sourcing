@@ -1,6 +1,6 @@
-# UBOSS Admin Panel
+# Gloviaa Mart Admin Panel
 
-React + TypeScript admin panel for the UBOSS Sourcing backend.
+React + TypeScript admin panel for the Gloviaa Mart backend.
 
 ## Running it
 

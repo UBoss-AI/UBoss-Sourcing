@@ -1,0 +1,11 @@
+-- The product was renamed from Glovia to Gloviaa Mart.
+--
+-- A fresh install is seeded with the product's own name as its display name,
+-- and the storefront shows the script wordmark and the tagline only while the
+-- display name equals the product name. A deployment still carrying the old
+-- default would therefore lose both and show "Glovia" in plain lettering.
+--
+-- Only the exact old default is touched. A business that has typed in its own
+-- name keeps it; nothing else in the row changes. The legal name is not a
+-- brand and is left alone.
+UPDATE `business_profile` SET `displayName` = 'Gloviaa Mart' WHERE `displayName` = 'Glovia';

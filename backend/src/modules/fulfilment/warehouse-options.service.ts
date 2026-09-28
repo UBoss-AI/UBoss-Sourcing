@@ -86,7 +86,7 @@ import { serialiseMoney, type Minor } from '../../domain/money.js';
 import { calculateShipping } from '../../domain/pricing.js';
 import { newId, variantKeyOf } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
-import { resolveCart, type ResolvedCart } from '../cart/cart.service.js';
+import { resolveCart, type CartOwner, type ResolvedCart } from '../cart/cart.service.js';
 import {
   distanceToCountryKm,
   greatCircleKm,
@@ -106,6 +106,12 @@ export interface QuoteItemInput {
 
 export interface WarehouseOptionsInput {
   customerProfileId: string;
+  /**
+   * The company the basket is for, from the request's confirmed buyer context,
+   * or null for the person's own basket. Decides which basket is quoted and
+   * which address book the delivery address must come from.
+   */
+  buyerCompanyId?: string | null;
   /**
    * The address this is going to.
    *
@@ -439,7 +445,10 @@ async function resolveDestination(input: WarehouseOptionsInput): Promise<{
       // Scoped by the customer, so one buyer cannot quote against another's
       // address by guessing an id. It 404s rather than 403s, for the same
       // reason every other customer-scoped read in this codebase does.
-      where: { id: addressId, customerProfileId: input.customerProfileId, archivedAt: null },
+      where:
+        (input.buyerCompanyId ?? null) === null
+          ? { id: addressId, customerProfileId: input.customerProfileId, buyerCompanyId: null, archivedAt: null }
+          : { id: addressId, buyerCompanyId: input.buyerCompanyId ?? null, archivedAt: null },
       select: {
         id: true,
         country: true,
@@ -515,7 +524,7 @@ export async function quoteWarehouseOptions(
   // The postcode goes in too: a marketplace seller's L4 price may cover one
   // part of a country, and checkout prices it against the same address. The
   // two runs must agree or the quote is refused at Pay as stale.
-  const resolved = await resolveCart(input.customerProfileId, {
+  const resolved = await resolveCart({ customerProfileId: input.customerProfileId, buyerCompanyId: input.buyerCompanyId ?? null }, {
     destinationCountry: destination.countryCode,
     destinationPostcode: destination.postalCode,
   });
@@ -1442,12 +1451,12 @@ export async function checkQuote(params: {
  * the same rows rather than each assembling their own idea of what the basket
  * is.
  */
-export async function currentBasketDigest(customerProfileId: string): Promise<{
+export async function currentBasketDigest(owner: CartOwner): Promise<{
   cartId: string;
   basketHash: string;
   resolved: ResolvedCart;
 }> {
-  const resolved = await resolveCart(customerProfileId);
+  const resolved = await resolveCart(owner);
   return { cartId: resolved.cartId, basketHash: digestOf(resolved), resolved };
 }
 

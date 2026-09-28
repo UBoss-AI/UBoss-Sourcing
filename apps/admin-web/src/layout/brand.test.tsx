@@ -2,7 +2,7 @@
  * What the console calls itself.
  *
  * The product used to be UBOSS Sourcing and the rail used to say "UBOSS" over
- * "Admin console". It is Glovia now, over `The Way to the World` — the
+ * "Admin console". It is Gloviaa Mart now, over `The Way to the Global Sourcing` — the
  * product, and its tagline. Both strings live in `lib/brand.ts` and nowhere else, so
  * what these hold down is not the spelling of a constant but the shape of the
  * lockup: two lines, in that order, with the retired wording gone and a link
@@ -56,9 +56,9 @@ describe('the console’s brand lockup', () => {
     renderBrand();
 
     // Written as a sentence, not in capitals:
-    // the markup says `The Way to the World`, never `THE WAY TO THE WORLD`.
-    expect(screen.getByText('Glovia').textContent).toBe('Glovia');
-    expect(screen.getByText('The Way to the World').textContent).toBe('The Way to the World');
+    // the markup says `The Way to the Global Sourcing`, never `THE WAY TO THE GLOBAL SOURCING`.
+    expect(screen.getByText('Gloviaa Mart').textContent).toBe('Gloviaa Mart');
+    expect(screen.getByText('The Way to the Global Sourcing').textContent).toBe('The Way to the Global Sourcing');
   });
 
   it('is a link home, named with both lines', () => {
@@ -90,6 +90,6 @@ describe('the console’s brand lockup', () => {
 describe('the tab', () => {
   it('is what says which of the two consoles this is', () => {
     // The rail gave that job up when the attribution took its second line.
-    expect(PORTAL_TITLE).toBe('Glovia Admin');
+    expect(PORTAL_TITLE).toBe('Gloviaa Mart Admin');
   });
 });

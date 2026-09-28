@@ -22,6 +22,13 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   description?: string;
+  /**
+   * The id of an element in the body that describes the dialog, for a
+   * dialog whose message is too important to sit in `description` - which
+   * is clamped to two lines on a short screen. Read on opening, like
+   * `description`; ignored when `description` is given.
+   */
+  describedBy?: string;
   children: ReactNode;
   footer?: ReactNode;
   /** Wider dialog for a form with two columns. */
@@ -77,6 +84,7 @@ export function Modal({
   onClose,
   title,
   description,
+  describedBy,
   children,
   footer,
   size = 'md',
@@ -165,7 +173,11 @@ export function Modal({
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
-      {...(description === undefined ? {} : { 'aria-describedby': descriptionId })}
+      {...(description === undefined
+        ? describedBy === undefined
+          ? {}
+          : { 'aria-describedby': describedBy }
+        : { 'aria-describedby': descriptionId })}
       style={anchoredStyle}
       className={cx(
         'w-full p-0',

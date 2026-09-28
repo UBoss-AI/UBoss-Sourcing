@@ -653,7 +653,7 @@ function buildNarration(input: {
       .slice(0, 1000);
   }
 
-  const base = `Glovia order ${input.orderNumber} (seller reference ${input.sellerOrderNumber})`;
+  const base = `Gloviaa Mart order ${input.orderNumber} (seller reference ${input.sellerOrderNumber})`;
 
   return (packagingText.length === 0 ? base : `${base}. ${packagingText}`).slice(0, 1000);
 }

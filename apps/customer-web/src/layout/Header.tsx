@@ -53,9 +53,9 @@ import { AccountMenu } from '@/components/account/AccountMenu';
 import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
 import { EarthMark } from '@/components/EarthMark';
-import { PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
+import { PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { CartIcon } from '@/components/icons';
+import { CartIcon, HeadsetIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
@@ -70,11 +70,11 @@ import { cx } from '@/lib/cx';
  *
  * When that name IS the product's — the marketplace itself, and every fresh
  * deployment until its business profile is filled in — the first line is the
- * Glovia wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
- * own face), and the second is the tagline, `The Way to the World`. Both come from
+ * Gloviaa Mart wordmark, set in `font-brand` (Dancing Script Bold, the wordmark's
+ * own face), and the second is the tagline, `The Way to the Global Sourcing`. Both come from
  * `lib/brand.ts` and read the same in every language.
  *
- * When it is somebody else's name, neither applies. Glovia's face and Glovia's
+ * When it is somebody else's name, neither applies. Gloviaa Mart's face and its
  * slogan under Northwind's name would be the software putting its own brand
  * over another company's shop, so Northwind's name is set like any other
  * heading and stands alone. `Powered by UBOSS` used to be the second line;
@@ -146,7 +146,18 @@ function BrandMark(): React.JSX.Element {
               : 'text-base font-semibold tracking-tight text-ink',
           )}
         >
-          {business.displayName}
+          {isProductBrand ? (
+            // Two words from `sm`, one on a phone: the 375px row has room for
+            // "Gloviaa" at 17px beside five controls and not for "Gloviaa Mart",
+            // and a truncated wordmark is worse than the short one. The link's
+            // accessible name follows whichever is displayed.
+            <>
+              <span className="sm:hidden">{PRODUCT_SHORT_NAME}</span>
+              <span className="max-sm:hidden">{PRODUCT_BRAND}</span>
+            </>
+          ) : (
+            business.displayName
+          )}
         </span>
         {secondLine !== null && (
           <span
@@ -156,7 +167,7 @@ function BrandMark(): React.JSX.Element {
             // is not enough for the whole tagline, and half a slogan is worse
             // than none. `truncate` stays as the net for a long locale.
             // The tagline is in the wordmark's own script, the same face as
-            // "Glovia" above it. The seller line in its place stays in the
+            // "Gloviaa Mart" above it. The seller line in its place stays in the
             // ordinary face: it is translated, Greek included, and the script
             // is bundled as Latin only.
             className={cx(
@@ -239,6 +250,30 @@ function CartLink(): React.JSX.Element {
   );
 }
 
+/**
+ * Support, in the bar from `sm` up.
+ *
+ * Not on a phone: the 320px row was measured full with the five controls
+ * beside it, and a sixth is what would make the page scroll sideways. A phone
+ * reaches the same page from the account menu and from the footer's Support
+ * column. Icon only at every width: "Support" is its accessible name and its
+ * tooltip, so it is announced and discoverable without taking a label's room.
+ */
+function SupportLink(): React.JSX.Element {
+  const { t } = useI18n();
+  const label = t('header.support');
+  return (
+    <Link
+      to="/support"
+      aria-label={label}
+      title={label}
+      className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:inline-flex"
+    >
+      <HeadsetIcon className="h-5 w-5 shrink-0" />
+    </Link>
+  );
+}
+
 export function Header(): React.JSX.Element {
   return (
     /*
@@ -289,6 +324,8 @@ export function Header(): React.JSX.Element {
               menu - somebody who has never sold here has no reason to open a
               menu with their own name on it. */}
           <BecomeSellerButton />
+
+          <SupportLink />
 
           <AccountMenu />
           <CartLink />

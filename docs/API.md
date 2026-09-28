@@ -1,6 +1,6 @@
-# The Glovia API guide
+# The Gloviaa Mart API guide
 
-This guide explains how the Glovia backend API works and how to use it. Glovia
+This guide explains how the Gloviaa Mart backend API works and how to use it. Gloviaa Mart
 is the product name; the repository is called UBOSS Sourcing, and you will see
 both words in the code and in cookie names.
 
@@ -56,6 +56,7 @@ exactly when each one must change.
 
 1. [The API in one page](#1-the-api-in-one-page)
 2. [Authentication and sessions](#2-authentication-and-sessions)
+   - [The buyer context: buying for yourself or for a company](#the-buyer-context-buying-for-yourself-or-for-a-company)
 3. [Authorisation: who may do what](#3-authorisation-who-may-do-what)
 4. [Conventions every endpoint follows](#4-conventions-every-endpoint-follows)
 5. [Errors](#5-errors)
@@ -122,13 +123,13 @@ credential.
 | Zone | Prefix | Who calls it | How they prove who they are |
 |---|---|---|---|
 | **Public** | `/api/v1/config`, `/api/v1/catalog/*`, `/api/v1/delivery/*`, `/api/v1/sitemap.xml`, `/api/v1/partner-invitations/*`, `/api/v1/documents/verify`, `/api/v1/payments/links/:token` | Anybody | Nothing. Some public routes answer a signed-in customer better (`optionalCustomer`) |
-| **Customer** | `/api/v1/auth/*`, `/api/v1/account/*`, `/api/v1/cart/*`, `/api/v1/orders/*`, `/api/v1/payments/*`, `/api/v1/fulfilment/*`, `/api/v1/pricing/*`, `/api/v1/recurring-schedules/*`, `/api/v1/preorders/*`, `/api/v1/documents/*`, `/api/v1/assistant/*`, `/api/v1/sellers/*` | A signed-in storefront customer | Customer session (cookies `uboss_shop_*`, or a Bearer token) |
+| **Customer** | `/api/v1/auth/*`, `/api/v1/account/*`, `/api/v1/cart/*`, `/api/v1/orders/*`, `/api/v1/payments/*`, `/api/v1/fulfilment/*`, `/api/v1/pricing/*`, `/api/v1/recurring-schedules/*`, `/api/v1/preorders/*`, `/api/v1/buyer-companies/*`, `/api/v1/documents/*`, `/api/v1/assistant/*`, `/api/v1/sellers/*` | A signed-in storefront customer | Customer session (cookies `uboss_shop_*`, or a Bearer token) |
 | **Seller** | `/api/v1/seller/*` | A customer who also sells on the marketplace | The customer session, plus seller membership, a seller role, and the Seller Hub password for this session |
 | **Admin** | `/api/v1/admin/*` (sign-in under `/api/v1/admin/auth/*`) | A member of the operator's staff | Admin session (cookies `uboss_admin_*`), plus the named permission, plus two-step sign-in |
 | **Logistics** | `/api/v1/logistics/*` (sign-in under `/api/v1/logistics/auth/*`) | A person from a carrier company | Logistics session (cookies `uboss_logi_*`), plus a logistics permission, plus two-step sign-in for some roles |
 | **Driver** | `/api/v1/logistics/driver/*` | A carrier's driver, on a phone | A logistics session; the location pings carry a device token instead |
 | **Webhooks** | `/api/v1/payments/webhooks/:provider`, `/api/v1/integrations/erp/webhooks/:slug`, `/api/v1/erp-inbound/:slug`, `/api/v1/integrations/carriers/:pathToken/webhook` | Another company's server | A signature over the exact bytes of the body |
-| **Integrations** | `/api/v1/integrations/tally-bridge/*` | The Glovia Tally Bridge agent on a seller's own computer | A Bearer token issued to that paired device |
+| **Integrations** | `/api/v1/integrations/tally-bridge/*` | The Gloviaa Mart Tally Bridge agent on a seller's own computer | A Bearer token issued to that paired device |
 | **Token downloads** | `/api/v1/exports/download/:token`, `/api/v1/my-data/download/:token` | Whoever holds a link from an email | The unguessable, expiring token in the path |
 | **Health and metrics** | `/health/live`, `/health/ready`, `/metrics` | Load balancers, monitoring | Nothing. `/metrics` is closed to the internet by nginx |
 
@@ -282,6 +283,14 @@ limited per address to `RATE_LIMIT_LOGIN_PER_15MIN` (default 10) attempts in 15
 minutes. Separately, an account is locked after `LOGIN_LOCKOUT_THRESHOLD`
 (default 8) failures for `LOGIN_LOCKOUT_MINUTES` (default 15).
 
+On the customer prefix only, the body may also carry **`buyerType`**:
+`"individual"` or `"company"`. It says which tab the person signed in on. It is
+a **preference, not a claim**. The password is checked exactly as before, and
+only after it is accepted does the server look at `buyerType`. A wrong password
+or an unknown email is the same `401 INVALID_CREDENTIALS` on both tabs, so the
+field cannot be used to learn whether somebody belongs to a company. Leaving it
+out means `"individual"`. The admin and logistics sign-ins ignore it.
+
 A successful answer (`200`) sets the three cookies and returns:
 
 ```json
@@ -309,6 +318,54 @@ A successful answer (`200`) sets the three cookies and returns:
   "csrfToken": "d0Zy8u3kq1Vb2mS9xT4nQw7cLp5eHjRa"
 }
 ```
+
+A **customer** sign-in answer also carries three fields about the buyer
+context (explained in
+[The buyer context](#the-buyer-context-buying-for-yourself-or-for-a-company)).
+For example, somebody who signed in on the Company tab and belongs to exactly
+one company:
+
+```json
+{
+  "buyerContext": {
+    "kind": "COMPANY",
+    "companyId": "01JA2B3C4D5E6F7G8H9J0K1M2N",
+    "companyName": "Acme Medical Supplies",
+    "companyStatus": "UNDER_REVIEW",
+    "role": "OWNER",
+    "applicationReference": "BC-7K2M9QXA"
+  },
+  "companies": [
+    {
+      "companyId": "01JA2B3C4D5E6F7G8H9J0K1M2N",
+      "companyName": "Acme Medical Supplies",
+      "companyStatus": "UNDER_REVIEW",
+      "role": "OWNER",
+      "applicationReference": "BC-7K2M9QXA"
+    }
+  ],
+  "next": "READY",
+  "user": { "...": "as above" },
+  "accessToken": "...",
+  "accessTokenExpiresAt": "...",
+  "csrfToken": "..."
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `buyerContext` | Who this new session buys for: `{ "kind": "INDIVIDUAL" }`, or `kind: "COMPANY"` with the company's id, name, status, the person's role in it and the application reference |
+| `companies` | Every company the person is an active member of, oldest membership first. Empty when `FEATURE_BUYER_COMPANIES` is off |
+| `next` | What the storefront should do now (below) |
+
+| `next` | When | What the storefront does |
+|---|---|---|
+| `READY` | The Individual tab; or the Company tab and exactly one company, which the session is now set to | Goes on, normally to `/home` |
+| `CHOOSE_COMPANY` | The Company tab and more than one company. The session stays Individual until the person chooses; the server never guesses | Shows `/select-company` |
+| `NO_COMPANY` | The Company tab and no company. The person is signed in as an individual | Shows `/select-company`, which offers to register a company |
+
+`NO_COMPANY` is only ever said to somebody who has just proven the password, so
+it tells a stranger nothing.
 
 The failures you should expect:
 
@@ -378,7 +435,7 @@ sequenceDiagram
 
 | Audience | Endpoint | Answer |
 |---|---|---|
-| Customer | `GET /api/v1/auth/me` | The same `user` object as the sign-in answer, with the live values |
+| Customer | `GET /api/v1/auth/me` | The same `user` object as the sign-in answer, with the live values, plus `buyerContext` and `companies` (as in the sign-in answer) and `buyerContextReset`. The context is confirmed against the membership on this request, not copied from the session. `buyerContextReset: true` means the session named a company the person no longer belongs to, and the server has just put it back to Individual |
 | Admin | `GET /api/v1/admin/auth/me` | The same shape. For staff, `locationCountry`, `locationPlace`, `locationLanguage` and `locationCurrency` describe where this session signed in (they are always null for customers) |
 | Logistics | `GET /api/v1/logistics/auth/me` | `{ user: { id, email, fullName, role, permissions, isDriver }, partner: { id, code, displayName, status, canAcceptNewWork }, mfa }` |
 
@@ -415,12 +472,128 @@ must also wait for staff approval is `CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROV
 The logistics prefix has its own `POST /api/v1/logistics/auth/invitations/accept`
 for a carrier's staff.
 
+A person who wants to buy for a company signs up exactly as above: one account,
+the same confirmation email, the same password rules. The company is applied
+for afterwards, from inside the account, through `/api/v1/buyer-companies`
+(see [Buyer companies](#buyer-companies-buyer-companiescustomerts-and-buyer-companiesadmints)).
+
 Every prefix also has password reset:
 
 | Endpoint | Body | Answer |
 |---|---|---|
 | `POST {prefix}/password/forgot` | `{ email }` | `202` with a neutral message. 5 per 15 minutes |
 | `POST {prefix}/password/reset` | `{ token, newPassword }` | `200 { passwordReset: true }`. Ends every session |
+
+## The buyer context: buying for yourself or for a company
+
+A storefront customer can buy **as themselves** (the **individual** context,
+which is how every account worked before) or **for a company they belong to**
+(the **company** context). A company becomes one the person belongs to by
+applying for it; see
+[Buyer companies](#buyer-companies-buyer-companiescustomerts-and-buyer-companiesadmints).
+All of this exists only while `FEATURE_BUYER_COMPANIES` is on (the default).
+
+**Where it is held.** On the server-side **session row**, and nowhere else. It
+is never read from a cookie, a header or a request body. A refresh-token
+rotation carries it onto the new session. The sign-in sets it (see
+[Signing in](#signing-in)); after that it changes only through these two
+routes:
+
+| Endpoint | Body | Answer |
+|---|---|---|
+| `GET /api/v1/auth/buyer-context` | none | `{ buyerContext, companies }`: who this session buys for now, and every company it may switch to |
+| `PUT /api/v1/auth/buyer-context` | `{ "kind": "INDIVIDUAL" }` or `{ "kind": "COMPANY", "companyId": "01JA..." }` | `200 { buyerContext, companies }` |
+
+The switch is state-changing, so a cookie client sends `x-csrf-token`. It is
+limited to **30 per 15 minutes**, and every switch is written to the audit log
+(`buyer_context.switched`). No second password is asked: the person is
+choosing between rights they already hold.
+
+**One refusal for every reason.** A company id that is not the person's, a
+membership that was removed, and a company that does not exist all get the
+same `403 BUYER_CONTEXT_INVALID`. So guessing ids teaches nothing.
+
+**Checked again on every request.** Each customer request re-reads the
+membership behind a company context before the route runs. If the person was
+removed from the company, or the company is gone, the server puts the session
+back to Individual **and refuses that request** with `403 BUYER_CONTEXT_INVALID`
+("You can no longer buy for that company. You are now shopping for yourself.").
+It refuses rather than quietly carrying on as the individual, because somebody
+who pressed "place order" for the company must not find the order on their own
+account. The next request works as Individual. `GET /api/v1/auth/me` reports
+the same event as `buyerContextReset: true`.
+
+A company that is **suspended or rejected is not a reset**. The person stays in
+its context and is told why they cannot buy (the purchasing gate below).
+
+Turning `FEATURE_BUYER_COMPANIES` off makes every company context invalid, so
+those sessions are reset the same way.
+
+### What the context scopes
+
+| Area | In the individual context | In a company context |
+|---|---|---|
+| Cart | The person's own basket | A separate basket for that company. There is one active basket per person per company, so switching never mixes them |
+| Orders (`/api/v1/orders/*`) | Only the person's own orders **not** placed for a company | A company **Buyer** sees the company's orders they placed. Every other company role sees all of the company's orders |
+| Paying an order (`/api/v1/payments/orders/:orderId/*`) | Own orders | Only an order this person placed for this company |
+| Addresses (`/api/v1/account/addresses`) | The person's own address book | The company's own address book. On the company's first approval, its verified billing and delivery addresses are copied into it |
+| Preorders (`/api/v1/preorders/*`) | Own preorders | The company's preorders. The order made when one is confirmed belongs to the company |
+| Recurring and scheduled orders (`/api/v1/recurring-schedules/*`) | Work as before | **Refused** with `403 BUYER_CONTEXT_UNSUPPORTED`. The scheduling worker only knows a person's profile, so a plan made here would place orders for the wrong buyer. Switch to Individual to use them |
+
+An order, cart or preorder from the other context, or from somebody else, is a
+`404 NOT_FOUND`, never a `403` (the same ownership rule as everywhere else).
+
+Two honest limits: pricing and tax in a company context still use the
+**person's** profile (for example the VAT number used for zero-rating), and
+nothing here is linked to the separate "buyer organisation" used for a buyer's
+own ERP connection.
+
+### The purchasing gate
+
+Inside a company context, what a request may do depends on two things: the
+person's **role** in the company and the company's **status**.
+
+| Company role | May buy (checkout, pay, send or confirm a preorder) | Other rights |
+|---|---|---|
+| `OWNER` | Yes | Manage the application, approve orders, finance, manage members |
+| `COMPANY_ADMIN` | Yes | The same as the owner |
+| `BUYER` | Yes | View |
+| `ORDER_APPROVER` | No | Approve orders, view |
+| `FINANCE` | No | Finance, view |
+| `VIEWER` | No | View |
+
+The person who applies for a company becomes its `OWNER`. **Inviting other
+members is not built yet**: the roles exist, but there is no invitation route.
+
+- **Only an `APPROVED` company can buy.** Checkout, paying, and sending or
+  confirming a preorder in any other status are refused with
+  `403 BUYER_COMPANY_NOT_APPROVED`.
+- **Getting ready is allowed before approval.** Changing the basket and the
+  company's address book work while the company is still pending, for any role
+  that may buy.
+- **The wrong role** is `403 BUYER_COMPANY_ROLE_FORBIDDEN`.
+
+`BUYER_COMPANY_NOT_APPROVED` carries the company's status, so a client can say
+why and link to the application instead of showing a bare refusal:
+
+```json
+{
+  "error": {
+    "code": "BUYER_COMPANY_NOT_APPROVED",
+    "message": "This company is not verified for purchasing yet. You can keep browsing and building your cart.",
+    "details": [
+      {
+        "code": "UNDER_REVIEW",
+        "meta": { "status": "UNDER_REVIEW", "companyId": "01JA2B3C4D5E6F7G8H9J0K1M2N" }
+      }
+    ],
+    "correlationId": "01J9ZE2C3D4E5F6G7H8J9K0M1N"
+  }
+}
+```
+
+The individual context is never gated this way: everything a customer could do
+before still works exactly as it did.
 
 ## Staff: temporary passwords, two-step sign-in and location
 
@@ -624,6 +797,8 @@ Finance / Approver. The Business Owner holds every permission.
 | `product.archive` | Archive a product | ✓ | ✓ | | | |
 | `product.import` | Bulk import products from a file | ✓ | ✓ | | | |
 | `media.upload` | Upload product pictures | ✓ | ✓ | | | |
+| `review.read` | Read every product review, including hidden ones and who wrote them | ✓ | ✓ | | ✓ | |
+| `review.moderate` | Hide a product review (a reason is required and shown to its author) and show it again | ✓ | ✓ | | | |
 | `coupon.read` | Read coupons and store-wide quantity discounts | ✓ | ✓ | | | |
 | `coupon.write` | Create and edit coupons and quantity discounts | ✓ | ✓ | | | |
 | `coupon.archive` | Retire a live coupon | ✓ | ✓ | | | |
@@ -636,7 +811,13 @@ Finance / Approver. The Business Owner holds every permission.
 | `customer.invite` | Invite a customer | ✓ | | | | |
 | `customer.limits.write` | Change a customer's purchasing limits | ✓ | | | | ✓ |
 | `customer.status.write` | Approve, suspend or reactivate customers; decide seller applications and documents | ✓ | | | | |
+| `buyer_company.read` | See the company verification queue, one application, its registry checks, and open its documents | ✓ | | | ✓ | ✓ |
+| `buyer_company.review` | Work a company application: start or take the review, assign it, add internal notes, ask for more information, approve, reject, ask for re-verification, re-run the registry checks, accept or refuse a document | ✓ | | | | ✓ |
+| `buyer_company.suspend` | Suspend an approved company. Restoring a suspended company needs this **and** `buyer_company.review` | ✓ | | | | |
 | `assistant_chat.read` | Read AI chat transcripts | ✓ | | | ✓ | ✓ |
+| `support_ticket.view` | Read the support inbox, every ticket, its internal notes and its files | ✓ | | | ✓ | ✓ |
+| `support_ticket.reply` | Reply to a sender, write an internal note, change status and priority, take or release a ticket | ✓ | | | ✓ | |
+| `support_ticket.assign` | Give a ticket to a colleague or take it off them | ✓ | | | | |
 | `order.read` | Read orders, returns, preorders | ✓ | | ✓ | ✓ | ✓ |
 | `order.approve` | Approve or reject an order waiting for approval | ✓ | | | | ✓ |
 | `order.fulfil` | Ship orders; act on preorders | ✓ | | | ✓ | |
@@ -787,7 +968,10 @@ routes it guards refuse to work. What they answer is shown below.
 | `FEATURE_LOGISTICS_PORTAL` | `false` | Every guarded `/api/v1/logistics/*` route (the shared sign-in routes under `/api/v1/logistics/auth` are registered regardless), and the carrier webhook | `403 FEATURE_DISABLED`; the carrier webhook answers `404` |
 | `PAYMENT_MOCK_SUCCESS` | `false` | `POST /api/v1/payments/orders/:orderId/mock-capture` (never in production) | `403 FEATURE_DISABLED` |
 | `ASSISTANT_ALLOW_GUESTS` | `false` | Whether the AI assistant answers visitors who are not signed in | `401` for a guest |
+| `FEATURE_BUYER_COMPANIES` | `true` | Every `/api/v1/buyer-companies/*` route, and every company buyer context | `403 BUYER_COMPANIES_DISABLED`. `GET /api/v1/auth/buyer-context` and the sign-in still answer, with an empty `companies` list; a session that was in a company context is reset to Individual with `403 BUYER_CONTEXT_INVALID`. The staff routes under `/api/v1/admin/buyer-companies` are not switched off by the flag, so existing applications can still be read |
 | `FEATURE_PREORDER_CHAT` | `true` | Every `/api/v1/preorder-chats/*` and `/api/v1/admin/preorder-chats/*` route, including both sockets | `404 NOT_FOUND`; `GET /api/v1/preorder-chats/availability` still answers, with `"enabled": false` |
+| `FEATURE_PRODUCT_REVIEWS` | `true` | `GET /api/v1/catalog/products/:slug/reviews` and every customer review route (`/api/v1/account/product-reviews*`, `/api/v1/account/products/:productId/review`). The staff routes under `/api/v1/admin/product-reviews` stay on. Catalogue products carry `rating: null` while it is off | `403 FEATURE_DISABLED` |
+| `FEATURE_SUPPORT_TICKETS` | `true` | Raising a new ticket: `POST /api/v1/support/tickets`, `POST /api/v1/seller/support/tickets` and `POST /api/v1/logistics/support/tickets`. Reading existing tickets, writing again on them, adding files and every staff route under `/api/v1/admin/support-tickets` stay on. The `context` routes answer `"enabled": false`, and the public config reports `features.supportTickets` | `403 FEATURE_DISABLED` |
 
 A webhook answers `404` rather than `403` when its feature is off, so that
 somebody probing cannot learn which integrations a deployment has.
@@ -953,6 +1137,8 @@ These endpoints **require** the header; without it they answer
 | `POST /api/v1/admin/orders/:id/refunds` | A retry must not refund twice |
 | `POST /api/v1/preorders` | A double-click must send one preorder request |
 | `POST /api/v1/preorders/:id/confirm` | Confirming terms creates an order, once |
+| `POST /api/v1/support/tickets`, `POST /api/v1/seller/support/tickets`, `POST /api/v1/logistics/support/tickets` | A double-click or a network retry must raise one support ticket |
+| `POST /api/v1/support/tickets/:reference/messages`, `POST /api/v1/seller/support/tickets/:reference/messages`, `POST /api/v1/logistics/support/tickets/:reference/messages` | A retry must add the message once |
 
 What happens next:
 
@@ -978,6 +1164,32 @@ Seller Hub carrier actions.
 Rule of thumb: make **one key per user intention**, and reuse it on every retry
 of that intention. Make a new key when the person genuinely starts again.
 
+## Optimistic concurrency: sending the version you saw
+
+Some records can be changed by two people at once. For those, the request
+carries the **version** the client last read, and the server refuses the
+change if the record has moved on since. This is called **optimistic
+concurrency**: nothing is locked while somebody reads, and a clash is caught
+when they write. A seller's listing draft works this way (walkthrough 7.11), and
+so does a company application in the admin console.
+
+Every staff decision on a company application sends `expectedVersion`, the
+`version` from the last `GET /api/v1/admin/buyer-companies/:id`:
+
+```json
+{ "expectedVersion": 7, "reasonCode": "DETAILS_DO_NOT_MATCH", "reason": "The registered name differs from the KRS entry.", "resubmissionAllowed": true }
+```
+
+It is required on `request-information`, `approve`, `reject`, `suspend` and
+`reverify`, and optional on `start-review`. The version goes up by one every
+time the application's status changes. When it has moved on since you read it
+(another reviewer decided, the applicant sent it back, the automatic checks
+finished), the answer is `409 BUYER_COMPANY_VERSION_CONFLICT`. Two reviewers
+pressing at the same moment cannot both succeed either: the second one gets the
+same answer. Nothing was changed. Load the
+application again, look at what changed, and decide again. The console does this
+for you: it reloads the page and says so.
+
 ## Rate limiting
 
 Every request counts against a limit per client IP address. The counters live in
@@ -997,6 +1209,16 @@ than let through, so brute-force protection never silently switches off.
 | AI assistant start | 30 per 15 minutes |
 | AI assistant chat | `ASSISTANT_RATE_LIMIT_PER_5MIN` (default 20) per 5 minutes; guests get a smaller allowance |
 | Image search | 12 per 5 minutes |
+| Switching the buyer context (`PUT /api/v1/auth/buyer-context`) | 30 per 15 minutes |
+| Starting a company application (`POST /api/v1/buyer-companies`) | 10 per hour |
+| Sending the business email code | 5 per 15 minutes |
+| Entering the business email code | 10 per 15 minutes |
+| Submitting a company application | 10 per 15 minutes |
+| Uploading a company document | 30 per 15 minutes |
+| Re-running a company's registry checks (staff) | 20 per 15 minutes |
+| Raising a support ticket (storefront, Seller Hub, portal) | 5 per 10 minutes. Each account may also raise only `SUPPORT_TICKETS_PER_DAY` (default 10) a day: `429 SUPPORT_TICKET_LIMIT_REACHED` |
+| Writing again on a support ticket; uploading a file to one | 20 per 10 minutes each |
+| Asking for a support file's download link | 60 per minute |
 | Payment webhooks | 300 per minute |
 | ERP webhooks (operator and buyer) | 600 per minute |
 | Carrier webhooks | 2000 per minute |
@@ -1053,6 +1275,51 @@ scanned", never as clean. A carrier's logo
 (`POST /api/v1/logistics/profile/logo`) is JPEG, PNG, WebP or GIF; SVG is
 refused. It follows the ordinary image limit, `UPLOAD_MAX_BYTES` (5 MiB by
 default), not the 10 MiB document limit.
+
+**A company's verification documents** have their own, stricter rules.
+`POST /api/v1/buyer-companies/:id/documents` takes one file and two text fields:
+`kind` (for example `CERTIFICATE_OF_INCORPORATION`, `REGISTRY_EXTRACT` or
+`BUSINESS_LICENCE`) and,
+when the file answers a reviewer's request, `infoRequestId`. **Send the text
+fields before the file** in the multipart body; a field sent after the file is
+not read.
+
+- **Type from the bytes.** PDF, JPEG, PNG or WebP, decided from the file's own
+  contents, never from its name or the `Content-Type` the client sends.
+- **No active content.** A PDF with JavaScript, a launch action, embedded
+  files, rich media or an interactive (XFA or submit) form is refused. So is an
+  image with markup inside it, and a file that is two things at once (a
+  **polyglot**: an archive or program hidden inside, or extra data after the end
+  of a picture).
+- **Limits.** At most `BUYER_COMPANY_DOCUMENT_MAX_BYTES` (default 10,000,000
+  bytes, 10 MB) and `BUYER_COMPANY_DOCUMENT_MAX_PAGES` (default 50) PDF pages.
+- **Scanned and private.** The file goes through the same malware scanner as
+  other uploads (`MALWARE_DETECTED` if it fails) and is stored privately under a
+  generated name; the original file name is not kept. A file the
+  scanner has not cleared is not served to staff, unless
+  `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS=true`, which is for development only
+  and refused at start-up in production.
+- **Only what was asked for.** A kind that only a reviewer may ask for (a
+  representative's identity document, an ownership declaration) is refused with
+  `403` unless an open request names it.
+
+A refused file is `400 BUYER_COMPANY_DOCUMENT_REJECTED`, with `details[0].field`
+`file` and a `code` saying why. The answer to a good upload is
+`201 { documentId, application }`. `DELETE /api/v1/buyer-companies/:id/documents/:documentId`
+withdraws a document nobody has decided on yet.
+
+**Staff open these documents through a single-use link**, never a plain URL:
+
+1. `POST /api/v1/admin/buyer-company-documents/:id/link` (`buyer_company.read`)
+   answers `{ url, expiresAt }`. The link belongs to the member of staff who
+   asked for it and expires after `LOGISTICS_DOCUMENT_URL_TTL_SECONDS` (default
+   300, five minutes).
+2. `GET /api/v1/admin/buyer-company-documents/:id/download?token=...` spends it.
+   It works once, only for that same person, and only before it expires;
+   otherwise `403 TOKEN_INVALID`. The file is sent as an attachment with
+   `x-content-type-options: nosniff`, `content-security-policy: sandbox;
+   default-src 'none'` and `cache-control: no-store`. Every download is written
+   to the audit log and to the application's history.
 
 ## CORS
 
@@ -1163,8 +1430,9 @@ Both frontends turn each `code` into a message in eight languages. So:
 | `IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY` | 409 | The same key was used for a different request. Make a new key |
 | `IDEMPOTENT_REQUEST_IN_PROGRESS` | 409 | The first request with this key is still running. Wait, retry the same key |
 | `CART_EMPTY` | 400 | Checkout with nothing in the cart |
-| `CART_ITEM_UNAVAILABLE` | 409 at checkout | Some lines need attention. `details` lists each problem (for example `QUANTITY_BELOW_MINIMUM`, `INSUFFICIENT_STOCK`) with `field` `items.N` or `cart` |
+| `CART_ITEM_UNAVAILABLE` | 409 at checkout | Some lines need attention. `details` lists each problem (for example `QUANTITY_BELOW_MINIMUM`, `INSUFFICIENT_STOCK`, `B2C_MAX_ORDER_QUANTITY_EXCEEDED`) with `field` `items.N` or `cart` |
 | `INSUFFICIENT_STOCK` | 409 | Not enough stock. `meta.available` says how many remain |
+| `B2C_MAX_ORDER_QUANTITY_EXCEEDED` | 409 | An Individual buyer (or somebody buying for a company that is not approved) asked for more of one seller's product than that seller's B2C Maximum Order Quantity allows in one order. `details[0].meta` is `{ productId, allowedQuantity, requestedQuantity, currentCartQuantity, requiresApprovedCompanyAccount: true }`. Offer "Reduce to `allowedQuantity` − `currentCartQuantity`" or an approved company account. See [The B2C Maximum Order Quantity](#the-b2c-maximum-order-quantity) |
 | `ADDRESS_REQUIRED` | 400 | The address is missing or is not one of yours |
 | `ORDER_TRANSITION_NOT_ALLOWED` | 409 | That status change is not legal from the order's current status |
 | `PAYMENT_PROVIDER_NOT_CONFIGURED` | 400 | The operator has not connected a payment gateway. Not the customer's fault |
@@ -1173,6 +1441,26 @@ Both frontends turn each `code` into a message in eight languages. So:
 | `SELLER_LOCK_REQUIRED` | 403 | Open the Seller Hub password for this session |
 | `SELLER_SESSION_EXPIRED` | 403 | The open Seller Hub was idle too long and has closed. Ask for the Seller Hub password again; the shop session is still signed in |
 | `LOGISTICS_MFA_CHALLENGE_REQUIRED` | 403 | Enter the authenticator code in the logistics portal |
+| `BUYER_COMPANIES_DISABLED` | 403 | This deployment does not offer company accounts (`FEATURE_BUYER_COMPANIES=false`). Hide the company screens |
+| `BUYER_CONTEXT_INVALID` | 403 | The session asked to buy for a company the person is not an active member of. On a switch, nothing changed. On any other request, the session has just been put back to Individual: tell the person, reload who is signed in, and let them carry on |
+| `BUYER_CONTEXT_UNSUPPORTED` | 403 | This feature works only when buying for yourself (today: recurring and scheduled orders). Offer to switch to Individual |
+| `BUYER_COMPANY_NOT_APPROVED` | 403 | The company is not verified for buying yet. `details[0].meta.status` says its status; link to the application. The basket can still be built |
+| `BUYER_COMPANY_ROLE_FORBIDDEN` | 403 | The person's role in the company does not allow this, for example a Viewer checking out |
+| `BUYER_COMPANY_NOT_EDITABLE` | 409 | The application cannot be changed in its current status (it is with a reviewer, approved, or closed) |
+| `BUYER_COMPANY_INCOMPLETE` | 400 | Submission or resubmission refused: something is missing or wrong. One `details[]` entry per problem, each with its `field`; or a reviewer's request is still unanswered |
+| `BUYER_COMPANY_EMAIL_CODE_INVALID` | 400 | The six-digit business email code is wrong, expired or used up. Ask for a new one |
+| `BUYER_COMPANY_DOCUMENT_REJECTED` | 400 (403 for a kind nobody asked for) | The file was not accepted. `details[0].code` says why: `EMPTY`, `TOO_LARGE`, `TYPE`, `ACTIVE_CONTENT`, `POLYGLOT`, `UNREADABLE`, `TOO_MANY_PAGES` |
+| `BUYER_COMPANY_LIMIT_REACHED` | 409 | The person already has as many unfinished applications as allowed (`BUYER_COMPANY_MAX_OPEN_APPLICATIONS`, default 3) |
+| `BUYER_COMPANY_TRANSITION_NOT_ALLOWED` | 409 | That status change is not allowed from the current status, by this kind of actor, or without a reason. `details[0].code` is `SAME_STATUS`, `TRANSITION_UNDEFINED`, `ACTOR_NOT_PERMITTED` or `REASON_REQUIRED` |
+| `BUYER_COMPANY_VERSION_CONFLICT` | 409 | Staff only. The application changed since it was loaded. Reload and decide again |
+| `BUYER_COMPANY_ALREADY_CLAIMED` | 409 | Staff only. Approving would give a registration or tax number to a second approved company. Resolve the duplicate first |
+| `BUYER_COMPANY_SECOND_REVIEW_REQUIRED` | 409 | Staff only. This application's risk needs two different reviewers, and this person gave the first approval |
+| `REVIEW_NOT_ELIGIBLE` | 403 | Only a buyer whose own order containing the product was delivered may review it. Hide the review form for this buyer |
+| `SUPPORT_TICKET_LIMIT_REACHED` | 429 | This account has raised as many support tickets today as allowed (`SUPPORT_TICKETS_PER_DAY`). Point to the published support email |
+| `SUPPORT_ORDER_NOT_FOUND` | 422 | The order number on a support ticket is not one of the sender's orders — a typo or somebody else's order, deliberately the same answer. Show it next to the order field |
+| `SUPPORT_TICKET_CLOSED` | 409 | The ticket is closed. It can be read, not written on; a new problem is a new ticket |
+| `SUPPORT_ATTACHMENTS_UNAVAILABLE` | 409 | Files cannot be attached here (switched off, or no malware scanner). The ticket itself still goes |
+| `SUPPORT_ATTACHMENT_LIMIT_REACHED` | 409 | The ticket already has as many files as allowed (10). `meta.limit` says how many |
 | `INTERNAL_ERROR` | 500 | Our fault. Quote `correlationId` |
 
 The complete list, over three hundred codes, is in
@@ -1489,6 +1777,14 @@ example which country's VAT applies); `packagingOptions` lists cartons, pallets
 or containers the seller sells it in, and is empty for most products. A product
 that is not published answers `404`, whatever its slug.
 
+`product.purchaseRules.b2cMaxOrderQuantity` is the **B2C Maximum Order
+Quantity**: the most units of this product an Individual buyer may put in one
+order. For a seller's product it is the seller offer's figure; for the
+operator's own product it is the product's. `null` means none is set, so there
+is no such ceiling. It is shown to everyone; the basket decides whether it
+applies to the caller (see
+[The B2C Maximum Order Quantity](#the-b2c-maximum-order-quantity)).
+
 Other public reads: `GET /api/v1/catalog/filters` (price range and attribute
 facets for the current filters), `GET /api/v1/catalog/categories/:slug`,
 `GET /api/v1/catalog/product-cards?refs=slug-a,slug-b` (up to twelve), and
@@ -1611,6 +1907,7 @@ The answer (`201`) is the whole cart, priced fresh:
         "taxRatePercent": "19",
         "availableQty": 5000,
         "issues": [],
+        "b2cLimit": { "maxQuantity": 500, "productQuantity": 200, "applies": true, "exceeded": false },
         "...": "..."
       }
     ],
@@ -1637,6 +1934,65 @@ The answer (`201`) is the whole cart, priced fresh:
 The cart does not fail when something is wrong with a line; it **reports** it.
 A line whose `issues` list is not empty, or a non-empty `blockingIssues`, sets
 `checkoutReady` to `false`. Show the issues next to the line.
+
+### The B2C Maximum Order Quantity
+
+A seller can set, per listing, the most units an **Individual** buyer may buy
+of their product in one order (the operator sets the same on its own
+products). Guests, individuals and anybody buying for a company that is not
+approved are held to it. Only an **approved** company context, which the
+server works out from the session, is exempt. Nothing in the request body can
+claim an exemption.
+
+It counts **one seller's units of one product**: every variant and every line
+are added together. Two sellers of the same catalogue product are counted
+separately.
+
+- **Each line** carries `b2cLimit`: `{ maxQuantity, productQuantity, applies,
+  exceeded }`, or `null` when no limit is set. `productQuantity` is the
+  seller's whole product total in this basket, not the line's own quantity.
+  `applies` is `false` for an approved company: shown, not enforced.
+- **Adding, bulk adding, changing a quantity or changing packs** is refused
+  with `409 B2C_MAX_ORDER_QUANTITY_EXCEEDED` when it would raise that total
+  past the limit. Each request locks the basket, so two at once cannot both
+  get through. Lowering a quantity is always accepted, even while still over.
+- **A basket already over** (the seller lowered the limit, or the company lost
+  approval) is not trimmed. Each line of that product gets an issue with code
+  `B2C_MAX_ORDER_QUANTITY_EXCEEDED`, and `checkoutReady` is `false`.
+
+The refusal:
+
+```json
+{
+  "error": {
+    "code": "B2C_MAX_ORDER_QUANTITY_EXCEEDED",
+    "message": "Individual buyers can order up to 500 units of this product.",
+    "details": [
+      {
+        "code": "B2C_MAX_ORDER_QUANTITY_EXCEEDED",
+        "message": "Individual buyers can order up to 500 units of this product.",
+        "meta": {
+          "productId": "01J9Z3K4M5N6P7Q8R9S0T1V2W3",
+          "allowedQuantity": 500,
+          "requestedQuantity": 600,
+          "currentCartQuantity": 200,
+          "requiresApprovedCompanyAccount": true
+        }
+      }
+    ],
+    "correlationId": "01J9ZE2C3D4E5F6G7H8J9K0M1N"
+  }
+}
+```
+
+The status is `409`. `requestedQuantity` is the total the basket would have
+held; `currentCartQuantity` is what it holds now.
+
+Nothing about the seller or any company is in it. The same detail appears
+inside a refused checkout (`409 CART_ITEM_UNAVAILABLE`), and inside a refused
+scheduled plan (`400 SCHEDULE_PRODUCT_NOT_ELIGIBLE`). Preorder preview and
+submit are refused the same way unless the buyer is in an approved company
+context.
 
 Other cart calls: `GET /api/v1/cart` (optionally with `shippingAddressId` to
 price for that address), `PATCH /api/v1/cart/items/:itemId` with
@@ -2201,6 +2557,7 @@ in [section 2](#2-authentication-and-sessions).
 | `POST /api/v1/admin/auth/mfa/setup`, `/mfa/verify` | Staff | Two-step sign-in |
 | `POST /api/v1/admin/auth/session/location` | Staff | Report sign-in location (when switched on) |
 | `POST /api/v1/auth/register`, `/verify-email`, `/verify-email/resend` | Anyone | Customer self-registration |
+| `GET`/`PUT /api/v1/auth/buyer-context` | Customer | Who this session buys for: yourself, or one of your companies. See [the buyer context](#the-buyer-context-buying-for-yourself-or-for-a-company) |
 | `POST {prefix}/password/forgot`, `/password/reset`, `/password/change` | Anyone / signed in | Passwords |
 
 ## Public configuration, catalogue and delivery
@@ -2239,6 +2596,82 @@ Self-service. The customer is always the one in the session.
 | `GET /api/v1/account/closure`, `POST /api/v1/account/deactivate` | What closing would do; close the account (deletes nothing) |
 | `GET`/`POST /api/v1/account/data-requests` | Data-protection requests: a copy of your data, or erasure |
 | `POST /api/v1/account/dashboard/insights`, `/insights/stream` | AI explanation of the dashboard figures |
+
+In a company buyer context, `/api/v1/account/addresses` is the company's
+address book rather than the person's.
+
+## Buyer companies (`buyer-companies.customer.ts` and `buyer-companies.admin.ts`)
+
+A business applying to buy in its own name, and the console that verifies it.
+Everything here needs `FEATURE_BUYER_COMPANIES` (on by default); the customer
+routes answer `403 BUYER_COMPANIES_DISABLED` without it. How a session then
+buys for an approved company is in
+[the buyer context](#the-buyer-context-buying-for-yourself-or-for-a-company).
+
+**The customer side**, under `/api/v1/buyer-companies`. Every route needs a
+customer session, and every one names the company in its path. That id is
+never trusted: each call first loads the caller's active membership, and a
+company the caller is not in is a `404`, the same as one that does not exist.
+None of these routes needs the session to be *in* the company's context; an
+applicant manages the application from their own account.
+
+| Endpoint | What |
+|---|---|
+| `GET /api/v1/buyer-companies` | The companies this person belongs to, each with its status and their role, the current declaration wording version (`consentVersion`), and `sellerSource`: the one seller account this person runs as `OWNER` or `ADMIN` (`{ id, legalName, registrationCountry }`), or `null`. Only ever the caller's own |
+| `POST /api/v1/buyer-companies` | Start an application, with the caller as its `OWNER`. 10 per hour. Refused with `409 BUYER_COMPANY_LIMIT_REACHED` past `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` (default 3) unfinished applications. `{ fromSellerAccountId }` pre-fills the draft from that seller account and links it (`prefilledFromSeller: true` in the view); it must be the account `sellerSource` names, and anything else is the same `404 NOT_FOUND` as an id that does not exist. The draft starts at `DRAFT` whatever the seller account's status |
+| `GET /api/v1/buyer-companies/:id` | The application as its member sees it: details, what is required and why, what is still missing, the reviewer's requests, the documents and an applicant-facing timeline. Internal staff notes never appear here |
+| `PATCH /api/v1/buyer-companies/:id` | Save one or more of the six steps. `applicant` takes `{ jobTitle, relationship, authorityConfirmed }`, where `relationship` is one of `DIRECTOR_OR_OFFICER`, `OWNER_OR_PARTNER`, `EMPLOYEE`, `AUTHORISED_AGENT`, `OTHER` (anything else is `400 VALIDATION_FAILED`); the view returns it with the representative's `fullName` and `phone` from their profile. An `AUTHORISED_AGENT` makes `AUTHORIZATION_LETTER` a required document. Only the sections sent are checked; if any is wrong, nothing is saved and each problem comes back with its `field` and a `code`. Refused with `409 BUYER_COMPANY_NOT_EDITABLE` unless the status is Draft, Email verification pending, More information required or Re-verification required |
+| `POST /api/v1/buyer-companies/:id/email-code` | Send a six-digit code to the business email (when it is not the account's own confirmed address). The code lasts 15 minutes and allows 5 tries. 5 per 15 minutes |
+| `POST /api/v1/buyer-companies/:id/email-code/confirm` | `{ code }`. Confirms the address, and completes a submission that was waiting for it. 10 per 15 minutes |
+| `POST /api/v1/buyer-companies/:id/submit` | `{ consents }`: the four declarations, each ticked separately (accuracy, business terms, privacy notice, authority to act). Each is recorded on its own with the wording version and a hash of the exact text. 10 per 15 minutes. Missing parts are `400 BUYER_COMPANY_INCOMPLETE` |
+| `POST /api/v1/buyer-companies/:id/info-requests/:requestId/answer` | `{ message }`. Answer one of the reviewer's requests |
+| `POST /api/v1/buyer-companies/:id/resubmit` | Send the application back after answering. Refused while a request is still unanswered |
+| `POST /api/v1/buyer-companies/:id/reopen` | Take a rejected application back to a draft to correct it, where the reviewer allowed that |
+| `POST /api/v1/buyer-companies/:id/documents` | Upload one document (multipart, `kind` before the file). 30 per 15 minutes. See [File uploads](#file-uploads) |
+| `DELETE /api/v1/buyer-companies/:id/documents/:documentId` | Withdraw a document nobody has decided on yet |
+
+On a submit or resubmit, a background job checks the details against official
+registers where a free official service exists (the EU VIES VAT check, GLEIF
+for an LEI, the Polish VAT whitelist and the Polish KRS register), records what
+each said, and **always** hands the application to a person. A register that is
+down or slow is recorded as unavailable and goes to a person; it is never a
+reason to refuse. The system never approves or rejects on its own.
+
+**The staff side**, under `/api/v1/admin`:
+
+| Endpoint | Permission | What |
+|---|---|---|
+| `GET /api/v1/admin/buyer-companies` | `buyer_company.read` | The review queue. Query: `status` (comma-separated), `country`, `search` (name, reference, registration or tax number, email), `assignee`, `risk` (`NONE`, `LOW`, `ELEVATED`, `HIGH`), `sort` (`oldest` by default, `newest`, `recent_activity`, `risk`), `page`, `pageSize` (25 by default, at most 100) |
+| `GET /api/v1/admin/buyer-companies/reviewers` | `buyer_company.read` | Staff who may be given a review |
+| `GET /api/v1/admin/buyer-companies/:id` | `buyer_company.read` | One application with everything a reviewer needs: details, requirement status, registry checks and manual-check links, duplicate flags, risk, documents, requests, internal notes, full history, `version` and `allowedTransitions` |
+| `POST .../buyer-companies/:id/start-review` | `buyer_company.review` | Open a submitted application for review, and take it if nobody has |
+| `POST .../buyer-companies/:id/assign` | `buyer_company.review` | `{ reviewerId }`: give it to a colleague who may review, or `null` to unassign |
+| `POST .../buyer-companies/:id/notes` | `buyer_company.review` | Add an internal note. Never shown to the applicant |
+| `POST .../buyer-companies/:id/request-information` | `buyer_company.review` | `{ expectedVersion, message, documentKinds }`: send it back with a question, optionally naming documents to upload |
+| `POST .../buyer-companies/:id/approve` | `buyer_company.review` (restoring a suspended company also needs `buyer_company.suspend`) | `{ expectedVersion, reason? }`. Only a person can approve. When `BUYER_COMPANY_SECOND_REVIEW_RISK` asks for two reviewers, the first approval is recorded and a different reviewer completes it |
+| `POST .../buyer-companies/:id/reject` | `buyer_company.review` | `{ expectedVersion, reasonCode, reason, resubmissionAllowed }`. `reason` is what the applicant reads |
+| `POST .../buyer-companies/:id/suspend` | `buyer_company.suspend` | `{ expectedVersion, reason }`. Stops an approved company buying, at once |
+| `POST .../buyer-companies/:id/reverify` | `buyer_company.review` | `{ expectedVersion, reason, documentKinds }`. Asks an approved company to confirm its details again; buying stops until it is approved again |
+| `POST .../buyer-companies/:id/checks` | `buyer_company.review` | Ask every register again now. Earlier results are kept. 20 per 15 minutes |
+| `POST /api/v1/admin/buyer-company-documents/:id/link` | `buyer_company.read` | A single-use download link, valid for a few minutes |
+| `GET /api/v1/admin/buyer-company-documents/:id/download?token=` | `buyer_company.read` | Spend the link. Served as an attachment; audited |
+| `POST /api/v1/admin/buyer-company-documents/:id/decision` | `buyer_company.review` | `{ decision: "ACCEPTED" \| "REJECTED", reason }`. A refusal needs a reason the applicant reads |
+
+Rejection reason codes: `REGISTRATION_NOT_FOUND`, `DETAILS_DO_NOT_MATCH`,
+`DOCUMENTS_INSUFFICIENT`, `AUTHORITY_NOT_SHOWN`, `NOT_A_REGISTERED_BUSINESS`,
+`DUPLICATE_APPLICATION`, `UNSUPPORTED_JURISDICTION`, `NO_RESPONSE`, `OTHER`.
+
+The registration number and each tax number are reserved for a company only
+**at approval**. So two applications for the same business can both wait (and
+are flagged to the reviewer as duplicates), but the second cannot be approved:
+`409 BUYER_COMPANY_ALREADY_CLAIMED`. Rejecting an application releases its
+numbers.
+
+A submission and an answer to a reviewer each put a notification in the staff
+bell (`buyer_company.submitted`, `buyer_company.responded`). The applicant is
+emailed, in their own language, when the application is received, when a code
+is sent, when more information is needed, and when it is approved, rejected,
+suspended, asked to re-verify, restored, or a document is refused.
 
 ## Cart, fulfilment and pricing
 
@@ -2310,6 +2743,11 @@ See walkthrough 7.12. Plan and occurrence statuses change only through
 | `GET .../:id/occurrences`, `POST .../occurrences/:occurrenceId/skip`, `DELETE .../occurrences/:occurrenceId` | Customer | Individual runs |
 | `GET /api/v1/admin/schedules`, `/:id`; `POST .../pause`, `/resume`; `DELETE` | Staff, `schedule.read` / `schedule.write` | Every plan |
 
+A plan whose basket goes over a seller's B2C Maximum Order Quantity is refused
+when it is created or changed: `400 SCHEDULE_PRODUCT_NOT_ELIGIBLE` with a
+`B2C_MAX_ORDER_QUANTITY_EXCEEDED` detail. If the limit is lowered later, the
+next delivery is held rather than charged for more than today's limit.
+
 ## Bulk preorders
 
 `preorders.ts`, `seller.preorders.ts`, `preorders.admin.ts`. A buyer asks a
@@ -2330,6 +2768,11 @@ counters or rejects; the buyer confirms, which creates the order.
 | `POST /api/v1/seller/offers/:id/container-loading/preview` | Seller, `seller.listing.read` | The server's figures for a draft loading while the seller types: pieces per container, weight against payload, space used, the system estimate, and any problem |
 | `POST /api/v1/seller/preorders/:id/availability-proposal/preview` | Seller, `seller.order.read` | Preview a revised-date or split-delivery proposal: the schedule with container equivalents, the stock that would be held, and the full price with tax and delivery |
 | `POST /api/v1/seller/preorders/:id/availability-proposal` | Seller, `seller.order.fulfil` | Send that proposal to the buyer |
+
+Preview and send are refused with `409 B2C_MAX_ORDER_QUANTITY_EXCEEDED` when
+the quantity is over the seller's B2C Maximum Order Quantity and the buyer is
+not in an approved company context; confirming checks it again. This is a
+ceiling. The preorder minimum is a separate floor with its own errors.
 
 ### Containers and more than is available
 
@@ -2402,6 +2845,19 @@ Seller Hub password.
 | Team and audit | `GET /api/v1/seller/members`, `PATCH`/`DELETE /members/:memberId`, `GET /audit` |
 | Own ERP (TallyPrime) | `/api/v1/seller/erp/*`, with `FEATURE_SELLER_ERP` |
 
+**The B2C Maximum Order Quantity on a listing.** A draft's offer and the terms
+of `PATCH /listings/:id/edit` accept `b2cMaxOrderQuantity`: a JSON whole number
+from 1 to 1,000,000, not below the listing's minimum order quantity. A string,
+even `"100"`, is refused rather than read. A draft may leave it empty, but
+`POST /listing-drafts/:id/validate` and `/submit` report the blocker
+`B2C_MAX_ORDER_QUANTITY_REQUIRED` or `B2C_MAX_ORDER_QUANTITY_INVALID` until it
+is valid. On a live listing a set limit can be changed but not cleared. The
+one figure is written to every variant's offer, and the seller's offer rows
+(`GET /listings`, `GET /listings/:id/edit`) include it (`null` = not
+configured). Only the seller who owns the offer can change it
+(`seller.listing.write`), and each change writes the seller audit entry
+`seller.offer.b2c_limit_changed`.
+
 ## Admin areas (`*.admin.ts`)
 
 Everything under `/api/v1/admin`, each behind its named permission.
@@ -2415,6 +2871,7 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Inventory | `/admin/inventory`, `/inventory/receipts`, `/inventory/adjustments`, `/inventory/warehouses` | `inventory.*` |
 | Customers | `/admin/customers`, `/:id/limits`, `/:id/status`, `/:id/approve`, `/:id/invite` | `customer.*` |
 | Companies | `GET /admin/directory` | `customer.read` or `logistics.read` (either) |
+| Company verification | `/admin/buyer-companies`, `/:id/start-review`, `/approve`, `/reject`, `/suspend`, `/reverify`, `/admin/buyer-company-documents/:id/link` (see [Buyer companies](#buyer-companies-buyer-companiescustomerts-and-buyer-companiesadmints)) | `buyer_company.*` |
 | Sellers | `/admin/sellers`, `/sellers/:id/decision`, `/seller-listings/review-queue`, `/seller-listings/:id/decision`, `/brand-requests` | `customer.*`, `product.publish` |
 | Settings and staff | `/admin/settings/*`, `/admin/staff`, `/staff/:id/roles` | `settings.*`, `staff.*`, `role.assign` |
 | VAT and invoices | `/admin/vat-rates`, `/admin/customers/:id/vat-number/check`, `/admin/invoices/:id`, `/ubl`, `/en16931-check` | `settings.*`, `invoice.*` |
@@ -2424,6 +2881,11 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | Notifications | `/admin/notifications`, `/admin/attention` | Any staff |
 | Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject` | `data_request.*` |
 | AI chat transcripts | `/admin/assistant/conversations` | `assistant_chat.read` |
+
+`POST` and `PATCH /admin/products` accept `b2cMaxOrderQuantity` for the
+operator's own products: a whole number from 1 to 1,000,000, or `null` for
+"not configured" (no ceiling). It is optional there. The change is recorded
+in the product's `PRODUCT_UPDATED` audit entry with before and after.
 
 Export files and personal-data copies are downloaded through
 `GET /api/v1/exports/download/:token` and `GET /api/v1/my-data/download/:token`.
@@ -2588,6 +3050,73 @@ written to `realtime_events` as ids only, polled by every process every
   `PREORDER_CHAT_PREORDER_MISMATCH`, `PREORDER_CHAT_PROPOSAL_NOT_OPEN`,
   `PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE`; files reuse `MEDIA_TYPE_NOT_ALLOWED`,
   `MEDIA_TOO_LARGE` and `MALWARE_DETECTED`. See
+  [ERROR-CODES.md](reference/ERROR-CODES.md).
+
+## Support tickets
+
+`support.ts`. A **support ticket** is a written request for help, raised by a
+signed-in person and answered by the operator's staff. There are three
+identical sets of sender routes, one per surface, each behind that surface's
+own guard: the storefront (`/api/v1/support/*`, customer session), Seller Hub
+(`/api/v1/seller/support/*`, `requireSeller`) and the logistics portal
+(`/api/v1/logistics/support/*`, `requireLogistics`). All use cookie sessions,
+so the CSRF double-submit header is required on every write. There is no
+guest route.
+
+### Sender endpoints
+
+Shown for the storefront; Seller Hub and the portal have the same paths under
+their prefix.
+
+| Endpoint | What |
+|---|---|
+| `GET /api/v1/support/context` | What the form needs: `enabled`, the operator's published `contacts`, the `requester` prefill (`name`, `email`, `emailVerified`, `role`, `companyName`, `companyNameEditable`, `canReferenceOrder`), the `attachments` policy (`available`, `reason`, `maxBytes`, `maxFiles`, `types`) and `limits` |
+| `POST /api/v1/support/tickets` | Raise a ticket. **`Idempotency-Key` required.** Body: `category` (the topic), `subject`, `message` (10–5000 characters), optional `orderNumber` (only an order the sender may see: a buyer's own orders in this buying context; in Seller Hub the seller's orders, and only for a member who may read them; never in the portal — `canReferenceOrder` in the context says which). A `name` field is optional and ignored in favour of the account's name; the email and the company, seller or carrier come from the session, never the body. The answer carries the new `reference` (`SR-XXXX-XXXX`) and whether the acknowledgement email was queued. 5 per 10 minutes |
+| `GET /api/v1/support/tickets` | The sender's own tickets on this surface, newest first |
+| `GET /api/v1/support/tickets/:reference` | One ticket: the first message, the visible thread (staff replies and status changes; staff shown as "Support team"), and the files. Another person's reference answers `404` exactly like a missing one |
+| `POST /api/v1/support/tickets/:reference/messages` | Write again. **`Idempotency-Key` required.** Moves `WAITING_FOR_CUSTOMER` or `RESOLVED` back to `IN_PROGRESS`; refused on `CLOSED` with `409 SUPPORT_TICKET_CLOSED`. 20 per 10 minutes |
+| `POST /api/v1/support/tickets/:reference/attachments` | Multipart, one file. Uploaded one by one after the ticket exists. 20 per 10 minutes |
+| `POST /api/v1/support/tickets/:reference/attachments/:attachmentId/link`, `GET .../attachments/:attachmentId/download?token=` | A five-minute, single-use link for the signed-in person, then the file itself |
+
+Which tickets a sender can read is decided inside the query: their user id and
+the surface — plus the seller in Seller Hub and the carrier in the portal.
+Colleagues at the same company or seller never see each other's tickets.
+
+### Staff endpoints
+
+Under `/api/v1/admin/support-tickets`.
+
+| Endpoint | Permission | What |
+|---|---|---|
+| `GET /` `?status=&priority=&category=&source=&assignee=&search=&page=&limit=` | view | The inbox, most recently active first, with a count per status. `status` also takes `WORKING` (Open, In progress and Waiting for customer together — the console's **Needs work**). `assignee` is `me`, `unassigned` or a staff id. `search` matches reference, subject, name, email, company or order number |
+| `GET /assignees` | view | Staff who may be given a ticket |
+| `GET /:id` | view | One ticket in full: who sent it and for whom, the related order, the whole timeline including internal notes, and the files |
+| `POST /:id/replies` `{ body, nextStatus? }` | reply | Answer the sender. On an `OPEN` ticket the reply moves it to `IN_PROGRESS` and assigns it to the writer if nobody holds it. `nextStatus` can then mark it `WAITING_FOR_CUSTOMER` or `RESOLVED`. The sender is emailed a link, never the text |
+| `POST /:id/notes` `{ body }` | reply | An internal note, never shown to the sender |
+| `PATCH /:id` `{ status?, priority? }` | reply | Move the status (`409 SUPPORT_TICKET_TRANSITION_NOT_ALLOWED` for a move the lifecycle lacks) and set the priority |
+| `POST /:id/assignment` `{ assigneeUserId \| null }` | reply for yourself, assign for anyone else | Take, give or release. `400 SUPPORT_ASSIGNEE_NOT_ELIGIBLE` for somebody deactivated or without the support permission |
+| `POST /:id/attachments/:attachmentId/link`, `GET .../download?token=` | view | Open one of the sender's files |
+
+### Files, text and errors
+
+- **Files.** Images (JPEG, PNG, WebP, GIF), video (MP4, WebM, MOV) and PDF,
+  decided from the bytes. No Office documents or archives. Scanned before
+  storage; stored privately. At most 10 per ticket and
+  `SUPPORT_ATTACHMENT_MAX_BYTES` (default 26,214,400 bytes, 25 MB) each. With
+  no scanner, and `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` not set (it is refused
+  in production), uploads answer `409 SUPPORT_ATTACHMENTS_UNAVAILABLE`.
+- **Download links** work exactly like the company documents' links: minted by
+  `POST .../link`, valid for five minutes, spent once, only by the person who
+  asked; otherwise `403 TOKEN_INVALID`. The file is sent as an attachment with
+  `nosniff`, a `sandbox` Content Security Policy and `no-store`. Uploads and
+  downloads are audited, without the file name.
+- **Text.** Plain text. Control and bidirectional-override characters are
+  removed; clients render it as text, never HTML.
+- **Codes.** `SUPPORT_TICKET_LIMIT_REACHED` (429), `SUPPORT_ORDER_NOT_FOUND`
+  (422), `SUPPORT_TICKET_CLOSED` (409), `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED`
+  (409), `SUPPORT_ASSIGNEE_NOT_ELIGIBLE` (400), `SUPPORT_ATTACHMENTS_UNAVAILABLE`
+  (409), `SUPPORT_ATTACHMENT_LIMIT_REACHED` (409); files also reuse
+  `MEDIA_TYPE_NOT_ALLOWED`, `MEDIA_TOO_LARGE` and `MALWARE_DETECTED`. See
   [ERROR-CODES.md](reference/ERROR-CODES.md).
 
 ## AI assistant and insights
@@ -2805,6 +3334,8 @@ default).
 | **API prefix** | `/api/v1`, the start of every business path |
 | **Audience** | The kind of account a token belongs to: `ADMIN`, `CUSTOMER` or `LOGISTICS` |
 | **Bearer token** | An access token sent as `Authorization: Bearer <token>` |
+| **Buyer company** | A registered business a customer applies to buy for. It can buy only once a person on the operator's staff has approved it |
+| **Buyer context** | Who a storefront session buys for: the person (Individual) or one of their companies. Held on the session and checked on every request |
 | **Correlation id** | The id of one request, in the `x-correlation-id` header and every error |
 | **CORS** | The browser rule that decides which web pages may call the API |
 | **CSRF** | Cross-site request forgery: another site making your browser send a request. Stopped by the `x-csrf-token` double-submit check |
@@ -2816,6 +3347,7 @@ default).
 | **Minor unit** | The smallest unit of a currency (cent, paisa). Money is counted in these |
 | **MFA / TOTP** | Two-step sign-in: a six-digit code from an authenticator app, as well as the password |
 | **Occurrence** | One run of a recurring schedule |
+| **Optimistic concurrency** | Sending the version you last read, so a change made by somebody else in the meantime is refused instead of overwritten |
 | **Order state machine** | The one table of legal order status changes, in `order-state-machine.ts` |
 | **Permission** | A named right such as `order.read`, granted through roles |
 | **Refresh token** | A long-lived secret, in an httpOnly cookie, used only to get a new access token |

@@ -1,8 +1,8 @@
-# Glovia — Every Screen
+# Gloviaa Mart — Every Screen
 
-What each screen in the three Glovia apps shows, who can open it, what
+What each screen in the three Gloviaa Mart apps shows, who can open it, what
 people can do on it, and which server calls it makes. The repository is
-called UBOSS Sourcing; the product is Glovia.
+called UBOSS Sourcing; the product is Gloviaa Mart.
 
 This document is for everyone: people who test the product, people who
 support its users, people who sell or run it, and people who change its code.
@@ -96,7 +96,7 @@ Each screen has the same shape:
 
 ### 2.1 The three apps
 
-Glovia is a business-to-business sourcing marketplace. Companies buy it and
+Gloviaa Mart is a business-to-business sourcing marketplace. Companies buy it and
 **run it themselves**, so nothing on any screen assumes who the operator is:
 the store's name, logo, currencies, policies and switches all come from its
 own settings.
@@ -217,7 +217,10 @@ Every screen is built to work from 320 pixels wide.
   show a small "machine translated" notice until a native speaker has
   checked them.
 - **Every new screen must be translated into all eight in the same piece of
-  work.** The words live in `src/i18n/locales/<language>.json`.
+  work.** The words live in `src/i18n/locales/<language>.json`. The company
+  account screens (the sign-in tabs, `/register/company`, `/select-company`,
+  Company accounts, the application and its six steps, the status bar, and
+  the console's Company verification pages) are in all eight.
 - **Language and currency are separate choices.** Changing the language never
   changes a price. In the storefront, one control in the header sets
   language, country and currency together, and **nothing changes until
@@ -238,7 +241,7 @@ Every failure from the server has the same shape: a stable **code**, a
 
 | What happened | What the user sees |
 |---|---|
-| The server refused a request | The server's own sentence, which explains why. For the codes a user meets mid-task (paying, adding to the cart, delivery levels, preorders, seller invoices), the app shows its own sentence in the user's language instead, filled in with the figures from the error |
+| The server refused a request | The server's own sentence, which explains why. For the codes a user meets mid-task (paying, adding to the cart, delivery levels, preorders, seller invoices, company accounts and their applications), the app shows its own sentence in the user's language instead, filled in with the figures from the error |
 | A form field was wrong | The message under that field, and a summary at the top |
 | No connection | "You appear to be offline…" in the user's language |
 | The server could not be reached | "Could not reach the store…" in the user's language |
@@ -282,7 +285,8 @@ flowchart TD
   Home["/ Home"]
   Home --> Products["/products Catalogue"]
   Home --> AI["/ai AI Mode"]
-  Home --> Sell["/sell Sell on Glovia"]
+  Home --> Sell["/sell Sell on Gloviaa Mart"]
+  Home --> Support["/support Support (header, menu, footer)"]
   Products --> Category["/category/:slug"]
   Products --> Search["/search (old links)"]
   Products --> Product["/product/:slug"]
@@ -290,18 +294,26 @@ flowchart TD
   AI --> Product
 
   subgraph Signin["Signing in"]
-    Login["/login"]
+    Login["/login (Individual and Company tabs)"]
     Register["/register"]
+    RegCompany["/register/company"]
     Verify["/verify-email"]
     Activate["/activate"]
     Forgot["/forgot-password"]
     Reset["/reset-password"]
+    SelectCo["/select-company"]
   end
+  HomeLanding["/home (the same page as /)"]
   Home --> Login
-  Login --> Register
+  Login -->|"Individual tab"| Register
+  Login -->|"Company tab"| RegCompany
   Register --> Verify
+  RegCompany --> Verify
   Login --> Forgot
   Forgot --> Reset
+  Login -->|"signed in"| HomeLanding
+  Login -->|"Company tab: several companies, or none"| SelectCo
+  SelectCo --> HomeLanding
 
   subgraph Buying["Buying (signed-in customer)"]
     Cart["/cart Instant Buy"]
@@ -333,8 +345,18 @@ flowchart TD
     Settings["profile, company, addresses, region"]
     Payments["payment-methods, autopay, billing"]
     Erp["/account/integrations/erp and its pages"]
-    Stuff["coupons, wishlist, notifications"]
+    Stuff["coupons, wishlist, reviews, notifications"]
+    Companies["/account/companies"]
+    CompanyApp["/account/companies/:id"]
+    Tickets["/account/support Your tickets"]
+    Ticket["/account/support/:reference"]
   end
+  Companies --> CompanyApp
+  Support -->|"signed in: Raise a ticket"| Ticket
+  Tickets --> Ticket
+  Order -->|"Contact support about this order"| Support
+  RegCompany -->|"signed in: Start the application"| CompanyApp
+  SelectCo -->|"Register a company"| RegCompany
   Pay --> Order
   Confirm --> Order
   Orders --> Order
@@ -376,6 +398,9 @@ flowchart TD
   HubHome --> Notes["/seller/notifications"]
   HubHome --> Activity["/seller/activity"]
   HubHome --> Profile["/seller/profile"]
+  HubHome --> SSupport["/seller/support Support"]
+  SSupport --> SRequests["/seller/support/requests Your tickets"]
+  SRequests --> SRequest["/seller/support/requests/:reference"]
 ```
 
 ### 3.3 Admin panel
@@ -398,6 +423,7 @@ flowchart LR
   Cat --> Manuf["/manufacturers"]
   Cat --> Review["/listing-review"] --> ReviewOne["/listing-review/:id"]
   Cat --> BrandReq["/brand-requests"]
+  Cat --> Reviews["/product-reviews"]
 
   Dash --> Sales["Sales"]
   Sales --> Orders["/orders"] --> Order["/orders/:id"]
@@ -406,9 +432,13 @@ flowchart LR
   Sales --> Preorders["/preorders"] --> Preorder["/preorders/:id"]
   Sales --> Companies["/companies"]
   Sales --> Customers["/customers"] --> Customer["/customers/:id"]
+  Sales --> BuyerCos["/buyer-companies Company verification"] --> BuyerCo["/buyer-companies/:id"]
   Sales --> Sellers["/sellers"] --> Seller["/sellers/:id"]
   Sales --> SellerCarriers["/seller-carriers"]
   Sales --> Chat["/chat-enquiries"]
+
+  Dash --> SupportGroup["Support"]
+  SupportGroup --> Tickets["/support Tickets"] --> Ticket["/support/:id"]
 
   Dash --> Logistics["Logistics"]
   Logistics --> Ship["/logistics/shipments"] --> ShipOne["/logistics/shipments/:id"]
@@ -454,6 +484,9 @@ flowchart TD
   Dash --> Company
   Dash --> Profile["/profile"]
   Dash --> Integration["/integration"]
+  Dash --> Support["/support (every member)"] --> SupportOne["/support/:reference"]
+  Tasks --> Support
+  Company --> Support
 ```
 
 ---
@@ -491,11 +524,12 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
 
    | Item | What it is | What it does |
    |---|---|---|
-   | Brand | The store's logo (or the earth mark) and name. For Glovia: the wordmark (23px, 17px on a phone) over **The Way to the World** (15px, from 1024px), in their own bright colour tokens | Goes to `/` |
+   | Brand | The store's logo (or the earth mark) and name. For Gloviaa Mart: the wordmark (23px, 17px on a phone, where it reads just **Gloviaa** and the guest Sign in button shows only its icon) over **The Way to the Global Sourcing** (15px, from 1024px), in their own bright colour tokens | Goes to `/` |
    | Appearance | Match my device, Light, Dark. One cycling button on phones | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
-   | Account | **Sign in** for a guest. For a customer, their first name and a menu (on a phone the icon alone, no chevron) | The menu lists the account pages in four groups and **Sign out**, which asks first |
+   | Support | A headset icon, with no words at any width. Its accessible name is "Support". Shown from the `sm` width up; on a phone the account menu and the footer lead to the same page | Opens `/support` |
+   | Account | **Sign in** for a guest. For a customer, their first name and a menu (on a phone the icon alone, no chevron) | The menu lists the account pages in four groups and **Sign out**, which asks first. For somebody who belongs to at least one company, the menu starts with **Buying for** (see below) |
    | Cart | Orange, with a count of items | Opens `/cart` (a guest is asked to sign in) |
 
    There is **no search box and no category bar** in the header, on purpose.
@@ -512,6 +546,31 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    | Approved seller | Seller Hub | `/seller/dashboard` |
    | Suspended seller | Selling paused | `/seller/dashboard` |
 
+   **"Buying for" in the account menu** (`components/account/BuyerContextSwitcher.tsx`)
+
+   Shown only to a customer who belongs to at least one company, and only when
+   the store offers company accounts (`buyerCompanies`). A short list:
+   **Myself**, then each company with its status badge (for example "Under
+   review" or "Verified"). The one in use is marked as pressed. Choosing
+   another asks the server to switch; no password is asked. Then everything
+   the page had loaded is thrown away, so nothing from one account shows in the
+   other, the person is taken to `/home`, and a message says "You are now
+   buying for …" or "You are now buying for yourself." If the server refuses:
+   "We could not switch accounts. Please try again."
+
+   **API call:** `PUT /api/v1/auth/buyer-context`
+
+   **The company status bar** (`components/CompanyStatusBanner.tsx`), right
+   under the header, only while buying for a company:
+
+   | Company status | What the bar shows |
+   |---|---|
+   | Verified | A thin line: "Buying for …" |
+   | Anything else | A coloured bar that cannot be closed: the company's name, a sentence for its status (for example "A reviewer is checking the application. Ordering opens once the company is verified."), and a link: **Continue application** when the applicant has something to do (draft, email code, more information, re-verification), otherwise **View application**. Amber when the applicant must act, red when rejected or suspended, blue while it waits for us |
+
+   The link opens `/account/companies/:id`. A screen reader reads the bar once
+   on arrival; it does not interrupt.
+
 4. **Where are you ordering from?** A one-time dialog for a signed-in
    customer who has never chosen a country: country, currency, **Use my
    location**, **Not now**, **Continue**.
@@ -522,7 +581,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    scrolls to the top. While a page's code downloads, a spinner shows.
 7. **The footer**: the store's name; **Shop** (All products, My orders, Repeat
    purchases); **Support** (email and phone from Settings, or "Contact details
-   coming soon"); **Policies** (the links set in Settings, each in a new tab);
+   coming soon", and always a link to the Support page, `/support`); **Policies** (the links set in Settings, each in a new tab);
    and "All prices in …". There is no footer on `/ai`.
 
 **If a page crashes**, the whole app shows "This page stopped working. Nothing
@@ -533,7 +592,9 @@ page** and **Go to the home page**.
 
 - `GET /api/v1/config` — the store's name, logo, support details, policy
   links, countries, currencies and which features are switched on
-- `GET /api/v1/auth/me` — who is signed in
+- `GET /api/v1/auth/me` — who is signed in, and who they are buying for
+  (`buyerContext`, `companies`)
+- `PUT /api/v1/auth/buyer-context` — the "Buying for" switch
 - `GET /api/v1/cart` — the cart count (customers only)
 - `GET /api/v1/account/profile` — the name on the account menu
 - `GET` and `PUT /api/v1/account/locale` — the country and currency
@@ -554,18 +615,24 @@ call fails, everything below counts as off.
 | `assistant` | The AI Assistant tab on the front page and the AI node in the sourcing hub |
 | `assistant.allowsGuests` | Whether AI Mode answers somebody who is not signed in (server setting `ASSISTANT_ALLOW_GUESTS`, off by default) |
 | `imageSearch` | The camera button on the front page search and in AI Mode |
+| `buyerCompanies` | The Individual and Company tabs on `/login`, `/register/company`, `/select-company`, "Company accounts" in the account area and menu, the "Buying for" switch and the company status bar (server setting `FEATURE_BUYER_COMPANIES`, on by default) |
+| `supportTickets` | Whether the Support page offers the **Raise a ticket** form (server setting `FEATURE_SUPPORT_TICKETS`, on by default). Off, the page shows only the published contacts; **Your tickets** stays, and existing tickets can still be answered |
 
 ### 4.1 Storefront: browsing, signing in, and public pages
 
 | Path | Screen | Who |
 |---|---|---|
 | `/` | Home | Anybody |
+| `/home` | Home: the same page as `/`. Every sign-in, individual or company, lands here | Anybody |
 | `/products` | All products | Anybody |
 | `/category/:slug` | One category | Anybody |
 | `/search` | Search results (old links) | Anybody |
 | `/product/:slug` | One product | Anybody (buying needs a customer) |
 | `/login` | Sign in | Anybody |
 | `/register` | Create an account | Anybody |
+| `/register/check-email` | Check your email | Anybody. Reached from either sign-up form after the server accepts it; opens at its top with its heading focused. Opened directly, it asks for the address before resending |
+| `/register/company` | Register a company | Anybody. Signed out it creates the account first and shows "Step 1 of 6"; signed in it starts the company application, and offers **Start from my seller details** to somebody who runs a seller account. Needs `buyerCompanies` |
+| `/select-company` | Choose who to buy for | A signed-in customer, after a Company-tab sign-in |
 | `/verify-email` | Confirm your email address | Anybody with the emailed link |
 | `/activate` | Activate your account (from an invitation) | Anybody with the emailed link |
 | `/forgot-password` | Reset your password | Anybody |
@@ -573,7 +640,8 @@ call fails, everything below counts as off.
 | `/confirm-contact` | Confirm a new email or phone | Open to all; asks you to sign in before it acts |
 | `/verify-document` | Check a document | Anybody (the QR code on a seller's invoice) |
 | `/ai` | AI Mode | Anybody can open it; whether it answers a guest is a setting |
-| `/sell` | Sell on Glovia | Anybody |
+| `/sell` | Sell on Gloviaa Mart | Anybody |
+| `/support` | Support | Anybody can open it; raising a ticket needs a signed-in customer |
 | any other address | We could not find that page | Anybody |
 
 #### `/` — Home
@@ -605,7 +673,9 @@ browse.
      scheduling" (when switched on).
    - **The sourcing hub**: four glass cards — AI Assistant, Schedule your Cart,
      Autopay, ERP Integration. Each opens its page, or explains why it cannot
-     (switched off, or sign in first).
+     (switched off, or sign in first). The turning globe they surround is
+     labelled **Gloviaa** alone — never "Gloviaa Mart", the tagline or
+     "Powered by UBOSS".
 2. **Shop by category**: a rail of the departments that have stock. Opening
    one lists what is inside it, with **Browse …**. Hidden when nothing is
    stocked.
@@ -671,7 +741,8 @@ search term and removes the rest.
 - **Filtered by**: a chip per filter, each with ×.
 - The results: a row per product with its name, SKU, price (or "Request a
   quote"), tax, badges (Minimum N, In multiples of N, N% off, Currently
-  unavailable) and **Save for later**.
+  unavailable), the star rating with its review count when the product has
+  reviews, and **Save for later**.
 - **Previous**, "Page X of Y", **Next**.
 
 **Save for later** adds the product to the wishlist. A guest is asked to sign
@@ -695,7 +766,7 @@ category shows an empty list, not an error.
 | | |
 |---|---|
 | **Who** | Anybody can look. Buying needs an activated customer |
-| **File** | `pages/ProductPage.tsx`, `components/VariantSelector.tsx`, `components/QuantityInput.tsx`, `components/BulkSavingsPopover.tsx`, `components/BulkOffersDialog.tsx`, `lib/quantity-decision.ts`, `lib/use-quantity-decision.ts`, `components/preorder/*`, `components/ProductInstructionsButton.tsx` |
+| **File** | `pages/ProductPage.tsx`, `components/VariantSelector.tsx`, `components/QuantityInput.tsx`, `components/BulkSavingsPopover.tsx`, `components/BulkOffersDialog.tsx`, `lib/quantity-decision.ts`, `lib/use-quantity-decision.ts`, `components/preorder/*`, `components/ProductInstructionsButton.tsx`, `components/B2cLimitDialog.tsx`, `lib/b2c-limit.ts` |
 | **Local screenshot** | `03-customer-product-detail.png` |
 
 **Purpose.** Where the decision to buy is made.
@@ -704,7 +775,9 @@ category shows an empty list, not an error.
 
 - **Pictures**: the chosen version's pictures (or the product's). Hovering
   magnifies; pressing opens the picture full screen.
-- **Name** and short description.
+- **Name** and short description. Under the name, the star rating, the average
+  and the review count, linking to **Ratings and reviews** further down (not
+  shown when there are no reviews, or when reviews are switched off).
 - **Price**: per piece or per carton, a range when several versions are
   chosen, a crossed-out price with "Reduced price", or "Price on request". An
   approximate price in another currency when prices were converted. The tax
@@ -719,6 +792,35 @@ category shows an empty list, not an error.
   100,000,000 (see *Safe quantity input* under Shared controls). A typed
   quantity counts on Enter, on leaving the box, or after 0.8 seconds without
   typing; + / −, an arrow key or a paste counts at once.
+- **Individual purchase limit** (the seller's *B2C Maximum Order Quantity*),
+  under the quantity box when one is set: *"Individual purchase limit: N
+  units"*, or *"… It does not apply to your approved company."* when buying
+  for an approved company. It is linked to the box (`aria-describedby`) so a
+  screen reader reads it with the quantity.
+- **The individual purchase limit dialog**: opens when a buyer held to the
+  limit (a guest, an individual, or somebody buying for a company that is not
+  approved) settles on more than it — typed, stepped or pasted — presses
+  **Add to cart** over it, or the server refuses an add because the basket
+  plus the new units would pass it. Title *Individual purchase limit*;
+  message *"Individual buyers can order up to N units of this product. To
+  order a larger quantity, switch to an approved Company account."* (a guest
+  sees *"… Sign in with an approved Company account …"*), what the basket
+  already holds, and *"This is a purchasing limit, not a stock level."* The
+  buttons depend on who is asking:
+  - a guest: **Sign in as Company**, **Create Company Account**;
+  - an individual with an approved company: **Switch to {company}**, one per
+    approved company;
+  - an individual whose company is still being verified: **View Verification
+    Status**;
+  - an individual with no company: **Create Company Account**;
+  - buying for a company that is not approved: that company's status, because
+    switching would not help;
+  - always: **Reduce to N** (only where one version is chosen; rounded down
+    to a quantity the product's minimum and step allow, after what the basket
+    already holds) and **Cancel** (puts the quantity back).
+  Nothing switches account or starts a registration until a button is
+  pressed. A native `<dialog>`: focus moves in, Escape and the backdrop
+  cancel, and focus returns to the box, stepper or button that opened it.
 - **Quantity savings**: what you would save by buying more.
 - **View all bulk offers (N)**: a link under the quantity box, shown whenever
   the listing has at least one genuine offer. It opens the **Bulk offers**
@@ -788,7 +890,7 @@ category shows an empty list, not an error.
     Preorder takes the rest of the row and the row does not wrap. There is no
     visible "Chat with …" text button; this is the only chat entry in the row.
     Its accessible name is *Chat with {marketplace}* (the operator's own name;
-    *Chat with Glovia* until one is set), or *Chat with {marketplace}. Unread
+    *Chat with Gloviaa Mart* until one is set), or *Chat with {marketplace}. Unread
     replies: N*. The tooltip *"Ask {marketplace} about this preorder"* shows on
     hover and keyboard focus, is linked by `aria-describedby`, and Escape hides
     it; on touch a tap opens the chat directly. Visible focus ring, a soft
@@ -869,6 +971,23 @@ category shows an empty list, not an error.
   **Compliance and certifications** (that group, then medical device details);
   **Warranty**; **Manufacturer and seller information** (those groups, then
   product safety). Choosing an option swaps in its own specifications.
+- **Ratings and reviews** (only when `features.productReviews` is on): the
+  overall average with its stars and "Based on N reviews"; a bar per star from
+  five to one; the four categories (Quality, Delivery, Experience, Support)
+  drawn as raised columns whose height is the average, with the figure above
+  and stars below; a prompt that is **Write a review** for a buyer with a
+  delivered order of the product, **Edit review** once they have one (with a
+  Hidden badge if staff hid it), **Sign in to write a review** for a guest, or a
+  sentence explaining the rule otherwise; **Sort by** (Newest first, Highest
+  rated, Lowest rated); and the reviews ten at a time with **Show more
+  reviews**. Each review shows its stars, the first name and initial,
+  **Verified purchase**, the date, and the four scores as chips. "No reviews
+  yet" when there are none.
+- **The review dialog** (also opened from a delivered order and from **My
+  reviews**): four star inputs with a one-line question under each, all
+  required ("Choose a score from 1 to 5."), a note that the review shows the
+  first name and initial, **Publish review** or **Save changes**, and **Delete
+  review** for an existing one. A hidden review shows why staff hid it.
 
 **States.** "Loading the product". A product that does not exist shows the
 "We could not find that page" screen.
@@ -886,23 +1005,62 @@ category shows an empty list, not an error.
   `POST /api/v1/preorders` (the preorder dialog)
 - `GET` and `POST /api/v1/account/product-instructions`
 - `GET` and `POST /api/v1/account/wishlist`, `DELETE /api/v1/account/wishlist/:id`
+- `GET /api/v1/catalog/products/:slug/reviews?page=…&limit=10&sort=…` (the reviews section)
+- `GET` and `PUT /api/v1/account/products/:productId/review`,
+  `DELETE /api/v1/account/product-reviews/:reviewId` (the prompt and the dialog)
 
 #### `/login` — Sign in
 
 | | |
 |---|---|
 | **Who** | Anybody. A signed-in customer is sent straight on |
-| **File** | `pages/LoginPage.tsx`, `auth/SessionProvider.tsx`, `components/DemoLoginPanel.tsx` |
+| **File** | `pages/LoginPage.tsx`, `components/ui/Tabs.tsx`, `lib/return-target.ts`, `auth/SessionProvider.tsx`, `components/DemoLoginPanel.tsx` |
 | **Local screenshot** | `04-customer-login.png` |
 
 **On the screen.** The split layout: a turning earth on the left from `lg`
 up, the form on the right. The language picker. **Email address**,
-**Password**, "I accept the terms of business" (with the store's policy
-links), **Sign in →**, **Forgot your password?**. Then either "Create one now"
-(when sign-up is switched on) or "Accounts are set up by our team…".
+**Password** with a **Show** / **Hide** button (it says what pressing it will
+do, and a screen reader hears whether the password is shown), "I accept the
+terms of business" (with the store's policy links), **Sign in →**, **Forgot
+your password?**. Then either a way to create an account (when sign-up is
+switched on) or "Accounts are set up by our team…".
+
+**Two tabs: Individual and Company.** When the store offers company accounts
+(`buyerCompanies`), the form sits under two tabs, labelled "Who are you buying
+for?". Individual is the default. They are real tabs for a keyboard: the arrow
+keys move between them, and Home and End go to the first and last. The chosen
+tab is kept in the address, so it survives a mistake in the form:
+
+| Address | Tab shown |
+|---|---|
+| `/login` or `/login?buyerType=individual` | Individual |
+| `/login?buyerType=company` | Company. The line under the heading changes to "Sign in to buy for your company, or to follow your company's application." |
+| Any other `buyerType` | Individual |
+
+Switching tab does not add a Back step. When the store does not offer company
+accounts there are no tabs, only the form.
+
+The tab only says what the person means to do. The email and password are
+checked in exactly the same way on both, and a wrong password gets the same
+message on both, so the Company tab cannot be used to find out who belongs to a
+company.
+
+**Creating an account from here** (only when sign-up is switched on):
+
+| Tab | Link | Goes to |
+|---|---|---|
+| Individual | "Create one now — it only takes a minute." | `/register` |
+| Company | "Register your company — we check every business before it can order." | `/register/company` |
 
 **Where you go afterwards.** The page you were trying to open, or the `next`
-address, or `/`. Only addresses inside this store are accepted.
+address, or `/home`. Only addresses inside this store are accepted; anything
+else (another site, `//…`) goes to `/home`. On the Company tab:
+
+| The account belongs to | What happens |
+|---|---|
+| One company | The session buys for that company, and you go on as above |
+| Several companies | `/select-company`, to choose one |
+| No company | `/select-company`, which says so and offers to register one |
 
 **When it goes wrong**, the server's reason is shown, with a line of help for
 the common cases: too many attempts (try again in N minutes), not activated
@@ -910,7 +1068,8 @@ yet, email not confirmed, waiting for approval, locked, no longer active.
 
 **Demo sign-ins** appear only on a build made with `VITE_DEMO_LOGINS`.
 
-**API call:** `POST /api/v1/auth/login`
+**API call:** `POST /api/v1/auth/login` (with `buyerType` when the tabs are
+shown)
 
 #### `/register` — Create your account
 
@@ -928,11 +1087,103 @@ least 12 characters), **Confirm your password**, the terms box, and **Create
 account →**. When new accounts are reviewed: "New accounts are reviewed by our
 team before the first order…".
 
-**What happens.** "Check your email — if … can have an account here, a
-confirmation link is on its way." with **Send it again**. You are not signed
-in yet. The page never says whether an email address is already in use.
+**What happens.** **Create account** shows a spinner and cannot be pressed
+again while the request runs - a double-click sends one request. If the
+request fails, you stay on the form with everything you typed and a message
+says why. Only once the server accepts it does the browser move to
+`/register/check-email`: "Check your email — if … can have an account here, a
+confirmation link is on its way." with **Send it again**. That page opens at its
+top - never at the scroll position the long form was left at - with its heading
+focused, and Back returns to a fresh form. The address is kept by a refresh of
+the page and never appears in its URL. Opened directly, with no sign-up behind
+it, it says a link was sent "if the address you signed up with can have an
+account here", and asks for the **Email address** before **Send it again**.
+You are not signed in yet. The page never says whether an email address is
+already in use.
+
+**The frame, from `lg` up.** The page is exactly one window high: the globe
+fills the left half and holds still, the footer is not shown, and only the
+form column scrolls. Below `lg` there is no globe and the page scrolls as
+usual, with the footer after the form.
+
+**The company version of this form** is shown at `/register/company` to
+somebody signed out. It is the same form, the same confirmation email and the
+same password rules; only the words change, and it uses the same one-window
+frame. Above the heading, the six-step indicator: "Step 1 of 6", a bar, and six
+numbered steps with the first one current - the same six the application uses
+afterwards. Heading "Register your company", and "First, create the account
+you will sign in with. Use your work email. After you confirm it, sign in on
+the Company tab to add the company's details." After sending, "Check your
+email" adds "When you have confirmed your email, sign in on the Company tab to
+continue registering your company.", and its sign-in link opens
+`/login?buyerType=company`. This browser also remembers that the sign-up was
+for a company, so the sign-in button on `/verify-email` opens the Company tab
+too. That note is only a convenience: it gives no rights, and if the browser
+cannot store it the person simply picks the tab.
 
 **API calls:** `POST /api/v1/auth/register`, `POST /api/v1/auth/verify-email/resend`
+
+#### `/register/company` — Register a company
+
+| | |
+|---|---|
+| **Who** | Anybody. Needs `buyerCompanies`; without it: "Company accounts are not offered here" with **Back to the home page** |
+| **File** | `pages/company/CompanyRegisterPage.tsx`, `pages/RegisterPage.tsx` |
+
+**Purpose.** The start of a company account, reached from "Register your
+company" on the Company tab, from `/select-company` and from Company accounts.
+
+**Signed out.** The company version of the sign-up form (see `/register`
+above). When sign-up is switched off, it says accounts are by invitation.
+
+**Signed in. On the screen.** "Register a company" and "Tell us about the
+business you buy for. We save each step as you go, so you can stop and finish
+later." Two cards:
+
+- **You will need**: the registration number from the official register; tax
+  numbers if the company has them; the registered office, billing and delivery
+  addresses; a certificate of incorporation or register extract where one is
+  asked for; a business email address for a code.
+- **What we do not ask for**: bank account details, your personal identity
+  document, details of the company's owners. "A reviewer may ask for one of
+  these only if a specific application needs it, and will say why."
+
+Then how it works (checked against official registers where we can, then a
+person reviews it; you can browse and build a cart meanwhile; ordering opens
+once it is verified), **Start the application** and **See your companies**.
+
+**What happens.** **Start the application** opens a draft on the server, with
+you as its owner, and takes you to `/account/companies/:id`. The new company
+also appears in "Buying for" straight away. A person may have at most three
+unfinished applications (a store setting); past that the server refuses and
+the reason is shown.
+
+**API calls:** `POST /api/v1/buyer-companies`, `GET /api/v1/auth/me`
+
+#### `/select-company` — Choose who to buy for
+
+| | |
+|---|---|
+| **Who** | A signed-in customer. Reached after signing in on the Company tab |
+| **File** | `pages/company/SelectCompanyPage.tsx` |
+
+**Purpose.** Settle who this session buys for, when the sign-in could not
+decide alone.
+
+**On the screen.**
+
+| Case | What it shows |
+|---|---|
+| Several companies | "Who are you buying for?" and "You belong to more than one company. Choose one to continue. You can switch at any time from the account menu." One button per company: its name, your role (Owner, Company admin, Buyer, Order approver, Finance, Viewer), its reference, and a status badge. Then **Continue as myself** |
+| No company | "No company on this account yet" and "You signed in on the Company tab, but this account does not belong to a company. Register your company, or continue buying for yourself." **Register a company** and **Continue as myself** |
+
+**What happens.** Until a choice is made, the session buys for the person, so
+an order can never land on a company by guesswork. A choice is sent to the
+server, which checks the membership before it changes anything. Then you go to
+where you were headed, normally `/home`. If the server refuses: "We could not
+switch accounts. Please try again."
+
+**API call:** `PUT /api/v1/auth/buyer-context`
 
 #### `/verify-email` — Confirm your email address
 
@@ -1089,7 +1340,7 @@ assistant".
 - `POST /api/v1/catalog/image-search` (customers)
 - `GET /api/v1/account/profile`
 
-#### `/sell` — Sell on Glovia
+#### `/sell` — Sell on Gloviaa Mart
 
 | | |
 |---|---|
@@ -1126,6 +1377,99 @@ customer starts a seller application under the account they already have.
 - `GET /api/v1/sellers/display-name-available?name=…`
 - `POST /api/v1/sellers/apply`
 
+#### `/support` — Support
+
+| | |
+|---|---|
+| **Who** | Anybody can open it. Raising a ticket needs a signed-in customer. The form appears only when `supportTickets` is on |
+| **File** | `pages/SupportPage.tsx`, `components/support/ContactWithGlobe.tsx`, `components/support/SupportFaq.tsx`, `components/support/FaqCategorized.tsx`, `lib/support-faq.ts`, `components/support/GlobeWireframe.tsx`, `components/support/SupportRequestForm.tsx`, `components/support/SupportFilePicker.tsx` |
+
+**Purpose.** The one page every **Support** link opens: the header's headset
+button, the account menu, the footer's Support column and an order's
+**Contact support about this order**. A **support ticket** is a written request
+for help that gets a number and a conversation with the operator's team.
+
+**On the screen**
+
+- **"{marketplace} Support"**, the heading **How can we help?** and "Tell us
+  about the issue and our support team will resolve it."
+- **Frequently asked questions**, straight under the introduction and before
+  the contacts and the form, so a common question is answered before anybody
+  writes in. Six topics as tiles, each with an icon and how many questions it
+  holds (**Accounts and verification**, **Orders and payments**, **Bulk orders
+  and preorders**, **Shipping and tracking**, **Sellers and logistics
+  partners**, **ERP and technical help**). Two tiles across on a phone, three
+  from a tablet up. Each question opens its answer in place; one is open at a
+  time, and changing topic closes it. Some answers end with a next step:
+  **View your orders**, **View verification status**, **Become a seller**,
+  **Contact support** and others. A link to an account page is shown only to a
+  signed-in customer, and a sign-up link only where sign-up is open.
+  **Contact support** scrolls to the form and moves focus to its heading
+  without touching anything already typed. Questions about companies are left
+  out where `buyerCompanies` is off. `/support#support-faq` opens on this
+  section. The tabs follow the WAI-ARIA tabs pattern (arrow keys, Home, End);
+  each answer is a region named by its question. If the section ever fails
+  to render it disappears and the form still works. Storefront only: Seller
+  Hub's `/seller/support` has no FAQ.
+- **Get in touch**: the operator's published support email and phone, from
+  **Settings → Business profile**. With neither published: "No support email
+  or phone number has been published yet. Raise a ticket instead." There are
+  no made-up contacts. Under it, a turning wireframe globe. The globe pauses
+  when it is off screen, stands still for people who ask for reduced motion,
+  and is hidden from screen readers. Its country outline ships with the app;
+  if it does not load, the form is unaffected.
+- **Raise a ticket**, as a card:
+  - **A guest** sees "Sign in to raise a ticket…" and **Sign in to continue**,
+    which comes back to `/support`.
+  - **A signed-in customer** fills in only the problem: **What is it about?**
+    (Orders, Payments, Preorders, Products, Seller Hub, Logistics and tracking,
+    Company verification, ERP integration, Account and security, Other),
+    **Order number** (optional, "Only one of your own orders."), **Subject**,
+    **Describe the issue** (10 to 5000 characters, with a counter and "Please
+    do not include passwords or card numbers.") and **Photos, videos or
+    documents** (optional). There are no name, email or company fields. A
+    line says "Raised as {name}. Replies go to {email}." or "Raised as {name}
+    for {company}. …" when buying for a company. **Raise ticket**.
+  - Opened from an order, the order number and the topic **Orders** are
+    already filled in (`?order=…&category=ORDERS`).
+- Under the form, **See your tickets** links to `/account/support`.
+
+**What happens**
+
+- **Raise ticket** sends the ticket, then uploads the chosen files one at a
+  time ("Uploading file 1 of 3…"). The answer: **Your ticket has been raised**,
+  the **Ticket number** (`SR-XXXX-XXXX`), "We are sending a confirmation to
+  {email}…" only when the email was really queued, a line per file
+  (**Attached** or **Not attached** with the reason, and "You can add these
+  files again from your ticket."), **View your ticket** and **Raise another
+  ticket**.
+- A refused file never loses the ticket. A failed send keeps everything typed
+  and the retry uses the same idempotency key, so a double click or a network
+  retry makes one ticket.
+- An order number that is not one of the person's orders: "This is not one of
+  your orders. Check the number, or leave it empty." A typo and somebody
+  else's order get the same answer.
+
+**States**
+
+- Files: images (JPEG, PNG, WebP, GIF), videos (MP4, WebM, MOV) and PDFs, up
+  to the size limit each and 10 per ticket. A wrong type or a file too big is
+  refused in the picker with the file's name. With no malware scanner: "Files
+  cannot be attached here. You can send them to the support email instead."
+- Tickets switched off: "Tickets cannot be raised online here. Please use the
+  email address or phone number shown."
+- Over the daily limit, the server's `SUPPORT_TICKET_LIMIT_REACHED` message in
+  the person's language.
+
+The "Contact support" links on the sign-in and activation pages stay email
+links: somebody who cannot sign in cannot raise a ticket.
+
+**API calls**
+
+- `GET /api/v1/support/context` (signed in)
+- `POST /api/v1/support/tickets` (with an `Idempotency-Key`)
+- `POST /api/v1/support/tickets/:reference/attachments` (once per file)
+
 #### Any other address — We could not find that page
 
 | | |
@@ -1144,6 +1488,16 @@ is `auth/RequireCustomer.tsx`. A visitor who is not signed in is sent to
 `/login`, and the page they wanted is remembered so they come back to it after
 signing in. The server checks the same thing on every request; the guard only
 saves a screen of failures.
+
+**Buying for a company.** Everything in this part follows "Buying for" in the
+account menu. In a company, the cart, orders, preorders and addresses are the
+company's, not the person's. A company **Buyer** sees the company orders they
+placed; the owner, company admins and the other company roles see all of them.
+Only a verified company can check out, pay or confirm a preorder; until then
+the cart and checkout show why (below). Repeat and scheduled orders work only
+when buying for yourself: in a company, the server refuses them and the screen
+says "This is available on your own account. Switch to Myself under Buying for
+in the account menu."
 
 **The progress bar.** The cart, checkout, payment and confirmation screens
 share a four-step bar (`components/CheckoutSteps.tsx`): **Cart → Address →
@@ -1170,7 +1524,7 @@ otherwise it shows "Not paid yet".
 | | |
 |---|---|
 | **Who** | Activated customer |
-| **File** | `pages/CartPage.tsx`, `components/CartModeTabs.tsx`, `components/CouponPanel.tsx`, `components/DeliveryOptionsPanel.tsx`, `components/DeliveryBreakdown.tsx` |
+| **File** | `pages/CartPage.tsx`, `components/CartModeTabs.tsx`, `components/CouponPanel.tsx`, `components/DeliveryOptionsPanel.tsx`, `components/DeliveryBreakdown.tsx`, `components/B2cLimitDialog.tsx` |
 | **Local screenshots** | `06-customer-product-added.png`, `07-customer-cart.png` |
 
 **Purpose.** The basket. It is kept on the server, and every change returns
@@ -1199,6 +1553,16 @@ always what the server holds.
     "Reduce to 40" when there is not enough stock, "Change to 50" when the
     quantity breaks a rule. An unavailable item is red; a price change is
     blue.
+  - **Over the individual purchase limit**: when the basket holds more of one
+    seller's product than that seller's B2C Maximum Order Quantity allows (the
+    seller lowered it, or the company lost approval), every line of that
+    product says *"Individual buyers can order up to N units of this product,
+    and your basket holds M. Reduce the quantity, or buy as an approved
+    company, to check out."*, with **Reduce to N** and **See options**. See
+    options opens the same dialog as the product page, which adds that a
+    company has its own basket. The basket is never trimmed on its own;
+    lowering is always allowed, raising past the limit is refused, and
+    checkout stays blocked until it is fixed.
 - **Order summary**: Subtotal, Discount, Tax, Delivery ("Calculated at
   checkout"), the delivery charge split by level (L1 to L4) when sellers
   charge per level, and the **Estimated total**.
@@ -1210,8 +1574,16 @@ always what the server holds.
   counts is made at checkout.
 - "This order will need approval", when your account's rules say so.
 - "Before you can check out", listing anything that blocks checkout.
+- **When buying for a company that is not verified yet**, a note above the
+  button: "Ordering for … opens once the company is verified." and "Current
+  status: …. You can keep browsing and building your cart.", with **Open the
+  application** (`components/CompanyNotApprovedNotice.tsx`). The basket can
+  still be changed; checkout cannot.
 - **Proceed to checkout** (orange). It can only be pressed when the server
-  says the cart is ready.
+  says the cart is ready, and not while the note above is shown. The phone bar's
+  **Checkout** follows the same rule.
+- In a company, this is **the company's basket**, separate from the person's
+  own. Switching in "Buying for" shows the other basket.
 - **Need this again?** When some products can be delivered on a schedule: the
   Autopay state (On, Off, Paused) with one button to manage it, and **Schedule
   your Cart**, which opens `/schedules/new`.
@@ -1250,6 +1622,12 @@ pay, then create **exactly one** order. No money moves on this page: "Nothing
 is charged until the next step."
 
 **On the screen**
+
+When buying for a company that is not verified yet, the same note as on the
+cart sits under the progress bar ("Ordering for … opens once the company is
+verified.", with **Open the application**). The server refuses the order either
+way (`BUYER_COMPANY_NOT_APPROVED`); the note says so before the form is filled
+in. In a company, the addresses offered are the company's own address book.
 
 1. **Delivery address.** Your saved addresses as cards, the default chosen.
    **Add a different address** opens the address form in place. **Bill to the
@@ -1585,13 +1963,18 @@ it.
   carrier, the stage (Waiting for the seller to confirm, Carrier assigned,
   Picked up, In transit, Out for delivery, Delivered …), the seller who sent
   it, the tracking number with **Track it**, and its events.
+- On a **delivered** (or returned) order, each item has **Rate this product**,
+  or **Edit your review** when there is one. It opens the review dialog
+  described under `/product/:slug`. Not shown when reviews are switched off.
 - **Invoices**: each seller's invoice or credit note with **Download PDF**.
 - **Need something?**
   - **Order these again** adds the same products to the cart at today's prices
     and opens the cart.
   - **Cancel this order** asks for a reason. It is always shown; the server
     decides whether it is still possible and says so either way.
-- "Something wrong? Email … quoting …" when the store has a support email.
+- **Contact support about this order** opens `/support` with the order number
+  and the topic **Orders** filled in. "Something wrong? Email … quoting …" is
+  shown next to it when the store has a support email.
 
 **API calls**
 
@@ -1602,6 +1985,7 @@ it.
   downloaded)
 - `POST /api/v1/orders/:id/cancel`
 - `POST /api/v1/cart/items` (once per line, for "Order these again")
+- `GET /api/v1/account/product-reviews/reviewed?productIds=…` (delivered orders)
 
 #### `/account/schedules` — Repeat purchases
 
@@ -1830,6 +2214,7 @@ be opened without it.
 | Orders | Messages | `/account/messages` | Unless `FEATURE_PREORDER_CHAT` is off. Badged with unread replies |
 | Account settings | Profile information | `/account/profile` | Always |
 | Account settings | Company information | `/account/company` | Always |
+| Account settings | Company accounts | `/account/companies` | Only when the store offers company accounts (`features.buyerCompanies`) |
 | Account settings | Manage addresses | `/account/addresses` | Always |
 | Account settings | Language and region | `/account/region` | Always |
 | Payments | Saved payment methods | `/account/payment-methods` | Always |
@@ -1838,11 +2223,17 @@ be opened without it.
 | Integrations | ERP API connections | `/account/integrations/erp` | Always |
 | My stuff | Coupons | `/account/coupons` | Always |
 | My stuff | Wishlist | `/account/wishlist` | Always |
+| My stuff | My reviews | `/account/reviews` | When `features.productReviews` is on |
 | My stuff | Notifications | `/account/notifications` | Always |
+| My stuff | Support | `/account/support` (Your tickets) | Always, so tickets stay readable when new ones are switched off |
 
 The account menu in the header reads the same list, grouped a little
-differently (Your account, Orders, Payments, Details). Hiding "Scheduled
-orders" removes the menu entry only; the address itself still opens.
+differently (Your account, Orders, Payments, Details; "Company accounts" is
+under Details). Its **Support** entry opens the Support page, `/support`,
+rather than the list: on a phone, where the header's Support button is
+hidden, the menu is the way there. Hiding "Scheduled orders" removes the menu entry only; the
+address itself still opens. For somebody who belongs to a company, the menu
+also starts with **Buying for** (see [4.0](#40-the-frame-around-every-storefront-page)).
 
 Two addresses only redirect:
 
@@ -1883,7 +2274,7 @@ on me, and where have my other orders got to?"
   Draft orders are not counted. Pressing a slice filters to that group
   ("Showing … only", "Clear filter"). **View as a table** shows the same
   numbers as rows.
-- **Glovia AI Insights** card: **Explain this chart**, or type a question and
+- **Gloviaa Mart AI Insights** card: **Explain this chart**, or type a question and
   press **Ask**. The answer is written word by word as it arrives. A line under
   it says the figures come from your own data, never from the model. Nothing is
   sent until you press a button.
@@ -1944,7 +2335,135 @@ person.
 Delivery contact number (the number a courier rings). None is required. Tax
 numbers are on Billing, not here.
 
+This is free text on the person's own profile. It is **not** a verified
+company account; those are under Company accounts, below.
+
 **API calls:** `GET /api/v1/account/profile`, `PATCH /api/v1/account/profile`
+
+#### `/account/companies` — Company accounts
+
+| | |
+|---|---|
+| **Who** | Any signed-in customer. Shown in the sidebar and menu only when `buyerCompanies` is on |
+| **File** | `pages/company/CompaniesPage.tsx` |
+
+**Purpose.** Every company this person registered or belongs to, and where
+each one's verification stands.
+
+**On the screen.** "Company accounts" and "Companies you registered or belong
+to, and where each one's verification stands." **Register a company** at the
+top (opens `/register/company`). One row per company: its name, your role, its
+reference (for example `BC-7K2M9QXA`) and a status badge. Pressing a row opens
+`/account/companies/:id`.
+
+The status badges the storefront uses:
+
+| Status | Badge |
+|---|---|
+| Draft | Draft |
+| Email verification pending | Email not confirmed |
+| Submitted | Submitted |
+| Automated checks running | Being checked |
+| Under review | Under review |
+| More information required | More information needed |
+| Resubmitted | Sent back for review |
+| Approved | Verified |
+| Rejected | Not approved |
+| Suspended | Suspended |
+| Re-verification required | Needs checking again |
+
+**States.** "Loading your companies". Empty: "No companies yet — Register your
+company to buy in its name. We verify every business before it can order." An
+error shows **Try again**.
+
+**API call:** `GET /api/v1/buyer-companies`
+
+#### `/account/companies/:id` — Company application
+
+| | |
+|---|---|
+| **Who** | A member of that company. Anybody else gets "not found", the same as a company that does not exist. Only the owner or a company admin can change it; other members see it read-only, with "You are a … in this company. Only the owner or a company admin can change the application." |
+| **File** | `pages/company/CompanyApplicationPage.tsx`, `pages/company/CompanyWizard.tsx`, `pages/company/OnboardingSteps.tsx`, `pages/company/application-parts.tsx`, `pages/company/application-logic.ts` |
+
+**Purpose.** Fill in the company's application, follow it, and answer the
+reviewer. Every company email links here.
+
+**On the screen, top to bottom**
+
+1. **The header**: "Application BC-…", the company's name, and its status
+   badge.
+2. **The status panel**: a heading and a sentence for the status (for example
+   "Under review — A reviewer is looking at the application. We will email you
+   if we need anything, and when there is a decision."), the reference, the date
+   it was sent, and the status. While it is with us: "We will email you when
+   there is news. There is nothing you need to do now." It never promises a
+   turnaround time. When rejected, the reason in the reviewer's own words, and
+   **Correct and apply again** where the reviewer allowed it (otherwise "This
+   application cannot be sent again. Contact us if you think that is wrong.").
+   When approved: **Start buying for the company** (goes to `/home`). **Contact
+   support** when the store has a support email.
+3. **The reviewer's requests** (only when sent back and a request is open):
+   "Our reviewer has asked for more information". Each request shows its date
+   and the reviewer's message as plain text, an upload box for each document
+   they named, **Your answer** and **Send answer**.
+4. **The six steps**, while the application can be changed (Draft, Email not
+   confirmed, More information needed, Needs checking again). Otherwise **What
+   you sent**: registered name, trading name, legal form, registration number,
+   business email and how many documents are attached.
+5. **Send back for review** (only when sent back): "Answer each request above,
+   then send the application back for review." until every request is
+   answered, then "When you have answered and made any corrections, send the
+   application back for review."
+6. **History** (folded): what happened and when, in the applicant's words, for
+   example "Application started", "Business email confirmed", "Document
+   uploaded", "Status changed to: Under review". Staff notes never appear.
+
+**The six steps.** Beside the form from `lg` up, a card headed "Your
+application" with "N of 6 steps complete", a bar, and the six steps joined by
+a line: each shows its number (a tick once complete, "!" when something is
+missing), its name, and its state in words - *Complete*, *In progress*, *Needs
+attention* or *Not started*. The card stays in view below the header while the
+form scrolls. Below `lg` it is a "Step 2 of 6" line, a bar and six numbered
+buttons that wrap. Every step can be pressed to go to it. A draft opens on the
+earliest step that still needs something. Above the form, when the draft was
+started from a seller account: "Filled in from your seller account. Check every
+detail before you continue - this application is reviewed on its own, and your
+seller approval does not carry over." Then **Back** and **Save and continue**.
+Each step is saved **on the server** when you press Save and continue, never
+only in the browser, so the application can be finished later or on another
+device. Only the steps sent are checked. If anything is wrong nothing is saved,
+you stay on the step with what you typed, and each problem is shown under its
+own field in your language.
+
+| Step | What it asks |
+|---|---|
+| 1. Account and representative | "Signed in as …", your **full name** and **phone number** from your profile (**Change these on your profile**). Your job title, **Your relationship to the business** (Director or officer; Owner or partner; Employee; Authorised agent outside the company; Other - choosing the agent says a letter of authorisation will be asked for), the **business email** (starts as your sign-in address), and the tick "I am authorised to register this company and to act on its behalf." A business email that is not your confirmed sign-in address must be confirmed with a code (step 6) |
+| 2. Business details | Registered name (exactly as on the official register), trading name (if different), country of registration, legal form, the registration number, date of incorporation (when the legal form needs one), industry, website (optional), business phone with its country code. The registration number follows the country and legal form: in India the CIN for a company or the LLPIN for an LLP; in Poland the KRS number for a company or the NIP for a sole trader (CEIDG); elsewhere the national register's number. At the bottom, folded: **How you plan to buy** (optional) - expected monthly purchases, how many people will buy, preferred currency, delivery countries, categories of interest, and two ticks (discuss payment terms later; connect our purchasing system), each with "Prefer not to say". It has no effect on the verification |
+| 3. Registration and tax details | Only the numbers that exist for the country chosen in step 2: India PAN, GSTIN, Udyam, IEC; Poland NIP, REGON, EU VAT; other EU countries EU VAT and EORI; elsewhere a tax number. LEI is optional anywhere. Each has **Not registered / not applicable** with a reason (not registered, exempt, below the threshold, not issued for this legal form), except where the law requires the number for that legal form. Numbers with a check digit (NIP, REGON, GSTIN, LEI) are checked when the step is saved, and the others by their format |
+| 4. Addresses | Registered office (required). Operating address, billing address and main delivery address, each with a "same as" tick. Postcodes are checked for the countries we know |
+| 5. Verification documents | Only what this application needs, each with **why** it is asked for (for example "Shows that the company exists as a registered business."). A certificate of incorporation or register extract is required, except for a Polish company in the KRS, whose register is read directly. An Indian GST certificate is needed when a GSTIN is given. A letter of authorisation is required from an authorised agent outside the company, optional otherwise. **Proof of registered address** and **Business licence** are offered, marked optional. "PDF, JPEG, PNG or WebP, up to 10 MB. We check the file itself, scan it for viruses and store it privately. PDFs with scripts or attachments are not accepted." A file uploads as soon as it is chosen, with "Uploading… 42%" and a bar, then "Checking the file…". An empty file, or one that is not a PDF or a picture by name, is refused at once without being sent ("That file is empty. Choose the document itself." / "Upload a PDF, JPEG, PNG or WebP file."). **Remove** withdraws one nobody has decided on. Identity documents and ownership declarations are never asked for here |
+| 6. Review and submit | Everything you entered, including your name, phone and relationship, with **Edit** per step, and "Still missing before you can send" if anything is. **Declarations**: four statements, each ticked separately and none ticked for you (the information is accurate; the business terms; the privacy notice; authority to act), with "Wording version …". **Send the application**. If the business email needs confirming, a code is emailed to it: "We sent a six-digit code to …", **Six-digit code**, **Confirm and send**, **Send a new code** |
+
+**What happens.** Sending records each declaration on its own. The server then
+checks the details against official registers where it can, and a person
+reviews every application; the page follows the status. The emails the
+applicant gets (received, code, more information needed, approved, rejected,
+suspended, re-verification, restored, document refused) are in their own
+language and link back here.
+
+**States.** "Loading the application". An error shows **Try again**. A company
+you are not a member of shows "not found".
+
+**API calls**
+
+- `GET /api/v1/buyer-companies/:id`
+- `PATCH /api/v1/buyer-companies/:id` (Save and continue)
+- `POST /api/v1/buyer-companies/:id/email-code`, `POST /api/v1/buyer-companies/:id/email-code/confirm`
+- `POST /api/v1/buyer-companies/:id/submit`
+- `POST /api/v1/buyer-companies/:id/documents`, `DELETE /api/v1/buyer-companies/:id/documents/:documentId`
+- `POST /api/v1/buyer-companies/:id/info-requests/:requestId/answer`
+- `POST /api/v1/buyer-companies/:id/resubmit`
+- `POST /api/v1/buyer-companies/:id/reopen`
 
 #### `/account/addresses` — Addresses
 
@@ -2262,6 +2781,28 @@ products**.
 **API calls:** `GET /api/v1/account/wishlist?currency=…&country=…&language=…`,
 `DELETE /api/v1/account/wishlist/:id`
 
+#### `/account/reviews` — My reviews
+
+| | |
+|---|---|
+| **Who** | Any signed-in customer. In the menu only when `features.productReviews` is on |
+| **File** | `pages/account/MyReviewsPage.tsx`, `components/reviews/ReviewDialog.tsx` |
+
+**Purpose.** Rate what was delivered, and look after the reviews already
+written.
+
+**On the screen.** Two panels. **Waiting for your rating**: a row per
+delivered product not yet reviewed — picture, name, "Order … placed …", and
+**Rate this product**. Empty: "Nothing to rate right now." **Your reviews**: a
+row per review — picture, name, the average stars, "Last changed …", the four
+scores out of 5, a **Hidden** badge and the staff's reason when hidden, and
+**Edit review**. Empty: "You have not written a review yet", with **My
+orders**. With reviews switched off the page says "Reviews are switched off".
+
+**API calls:** `GET /api/v1/account/product-reviews?language=…`, then the
+dialog's `GET`/`PUT /api/v1/account/products/:productId/review` and
+`DELETE /api/v1/account/product-reviews/:reviewId`
+
 #### `/account/notifications` — Notifications
 
 | | |
@@ -2275,6 +2816,54 @@ confirmations, payment receipts, delivery updates). It lists the subject and
 the time. It is not an inbox: there is no read or unread, and no message body.
 
 **API call:** `GET /api/v1/account/notifications`
+
+#### `/account/support` and `/account/support/:reference` — Your tickets
+
+| | |
+|---|---|
+| **Who** | Any signed-in customer, for their own tickets only. A colleague at the same company does not see them |
+| **File** | `pages/account/SupportTicketsPage.tsx` |
+
+**Purpose.** Follow the tickets raised from the Support page, and keep the
+conversation going.
+
+**On the screen**
+
+- **The list** (`/account/support`): **Your tickets**, "Tickets you have
+  raised, with the support team's replies.", **Raise a ticket**, and a row
+  per ticket — the ticket number, subject, topic, status and "Last update …".
+  Pages of tickets. Empty: **No tickets yet**, "Tickets you raise from the
+  Support page appear here."
+- **One ticket** (`/account/support/:reference`): **All tickets**, the number,
+  subject, status and "About order …" when an order was named. **Messages**:
+  the first message, then each reply from **Support team** (staff are never
+  named) and each status change ("Status: … (when)"), with the person's own
+  messages marked **You**. **Files**, each with **Open**, and **Attach
+  files**. **Add a message** and **Send message**.
+- The statuses read: Sent, Being handled, Waiting for your reply, Resolved,
+  Closed.
+
+**What happens**
+
+- **Send message** adds to the ticket, once, even when retried. Writing on a
+  ticket that is **Waiting for your reply** or **Resolved** puts it back to
+  **Being handled**.
+- **Open** asks for a five-minute, single-use link and downloads the file.
+- A **Closed** ticket shows "This ticket is closed. If you still need help,
+  raise a new ticket." and nothing can be added.
+- Another person's ticket number shows the same "not found" as a number that
+  does not exist.
+- New replies show when the page is reopened or reloaded; the page does not
+  update itself live.
+
+**API calls**
+
+- `GET /api/v1/support/tickets?page=…`
+- `GET /api/v1/support/tickets/:reference`
+- `POST /api/v1/support/tickets/:reference/messages` (with an `Idempotency-Key`)
+- `POST /api/v1/support/tickets/:reference/attachments`
+- `POST /api/v1/support/tickets/:reference/attachments/:attachmentId/link`,
+  then `GET …/download?token=…`
 
 ---
 
@@ -2374,6 +2963,7 @@ File: `pages/seller/SellerLayout.tsx`.
   | Notifications | `/seller/notifications` | Always |
   | Activity | `/seller/activity` | Always |
   | Profile | `/seller/profile` | Always |
+  | Support | `/seller/support` | Always, last in the list: a seller still in onboarding is who most needs to reach the marketplace |
 
   `/seller/onboarding` and `/seller/fulfilment` have no sidebar entry; they are
   reached from banners and from Logistics. `/seller` on its own goes to
@@ -2427,6 +3017,9 @@ place and logo controls by permission.
 | `/seller/activity` | Activity |
 | `/seller/integrations` | TallyPrime |
 | `/seller/profile` | Seller profile |
+| `/seller/support` | Support |
+| `/seller/support/requests` | Your tickets |
+| `/seller/support/requests/:reference` | One ticket |
 
 #### `/seller/dashboard` — Home
 
@@ -2516,7 +3109,7 @@ will be in touch."
 | | |
 |---|---|
 | **Who** | Approved sellers. Others see "This opens once you are approved" |
-| **File** | `pages/seller/SellerListingWizardPage.tsx`, `ListingMediaPanel.tsx`, `VariantStepPanel.tsx` |
+| **File** | `pages/seller/SellerListingWizardPage.tsx`, `ListingMediaPanel.tsx`, `VariantStepPanel.tsx`, `B2cMaxOrderQuantityField.tsx` |
 
 **Purpose.** Create one listing and send it for quality review. The draft is
 kept on the server from the moment a category is chosen, and its id goes into
@@ -2528,11 +3121,28 @@ the address (`?draft=…`), so closing the tab loses nothing.
 |---|---|---|
 | 1. Select category | Search (at least two letters) or browse the departments | Creates the draft |
 | 2. Select brand | Search the brands. Pick one you are approved for, or **Ask for a brand** | An asked-for brand is attached at once; you can carry on, but the listing cannot go on sale until the marketplace approves the name (admin `/brand-requests`) |
-| 3. Add product details | **Photos and video** (a slot per picture the category asks for, a main picture, a description of each; one video up to 64 MB). **Product title** (built from your answers; **Preview title**). Five sections, each with a completion count: Product photos; Price, stock and shipping (your product code, minimum order, price per piece, step, maximum, currency, stock per place); Product description; Additional information; Compliance and certification. The questions come from the category | Each section saves on **Save**. A summary says how many things must be fixed |
+| 3. Add product details | **Photos and video** (a slot per picture the category asks for, a main picture, a description of each; one video up to 64 MB). **Product title** (built from your answers; **Preview title**). Five sections, each with a completion count: Product photos; Price, stock and shipping (your product code, minimum order, price per piece, step, maximum, **B2C Maximum Order Quantity**, currency, stock per place); Product description; Additional information; Compliance and certification. The questions come from the category | Each section saves on **Save**. A summary says how many things must be fixed |
 | 4. Set up versions | "Does this product come in more than one version?" No, or Yes: choose the options (size, colour …) and their values, **Create N combinations**, then set each combination's code, price, was-price, stock and whether it is on sale. Bulk tools set every price or stock at once | Every change saves the whole table |
 
 At the top: a save indicator, **Save and go back**, and **Send for quality
 review**, which can only be pressed when the server says nothing blocks it.
+Beside the send button: *"B2C maximum order quantity: N units"*, or *"… not
+set yet"*.
+
+**The B2C Maximum Order Quantity field** (in *Price, stock and shipping*): the
+most units an Individual buyer can buy of this product in one order. Label
+*B2C Maximum Order Quantity*; helper *"The maximum total number of units an
+Individual buyer can purchase in one order. Buyers requiring a larger quantity
+must use an approved Company account."*; an ⓘ with *"This limit applies only
+to Individual buyers. It does not change your available inventory."*; − and +
+buttons and "units". The `e`, `+`, `-` and `.` keys are blocked. It takes a
+whole number from 1 to 1,000,000, not below the minimum order; anything else
+gets a message under the box (for example *"Enter a whole number, such as
+100."* or *"This cannot be below your minimum order quantity of N …"*) and is
+never corrected for you. A draft can be saved with it empty, but the listing
+cannot be sent for review until it is filled in (the server's blocker
+`B2C_MAX_ORDER_QUANTITY_REQUIRED` or `…_INVALID`). The one figure applies to
+every version.
 
 **What happens when you send it.** The listing goes to the marketplace's
 quality review (admin `/listing-review`). "Sent for quality review. We will let
@@ -2576,7 +3186,9 @@ tabs. The tab, search, stock filter and page are kept in the address bar.
 
 **Listings on sale or approved.** Columns: Product (picture, name, code,
 brand), Price and minimum, Stock ("N held for orders"), Quality (Good,
-Average, Needs work), Status, and actions:
+Average, Needs work), Status, and actions. A listing with no B2C Maximum Order
+Quantity (one from before the rule) shows **B2C limit not configured**, a
+link to its edit page to set one; until then it has no individual limit.
 
 | Button | What happens |
 |---|---|
@@ -2617,7 +3229,7 @@ changes the product page straight away" on a live listing. API:
 | | |
 |---|---|
 | **Who** | Approved sellers with the listing permission (checked by the server) |
-| **File** | `pages/seller/SellerListingEditPage.tsx`, `SellerPackagingPanel.tsx`, `SellerContainerLoadingPanel.tsx`, `SellerPreorderTermsPanel.tsx`, `SellerTradeCodesPanel.tsx`, `SellerQuantityTiersPanel.tsx` |
+| **File** | `pages/seller/SellerListingEditPage.tsx`, `B2cMaxOrderQuantityField.tsx`, `SellerPackagingPanel.tsx`, `SellerContainerLoadingPanel.tsx`, `SellerPreorderTermsPanel.tsx`, `SellerTradeCodesPanel.tsx`, `SellerQuantityTiersPanel.tsx` |
 
 **Purpose.** Change a listing that has already been approved. Prices, order
 rules and stock can be changed while it is on sale; its options and
@@ -2631,7 +3243,7 @@ it on arrival.
 | This listing is on sale | **Pause & edit**, when it is on sale |
 | Photographs | **Add a photograph**, **Show first**, **Remove**. Only when you described the product yourself |
 | What you are selling | Read-only facts from the catalogue |
-| Price and order rules | Price, smallest order, steps, largest order, days to dispatch, shelf life, warranty |
+| Price and order rules | Price, smallest order, steps, largest order, days to dispatch, shelf life, warranty, and the **B2C Maximum Order Quantity** (the same field as in the wizard). A set limit is shown as *"Current limit for Individual buyers: N units"*; it can be changed while on sale but not emptied. With none set, the field is marked *B2C limit not configured*. A change applies to future baskets and checkouts only, and is recorded in **Activity** |
 | Bulk packaging | Tabs Carton, UK pallet, US pallet, Container. Offer it or not, units per package, layers, sizes and weights, terms (smallest order, how it is priced: from the unit price, a package price, or on request), price bands, dangerous goods and handling notes, and a preview of what buyers see |
 | Container loading for preorders | Below Bulk packaging. Pieces per carton; carton length, width and height (mm, cm, m or in); gross weight per carton (g, kg or lb); an optional stacking limit (cartons high); loose cartons or on pallets (then cartons per pallet and pallets per container); and for each of 20-ft and 40-ft whether it is offered and cartons per container. Shows pieces per container, cargo weight against the allowed payload, the share of the container's space used, and a system estimate with **Use the estimate**. The tick *"I have loaded or checked this figure"* makes a size available to buyers; changing the carton or a count without ticking again takes it back to an estimate. An impossible or incomplete figure is refused with the reason |
 | Preorder terms | For this version, every version, or all your products: take preorders, minimum and step, capacity, lead time, how far ahead, countries, pricing, partial and split delivery, answer and confirm times, price bands, and **Stock kept back from preorders (pieces)** |
@@ -3102,7 +3714,7 @@ Marketplace staff appear under their role, not their name.
 | **Who** | Approved sellers. When the marketplace has not switched accounting integrations on: "This marketplace has not switched on accounting integrations." |
 | **File** | `pages/seller/SellerErpPage.tsx`, `SellerErpMappingPanel.tsx` |
 
-**Purpose.** Post your sales into your own TallyPrime, through the Glovia Tally
+**Purpose.** Post your sales into your own TallyPrime, through the Gloviaa Mart Tally
 Bridge running on your own machine. "Nothing here ever connects to it" — the
 bridge connects out.
 
@@ -3168,6 +3780,33 @@ your team. (This page is in English only for now.)
   `POST /api/v1/seller/locations/geocode/suggest`
 - `GET /api/v1/seller/members`, `PATCH` and `DELETE /api/v1/seller/members/:memberId`
 
+#### `/seller/support` and `/seller/support/requests` — Support
+
+| | |
+|---|---|
+| **Who** | Any member of the seller, before or after approval. Each member sees only the tickets they raised themselves |
+| **File** | `pages/SupportPage.tsx` (`SellerSupportPage`), `pages/account/SupportTicketsPage.tsx` (`SellerSupportTicketsPage`, `SellerSupportTicketDetailPage`) |
+
+**Purpose.** Ask the marketplace for help from inside the Hub. The ticket goes
+in the seller's name.
+
+**On the screen.** The same page as the storefront's `/support` (see
+[4.1](#41-storefront-browsing-signing-in-and-public-pages)), inside the Hub's
+frame: the marketplace's published contacts over the globe, and the **Raise
+a ticket** form. The line reads "Raised as {name} for {seller}. Replies go to
+{email}." The order number means one of the seller's own orders, and the
+field is offered only to a member who may read the seller's orders.
+**See your tickets** opens `/seller/support/requests` — **Your tickets** —
+and a ticket opens at `/seller/support/requests/:reference`, which works like
+`/account/support/:reference`.
+
+**API calls:** `GET /api/v1/seller/support/context`,
+`POST /api/v1/seller/support/tickets` (with an `Idempotency-Key`),
+`GET /api/v1/seller/support/tickets`, `GET /api/v1/seller/support/tickets/:reference`,
+`POST …/:reference/messages` (with an `Idempotency-Key`),
+`POST …/:reference/attachments`, `POST …/attachments/:attachmentId/link`,
+`GET …/attachments/:attachmentId/download?token=…`
+
 ---
 
 ## 6. Admin panel screens
@@ -3206,9 +3845,11 @@ The permission keys, grouped the way the code groups them:
 | Staff | `staff.read`, `staff.write`, `role.assign` |
 | Categories | `category.read`, `category.write`, `category.archive` |
 | Products | `product.read`, `product.write`, `product.publish`, `product.archive`, `product.import`, `media.upload` |
+| Product reviews | `review.read` (Business Owner, Catalog Manager, Order Manager), `review.moderate` (Business Owner, Catalog Manager) |
 | Coupons | `coupon.read`, `coupon.write`, `coupon.archive` |
 | Inventory | `inventory.read`, `inventory.receive`, `inventory.adjust`, `inventory.location.write` |
 | Customers | `customer.read`, `customer.write`, `customer.invite`, `customer.limits.write`, `customer.status.write`, `assistant_chat.read` |
+| Company verification | `buyer_company.read` (Business Owner, Order Manager, Finance Approver), `buyer_company.review` (Business Owner, Finance Approver), `buyer_company.suspend` (Business Owner only) |
 | Orders | `order.read`, `order.approve`, `order.fulfil`, `order.cancel`, `order.return`, `order.note.write` |
 | Payments | `payment.read`, `payment_link.create`, `payment_gateway.write`, `refund.create` |
 | Schedules | `schedule.read`, `schedule.write` |
@@ -3218,6 +3859,7 @@ The permission keys, grouped the way the code groups them:
 | Reporting | `report.read`, `export.create`, `audit.read` |
 | Invoices | `invoice.read`, `invoice.issue` |
 | Data requests | `data_request.read`, `data_request.action` |
+| Support tickets | `support_ticket.view` (Business Owner, Order Manager, Finance Approver), `support_ticket.reply` (Business Owner, Order Manager), `support_ticket.assign` (Business Owner only) |
 
 ### 6.2 Signing in, and the gates after it
 
@@ -3238,7 +3880,7 @@ Files: `src/pages/LoginPage.tsx`, `src/pages/ChangePasswordPage.tsx`,
 
 Local screenshot of the sign-in page: `12-admin-login.png`.
 
-#### `/login` — Sign in to Glovia Admin
+#### `/login` — Sign in to Gloviaa Mart Admin
 
 | | |
 |---|---|
@@ -3302,6 +3944,24 @@ explains and offers **Email me a new link** and **Go to sign in**.
   **Resolved**. **Mark all as read**. On a live alert: **Hide from my bell**
   (for this person only) and, when the server allows it, **Resolve** with a
   reason. Rows link to what they are about.
+  Two kinds come from company verification, for staff with
+  `buyer_company.read`, and link to `/buyer-companies/:id`:
+
+  | Kind | Title | Detail line |
+  |---|---|---|
+  | `buyer_company.submitted` | "… applied for a company account", or "… applied again for a company account" for a resubmission | "Application BC-… · registered in …" |
+  | `buyer_company.responded` | "… answered your request" | the same |
+
+  They name the company and its reference only, never a tax number.
+  Two kinds come from support tickets, for staff with `support_ticket.view`,
+  and link to `/support/:id`:
+
+  | Title | Detail line |
+  |---|---|
+  | "New support ticket SR-…" | "Raised by … · topic" |
+  | "Reply on support ticket SR-…" | "… wrote again" |
+
+  Neither carries the message text.
   - `GET /api/v1/admin/notifications?limit=20&view=active|resolved`
   - `POST /api/v1/admin/notifications/read`, `/read-all`, `/dismiss`
   - `POST /api/v1/admin/notifications/:id/resolve`
@@ -3330,10 +3990,12 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Sales | Preorders | `/preorders` | `order.read` | |
 | Sales | Companies | `/companies` | `customer.read` or `logistics.read` | |
 | Sales | Customers | `/customers` | `customer.read` | Accounts to approve |
+| Sales | Company verification | `/buyer-companies` | `buyer_company.read` | |
 | Sales | Sellers | `/sellers` | `customer.read` | Applications and documents |
 | Sales | Carrier arrangements | `/seller-carriers` | `customer.read` | |
 | Sales | Preorder Chats | `/preorder-chats` | `preorder_chat.view` | Customers waiting for a reply (live) |
 | Sales | Chat enquiries | `/chat-enquiries` | `assistant_chat.read` | |
+| Support | Tickets | `/support` | `support_ticket.view` | |
 | Logistics | Consignments | `/logistics/shipments` | `logistics.read` | |
 | Logistics | Delivery problems | `/logistics/exceptions` | `logistics.read` | Open problems |
 | Logistics | Delivery catalogue | `/logistics/delivery-catalogue` | `logistics.read` | |
@@ -3352,7 +4014,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 
 Some screens have no sidebar row and are reached from another screen:
 `/products/import`, `/products/:id`, `/orders/:id`, `/preorders/:id`,
-`/customers/:id`, `/sellers/:id`, `/listing-review/:id`,
+`/customers/:id`, `/buyer-companies/:id`, `/sellers/:id`, `/support/:id`, `/listing-review/:id`,
 `/logistics/partners/:id`, `/logistics/shipments/:id`,
 `/logistics/managed-levels/:sellerAccountId`, `/logistics/legs/:legId` and
 `/settings/erp`.
@@ -3385,7 +4047,7 @@ can act on.
   scheduled deliveries, low stock, unhealthy ERP connections, failed
   notifications and dead background jobs. **View as a table** shows the rows.
   Pressing a slice focuses the AI question on it; it does not open the queue.
-- **Glovia AI Insights**: **Explain this chart** and **Ask**. If the AI
+- **Gloviaa Mart AI Insights**: **Explain this chart** and **Ask**. If the AI
   provider cannot be reached, the answer says it was built straight from the
   figures.
 
@@ -3491,7 +4153,7 @@ apart: the **catalogue status** (Draft, Active, Inactive) and whether it is
 | Details | Name, SKU (unique across products and variants), Category, Slug, Short description, Description |
 | Pricing | Price, Compare-at price, Tax class |
 | Prices by currency | A price per currency, and what a customer in your market pays |
-| Ordering rules | Minimum and maximum quantity, quantity step, reorder threshold, weight, track stock, available for recurring orders |
+| Ordering rules | Minimum and maximum quantity, quantity step, reorder threshold, weight, track stock, available for recurring orders, and **B2C maximum order quantity**: the most units of this product an Individual buyer can order in one order (approved company buyers are not held to it). Optional: blank means not configured, so no limit. A whole number from 1 to 1,000,000, not below the minimum. A change is in the product's audit entry with before and after |
 | Availability | Price on request, available to order, and why not |
 | Images | Upload and remove pictures |
 | Specifications | Name and value pairs, and whether each can be filtered on |
@@ -3703,7 +4365,8 @@ decide.
   "Required, missing", "Not sent" or "Upload never finished".
 - **Price, stock and packing**: price, how it is sold, minimum and step,
   handling time, price breaks, stock per place with batch and expiry,
-  packing.
+  packing, and **B2C maximum order quantity** ("N units", or "Not set"), shown
+  as a fact.
 - One card per section (Description, Additional information, Compliance),
   with each answer on its own row, and "Required, not answered" where a
   required answer is empty.
@@ -3752,6 +4415,34 @@ sellers asked for the same name. Buttons:
 
 **API calls:** `GET /api/v1/admin/brand-requests`,
 `POST /api/v1/admin/brand-requests/:id/decision`
+
+#### `/product-reviews` — Product reviews
+
+| | |
+|---|---|
+| **Who** | `review.read` to open. Hiding and showing need `review.moderate` |
+| **File** | `src/pages/ProductReviewsPage.tsx` |
+
+**Purpose.** Every review buyers have written, newest first, and hiding one
+that breaks the rules. Reviews go live when written, so this is not a queue.
+Works whether or not the storefront has reviews switched on.
+
+**On the screen.** Filters: **Search** (product name, SKU or buyer name),
+**Shown** (All, Published, Hidden) and **Score** (Any, any category at 2 or
+below, any category at 1), all kept in the address bar. A card per review: the
+product name, SKU and date, a Published or Hidden badge, the average stars, the
+four scores (2 or below marked in red), the buyer's name (a link with
+`customer.read`) and email, the order number (a link with `order.read`) and
+**Open the product** (with `product.read`). A hidden review shows the reason,
+who hid it and when. Pages of 20.
+
+| Button | Needs | What happens |
+|---|---|---|
+| Hide review | A reason, shown to the buyer | The review leaves the product page and the averages |
+| Show again | — | The review is back, and counts again |
+
+**API calls:** `GET /api/v1/admin/product-reviews?status=…&maxScore=…&search=…&page=…&limit=20`,
+`POST /api/v1/admin/product-reviews/:id/moderation`
 
 ### 6.6 Sales
 
@@ -3996,6 +4687,127 @@ VAT number and its status.
 - `PATCH /api/v1/admin/customers/:id/status`
 - `GET /api/v1/config`
 
+#### `/buyer-companies` — Company verification
+
+| | |
+|---|---|
+| **Who** | `buyer_company.read` |
+| **File** | `src/pages/buyer-companies/BuyerCompaniesPage.tsx`, `src/lib/buyer-companies.ts` |
+
+**Purpose.** The queue of businesses applying to buy in their own name, oldest
+submission first, so nobody who has waited longest is left at the bottom.
+
+**On the screen.** "Company verification", and "N applications are waiting for
+a decision." A row of **counters, one per status**; pressing one filters the
+queue to it. **Filters**: Search (name, reference, number or email), Status
+(including "Waiting on us or the applicant"), Country, Reviewer (Anyone, Me,
+Unassigned, or a colleague), Risk (No flags, Low, Elevated, High), and Sort
+(Oldest submission first, the default; Newest submission first; Recent
+activity; Highest risk first). Columns: Company, Registered in, Registration
+no., Applicant, Submitted (with "N days waiting"), Risk and flags (the risk
+level, "N duplicates", "N failed checks"), Reviewer ("Unassigned" when nobody
+has it), Last activity, Status. Pages of 25. A row opens the application.
+
+**What the system does.** The filters live in the address, so a view can be
+bookmarked or sent to a colleague. The last view used is remembered in this
+browser and brought back when the page is opened with no filters.
+
+**States.** "No applications here — Applications matching these filters will
+appear here."
+
+**API calls:** `GET /api/v1/admin/buyer-companies?…`,
+`GET /api/v1/admin/buyer-companies/reviewers`
+
+#### `/buyer-companies/:id` — One company application
+
+| | |
+|---|---|
+| **Who** | `buyer_company.read` to look. Deciding, notes, assigning, re-running checks and document decisions: `buyer_company.review`. Suspending: `buyer_company.suspend`. Restoring a suspended company: both |
+| **File** | `src/pages/buyer-companies/BuyerCompanyDetailPage.tsx` |
+
+**Purpose.** Everything a reviewer needs to decide one application, on one
+screen.
+
+**On the screen, top to bottom**
+
+- **The header**: "← All company applications", the company's name, and
+  "Application BC-… · version N".
+- **Two reviewers needed** (only when the store asks for a second reviewer at
+  this risk level, `BUYER_COMPANY_SECOND_REVIEW_RISK`): "This application needs
+  two reviewers", and after the first approval, "First approval recorded …. A
+  different reviewer must approve it to complete."
+- **What the applicant was last told**: the reason they can read.
+- **Decision**: only the buttons the server says are allowed from this status:
+  **Start review** (or **Take this case** when it is already under review),
+  **Approve** (**Restore** for a suspended company), **Request information**,
+  **Request re-verification**, **Suspend**, **Reject**, and **Re-run registry
+  checks**. "No decision is open in this status." when there are none. Below,
+  **Assigned reviewer**: give the case to a colleague who may review, or nobody.
+- **Company**, **Tax and trade identifiers** (each verified or not, or
+  "Declared not applicable (…)"), **Applicant and members** (the
+  representative's name and phone, job title, **relationship to the
+  business**, authority to act, business email, email domain assessment such
+  as "Free webmail service" or "Matches the website"), **Addresses**, and
+  "Still incomplete" when something is missing.
+- **Same business as a seller** (only when the application was started from a
+  seller account): "This application was started from the seller account below
+  and pre-filled from its details. The seller account has its own review and
+  its own status. Neither decides the other…", the seller's registered name and
+  country, **Seller account status**, and **Open the seller account**. The
+  registry checks list a matching `Seller account` row: Pass when the numbers
+  still agree, Signal when they do not, and a Signal for any other seller
+  account with the same registration number.
+- **Buying plans (optional answers)**: "Given voluntarily. Not part of the
+  verification."
+- **Registry checks and signals**: "What each official register said, and what
+  must be checked by hand. A registry that could not be reached is never a
+  reason to refuse." Each check shows its outcome (Pass, Fail, Inconclusive,
+  Unavailable, Check by hand, Signal), the source's reference, the evidence,
+  and **Open the register** for the checks that must be done by hand. Then
+  **Possible duplicates**: other applications with the same registration or
+  tax number, a similar name, the same address or the same email domain. They
+  are flags for the reviewer, never an automatic refusal.
+- **Documents**: "Each file opens once, through a link that expires in
+  minutes. Every download is recorded." Each document: its kind, pages, status,
+  **Open**, and for a document waiting for review **Accept** or **Not
+  accepted** (which asks for a reason the applicant reads).
+- **Requests to the applicant**: what they were asked, the documents named,
+  and "The applicant answered …".
+- **Internal notes**: "For colleagues only. The applicant never sees these."
+  **New note**, **Add note**.
+- **History**: "Every action on this application, in order. Entries cannot be
+  edited or removed." Internal entries are marked "internal".
+- **Declarations made**: the four the applicant ticked.
+
+**What happens.** Every decision opens a dialog that asks for confirmation:
+
+| Button | The dialog asks for | Result |
+|---|---|---|
+| Approve | "Approve this company?" "… will be able to order in its own name straight away, and its registration and tax numbers will be reserved for it." An optional note for the applicant | "Company approved.", or with two reviewers "First approval recorded. A second reviewer must approve it." |
+| Restore | "Restore this company?" "The company will be able to order again straight away." | Approved again |
+| Reject | "Reject this application?" A reason (Registration not found, Details do not match the register, Documents insufficient, Authority to act not shown, Not a registered business, Duplicate of an existing company, Jurisdiction not served, No response to our request, Other), "What to tell the applicant", and "Let the applicant correct the application and send it again" | "Application rejected." |
+| Request information | A message for the applicant, and **Ask for documents** (with "Ask for an identity document or ownership declaration only when this case genuinely needs it.") | "Request sent to the applicant." |
+| Suspend | "Suspend this company?" "Ordering for the company stops immediately. Its orders and invoices are kept." A reason | "Company suspended." |
+| Request re-verification | "Ordering pauses until the company is approved again. A new review case opens." A reason, and documents to ask for | "Re-verification requested." |
+
+Each decision sends the version the page was loaded at. If somebody else
+changed the application meanwhile, nothing happens, the page reloads, and a
+message says "Somebody else changed this application while you had it open.
+It has been reloaded; decide again." **Open** on a document asks the server for
+a single-use link and opens it in a new tab, as a download.
+
+**States.** "Loading the application". "No documents uploaded.", "No checks
+have run yet.", "No notes yet."
+
+**API calls**
+
+- `GET /api/v1/admin/buyer-companies/:id`, `GET /api/v1/admin/buyer-companies/reviewers`
+- `POST /api/v1/admin/buyer-companies/:id/start-review`, `/assign`, `/notes`
+- `POST /api/v1/admin/buyer-companies/:id/request-information`, `/approve`, `/reject`, `/suspend`, `/reverify`
+- `POST /api/v1/admin/buyer-companies/:id/checks`
+- `POST /api/v1/admin/buyer-company-documents/:id/link`, then the link it returns
+- `POST /api/v1/admin/buyer-company-documents/:id/decision`
+
 #### `/sellers` — Sellers
 
 | | |
@@ -4161,6 +4973,75 @@ Messages, Last message, **Read chat**. The transcript opens in a dialog.
 
 **API calls:** `GET /api/v1/admin/assistant/conversations?…`,
 `GET /api/v1/admin/assistant/conversations/:id`
+
+### 6.6a Support
+
+#### `/support` and `/support/:id` — Support tickets
+
+| | |
+|---|---|
+| **Who** | `support_ticket.view` to open. Replying, notes, status, priority and taking a ticket need `support_ticket.reply`; giving one to a colleague needs `support_ticket.assign` |
+| **File** | `src/pages/support/SupportTicketsPage.tsx` |
+
+**Purpose.** Answer the tickets that buyers, sellers and carriers raise from
+their Support pages.
+
+**On the screen: the inbox** (`/support`)
+
+- **Support tickets**, "Tickets raised from the Support page by buyers,
+  sellers and logistics partners.", and a count for each status.
+- Filters: **Status** (opens on **Needs work** — Open, In progress and
+  Waiting for customer together — or one status, or **All statuses**),
+  **Priority**, **Topic**, **Raised from** (Storefront, Seller Hub, Logistics
+  portal) and **Assigned to** (Anyone, Me, Nobody). **Search**: "Reference,
+  subject, name, email, company or order".
+- A row per ticket: **Ticket** (number and subject), **Raised by**,
+  **Status**, **Assigned to** and **Last activity**. Most recently active
+  first. Empty: **No tickets here**.
+
+**On the screen: one ticket** (`/support/:id`)
+
+- **Raised by**: name, email (and "The account now uses …" when the account's
+  email has changed since), **Raised as** (Individual buyer, Company buyer,
+  Seller, Logistics partner), **Acting for** (a link to the buyer company,
+  seller or carrier record, or "Themselves") and **Raised from**.
+- **Order**: the number, for everybody who can read the ticket; a link to the
+  order only for staff with `order.read`.
+- **Conversation and history**: one timeline of the first message, the
+  customer's messages, replies, internal notes and every change of status,
+  priority and assignment. Notes and priority and assignment changes are
+  marked **Staff only**.
+- **Files from the customer**, each with **Open**.
+- **Manage**: **Move to** (only the moves the ticket's status allows),
+  **Priority** (Low, Normal, High, Urgent — staff set it; the sender never
+  sees it), **Assigned to** with **Take this ticket**, **Put back in the
+  queue** and **Give to a colleague**.
+- **Write**: **Reply to the customer** ("The customer sees this on their
+  ticket and is emailed a link to it.") with **After sending, mark the ticket
+  as** (Leave the status as it is, Waiting for customer, Resolved), or
+  **Internal note** ("Only staff see internal notes…"). **Send reply** or
+  **Save note**.
+
+**What happens**
+
+- A reply on an **Open** ticket makes it **In progress** and, if nobody holds
+  it, gives it to whoever replied. "Reply sent. The customer is being
+  emailed." If the reply email is switched off in **Settings →
+  Notifications**: "Reply saved. … the customer was not emailed."
+- A **Closed** ticket: "This ticket is closed. Nobody can write on it any
+  more."
+- Staff cannot attach files to a reply, and the page does not update live;
+  **Refresh this screen** re-reads it.
+
+**API calls**
+
+- `GET /api/v1/admin/support-tickets?status=…&priority=…&category=…&source=…&assignee=…&search=…&page=…&limit=…`
+- `GET /api/v1/admin/support-tickets/assignees`
+- `GET /api/v1/admin/support-tickets/:id`
+- `POST /api/v1/admin/support-tickets/:id/replies`, `POST …/:id/notes`
+- `PATCH /api/v1/admin/support-tickets/:id`
+- `POST /api/v1/admin/support-tickets/:id/assignment`
+- `POST …/:id/attachments/:attachmentId/link`, then `GET …/download?token=…`
 
 ### 6.7 Logistics
 
@@ -4733,6 +5614,7 @@ somebody who holds its permission.
 | Companies | My Profile | `/profile` | See the organisation |
 | Companies | My company | `/company` | See the organisation |
 | Companies | Integration | `/integration` | See the integration (owner and administrator) |
+| Companies | Support | `/support` | Nothing: every member, drivers included |
 
 **The bell** (`src/layout/NotificationBell.tsx`). A count of unread news and
 live alerts. Two tabs, **Open** and **Resolved**. A row about a shipment
@@ -4766,6 +5648,8 @@ while the tab is visible.
 | `/company` | My company | See the organisation |
 | `/integration` | Your integration | See the integration |
 | `/driver/tasks` | My tasks | Driver task list |
+| `/support` | Support, with your tickets under the form | Every member |
+| `/support/:reference` | One ticket | Every member, for their own tickets |
 | any other address | Goes home, like `/` | Signed in |
 
 There is no "page not found" screen inside the portal. A wrong address inside
@@ -4864,7 +5748,7 @@ Sign in to continue." and moves to `/login` after a moment.
   Accepted, Collected, In transit, Out for delivery, Delivered, Exception,
   Returning or cancelled. Press a slice to focus on it. **View as a table**
   shows the numbers as rows.
-- **Glovia AI Insights**: **Explain this chart**, a question box, and
+- **Gloviaa Mart AI Insights**: **Explain this chart**, a question box, and
   suggested questions ("Which shipments do not have drivers?", "Which
   deliveries are at risk today?" …). Nothing is sent until a button is
   pressed.
@@ -5172,6 +6056,34 @@ to carry; drivers on, consignments carrying, open problems; who you work for.
 
 **API call:** `GET /api/v1/logistics/integration`
 
+#### `/support` and `/support/:reference` — Support
+
+| | |
+|---|---|
+| **Who** | Every member of the carrier, drivers included. Each member sees only the tickets they raised themselves |
+| **File** | `src/pages/SupportPage.tsx` |
+
+**Purpose.** Ask the marketplace for help. The ticket goes in the carrier's
+name.
+
+**On the screen.** The marketplace's published support email and phone, and
+the **Raise a ticket** form: topic, subject, **Describe the issue** and
+optional files, with "Raised as {name} for {company}. Replies go to
+{email}." There is no order-number field: a carrier's consignments are not
+orders it looks up by number. Under the form, the member's own tickets; one
+opens at `/support/:reference` with the thread, **Support team** replies,
+files with **Open**, **Attach files** and **Add a message**, until the ticket
+is closed. Behaviour, files and messages are as on the storefront's
+`/support`.
+
+**API calls:** `GET /api/v1/logistics/support/context`,
+`POST /api/v1/logistics/support/tickets` (with an `Idempotency-Key`),
+`GET /api/v1/logistics/support/tickets`,
+`GET /api/v1/logistics/support/tickets/:reference`,
+`POST …/:reference/messages` (with an `Idempotency-Key`),
+`POST …/:reference/attachments`, `POST …/attachments/:attachmentId/link`,
+`GET …/attachments/:attachmentId/download?token=…`
+
 #### `/driver/tasks` — My tasks
 
 | | |
@@ -5242,7 +6154,34 @@ flowchart TD
   Login --> Forgot["Forgot your password?"] --> ResetMail["Reset email"] --> Reset["/reset-password"] --> Login
 ```
 
-After sign-in, the person returns to the page they were trying to open.
+After sign-in, the person returns to the page they were trying to open, or
+goes to `/home`.
+
+**The Company path** (when the store offers company accounts). It uses the
+same account and the same confirmation email; the company is added afterwards.
+
+```mermaid
+flowchart TD
+  Tab["/login, Company tab (/login?buyerType=company)"] --> HasAcct{"Has an account?"}
+  HasAcct -->|"No"| RegCo["Register your company: /register/company"]
+  RegCo --> Form["The sign-up form, 'Step 1 of 7 · Your account'"]
+  Form --> Mail["'Check your email'"] --> Verify["/verify-email"]
+  Verify --> Tab
+  HasAcct -->|"Yes"| SignIn["Email, password, accept terms"]
+  SignIn --> Wrong{"Password right?"}
+  Wrong -->|"No"| Same["The same message as on the Individual tab"]
+  Wrong -->|"Yes"| How{"How many companies?"}
+  How -->|"One"| Ready(["/home, buying for that company"])
+  How -->|"Several"| Pick["/select-company: choose one, or Continue as myself"]
+  Pick --> Ready2(["/home, buying for the one chosen"])
+  How -->|"None"| NoCo["/select-company: 'No company on this account yet'"]
+  NoCo -->|"Register a company"| Start["/register/company: Start the application"]
+  NoCo -->|"Continue as myself"| Self(["/home, buying for yourself"])
+  Start --> App["/account/companies/:id, the six steps"]
+```
+
+Whichever way they came in, a person can change who they buy for at any time
+under **Buying for** in the account menu.
 
 **Admin panel sign-in** has more steps, each drawn in place of the panel so
 it cannot be skipped:
@@ -5269,6 +6208,7 @@ sends each person to the right home screen for their role.
 ```mermaid
 flowchart TD
   P["/product/:slug: choose version and quantity"] --> Add["Add to cart"]
+  P -->|"Individual, over the seller's limit"| Limit["Individual purchase limit dialog: Reduce to N, or a company account"] --> P
   Add -->|"Signed out"| SignIn["/login, then back"]
   Add -->|"Signed in"| Toast["'Added to your cart.' You stay on the product"]
   Toast --> Cart["/cart: change quantities, notes, coupon"]
@@ -5468,6 +6408,83 @@ Signing in takes a driver straight to **My tasks**. A driver who types
 `/dashboard` by hand sees "no access", because drivers cannot see the
 company's whole list.
 
+### 8.8 Applying for a company account, and reviewing it
+
+A person applies in the storefront; a member of the operator's staff decides
+in the admin panel. The system checks what it can against official registers,
+but **it never approves or rejects on its own**: only a person can.
+
+```mermaid
+flowchart TD
+  Start["/register/company: Start the application"] --> Steps["/account/companies/:id: the six steps, each saved with Save and continue"]
+  Steps --> Send["Review and send: four declarations, Send the application"]
+  Send --> Code{"Business email is not the sign-in address?"}
+  Code -->|"Yes"| Enter["Enter the six-digit code: Confirm and send"] --> Sent
+  Code -->|"No"| Sent["Application sent (Submitted)"]
+  Sent --> Checks["Being checked: official registers where they can be asked"]
+  Checks --> Queue["Admin /buyer-companies: the queue, oldest first; the bell says '… applied for a company account'"]
+  Queue --> Open["/buyer-companies/:id: Start review"]
+  Open --> Decide{"Reviewer decides"}
+  Decide -->|"Request information"| More["Applicant: More information needed; banner says Continue application"]
+  More --> Answer["Send answer, upload what was asked, Send back for review"]
+  Answer --> Queue
+  Decide -->|"Reject, with a reason"| Rej["Not approved: the reason is shown; Correct and apply again, where allowed"]
+  Rej -->|"Correct and apply again"| Steps
+  Decide -->|"Approve"| Ok["Verified: the company can check out, pay and confirm preorders"]
+  Ok -.->|"Suspend, or Request re-verification"| Paused["Ordering paused until approved again"]
+  Paused -.->|"Restore, or approve again"| Ok
+```
+
+What the applicant can do while waiting: switch to the company under **Buying
+for**, browse, and build the company's basket. The status bar under the
+header says where the application stands, and the cart and checkout say that
+ordering opens once the company is verified. Each step of the review also
+emails the applicant, in their own language.
+
+What the reviewer should know:
+
+- A register that could not be reached is shown as "Unavailable" and is never
+  a reason to refuse. Some registers have no free official service (India's
+  company, GST, PAN, Udyam and IEC registers, Poland's CEIDG and REGON, the
+  other EU registers, EORI); for those the page gives **Open the register** to
+  check by hand.
+- Possible duplicates are flags, not refusals. A registration or tax number is
+  reserved for a company only when it is approved, so a second company with
+  the same number cannot be approved.
+- When the store sets a risk level that needs two reviewers, the first
+  approval is recorded and a different reviewer must approve it.
+- If two reviewers act at once, the second is told the application changed and
+  the page reloads.
+
+**Not built yet**: inviting colleagues into a company (the roles exist; there
+is no invitation screen), and repeat or scheduled orders for a company.
+
+### 8.9 Raising a support ticket, and answering it
+
+A buyer, a seller member or a carrier member raises a ticket; the operator's
+staff answer it in the admin panel. Only the person who raised it, and staff,
+can read it.
+
+```mermaid
+flowchart TD
+  Entry["Support button, account menu, footer, or an order's Contact support about this order"] --> Page["/support (or /seller/support, or the portal's /support)"]
+  Page --> Guest{"Signed in?"}
+  Guest -->|"No"| SignIn["Sign in to continue, then back to /support"] --> Form
+  Guest -->|"Yes"| Form["Raise a ticket: topic, subject, the issue, optional order and files"]
+  Form --> Sent["Your ticket has been raised: SR-XXXX-XXXX; files upload one by one"]
+  Sent --> Email["Confirmation email with a link (never the words)"]
+  Sent --> Inbox["Admin /support: Needs work; the bell says 'New support ticket SR-…'"]
+  Inbox --> Work["/support/:id: take it, set priority, write a reply or an internal note"]
+  Work -->|"Reply"| Reply["Being handled; the sender is emailed a link"]
+  Reply --> Mine["/account/support/:reference: the reply from Support team"]
+  Mine -->|"Add a message"| Inbox
+  Work -->|"Resolved, then Closed"| Closed["Closed: read only; a new problem is a new ticket"]
+```
+
+**Not built yet**: tickets from somebody without an account (they use the
+published email), staff attaching files to a reply, live updates on a ticket,
+and response-time (SLA) timers.
+
 ---
 
 ## 9. Shared components worth knowing
@@ -5512,7 +6529,10 @@ these. Paths are relative to each app's `src` folder.
 | **Activated customer** | A customer account that has finished signing up (or accepted its invitation) and may buy |
 | **AI Mode** | The storefront's shopping assistant at `/ai` |
 | **Autopay** | A customer's permission for scheduled deliveries to be charged to a saved card without them present, within limits they set |
+| **B2C Maximum Order Quantity** | The most units of one seller's product an Individual buyer can buy in one order, set per listing. The storefront calls it the *Individual purchase limit*. Approved company buyers are not held to it. A limit on buying, never on stock |
 | **Business Owner** | The staff role that can do everything in the admin panel |
+| **Buying for** | Who a storefront session is buying for: yourself, or a company you belong to. Chosen at sign-in or in the account menu, and held by the server |
+| **Company account** | A registered business a customer has applied to buy for. It can order only once staff have verified it |
 | **Carrier** | A haulage company that carries goods. On the marketplace it is a *logistics partner* with its own portal |
 | **Consignment** | One parcel or group of packages that travels together. One order can have several |
 | **Correlation id** | A code on every error that support can use to find the exact server log line |
@@ -5532,7 +6552,7 @@ these. Paths are relative to each app's `src` folder.
 | **Mandate** | A customer's standing permission to charge a card later |
 | **Market** | The country a buyer orders from. It decides the price list and the tax |
 | **Minor units** | The smallest unit of a currency (cents, paise). All money is kept in these |
-| **Operator** | The company that runs a Glovia installation and its staff |
+| **Operator** | The company that runs a Gloviaa Mart installation and its staff |
 | **Payment link** | A secure link emailed so somebody else (often a finance team) can pay an order |
 | **Permission** | One thing a role may do, such as `order.approve` |
 | **Preorder** | A buyer's request to a seller for a large quantity by a date. It becomes an order only once the buyer confirms and pays |
@@ -5544,6 +6564,7 @@ these. Paths are relative to each app's `src` folder.
 | **Seller Hub password** | A second password that opens the Seller Hub, separate from the shop password |
 | **Settlement** | A statement of what a seller sold, what the marketplace kept, and what is paid out |
 | **SKU** | A product's code |
+| **Support ticket** | A written request for help raised from the Support page by a signed-in person. It has a number (`SR-XXXX-XXXX`) and a conversation with the operator's staff |
 | **Tunnel** | A way to show a development machine to somebody elsewhere; the admin panel and portal are then served under `/admin/` and `/logistics/` |
 | **Two-step sign-in** | A six-digit code from an authenticator app, asked after the password |
 | **Variant, version** | One exact form of a product, such as one size and colour |

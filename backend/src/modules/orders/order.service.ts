@@ -32,6 +32,7 @@ import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { assertOrderLinesWithinB2c, lockCartForB2c } from '../cart/b2c-limit.service.js';
 import {
   assertCheckoutReady,
   markCartConverted,
@@ -117,9 +118,19 @@ async function loadAddressSnapshot(
   customerProfileId: string,
   addressId: string,
   label: string,
+  /**
+   * The company the order is for. A company order is delivered to an
+   * address in the COMPANY's book (any member may have added it); an
+   * individual order only to one of the person's own, non-company addresses.
+   * Either way an address id from the other book is simply not found.
+   */
+  buyerCompanyId: string | null = null,
 ): Promise<AddressSnapshot> {
   const address = await prisma.address.findFirst({
-    where: { id: addressId, customerProfileId, archivedAt: null },
+    where:
+      buyerCompanyId === null
+        ? { id: addressId, customerProfileId, buyerCompanyId: null, archivedAt: null }
+        : { id: addressId, buyerCompanyId, archivedAt: null },
   });
 
   if (address === null) {
@@ -141,7 +152,14 @@ async function loadAddressSnapshot(
 }
 
 export interface CheckoutInput {
+  /** The person placing the order - in a company context too. */
   customerProfileId: string;
+  /**
+   * The company the order is placed for, from the request's CONFIRMED buyer
+   * context, or null/absent for an individual order. The route has already
+   * checked the company is approved and the member may purchase.
+   */
+  buyerCompanyId?: string | null;
   shippingAddressId: string;
   billingAddressId?: string;
   shippingMethodCode?: string | null;
@@ -285,6 +303,9 @@ interface OrderFxColumns {
  */
 export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResult> {
   const billingAddressId = input.billingAddressId ?? input.shippingAddressId;
+  // The basket being checked out: the person's own, or the one they are
+  // building for the company. Never the other one.
+  const cartOwner = { customerProfileId: input.customerProfileId, buyerCompanyId: input.buyerCompanyId ?? null };
 
   // Addresses first, and only then pricing.
   //
@@ -298,8 +319,8 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   // three are plain lookups, read out here rather than inside the transaction,
   // where holding the checkout's row locks open for them would be gratuitous.
   const [shippingSnapshot, billingSnapshot, buyer] = await Promise.all([
-    loadAddressSnapshot(input.customerProfileId, input.shippingAddressId, 'shipping'),
-    loadAddressSnapshot(input.customerProfileId, billingAddressId, 'billing'),
+    loadAddressSnapshot(input.customerProfileId, input.shippingAddressId, 'shipping', input.buyerCompanyId ?? null),
+    loadAddressSnapshot(input.customerProfileId, billingAddressId, 'billing', input.buyerCompanyId ?? null),
     prisma.customerProfile.findUnique({
       where: { id: input.customerProfileId },
       select: { fullName: true, organization: true },
@@ -325,14 +346,14 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   let resolved: ResolvedCart;
 
   if (input.fulfilmentQuoteId === undefined) {
-    resolved = await resolveCart(input.customerProfileId, {
+    resolved = await resolveCart(cartOwner, {
       shippingMethodCode: input.shippingMethodCode ?? null,
       destinationCountry: shippingSnapshot.country,
       destinationPostcode: shippingSnapshot.postalCode,
       fxPurpose: 'checkout',
     });
   } else {
-    const preliminary = await resolveCart(input.customerProfileId, {
+    const preliminary = await resolveCart(cartOwner, {
       destinationCountry: shippingSnapshot.country,
       destinationPostcode: shippingSnapshot.postalCode,
       fxPurpose: 'checkout',
@@ -346,7 +367,7 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
       basketHash: digestOfResolvedCart(preliminary),
     });
 
-    resolved = await resolveCart(input.customerProfileId, {
+    resolved = await resolveCart(cartOwner, {
       destinationCountry: shippingSnapshot.country,
       destinationPostcode: shippingSnapshot.postalCode,
       shippingOverride: {
@@ -529,6 +550,28 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   }
 
   const result = await prisma.$transaction(async (tx) => {
+    /*
+     * The B2C maximum order quantity, judged one last time where it cannot
+     * be raced.
+     *
+     * The basket's lock comes first - the same lock every basket change
+     * takes - so no add can land between this check and the order. Then the
+     * lines about to be ordered are judged against the limits and the buyer
+     * as they are NOW: a seller who lowered a limit after the review screen,
+     * or a company suspended a minute ago, is caught here and nothing below
+     * runs - no order, no reservation, no converted basket.
+     */
+    await lockCartForB2c(tx, resolved.cartId);
+    const b2c = await assertOrderLinesWithinB2c(tx, {
+      customerProfileId: input.customerProfileId,
+      buyerCompanyId: input.buyerCompanyId ?? null,
+      lines: resolved.pricing.lines.map((line: PricedLine, index: number) => ({
+        productId: line.productId,
+        sellerOfferId: resolved.lines[index]?.sellerOfferId ?? null,
+        quantity: line.quantity,
+      })),
+    });
+
     const orderNumber = await nextOrderNumber(tx);
 
     // Approval routing decides the entry status. Reaching PENDING_PAYMENT
@@ -545,6 +588,8 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         id: orderId,
         orderNumber,
         customerProfileId: input.customerProfileId,
+        buyerCompanyId: input.buyerCompanyId ?? null,
+        buyerContextKind: (input.buyerCompanyId ?? null) === null ? 'INDIVIDUAL' : 'COMPANY',
         cartId: resolved.cartId,
         source: 'ONE_TIME',
         status: initialStatus,
@@ -651,6 +696,11 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         discountMinor: line.discountMinor,
         lineTotalMinor: line.lineTotalMinor,
         isRecurringEligibleSnapshot: line.isRecurringEligibleSnapshot,
+        // The B2C limit as it stood at this instant, and whether an approved
+        // company was exempt from it. Frozen: a later change to the limit
+        // never changes what this order says was allowed.
+        b2cMaxOrderQuantityApplied: b2c.perLine[index]?.limitApplied ?? null,
+        b2cCompanyExemptionApplied: b2c.perLine[index]?.companyExempt ?? false,
 
         // What the buyer ordered in, carried across from the basket line it
         // came from. `pricing.lines` and `lines` are positionally aligned -

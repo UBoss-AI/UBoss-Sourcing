@@ -59,7 +59,12 @@ import {
 } from '../../modules/reports/buyer-dashboard.service.js';
 import { resolveWindow } from '../../modules/reports/report.service.js';
 import { suggestAddresses } from '../../modules/inventory/location.service.js';
-import { currentUser, requireCustomer } from '../plugins/auth.js';
+import {
+  assertBuyerCapability,
+  buyerCompanyIdOf,
+  currentUser,
+  requireCustomer,
+} from '../plugins/auth.js';
 import {
   INSIGHT_RATE_LIMIT,
   assertUsableWindow,
@@ -494,8 +499,14 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
   app.get('/addresses', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
 
+    // The address book of the buyer context this session is in: the person's
+    // own, or their company's. Never both.
+    const buyerCompanyId = buyerCompanyIdOf(request);
     const addresses = await prisma.address.findMany({
-      where: { customerProfileId: auth.customerProfileId ?? '', archivedAt: null },
+      where:
+        buyerCompanyId === null
+          ? { customerProfileId: auth.customerProfileId ?? '', buyerCompanyId: null, archivedAt: null }
+          : { buyerCompanyId, archivedAt: null },
       orderBy: [{ isDefaultShipping: 'desc' }, { createdAt: 'asc' }],
     });
 
@@ -510,13 +521,20 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
   app.post('/addresses', { preHandler: requireCustomer }, async (request, reply) => {
     const auth = currentUser(request);
     const body = addressSchema.parse(request.body);
+    // A company's address book is kept by the members who buy for it.
+    assertBuyerCapability(request, 'PURCHASE', { allowPending: true });
 
-    const result = await addAddress(auth.customerProfileId ?? '', body, {
-      userId: auth.id,
-      email: auth.email,
-      ipAddress: request.ip,
-      correlationId: request.correlationId,
-    });
+    const result = await addAddress(
+      auth.customerProfileId ?? '',
+      body,
+      {
+        userId: auth.id,
+        email: auth.email,
+        ipAddress: request.ip,
+        correlationId: request.correlationId,
+      },
+      buyerCompanyIdOf(request),
+    );
 
     return reply.status(201).send(result);
   });
@@ -563,12 +581,19 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
 
     // Scoped by the session's profile id, so an address belonging to another
     // customer resolves to "not found" rather than being editable.
-    await updateAddress(auth.customerProfileId ?? '', addressId, body, {
-      userId: auth.id,
-      email: auth.email,
-      ipAddress: request.ip,
-      correlationId: request.correlationId,
-    });
+    assertBuyerCapability(request, 'PURCHASE', { allowPending: true });
+    await updateAddress(
+      auth.customerProfileId ?? '',
+      addressId,
+      body,
+      {
+        userId: auth.id,
+        email: auth.email,
+        ipAddress: request.ip,
+        correlationId: request.correlationId,
+      },
+      buyerCompanyIdOf(request),
+    );
 
     return reply.status(200).send({ updated: true });
   });
@@ -582,7 +607,8 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     const auth = currentUser(request);
     const { addressId } = z.object({ addressId: z.string().length(26) }).parse(request.params);
 
-    await archiveAddress(auth.customerProfileId ?? '', addressId);
+    assertBuyerCapability(request, 'PURCHASE', { allowPending: true });
+    await archiveAddress(auth.customerProfileId ?? '', addressId, buyerCompanyIdOf(request));
     return reply.status(200).send({ archived: true });
   });
 

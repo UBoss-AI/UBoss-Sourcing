@@ -55,6 +55,14 @@ const PREORDER_CODES = new Set([
 ]);
 
 /** Preorder chat refusals, worded in the reader's language. */
+/** Support ticket refusals, said in the reader's language. */
+const SUPPORT_CODES = new Set([
+  'SUPPORT_TICKET_CLOSED',
+  'SUPPORT_TICKET_TRANSITION_NOT_ALLOWED',
+  'SUPPORT_ASSIGNEE_NOT_ELIGIBLE',
+  'SUPPORT_ATTACHMENTS_UNAVAILABLE',
+]);
+
 const PREORDER_CHAT_CODES = new Set([
   'PREORDER_CHAT_CLOSED',
   'PREORDER_CHAT_BLOCKED',
@@ -92,6 +100,9 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     }
     if (PREORDER_CHAT_CODES.has(error.code)) {
       return t(`errors.preorderChat.${error.code}` as TranslationKey);
+    }
+    if (SUPPORT_CODES.has(error.code)) {
+      return t(`errors.support.${error.code}` as TranslationKey);
     }
     if (error.message.length > 0) return error.message;
   }

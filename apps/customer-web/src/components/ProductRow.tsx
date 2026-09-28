@@ -48,7 +48,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
+import { PulseHeart } from './PulseHeart';
 import { SaveForLaterButton } from './SaveForLaterButton';
+import { RatingBadge } from './reviews/RatingBadge';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
 import {
   isSoldByThePiece,
@@ -174,6 +176,9 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
 
           `relative`, so the specular below is clipped to this frame. */}
       <div className="relative h-40 w-40 shrink-0 self-center overflow-hidden rounded-lg border border-border-subtle bg-surface-sunken sm:h-44 sm:w-44 sm:self-start">
+        <div className="absolute right-2 top-2 z-10">
+          <PulseHeart ariaLabel={t('saveForLater.action')} size="sm" defaultLiked={false} />
+        </div>
         {product.primaryImage === null || imageFailed ? (
           <ImageFallback />
         ) : (
@@ -228,6 +233,10 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
             <p className="mt-1 truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
               <span className="relative z-[1] select-text">{product.sku}</span>
             </p>
+
+            {/* The average and how many reviews it is over. Nothing when there
+                are none - see the card. */}
+            <RatingBadge rating={product.rating} className="mt-1.5" />
           </div>
 
           {/* Above the overlay, or the stretched link would swallow it. */}

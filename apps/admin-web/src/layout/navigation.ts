@@ -17,11 +17,13 @@ import {
   CategoriesIcon,
   ChatIcon,
   CompaniesIcon,
+  BuyerVerificationIcon,
   CouponsIcon,
   QuantityDiscountIcon,
   CustomersIcon,
   DashboardIcon,
   DataProtectionIcon,
+  HeadsetIcon,
   ManufacturerIcon,
   IntegrationsIcon,
   InventoryIcon,
@@ -33,6 +35,7 @@ import {
   PreordersIcon,
   RecurringIcon,
   ReportsIcon,
+  ReviewStarIcon,
   SellerIcon,
   SettingsIcon,
   StaffIcon,
@@ -171,6 +174,16 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
         attentionKeys: ['brandRequests'],
       },
+      {
+        // What buyers said about products they received. In Catalogue because
+        // hiding a review changes how a product is presented, the same remit
+        // as publishing it.
+        labelKey: 'nav.productReviews',
+        to: '/product-reviews',
+        icon: ReviewStarIcon,
+        permissions: [Permission.REVIEW_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {
@@ -229,6 +242,20 @@ export const NAVIGATION: NavGroup[] = [
         attentionKeys: ['customerApprovals'],
       },
       {
+        /*
+         * Businesses applying to buy in their own name. Directly under
+         * Customers, because a verified company is a kind of customer, and
+         * beside Sellers, whose review is the same kind of work done for the
+         * other side of the marketplace. Its own grant: verifying a buyer is
+         * credit work, not general account admin.
+         */
+        labelKey: 'nav.buyerCompanies',
+        to: '/buyer-companies',
+        icon: BuyerVerificationIcon,
+        permissions: [Permission.BUYER_COMPANY_READ],
+        matchPrefix: true,
+      },
+      {
         // Directly under Customers, because the two are the same kind of work:
         // both are businesses with accounts here, and the person who reviews
         // one usually reviews the other.
@@ -269,6 +296,23 @@ export const NAVIGATION: NavGroup[] = [
         to: '/chat-enquiries',
         icon: ChatIcon,
         permissions: [Permission.ASSISTANT_CHAT_READ],
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
+    /*
+     * Support tickets raised from the Support page by buyers, sellers and
+     * logistics partners. Its own group, because answering them is a desk of
+     * its own rather than one more row under Sales.
+     */
+    labelKey: 'nav.group.support',
+    items: [
+      {
+        labelKey: 'nav.supportTickets',
+        to: '/support',
+        icon: HeadsetIcon,
+        permissions: [Permission.SUPPORT_TICKET_VIEW],
         matchPrefix: true,
       },
     ],

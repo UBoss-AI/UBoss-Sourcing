@@ -178,6 +178,13 @@ export const JobType = {
   /// reconciliation that repaired accounts on its own would be a second thing
   /// writing to somebody's books without being asked.
   SELLER_ERP_RECONCILE: 'seller_erp.reconcile',
+
+  /// Run the registry checks for a buyer company that has just been submitted
+  /// or resubmitted, then put it in front of a reviewer. A job rather than part
+  /// of the submit request, because a registry that takes ten seconds to answer
+  /// must not hold the applicant's browser open - and one that is down must
+  /// not fail the submission.
+  BUYER_COMPANY_CHECKS: 'buyer_company.checks',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

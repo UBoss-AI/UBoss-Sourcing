@@ -216,7 +216,7 @@ const SHIPMENT_TRANSITIONS: Readonly<
       actors: ['UBOSS_ADMIN', 'SYSTEM', 'SELLER'],
       requiresReason: true,
     },
-    // Booked outside Glovia: the seller has the carrier's waybill or
+    // Booked outside Gloviaa Mart: the seller has the carrier's waybill or
     // collection reference. The service demands one before it takes this.
     { to: 'PICKUP_SCHEDULED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['UBOSS_ADMIN', 'SYSTEM'], requiresReason: true },

@@ -30,7 +30,12 @@ import {
 } from '../../modules/orders/idempotency.service.js';
 import { submitCheckout } from '../../modules/orders/order.service.js';
 import { prisma } from '../../infra/prisma.js';
-import { currentUser, requireCustomer } from '../plugins/auth.js';
+import {
+  assertBuyerCapability,
+  buyerCompanyIdOf,
+  currentUser,
+  requireCustomer,
+} from '../plugins/auth.js';
 
 const addItemSchema = z.object({
   productId: z.string().length(26),
@@ -268,11 +273,16 @@ async function withStorefrontSeller<T extends { productId: string; variantId?: s
 export async function destinationOf(
   customerProfileId: string,
   addressId: string | undefined,
+  /** The company whose address book to look in, or null for the person's own. */
+  buyerCompanyId: string | null = null,
 ): Promise<{ destinationCountry?: string; destinationPostcode?: string }> {
   if (addressId === undefined) return {};
 
   const address = await prisma.address.findFirst({
-    where: { id: addressId, customerProfileId, archivedAt: null },
+    where:
+      buyerCompanyId === null
+        ? { id: addressId, customerProfileId, buyerCompanyId: null, archivedAt: null }
+        : { id: addressId, buyerCompanyId, archivedAt: null },
     select: { country: true, postalCode: true },
   });
   if (address === null) {
@@ -283,16 +293,34 @@ export async function destinationOf(
   return { destinationCountry: address.country, destinationPostcode: address.postalCode };
 }
 
+/**
+ * The basket this request is about: the person's own, or the company's they
+ * are buying for - from the CONFIRMED buyer context, never from the request.
+ */
+function cartOwnerOf(request: FastifyRequest): { customerProfileId: string; buyerCompanyId: string | null } {
+  return { customerProfileId: currentUser(request).customerProfileId ?? '', buyerCompanyId: buyerCompanyIdOf(request) };
+}
+
 export function registerCartRoutes(app: FastifyInstance): Promise<void> {
   /** Every cart route requires an activated customer; guest checkout is off. */
   app.addHook('preHandler', requireCustomer);
 
+  /*
+   * Changing a company's basket needs a role that may buy. It does NOT need
+   * the company to be approved yet: building a basket while the application
+   * is reviewed is allowed. Checking it out is what waits - see /checkout.
+   */
+  app.addHook('preHandler', async (request) => {
+    if (request.method !== 'GET') assertBuyerCapability(request, 'PURCHASE', { allowPending: true });
+    return Promise.resolve();
+  });
+
   app.get('/', async (request, reply) => {
     const auth = currentUser(request);
     const query = shippingQuerySchema.parse(request.query);
-    const destination = await destinationOf(auth.customerProfileId ?? '', query.shippingAddressId);
+    const destination = await destinationOf(auth.customerProfileId ?? '', query.shippingAddressId, buyerCompanyIdOf(request));
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '', {
+    const resolved = await resolveCart(cartOwnerOf(request), {
       shippingMethodCode: query.shippingMethodCode ?? null,
       ...destination,
     });
@@ -301,14 +329,13 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post('/items', async (request, reply) => {
-    const auth = currentUser(request);
     const body = addItemSchema.parse(request.body);
 
-    await addItem(auth.customerProfileId ?? '', await withStorefrontSeller(request, body));
+    await addItem(cartOwnerOf(request), await withStorefrontSeller(request, body));
 
     // Repriced and revalidated, so the client sees immediately if the line it
     // just added has a stock or limit problem.
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(201).send({ cart: toCartView(resolved) });
   });
 
@@ -322,26 +349,24 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
    * cart is being created cannot have two adds race into two carts.
    */
   app.post('/items/bulk', async (request, reply) => {
-    const auth = currentUser(request);
     const body = addItemsSchema.parse(request.body);
 
     await addItems(
-      auth.customerProfileId ?? '',
+      cartOwnerOf(request),
       await Promise.all(body.items.map((item) => withStorefrontSeller(request, item))),
     );
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(201).send({ cart: toCartView(resolved) });
   });
 
   app.patch('/items/:itemId', async (request, reply) => {
-    const auth = currentUser(request);
     const { itemId } = itemParam.parse(request.params);
     const body = updateQuantitySchema.parse(request.body);
 
-    await updateItemQuantity(auth.customerProfileId ?? '', itemId, body.quantity);
+    await updateItemQuantity(cartOwnerOf(request), itemId, body.quantity);
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
@@ -354,13 +379,12 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
    * have been corrected since.
    */
   app.patch('/items/:itemId/packs', async (request, reply) => {
-    const auth = currentUser(request);
     const { itemId } = itemParam.parse(request.params);
     const body = updatePackQuantitySchema.parse(request.body);
 
-    await updateItemPackQuantity(auth.customerProfileId ?? '', itemId, body.unitQuantity);
+    await updateItemPackQuantity(cartOwnerOf(request), itemId, body.unitQuantity);
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
@@ -375,24 +399,22 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
    * the note on `DELETE /` for the time that actually happened.
    */
   app.patch('/items/:itemId/note', async (request, reply) => {
-    const auth = currentUser(request);
     const { itemId } = itemParam.parse(request.params);
     const body = updateNoteSchema.parse(request.body);
 
-    await updateItemNote(auth.customerProfileId ?? '', itemId, body.note);
+    await updateItemNote(cartOwnerOf(request), itemId, body.note);
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
   /** Remove one line from the cart. Replies with the repriced cart. */
   app.delete('/items/:itemId', async (request, reply) => {
-    const auth = currentUser(request);
     const { itemId } = itemParam.parse(request.params);
 
-    await removeItem(auth.customerProfileId ?? '', itemId);
+    await removeItem(cartOwnerOf(request), itemId);
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
@@ -409,10 +431,9 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
    * gets wrong.
    */
   app.delete('/', async (request, reply) => {
-    const auth = currentUser(request);
-    await clearCart(auth.customerProfileId ?? '');
+    await clearCart(cartOwnerOf(request));
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
@@ -427,23 +448,21 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     '/coupon',
     { config: { rateLimit: { max: 30, timeWindow: '5 minutes' } } },
     async (request, reply) => {
-      const auth = currentUser(request);
       const body = couponSchema.parse(request.body);
 
-      await applyCoupon(auth.customerProfileId ?? '', body.code);
+      await applyCoupon(cartOwnerOf(request), body.code);
 
-      const resolved = await resolveCart(auth.customerProfileId ?? '');
+      const resolved = await resolveCart(cartOwnerOf(request));
       return reply.status(200).send({ cart: toCartView(resolved) });
     },
   );
 
   /** Take the applied coupon off the cart. Replies with the repriced cart. */
   app.delete('/coupon', async (request, reply) => {
-    const auth = currentUser(request);
 
-    await removeCoupon(auth.customerProfileId ?? '');
+    await removeCoupon(cartOwnerOf(request));
 
-    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    const resolved = await resolveCart(cartOwnerOf(request));
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
@@ -461,6 +480,11 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const auth = currentUser(request);
       const body = checkoutSchema.parse(request.body);
+
+      // A company order waits for the company to be approved, and for a role
+      // that may buy. The individual context is untouched by this.
+      assertBuyerCapability(request, 'PURCHASE');
+      const buyerCompanyId = buyerCompanyIdOf(request);
 
       const idempotencyKey = request.headers['idempotency-key'];
 
@@ -481,6 +505,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
         operation: () =>
           submitCheckout({
             customerProfileId: auth.customerProfileId ?? '',
+            buyerCompanyId,
             shippingAddressId: body.shippingAddressId,
             ...(body.billingAddressId !== undefined
               ? { billingAddressId: body.billingAddressId }

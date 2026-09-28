@@ -30,7 +30,7 @@ import {
   currentBasketDigest,
   quoteWarehouseOptions,
 } from '../../modules/fulfilment/warehouse-options.service.js';
-import { currentUser, requireCustomer } from '../plugins/auth.js';
+import { buyerCompanyIdOf, currentUser, requireCustomer } from '../plugins/auth.js';
 
 /**
  * The basket, as the storefront believes it to be.
@@ -103,6 +103,7 @@ export function registerCustomerFulfilmentRoutes(app: FastifyInstance): Promise<
 
       const result = await quoteWarehouseOptions({
         customerProfileId: auth.customerProfileId ?? '',
+        buyerCompanyId: buyerCompanyIdOf(request),
         ...(body.deliveryAddressId === undefined
           ? {}
           : { deliveryAddressId: body.deliveryAddressId }),
@@ -141,7 +142,10 @@ export function registerCustomerFulfilmentRoutes(app: FastifyInstance): Promise<
         .parse(request.body);
 
       const customerProfileId = auth.customerProfileId ?? '';
-      const { cartId, basketHash } = await currentBasketDigest(customerProfileId);
+      const { cartId, basketHash } = await currentBasketDigest({
+        customerProfileId,
+        buyerCompanyId: buyerCompanyIdOf(request),
+      });
 
       const check = await checkQuote({
         quoteId,

@@ -103,6 +103,22 @@ const PREORDER_CHAT_SLA_BREACHED = 'preorder_chat.sla_breached';
 const PREORDER_CHAT_PROPOSAL_ANSWERED = 'preorder_chat.proposal_answered';
 const PREORDER_CHAT_HANDOFF = 'preorder_chat.handoff';
 
+/**
+ * A support ticket was raised, or its sender wrote again. Carries
+ * `support_ticket.view`; the row links to the ticket. The reference, the topic
+ * and who raised it - never what they wrote.
+ */
+const SUPPORT_TICKET_OPENED = 'support_ticket.opened';
+const SUPPORT_TICKET_REPLIED = 'support_ticket.requester_replied';
+
+/**
+ * A buyer company sent its application, or answered a reviewer. Carries
+ * `buyer_company.read`; the row links to the case. Names the company and its
+ * reference only - never a tax number.
+ */
+const BUYER_COMPANY_SUBMITTED = 'buyer_company.submitted';
+const BUYER_COMPANY_RESPONDED = 'buyer_company.responded';
+
 /** The steps a preorder notification can name. Anything else reads as the generic line. */
 const PREORDER_EVENTS = new Set([
   'PREORDER_REQUEST_RECEIVED',
@@ -278,6 +294,45 @@ function describe(notification: ConsoleNotification, t: ReturnType<typeof useI18
       detail: PREORDER_EVENTS.has(event)
         ? t(`notifications.preorder.${event}` as TranslationKey)
         : t('notifications.preorder.generic'),
+    };
+  }
+
+  if (notification.kind === BUYER_COMPANY_SUBMITTED || notification.kind === BUYER_COMPANY_RESPONDED) {
+    const companyName = textVariable(variables, 'companyName', '—');
+    return {
+      title:
+        notification.kind === BUYER_COMPANY_RESPONDED
+          ? t('notifications.buyerCompany.responded', { companyName })
+          : variables.resubmitted === true
+            ? t('notifications.buyerCompany.resubmitted', { companyName })
+            : t('notifications.buyerCompany.submitted', { companyName }),
+      detail: t('notifications.buyerCompany.detail', {
+        reference: textVariable(variables, 'reference', '—'),
+        country: textVariable(variables, 'country', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === SUPPORT_TICKET_OPENED) {
+    return {
+      title: t('notifications.supportTicket.opened', {
+        reference: textVariable(variables, 'reference', '—'),
+      }),
+      detail: t('notifications.supportTicket.openedDetail', {
+        requesterName: textVariable(variables, 'requesterName', '—'),
+        category: t(`supportTickets.category.${textVariable(variables, 'category', 'OTHER')}` as never),
+      }),
+    };
+  }
+
+  if (notification.kind === SUPPORT_TICKET_REPLIED) {
+    return {
+      title: t('notifications.supportTicket.replied', {
+        reference: textVariable(variables, 'reference', '—'),
+      }),
+      detail: t('notifications.supportTicket.repliedDetail', {
+        requesterName: textVariable(variables, 'requesterName', '—'),
+      }),
     };
   }
 

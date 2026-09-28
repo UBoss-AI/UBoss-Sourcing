@@ -47,7 +47,7 @@ import { Link } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { BoxIcon, ChevronRightIcon, CloseIcon } from '@/components/icons';
-import { PRODUCT_BRAND } from '@/lib/brand';
+import { PRODUCT_SHORT_NAME } from '@/lib/brand';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
@@ -323,7 +323,8 @@ function HubCore({ label }: { label: string }): React.JSX.Element {
       {/* The fixed layer. Not inside `.orch-orb`, which rotates and clips. */}
       <div className="orch-hub-label">
         <BoxIcon className="h-4 w-4 text-sky-100 lg:h-6 lg:w-6" />
-        {/* The wordmark face: this label is always the product's name. */}
+        {/* The wordmark face: this label is always the product's one-word name,
+            `Gloviaa` and never `Gloviaa Mart` - the globe it sits on is the rest. */}
         <span className="font-brand text-lg font-bold text-white lg:text-4xl">{label}</span>
       </div>
     </div>
@@ -568,7 +569,7 @@ export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Elem
             fallback that can be left saying something else. See
             `greeting/HeroStage.tsx`.
           */}
-          <HubCore label={PRODUCT_BRAND} />
+          <HubCore label={PRODUCT_SHORT_NAME} />
         </div>
 
         {/* The parallax layer. Outside the `<ul>` because the ul's children

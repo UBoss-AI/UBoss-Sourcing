@@ -27,6 +27,7 @@
  */
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
+import { findB2cViolations } from '../../domain/b2c-order-limit.js';
 import { todayIn } from '../../domain/delivery-dates.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SELLING_UNIT, cartonsForPieces, type OrderingUnit } from '../../domain/ordering-unit.js';
@@ -601,6 +602,7 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
       minOrderQty: true,
       maxOrderQty: true,
       qtyIncrement: true,
+      b2cMaxOrderQuantity: true,
       hasVariants: true,
       // Visible is not sellable. A plan is a standing instruction to charge a
       // card, so a product with no agreed price must never reach one - and the
@@ -613,7 +615,12 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
   });
 
   const productById = new Map(products.map((product) => [product.id, product]));
-  const problems: { field: string; code: string; message: string }[] = [];
+  const problems: {
+    field: string;
+    code: string;
+    message: string;
+    meta?: Record<string, string | number | boolean | null>;
+  }[] = [];
 
   items.forEach((item, index) => {
     const product = productById.get(item.productId);
@@ -706,6 +713,39 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
       }
     }
   });
+
+  /*
+   * The B2C maximum order quantity, across the whole plan.
+   *
+   * A plan is always the person's own - the route refuses a company context
+   * - so the limit always binds. Counted per product across every line, so
+   * two lines of one product, or two of its options, cannot split round it.
+   * A plan holds the operator's own stock only, so the product row's limit
+   * is the one that applies.
+   */
+  for (const violation of findB2cViolations(
+    { kind: 'INDIVIDUAL' },
+    items.map((item) => ({
+      productId: item.productId,
+      sellerAccountId: null,
+      quantity: item.quantity,
+      limit: productById.get(item.productId)?.b2cMaxOrderQuantity ?? null,
+    })),
+  )) {
+    const index = items.findIndex((item) => item.productId === violation.productId);
+    problems.push({
+      field: `items.${String(index)}.quantity`,
+      code: ErrorCode.B2C_MAX_ORDER_QUANTITY_EXCEEDED,
+      message: `Individual buyers can order up to ${String(violation.limit)} units of this product.`,
+      meta: {
+        productId: violation.productId,
+        allowedQuantity: violation.limit,
+        requestedQuantity: violation.totalQuantity,
+        currentCartQuantity: 0,
+        requiresApprovedCompanyAccount: true,
+      },
+    });
+  }
 
   if (problems.length > 0) {
     throw badRequest(

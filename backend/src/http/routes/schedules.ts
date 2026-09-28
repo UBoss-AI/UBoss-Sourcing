@@ -48,7 +48,7 @@ import {
   listAbandonedErpPushes,
   retryAbandonedErpPush,
 } from '../../modules/integrations/erp-order.service.js';
-import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import { buyerContextOf, currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 
@@ -457,6 +457,25 @@ function serialiseOccurrence(
 
 export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireCustomer);
+
+  /*
+   * Recurring orders are the person's own, not a company's - for now.
+   *
+   * A schedule is run weeks later by a worker that places the order with no
+   * session in sight, and today it places it on the person's profile alone.
+   * Letting one be created while buying for a company would produce orders
+   * that silently belong to the wrong buyer. Refused, with a code the
+   * storefront turns into "switch to your own account to use this".
+   */
+  app.addHook('preHandler', async (request) => {
+    if (buyerContextOf(request).kind === 'COMPANY') {
+      throw forbidden(
+        ErrorCode.BUYER_CONTEXT_UNSUPPORTED,
+        'Recurring orders are available on your own account. Switch to Individual to use them.',
+      );
+    }
+    return Promise.resolve();
+  });
 
   /**
    * The earliest date a first delivery may be asked for.

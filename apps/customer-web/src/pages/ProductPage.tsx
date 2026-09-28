@@ -60,7 +60,7 @@ import {
   LoadingState,
   Textarea,
 } from '@/components/ui';
-import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
+import { BoxIcon, CurrencyIcon, TruckIcon, UserIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
 import { useDocumentMeta, useJsonLd } from '@/lib/useDocumentMeta';
@@ -86,6 +86,8 @@ import {
   summarisePack,
 } from '@/lib/variants';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
+import { ProductReviews } from '@/components/reviews/ProductReviews';
+import { RatingBadge } from '@/components/reviews/RatingBadge';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { ProductInformation } from '@/components/product-info/ProductInformation';
 import { DimensionsSection, PackagingSection } from '@/components/ProductPackagingPanel';
@@ -99,6 +101,13 @@ import {
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
+import { B2cLimitDialog } from '@/components/B2cLimitDialog';
+import {
+  b2cRefusalOf,
+  isB2cLimitApplicable,
+  largestValidAtMost,
+  remainingUnderLimit,
+} from '@/lib/b2c-limit';
 import { usePointerZoom } from '@/lib/pointer-zoom';
 
 /**
@@ -741,7 +750,7 @@ export function ProductPage(): React.JSX.Element {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { isCustomer } = useSession();
+  const { isCustomer, buyerContext } = useSession();
   const { business, features } = useStorefront();
 
   /**
@@ -1158,6 +1167,14 @@ export function ProductPage(): React.JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error) => {
+      // Over the individual limit once the basket is counted too - which only
+      // the server knows. The dialog, not a red line: it has somewhere to go.
+      const b2cRefusal = b2cRefusalOf(error);
+      if (b2cRefusal !== null) {
+        setAddError(null);
+        setB2cPrompt({ alreadyInBasket: b2cRefusal.currentCartQuantity ?? 0, revertTo: null });
+        return;
+      }
       // The server's message names the rule that was broken — a minimum, a
       // stock shortfall, a spend cap. Replacing it with "could not add" throws
       // away the only thing that tells the customer what to change.
@@ -1176,6 +1193,28 @@ export function ProductPage(): React.JSX.Element {
   const decisionLine = chosenLines.length === 1 ? chosenLines[0] : undefined;
   const decisionPieces = decisionLine?.quantity ?? 0;
   const [preorderDialogOpen, setPreorderDialogOpen] = useState(false);
+  /*
+   * The B2C maximum order quantity.
+   *
+   * Known the moment the quantity settles - it is a figure on the product,
+   * not an answer the server has to work out - so it is decided here rather
+   * than in the quantity decision, and it goes first: a quantity the buyer
+   * may not order at all is not one to show bulk offers or a stock prompt
+   * for. While its dialog is up the decision counts it as "another dialog
+   * open", so the page still never shows two.
+   *
+   * The server refuses the same thing on every basket write, and also knows
+   * what is already in the basket; its refusal opens this same dialog.
+   */
+  const b2cLimit = product?.purchaseRules.b2cMaxOrderQuantity ?? null;
+  const b2cApplies = b2cLimit !== null && isB2cLimitApplicable({ isCustomer, buyerContext });
+  const overB2cLimit = (pieces: number): boolean => b2cApplies && pieces > b2cLimit;
+  const [b2cPrompt, setB2cPrompt] = useState<{
+    /** What the basket already holds of this product, where the server said. */
+    alreadyInBasket: number;
+    /** The quantity to go back to on Cancel, when a quantity change opened it. */
+    revertTo: { variantId: string | null; typed: number } | null;
+  } | null>(null);
   const quantityBoxRef = useRef<HTMLInputElement | null>(null);
   const viewOffersRef = useRef<HTMLButtonElement | null>(null);
   /**
@@ -1194,10 +1233,20 @@ export function ProductPage(): React.JSX.Element {
       decisionLine !== undefined &&
       decisionPieces > 0 &&
       !(product.purchasability?.isPriceOnRequest ?? false),
-    otherDialogOpen: preorderDialogOpen,
+    otherDialogOpen: preorderDialogOpen || b2cPrompt !== null,
   });
   /** A settled quantity, in whatever the box counts, handed on in pieces. */
   const commitQuantity = (typed: number, source: QuantityCommitSource, previous: number): void => {
+    // Over the individual limit: say so, and do not decide anything else.
+    // The box keeps what was typed until the buyer chooses - nothing is
+    // trimmed on their behalf.
+    if (overB2cLimit(typed * sellUnit.piecesPerUnit)) {
+      setB2cPrompt({
+        alreadyInBasket: 0,
+        revertTo: { variantId: decisionLine?.variantId ?? null, typed: previous },
+      });
+      return;
+    }
     quantityDecision.commit(typed * sellUnit.piecesPerUnit, source, previous * sellUnit.piecesPerUnit);
   };
   const closeStockPrompt = useCallback(
@@ -1208,14 +1257,15 @@ export function ProductPage(): React.JSX.Element {
     [quantityDecision],
   );
   const decisionDialogOpen = quantityDecision.dialog !== null;
+  const b2cDialogOpen = b2cPrompt !== null;
   useEffect(() => {
-    if (decisionDialogOpen || preorderDialogOpen) return;
+    if (decisionDialogOpen || preorderDialogOpen || b2cDialogOpen) return;
     const target = focusAfterDialog.current;
     focusAfterDialog.current = null;
     if (target?.isConnected !== true) return;
     target.focus();
     if (target instanceof HTMLInputElement) target.select();
-  }, [decisionDialogOpen, preorderDialogOpen]);
+  }, [decisionDialogOpen, preorderDialogOpen, b2cDialogOpen]);
 
   if (query.isPending) return <LoadingState label={t('product.loadingTheProduct')} />;
 
@@ -1540,6 +1590,14 @@ export function ProductPage(): React.JSX.Element {
         <div className="min-w-0">
           <h1 className="text-title-lg text-ink sm:text-title-xl">{product.name}</h1>
 
+          {/* The average and the count, pointing at the reviews at the foot of
+              the page. Absent with no reviews, rather than five empty stars. */}
+          {(product.rating?.count ?? 0) > 0 && (
+            <a href="#reviews" className="mt-2 inline-flex rounded hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <RatingBadge rating={product.rating} size="sm" />
+            </a>
+          )}
+
           {/* The product code as a chip rather than a grey line: in B2B this
               is the string that gets typed into a purchase order, so it needs
               to look like something you can select and copy. */}
@@ -1803,6 +1861,15 @@ export function ProductPage(): React.JSX.Element {
                   onToggle={toggleVariant}
                   onQuantityChange={setVariantQuantity}
                   onQuantityCommit={(variant, next, source, previous) => {
+                    // Every chosen option of one product counts toward one
+                    // limit, so the check is on the total, not this row.
+                    const others = chosenLines
+                      .filter((line) => line.variantId !== variant.id)
+                      .reduce((sum, line) => sum + line.quantity, 0);
+                    if (overB2cLimit(others + next * sellUnit.piecesPerUnit)) {
+                      setB2cPrompt({ alreadyInBasket: 0, revertTo: { variantId: variant.id, typed: previous } });
+                      return;
+                    }
                     if (decisionLine?.variantId === variant.id) commitQuantity(next, source, previous);
                   }}
                 />
@@ -1820,6 +1887,71 @@ export function ProductPage(): React.JSX.Element {
                   onCommit={commitQuantity}
                   inputRef={quantityBoxRef}
                   rules={rules}
+                  {...(b2cLimit === null ? {} : { describedBy: 'b2c-limit-note' })}
+                />
+              )}
+
+              {/* The individual purchase limit. A purchasing limit, never a
+                  stock figure, and worded so: nothing here says how many are
+                  on the shelf. Shown to everybody it can apply to; an
+                  approved company is told it does not apply to them. */}
+              {b2cLimit !== null && (
+                <p id="b2c-limit-note" className="flex items-center gap-1.5 text-xs text-ink-muted">
+                  <UserIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="tabular">
+                    {b2cApplies
+                      ? t('b2cLimit.notice', { limit: formatNumber(b2cLimit) })
+                      : t('b2cLimit.noticeCompanyExempt', { limit: formatNumber(b2cLimit) })}
+                  </span>
+                </p>
+              )}
+
+              {b2cPrompt !== null && b2cLimit !== null && (
+                <B2cLimitDialog
+                  isOpen
+                  limit={b2cLimit}
+                  alreadyInBasket={b2cPrompt.alreadyInBasket}
+                  reduceTo={
+                    // Only where one thing is being bought: with several
+                    // options chosen there is no single box to set, and the
+                    // buyer decides how to share the limit between them.
+                    chosenLines.length === 1
+                      ? largestValidAtMost(
+                          Math.floor(
+                            remainingUnderLimit(b2cLimit, b2cPrompt.alreadyInBasket) / sellUnit.piecesPerUnit,
+                          ),
+                          rules,
+                        )
+                      : null
+                  }
+                  onReduce={() => {
+                    const only = chosenLines[0];
+                    const reduced = largestValidAtMost(
+                      Math.floor(remainingUnderLimit(b2cLimit, b2cPrompt.alreadyInBasket) / sellUnit.piecesPerUnit),
+                      rules,
+                    );
+                    if (only !== undefined && reduced !== null) {
+                      const variant = product.variants.find((candidate) => candidate.id === only.variantId);
+                      if (variant === undefined || isGuided) setQuantity(reduced);
+                      else setVariantQuantity(variant, reduced);
+                    }
+                    focusAfterDialog.current = quantityBoxRef.current;
+                    setB2cPrompt(null);
+                  }}
+                  onClose={() => {
+                    // Cancel drops the change that opened it: the box goes
+                    // back to the last quantity the buyer settled on.
+                    const revert = b2cPrompt.revertTo;
+                    if (revert !== null) {
+                      const variant =
+                        revert.variantId === null
+                          ? undefined
+                          : product.variants.find((candidate) => candidate.id === revert.variantId);
+                      if (variant === undefined || isGuided) setQuantity(revert.typed);
+                      else setVariantQuantity(variant, revert.typed);
+                    }
+                    setB2cPrompt(null);
+                  }}
                 />
               )}
 
@@ -2103,6 +2235,12 @@ export function ProductPage(): React.JSX.Element {
                             setFocusAxisKey(missing);
                             return;
                           }
+                          // Over the individual limit: the dialog, not a
+                          // request the server would refuse.
+                          if (overB2cLimit(totalPieces)) {
+                            setB2cPrompt({ alreadyInBasket: 0, revertTo: null });
+                            return;
+                          }
                           addToCart.mutate();
                         }}
                         // Full width on a phone, where a half-width primary
@@ -2371,6 +2509,10 @@ export function ProductPage(): React.JSX.Element {
           manufacturer={<ProductSafetyPanel safety={product.safety} />}
         />
       )}
+
+      {/* What buyers who received it thought, scored four ways. Renders
+          nothing when the deployment has reviews switched off. */}
+      <ProductReviews productId={product.id} productSlug={product.slug} productName={product.name} />
     </>
   );
 }

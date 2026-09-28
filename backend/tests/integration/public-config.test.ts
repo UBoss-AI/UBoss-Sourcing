@@ -112,16 +112,26 @@ describe('GET /api/v1/config', () => {
       // key or the model name: the storefront only needs to know whether to
       // offer AI Mode.
       'assistant',
+      // Whether the Company tab, the company application and the company
+      // context switcher are offered. A boolean; which companies a person
+      // belongs to is never public.
+      'buyerCompanies',
       // Whether the camera button on the search bar can do anything. Tracks
       // `assistant` today — image search is a vision call on the same provider
       // — but travels as its own field so the storefront never infers one
       // capability from another.
       'imageSearch',
+      // Whether stars and the review form are shown. A boolean; reviews
+      // themselves are read from their own endpoint.
+      'productReviews',
       'recurringOrders',
       'selfRegistration',
       // Whether a confirmed sign-up still waits for a member of staff. The
       // storefront says so on the form rather than only afterwards.
       'selfRegistrationRequiresApproval',
+      // Whether the Support page takes tickets. Only decides what a guest is
+      // shown; a signed-in reader's form follows /support/context.
+      'supportTickets',
     ]);
 
     // The storefront asks a first-time shopper where they are before it can
@@ -176,14 +186,14 @@ describe('GET /api/v1/config', () => {
   /*
    * The brand, and the one thing about it that is not ours to decide.
    *
-   * The product is called Glovia and the company behind it is UBOSS, and both
+   * The product is called Gloviaa Mart and the company behind it is UBOSS, and both
    * of those are constants in the browser bundles — see
    * `apps/customer-web/src/lib/brand.ts`. What THIS endpoint publishes is
    * neither of them: it is the operator's own trading name, because every
    * buyer runs their own deployment and the header of their storefront is
    * their name. The rename must not have turned that into a constant, which
    * is exactly the mistake a global search and replace would have made, and
-   * exactly the mistake a test pinned to the string "Glovia" would have
+   * exactly the mistake a test pinned to the string "Gloviaa Mart" would have
    * blessed.
    */
   it('publishes the operator’s own trading name, not the product’s', async () => {
@@ -206,7 +216,7 @@ describe('GET /api/v1/config', () => {
 
     // Screens that say who manages a delivery level or who assigned a
     // consignment read this, so it must be the operator's own name.
-    expect(body.marketplace.displayName).toBe(profile?.displayName.trim() || 'Glovia');
+    expect(body.marketplace.displayName).toBe(profile?.displayName.trim() || 'Gloviaa Mart');
   });
 
   it('never carries the product’s former name', async () => {

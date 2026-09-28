@@ -3,7 +3,7 @@
  *
  * WHO ISSUES IT. The seller, in their own legal name, under their own tax
  * registration, in their own numbered series - because on this marketplace the
- * seller is the supplier of the goods. Glovia appears on the document only as
+ * seller is the supplier of the goods. Gloviaa Mart appears on the document only as
  * the platform it was issued through, and says it is not the supplier.
  *
  * WHERE THE FIGURES COME FROM. The order line the buyer was charged against,
@@ -786,8 +786,8 @@ function toDocument(
       designation: built.settings.signatoryDesignation,
     },
     footer:
-      `${built.seller.legalName} is the supplier of these goods and issued this ${input.kind === 'CREDIT_NOTE' ? 'credit note' : 'invoice'} through the Glovia marketplace. ` +
-      'Glovia operates the marketplace and is not the supplier.' +
+      `${built.seller.legalName} is the supplier of these goods and issued this ${input.kind === 'CREDIT_NOTE' ? 'credit note' : 'invoice'} through the Gloviaa Mart marketplace. ` +
+      'Gloviaa Mart operates the marketplace and is not the supplier.' +
       (built.settings.footerNotes === null ? '' : ` ${built.settings.footerNotes}`),
   };
 }

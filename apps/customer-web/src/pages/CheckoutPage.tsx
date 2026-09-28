@@ -27,6 +27,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
+import { CompanyNotApprovedNotice } from '@/components/CompanyNotApprovedNotice';
 import { AddressForm } from '@/components/AddressForm';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { checkoutSteps } from '@/lib/checkout-steps';
@@ -772,6 +773,10 @@ export function CheckoutPage(): React.JSX.Element {
   return (
     <>
       <CheckoutSteps states={checkoutSteps(shippingAddressId !== null)} />
+
+      {/* Buying for a company that cannot order yet. The server refuses the
+          order either way; this says so before the form is filled in. */}
+      <CompanyNotApprovedNotice className="mt-4" />
 
       <header className="mb-6">
         <h1 className="text-title-xl text-ink">{t('checkout.checkout')}</h1>

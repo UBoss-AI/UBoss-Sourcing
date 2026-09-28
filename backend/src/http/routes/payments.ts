@@ -11,7 +11,7 @@
  *     retrying something we have deliberately refused. The rejection is
  *     recorded and alerted instead.
  */
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
@@ -50,7 +50,13 @@ import {
 import { encryptSecret, maskSecret } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
-import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
+import {
+  assertBuyerCapability,
+  currentUser,
+  orderScopeWhere,
+  requireAdmin,
+  requireCustomer,
+} from '../plugins/auth.js';
 
 /**
  * Customer-facing payment routes live under /payments/orders/:orderId.
@@ -59,6 +65,28 @@ import { currentUser, requireAdmin, requireCustomer } from '../plugins/auth.js';
  * `:id|:orderId` in the route table and in any generated client.
  */
 const orderParam = z.object({ orderId: z.string().length(26) });
+
+/**
+ * The order in the path must be one this person placed, in the buyer context
+ * this session is in - their own order from their own context, a company
+ * order from that company's. Anything else is a 404, before any payment
+ * service is asked.
+ *
+ * Paying for, cancelling or reconciling a COMPANY order also needs the
+ * company to be approved now: a suspended company's open orders cannot be
+ * paid until it is restored. Reading an order's payment status does not.
+ */
+async function requireOrderInBuyerContext(request: FastifyRequest): Promise<void> {
+  const { orderId } = orderParam.parse(request.params);
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, ...orderScopeWhere(request, { placedByMe: true }) },
+    select: { buyerCompanyId: true },
+  });
+  if (order === null) throw notFound('Order');
+  if (order.buyerCompanyId !== null && request.method !== 'GET') {
+    assertBuyerCapability(request, 'PURCHASE');
+  }
+}
 
 /** A Stripe Checkout Session id, shape-checked before it reaches a query. */
 const checkoutSessionParams = z.object({
@@ -227,7 +255,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/orders/:orderId/session',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 20, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -318,7 +346,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
    */
   app.get(
     '/orders/:orderId/status',
-    { preHandler: requireCustomer },
+    { preHandler: [requireCustomer, requireOrderInBuyerContext] },
     async (request, reply) => {
       const auth = currentUser(request);
       const { orderId } = orderParam.parse(request.params);
@@ -339,7 +367,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/orders/:orderId/checkout/:sessionId',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 120, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -363,7 +391,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/orders/:orderId/checkout/:sessionId/refresh',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 12, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -391,7 +419,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/orders/:orderId/checkout/cancel',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 20, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -422,7 +450,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/orders/:orderId/mock-capture',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 30, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {
@@ -449,7 +477,7 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/orders/:orderId/reconcile',
     {
-      preHandler: requireCustomer,
+      preHandler: [requireCustomer, requireOrderInBuyerContext],
       config: { rateLimit: { max: 10, timeWindow: '5 minutes' } },
     },
     async (request, reply) => {

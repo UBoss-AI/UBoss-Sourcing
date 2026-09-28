@@ -724,11 +724,29 @@ export async function resendInvitation(
  * customer can never end up with two default shipping addresses and a checkout
  * that silently picks whichever the database returned first.
  */
+/**
+ * Which address book a call is about.
+ *
+ * The person's own book is their addresses that belong to no company - every
+ * address that existed before buyer companies. A company's book is every
+ * address any member added for it. The two never mix: an id from one book is
+ * not found in the other.
+ */
+function addressBook(
+  customerProfileId: string,
+  buyerCompanyId: string | null,
+): { customerProfileId?: string; buyerCompanyId: string | null } {
+  return buyerCompanyId === null ? { customerProfileId, buyerCompanyId: null } : { buyerCompanyId };
+}
+
 export async function addAddress(
   customerProfileId: string,
   input: AddressInput,
   actor: CustomerActor,
+  /** The company whose address book this is for, or null for the person's own. */
+  buyerCompanyId: string | null = null,
 ): Promise<{ addressId: string }> {
+  const book = addressBook(customerProfileId, buyerCompanyId);
   // Outside the transaction, on purpose: this is an outbound HTTP call to a
   // third party, and holding row locks open across one is how a slow
   // geocoder becomes a stalled checkout for somebody else.
@@ -742,7 +760,7 @@ export async function addAddress(
     if (profile === null) throw notFound('Customer');
 
     const existingCount = await tx.address.count({
-      where: { customerProfileId, archivedAt: null },
+      where: { ...book, archivedAt: null },
     });
 
     // The first address is the default for both, so checkout always has one.
@@ -758,18 +776,18 @@ export async function addAddress(
 
     if (data.isDefaultBilling === true) {
       await tx.address.updateMany({
-        where: { customerProfileId, isDefaultBilling: true },
+        where: { ...book, isDefaultBilling: true },
         data: { isDefaultBilling: false },
       });
     }
     if (data.isDefaultShipping === true) {
       await tx.address.updateMany({
-        where: { customerProfileId, isDefaultShipping: true },
+        where: { ...book, isDefaultShipping: true },
         data: { isDefaultShipping: false },
       });
     }
 
-    await tx.address.create({ data: { ...data, ...position } });
+    await tx.address.create({ data: { ...data, ...position, buyerCompanyId } });
 
     await recordAudit(
       {
@@ -795,7 +813,9 @@ export async function updateAddress(
   addressId: string,
   input: Partial<AddressInput>,
   _actor: CustomerActor,
+  buyerCompanyId: string | null = null,
 ): Promise<void> {
+  const book = addressBook(customerProfileId, buyerCompanyId);
   /*
    * Re-geocode only when the place itself moved.
    *
@@ -816,7 +836,7 @@ export async function updateAddress(
 
   const existing = placeMoved
     ? await prisma.address.findFirst({
-        where: { id: addressId, customerProfileId, archivedAt: null },
+        where: { id: addressId, ...book, archivedAt: null },
         select: {
           line1: true,
           line2: true,
@@ -844,7 +864,7 @@ export async function updateAddress(
     // Scoped by customerProfileId, so one customer cannot edit another's
     // address by guessing an id.
     const existing = await tx.address.findFirst({
-      where: { id: addressId, customerProfileId, archivedAt: null },
+      where: { id: addressId, ...book, archivedAt: null },
     });
     if (existing === null) throw notFound('Address');
 
@@ -863,14 +883,14 @@ export async function updateAddress(
 
     if (input.isDefaultBilling === true) {
       await tx.address.updateMany({
-        where: { customerProfileId, isDefaultBilling: true },
+        where: { ...book, isDefaultBilling: true },
         data: { isDefaultBilling: false },
       });
       data.isDefaultBilling = true;
     }
     if (input.isDefaultShipping === true) {
       await tx.address.updateMany({
-        where: { customerProfileId, isDefaultShipping: true },
+        where: { ...book, isDefaultShipping: true },
         data: { isDefaultShipping: false },
       });
       data.isDefaultShipping = true;
@@ -937,9 +957,11 @@ async function geocodeAddress(address: {
 export async function archiveAddress(
   customerProfileId: string,
   addressId: string,
+  buyerCompanyId: string | null = null,
 ): Promise<void> {
+  const book = addressBook(customerProfileId, buyerCompanyId);
   const address = await prisma.address.findFirst({
-    where: { id: addressId, customerProfileId, archivedAt: null },
+    where: { id: addressId, ...book, archivedAt: null },
   });
   if (address === null) throw notFound('Address');
 

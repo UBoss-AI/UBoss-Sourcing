@@ -43,7 +43,7 @@ import {
   type SellerIdentity,
 } from '@/lib/seller';
 import { SellerNotificationBell } from './SellerNotificationBell';
-import { DocumentIcon } from '@/components/icons';
+import { DocumentIcon, HeadsetIcon } from '@/components/icons';
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -413,6 +413,9 @@ const NAV_ITEMS: readonly NavItem[] = Object.freeze([
     needsApproval: false,
   },
   { to: '/seller/profile', labelKey: 'seller.nav.profile', icon: ProfileIcon, needsApproval: false },
+  // Last, and open before approval: a seller stuck in onboarding is exactly
+  // who most needs to reach the marketplace.
+  { to: '/seller/support', labelKey: 'seller.nav.support', icon: HeadsetIcon, needsApproval: false },
 ]);
 
 function RailLink({

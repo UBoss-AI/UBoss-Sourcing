@@ -253,7 +253,7 @@ export async function requestFreightQuote(input: {
   await recordSellerAudit({
     sellerAccountId: input.sellerAccountId,
     action: 'seller.freight_quote.requested',
-    actor: { type: 'SYSTEM', label: 'Glovia' },
+    actor: { type: 'SYSTEM', label: 'Gloviaa Mart' },
     resourceType: 'seller_freight_quote_request',
     resourceId: id,
     summary: `A freight quotation was raised for ${group.sellerOrderNumber}.`,

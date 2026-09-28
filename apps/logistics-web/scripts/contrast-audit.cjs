@@ -200,7 +200,7 @@ const TEXT_PAIRS = [
   ['ink-muted', 'surface', 'Secondary text on a card'],
   ['ink-muted', 'surface-sunken', 'Secondary text on a sunken panel'],
   ['ink-subtle', 'surface', 'Tertiary text on a card'],
-  ['brand-wordmark', 'surface', 'The Glovia wordmark in the header'],
+  ['brand-wordmark', 'surface', 'The Gloviaa Mart wordmark in the header'],
   ['brand-tagline', 'surface', 'The tagline under the wordmark'],
   ['ink-subtle', 'surface-sunken', 'Tertiary text on a sunken panel'],
   // Added when the page ground went sky. A tinted ground is a darker ground,

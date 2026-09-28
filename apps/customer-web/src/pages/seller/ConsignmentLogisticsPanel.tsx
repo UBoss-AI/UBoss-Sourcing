@@ -6,7 +6,7 @@
  * platform, which is offered it and puts its own driver on it, or to DHL,
  * FedEx or India Post, which the seller books themselves and records here.
  *
- * WHAT THIS SCREEN NEVER CLAIMS. That Glovia booked a carrier, printed a
+ * WHAT THIS SCREEN NEVER CLAIMS. That Gloviaa Mart booked a carrier, printed a
  * label, quoted a rate, or knows where a hand-booked parcel is beyond what the
  * seller typed. A hand-made booking is badged "Manual booking" wherever it
  * appears, its tracking number is the one the seller entered, and the link

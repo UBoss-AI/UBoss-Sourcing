@@ -101,6 +101,7 @@ function view(over: Partial<ListingEditView> = {}): ListingEditView {
       minimumOrderQuantity: 2,
       orderIncrement: 1,
       maximumOrderQuantity: null,
+      b2cMaxOrderQuantity: null,
       handlingTimeDays: 3,
       guaranteedShelfLifeMonths: null,
       warrantyMonths: 12,

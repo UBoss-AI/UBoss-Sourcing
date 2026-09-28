@@ -1,5 +1,5 @@
 /**
- * Where the Glovia Tally Bridge talks to this API.
+ * Where the Gloviaa Mart Tally Bridge talks to this API.
  *
  * Mounted OUTSIDE every session guard, for the same reason the carrier and
  * payment webhooks are: an agent has no session, no cookie and no CSRF token,

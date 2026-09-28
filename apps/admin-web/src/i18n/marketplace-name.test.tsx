@@ -8,7 +8,7 @@
  *
  * Since then the delivery-level strings say `{{team}}`: the operator's own
  * team (`OPERATOR_TEAM_NAME`), which falls back to the marketplace's name, so a
- * store called Glovia can say "Self + UBoss". Both placeholders name the
+ * store called Gloviaa Mart can say "Self + UBoss". Both placeholders name the
  * operator, so both are held to the same rules here.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -59,7 +59,7 @@ describe('the marketplace name in the console', () => {
   });
 
   it('is the product’s own name until the deployment’s arrives', () => {
-    expect(i18n.t('levels.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + Glovia');
+    expect(i18n.t('levels.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + Gloviaa Mart');
   });
 
   it('fills a string reached through an error code', () => {
@@ -73,7 +73,7 @@ describe('the marketplace name in the console', () => {
   });
 
   it('names the operator’s team by its own name where one is set', () => {
-    setMarketplaceName('Glovia');
+    setMarketplaceName('Gloviaa Mart');
     setTeamName('UBoss');
     expect(i18n.t('levels.mode.UBOSS', { ns: NAMESPACE })).toBe('UBoss');
     expect(i18n.t('levels.mode.HYBRID', { ns: NAMESPACE })).toBe('Self + UBoss');

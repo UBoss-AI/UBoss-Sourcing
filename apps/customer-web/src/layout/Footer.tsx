@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
-import { DocumentIcon, MailIcon, PhoneIcon } from '@/components/icons';
+import { DocumentIcon, HeadsetIcon, MailIcon, PhoneIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 
 /** A footer column heading. One style, so the columns read as a set. */
@@ -200,6 +200,18 @@ export function Footer({
                 {t('footer.noContactDetails')}
               </p>
             )}
+
+            {/* The Support page, with or without published details: it is
+                where a signed-in reader sends a request and follows it. On a
+                phone this and the account menu are the way there, because the
+                header's Support link is hidden at that width. */}
+            <Link
+              to="/support"
+              className="mt-3 inline-flex items-center gap-2 rounded text-sm font-medium text-brand hover:underline"
+            >
+              <HeadsetIcon className="h-4 w-4" />
+              {t('footer.supportPage')}
+            </Link>
           </div>
 
           {policies.length > 0 && (

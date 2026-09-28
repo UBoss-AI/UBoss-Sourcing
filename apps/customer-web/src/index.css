@@ -7,9 +7,9 @@
  *
  * `font-display: swap` on the real face means the first paint uses whatever
  * comes next in `font-brand`. Left alone that is Inter or the system face,
- * which set "Glovia" at a different width and height, so the tagline and
+ * which set "Gloviaa Mart" at a different width and height, so the tagline and
  * everything beside the lockup would jump when the script arrived. This is
- * Arial Bold scaled so that "Glovia" occupies the same advance and the same
+ * Arial Bold scaled so that "Gloviaa Mart" occupies the same advance and the same
  * line box as Dancing Script Bold: size-adjust from the two fonts' advance
  * widths for that word (2.300 / 3.057 em), and the ascent and descent from
  * Dancing Script's own table divided by the same factor. It is only ever
@@ -155,6 +155,10 @@
     --warning-fill: 161 98 7;
     --warning-fill-hover: 133 77 14;
     --warning-soft: 254 252 232;
+    /* A filled rating star. Amber, and a step darker than the familiar
+       amber-400: filled-or-empty IS the information, so it has to clear 3:1
+       against the card (WCAG 1.4.11). amber-400 sits at 1.7:1 on white. */
+    --rating: 217 119 6;
     --danger: 185 28 28;
     --danger-hover: 153 27 27;
     --danger-fill: 185 28 28;
@@ -275,7 +279,7 @@
        is a darker ground, and the quietest text on it has to pay for that. */
     --ink-subtle: 92 109 135;
     /*
-     * The Glovia wordmark and its tagline in the header. Their own tokens
+     * The Gloviaa Mart wordmark and its tagline in the header. Their own tokens
      * rather than ink and ink-subtle: the tagline set in ink-subtle is what
      * read as faint on the dark header. Light: the wordmark in ink, the
      * tagline two steps darker than subtle (10.4:1 on the header white; it was 5.3:1).
@@ -423,6 +427,7 @@
       --warning-fill: 140 85 6;
       --warning-fill-hover: 161 98 7;
       --warning-soft: 58 41 8;
+      --rating: 251 191 36;
 
       --danger: 255 154 148;
       --danger-hover: 255 186 182;
@@ -507,6 +512,7 @@
     --warning-fill: 140 85 6;
     --warning-fill-hover: 161 98 7;
     --warning-soft: 58 41 8;
+    --rating: 251 191 36;
 
     --danger: 255 154 148;
     --danger-hover: 255 186 182;
@@ -746,7 +752,7 @@
 
 @layer components {
   /*
-   * The header lockup: the Glovia wordmark and "The Way to the World".
+   * The header lockup: the Gloviaa Mart wordmark and "The Way to the Global Sourcing".
    *
    * The face is unchanged - Dancing Script Bold, `font-brand`, with its
    * size-matched fallback above so nothing moves when it arrives. What these

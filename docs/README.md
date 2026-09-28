@@ -1,4 +1,4 @@
-# Glovia documentation
+# Gloviaa Mart documentation
 
 This folder explains the product in writing: what it must do, how its data is
 stored, how its API is called, and what every screen does. Each document is

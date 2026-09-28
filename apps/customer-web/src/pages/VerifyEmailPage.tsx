@@ -38,6 +38,20 @@ import { Button, ButtonLink, Field, Input, Spinner } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { SIGNUP_INTENT_KEY } from './RegisterPage';
+
+/**
+ * The sign-in link after confirming: the Company tab when this device
+ * started a company registration, the ordinary one otherwise. A convenience
+ * only - the tab grants nothing.
+ */
+function signInPath(): string {
+  try {
+    return window.localStorage.getItem(SIGNUP_INTENT_KEY) === 'company' ? '/login?buyerType=company' : '/login';
+  } catch {
+    return '/login';
+  }
+}
 
 interface VerifyResponse {
   verified: boolean;
@@ -134,7 +148,7 @@ function Confirmed({ status }: { status: 'ACTIVE' | 'PENDING_APPROVAL' }): React
 
         <div className="mt-6 flex justify-center gap-2">
           {status === 'ACTIVE' ? (
-            <ButtonLink to="/login" variant="primary">
+            <ButtonLink to={signInPath()} variant="primary">
               {t('auth.verify.signIn')}
             </ButtonLink>
           ) : (
@@ -264,7 +278,7 @@ function Failure({ code, message }: { code: string; message: string }): React.JS
 
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Link
-          to="/login"
+          to={signInPath()}
           className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
         >
           {t('auth.verify.goToSignIn')}

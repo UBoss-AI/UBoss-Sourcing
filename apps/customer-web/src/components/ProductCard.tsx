@@ -53,6 +53,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { BackgroundGradient } from './ui/background-gradient';
+import { PulseHeart } from './PulseHeart';
+import { RatingBadge } from './reviews/RatingBadge';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
 import {
   isSoldByThePiece,
@@ -221,6 +223,9 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             which on a white card has no edge at all — the frame is what makes it
             read as a photograph of a thing rather than as floating shapes. */}
         <div className="relative aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
+          <div className="absolute right-3 top-3 z-10">
+            <PulseHeart ariaLabel={t('saveForLater.action')} size="sm" defaultLiked={false} />
+          </div>
           {product.primaryImage === null || imageFailed ? (
             <ImageFallback />
           ) : (
@@ -305,6 +310,10 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             <p className="mt-1 truncate font-mono text-xxs uppercase tracking-wide text-ink-subtle">
               <span className="relative z-[1] select-text">{product.sku}</span>
             </p>
+
+            {/* What buyers who received it thought. Nothing at all when there
+                are no reviews - five empty stars would read as "rated zero". */}
+            <RatingBadge rating={product.rating} className="mt-1.5" />
           </div>
 
           {/* What a buyer scanning a shelf of near-identical products actually

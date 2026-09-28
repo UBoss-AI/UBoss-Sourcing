@@ -19,6 +19,7 @@
  *     seller who has been waiting three days for a review may not want their
  *     listing to go live at 2am with no stock.
  */
+import { validateB2cMaxOrderQuantity } from '../../domain/b2c-order-limit.js';
 import { readListingContent, type ListingContent } from '../../domain/product-specifications.js';
 import { replaceProductContent } from '../catalog/product-content.service.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
@@ -1106,6 +1107,15 @@ async function publishApprovedListing(
         // with their own warehouse was never enforced against a buyer.
         maximumOrderQuantity:
           spec.maxOrderQty ?? optionalPositiveInt(offerJson['maximumOrderQuantity']),
+        // The B2C maximum order quantity: one figure for the whole listing,
+        // written to every variant's offer so the product's options share it.
+        // Submission already refused a listing without a valid one; a draft
+        // that reached the queue before the rule existed gets null - "not
+        // configured" - rather than a figure nobody chose.
+        b2cMaxOrderQuantity: (() => {
+          const checked = validateB2cMaxOrderQuantity(offerJson['b2cMaxOrderQuantity']);
+          return checked.ok ? checked.value : null;
+        })(),
         sourceDraftId: draftId,
         sellingRegionsJson: (offerJson['sellingRegions'] ?? []) as never,
       },

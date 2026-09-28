@@ -53,6 +53,11 @@ export interface OfferRow {
   priceMinor: string;
   currency: string;
   minimumOrderQuantity: number;
+  /**
+   * The B2C maximum order quantity, or null when the seller has not set one -
+   * a listing from before the rule. The table flags those so they get set.
+   */
+  b2cMaxOrderQuantity: number | null;
   availableQuantity: number;
   reservedQuantity: number;
   qualityScore: number | null;
@@ -162,6 +167,7 @@ export async function listOffers(
       priceMinor: row.priceMinor.toString(),
       currency: row.currency,
       minimumOrderQuantity: row.minimumOrderQuantity,
+      b2cMaxOrderQuantity: row.b2cMaxOrderQuantity,
       availableQuantity: row.availableQuantity,
       reservedQuantity: row.reservedQuantity,
       qualityScore: row.qualityScore,
@@ -645,6 +651,7 @@ export async function duplicateOffer(
       minimumOrderQuantity: source.minimumOrderQuantity,
       orderIncrement: source.orderIncrement,
       maximumOrderQuantity: source.maximumOrderQuantity,
+      b2cMaxOrderQuantity: source.b2cMaxOrderQuantity,
       handlingTimeDays: source.handlingTimeDays,
       guaranteedShelfLifeMonths: source.guaranteedShelfLifeMonths,
       warrantyMonths: source.warrantyMonths,

@@ -1,0 +1,140 @@
+.pulse-heart {
+  --pulse-heart-size: 1.5rem;
+  --pulse-heart-color: #ff4d6d;
+  --pulse-heart-color-strong: #ff4d6d;
+  --pulse-heart-ring: #ff4d6d;
+  --pulse-heart-bg: rgba(255, 77, 109, 0.08);
+  --pulse-heart-shadow: rgba(255, 77, 109, 0.28);
+  color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease,
+    box-shadow 180ms ease, color 180ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pulse-heart:focus-visible {
+  outline: 2px solid rgba(var(--brand), 0.75);
+  outline-offset: 3px;
+}
+
+.pulse-heart--sm {
+  --pulse-heart-size: 1.5rem;
+}
+
+.pulse-heart--md {
+  --pulse-heart-size: 1.75rem;
+}
+
+.pulse-heart--lg {
+  --pulse-heart-size: 2rem;
+}
+
+.pulse-heart__icon {
+  display: inline-flex;
+  width: var(--pulse-heart-size);
+  height: var(--pulse-heart-size);
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: transparent;
+  transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.pulse-heart__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: transparent;
+  stroke: currentColor;
+  color: currentColor;
+}
+
+.pulse-heart__count {
+  min-width: 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(var(--ink));
+}
+
+.pulse-heart--liked {
+  color: var(--pulse-heart-color-strong);
+  background: var(--pulse-heart-bg);
+  border-color: rgba(var(--danger-fill), 0.12);
+  box-shadow: 0 0 0 1px rgba(var(--danger-fill), 0.08);
+}
+
+.pulse-heart--liked .pulse-heart__icon {
+  background: rgba(var(--danger-fill), 0.12);
+  transform: scale(1.06);
+}
+
+.pulse-heart--liked .pulse-heart__icon svg {
+  fill: #ff4d6d;
+  stroke: #ff4d6d;
+}
+
+.pulse-heart:hover {
+  transform: translateY(-1px);
+}
+
+.pulse-heart--pulsing {
+  animation: pulse-heart-pop 280ms ease;
+}
+
+.pulse-heart--pulsing .pulse-heart__icon {
+  animation: pulse-heart-icon 280ms ease;
+}
+
+.pulse-heart--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@keyframes pulse-heart-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(var(--danger-fill), 0);
+  }
+  35% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px rgba(var(--danger-fill), 0.12);
+  }
+  70% {
+    transform: scale(0.98);
+    box-shadow: 0 0 0 0 rgba(var(--danger-fill), 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--danger-fill), 0);
+  }
+}
+
+@keyframes pulse-heart-icon {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-heart,
+  .pulse-heart__icon,
+  .pulse-heart--pulsing,
+  .pulse-heart--pulsing .pulse-heart__icon {
+    animation: none !important;
+    transition: none !important;
+  }
+}

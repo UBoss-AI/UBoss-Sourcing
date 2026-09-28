@@ -313,6 +313,16 @@ export async function addOfferVariants(
     current.existing.map((row) => row.optionSignature).filter((entry) => entry !== ''),
   );
 
+  // New versions share the listing's B2C maximum order quantity: the limit
+  // counts the product, every variant together, so it is one figure.
+  const listingB2cLimit =
+    (
+      await prisma.sellerOffer.findUnique({
+        where: { id: offerId },
+        select: { b2cMaxOrderQuantity: true },
+      })
+    )?.b2cMaxOrderQuantity ?? null;
+
   const toCreate = rows.filter(
     (row) => row.isActive && !existingSignatures.has(row.optionSignature),
   );
@@ -380,6 +390,7 @@ export async function addOfferVariants(
           minimumOrderQuantity: row.minOrderQty ?? 1,
           orderIncrement: row.qtyIncrement ?? 1,
           maximumOrderQuantity: row.maxOrderQty ?? null,
+          b2cMaxOrderQuantity: listingB2cLimit,
         },
       });
 

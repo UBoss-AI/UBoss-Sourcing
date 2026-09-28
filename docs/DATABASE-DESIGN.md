@@ -1,11 +1,11 @@
-# Glovia database design
+# Gloviaa Mart database design
 
-This document explains **how the Glovia database is designed and why**. It is
+This document explains **how the Gloviaa Mart database is designed and why**. It is
 written for everyone: a new developer, a reviewer, an operator deciding whether
 to trust the system, and a business person who wants to know where a piece of
 information lives.
 
-Glovia is the product name. Inside the code and the database the old name,
+Gloviaa Mart is the product name. Inside the code and the database the old name,
 **UBOSS**, is still used on purpose: the databases are called `uboss` and
 `uboss_test`, and the four database accounts start with `uboss_`.
 
@@ -72,6 +72,7 @@ the domain map in [section 4](#4-the-domain-map) and give it a chapter in
    - [5.14 Operator connector, bulk import and export](#514-operator-connector-bulk-import-and-export)
    - [5.15 The operator's ERP and Autopay](#515-the-operators-erp-and-autopay)
    - [5.16 Buyer organisations and their own ERP](#516-buyer-organisations-and-their-own-erp)
+   - [5.16a Buyer companies](#516a-buyer-companies)
    - [5.17 Seller Hub](#517-seller-hub)
    - [5.18 Seller carriers and fulfilment modes](#518-seller-carriers-and-fulfilment-modes)
    - [5.19 Logistics partner portal](#519-logistics-partner-portal)
@@ -79,8 +80,10 @@ the domain map in [section 4](#4-the-domain-map) and give it a chapter in
    - [5.21 A seller's own accounting system: TallyPrime](#521-a-sellers-own-accounting-system-tallyprime)
    - [5.22 Seller logistics policy and platform fees](#522-seller-logistics-policy-and-platform-fees)
    - [5.23 Enterprise bulk preorders](#523-enterprise-bulk-preorders)
+   - [5.23a Preorder chat](#523a-preorder-chat)
    - [5.24 Seller documents: invoices and packing lists](#524-seller-documents-invoices-and-packing-lists)
    - [5.25 Storefront assistant and translations](#525-storefront-assistant-and-translations)
+   - [5.25a Support tickets](#525a-support-tickets)
    - [5.26 Data protection requests](#526-data-protection-requests)
    - [5.27 Machinery: outbox, console bell, job queue, audit, sequences](#527-machinery-outbox-console-bell-job-queue-audit-sequences)
    - [5.28 Demo catalogue](#528-demo-catalogue)
@@ -103,8 +106,8 @@ the domain map in [section 4](#4-the-domain-map) and give it a chapter in
 | Development | MariaDB **10.4.32**, installed by XAMPP on Windows |
 | Production | MariaDB **11.4 LTS** (tested on 11.4.13), native on Ubuntu. CI runs the same 11.4.13 |
 | Storage engine | InnoDB on every table |
-| Schema file | `backend/prisma/schema.prisma` (about 17,300 lines, heavily commented) |
-| Size of the schema | **226 models** (one table each, plus Prisma's own `_prisma_migrations`), **203 enums**, **81 migrations** |
+| Schema file | `backend/prisma/schema.prisma` (about 19,200 lines, heavily commented) |
+| Size of the schema | **256 models** (one table each, plus Prisma's own `_prisma_migrations`), **236 enums**, **91 migrations** |
 | Constraints | Several hundred foreign keys and `UNIQUE` indexes, and roughly **200 `CHECK` constraints** written by hand in migration SQL |
 | Views, triggers, stored procedures, events | **None.** All logic is in the application, so a logical dump moves between servers unchanged |
 | Full-text indexes | None. Search is `LIKE` plus application code |
@@ -297,6 +300,7 @@ one**, and a `UNIQUE` index on it:
 | `seller_fulfilment_methods.primaryForSellerAccountId` / `fallbackForSellerAccountId` | one primary and one fallback method per seller |
 | `seller_logistics_policies.activeVersionId` | a policy version is active for at most one policy |
 | `platform_fee_policies.activeScopeKey` | one published fee policy per scope |
+| `buyer_companies.registrationClaimKey`, `buyer_company_identifiers.claimKey` | one **approved** company per registration number and per identifier; drafts and pending applications may share them (see [5.16a](#516a-buyer-companies)) |
 
 Retired rows set the column back to `NULL`, and any number of `NULL`s are
 allowed. **Why a constraint and not a check in code?** Two workers that both
@@ -350,7 +354,7 @@ Two places do take a real row lock, inside a transaction, and depend on
 **What.** Things other records point at are **archived**, not deleted. An
 `archivedAt DATETIME(3)` column is set, and ordinary reads filter it out. It
 appears on `users`, `categories`, `products`, `product_variants`, `addresses`,
-`coupons`, `economic_operators`, `buyer_organizations`, `seller_accounts`,
+`coupons`, `economic_operators`, `buyer_organizations`, `buyer_companies`, `seller_accounts`,
 `seller_offers`, `seller_locations`, `seller_fulfilment_methods`,
 `seller_fulfilment_rules`, `seller_logistics_partners` and
 `logistics_partners`. A few tables use `deletedAt` for the same idea
@@ -473,8 +477,8 @@ depends on are **copied into it**, not pointed at:
 
 | Record | What is frozen into it |
 |---|---|
-| `order_items` | `nameSnapshot`, `skuSnapshot`, `variantNameSnapshot`, `taxClassCodeSnapshot`, `imageUrlSnapshot`, `unitPriceMinor`, `taxRatePercent`, `taxInclusive`, `piecesPerUnitSnapshot`, `noteSnapshot`, `quantityTierJson` |
-| `orders` | `billingAddressJson`, `shippingAddressJson`, `shippingMethodCode`/`Name`, the chosen warehouse's promise (`fulfilmentCarrier`, `fulfilmentDispatchDate`, `fulfilmentDeliveryFrom`/`To`), the tax decision (`taxTreatment`, `taxCountry`, `sellerVatNumberSnapshot`, `buyerVatNumberSnapshot`) and the exchange rate used (`fxRateUsed`, `fxMidRate`, `fxRateAsOf`, `fxProvider`, `fxSnapshotId`) |
+| `order_items` | `nameSnapshot`, `skuSnapshot`, `variantNameSnapshot`, `taxClassCodeSnapshot`, `imageUrlSnapshot`, `unitPriceMinor`, `taxRatePercent`, `taxInclusive`, `piecesPerUnitSnapshot`, `noteSnapshot`, `quantityTierJson`, the individual purchase limit in force (`b2cMaxOrderQuantityApplied`) and whether an approved company was exempt from it (`b2cCompanyExemptionApplied`) |
+| `orders` | `billingAddressJson`, `shippingAddressJson`, `shippingMethodCode`/`Name`, the chosen warehouse's promise (`fulfilmentCarrier`, `fulfilmentDispatchDate`, `fulfilmentDeliveryFrom`/`To`), the tax decision (`taxTreatment`, `taxCountry`, `sellerVatNumberSnapshot`, `buyerVatNumberSnapshot`), the exchange rate used (`fxRateUsed`, `fxMidRate`, `fxRateAsOf`, `fxProvider`, `fxSnapshotId`) and who it was bought as (`buyerContextKind`) |
 | `invoices` | `sellerJson`, `buyerJson`, `linesJson`, `vatBreakdownJson`, all totals |
 | `coupon_redemptions` | `codeSnapshot`, `discountPercentSnapshot` |
 | `order_item_packaging` | the package type, counts and prices the buyer chose |
@@ -507,10 +511,12 @@ in code**:
 | `logistics_shipments.status` | `backend/src/domain/logistics-shipment-state.ts` |
 | `preorder_requests.status` | `backend/src/domain/preorder-state.ts` |
 | customer ERP, seller ERP, operator ERP connection states | `customer-erp-state.ts`, `seller-erp-state.ts`, `erp-connection-state.ts` |
+| `buyer_companies.status` | `transitionCompany` in `backend/src/modules/buyer-companies/shared.ts`, after `assertBuyerCompanyTransition` in `backend/src/domain/buyer-company-state.ts` |
 
 No service writes a status column directly. The function is called **inside
 the same transaction** as the update, and each change appends a history row:
 `order_status_history`, `preorder_status_history`,
+`buyer_company_status_history`,
 `logistics_shipment_events`, `shipment_leg_events`,
 `seller_logistics_relationship_events`.
 
@@ -601,7 +607,12 @@ and **fails** unless each is either a section of the GDPR export bundle
 (`SECTIONS` in `backend/src/modules/privacy/export-bundle.service.ts`) or listed
 as out of scope with a reason. Adding a table with a `customerProfileId` and
 forgetting the export turns the suite red. That is the test working. See
-[section 8](#8-data-retention-and-privacy).
+[section 8](#8-data-retention-and-privacy). The buyer-company tables are
+an example: `buyer_company_members` and `consent_records` (plus the
+applicant-visible timeline and status history, found through `actorUserId`)
+are disclosed in the `companyMemberships` section, and
+`buyer_company_email_challenges` is reported under the withheld `credentials`
+section, like `auth_tokens`, because a live code is a credential.
 
 ### 3.17 Tenancy is a column on every row
 
@@ -616,6 +627,12 @@ sellers may use the same SKU.
 security; the column stops a row being orphaned, not a seller reading another
 seller's row. Every read path takes the tenant from the verified session and
 filters on it. That is a backend rule, covered by tests.
+
+A **buyer company** is scoped the same way, with one difference: the company
+a buyer is acting for is not in their account but in their **session**
+(`sessions.buyerCompanyId`), and the membership behind it is re-read on every
+request. Carts, orders, addresses and preorders carry a nullable
+`buyerCompanyId`; `NULL` means "the person's own".
 
 ---
 
@@ -643,6 +660,7 @@ table maps every banner to its chapter here.
 | INTEGRATIONS, BULK IMPORT / EXPORT | [5.14](#514-operator-connector-bulk-import-and-export) | `integration_connections`, `import_jobs`, `export_jobs` |
 | ERP CONNECTIVITY | [5.15](#515-the-operators-erp-and-autopay) | `erp_connections`, `integration_events`, `customer_autopay_settings` |
 | BUYER ORGANISATIONS AND THEIR OWN ERP | [5.16](#516-buyer-organisations-and-their-own-erp) | `buyer_organizations`, `customer_erp_connections` |
+| BUYER COMPANIES (the last banner in the file) | [5.16a](#516a-buyer-companies) | `buyer_companies`, `buyer_company_members`, `buyer_company_checks`, `consent_records` |
 | SELLER HUB | [5.17](#517-seller-hub) | `seller_accounts`, `seller_offers`, `seller_order_groups` |
 | WHICH CARRIERS A SELLER MAY USE, HOW A SELLER'S OWN GOODS GET DELIVERED | [5.18](#518-seller-carriers-and-fulfilment-modes) | `seller_fulfilment_methods`, `seller_carrier_connections` |
 | LOGISTICS PARTNER PORTAL | [5.19](#519-logistics-partner-portal) | `logistics_partners`, `logistics_shipments` |
@@ -652,6 +670,7 @@ table maps every banner to its chapter here.
 | ENTERPRISE BULK PREORDER | [5.23](#523-enterprise-bulk-preorders) | `preorder_requests`, `preorder_offers` |
 | SELLER DOCUMENTS | [5.24](#524-seller-documents-invoices-and-packing-lists) | `seller_invoices`, `seller_packing_lists` |
 | STOREFRONT ASSISTANT | [5.25](#525-storefront-assistant-and-translations) | `assistant_conversations`, `product_translations` |
+| SUPPORT | [5.25a](#525a-support-tickets) | `support_tickets`, `support_ticket_events`, `support_ticket_attachments` |
 | DATA PROTECTION (GDPR) | [5.26](#526-data-protection-requests) | `data_requests` |
 | NOTIFICATIONS, CONSOLE NOTIFICATIONS, JOB QUEUE, AUDIT, SEQUENCES | [5.27](#527-machinery-outbox-console-bell-job-queue-audit-sequences) | `notification_outbox`, `admin_notifications`, `job_queue`, `audit_logs`, `number_sequences` |
 | DEMO CATALOGUE | [5.28](#528-demo-catalogue) | `demo_catalog_entries` |
@@ -664,6 +683,9 @@ almost every domain either feeds it or hangs off it.
 ```mermaid
 flowchart LR
     ID["Identity and access"] --> CUST["Customers and carts"]
+    ID --> BCO["Buyer companies"]
+    BCO --> CUST
+    BCO --> ORD
     CFG["Business configuration"] --> CAT["Catalogue"]
     CAT --> INV["Inventory and warehouses"]
     CAT --> PRICE["Currencies, prices, FX"]
@@ -832,8 +854,15 @@ erDiagram
   a `familyId`, so a stolen, re-used token revokes the whole family.
 - A rotation **copies the session's extra checks** onto the new row: the
   carrier portal's `mfaVerifiedAt`, and the Seller Hub's `sellerUnlockedAt`,
-  `sellerUnlockedForId` and `sellerLastActivityAt`. Before this, the Hub's
+  `sellerUnlockedForId` and `sellerLastActivityAt`, and the **buyer context**
+  (`buyerContextKind`, `buyerCompanyId`). Before this, the Hub's
   unlock was not copied, so every refresh closed the Hub.
+- Buyer context: `sessions.buyerContextKind` (`INDIVIDUAL` or `COMPANY`;
+  `NULL` means individual) and `sessions.buyerCompanyId` (foreign key to
+  `buyer_companies`, **`SetNull`**: a deleted company drops the session back
+  to individual rather than blocking the delete). Added by
+  `20261004090000_buyer_companies`. The server writes them; the browser never
+  does. See [5.16a](#516a-buyer-companies).
 - Seller Hub idle limit: `sellerLastActivityAt` (`DATETIME(3) NULL`, added by
   migration `20260929100000_seller_hub_idle_session`) is the time of the last
   deliberate Hub action, written at most every 30 seconds. When it is older than
@@ -857,9 +886,16 @@ inserted with the same `familyId`, and the first is marked `revokedAt` with
 
 ### 5.2 Business configuration and media
 
-**Purpose.** The settings that make one installation one business. Glovia is
+**Purpose.** The settings that make one installation one business. Gloviaa Mart is
 sold to companies that run it themselves, so nothing about the business is
 hard-coded: it lives in these rows.
+
+`displayName` is also what switches the storefront's wordmark on: the script
+name and the tagline appear only while it equals the product name,
+"Gloviaa Mart", exactly. Migration
+`20261007090000_rename_product_default_to_gloviaa_mart` is a data-only change
+for the rename: it sets `displayName` to "Gloviaa Mart" where it is exactly the
+old seeded default "Glovia", and touches no other value.
 
 | Model | Table | One row means |
 |---|---|---|
@@ -1070,6 +1106,13 @@ erDiagram
 - `CHECK`s: `basePriceMinor >= 0`, `minOrderQty >= 1`, `qtyIncrement >= 1`,
   `maxOrderQty` null or not below `minOrderQty`, `compareAtPriceMinor` null or
   not below the price.
+- `products.b2cMaxOrderQuantity` (nullable `INT`): the **B2C Maximum Order
+  Quantity** for the operator's own stock — the most units an Individual buyer
+  may buy of this product in one order, where no seller offer is involved. An
+  admin sets it; it is optional here. `NULL` means "not configured", which
+  means no ceiling. `chk_product_b2c_max_order_quantity` keeps it `NULL` or a
+  whole number from 1 to 1,000,000. It is a purchasing limit, never stock.
+  Migration `20261006090000_b2c_max_order_quantity`.
 - `categories.parentId` is `Restrict`: a category with children cannot be
   deleted. `categories.path` (for example `/medical/gloves/`) lets a subtree be
   found with one prefix search; its index is a 768-character prefix because the
@@ -1232,8 +1275,8 @@ of type `RESERVATION_COMMIT` with `quantityDelta = -1` is appended.
 ### 5.5 Customers, carts and saved lines
 
 **Purpose.** The buyer side before an order exists: the buyer's profile and
-addresses, the basket, things saved for later, and instructions left on a
-product.
+addresses, the basket, things saved for later, instructions left on a
+product, and reviews of products they received.
 
 | Model | Table | One row means |
 |---|---|---|
@@ -1244,6 +1287,7 @@ product.
 | [`CartItemPackaging`](reference/DATABASE-TABLES.md#model-cartitempackaging) | `cart_item_packaging` | the carton/pallet/container a line is ordered by ([5.20](#520-bulk-ordering-and-freight)) |
 | [`WishlistItem`](reference/DATABASE-TABLES.md#model-wishlistitem) | `wishlist_items` | "saved for later": a person, a product, a `variantKey`, a time. No quantity |
 | [`ProductInstruction`](reference/DATABASE-TABLES.md#model-productinstruction) | `product_instructions` | a note a shopper left on a product without buying it |
+| [`ProductReview`](reference/DATABASE-TABLES.md#model-productreview) | `product_reviews` | one buyer's review of one product they received: four 1–5 scores (quality, delivery, experience, support) and whether staff hid it |
 
 ```mermaid
 erDiagram
@@ -1258,6 +1302,9 @@ erDiagram
     coupons |o--o{ carts : "applied to"
     customer_profiles ||--o{ wishlist_items : "saves"
     customer_profiles ||--o{ product_instructions : "leaves"
+    customer_profiles ||--o{ product_reviews : "writes"
+    products ||--o{ product_reviews : "is reviewed in"
+    orders |o--o{ product_reviews : "qualifies"
     customer_profiles {
         string id PK
         string userId UK
@@ -1312,6 +1359,21 @@ erDiagram
         string productId FK
         string variantKey
     }
+    product_reviews {
+        string id PK
+        string customerProfileId FK
+        string productId FK
+        string orderId FK
+        int qualityRating "1-5"
+        int deliveryRating "1-5"
+        int experienceRating "1-5"
+        int supportRating "1-5"
+        enum status
+        string moderationReason
+    }
+    orders {
+        string id PK
+    }
     users {
         string id PK
     }
@@ -1330,7 +1392,9 @@ erDiagram
 ```
 
 **Enums.** `CartStatus`: `ACTIVE`, `CONVERTED` (became an order), `ABANDONED`.
-`AddressKind`: `BILLING`, `SHIPPING`, `BOTH`.
+`AddressKind`: `BILLING`, `SHIPPING`, `BOTH`. `ProductReviewStatus`:
+`PUBLISHED` (shown, counted in averages), `HIDDEN` (hidden by staff, with a
+reason the buyer is shown).
 
 **Rules.**
 
@@ -1340,6 +1404,20 @@ erDiagram
   the quantity. `chk_cart_item_qty_positive` keeps quantities above zero.
 - `uq_wishlist_item` and `uq_product_instruction` are both
   `(customerProfileId, productId, variantKey)`.
+- **Product reviews.** `uq_product_review (customerProfileId, productId)`: one
+  review per buyer per product; writing again replaces it.
+  `chk_product_review_ratings` holds each of the four scores to a whole number
+  from 1 to 5, because MariaDB 10.4 is not strict and would otherwise store a 7
+  from any path that skipped the API. The CHECK names no foreign-key column, so
+  the `ON UPDATE RESTRICT` rule (3.9) does not apply. A buyer may review only
+  with an order of their own containing the product in `DELIVERED` or
+  `RETURNED`; `orderId` records that order and is `SetNull` if the order ever
+  goes. Product and customer profile are `Cascade`; `moderatedByUserId` is
+  `SetNull`. The status changes only when staff hide or show a review — a buyer
+  editing a hidden review leaves it `HIDDEN`. Averages are never stored: they
+  are grouped on read over `ix_product_review_product (productId, status,
+  createdAt)`, so an edit, a hide or an erasure is reflected at once. Added in
+  `20261005090000_product_reviews`.
 - `cart_items.note` (500 characters) is the instruction for **one product**;
   it is copied to `order_items.noteSnapshot` because the basket is emptied the
   moment the order commits. `orders.customerNote` is for the whole delivery.
@@ -1347,6 +1425,15 @@ erDiagram
   `Restrict`.
 - `firstName` and `lastName` are nullable parts; `fullName` is the canonical
   name used on orders and invoices.
+- **One `ACTIVE` cart per (profile, buyer company).** `carts.buyerCompanyId`
+  is `NULL` for the person's own basket and holds the company for a company
+  basket, so somebody buying for themselves and for their employer has two
+  baskets, never one mixed one. This rule is kept by the cart service (it
+  looks the cart up by profile, company and status); there is no `UNIQUE`
+  index for it, because a `NULL` company would never collide.
+- `addresses.buyerCompanyId`: `NULL` is the person's address book; a value is
+  the company's. Both new columns are foreign keys with **`Restrict`** and are
+  indexed (`ix_cart_buyer_company`, `ix_address_buyer_company`).
 
 **Worked example: adding two sizes at once.** The storefront posts both lines
 together. In one transaction the server finds the buyer's `ACTIVE` cart (or
@@ -1402,6 +1489,7 @@ erDiagram
         json shippingAddressJson
         enum taxTreatment
         string fulfilmentQuoteId FK
+        enum buyerContextKind
         datetime placedAt
         datetime confirmedAt
     }
@@ -1417,6 +1505,8 @@ erDiagram
         decimal taxRatePercent
         bigint taxAmountMinor
         bigint lineTotalMinor
+        int b2cMaxOrderQuantityApplied
+        boolean b2cCompanyExemptionApplied
     }
     order_status_history {
         string id PK
@@ -1536,6 +1626,20 @@ cancellation requires the `order.cancel` permission and a reason.
 - `orders.customerProfileId` is `Restrict`; `order_items.orderId` is
   `Cascade`; `order_items.productId` is `Restrict` (a sold product cannot be
   deleted).
+- `orders.buyerCompanyId` (nullable, `Restrict`, indexed with `createdAt` as
+  `ix_order_buyer_company`): the buyer company the order was placed for, or
+  `NULL` for an individual's order. **A company with orders cannot be
+  deleted.** The customer profile is still the person who placed it.
+- `orders.buyerContextKind` (`ENUM('INDIVIDUAL','COMPANY')`, nullable): who
+  the order was placed as. `NULL` only on orders placed before migration
+  `20261006090000_b2c_max_order_quantity`.
+- `order_items.b2cMaxOrderQuantityApplied` (nullable `INT`) and
+  `order_items.b2cCompanyExemptionApplied` (`BOOLEAN NOT NULL DEFAULT FALSE`):
+  the B2C Maximum Order Quantity in force for this line's product at checkout
+  (`NULL` when none was configured), and whether an approved company placed
+  the order so the limit did not bind. Written once, never updated. They
+  describe the rule, not the company: nothing from a company's verification is
+  copied onto the order.
 - `order_status_history` is written in the same transaction as every status
   change.
 
@@ -1549,7 +1653,9 @@ this order (from `submitCheckout` in `backend/src/modules/orders/order.service.t
 2. Outside the transaction: the delivery and billing addresses are read and
    the cart is priced **against the delivery address** (EU VAT depends on
    it), and the chosen `fulfilment_quotes` row is re-checked.
-3. **One transaction begins.**
+3. **One transaction begins.** The `carts` row is locked and the B2C Maximum
+   Order Quantity is re-checked against the live limits and the live company
+   status, before any stock is reserved or any order row written.
 4. `number_sequences`: the `order:2026` row is incremented; the order gets
    `UB-2026-000124`.
 5. `orders`: one row, `status = PENDING_APPROVAL` if approval is needed,
@@ -2783,6 +2889,308 @@ if the order is above the policy's `approvalThresholdMinor`, a
 `customer_erp_approvals` row holds it. The worker sends the purchase order and
 writes a `customer_erp_order_links` row with the ERP's document number.
 
+### 5.16a Buyer companies
+
+**Purpose.** A **buyer company** is a registered business that buys here, as
+opposed to a person who does. A buyer applies for one, the worker checks it
+against official registries, and a member of staff approves or rejects it.
+Only an approved company may be bought for.
+
+Two design decisions shape the tables:
+
+1. **One identity, two contexts.** Nobody gets a second login to buy for
+   their employer. A buyer (`users.type = CUSTOMER`) keeps their one
+   `customer_profiles` row, which *is* the individual buyer profile. Buying
+   for a company is a **context** held on the session row
+   (`sessions.buyerContextKind`, `sessions.buyerCompanyId`) and re-checked
+   against `buyer_company_members` on every request. Every row that existed
+   before this chapter was written carries on as an individual's, with
+   nothing to backfill.
+2. **Not `buyer_organizations`.** That table ([5.16](#516-buyer-organisations-and-their-own-erp))
+   is the tenant for a buyer's own ERP: created silently, never verified,
+   one per person. A buyer company is a verified legal entity, may have
+   several members, and a person may belong to several. The two are kept
+   apart on purpose and have no link.
+3. **A link to a seller account, never a shared approval.** When the same
+   registered business also sells here, the application may be started from
+   that seller account (`buyer_companies.linkedSellerAccountId` →
+   `seller_accounts`, `ON DELETE SET NULL`, `ON UPDATE RESTRICT`,
+   `ix_buyer_company_linked_seller`). The link pre-fills the draft and shows
+   the reviewer the other half of the entity. Nothing reads the seller
+   account's status to decide the buyer company, or the other way round:
+   each keeps its own status, set only by its own state machine.
+
+| Model | Table | One row means |
+|---|---|---|
+| [`BuyerCompany`](reference/DATABASE-TABLES.md#model-buyercompany) | `buyer_companies` | one company application and, once approved, the company: its reference, status, legal details, business email, risk level and decision dates. Also the applicant's job title and `applicantRelationship` (a code: `DIRECTOR_OR_OFFICER`, `OWNER_OR_PARTNER`, `EMPLOYEE`, `AUTHORISED_AGENT`, `OTHER` - required at submission, checked by the service rather than an enum, so the list can grow without a migration), and the optional `linkedSellerAccountId` |
+| [`BuyerCompanyAddress`](reference/DATABASE-TABLES.md#model-buyercompanyaddress) | `buyer_company_addresses` | one of the company's four addresses (registered office, operating, billing, shipping), with an address **fingerprint** for duplicate spotting |
+| [`BuyerCompanyIdentifier`](reference/DATABASE-TABLES.md#model-buyercompanyidentifier) | `buyer_company_identifiers` | one tax or trade number (GSTIN, NIP, EU VAT, LEI...), or a declaration that it does not apply, with a reason |
+| [`BuyerCompanyLocation`](reference/DATABASE-TABLES.md#model-buyercompanylocation) | `buyer_company_locations` | a branch, plant or warehouse, with its own tax number (an Indian company has one GSTIN per state). Modelled for later; no screen writes it yet |
+| [`BuyerCompanyMember`](reference/DATABASE-TABLES.md#model-buyercompanymember) | `buyer_company_members` | one person's place in one company, with a company role and a status |
+| [`BuyerCompanyVerificationCase`](reference/DATABASE-TABLES.md#model-buyercompanyverificationcase) | `buyer_company_verification_cases` | one round of review (first submission, resubmission or re-verification): who is assigned, whether a second reviewer is needed, the first approval, the outcome |
+| [`BuyerCompanyCheck`](reference/DATABASE-TABLES.md#model-buyercompanycheck) | `buyer_company_checks` | what one registry or rule said, and when. Written once; a re-run is a new row |
+| [`BuyerCompanyDocument`](reference/DATABASE-TABLES.md#model-buyercompanydocument) | `buyer_company_documents` | one uploaded file: kind, review status, private storage key, type decided from its bytes, size, pages, SHA-256 hash, scan state |
+| [`BuyerCompanyInfoRequest`](reference/DATABASE-TABLES.md#model-buyercompanyinforequest) | `buyer_company_info_requests` | a reviewer's "please send us..." and the applicant's answer beside it |
+| [`BuyerCompanyReviewEvent`](reference/DATABASE-TABLES.md#model-buyercompanyreviewevent) | `buyer_company_review_events` | one timeline entry (status change, note, assignment, upload, view, check...), marked `APPLICANT` or `INTERNAL` |
+| [`BuyerCompanyStatusHistory`](reference/DATABASE-TABLES.md#model-buyercompanystatushistory) | `buyer_company_status_history` | one status change: from, to, reason, who |
+| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | one declaration one person made: purpose, text version, SHA-256 of the exact text, IP address, browser, time |
+| [`BuyerCompanyEmailChallenge`](reference/DATABASE-TABLES.md#model-buyercompanyemailchallenge) | `buyer_company_email_challenges` | one six-digit code sent to a business email: its HMAC hash, attempts, expiry |
+
+```mermaid
+erDiagram
+    buyer_companies ||--o{ buyer_company_addresses : "is at"
+    buyer_companies ||--o{ buyer_company_identifiers : "is identified by"
+    buyer_companies ||--o{ buyer_company_locations : "has"
+    buyer_companies ||--o{ buyer_company_members : "has"
+    users ||--o{ buyer_company_members : "belongs as"
+    buyer_companies ||--o{ buyer_company_verification_cases : "reviewed in"
+    buyer_company_verification_cases |o--o{ buyer_company_checks : "runs"
+    buyer_companies ||--o{ buyer_company_checks : "checked by"
+    buyer_companies ||--o{ buyer_company_documents : "proves with"
+    buyer_companies ||--o{ buyer_company_info_requests : "is asked"
+    buyer_companies ||--o{ buyer_company_review_events : "timeline"
+    buyer_companies ||--o{ buyer_company_status_history : "history"
+    users ||--o{ consent_records : "declares"
+    buyer_companies |o--o{ consent_records : "about"
+    buyer_companies ||--o{ buyer_company_email_challenges : "verifies email"
+    buyer_companies |o--o{ sessions : "context of"
+    buyer_companies |o--o{ carts : "basket for"
+    buyer_companies |o--o{ orders : "bought for"
+    buyer_companies |o--o{ addresses : "address book"
+    buyer_companies |o--o{ preorder_requests : "preorder for"
+    seller_accounts |o--o{ buyer_companies : "pre-filled"
+    buyer_companies {
+        string id PK
+        string applicationReference UK
+        enum status
+        int version
+        string registrationCountry
+        string registrationNumberNormalized
+        string registrationClaimKey UK
+        enum riskLevel
+        string createdByUserId
+        datetime archivedAt
+    }
+    buyer_company_identifiers {
+        string id PK
+        string companyId FK
+        string scheme
+        string valueNormalized
+        bool notApplicable
+        string claimKey UK
+    }
+    buyer_company_members {
+        string id PK
+        string companyId FK
+        string userId FK
+        enum role
+        enum status
+    }
+    buyer_company_verification_cases {
+        string id PK
+        string companyId FK
+        int round
+        enum state
+        string assignedReviewerId FK
+        bool requiresSecondReview
+        string firstApprovalById
+    }
+    buyer_company_checks {
+        string id PK
+        string companyId FK
+        string caseId FK
+        string provider
+        enum outcome
+    }
+    buyer_company_documents {
+        string id PK
+        string companyId FK
+        enum kind
+        enum status
+        string contentHash
+        enum scanState
+    }
+    buyer_company_status_history {
+        string id PK
+        string companyId FK
+        enum fromStatus
+        enum toStatus
+    }
+    consent_records {
+        string id PK
+        string userId FK
+        string companyId FK
+        enum purpose
+        string textHash
+    }
+    users {
+        string id PK
+    }
+```
+
+**Enums.**
+
+- `BuyerContextKind`: `INDIVIDUAL`, `COMPANY` (on `sessions`; `NULL` means
+  individual).
+- `BuyerCompanyStatus`: `DRAFT`, `EMAIL_VERIFICATION_PENDING`, `SUBMITTED`,
+  `AUTOMATED_CHECK_IN_PROGRESS`, `UNDER_REVIEW`, `MORE_INFORMATION_REQUIRED`,
+  `RESUBMITTED`, `APPROVED`, `REJECTED`, `SUSPENDED`,
+  `REVERIFICATION_REQUIRED`. Only `APPROVED` may buy.
+- `BuyerCompanyRole`: `OWNER` (the applicant starts here), `COMPANY_ADMIN`,
+  `BUYER`, `ORDER_APPROVER`, `FINANCE`, `VIEWER`. These are company roles, never
+  platform permissions. `BuyerCompanyMemberStatus`: `ACTIVE`, `SUSPENDED`,
+  `REMOVED` (the row stays for the trail).
+- `BuyerCompanyCheckOutcome`: `PASS`, `FAIL`, `INCONCLUSIVE`, `UNAVAILABLE`
+  (the source could not be reached - **never** a rejection),
+  `MANUAL_REQUIRED` (no source we may call; `sourceUrl` links the official
+  register), `SIGNAL` (for information, such as a duplicate).
+- `BuyerCompanyRiskLevel`: `NONE`, `LOW`, `ELEVATED`, `HIGH` - advisory only.
+- `BuyerCompanyDocumentKind`: `CERTIFICATE_OF_INCORPORATION`,
+  `REGISTRY_EXTRACT`, `TAX_REGISTRATION_CERTIFICATE`,
+  `PROOF_OF_REGISTERED_ADDRESS`, `AUTHORIZATION_LETTER`, `BUSINESS_LICENCE`
+  (added in `20261008090000_buyer_company_representative_and_seller_link`;
+  offered to all, required of none), `REPRESENTATIVE_IDENTITY` and
+  `OWNERSHIP_DECLARATION` (both only when a reviewer asked), `OTHER`. `BuyerCompanyDocumentStatus`: `PENDING_REVIEW`,
+  `ACCEPTED`, `REJECTED`, `SUPERSEDED`, `WITHDRAWN`. `BuyerCompanyScanState`:
+  `CLEAN`, `UNSCANNED` (development only).
+- `BuyerCompanyEventVisibility`: `INTERNAL` (never leaves the admin console),
+  `APPLICANT`.
+- `ConsentPurpose`: `ACCURACY_DECLARATION`, `BUSINESS_TERMS`,
+  `PRIVACY_NOTICE`, `AUTHORITY_TO_ACT` - one row each, never one tick for
+  all.
+- Also `BuyerCompanyEntityType`, `BuyerCompanyDomainStatus`,
+  `BuyerCompanyAddressKind`, `BuyerCompanyCaseTrigger`,
+  `BuyerCompanyCaseState`, `BuyerCompanyInfoRequestStatus`.
+
+**Lifecycle.** `buyer_companies.status` is changed **only** by
+`transitionCompany` (`backend/src/modules/buyer-companies/shared.ts`), after
+`assertBuyerCompanyTransition` (`backend/src/domain/buyer-company-state.ts`)
+allows the move - the same rule as order and schedule status. Each change
+writes, in **one transaction**, the new status, a
+`buyer_company_status_history` row, a `buyer_company_review_events` row and
+an `audit_logs` row. The actors are the applicant, a reviewer and the
+system; **only a reviewer can reach `APPROVED`**, and the system never
+approves or rejects. The full transition table is in `docs/PRD.md` §7.13.
+
+**Optimistic lock.** `buyer_companies.version` goes up by one on every status
+change. A reviewer's action carries the version they were looking at, and the
+update only happens `WHERE status = ? AND version = ?`. If somebody else
+decided first, the second action changes nothing and is refused with
+`BUYER_COMPANY_VERSION_CONFLICT`, rather than silently overwriting the first
+decision.
+
+**Append-only.** `buyer_company_status_history`, `buyer_company_review_events`
+and `buyer_company_checks` are only ever inserted. No code path updates or
+deletes a row, and a test enforces it: "the audit tables are append-only" in
+`backend/tests/unit/buyer-company-providers.test.ts` scans the source and fails
+the build on any update or delete of those tables. `consent_records` is
+append-only too; a withdrawal is a date (`withdrawnAt`), not a deletion. The one
+change ever made to a consent row is erasure blanking its IP address and user
+agent, which the same test allows.
+
+**The claim-key design: uniqueness is taken at approval, not at draft.**
+`buyer_companies.registrationClaimKey` (`COUNTRY:NUMBER`) and
+`buyer_company_identifiers.claimKey` (`COUNTRY:SCHEME:VALUE`) each have a
+`UNIQUE` index (`uq_buyer_company_registration_claim`,
+`uq_buyer_company_identifier_claim`) and stay **`NULL` until a reviewer
+approves** the company. MariaDB treats every `NULL` as distinct from every
+other, so any number of drafts and pending applications may name the same
+registration number - that is a **duplicate signal** for the reviewer, not a
+database error that would tell a second applicant "that company is already
+registered here". The approval writes the keys; if another approved company
+already holds one, the insert collides and the approval fails with
+`BUYER_COMPANY_ALREADY_CLAIMED`. Rejecting a company sets its keys back to
+`NULL`, releasing the claim. This is the "active slot" pattern of
+[3.4](#34-the-active-slot-a-nullable-unique-used-on-purpose): a unique index,
+not a check in code, so two reviewers approving twins at the same moment
+cannot both win.
+
+**Other rules the tables encode.**
+
+- `uq_buyer_company_reference`: `applicationReference` (such as
+  `BC-7K2M9Q4T`) is random, not sequential, and used once.
+- `uq_buyer_company_address_kind (companyId, kind)`: at most one address of
+  each kind.
+- `uq_buyer_company_identifier_scheme (companyId, scheme)`: one row per
+  scheme per company. `scheme` is a string checked in code
+  (`domain/buyer-company-identifiers.ts`), not an enum, because every new
+  market adds schemes. A row with `notApplicable = true` carries a
+  `notApplicableReason` and no value.
+- `uq_buyer_company_member (companyId, userId)`: a person is in a company
+  once. Unlike `buyer_organization_members`, a person may be in several
+  companies.
+- `uq_buyer_company_case_round (companyId, round)`: rounds are numbered once.
+- Duplicate lookups use plain indexes, never uniques:
+  `ix_buyer_company_registration`, `ix_buyer_company_name`
+  (`legalNameNormalized`), `ix_buyer_company_domain`,
+  `ix_buyer_company_address_fingerprint`, `ix_buyer_company_identifier_value`,
+  `ix_buyer_company_document_hash` (the same file under two companies).
+- `buyer_company_checks.resultJson` holds the registry's answer **after** the
+  fields verification does not need are dropped (bank accounts, home
+  addresses and named people from the Polish VAT whitelist are never stored).
+- Only hashes of email codes are stored (`codeHash`, HMAC).
+
+**What happens on delete.**
+
+| Relation | Action | Why |
+|---|---|---|
+| Every company child table (`addresses`, `identifiers`, `locations`, `members`, `verification_cases`, `checks`, `documents`, `info_requests`, `review_events`, `status_history`, `email_challenges`) -> `buyer_companies` | `Cascade` | Parts of one application |
+| `buyer_company_members.userId`, `consent_records.userId`, `buyer_company_email_challenges.userId` -> `users` | `Cascade` | The person's own rows. In practice a person is pseudonymised, never deleted |
+| `buyer_company_verification_cases.assignedReviewerId` -> `users` | `SetNull` | A departed reviewer leaves the case unassigned |
+| `buyer_company_checks.caseId`, `buyer_company_info_requests.caseId` -> cases | `SetNull` | Optional pointer |
+| `consent_records.companyId` -> `buyer_companies` | `SetNull` | The declaration stays as evidence |
+| `sessions.buyerCompanyId` -> `buyer_companies` | `SetNull` | The session falls back to individual |
+| `carts`, `orders`, `addresses`, `preorder_requests` `.buyerCompanyId` -> `buyer_companies` | **`Restrict`** | History and money: **a company with orders cannot be deleted** |
+
+Every relation also carries `ON UPDATE RESTRICT`
+([3.9](#39-check-constraints-and-the-on-update-restrict-rule)). A company is
+never hard-deleted in normal use: `archivedAt` is its soft delete. Columns
+that record who did something (`createdByUserId`, `uploadedByUserId`,
+`reviewedByUserId`, `firstApprovalById`, `actorUserId`, `invitedByUserId`,
+`triggeredByUserId`) hold the user's id by value, with no foreign key.
+
+**Columns added to existing tables** (all nullable, all meaning "individual"
+when `NULL`, so no existing row changed):
+
+| Table | Column | Foreign key | Index |
+|---|---|---|---|
+| `sessions` | `buyerContextKind`, `buyerCompanyId` | `SetNull` | - |
+| `carts` | `buyerCompanyId` | `Restrict` | `ix_cart_buyer_company (buyerCompanyId, status)` |
+| `orders` | `buyerCompanyId` | `Restrict` | `ix_order_buyer_company (buyerCompanyId, createdAt)` |
+| `addresses` | `buyerCompanyId` | `Restrict` | `ix_address_buyer_company (buyerCompanyId, archivedAt)` |
+| `preorder_requests` | `buyerCompanyId` | `Restrict` | `ix_preorder_request_buyer_company` |
+
+**The per-context cart rule.** There is one `ACTIVE` cart per (profile,
+company): the person's own basket has `buyerCompanyId = NULL`, and each
+company basket has its company. The cart service enforces it by looking the
+cart up on all three; no `UNIQUE` index can, because the `NULL` company would
+never collide.
+
+**Isolation is a backend rule.** As in [3.17](#317-tenancy-is-a-column-on-every-row),
+the database stops a row being orphaned, not a person reading another
+company's orders. Every read takes the company from the verified session and
+filters on it; a `BUYER` member sees only the company orders they placed, and
+the other roles see all of them.
+
+**Worked example.** Anna signs in on the Company tab. She has no company, so
+the session stays individual. She starts an application: a `buyer_companies`
+row (`DRAFT`, `version` 0) and a `buyer_company_members` row (`OWNER`). Each
+"Save and continue" writes addresses, identifiers (a GSTIN; "not applicable"
+for IEC, reason `NOT_REGISTERED`) and documents. Her business email differs
+from her account email, so a `buyer_company_email_challenges` row is written
+and consumed. On submit, four `consent_records` rows are written, the status
+moves to `SUBMITTED` (history row, event, audit), a verification case (round
+1) opens and a `buyer_company.checks` job is queued. The worker moves it to
+`AUTOMATED_CHECK_IN_PROGRESS`, writes one `buyer_company_checks` row per
+source (the GST portal is `MANUAL_REQUIRED` with its link), sets `riskLevel`
+to `LOW` and moves it to `UNDER_REVIEW`. A reviewer approves: the status
+becomes `APPROVED`, `registrationClaimKey` and each identifier's `claimKey`
+are written, the case closes with outcome `APPROVED`, and the verified
+billing and shipping addresses are copied into `addresses` with her company's
+`buyerCompanyId`. Anna switches context; her session row now carries
+`buyerContextKind = COMPANY` and the company id, and her next basket is a new
+`carts` row for the company.
+
 ### 5.17 Seller Hub
 
 **Purpose.** Third-party sellers on the marketplace. Two decisions shape it:
@@ -2866,6 +3274,7 @@ erDiagram
         bigint priceMinor
         string currency
         int minimumOrderQuantity
+        int b2cMaxOrderQuantity
     }
     seller_price_tiers {
         string id PK
@@ -3074,6 +3483,18 @@ The listing-draft lifecycle is in the same file (`LISTING_TRANSITIONS`).
 - `uq_seller_offer_product (sellerAccountId, productId, variantKey)`: one offer
   per seller per SKU. `uq_seller_offer_sku (sellerAccountId, sellerSku)`: the
   seller's own SKU is unique **within that seller**.
+- `seller_offers.b2cMaxOrderQuantity` (nullable `INT`): the seller's **B2C
+  Maximum Order Quantity** — the most units of this seller's product an
+  Individual buyer (or anybody buying for a company that is not approved) may
+  buy in one order. The listing sets one figure and every offer it produced
+  carries it. It counts **this seller's** units of the product across every
+  variant, because several sellers share one `products` row.
+  `chk_seller_offer_b2c_max_order_quantity` keeps it `NULL` or a whole number
+  from 1 to 1,000,000. `NULL` means "not configured" (every offer that existed
+  before migration `20261006090000_b2c_max_order_quantity`): no ceiling, and
+  Seller Hub flags the listing. It never touches `seller_inventory`. Each
+  change writes a `seller_audit_logs` row (`seller.offer.b2c_limit_changed`)
+  with the old and new value.
 - `uq_seller_inventory_offer_location (offerId, locationId)`;
   `uq_seller_movement_idempotency (sellerAccountId, idempotencyKey)`.
 - `uq_seller_order_group (orderId, sellerAccountId)` and
@@ -3615,7 +4036,7 @@ both are copied to `order_items` and `order_item_packaging`.
 
 **Purpose.** A seller's own books. TallyPrime is a Windows desktop program
 whose integration port has **no authentication**, so no URL is ever safe to
-call. Instead the seller runs the **Glovia Tally Bridge** beside Tally; it is
+call. Instead the seller runs the **Gloviaa Mart Tally Bridge** beside Tally; it is
 paired with a one-time code and connects **out** to this API to claim work.
 This is the third ERP feature and shares no table with the other two.
 
@@ -4009,6 +4430,10 @@ Capacity is held in `PAYMENT_REQUIRED`, `CONFIRMED`, `IN_PRODUCTION` and
 names a **terms hash**, so it cannot land on a revision the seller has since
 superseded. The preorder becomes `CONFIRMED` only inside the transaction in
 which the signed payment webhook confirms its order - they cannot disagree.
+`preorder_requests.buyerCompanyId` (nullable, `Restrict`,
+`ix_preorder_request_buyer_company`) is the buyer company the preorder is for,
+or `NULL` for an individual; the order made from a confirmed company preorder
+carries the same company.
 
 **Worked example.** A buyer asks for 40,000 units by March. A
 `preorder_requests` row (`SUBMITTED`, with `policySnapshotJson`) and a history
@@ -4362,6 +4787,156 @@ erDiagram
 own soft delete. Conversations are swept after
 `RETENTION_ASSISTANT_CONVERSATION_DAYS`.
 
+### 5.25a Support tickets
+
+**Purpose.** A **support ticket** is a written request for help that a
+signed-in person sends from the Support page - a buyer or seller from the
+storefront or Seller Hub, a carrier's member from the logistics portal - and
+everything that happens to it afterwards. It is between the sender and the
+operator's staff only. The schema banner is `SUPPORT`. Migrations
+`20261009090000_support_tickets` and `20261010090000_support_ticket_attachments`.
+
+| Model | Table | One row means |
+|---|---|---|
+| [`SupportTicket`](reference/DATABASE-TABLES.md#model-supportticket) | `support_tickets` | one ticket: its reference, who sent it and for whom, the topic, subject and first message, the related order, status, priority, assignee and clocks |
+| [`SupportTicketEvent`](reference/DATABASE-TABLES.md#model-supportticketevent) | `support_ticket_events` | one thing that happened to a ticket: a message from the sender, a staff reply, an internal note, or a change of status, priority or assignee |
+| [`SupportTicketAttachment`](reference/DATABASE-TABLES.md#model-supportticketattachment) | `support_ticket_attachments` | one file the sender attached: private storage key, file name, type, size, SHA-256 and scan state |
+
+```mermaid
+erDiagram
+    users ||--o{ support_tickets : "sends"
+    customer_profiles |o--o{ support_tickets : "storefront or Seller Hub sender"
+    buyer_companies |o--o{ support_tickets : "acting for"
+    seller_accounts |o--o{ support_tickets : "acting for"
+    logistics_partners |o--o{ support_tickets : "acting for"
+    orders |o--o{ support_tickets : "about"
+    users |o--o{ support_tickets : "assigned to"
+    support_tickets ||--o{ support_ticket_events : "history"
+    support_tickets ||--o{ support_ticket_attachments : "files"
+    support_tickets {
+        string id PK
+        string reference UK
+        string requesterUserId FK
+        enum requesterRole
+        enum source
+        string customerProfileId FK
+        string buyerCompanyId FK
+        string sellerAccountId FK
+        string logisticsPartnerId FK
+        string relatedOrderId FK
+        enum status
+        enum priority
+        string assignedAdminId FK
+        datetime lastActivityAt
+    }
+    support_ticket_events {
+        string id PK
+        string ticketId FK
+        enum kind
+        bool visibleToRequester
+        string actorUserId FK
+        bool actorIsRequester
+        string body
+    }
+    support_ticket_attachments {
+        string id PK
+        string ticketId FK
+        string storageKey
+        enum kind
+        int byteSize
+        string contentHash
+        enum scanState
+    }
+```
+
+**Enums.** `SupportTicketStatus`: `OPEN`, `IN_PROGRESS`,
+`WAITING_FOR_CUSTOMER`, `RESOLVED`, `CLOSED`. `SupportTicketPriority`: `LOW`,
+`NORMAL` (the default), `HIGH`, `URGENT` - set by staff only.
+`SupportTicketCategory`: `ORDERS`, `PAYMENTS`, `PREORDERS`, `PRODUCTS`,
+`SELLER_HUB`, `LOGISTICS`, `COMPANY_VERIFICATION`, `ERP_INTEGRATION`,
+`ACCOUNT_SECURITY`, `OTHER`. `SupportRequesterRole`: `BUYER`,
+`COMPANY_BUYER`, `SELLER`, `LOGISTICS_PARTNER`. `SupportTicketSource`:
+`STOREFRONT`, `SELLER_HUB`, `LOGISTICS_PORTAL`. `SupportTicketEventKind`:
+`CREATED`, `REQUESTER_MESSAGE`, `STAFF_REPLY`, `INTERNAL_NOTE`,
+`STATUS_CHANGED`, `PRIORITY_CHANGED`, `ASSIGNED`. `SupportAttachmentKind`:
+`IMAGE`, `VIDEO`, `DOCUMENT`. `SupportAttachmentScanState`: `CLEAN`,
+`SCANNER_UNCONFIGURED` (development only). Every enum is append-only, because
+MariaDB stores an enum by position.
+
+**Lifecycle.** `OPEN` (sent, nobody has picked it up) → `IN_PROGRESS`,
+`WAITING_FOR_CUSTOMER`, `RESOLVED` or `CLOSED`. `IN_PROGRESS` →
+`WAITING_FOR_CUSTOMER`, `RESOLVED` or `CLOSED`. `WAITING_FOR_CUSTOMER` →
+`IN_PROGRESS`, `RESOLVED` or `CLOSED`. `RESOLVED` → `IN_PROGRESS` or `CLOSED`.
+`CLOSED` is final, and nothing moves back to `OPEN`. The status changes only
+through `backend/src/domain/support-ticket-state.ts`; no service writes
+`status` directly. A staff reply on an `OPEN` ticket moves it to
+`IN_PROGRESS` and, if nobody holds it, sets `assignedAdminId` to the replier.
+The sender writing on `WAITING_FOR_CUSTOMER` or `RESOLVED` moves it to
+`IN_PROGRESS`. `resolvedAt` and `closedAt` record when; `lastActivityAt` is
+the inbox's sort order. Each change also writes a `support_ticket_events` row.
+See the PRD, section 7.15.
+
+**Who can read it.** Every read by the sender is filtered by
+`requesterUserId` and `source` - plus `sellerAccountId` in Seller Hub and
+`logisticsPartnerId` in the portal. `buyerCompanyId`, `sellerAccountId` and
+`logisticsPartnerId` are **context, not access**: they tell staff whom the
+sender was acting for and grant nobody else a read. Colleagues at the same
+company or seller do not see each other's tickets.
+
+**`visibleToRequester` is the privacy line.** It is decided once, when the
+event row is written: a `STAFF_REPLY` and a `STATUS_CHANGED` are visible; an
+`INTERNAL_NOTE`, a `PRIORITY_CHANGED` and an `ASSIGNED` are not. Every read
+the sender can make filters on it, so no screen has to remember which kinds
+are private. `actorIsRequester` is kept even when `actorUserId` is cleared, so
+the thread still reads the right way round.
+
+**Snapshots, not joins.** `nameSnapshot`, `emailSnapshot` and
+`companyNameSnapshot` are copied from the session when the ticket is sent. A
+person who later changes their email is still the person who wrote it; the
+console shows the account's current email next to it when they differ.
+`relatedOrderNumber` is kept even if the order row goes.
+
+**Constraints.** `uq_support_ticket_reference` makes the reference
+(`SR-XXXX-XXXX`, random, not a counter) unique. There are **no `CHECK`
+constraints** on these tables: the 5,000-character message limit, the
+ten-files-per-ticket limit and the daily sending cap are held by the API.
+`ix_support_ticket_requester (requesterUserId, createdAt)` serves the
+sender's own list and the daily cap; `ix_support_ticket_status (status,
+lastActivityAt)` serves the inbox; `ix_support_ticket_assignee
+(assignedAdminId, status)` serves "Assigned to me".
+
+**Foreign keys.** `requesterUserId` → `users` and `customerProfileId` →
+`customer_profiles` are `CASCADE`: erasing a person removes their tickets.
+`buyerCompanyId`, `sellerAccountId`, `logisticsPartnerId`, `relatedOrderId`
+and `assignedAdminId` are `SET NULL`. Events and attachments cascade from the
+ticket; their `actorUserId` and `uploadedByUserId` are `SET NULL`.
+`customerProfileId` is `NULL` for a logistics-portal ticket, because those
+people are not customers.
+
+**Files.** The type is decided from the bytes (images, MP4/WebM/MOV video,
+PDF; no Office documents or archives). A file is scanned before it is
+stored, kept under the private prefix at a random `storageKey`, and read only
+through a five-minute, single-use link for one signed-in person. Files are
+listed on the ticket by when they arrived, not pinned to a message.
+
+**Personal data.** Disclosed in the Art. 15 bundle as `supportTickets`: the
+sender's tickets, the events with `visibleToRequester = true`, and the file
+list (name, type, size). Internal notes, priority and assignment are withheld
+under the existing `internalNotes` reason. Art. 17 erasure deletes the
+person's tickets (their events and attachment rows cascade) and, after the
+transaction commits, the stored files. The audit trail records the action
+(created, status, priority, assigned, replied, note added, attachment uploaded
+or downloaded), never the message text or a file name.
+
+**Worked example.** A buyer sends a ticket about a late order with one photo:
+one `support_tickets` row (`OPEN`, `NORMAL`, `relatedOrderId` set after the
+order was checked to be theirs), one `CREATED` event, then one
+`support_ticket_attachments` row once the upload is scanned. Staff reply: a
+`STAFF_REPLY` event (visible), a `STATUS_CHANGED` event `OPEN` →
+`IN_PROGRESS` (visible) and an `ASSIGNED` event (not visible), and
+`assignedAdminId` is the replier. Staff raise the priority: a
+`PRIORITY_CHANGED` event the buyer never sees.
+
 ### 5.26 Data protection requests
 
 **Purpose.** GDPR requests: a copy of my data (Art. 15/20) or erase it
@@ -4619,6 +5194,13 @@ reaper returns jobs whose `leaseExpiresAt` has passed (`ix_job_lease_reaper`).
 Jobs can be enqueued **inside** a business transaction, so the job exists if
 and only if the change committed.
 
+An example is `buyer_company.checks` (job type `BUYER_COMPANY_CHECKS`), queued
+when a company application is submitted or resubmitted. The worker moves the
+company to `AUTOMATED_CHECK_IN_PROGRESS`, writes one `buyer_company_checks` row
+per registry or rule, sets `riskLevel`, and always moves it on to
+`UNDER_REVIEW` - never to a decision. A registry that is down is recorded as
+`UNAVAILABLE`; the job does not fail because of it.
+
 ### 6.5 Outboxes and inboxes
 
 The same two patterns appear everywhere something leaves or enters the
@@ -4660,6 +5242,14 @@ Four kinds, and they are not interchangeable:
 
 The three bells store a `kind` and values, never finished text, so each reader
 sees it in their own language.
+
+Buyer companies use two of these: the nine applicant emails (submitted, email
+code, more information required, approved, rejected, suspended,
+re-verification required, restored, document refused) go through
+`notification_outbox` in the applicant's language, and staff get
+`admin_notifications` of kind `BUYER_COMPANY_SUBMITTED` and
+`BUYER_COMPANY_RESPONDED`. There is no storefront bell table; the buyer's
+notifications page reads what the outbox sent.
 
 ---
 
@@ -4756,6 +5346,11 @@ running:
 | 3 - use | new code reads and writes it; make it `NOT NULL` once full |
 | 4 - contract | drop the old column in a **later** release |
 
+`20261004090000_buyer_companies` is an example of an expand-only migration:
+it creates the new tables and adds only nullable `buyerCompanyId` columns to
+existing ones, where `NULL` means "individual", so nothing needs a backfill
+and old code keeps working.
+
 Never rename a column in one step (it is a drop and an add, and running code
 breaks in between). **Code rolls back; migrations do not** - undoing a
 migration is a restore (`docs/DATABASE-RECOVERY.md`).
@@ -4794,8 +5389,10 @@ their `UPDATE`/`DELETE` grants. The full order is in
 | What they bought | `orders` (address snapshots, notes), `order_items`, `invoices` (buyer JSON), `fulfilment_quotes`, `coupon_redemptions`, `preorder_requests` |
 | Payment | `customer_payment_methods` (gateway token, brand, last four - no card number), `customer_autopay_settings` (consent, hashed IP), `payment_provider_customers` (the Stripe Customer id; exported under the withheld `credentials` section, deleted at Stripe on erasure) |
 | Baskets and lists | `carts`, `cart_items`, `wishlist_items`, `product_instructions`, `recurring_schedules` |
-| Conversations | `assistant_conversations` (visitor name, phone, email), `assistant_messages` |
-| Memberships | `buyer_organization_members`, `seller_members`, `logistics_partner_users` |
+| Reviews | `product_reviews` (their scores on products they received, published under a first name and initial) |
+| Conversations | `assistant_conversations` (visitor name, phone, email), `assistant_messages`, `support_tickets` (name and email snapshots, their messages), `support_ticket_events`, `support_ticket_attachments` (their files) |
+| Memberships | `buyer_organization_members`, `buyer_company_members`, `seller_members`, `logistics_partner_users` |
+| Declarations and verification | `consent_records` (purpose, text hash, IP, user agent), `buyer_company_email_challenges` (hashed code), the company's own rows (`buyer_companies` business email and phone, `buyer_company_documents`, `buyer_company_identifiers` - a sole proprietor's PAN is personal data) |
 | Messages sent | `notification_outbox` (recipient, full body) |
 | Trails | `audit_logs`, `seller_audit_logs`, `logistics_audit_logs`, `data_requests` |
 | Movement | `logistics_location_pings` (a driver's position during a trip), `logistics_shipments` (delivery contacts) |
@@ -4811,6 +5408,16 @@ table with a `userId`, `customerProfileId`, `actorUserId`, `subjectUserId` or
 a reason. **When you add such a table, the test fails until you decide.** Then
 ask the question the test cannot: does erasure need to touch it?
 
+The `companyMemberships` section holds the person's buyer-company
+memberships and their own `consent_records`, and, for a company they manage
+(`OWNER` or `COMPANY_ADMIN`), the application details, identifiers,
+addresses, the applicant-visible timeline and the status history. Internal
+review notes are never exported.
+`buyer_company_email_challenges` is reported under the withheld `credentials`
+section. The company's own rows (addresses, identifiers, documents, checks)
+are keyed on the company, not the person, so the completeness test does not
+see them.
+
 ### Erasure (Art. 17)
 
 Staff decide; `backend/src/modules/privacy/erasure.service.ts` carries it out
@@ -4820,6 +5427,23 @@ buyer's name and address for six to ten years - which the `Restrict` foreign
 keys on orders make structural. An unpaid order or open return means "not
 yet". Every decision is recorded in `audit_logs` and `data_requests`, which
 survive the erasure.
+
+Product reviews are **deleted**, not pseudonymised: an anonymised review would
+still be that person's opinion inside a product's average. The export carries
+them under `productReviews`, including the reason for any that staff hid.
+
+Support tickets are **deleted** too: the person's `support_tickets` rows go,
+their events and attachment rows cascade, and the stored files are removed
+after the transaction commits. The export carries them under
+`supportTickets`, without internal notes, priority or assignment.
+
+For buyer companies, erasure marks the person's `buyer_company_members` rows
+`REMOVED` (so the company's record of who applied still reads), sets
+`ipAddress` and `userAgent` to `NULL` on their `consent_records` (the
+declarations stay as evidence that they were made), and deletes their
+`buyer_company_email_challenges`. The `buyer_companies` row and its children
+stay: they belong to the business and may be under retention. Whether that
+is right for a given deployment is a legal question for the operator.
 
 ### Retention sweeps
 
@@ -4977,6 +5601,10 @@ row in `business_profile` or another setting.
 | **Archive** | Hide a row from ordinary reads by setting `archivedAt`, instead of deleting it |
 | **`assertTransition`** | The function that decides whether an order may move from one status to another |
 | **Base currency** | The currency with `currencies.isBase = true`; product base prices are in it |
+| **Buyer company** | A registered business a buyer buys for, verified by staff (`buyer_companies`, [5.16a](#516a-buyer-companies)). Not a buyer organisation |
+| **Buyer context** | Whether a session buys as the person or for one of their companies (`sessions.buyerContextKind`, `buyerCompanyId`) |
+| **Claim key** | A `UNIQUE` column that stays `NULL` until a company is approved, so only one approved company can hold a registration number or identifier |
+| **Optimistic lock** | A `version` column checked in the `UPDATE`'s `WHERE`, so a second, stale change is refused instead of overwriting the first |
 | **`CHECK` constraint** | A rule the database enforces on every row, such as "paid never exceeds total" |
 | **Consignment** | One physical load being carried: a `logistics_shipments` row |
 | **Credit note** | A document that cancels or reduces an issued invoice; invoices are never edited |

@@ -1,6 +1,6 @@
 <div align="center">
 
-# Glovia
+# Gloviaa Mart
 
 **A self-hosted B2B sourcing and ordering platform.**
 
@@ -32,7 +32,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Development sign-ins](#development-sign-ins) | Seeded accounts for each surface |
 | [What each surface does](#what-each-surface-does) | Storefront, Seller Hub, console, carrier portal |
 | [Role dashboards](#role-dashboards) | The ring, the figures and the AI panel each role opens on |
-| [Configuration](#configuration) | Environment, origins, sign-in location, self-registration |
+| [Configuration](#configuration) | Environment, origins, sign-in location, self-registration, buyer companies, product reviews, support tickets |
 | [Markets, currencies and prices](#markets-currencies-and-prices) | Opening a market, and keeping converted prices current |
 | [Payments](#payments) | Razorpay and Stripe, and the live-key guard |
 | [Languages](#languages) | Eight languages, and how to add or translate one |
@@ -40,6 +40,10 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Buying by the carton, the pallet or the container](#buying-by-the-carton-the-pallet-or-the-container) | Bulk packaging, freight quotes, and the base-unit rule |
 | [Bulk preorders](#bulk-preorders) | Request, seller answer, buyer confirmation, and one order |
 | [Preorder chat](#preorder-chat) | Buyers ask your team live from the product page; the Preorder Chats inbox; proposals into the preorder form |
+| [Individual and company buyers](#individual-and-company-buyers) | Buying as yourself or for a verified company; the application, the registry checks and the Company verification review console |
+| [The individual purchase limit (B2C Maximum Order Quantity)](#the-individual-purchase-limit-b2c-maximum-order-quantity) | The most units one Individual buyer may buy of a seller's product in one order; approved companies are exempt |
+| [Product reviews](#product-reviews) | Buyers who received a product score quality, delivery, experience and support; stars on every card; hiding a review with a reason |
+| [Support tickets](#support-tickets) | Buyers, sellers and carriers raise a ticket from their account; the console's Tickets inbox; private threads and files |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
 | [Quantity prices and the bulk-savings popover](#quantity-prices-and-the-bulk-savings-popover) | Price bands per piece, charged in the basket and shown on the product page |
 | [A seller's own accounting system: TallyPrime](#a-sellers-own-accounting-system-tallyprime) | The bridge, what "Connected" means, and what posts |
@@ -56,7 +60,7 @@ A company sells to other companies, and this software runs everything from the
 product page to the invoice: catalogue, stock, pricing per market, checkout,
 payment, fulfilment, returns and the audit trail behind all of it.
 
-**The product is called Glovia. UBOSS is the company behind it**, and every
+**The product is called Gloviaa Mart. UBOSS is the company behind it**, and every
 surface that carries the brand carries the attribution under it: **Powered by
 UBOSS**. It was called *UBOSS Sourcing* until the rename, and that name is gone
 from every screen a customer, a member of staff or a carrier reads.
@@ -71,27 +75,28 @@ part of the branding worth being precise about:
 
 | Name | What it is | Where it comes from |
 |---|---|---|
-| **Glovia** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
-| **The Way to the World** | The product's tagline, under the wordmark | the same module |
+| **Gloviaa Mart** | The product — this software | `apps/*/src/lib/brand.ts`, a constant, one copy per application |
+| **Gloviaa** | The one-word name — the label on the greeting page's globe, and the storefront header on a phone | the same module (`PRODUCT_SHORT_NAME`) |
+| **The Way to the Global Sourcing** | The product's tagline, under the wordmark | the same module |
 | **Powered by UBOSS** | The attribution — who makes it; small print in the storefront footer and on the console and portal sign-in screens | the same module |
 | Your own business name | Whoever is running this deployment | Settings → Business profile, published on `GET /api/v1/config` as `business.displayName` and as `marketplace.displayName` (the second is never replaced by a seller's name on a seller's shop front) |
 
 Your customers read **your** name in the header, the footer, the browser tab,
 your e-mails, your invoices and the payment sheet they pay through; your staff
 and your carriers read it in their authenticator apps and on every screen that
-says who runs the marketplace. Glovia is the name of the software you are
+says who runs the marketplace. Gloviaa Mart is the name of the software you are
 running; it never stands in for the name of the business running it. A fresh
-install shows "Glovia" there only until you fill in a business profile, because
+install shows "Gloviaa Mart" there only until you fill in a business profile, because
 there is no other honest thing to put in a header before you have.
 
 None of the brand strings is translated. A name is a fact rather than a string,
 the tagline is a brand asset, and `Powered by UBOSS` is a fixed attribution
-lockup, so all three read identically in all eight languages. The word "Glovia"
+lockup, so all three read identically in all eight languages. The word "Gloviaa Mart"
 wherever it is the brand is set in its own bundled script face, Dancing
 Script Bold, and so is the tagline under it, so both look the same on every
 device and in all three applications; on a
 deployment with its own business name, that name is set in the ordinary face
-and carries no Glovia tagline.
+and carries no Gloviaa Mart tagline.
 
 **Inside, UBOSS is unchanged and that is deliberate.** Package names, the
 database, Prisma models, migration history, API routes, cookie names, session
@@ -467,6 +472,29 @@ panel beside it and nothing underneath. Choosing a slice singles that group out
 and narrows what the panel is asked about, and the period and the selection are
 both in the URL, so a view is a link somebody can send.
 
+**A buyer can buy as themselves or for a company.** The sign-in page has two
+tabs, **Individual** and **Company**. A company is applied for in seven steps,
+checked against official registries where they have a free API, and approved
+by a person in the console. The **account menu** switches between buying as
+yourself and buying for a company, and the basket, orders, addresses and
+preorders follow the switch. A **banner** under the header says when the
+company is not approved yet. Until it is, its members can fill a basket but
+cannot check out, pay or confirm a preorder for it. See
+[Individual and company buyers](#individual-and-company-buyers).
+
+**An Individual buyer can be held to a per-order limit.** Under the quantity
+box the product page says **Individual purchase limit: N units** when the
+seller has set one. Asking for more opens a dialog offering a company account
+or **Reduce to N**, and a basket already over it is kept but cannot check out.
+An approved company is not held to it. See
+[The individual purchase limit](#the-individual-purchase-limit-b2c-maximum-order-quantity).
+
+**A signed-in buyer can raise a support ticket.** The **Support** page
+(`/support`, from the headset in the header, the account menu or the footer)
+shows your published contacts and a **Raise a ticket** form; **Account →
+Support** lists the buyer's tickets and your team's replies. An order has
+**Contact support about this order**. See [Support tickets](#support-tickets).
+
 Optionally the customer's own ERP can collect orders and post back receipts.
 
 </details>
@@ -494,6 +522,11 @@ Instructions shoppers left on products this seller sells, without ordering them,
 grouped by product at `/seller/instructions` and repeated on each listing.
 Read-only — they are the buyer's own words — and scoped to products the seller
 actually lists.
+
+**Support** in the Hub's menu raises a ticket with the marketplace on the
+seller's behalf and lists the tickets that person raised from the Hub. A
+colleague at the same seller does not see them. See
+[Support tickets](#support-tickets).
 
 **Selling shares the account somebody buys with, and the Hub has its own
 password.** One email, one identity, one order history — and a second secret in
@@ -626,6 +659,13 @@ Withdrawing a combination somebody has bought archives it instead of deleting
 it. Photographs save as they are uploaded rather than with the form, and only
 the seller who described the product may change them — several sellers can
 share one catalogue entry.
+
+**Each listing carries a B2C Maximum Order Quantity.** It is the most units an
+Individual buyer may buy of it in one order, set in the wizard and on *Edit*
+(1 to 1,000,000, not below the listing's minimum). A new listing cannot go for
+review without it; older listings show **B2C limit not configured** with a
+link to set it. Every change is audited. See
+[The individual purchase limit](#the-individual-purchase-limit-b2c-maximum-order-quantity).
 
 **Pausing is how a live listing is edited.** Pause takes it out of search and
 out of baskets, keeps every order already placed moving through fulfilment
@@ -762,6 +802,22 @@ then the people inside them, each person badged with every account they belong
 to. It is read-only: every decision still happens on the screen that owns it.
 Sellers and buyers need `customer.read`, carriers `logistics.read`, and
 somebody holding one of the two sees only that half.
+
+**Company verification** (in the navigation after Customers) is where a person
+decides a buyer's company application. A queue with counts per status,
+filters and search (the last filters used are remembered in that browser); and a detail page with every answer, the
+registry results, duplicate flags, the risk level, the documents, requests to
+the applicant, internal notes and the full history. From there a reviewer
+approves, rejects with a reason, asks for more information, suspends or asks
+for re-verification. It needs `buyer_company.read`, and deciding needs
+`buyer_company.review`. See
+[Individual and company buyers](#individual-and-company-buyers).
+
+**Support → Tickets** is where staff answer the tickets buyers, sellers and
+carriers raise: an inbox that opens on the tickets needing work, and a ticket
+page with the thread, internal notes, files, status, priority and assignment.
+It needs `support_ticket.view`, and answering needs `support_ticket.reply`. See
+[Support tickets](#support-tickets).
 
 **Warehouses has three views.** *Our warehouses* is the screen as it has always
 been — the buildings this deployment runs, on a map with a search, filters and
@@ -909,6 +965,11 @@ out from the carrier's vehicles, drivers and published rates, never typed in,
 and integration lines say "Connected" only once a real success has been
 recorded. Carriers cannot widen their own regions or capabilities, and there
 are no bank details, because the system does not pay carriers.
+
+**Support.** Every member of a carrier, drivers included, can raise a ticket
+with the marketplace from **Support** in the portal and follow its replies
+there. A ticket is private to the person who raised it. See
+[Support tickets](#support-tickets).
 
 Live vehicle tracking is not part of this release, and nothing in the interface
 suggests otherwise. Where a driver's device has reported a position the last
@@ -1251,6 +1312,64 @@ refusal must carry a reason, which the seller reads word for word. Accepting,
 refusing and opening one are all recorded — on the operator's audit trail,
 where an auditor asks who accepted a certificate and when, and on the seller's,
 where the marketplace appears as a role rather than as a named member of staff.
+
+</details>
+
+<details>
+<summary><b>Buyer companies</b></summary>
+
+What these do is explained in
+[Individual and company buyers](#individual-and-company-buyers).
+
+| Variable | What it does |
+|---|---|
+| `FEATURE_BUYER_COMPANIES` | The whole feature: the Company sign-in tab, the application, the context switcher and the console's Company verification screen. Default `true` |
+| `BUYER_COMPANY_MAX_OPEN_APPLICATIONS` | How many unfinished applications one person may have at once. Default `3` |
+| `BUYER_COMPANY_DOCUMENT_MAX_BYTES` | The largest document an applicant may upload. Default `10000000` (10 MB) |
+| `BUYER_COMPANY_DOCUMENT_MAX_PAGES` | The most pages a PDF may have. Default `50` |
+| `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` | Whether a document no malware scanner has cleared may be opened. Default `false`. Development only: production refuses to start with it on |
+| `BUYER_COMPANY_SECOND_REVIEW_RISK` | `OFF`, `ELEVATED` or `HIGH`. At or above this risk level, approval needs two different reviewers. Default `OFF` |
+| `BUYER_COMPANY_CONSENT_VERSION` | The version stamped on each declaration an applicant ticks. Default `2026-09`. Change it whenever the wording changes |
+| `BUYER_COMPANY_GLEIF_URL` | The GLEIF LEI lookup. Default `https://api.gleif.org/api/v1/lei-records/{lei}`. Empty makes the LEI check manual |
+| `BUYER_COMPANY_PL_VAT_URL` | The Polish Ministry of Finance VAT whitelist. Default `https://wl-api.mf.gov.pl/api/search/nip/{nip}?date={date}`. Empty makes it manual |
+| `BUYER_COMPANY_PL_KRS_URL` | The Polish KRS open API. Default `https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/{krs}?rejestr={register}&format=json`. Empty makes it manual |
+| `BUYER_COMPANY_REGISTRY_TIMEOUT_MS` | How long to wait for each registry call. Default `10000` |
+| `VIES_CHECK_URL` | Not new. The existing EU VAT check is reused for company applications |
+
+The storefront learns whether the feature is on from `features.buyerCompanies`
+in `GET /api/v1/config`.
+
+</details>
+
+<details>
+<summary><b>Product reviews</b></summary>
+
+What these do is explained in [Product reviews](#product-reviews).
+
+| Variable | What it does |
+|---|---|
+| `FEATURE_PRODUCT_REVIEWS` | The whole feature: the stars on product cards and product pages, the review form, **Rate this product** on a delivered order and **Account → My reviews**. Default `true`. `false` hides every star and refuses the storefront review routes; reviews already written are kept and the console's **Product reviews** screen still works |
+
+The storefront learns whether the feature is on from `features.productReviews`
+in `GET /api/v1/config`.
+
+</details>
+
+<details>
+<summary><b>Support tickets</b></summary>
+
+What these do is explained in [Support tickets](#support-tickets).
+
+| Variable | What it does |
+|---|---|
+| `FEATURE_SUPPORT_TICKETS` | Raising new tickets. Default `true`. `false` leaves the **Support** page showing only your published contacts and refuses a new ticket with `403 FEATURE_DISABLED`. Tickets already raised stay readable, their senders can still reply and add files, and staff keep working in the console |
+| `SUPPORT_TICKETS_PER_DAY` | How many tickets one account may raise in a day. Default `10`, from `1` to `200`. One more is refused with `429 SUPPORT_TICKET_LIMIT_REACHED` |
+| `SUPPORT_ATTACHMENTS_ENABLED` | Whether files can be attached to a ticket at all. Default `true` |
+| `SUPPORT_ATTACHMENT_MAX_BYTES` | The largest file. Default `26214400` (25 MB) |
+| `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS` | Whether files are accepted with no malware scanner. Default `false`. Development only: production refuses to start with it on. Without it and without `MALWARE_SCANNER_DRIVER=clamav`, the form says files cannot be attached here and tickets still work |
+
+The storefront learns whether the feature is on from `features.supportTickets`
+in `GET /api/v1/config`.
 
 </details>
 
@@ -1703,7 +1822,7 @@ a human correction is permanent. Three things it handles that a naive
 `translate(json)` would get wrong:
 
 - **Placeholders.** `{{email}}` is a token, not a word. Each is wrapped in a tag
-  DeepL is told to ignore, along with `Glovia`, `UBOSS`, `Business Owner` and
+  DeepL is told to ignore, along with `Gloviaa Mart`, `UBOSS`, `Business Owner` and
   the other terms in `KEEP`, so they come back verbatim. Both brand names are
   proper nouns: a brand translated into Greek is not a brand.
 - **Register.** `formality: prefer_more` pins the Sie/usted/vous form a supplier
@@ -2637,7 +2756,7 @@ not in the conversation and never sees it.
 
 - **The buyer:** a chat icon (speech bubbles) right beside Preorder and its
   (i) on every product page. Its accessible name and tooltip use your trading
-  name (*Chat with Glovia* until you set one), and a red badge counts your
+  name (*Chat with Gloviaa Mart* until you set one), and a red badge counts your
   team's replies they have not read about that product. It opens a drawer (full screen on a phone) with the product card - picture, name,
   seller, SKU, option, minimum, and the unit (pieces, 20-ft or 40-ft container),
   quantity, equivalent pieces and date they are asking about - your team's
@@ -2732,6 +2851,385 @@ joined"*. There are no settings: it is part of `FEATURE_PREORDER_CHAT`.
 No machine translation of messages yet, no seller in the conversation, no
 mobile push, and no editing a message once sent. Spreadsheets are not accepted
 as attachments.
+
+---
+
+## Individual and company buyers
+
+A buyer can buy **as themselves** (Individual) or **for a company they belong
+to** (Company). A company must be applied for, checked and approved by a person
+before anybody can buy for it.
+
+This is not the "buyer organisation" used by a buyer's own purchasing system
+(ERP). A buyer company is a verified business somebody buys for. The two are
+separate and not linked.
+
+### What happens, in order
+
+1. **Sign in on a tab.** The storefront's sign-in page has an **Individual**
+   and a **Company** tab. The tab is a preference, not a claim: the password
+   check is the same, and a wrong password gives the same answer on both, so
+   nobody can find out who has a company. With one company, the Company tab
+   signs you in for it. With several, you pick one. With none, you are signed
+   in as yourself and offered an application.
+2. **Apply.** *Register a company* (or *Apply for another company* under
+   **Account → Companies**) opens a six-step application: account and
+   representative (including how the applicant stands to the business),
+   business details (with optional buying plans), registration and tax
+   details, addresses, verification documents, and review and submit. The same
+   step indicator starts on the sign-up form as "Step 1 of 6". Each step is
+   saved on the server, so it can be finished on another device. Somebody who
+   runs a seller account can start from that seller's details; the buyer
+   company is still reviewed on its own, and neither approval grants the
+   other. If the business email is not the account's confirmed email,
+   a six-digit code is sent to it. The last step has four separate declarations,
+   each recorded with the exact wording shown and its version.
+3. **Automatic checks.** On submit, the worker checks the answers against the
+   registries below and works out a risk level. The checks **never decide**.
+   The application always goes on to a person.
+4. **A person decides.** In the console, a reviewer approves, rejects with a
+   reason, or asks for more information or documents. The applicant answers
+   on the application page and resubmits. Each step is emailed in the
+   applicant's language.
+5. **Buy.** Once approved, members can check out, pay and confirm preorders
+   for the company. The **account menu** switches between yourself and each
+   company you belong to.
+
+### Registries
+
+No paid verification service is used, no key is needed, and nothing is scraped.
+
+- **Checked live, through free official APIs:** EU VAT numbers (VIES, the
+  European Commission), LEI codes (GLEIF), the Polish Ministry of Finance VAT
+  whitelist, and the Polish court register KRS. From the VAT whitelist's answer
+  the bank accounts, home addresses and people are dropped, never stored.
+- **Manual review, with the official link for the reviewer.** These have no
+  free public API, or need a key or contract this software does not have, so
+  nothing is faked:
+  [MCA](https://www.mca.gov.in/content/mca/global/en/mca/master-data/MDS.html)
+  (Indian CIN and LLPIN),
+  [GST](https://services.gst.gov.in/services/searchtp),
+  [PAN](https://www.incometax.gov.in/iec/foportal/),
+  [Udyam](https://udyamregistration.gov.in/Udyam_Verify.aspx),
+  [IEC](https://www.dgft.gov.in/CP/?opt=view-any-ice),
+  Polish [CEIDG](https://aplikacja.ceidg.gov.pl/ceidg/ceidg.public.ui/search.aspx)
+  and [REGON](https://wyszukiwarkaregon.stat.gov.pl/appBIR/index.aspx),
+  other EU business registers through
+  [BRIS](https://e-justice.europa.eu/topics/registers-business-insolvency-land/business-registers-search-company-eu_en),
+  [EORI](https://ec.europa.eu/taxation_customs/dds2/eos/eori_validation.jsp),
+  and the local register of any other country.
+
+A registry that is down, slow or answering errors is recorded as *unavailable*
+and left to the reviewer. It never rejects an application. Possible duplicates
+(same registration, same identifier, a similar name, the same address or email
+domain) are flags for the reviewer, never a refusal. Two companies cannot both
+be **approved** with the same registration number.
+
+### What a buyer company changes
+
+- **Separate baskets, orders, addresses and preorders.** The personal basket
+  and each company's basket are different. Switching clears everything the
+  screen had cached, so nothing from one shows in the other.
+- **Membership is checked on every request, on the server.** Which context a
+  session is in is held on the server, never trusted from the browser. A member
+  who is removed is moved back to Individual on their next request.
+- **The purchasing gate.** Until a company is approved, its members can prepare
+  a basket and an address book, but checkout, payment and confirming a preorder
+  are refused, and the basket and checkout pages say why.
+- **Company roles:** `OWNER`, `COMPANY_ADMIN`, `BUYER`, `ORDER_APPROVER`,
+  `FINANCE`, `VIEWER`. The applicant becomes the owner. A `BUYER` sees only the
+  company orders they placed; the other roles see all of them.
+- **Documents** are only the ones needed, each with the reason it is asked for.
+  A letter of authorisation is required only from an agent acting from outside
+  the company; proof of address and a business licence are offered, never
+  required. Identity documents and ownership declarations are never asked for by default;
+  a reviewer can ask for them in a specific case. Bank details are never
+  collected. Files are PDF or pictures, checked by their own bytes, scanned for
+  malware and stored privately.
+
+### What the operator configures
+
+Nothing has to be set for it to work: it is on by default. Decide whether risky
+applications need a second reviewer (`BUYER_COMPANY_SECOND_REVIEW_RISK`), and
+have the declarations, privacy notice and retention reviewed. Every variable
+is in [Configuration → Buyer companies](#configuration).
+
+### Permissions
+
+| Permission | Allows | Granted to |
+|---|---|---|
+| `buyer_company.read` | See the queue, the applications and their documents | Business Owner, Finance, Order Manager |
+| `buyer_company.review` | Take, assign, note, request information, approve, reject, re-verify, re-run checks, decide documents | Business Owner, Finance |
+| `buyer_company.suspend` | Suspend an approved company | Business Owner |
+
+### What it does not do
+
+- Inviting colleagues into a company is **not built**. The roles exist, but
+  there is no invitation screen yet.
+- Recurring and scheduled orders are refused while buying for a company.
+- Tax and VAT in company context still use the person's own profile.
+- CEIDG, REGON and the Indian registries are not checked live. They are manual,
+  with official links.
+- There are no in-app notifications on the storefront; the emails appear on the
+  account's Notifications page instead.
+- It does not make a deployment legally compliant on its own. The declaration
+  wording, the privacy notice, retention periods and what a rejection email may
+  say are for the operator's own legal review.
+
+---
+## The individual purchase limit (B2C Maximum Order Quantity)
+
+A seller sets, on each listing, the most units of that product an
+**Individual** buyer may buy in one order. It is called the **B2C Maximum
+Order Quantity** on every screen. It is deliberately not called "MOQ", because
+MOQ means a *minimum*. Larger quantities are for approved companies.
+
+It is a purchasing limit, not stock. Setting or changing it never changes how
+many units a seller has.
+
+### Who is held to it
+
+- **Held:** guests, people buying as themselves, and anybody buying for a
+  company that is **not approved** (a draft, under review, more information
+  required, rejected, suspended or being re-verified).
+- **Not held:** somebody buying for an **approved** company. The server works
+  this out from the session: an active membership of an approved company that
+  is not archived. Nothing the browser sends — an account type, a company id,
+  an approval flag — is believed.
+
+### How it counts
+
+- It counts **one seller's units of one product**. Every size or colour of
+  that product, and every basket line holding it, is added together. Adding the
+  same thing twice, pressing Add to Cart again, choosing several sizes or
+  sending the product twice in one bulk request cannot get round it.
+- Several sellers can sell the same catalogue product. **Each seller's limit
+  governs that seller's own units**, and two sellers' units are counted apart.
+- The operator's own stock (no seller) uses a limit set on the product by an
+  admin in the console.
+
+### What a seller sets
+
+- The field is in the new-listing wizard (*Price, stock and shipping*) and on
+  the edit page of a live listing, with − and + buttons and an inline error.
+- A whole number from 1 to 1,000,000, and not below the listing's own minimum
+  order. Zero, negatives, decimals, text and scientific notation are refused,
+  never quietly corrected.
+- A draft may be saved with the box empty, but a new listing **cannot be sent
+  for review** without a valid value. The one value is written to every
+  version's offer.
+- A limit, once set, can be changed but not removed.
+- Only the seller who owns the offer, or an admin, can change it. Every change
+  is written to the seller audit log with the old and new value, who made it
+  and when.
+- A change applies to **future** basket changes and checkouts. An order already
+  placed never changes, and a basket already filled is never trimmed.
+
+Listings that existed before this have **no limit** ("not configured") and keep
+selling exactly as before. Seller Hub marks each one **B2C limit not
+configured** with a link to set it. No figure was invented for them.
+
+### What a buyer sees
+
+- Under the quantity box on the product page: **Individual purchase limit: N
+  units**, or a note that it does not apply to an approved company.
+- Choosing more than the limit, or being refused by the server, opens a dialog
+  that says why and offers the next step: sign in as a company, create a
+  company account, switch to an approved company, see a company's verification
+  status, or **Reduce to N**. Nothing switches account or starts a registration
+  until the buyer presses something.
+- A basket that is already over the limit (the seller lowered it, or the
+  company lost approval) is kept as it is. Each line of that product shows a
+  warning with **Reduce to N**, and checkout is refused until it is fixed.
+  Lowering a quantity is always allowed; raising it past the limit is not.
+
+### Where the server checks it
+
+The server decides, every time: add to basket, bulk add, change quantity, change
+pack quantity, reading the basket, checkout (again, inside the order's own
+transaction, with the live limit and the live company status), scheduled orders
+(when a plan is saved and before each delivery is charged) and preorders (on
+preview, submit and confirmation). Each basket change locks the basket row, so
+two requests at once cannot both slip under the limit. A refusal is
+`409 B2C_MAX_ORDER_QUANTITY_EXCEEDED`.
+
+Each order records whether it was bought as an individual or for a company, and
+each line records the limit that applied and whether a company exemption was
+used. These never change later.
+
+### What it does not do
+
+- It is not the preorder minimum. That is a floor, with its own errors.
+- Switching to a company does not move basket lines. A company has its own
+  basket.
+- The operator's own products do not require a limit; seller listings do.
+
+---
+## Product reviews
+
+A buyer who has received a product rates it from 1 to 5 stars on four things —
+**quality**, **delivery**, **experience** and **support**. There is no comment
+box; a review is those four scores. Four scores rather than one, because a well-made part that arrived late
+is a five and a one, and an average of three says neither.
+
+### What each side has
+
+- **Storefront.** The average and review count under the product name and on
+  every product card and catalogue row (nothing at all when there are no
+  reviews). A **Ratings and reviews** section at the foot of the product page:
+  the overall figure, how reviews spread from one to five stars, the four
+  categories drawn as raised columns whose height is the average, and the
+  reviews themselves, sortable. **Rate this product** on each line of a
+  delivered order, and **Account → My reviews** listing what is waiting for a
+  rating and what has been written.
+- **Console.** **Catalogue → Product reviews**: every review with the buyer, the
+  order and the scores; filter by hidden, by low scores, or search. **Hide
+  review** asks for a reason; **Show again** puts it back.
+
+### The rules it keeps
+
+- Only a buyer whose own order containing the product was **delivered** (or
+  returned after delivery) may review it. Anybody else is refused with
+  `REVIEW_NOT_ELIGIBLE`.
+- One review per buyer per product. Writing again replaces it.
+- A review is published at once. Staff can hide it, and must give a reason,
+  which the buyer is shown. Editing a hidden review does not republish it.
+- Averages are computed every time they are read, and a hidden review counts
+  towards nothing.
+- The public sees the reviewer's first name and an initial, never the surname,
+  company or email.
+- An account's reviews are included in its data export, and deleted when the
+  account is erased.
+
+### Permissions
+
+| Permission | Allows | Granted to |
+|---|---|---|
+| `review.read` | Read every review, including hidden ones and who wrote them | Business Owner, Catalog Manager, Order Manager |
+| `review.moderate` | Hide a review and show it again | Business Owner, Catalog Manager |
+
+### Configuration
+
+`FEATURE_PRODUCT_REVIEWS` (default `true`) switches the storefront side on and
+off. See [Configuration](#configuration).
+
+### What it does not do
+
+- Sellers cannot reply to a review, and do not see reviews in Seller Hub yet.
+- There is no photo upload on a review.
+- A review is about the product, not about one seller's offer of it.
+
+---
+## Support tickets
+
+Anybody with an account — a buyer, a seller in Seller Hub, or a member of a
+carrier in the logistics portal — can **raise a ticket** about a problem, and
+your staff answer it in the console. A ticket is a private written thread
+between the person who sent it and your team.
+
+### What each side has
+
+- **The storefront's Support page** (`/support`), open to everybody. It says
+  "*{marketplace}* Support" and "How can we help?", lists the support email
+  and phone you published in **Settings → Business profile** beside a slowly
+  turning globe, and has a **Raise a ticket** card. Above them, frequently
+  asked questions in six topics answer the common cases first; they follow
+  your settings (no company questions when companies are off, no sign-up link
+  when sign-up is by invitation). If you published no
+  contacts it says so; it never shows made-up ones. A guest sees the contacts
+  and **Sign in to continue**, which comes back to the page: tickets are raised
+  from an account only.
+- **Ways in.** A headset button in the storefront header (on wider screens;
+  on a phone it is in the account menu and the footer), **Support** in the
+  account menu, the account sidebar and the footer, and **Contact support
+  about this order** on an order, which fills in the order number and topic.
+  Seller Hub and the logistics portal each have **Support** in their menu; in
+  the portal every member sees it, drivers included.
+- **The form** asks only about the problem: a topic (orders, payments,
+  preorders, products, Seller Hub, logistics and tracking, company
+  verification, ERP integration, account and security, other), a subject, a
+  description of 10 to 5,000 characters, an order number if it is about one,
+  and files if they help. It does not ask for a name, email or company: it
+  says *Raised as {name} for {company}. Replies go to {email}.* The server takes
+  all of that from the session, never from the form.
+- **After sending**, the page shows the ticket number (like `SR-7KQ2-M9XD`,
+  random rather than counting up), whether the confirmation email was really
+  queued (it only says so when it was), how each file went, and **View your
+  ticket**. If sending fails, nothing typed is lost, and a retry or a double
+  click still makes exactly one ticket.
+- **Your tickets** (**Account → Support**, the same list in Seller Hub, and
+  the list under the form in the portal): each ticket shows the
+  first message, your team's replies (signed "Support team", never a person's
+  name), status changes and files. The sender can write again and add files
+  until the ticket is **Closed**.
+- **Your staff:** **Support → Tickets** in the console. It opens on **Needs
+  work** (open, in progress, waiting for the customer) with a count for each
+  status, and filters by status, priority, topic, where it was raised from and
+  who it is assigned to, with search by reference, subject, name, email,
+  company or order number. A ticket shows who raised it and for which company,
+  seller or carrier, the order it is about, one timeline of the conversation
+  and its history (internal notes and changes marked **Staff only**), and the
+  customer's files. Staff move its status, set its priority (only staff can),
+  take it, release it or give it to a colleague, and write a reply (optionally
+  marking it waiting for the customer or resolved) or an internal note. The
+  console bell announces each new ticket, and each time a sender writes
+  again on one.
+
+### The rules it keeps
+
+- **Only the sender reads a ticket.** It is found by the sender's own account
+  and the place they sent it from — in Seller Hub also the seller, in the
+  portal also the carrier. Colleagues at the same company or seller do not see
+  each other's tickets, and somebody else's ticket number answers "not found".
+- **An order number must be the sender's own.** Somebody else's order and a
+  mistyped one get the same refusal, so nobody can find out which orders exist.
+- **Status changes follow fixed rules.** A ticket is *Sent*, *Being handled*,
+  *Waiting for your reply*, *Resolved* or *Closed*. Your team's first reply
+  moves a new ticket to being handled and gives it to whoever replied, if
+  nobody had it. The sender writing on a ticket that was waiting for them or
+  resolved moves it back to being handled. **Closed is final**: a new problem is
+  a new ticket.
+- **Files are checked, not trusted.** Pictures (JPEG, PNG, WebP, GIF), videos
+  (MP4, WebM, MOV) and PDFs, judged by the file's contents rather than its
+  name; no Office documents or archives. Each is scanned for malware, stored
+  privately and opened only through a five-minute, single-use link for the
+  signed-in person. Up to 10 files per ticket. They upload one at a time after
+  the ticket is made, so a refused file never loses the ticket.
+- **Text is text.** Messages are stored and shown as plain text, never as web
+  page code.
+- **Emails carry a link, never the words.** The sender is emailed when the
+  ticket arrives and when your team replies; your published support address is
+  told about each new ticket; a colleague is told when given one. The four
+  emails are editable in **Settings → Notifications**.
+- **Limits.** Five new tickets per ten minutes from one address, twenty
+  messages and twenty uploads per ten minutes, and `SUPPORT_TICKETS_PER_DAY`
+  tickets per account per day.
+- **Records.** The audit trail says who created, replied to, changed, assigned
+  or opened a file on each ticket, never what was written or what a file was
+  called. An account's tickets, the visible thread and its file list are in
+  its data export (internal notes, priority and assignment are not); erasing
+  the account deletes its tickets and their files.
+
+### Permissions
+
+| Permission | Allows | Granted to |
+|---|---|---|
+| `support_ticket.view` | Read the inbox, tickets and internal notes | Business Owner, Order Manager, Finance / Approver |
+| `support_ticket.reply` | Reply, write notes, change status and priority, take a ticket | Business Owner, Order Manager |
+| `support_ticket.assign` | Give a ticket to a colleague, or take it from one | Business Owner |
+
+### Configuration
+
+`FEATURE_SUPPORT_TICKETS` (default `true`) switches raising new tickets on and
+off, and four more variables set the daily limit and the files. See
+[Configuration → Support tickets](#configuration).
+
+### What it does not do
+
+- A guest cannot raise a ticket without an account.
+- Staff cannot attach files to a reply.
+- A ticket does not update live on screen while it is open.
+- There are no response-time targets or timers for tickets.
 
 ---
 ## Seller invoices and packing lists
@@ -2979,7 +3477,7 @@ The architecture is therefore **outbound-only**:
 
 1. The seller generates a short-lived, single-use **pairing code** in the Seller
    Hub.
-2. They run the **Glovia Tally Bridge** on the machine beside TallyPrime.
+2. They run the **Gloviaa Mart Tally Bridge** on the machine beside TallyPrime.
 3. The bridge talks to Tally over the **local** network — their business, not
    ours, configured on their side.
 4. The bridge opens an authenticated **HTTPS connection out** to this API and
@@ -3130,7 +3628,7 @@ idempotent-and-allowed.
 
 *Seller Hub → ERP integrations → TallyPrime*, then, in order:
 
-1. Install the Glovia Tally Bridge on the machine that runs TallyPrime.
+1. Install the Gloviaa Mart Tally Bridge on the machine that runs TallyPrime.
 2. Make sure TallyPrime is running with the company open.
 3. Generate a pairing code.
 4. Paste it into the bridge.
@@ -3392,6 +3890,29 @@ seam that would have to change.
     Then start each service and confirm it actually comes up. A sandbox
     directive can score well and still stop a process from running, and the
     score is not evidence that it did.
+17. **Prepare buyer company applications before you accept one.** The feature
+    is on by default (`FEATURE_BUYER_COMPANIES`).
+    - Have the four declarations, the privacy notice and how long company
+      records are kept reviewed by your own lawyer. When the wording changes,
+      change `BUYER_COMPANY_CONSENT_VERSION` too, so each record names the
+      wording that was actually ticked.
+    - Make sure the malware scanner is running. Production refuses to start
+      with `BUYER_COMPANY_ALLOW_UNSCANNED_DOCUMENTS` on, so a document the
+      scanner has not cleared cannot be opened by a reviewer.
+    - Decide `BUYER_COMPANY_SECOND_REVIEW_RISK`: `OFF`, or `ELEVATED` / `HIGH`
+      if a risky company should need two different reviewers to approve.
+    - Give `buyer_company.review` only to the staff who should decide.
+18. **Prepare support tickets before customers raise one.** The feature is on
+    by default (`FEATURE_SUPPORT_TICKETS`).
+    - Publish a support email and phone in **Settings → Business profile**.
+      The Support page shows only what you publish, and new tickets are
+      announced to that email.
+    - Read the four support emails in **Settings → Notifications** and change
+      the wording if you want to.
+    - Keep the malware scanner running if customers should attach files.
+      Production refuses to start with `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS`
+      on.
+    - Give `support_ticket.reply` to the staff who should answer tickets.
 
 </details>
 
@@ -3516,6 +4037,26 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   `preorder-chat-state.ts`; nothing is announced over the live connection
   before it is committed; internal notes live in a table no customer route
   reads.
+- **Only a person approves a buyer company.** The automatic registry checks
+  write results and a risk level, never a decision, and always end with the
+  application waiting for a reviewer. A registry that is down or slow is
+  recorded as *unavailable*, never as a rejection. Company status changes only
+  through `assertBuyerCompanyTransition`, and a company buys only once it is
+  approved — checked on the server on every checkout, payment and preorder
+  confirmation, with the membership re-read on every request.
+- **Only somebody who received a product may review it.** A review needs the
+  reviewer's own order containing the product to have reached `DELIVERED` (or
+  `RETURNED`). One review per buyer per product, published at once; staff hide
+  one only with a reason the buyer is shown, and an edit never republishes a
+  hidden review. Averages are computed on read, never stored.
+- **A support ticket is read only by the person who sent it.** Every storefront,
+  Seller Hub and portal ticket route filters by the signed-in user and the
+  surface the ticket was sent from (and by the seller or carrier there), so a
+  colleague and a stranger both get "not found". Who sent it and for which
+  company is taken from the session, never from the form. Ticket status changes
+  only through `support-ticket-state.ts`, and `CLOSED` is final. Whether a
+  ticket event is for the sender's eyes is decided when it is written, and
+  internal notes, priority and assignment are never on a sender's route.
 - **Order status changes only through `assertTransition`.** No service writes
   `status` itself. Plan and occurrence status go through the assertions in
   `schedule-state.ts` for the same reason, and it matters more there: an
@@ -3541,7 +4082,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   The dangerous outcome is not the API refusing — it is the API *answering*,
   with a price for something nobody will ever collect.
 - **A seller's TallyPrime is never dialled from this server.** Its HTTP listener
-  has no authentication, and `localhost:9000` from here is *here*. The Glovia
+  has no authentication, and `localhost:9000` from here is *here*. The Gloviaa Mart
   Tally Bridge runs beside Tally, connects outward and claims work; nothing
   connects in.
 - **"Connected" is a conclusion, never a stored flag.** It requires a live
@@ -3715,6 +4256,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   those packs somebody wants lives on the cart line and never on the variant.
   A buyer choosing a 500 g packet, Pack of 10, quantity 2 is buying 2 packs =
   20 packets = 10 kg, and every screen says so in those words.
+- **An Individual buyer's limit is checked by the server, per seller, per
+  order.** The B2C Maximum Order Quantity adds every variant and every basket
+  line of one seller's product together, under a lock on the basket, and is
+  checked again inside the checkout transaction. Only an approved company
+  context, worked out on the server from the session, is exempt. It is a
+  purchasing limit and never touches stock, and changing it never alters a
+  placed order or trims a basket.
 - **No two variants of one product may describe themselves the same way.**
   Each carries an option signature — its combination, case-folded and sorted
   by axis key — under `unique(productId, optionSignature)`. Two matching rows
@@ -3759,7 +4307,7 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | `backend/docs/FRONTEND-INTEGRATION.md` | Contract notes for a client talking to this API |
 | **[`SECURITY.md`](SECURITY.md)** | How to report a vulnerability, what happens next, how quickly it is fixed, and what is in and out of scope. Publish a filled-in copy before going live |
 | **[`SECURITY-AUDIT-REPORT.md`](SECURITY-AUDIT-REPORT.md)** | The last security audit: every control, its status, the evidence behind it, what was fixed, and what still needs a live system or an independent tester to prove |
-| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. The document inside is titled *Glovia*; the file name is unchanged because `CLAUDE.md` and the build script both name it. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
+| `output/UBOSS_Sourcing_Feature_Guide.docx` | Every feature in plain language, for a non-technical reader. The document inside is titled *Gloviaa Mart*; the file name is unchanged because `CLAUDE.md` and the build script both name it. Generated — edit `scripts/build-feature-guide-doc.mjs` and rebuild, never the `.docx` |
 | `CLAUDE.md` | The rules for working in this repository |
 
 ### Keeping the docs true

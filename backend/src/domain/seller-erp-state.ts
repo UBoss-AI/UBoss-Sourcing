@@ -168,7 +168,7 @@ export function decideConnectionState(facts: ConnectionFacts): StateDecision {
   if (!facts.hasActiveBridge) {
     return {
       state: 'BRIDGE_REQUIRED',
-      reason: 'Install the Glovia Tally Bridge on the machine that runs TallyPrime, then pair it.',
+      reason: 'Install the Gloviaa Mart Tally Bridge on the machine that runs TallyPrime, then pair it.',
     };
   }
 

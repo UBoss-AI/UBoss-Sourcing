@@ -166,12 +166,12 @@ describe('Account -> Messages', () => {
     renderPage();
     const history = await screen.findByRole('log', { name: 'Conversation history' });
     expect(await within(history).findByText('We can ship in October.')).toBeInTheDocument();
-    const header = screen.getByRole('heading', { name: 'Glovia Preorder Team' });
+    const header = screen.getByRole('heading', { name: 'Gloviaa Mart Preorder Team' });
     expect(header).toBeInTheDocument();
     // The seller is named as a fact about the product, and nowhere as a sender.
     expect(screen.getAllByText(/Seller: Gamma Manufacturing/).length).toBeGreaterThan(0);
     expect(within(history).queryByText('Gamma Manufacturing')).not.toBeInTheDocument();
-    expect(within(history).getByText('Glovia team')).toBeInTheDocument();
+    expect(within(history).getByText('Gloviaa Mart team')).toBeInTheDocument();
     // One history, one composer.
     expect(screen.getAllByRole('log')).toHaveLength(1);
     expect(screen.getAllByRole('textbox', { name: 'Your message' })).toHaveLength(1);

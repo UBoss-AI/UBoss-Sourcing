@@ -411,6 +411,7 @@ function OfferTable({
                   </td>
                   <td className="px-4 py-3">
                     <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status)}</Badge>
+                    <B2cNotConfigured row={row} />
                     {row.statusReason !== null && (
                       <p className="mt-1 max-w-xs text-xxs leading-relaxed text-ink-muted">
                         {row.statusReason}
@@ -446,6 +447,7 @@ function OfferTable({
                 </p>
                 <StockCell row={row} />
                 <Badge tone={offerStatusTone(row.status)}>{offerStatusLabel(row.status)}</Badge>
+                <B2cNotConfigured row={row} />
               </div>
               <RowActions
                 row={row}
@@ -508,6 +510,26 @@ function Th({
     >
       {children}
     </th>
+  );
+}
+
+/**
+ * "B2C limit not configured", on a listing from before the B2C maximum order
+ * quantity existed - and a link straight to the box that sets it. Such a
+ * listing still sells, with no individual limit, exactly as it always has;
+ * this is how the seller finds out it needs a figure.
+ */
+function B2cNotConfigured({ row }: { row: OfferRow }): React.JSX.Element | null {
+  const { t } = useI18n();
+  if (row.b2cMaxOrderQuantity !== null) return null;
+  return (
+    <Link
+      to={`/seller/listings/${row.id}/edit`}
+      className="mt-1 inline-flex items-center gap-1 rounded-full bg-warning-soft px-2.5 py-0.5 text-xxs font-semibold text-warning ring-1 ring-inset ring-warning/30 hover:underline"
+      aria-label={t('sellerB2c.notConfiguredLinkLabel', { product: row.productName })}
+    >
+      {t('sellerB2c.notConfigured')}
+    </Link>
   );
 }
 

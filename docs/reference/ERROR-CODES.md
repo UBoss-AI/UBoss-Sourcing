@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**360 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**383 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -54,8 +54,12 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Platform fee](#platform-fee) | 2 |
 | [Bulk preorders](#bulk-preorders) | 20 |
 | [Preorder chat](#preorder-chat) | 10 |
+| [Support tickets](#support-tickets) | 7 |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | 7 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
+| [Buyer companies](#buyer-companies) | 14 |
+| [Product reviews](#product-reviews) | 1 |
+| [B2C maximum order quantity](#b2c-maximum-order-quantity) | 1 |
 
 ## Generic
 
@@ -558,6 +562,18 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `PREORDER_CHAT_PROPOSAL_NOT_OPEN` | That proposal is no longer open - replaced by a newer one, withdrawn, declined, already used for a preorder, or past its expiry. |
 | `PREORDER_CHAT_ATTACHMENTS_UNAVAILABLE` | Attachments are switched off here, or no malware scanner is configured to look at them. Text messages still work. |
 
+## Support tickets
+
+| Code | Meaning |
+|---|---|
+| `SUPPORT_TICKET_LIMIT_REACHED` | This person has sent as many support requests today as one account may. Their open requests still take replies. meta.limit, meta.windowHours. |
+| `SUPPORT_ORDER_NOT_FOUND` | The order number given is not one this person may see - a typo, or somebody else's order. Deliberately the same answer for both. |
+| `SUPPORT_TICKET_CLOSED` | The request is closed. It can be read but nobody can write on it; a new problem is a new request. |
+| `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED` | The request cannot move to that status from where it is. meta.from, meta.to. |
+| `SUPPORT_ASSIGNEE_NOT_ELIGIBLE` | The staff member named cannot work support requests - deactivated, or without the support permission. |
+| `SUPPORT_ATTACHMENTS_UNAVAILABLE` | Files cannot be attached here: switched off, or no malware scanner is configured. The ticket itself still goes. details[0].code is DISABLED or NO_SCANNER. |
+| `SUPPORT_ATTACHMENT_LIMIT_REACHED` | This ticket already carries as many files as one ticket may. meta.limit. |
+
 ## Seller invoices and packing lists
 
 | Code | Meaning |
@@ -576,4 +592,35 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 |---|---|
 | `QUANTITY_TIERS_INVALID` | The seller's quantity bands contradict themselves or the list price. The details name each band by index and what is wrong (`domain/quantity-tier.ts`). |
 | `STORE_QUANTITY_DISCOUNTS_INVALID` | The store-wide quantity discounts contradict themselves: a start below two pieces, a discount outside 0.01%-90%, a repeated start, or a larger quantity taking off less. The details name each rule by index and what is wrong. |
+
+## Buyer companies
+
+| Code | Meaning |
+|---|---|
+| `BUYER_COMPANIES_DISABLED` | The buyer-companies feature is switched off on this deployment (FEATURE_BUYER_COMPANIES=false). |
+| `BUYER_CONTEXT_INVALID` | The session asked to act for a company it has no active membership in - removed, suspended, or never a member. The storefront drops back to the individual context and asks again. Never names the company. |
+| `BUYER_COMPANY_NOT_APPROVED` | The company exists and the caller belongs to it, but it is not approved (or no longer is), so nothing may be bought in its name yet. `details[0] .meta.status` carries the company status so the storefront can say why and link to the verification page instead of showing a generic refusal. |
+| `BUYER_COMPANY_ROLE_FORBIDDEN` | The caller's role inside the company does not allow this - a VIEWER trying to check out, a BUYER trying to edit the application. |
+| `BUYER_COMPANY_TRANSITION_NOT_ALLOWED` | That status change is not one `domain/buyer-company-state.ts` allows, for that actor, from the status the company is in now. `details[0].code` is SAME_STATUS, TRANSITION_UNDEFINED, ACTOR_NOT_PERMITTED or REASON_REQUIRED. |
+| `BUYER_COMPANY_NOT_EDITABLE` | The application cannot be edited in its current status - it is with a reviewer, approved or closed. |
+| `BUYER_COMPANY_INCOMPLETE` | Submission refused: something required is missing or malformed. One detail per problem, each with the `field` it belongs to. |
+| `BUYER_COMPANY_VERSION_CONFLICT` | Somebody else changed this application since it was loaded. Reload and decide again. Returned to the second of two reviewers acting at once. |
+| `BUYER_COMPANY_ALREADY_CLAIMED` | An approval would give a registration number or tax identifier to a second approved company. Resolve the duplicate first. |
+| `BUYER_COMPANY_EMAIL_CODE_INVALID` | The business email code was wrong, expired or used up. |
+| `BUYER_COMPANY_SECOND_REVIEW_REQUIRED` | The approval needs a second reviewer, and the caller gave the first one. |
+| `BUYER_COMPANY_DOCUMENT_REJECTED` | The uploaded file is not one we accept for company documents - wrong type by its own bytes, too large, too many pages, or not readable. |
+| `BUYER_COMPANY_LIMIT_REACHED` | The person already has as many company applications in progress as a deployment allows. |
+| `BUYER_CONTEXT_UNSUPPORTED` | This feature works for the person's own account only, not while buying for a company - recurring orders are the one today. The storefront offers to switch to the individual context. |
+
+## Product reviews
+
+| Code | Meaning |
+|---|---|
+| `REVIEW_NOT_ELIGIBLE` | Only a buyer with a delivered order containing the product may review it. The storefront hides the form in that case, so this is what a stale page or a direct call sees. |
+
+## B2C maximum order quantity
+
+| Code | Meaning |
+|---|---|
+| `B2C_MAX_ORDER_QUANTITY_EXCEEDED` | A buyer who is not an approved company asked for more of one product than its seller allows an individual to buy in one order - every variant and every basket line of it counted together. 409. `details[0].meta` carries `productId`, `allowedQuantity`, `requestedQuantity`, `currentCartQuantity` and `requiresApprovedCompanyAccount`, so the storefront can offer "Reduce to N" or switching to a company. Also a basket line issue while an existing basket is over. See `domain/b2c-order-limit.ts`. Not… |
 

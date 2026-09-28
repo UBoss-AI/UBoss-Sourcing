@@ -62,9 +62,12 @@ const VISITOR: SessionState = {
   user: null,
   isLoading: false,
   isCustomer: false,
-  login: () => Promise.resolve(),
+  login: () => Promise.resolve({ next: 'READY' as const }),
   logout: () => Promise.resolve(),
   refreshUser: () => Promise.resolve(),
+  buyerContext: { kind: 'INDIVIDUAL' },
+  companies: [],
+  switchBuyerContext: () => Promise.resolve(),
 };
 
 function Probe(): React.JSX.Element {

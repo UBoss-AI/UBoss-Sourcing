@@ -204,6 +204,17 @@ interface SessionCarriedColumns {
   sellerUnlockedAt: Date | null;
   sellerUnlockedForId: string | null;
   sellerLastActivityAt: Date | null;
+  /**
+   * Which buyer the storefront session is acting as.
+   *
+   * Carried for the same reason as the Seller Hub lock: a rotation that
+   * dropped it would silently move somebody buying for their employer back to
+   * their own basket mid-checkout, several times an hour. The customer guard
+   * re-checks the membership behind it on every request, so carrying it never
+   * extends an authority that has since been taken away.
+   */
+  buyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+  buyerCompanyId: string | null;
 }
 
 /** Create a fresh session family after a successful sign-in. */
@@ -432,6 +443,8 @@ export async function rotateSession(
           sellerUnlockedAt: session.sellerUnlockedAt,
           sellerUnlockedForId: session.sellerUnlockedForId,
           sellerLastActivityAt: session.sellerLastActivityAt,
+          buyerContextKind: session.buyerContextKind,
+          buyerCompanyId: session.buyerCompanyId,
         },
         tx,
       );
@@ -508,6 +521,13 @@ export interface SessionAuthState {
   sellerUnlockedForId: string | null;
   /** When the Seller Hub last saw deliberate activity on this session. */
   sellerLastActivityAt: Date | null;
+  /**
+   * The buyer context this storefront session asked for. NOT an authority on
+   * its own - the customer guard confirms the membership behind a COMPANY
+   * context on every request before anything reads it.
+   */
+  buyerContextKind: 'INDIVIDUAL' | 'COMPANY' | null;
+  buyerCompanyId: string | null;
 }
 
 /**
@@ -529,6 +549,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       sellerUnlockedAt: true,
       sellerUnlockedForId: true,
       sellerLastActivityAt: true,
+      buyerContextKind: true,
+      buyerCompanyId: true,
       // For the top bar. The coordinates are the fallback label, which is why
       // they are read here and not only the name.
       locationLabel: true,
@@ -547,6 +569,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       sellerUnlockedAt: null,
       sellerUnlockedForId: null,
       sellerLastActivityAt: null,
+      buyerContextKind: null,
+      buyerCompanyId: null,
     };
   }
 
@@ -559,6 +583,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
     sellerUnlockedAt: session.sellerUnlockedAt,
     sellerUnlockedForId: session.sellerUnlockedForId,
     sellerLastActivityAt: session.sellerLastActivityAt,
+    buyerContextKind: session.buyerContextKind,
+    buyerCompanyId: session.buyerCompanyId,
   };
 }
 

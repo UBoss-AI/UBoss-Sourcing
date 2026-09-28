@@ -838,7 +838,7 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       // `GET /api/v1/config` before anybody has been near Settings. The
       // storefront's own fallback is the same string, for the same reason;
       // see `apps/customer-web/src/lib/brand.ts`.
-      displayName: profile?.displayName ?? 'Glovia',
+      displayName: profile?.displayName ?? 'Gloviaa Mart',
       supportEmail: profile?.supportEmail ?? null,
       supportPhone: profile?.supportPhone ?? null,
       logo: profile?.logoMedia ?? null,
@@ -892,6 +892,24 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
        * has to infer one capability from another.
        */
       imageSearch: isAssistantConfigured(),
+      /**
+       * Whether buyers may register and buy for a company. Off hides the
+       * Company sign-in tab; the backend refuses every company route either
+       * way, so a stale storefront cannot open one.
+       */
+      buyerCompanies: env.FEATURE_BUYER_COMPANIES,
+      /**
+       * Whether stars and reviews appear on the storefront. Off hides every
+       * rating and the review form; the backend refuses the storefront review
+       * routes either way, so a stale page cannot write one.
+       */
+      productReviews: env.FEATURE_PRODUCT_REVIEWS,
+      /**
+       * Whether the Support page takes requests. Off leaves it showing the
+       * published contact details only; the backend refuses to create one
+       * either way, so a stale page cannot send one.
+       */
+      supportTickets: env.FEATURE_SUPPORT_TICKETS,
     },
 
     /**

@@ -4,11 +4,12 @@
  * Three facts, and the difference between them is the whole reason this file
  * exists:
  *
- *   - **`PRODUCT_BRAND` is what this software is called.** It is Glovia. It is
- *     not a per-deployment setting, because a buyer does not get to rename the
+ *   - **`PRODUCT_BRAND` is what this software is called.** It is Gloviaa
+ *     Mart, and `PRODUCT_SHORT_NAME` — Gloviaa — is the same name where there
+ *     is room for one word only. It is not a per-deployment setting, because a buyer does not get to rename the
  *     product they licensed any more than they get to rename their browser.
  *   - **`PRODUCT_TAGLINE` is what it says under its name.** `The Way to the
- *     World`, beside the wordmark wherever the wordmark is shown.
+ *     Global Sourcing`, beside the wordmark wherever the wordmark is shown.
  *   - **`PARENT_ATTRIBUTION` is who makes it.** UBOSS. It appears verbatim, as
  *     small print — the storefront's footer, the console's sign-in screens.
  *
@@ -36,16 +37,28 @@
  * Change one, change all three.
  */
 
-/** The product. Never `GLOVIA`, never `Glovia Sourcing`. */
-export const PRODUCT_BRAND = 'Glovia';
+/**
+ * The product. Never `Glovia`, never `Glovia Mart`, never `Gloviaa Market`:
+ * two a's, and "Mart".
+ */
+export const PRODUCT_BRAND = 'Gloviaa Mart';
+
+/**
+ * The same name in one word, for the places a two-word name does not fit or
+ * does not belong: the core of the orchestration hub on the landing page,
+ * where the globe is the "Mart" and the name only has to say whose it is, and
+ * the header on a phone, where the row beside five controls has room for one
+ * word. Never `GLOVIAA`; any uppercasing is CSS.
+ */
+export const PRODUCT_SHORT_NAME = 'Gloviaa';
 
 /**
  * The line under the wordmark. The product's slogan, written once, in English,
  * in every language — a tagline is a brand asset rather than a sentence to
- * translate, for the same reason the name is. Never `The way to the world`,
- * never `The Way To The World`; any uppercasing is CSS.
+ * translate, for the same reason the name is. Never `The way to the global sourcing`,
+ * never `The Way To The Global Sourcing`; any uppercasing is CSS.
  */
-export const PRODUCT_TAGLINE = 'The Way to the World';
+export const PRODUCT_TAGLINE = 'The Way to the Global Sourcing';
 
 /**
  * The company behind it. Never `Power by UBOSS`, never `Powered By Uboss`.

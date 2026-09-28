@@ -8,7 +8,7 @@
  *   or refuses it, and puts one of ITS OWN drivers on it.
  *
  *   DHL / FEDEX / INDIA POST WITHOUT AN API ACCOUNT is booked by the seller
- *   outside Glovia and recorded here. Nothing is booked, labelled, priced or
+ *   outside Gloviaa Mart and recorded here. Nothing is booked, labelled, priced or
  *   numbered by this system, and every test on that path checks so.
  *
  * And the boundaries: a seller cannot touch another seller's consignment, a

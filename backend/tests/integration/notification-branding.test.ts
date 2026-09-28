@@ -45,7 +45,7 @@ describe('notification branding', () => {
 
     const payload = await enqueue();
 
-    expect(payload['businessName']).toBe(profile?.displayName.trim() || 'Glovia');
+    expect(payload['businessName']).toBe(profile?.displayName.trim() || 'Gloviaa Mart');
     expect(payload['supportEmail']).toBe(profile?.supportEmail ?? env.EMAIL_FROM_ADDRESS);
     expect(JSON.stringify(payload)).not.toContain('uboss.example');
   });

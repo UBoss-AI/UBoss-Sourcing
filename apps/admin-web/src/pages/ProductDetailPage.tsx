@@ -104,6 +104,8 @@ interface ProductDetail {
   minOrderQty: number;
   maxOrderQty: number | null;
   qtyIncrement: number;
+  /** The B2C maximum order quantity for the operator's own stock. Null: not configured. */
+  b2cMaxOrderQuantity?: number | null;
   isRecurringEligible: boolean;
   hasVariants: boolean;
   weightGrams: number | null;
@@ -181,6 +183,7 @@ function buildProductSchema(t: Translate) {
     reorderThreshold: z.coerce.number().int().min(0).max(1_000_000),
     minOrderQty: z.coerce.number().int().min(1, t('productDetail.atLeastOne')).max(1_000_000),
     maxOrderQty: z.string().trim(),
+    b2cMaxOrderQuantity: z.string().trim(),
     qtyIncrement: z.coerce.number().int().min(1, t('productDetail.atLeastOne')).max(1_000_000),
     isRecurringEligible: z.boolean(),
     isPriceOnRequest: z.boolean(),
@@ -217,6 +220,33 @@ function buildProductSchema(t: Translate) {
           path: ['maxOrderQty'],
           message:
             t('productDetail.theMaximumCannotBeBelow'),
+        });
+      }
+    }
+
+    // The B2C maximum order quantity. Blank is "not configured" for the
+    // operator's own product; a figure must be a whole number from 1 to
+    // 1,000,000 and not below the minimum. Refused, never corrected.
+    if (values.b2cMaxOrderQuantity !== '') {
+      const typed = values.b2cMaxOrderQuantity;
+      const limit = Number(typed);
+      if (!/^\d+$/.test(typed) || limit < 1) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['b2cMaxOrderQuantity'],
+          message: t('productDetail.b2cLimitWholeNumber'),
+        });
+      } else if (limit > 1_000_000) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['b2cMaxOrderQuantity'],
+          message: t('productDetail.b2cLimitTooLarge'),
+        });
+      } else if (limit < values.minOrderQty) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['b2cMaxOrderQuantity'],
+          message: t('productDetail.b2cLimitBelowMinimum'),
         });
       }
     }
@@ -763,6 +793,10 @@ export function ProductDetailPage(): React.JSX.Element {
       reorderThreshold: product.reorderThreshold,
       minOrderQty: product.minOrderQty,
       maxOrderQty: product.maxOrderQty === null ? '' : String(product.maxOrderQty),
+      b2cMaxOrderQuantity:
+        product.b2cMaxOrderQuantity === null || product.b2cMaxOrderQuantity === undefined
+          ? ''
+          : String(product.b2cMaxOrderQuantity),
       qtyIncrement: product.qtyIncrement,
       isRecurringEligible: product.isRecurringEligible,
       isPriceOnRequest: product.isPriceOnRequest,
@@ -800,6 +834,8 @@ export function ProductDetailPage(): React.JSX.Element {
         reorderThreshold: values.reorderThreshold,
         minOrderQty: values.minOrderQty,
         maxOrderQty: values.maxOrderQty === '' ? null : Number(values.maxOrderQty),
+        b2cMaxOrderQuantity:
+          values.b2cMaxOrderQuantity === '' ? null : Number(values.b2cMaxOrderQuantity),
         qtyIncrement: values.qtyIncrement,
         isRecurringEligible: values.isRecurringEligible,
         isPriceOnRequest: values.isPriceOnRequest,
@@ -1224,6 +1260,27 @@ export function ProductDetailPage(): React.JSX.Element {
                     invalid={errors.maxOrderQty !== undefined}
                     disabled={!canWrite}
                     {...register('maxOrderQty')}
+                  />
+                )}
+              </Field>
+
+              <Field
+                label={t('productDetail.b2cLimitLabel')}
+                hint={t('productDetail.b2cLimitHint')}
+                error={errors.b2cMaxOrderQuantity?.message}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={1_000_000}
+                    step={1}
+                    aria-describedby={describedBy}
+                    invalid={errors.b2cMaxOrderQuantity !== undefined}
+                    disabled={!canWrite}
+                    {...register('b2cMaxOrderQuantity')}
                   />
                 )}
               </Field>

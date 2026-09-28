@@ -16,8 +16,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiError, api, onSessionEnded } from '@/lib/api';
+import { queryClient } from '@/app/queryClient';
 import { SessionContext } from './session-context';
-import type { CustomerUser, SessionState } from './session-context';
+import type {
+  BuyerContext,
+  BuyerType,
+  CompanyContextOption,
+  CustomerUser,
+  SessionState,
+  SignInNext,
+} from './session-context';
+
+const INDIVIDUAL: BuyerContext = { kind: 'INDIVIDUAL' };
 
 export function SessionProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const [user, setUser] = useState<CustomerUser | null>(null);
@@ -72,10 +82,45 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
     [],
   );
 
-  const login = useCallback(async (email: string, password: string): Promise<void> => {
-    const result = await api.post<{ user: CustomerUser }>('/auth/login', { email, password });
-    setUser(result.user);
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string, buyerType?: BuyerType): Promise<{ next: SignInNext }> => {
+      const result = await api.post<{
+        user: CustomerUser;
+        buyerContext?: BuyerContext;
+        companies?: CompanyContextOption[];
+        next?: SignInNext;
+      }>('/auth/login', { email, password, ...(buyerType === undefined ? {} : { buyerType }) });
+      // A new session is a new buyer: nothing cached for the last one may be
+      // shown to this one.
+      queryClient.clear();
+      setUser({
+        ...result.user,
+        buyerContext: result.buyerContext ?? INDIVIDUAL,
+        companies: result.companies ?? [],
+      });
+      return { next: result.next ?? 'READY' };
+    },
+    [],
+  );
+
+  const switchBuyerContext = useCallback(
+    async (target: { kind: 'INDIVIDUAL' } | { kind: 'COMPANY'; companyId: string }): Promise<void> => {
+      const result = await api.put<{ buyerContext: BuyerContext; companies: CompanyContextOption[] }>(
+        '/auth/buyer-context',
+        target,
+      );
+      // The basket, the orders and the address book all belong to the context.
+      // Dropping the cache is what stops one context's data flashing up in the
+      // other while the new one loads.
+      queryClient.clear();
+      setUser((current) =>
+        current === null
+          ? current
+          : { ...current, buyerContext: result.buyerContext, companies: result.companies, buyerContextReset: false },
+      );
+    },
+    [],
+  );
 
   const logout = useCallback(async (): Promise<void> => {
     try {
@@ -98,8 +143,11 @@ export function SessionProvider({ children }: { children: ReactNode }): React.JS
       login,
       logout,
       refreshUser: loadUser,
+      buyerContext: user?.buyerContext ?? INDIVIDUAL,
+      companies: user?.companies ?? [],
+      switchBuyerContext,
     }),
-    [user, isLoading, login, logout, loadUser],
+    [user, isLoading, login, logout, loadUser, switchBuyerContext],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -68,6 +68,7 @@ import {
 import { newId } from '../../infra/ids.js';
 import { logger, loggerFor } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
+import { assertOrderLinesWithinB2c } from '../cart/b2c-limit.service.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { pushOrderToErp, reconcileErpInventory } from '../integrations/erp-order.service.js';
 import { reserveStock } from '../inventory/inventory.service.js';
@@ -1265,6 +1266,20 @@ async function createOrderForOccurrence(input: {
   });
 
   const orderNumber = await prisma.$transaction(async (tx) => {
+    // The B2C limit, read live inside the transaction that writes the order.
+    // `quoteSchedule` has already held an over-limit delivery; this is the
+    // backstop for a limit lowered in the moments between the two. A plan is
+    // always the person's own, so there is no company to be exempt.
+    const b2c = await assertOrderLinesWithinB2c(tx, {
+      customerProfileId: schedule.customerProfileId,
+      buyerCompanyId: null,
+      lines: quote.pricing.lines.map((line) => ({
+        productId: line.productId,
+        sellerOfferId: null,
+        quantity: line.quantity,
+      })),
+    });
+
     const year = new Date().getUTCFullYear();
     const key = `order:${String(year)}`;
     const profile = await tx.businessProfile.findFirst({ select: { orderPrefix: true } });
@@ -1284,6 +1299,7 @@ async function createOrderForOccurrence(input: {
         id: orderId,
         orderNumber: number,
         customerProfileId: schedule.customerProfileId,
+        buyerContextKind: 'INDIVIDUAL',
         source: 'RECURRING',
         // Unique. Even a reprocessed occurrence cannot produce a second order.
         scheduleOccurrenceId: occurrenceId,
@@ -1304,7 +1320,7 @@ async function createOrderForOccurrence(input: {
     });
 
     await tx.orderItem.createMany({
-      data: quote.pricing.lines.map((line) => ({
+      data: quote.pricing.lines.map((line, index) => ({
         id: newId(),
         orderId,
         productId: line.productId,
@@ -1323,6 +1339,8 @@ async function createOrderForOccurrence(input: {
         discountMinor: line.discountMinor,
         lineTotalMinor: line.lineTotalMinor,
         isRecurringEligibleSnapshot: line.isRecurringEligibleSnapshot,
+        b2cMaxOrderQuantityApplied: b2c.perLine[index]?.limitApplied ?? null,
+        b2cCompanyExemptionApplied: false,
       })),
     });
 

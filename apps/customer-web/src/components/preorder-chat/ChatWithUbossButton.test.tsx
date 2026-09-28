@@ -273,13 +273,13 @@ describe('Chat with UBOSS', () => {
   it('sits beside Preorder as an icon, named and with an accessible tooltip', async () => {
     stubApi();
     renderButton();
-    const chat = await screen.findByRole('button', { name: 'Chat with Glovia' });
+    const chat = await screen.findByRole('button', { name: 'Chat with Gloviaa Mart' });
     // An icon: no visible words, the name comes from its label.
     expect(chat).toHaveTextContent('');
     // The tooltip describes it, for hover and for keyboard focus alike.
-    expect(chat).toHaveAccessibleDescription('Ask Glovia about this preorder');
+    expect(chat).toHaveAccessibleDescription('Ask Gloviaa Mart about this preorder');
     fireEvent.focus(chat);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Ask Glovia about this preorder');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Ask Gloviaa Mart about this preorder');
     // A 48 px target, past the 44 px minimum.
     expect(chat).toHaveClass('size-12');
     expect(screen.getByRole('button', { name: /^preorder$/i })).toBeInTheDocument();
@@ -290,7 +290,7 @@ describe('Chat with UBOSS', () => {
   it('shows how many replies about this product are unread, counted by the server', async () => {
     const calls = stubApi({ unread: 3 });
     renderButton();
-    const chat = await screen.findByRole('button', { name: 'Chat with Glovia. Unread replies: 3' });
+    const chat = await screen.findByRole('button', { name: 'Chat with Gloviaa Mart. Unread replies: 3' });
     expect(within(chat).getByText('3')).toBeInTheDocument();
     expect(calls.some((call) => call.url.includes('/preorder-chats/unread?productId='))).toBe(true);
   });
@@ -298,8 +298,8 @@ describe('Chat with UBOSS', () => {
   it('lets a guest read the assistant, and sends them to sign in to reach a person', async () => {
     const calls = stubApi();
     renderButton({ isCustomer: false });
-    fireEvent.click(await screen.findByRole('button', { name: 'Chat with Glovia' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Chat with Gloviaa Mart' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     // No sign-in wall for the common answers.
     fireEvent.click(await within(dialog).findByRole('button', { name: 'What is the minimum preorder quantity?' }));
     expect(await within(dialog).findByText('The minimum preorder quantity is 1,000 pieces.')).toBeInTheDocument();
@@ -324,7 +324,7 @@ describe('Chat with UBOSS', () => {
     sessionStorage.setItem(TRANSCRIPT_KEY, JSON.stringify([{ ...signed('moq'), feedback: null }]));
     sessionStorage.setItem(HANDOFF_KEY, JSON.stringify({ productId: PRODUCT, variantId: null, topic: 'moq' }));
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     await waitFor(() => {
       expect(calls.some((call) => call.url.endsWith('/preorder-chats/handoff'))).toBe(true);
     });
@@ -334,10 +334,10 @@ describe('Chat with UBOSS', () => {
     // Honest: queued, not "connected".
     expect(
       await within(dialog).findByText(
-        'Your request has been sent to the Glovia preorder team. A human representative will reply here as soon as possible.',
+        'Your request has been sent to the Gloviaa Mart preorder team. A human representative will reply here as soon as possible.',
       ),
     ).toBeInTheDocument();
-    expect(within(dialog).getByText('You asked to talk to a person from the Glovia team.')).toBeInTheDocument();
+    expect(within(dialog).getByText('You asked to talk to a person from the Gloviaa Mart team.')).toBeInTheDocument();
     expect(within(dialog).queryByText(/agent connected/i)).toBeNull();
     // Asked once, and the request no longer waits.
     expect(calls.filter((call) => call.url.endsWith('/preorder-chats/handoff'))).toHaveLength(1);
@@ -352,9 +352,9 @@ describe('Chat with UBOSS', () => {
       JSON.stringify({ productId: PRODUCT, variantId: null, orderingUnit: 'PIECE', unitQuantity: 1500, desiredDeliveryDate: null }),
     );
     renderButton({ route: '/product/gloves?size=m&chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     expect(await within(dialog).findByText('Seller: Gamma Manufacturing')).toBeInTheDocument();
-    expect(within(dialog).getByText('Glovia team is currently offline')).toBeInTheDocument();
+    expect(within(dialog).getByText('Gloviaa Mart team is currently offline')).toBeInTheDocument();
     expect(within(dialog).getByText(/Never share passwords, OTPs, card details/)).toBeInTheDocument();
     // The assistant greets by name, about this product, and says it is automated.
     expect(
@@ -362,7 +362,7 @@ describe('Chat with UBOSS', () => {
         'Hello, Priya! I can help you with common preorder questions for Examination gloves. What would you like to know?',
       ),
     ).toBeInTheDocument();
-    expect(within(dialog).getByRole('heading', { name: /Glovia Preorder Assistant\s*Automated/ })).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { name: /Gloviaa Mart Preorder Assistant\s*Automated/ })).toBeInTheDocument();
     const preview = calls.find((call) => call.url.includes('/preorder-chats/context'));
     expect(preview?.body).toMatchObject({ productId: PRODUCT, unitQuantity: 1500 });
     expect(writes(calls)).toBe(false);
@@ -371,7 +371,7 @@ describe('Chat with UBOSS', () => {
   it('shows the common questions as tappable cards', async () => {
     stubApi();
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     const list = await within(dialog).findByRole('list', { name: 'Common preorder questions' });
     const rows = within(list).getAllByRole('button');
     expect(rows.map((row) => row.textContent)).toEqual([
@@ -386,15 +386,15 @@ describe('Chat with UBOSS', () => {
   it('says honestly when the team has to confirm, and offers a person', async () => {
     stubApi();
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     fireEvent.click(await within(dialog).findByRole('button', { name: 'How many pieces fit in a 40-ft container?' }));
     expect(
       await within(dialog).findByText('The seller has not verified how many pieces fit in a 40-ft container.'),
     ).toBeInTheDocument();
-    expect(within(dialog).getByText('This information needs confirmation from the Glovia preorder team.')).toBeInTheDocument();
+    expect(within(dialog).getByText('This information needs confirmation from the Gloviaa Mart preorder team.')).toBeInTheDocument();
     expect(within(dialog).getByText('Needs confirmation')).toBeInTheDocument();
     // The answer is the assistant's, labelled so - not the team's.
-    expect(within(dialog).getAllByText('Glovia Preorder Assistant').length).toBeGreaterThan(0);
+    expect(within(dialog).getAllByText('Gloviaa Mart Preorder Assistant').length).toBeGreaterThan(0);
     expect(within(dialog).getByRole('group', { name: 'Was this helpful?' })).toBeInTheDocument();
     expect(within(dialog).getByRole('group', { name: 'Would you like to connect with a human agent?' })).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Ask another question' }));
@@ -405,7 +405,7 @@ describe('Chat with UBOSS', () => {
     stubApi();
     sessionStorage.setItem(TRANSCRIPT_KEY, JSON.stringify([{ ...signed('moq'), feedback: 'helpful' }]));
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     expect(await within(dialog).findByText('The minimum preorder quantity is 1,000 pieces.')).toBeInTheDocument();
     expect(within(dialog).getAllByText(/^Hello, Priya!/)).toHaveLength(1);
     expect(within(dialog).queryByRole('group', { name: 'Was this helpful?' })).toBeNull();
@@ -414,7 +414,7 @@ describe('Chat with UBOSS', () => {
   it('sends the first message once from the round button, with its context and the answers read', async () => {
     const calls = stubApi();
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     fireEvent.click(await within(dialog).findByRole('button', { name: 'What is the minimum preorder quantity?' }));
     await within(dialog).findByText('The minimum preorder quantity is 1,000 pieces.');
 
@@ -455,11 +455,11 @@ describe('Chat with UBOSS', () => {
       ],
     });
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     expect(await within(dialog).findByText('What is the minimum preorder quantity?')).toBeInTheDocument();
     expect(within(dialog).getByText('The minimum preorder quantity is 1,000 pieces.')).toBeInTheDocument();
     expect(within(dialog).getByText('Automated')).toBeInTheDocument();
-    expect(within(dialog).getByText('A member of the Glovia team has joined the conversation.')).toBeInTheDocument();
+    expect(within(dialog).getByText('A member of the Gloviaa Mart team has joined the conversation.')).toBeInTheDocument();
     // With a conversation open, the assistant's greeting does not come back.
     expect(within(dialog).queryByText(/^Hello, Priya!/)).toBeNull();
   });
@@ -475,7 +475,7 @@ describe('Chat with UBOSS', () => {
       ],
     });
     renderButton({ route: '/product/gloves?chat=1' });
-    const dialog = await screen.findByRole('dialog', { name: 'Chat with Glovia' });
+    const dialog = await screen.findByRole('dialog', { name: 'Chat with Gloviaa Mart' });
     expect(await within(dialog).findByText(/<img src=x onerror="alert\(1\)">/)).toBeInTheDocument();
     expect(dialog.querySelector('img[src="x"]')).toBeNull();
     const links = within(dialog).getAllByRole('link');

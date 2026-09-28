@@ -50,6 +50,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { accountMenuGroups } from '@/pages/account/account-nav';
 import { useChatUnreadCount } from '@/lib/use-chat-unread';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
+import { BuyerContextSwitcher } from './BuyerContextSwitcher';
 
 export function AccountMenu(): React.JSX.Element {
   const { isCustomer, isLoading, logout } = useSession();
@@ -114,12 +115,18 @@ export function AccountMenu(): React.JSX.Element {
         className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-card transition-colors hover:border-border-hover hover:bg-surface-hover sm:px-4"
       >
         <UserIcon className="h-[1.15rem] w-[1.15rem] text-ink-muted" />
-        {t('header.signIn')}
+        {/* The icon alone under `sm`, where the word cost the wordmark beside
+            it its last letters; the word stays the link's accessible name. */}
+        <span className="max-sm:sr-only">{t('header.signIn')}</span>
       </Link>
     );
   }
 
-  const groups = accountMenuGroups({ recurringOrders: features.recurringOrders });
+  const groups = accountMenuGroups({
+    recurringOrders: features.recurringOrders,
+    buyerCompanies: features.buyerCompanies === true,
+    productReviews: features.productReviews === true,
+  });
 
   return (
     <div ref={containerRef} className="relative">
@@ -233,6 +240,9 @@ export function AccountMenu(): React.JSX.Element {
               <CloseIcon className="h-4 w-4" />
             </button>
           </div>
+
+          {/* --- Who they are buying for ----------------------------------- */}
+          <BuyerContextSwitcher onSwitched={close} />
 
           {/* --- Where they can go ---------------------------------------- */}
           <div className="min-h-0 flex-1 overflow-y-auto py-1.5">

@@ -14,6 +14,7 @@ import {
   CustomersIcon,
   DashboardIcon,
   OrdersIcon,
+  HeadsetIcon,
   ProfileIcon,
   SellerIcon,
   StaffIcon,
@@ -153,6 +154,14 @@ export const NAVIGATION: readonly NavSection[] = [
         icon: SellerIcon,
         anyOf: [Permission.INTEGRATION_READ],
       },
+      {
+        // Every member, drivers included: anybody working for the carrier may
+        // need to reach the marketplace. The request goes in the company's name.
+        to: '/support',
+        labelKey: 'nav.support',
+        icon: HeadsetIcon,
+        anyOf: [],
+      },
     ],
   },
 ];
@@ -184,6 +193,7 @@ export function visibleNavigation(
 ): NavSection[] {
   return NAVIGATION.map((section) => ({
     ...section,
-    entries: section.entries.filter((entry) => canAny(...entry.anyOf)),
+    // An empty list is "any member", as it is for the route guard.
+    entries: section.entries.filter((entry) => entry.anyOf.length === 0 || canAny(...entry.anyOf)),
   })).filter((section) => section.entries.length > 0);
 }

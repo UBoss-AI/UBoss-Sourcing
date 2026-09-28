@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**243 tables · 219 enums · 579 extra indexes and unique keys**, in 43 groups. The groups follow the section banners in the schema file.
+**260 tables · 245 enums · 624 extra indexes and unique keys**, in 46 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -55,6 +55,8 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ where the ERP connection stands. / / the order matters and the gaps matter. draft -&gt; testing -&gt; connected is the / setup path, and active is reachable only from connected: a connection that / has never answered a test cannot start carrying orders. see / `ERP-connection-state.ts`, which is the only thing allowed to move a row / between these.](#group-where-the-erp-connection-stands-the-order-matters-and-the-gaps-matter-draft-testing-connected-is-the-setup-path-and-active-is-reachable-only-from-connected-a-connection-that-has-never-answered-a-test-cannot-start-carrying-orders-see-erp-connection-state-ts-which-is-the-only-thing-allowed-to-move-a-row-between-these) | 7 | 9 |
 | [Saved for later](#group-saved-for-later) | 1 | 0 |
 | [Instructions left on a product without buying it](#group-instructions-left-on-a-product-without-buying-it) | 1 | 0 |
+| [/ whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.](#group-whether-a-review-is-shown-on-the-storefront-two-members-a-review-is-published-the-moment-it-is-written-there-is-no-queue-a-buyer-waits-in-and-a-member-of-staff-can-hide-one-afterwards-and-put-it-back-appending-a-member-later-is-safe-reordering-is-not-because-mariadb-stores-an-enum-by-position) | 1 | 1 |
+| [/ where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.](#group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position) | 3 | 8 |
 | [/ what somebody may do inside a buyer organisation. / / three levels rather than a permission matrix, because there are exactly / three questions a buyer's it department actually has: who owns this, who / may change the credentials, and who may look. a fourth role would have to / be explained to somebody, and nobody has asked for one.](#group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one) | 19 | 20 |
 | [/ where a seller's application has got to. / / the order matters: this is a state machine, enforced in / `domain/seller-state.ts`, and nothing writes this column directly - the / same rule `orderstatus` and `schedulestatus` follow, for the same reason. / an application decides whether a business may put medical devices in front / of hospitals, so "how did it get to approved" must always have an answer.](#group-where-a-seller-s-application-has-got-to-the-order-matters-this-is-a-state-machine-enforced-in-domain-seller-state-ts-and-nothing-writes-this-column-directly-the-same-rule-orderstatus-and-schedulestatus-follow-for-the-same-reason-an-application-decides-whether-a-business-may-put-medical-devices-in-front-of-hospitals-so-how-did-it-get-to-approved-must-always-have-an-answer) | 33 | 25 |
 | [/ how a seller came to be able to use a carrier. / / stored because it decides who may end the relationship and on what notice, / which is a question that gets asked exactly once - during a dispute.](#group-how-a-seller-came-to-be-able-to-use-a-carrier-stored-because-it-decides-who-may-end-the-relationship-and-on-what-notice-which-is-a-question-that-gets-asked-exactly-once-during-a-dispute) | 1 | 2 |
@@ -68,6 +70,7 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 13 | 17 |
 
 <a id="group-identity-access"></a>
 
@@ -82,6 +85,7 @@ erDiagram
     User ||--o{ UserRole : "user"
     Role ||--o{ UserRole : "role"
     User ||--o{ Session : "user"
+    BuyerCompany |o--o{ Session : "buyerCompany"
     User ||--o{ AuthToken : "user"
     User {
         String id PK
@@ -104,6 +108,7 @@ erDiagram
     Session {
         String id PK
         String userId FK
+        String buyerCompanyId FK
     }
     AuthToken {
         String id PK
@@ -164,6 +169,15 @@ Table `users`
 - `acknowledgements` ← [CustomerAcknowledgement](#model-customeracknowledgement) - has many
 - `preorderChatsAssigned` ← [PreorderChatConversation](#model-preorderchatconversation) - has many
 - `preorderChatParticipants` ← [PreorderChatParticipant](#model-preorderchatparticipant) - has many
+- `buyerCompanyMemberships` ← [BuyerCompanyMember](#model-buyercompanymember) - has many
+- `buyerCompanyCases` ← [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) - has many
+- `moderatedProductReviews` ← [ProductReview](#model-productreview) - has many
+- `supportTicketsRequested` ← [SupportTicket](#model-supportticket) - has many
+- `supportTicketsAssigned` ← [SupportTicket](#model-supportticket) - has many
+- `supportTicketEvents` ← [SupportTicketEvent](#model-supportticketevent) - has many
+- `supportTicketAttachments` ← [SupportTicketAttachment](#model-supportticketattachment) - has many
+- `consentRecords` ← [ConsentRecord](#model-consentrecord) - has many
+- `buyerCompanyEmailChallenges` ← [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge) - has many
 
 **Indexes and keys**
 
@@ -281,12 +295,15 @@ Table `sessions`
 | `revokedReason` | String · VarChar(128) | yes |  |  |  |
 | `replacedBySessionId` | String · Char(26) | yes |  |  |  |
 | `familyStartedAt` | DateTime · DateTime(3) | yes |  |  | When the SIGN-IN behind this family happened. |
+| `buyerContextKind` | [enum BuyerContextKind](#enum-buyercontextkind) | yes |  |  | Which buyer this sign-in is acting as, on the storefront only. |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: SetNull) |
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `lastUsedAt` | DateTime · DateTime(3) |  |  | now() |  |
 
 **Relations**
 
 - `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
 
 **Indexes and keys**
 
@@ -823,6 +840,7 @@ Table `products`
 | `minOrderQty` | Int |  |  | 1 | Purchasing rules enforced server-side on every cart mutation and at checkout. |
 | `maxOrderQty` | Int | yes |  |  |  |
 | `qtyIncrement` | Int |  |  | 1 |  |
+| `b2cMaxOrderQuantity` | Int | yes |  |  | The most units of this product a buyer who is not an approved company may put in one order, counting every variant and every line together. |
 | `isRecurringEligible` | Boolean |  |  | false |  |
 | `hasVariants` | Boolean |  |  | false |  |
 | `variantAxesJson` | Json | yes |  |  | The variant axes this product actually sells along, as an ordered list of template axis keys: `["size_system", "size", "colour"]`. |
@@ -868,6 +886,7 @@ Table `products`
 - `translations` ← [ProductTranslation](#model-producttranslation) - has many
 - `wishlistItems` ← [WishlistItem](#model-wishlistitem) - has many
 - `instructions` ← [ProductInstruction](#model-productinstruction) - has many
+- `reviews` ← [ProductReview](#model-productreview) - has many
 - `countryRestrictions` ← [ProductCountryRestriction](#model-productcountryrestriction) - has many
 - `packagings` ← [ProductPackaging](#model-productpackaging) - has many
 - `importRecords` ← [ProductImportRecord](#model-productimportrecord) - has many
@@ -1601,6 +1620,7 @@ Where a warehouse stands with the ERP that owns its stock figures.
 erDiagram
     User ||--o| CustomerProfile : "user"
     CustomerProfile ||--o{ Address : "customerProfile"
+    BuyerCompany |o--o{ Address : "buyerCompany"
     CustomerProfile {
         String id PK
         String userId FK
@@ -1608,6 +1628,7 @@ erDiagram
     Address {
         String id PK
         String customerProfileId FK
+        String buyerCompanyId FK
     }
 ```
 
@@ -1663,6 +1684,8 @@ Table `customer_profiles`
 - `limits` ← [CustomerLimit](#model-customerlimit) - has many
 - `wishlistItems` ← [WishlistItem](#model-wishlistitem) - has many
 - `productInstructions` ← [ProductInstruction](#model-productinstruction) - has many
+- `productReviews` ← [ProductReview](#model-productreview) - has many
+- `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 - `fulfilmentQuotes` ← [FulfilmentQuote](#model-fulfilmentquote) - has many
 - `assistantConversations` ← [AssistantConversation](#model-assistantconversation) - has many
 - `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
@@ -1704,10 +1727,12 @@ Table `addresses`
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `archivedAt` | DateTime · DateTime(3) | yes |  |  | Soft delete. Orders keep an independent JSON snapshot of the address as it was at checkout, so archiving here never rewrites order history. |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company whose address book this belongs to, or NULL for the person's own. A company's delivery addresses are not shown in the individual context, and the reverse. (on delete: Restrict) |
 
 **Relations**
 
 - `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `shippingSchedules` ← [RecurringSchedule](#model-recurringschedule) - has many
 - `billingSchedules` ← [RecurringSchedule](#model-recurringschedule) - has many
 - `fulfilmentQuotes` ← [FulfilmentQuote](#model-fulfilmentquote) - has many
@@ -1715,6 +1740,7 @@ Table `addresses`
 **Indexes and keys**
 
 - `@@index([customerProfileId, archivedAt], map: "ix_address_customer")`
+- `@@index([buyerCompanyId, archivedAt], map: "ix_address_buyer_company")`
 
 ### Enums in Customers
 
@@ -1738,6 +1764,7 @@ Table `addresses`
 erDiagram
     CustomerProfile |o--o{ Cart : "customerProfile"
     Coupon |o--o{ Cart : "appliedCoupon"
+    BuyerCompany |o--o{ Cart : "buyerCompany"
     Cart ||--o{ CartItem : "cart"
     Product ||--o{ CartItem : "product"
     ProductVariant |o--o{ CartItem : "variant"
@@ -1747,6 +1774,7 @@ erDiagram
         String customerProfileId FK
         CartStatus status
         String appliedCouponId FK
+        String buyerCompanyId FK
     }
     CartItem {
         String id PK
@@ -1774,11 +1802,13 @@ Table `carts`
 | `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
 | `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
 | `expiresAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company this basket is being bought for, or NULL for the person's own. One ACTIVE cart per (profile, company) - a person buying for their employer and for themselves has two baskets, never one mixed one. (on delete: Restrict) |
 
 **Relations**
 
 - `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, optional, on delete **Cascade**
 - `appliedCoupon` → [Coupon](#model-coupon) via `appliedCouponId` - many-to-one, optional, on delete **SetNull**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `items` ← [CartItem](#model-cartitem) - has many
 - `reservations` ← [StockReservation](#model-stockreservation) - has many
 - `orders` ← [Order](#model-order) - has many
@@ -1787,6 +1817,7 @@ Table `carts`
 **Indexes and keys**
 
 - `@@index([customerProfileId, status], map: "ix_cart_customer_status")`
+- `@@index([buyerCompanyId, status], map: "ix_cart_buyer_company")`
 - `@@index([status, expiresAt], map: "ix_cart_sweep")`
 
 <a id="model-cartitem"></a>
@@ -1853,6 +1884,7 @@ erDiagram
     InventoryLocation |o--o{ Order : "fulfilmentLocation"
     FulfilmentQuote |o--o{ Order : "fulfilmentQuote"
     ScheduleOccurrence |o--o| Order : "occurrence"
+    BuyerCompany |o--o{ Order : "buyerCompany"
     Order ||--o{ OrderItem : "order"
     Product ||--o{ OrderItem : "product"
     ProductVariant |o--o{ OrderItem : "variant"
@@ -1863,6 +1895,7 @@ erDiagram
         String id PK
         String customerProfileId FK
         String cartId FK
+        String buyerCompanyId FK
         String scheduleOccurrenceId FK
         OrderStatus status
         BigInt subtotalMinor
@@ -1873,7 +1906,6 @@ erDiagram
         BigInt paidMinor
         BigInt refundedMinor
         String fxSnapshotId FK
-        BigInt fxBaseGrandTotalMinor
     }
     OrderItem {
         String id PK
@@ -1918,6 +1950,8 @@ Table `orders`
 | `orderNumber` | String · VarChar(32) |  | UNIQUE |  | Human-facing sequential-ish reference, e.g. UB-2026-000123. |
 | `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Restrict) |
 | `cartId` | String · Char(26) | yes | FK → [Cart](#model-cart) |  | (on delete: SetNull) |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company the order was placed for, or NULL for an individual order. `customerProfileId` stays the person who placed it either way. (on delete: Restrict) |
+| `buyerContextKind` | [enum BuyerContextKind](#enum-buyercontextkind) | yes |  |  | Who the order was placed as, frozen at checkout from the server-side buyer context. NULL on orders placed before this column existed. |
 | `source` | [enum OrderSource](#enum-ordersource) |  |  | ONE_TIME |  |
 | `scheduleOccurrenceId` | String · Char(26) | yes | UNIQUE, FK → [ScheduleOccurrence](#model-scheduleoccurrence) |  | (on delete: SetNull) |
 | `status` | [enum OrderStatus](#enum-orderstatus) |  |  | DRAFT |  |
@@ -1977,11 +2011,14 @@ Table `orders`
 - `fulfilmentLocation` → [InventoryLocation](#model-inventorylocation) via `fulfilmentLocationId` - many-to-one, optional, on delete **Restrict**
 - `fulfilmentQuote` → [FulfilmentQuote](#model-fulfilmentquote) via `fulfilmentQuoteId` - many-to-one, optional, on delete **Restrict**
 - `occurrence` → [ScheduleOccurrence](#model-scheduleoccurrence) via `scheduleOccurrenceId` - one-to-one, optional, on delete **SetNull**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `logisticsShipments` ← [LogisticsShipment](#model-logisticsshipment) - has many
 - `logisticsLegCharges` ← [OrderLogisticsLeg](#model-orderlogisticsleg) - has many
 - `shipmentLegs` ← [ShipmentLeg](#model-shipmentleg) - has many
 - `items` ← [OrderItem](#model-orderitem) - has many
 - `statusHistory` ← [OrderStatusHistory](#model-orderstatushistory) - has many
+- `productReviews` ← [ProductReview](#model-productreview) - has many
+- `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 - `approvals` ← [OrderApproval](#model-orderapproval) - has many
 - `payments` ← [PaymentTransaction](#model-paymenttransaction) - has many
 - `paymentLinks` ← [PaymentLink](#model-paymentlink) - has many
@@ -2001,6 +2038,7 @@ Table `orders`
 **Indexes and keys**
 
 - `@@index([customerProfileId, createdAt], map: "ix_order_customer_time")`
+- `@@index([buyerCompanyId, createdAt], map: "ix_order_buyer_company")`
 - `@@index([status, createdAt], map: "ix_order_status_time")`
 - `@@index([source, createdAt], map: "ix_order_source_time")`
 - `@@index([placedAt], map: "ix_order_placed")`
@@ -2033,6 +2071,8 @@ Table `order_items`
 | `piecesPerUnitSnapshot` | Int |  |  | 1 |  |
 | `noteSnapshot` | String · VarChar(500) | yes |  |  | The buyer's special instruction for this line, frozen at checkout. |
 | `quantityTierJson` | Json | yes |  |  | The quantity band that priced this line, frozen: its id, range, the list price it replaced and the price charged. Null when the list price applied. Written once, so a later change to the seller's bands never rewrites what this order says it was charged and why. |
+| `b2cMaxOrderQuantityApplied` | Int | yes |  |  | The B2C maximum order quantity in force for this line's product when the order was placed, or null when none was configured. Frozen: a seller who changes the limit later never changes what this order says. |
+| `b2cCompanyExemptionApplied` | Boolean |  |  | false | True when an approved company placed the order, so the B2C limit did not bind it. Records the rule applied, nothing about the company. |
 | `lineSubtotalMinor` | BigInt |  |  |  |  |
 | `taxRatePercent` | Decimal · Decimal(9, 6) |  |  |  |  |
 | `taxInclusive` | Boolean |  |  | false |  |
@@ -5402,6 +5442,346 @@ Table `product_instructions`
 - `@@index([productId, createdAt], map: "ix_product_instruction_product_time")`
 - `@@index([customerProfileId, createdAt], map: "ix_product_instruction_customer_time")`
 
+<a id="group-whether-a-review-is-shown-on-the-storefront-two-members-a-review-is-published-the-moment-it-is-written-there-is-no-queue-a-buyer-waits-in-and-a-member-of-staff-can-hide-one-afterwards-and-put-it-back-appending-a-member-later-is-safe-reordering-is-not-because-mariadb-stores-an-enum-by-position"></a>
+
+##  / whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.
+
+[ProductReview](#model-productreview)
+
+```mermaid
+erDiagram
+    Product ||--o{ ProductReview : "product"
+    CustomerProfile ||--o{ ProductReview : "customerProfile"
+    Order |o--o{ ProductReview : "order"
+    User |o--o{ ProductReview : "moderatedBy"
+    ProductReview {
+        String id PK
+        String productId FK
+        String customerProfileId FK
+        String orderId FK
+        ProductReviewStatus status
+        String moderatedByUserId FK
+    }
+```
+
+<a id="model-productreview"></a>
+
+### ProductReview
+
+Table `product_reviews`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `productId` | String · Char(26) |  | FK → [Product](#model-product) |  | (on delete: Cascade) |
+| `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
+| `orderId` | String · Char(26) | yes | FK → [Order](#model-order) |  | The delivered order that made this buyer eligible. Null only if that order is ever removed; the review stays. (on delete: SetNull) |
+| `qualityRating` | Int · TinyInt |  |  |  | Each 1 to 5, held there by chk_product_review_ratings. |
+| `deliveryRating` | Int · TinyInt |  |  |  |  |
+| `experienceRating` | Int · TinyInt |  |  |  |  |
+| `supportRating` | Int · TinyInt |  |  |  |  |
+| `status` | [enum ProductReviewStatus](#enum-productreviewstatus) |  |  | PUBLISHED |  |
+| `moderationReason` | String · VarChar(500) | yes |  |  | Why staff hid it, shown back to the buyer who wrote it. Null while published. |
+| `moderatedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `moderatedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `product` → [Product](#model-product) via `productId` - many-to-one, required, on delete **Cascade**
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**
+- `order` → [Order](#model-order) via `orderId` - many-to-one, optional, on delete **SetNull**
+- `moderatedBy` → [User](#model-user) via `moderatedByUserId` - many-to-one, optional, on delete **SetNull**
+
+**Indexes and keys**
+
+- `@@unique([customerProfileId, productId], map: "uq_product_review")`
+- `@@index([productId, status, createdAt], map: "ix_product_review_product")`
+- `@@index([status, createdAt], map: "ix_product_review_status")`
+- `@@index([orderId], map: "ix_product_review_order")`
+- `@@index([moderatedByUserId], map: "ix_product_review_moderator")`
+
+### Enums in  / whether a review is shown on the storefront. / / two members. a review is published the moment it is written - there is no / queue a buyer waits in - and a member of staff can hide one afterwards and / put it back. appending a member later is safe; reordering is not, because / MariaDB stores an enum by position.
+
+<a id="enum-productreviewstatus"></a>
+
+#### enum ProductReviewStatus
+
+| Value | Meaning |
+|---|---|
+| `PUBLISHED` |  |
+| `HIDDEN` |  |
+
+<a id="group-where-a-ticket-is-in-its-life-see-domain-support-ticket-state-ts-append-only-mariadb-stores-an-enum-by-position"></a>
+
+##  / where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.
+
+[SupportTicket](#model-supportticket) · [SupportTicketEvent](#model-supportticketevent) · [SupportTicketAttachment](#model-supportticketattachment)
+
+```mermaid
+erDiagram
+    User ||--o{ SupportTicket : "requester"
+    CustomerProfile |o--o{ SupportTicket : "customerProfile"
+    BuyerCompany |o--o{ SupportTicket : "buyerCompany"
+    SellerAccount |o--o{ SupportTicket : "sellerAccount"
+    LogisticsPartner |o--o{ SupportTicket : "logisticsPartner"
+    Order |o--o{ SupportTicket : "relatedOrder"
+    User |o--o{ SupportTicket : "assignedAdmin"
+    SupportTicket ||--o{ SupportTicketEvent : "ticket"
+    User |o--o{ SupportTicketEvent : "actor"
+    SupportTicket ||--o{ SupportTicketAttachment : "ticket"
+    User |o--o{ SupportTicketAttachment : "uploadedBy"
+    SupportTicket {
+        String id PK
+        String requesterUserId FK
+        String customerProfileId FK
+        String buyerCompanyId FK
+        String sellerAccountId FK
+        String logisticsPartnerId FK
+        String relatedOrderId FK
+        SupportTicketStatus status
+        String assignedAdminId FK
+    }
+    SupportTicketEvent {
+        String id PK
+        String ticketId FK
+        String actorUserId FK
+    }
+    SupportTicketAttachment {
+        String id PK
+        String ticketId FK
+        String uploadedByUserId FK
+    }
+```
+
+<a id="model-supportticket"></a>
+
+### SupportTicket
+
+Table `support_tickets`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `reference` | String · VarChar(16) |  | UNIQUE |  | What the sender quotes. Unique, random, never reused. |
+| `requesterUserId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `requesterRole` | [enum SupportRequesterRole](#enum-supportrequesterrole) |  |  |  |  |
+| `source` | [enum SupportTicketSource](#enum-supportticketsource) |  |  |  |  |
+| `customerProfileId` | String · Char(26) | yes | FK → [CustomerProfile](#model-customerprofile) |  | The sender's customer profile, for storefront and Seller Hub tickets. Null for a logistics portal ticket - those people are not customers. (on delete: Cascade) |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: SetNull) |
+| `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | (on delete: SetNull) |
+| `logisticsPartnerId` | String · Char(26) | yes | FK → [LogisticsPartner](#model-logisticspartner) |  | (on delete: SetNull) |
+| `nameSnapshot` | String · VarChar(120) |  |  |  |  |
+| `emailSnapshot` | String · VarChar(254) |  |  |  |  |
+| `companyNameSnapshot` | String · VarChar(255) | yes |  |  |  |
+| `language` | String · VarChar(10) | yes |  |  | The sender's interface language when they sent it, so a reply can be written in it. Null when the client did not say. |
+| `category` | [enum SupportTicketCategory](#enum-supportticketcategory) |  |  |  |  |
+| `subject` | String · VarChar(160) |  |  |  |  |
+| `message` | String · Text |  |  |  | The first message. Plain text, at most 5,000 characters (the API holds that line). Rendered as text everywhere, never as HTML. |
+| `relatedOrderId` | String · Char(26) | yes | FK → [Order](#model-order) |  | The order the sender said this is about, checked against the orders they may see. `relatedOrderNumber` is kept even if the order goes. (on delete: SetNull) |
+| `relatedOrderNumber` | String · VarChar(32) | yes |  |  |  |
+| `status` | [enum SupportTicketStatus](#enum-supportticketstatus) |  |  | OPEN |  |
+| `priority` | [enum SupportTicketPriority](#enum-supportticketpriority) |  |  | NORMAL |  |
+| `assignedAdminId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `lastActivityAt` | DateTime · DateTime(3) |  |  | now() | The last time anybody wrote on it or changed it. The inbox sorts by this. |
+| `resolvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `requester` → [User](#model-user) via `requesterUserId` - many-to-one, required, on delete **Cascade**
+- `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, optional, on delete **Cascade**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **SetNull**
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **SetNull**
+- `logisticsPartner` → [LogisticsPartner](#model-logisticspartner) via `logisticsPartnerId` - many-to-one, optional, on delete **SetNull**
+- `relatedOrder` → [Order](#model-order) via `relatedOrderId` - many-to-one, optional, on delete **SetNull**
+- `assignedAdmin` → [User](#model-user) via `assignedAdminId` - many-to-one, optional, on delete **SetNull**
+- `events` ← [SupportTicketEvent](#model-supportticketevent) - has many
+- `attachments` ← [SupportTicketAttachment](#model-supportticketattachment) - has many
+
+**Indexes and keys**
+
+- `@@index([requesterUserId, createdAt], map: "ix_support_ticket_requester")`
+- `@@index([status, lastActivityAt], map: "ix_support_ticket_status")`
+- `@@index([assignedAdminId, status], map: "ix_support_ticket_assignee")`
+- `@@index([customerProfileId], map: "ix_support_ticket_customer")`
+- `@@index([buyerCompanyId], map: "ix_support_ticket_company")`
+- `@@index([sellerAccountId], map: "ix_support_ticket_seller")`
+- `@@index([logisticsPartnerId], map: "ix_support_ticket_logistics")`
+- `@@index([relatedOrderId], map: "ix_support_ticket_order")`
+
+<a id="model-supportticketevent"></a>
+
+### SupportTicketEvent
+
+Table `support_ticket_events`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `ticketId` | String · Char(26) |  | FK → [SupportTicket](#model-supportticket) |  | (on delete: Cascade) |
+| `kind` | [enum SupportTicketEventKind](#enum-supportticketeventkind) |  |  |  |  |
+| `visibleToRequester` | Boolean |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | Who did it. Null when the person has since been removed. (on delete: SetNull) |
+| `actorIsRequester` | Boolean |  |  | false | Whether the actor was the sender or staff, kept even if `actorUserId` is cleared, so the thread still reads the right way round. |
+| `body` | String · Text | yes |  |  | The message or note. Plain text; null for a change. |
+| `fromValue` | String · VarChar(40) | yes |  |  | For a change: what it was and what it became (a status, a priority, or an assignee's user id). |
+| `toValue` | String · VarChar(40) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `ticket` → [SupportTicket](#model-supportticket) via `ticketId` - many-to-one, required, on delete **Cascade**
+- `actor` → [User](#model-user) via `actorUserId` - many-to-one, optional, on delete **SetNull**
+
+**Indexes and keys**
+
+- `@@index([ticketId, createdAt], map: "ix_support_ticket_event_ticket")`
+- `@@index([actorUserId], map: "ix_support_ticket_event_actor")`
+
+<a id="model-supportticketattachment"></a>
+
+### SupportTicketAttachment
+
+Table `support_ticket_attachments`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `ticketId` | String · Char(26) |  | FK → [SupportTicket](#model-supportticket) |  | (on delete: Cascade) |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(255) |  |  |  |  |
+| `contentType` | String · VarChar(128) |  |  |  |  |
+| `kind` | [enum SupportAttachmentKind](#enum-supportattachmentkind) |  |  |  |  |
+| `byteSize` | Int |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `scanState` | [enum SupportAttachmentScanState](#enum-supportattachmentscanstate) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) | yes | FK → [User](#model-user) |  | Who attached it. Null once that account is gone. (on delete: SetNull) |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `ticket` → [SupportTicket](#model-supportticket) via `ticketId` - many-to-one, required, on delete **Cascade**
+- `uploadedBy` → [User](#model-user) via `uploadedByUserId` - many-to-one, optional, on delete **SetNull**
+
+**Indexes and keys**
+
+- `@@index([ticketId, createdAt], map: "ix_support_ticket_attachment_ticket")`
+- `@@index([uploadedByUserId], map: "ix_support_ticket_attachment_uploader")`
+
+### Enums in  / where a ticket is in its life. see `domain/support-ticket-state.ts`. / / append only - MariaDB stores an enum by position.
+
+<a id="enum-supportticketstatus"></a>
+
+#### enum SupportTicketStatus
+
+| Value | Meaning |
+|---|---|
+| `OPEN` | Sent, and nobody has picked it up yet. |
+| `IN_PROGRESS` | A member of staff is working on it. |
+| `WAITING_FOR_CUSTOMER` | Staff asked the sender something and are waiting for the answer. A reply from the sender moves it back to IN_PROGRESS. |
+| `RESOLVED` | Staff consider it answered. The sender may still reply, which reopens it. |
+| `CLOSED` | Finished. Nobody can write on it any more. |
+
+<a id="enum-supportticketpriority"></a>
+
+#### enum SupportTicketPriority
+
+How urgently staff should look at it. Set by staff, never by the sender: a form that lets everybody choose URGENT has no urgent.
+
+| Value | Meaning |
+|---|---|
+| `LOW` |  |
+| `NORMAL` |  |
+| `HIGH` |  |
+| `URGENT` |  |
+
+<a id="enum-supportticketcategory"></a>
+
+#### enum SupportTicketCategory
+
+What the request is about, as the sender chose it. Append only.
+
+| Value | Meaning |
+|---|---|
+| `ORDERS` |  |
+| `PAYMENTS` |  |
+| `PREORDERS` |  |
+| `PRODUCTS` |  |
+| `SELLER_HUB` |  |
+| `LOGISTICS` |  |
+| `COMPANY_VERIFICATION` |  |
+| `ERP_INTEGRATION` |  |
+| `ACCOUNT_SECURITY` |  |
+| `OTHER` |  |
+
+<a id="enum-supportrequesterrole"></a>
+
+#### enum SupportRequesterRole
+
+Who the sender was acting as when they sent it, worked out by the server.
+
+| Value | Meaning |
+|---|---|
+| `BUYER` | Buying for themselves. |
+| `COMPANY_BUYER` | Buying for a company they belong to. `buyerCompanyId` says which. |
+| `SELLER` | Working in Seller Hub. `sellerAccountId` says which seller. |
+| `LOGISTICS_PARTNER` | Working in the logistics portal. `logisticsPartnerId` says which company. |
+
+<a id="enum-supportticketsource"></a>
+
+#### enum SupportTicketSource
+
+Which screen the request was sent from.
+
+| Value | Meaning |
+|---|---|
+| `STOREFRONT` |  |
+| `SELLER_HUB` |  |
+| `LOGISTICS_PORTAL` |  |
+
+<a id="enum-supportticketeventkind"></a>
+
+#### enum SupportTicketEventKind
+
+One line of a ticket's history. Append only.
+
+| Value | Meaning |
+|---|---|
+| `CREATED` | The ticket was sent. Carries no body - the first message is on the ticket. |
+| `REQUESTER_MESSAGE` | The sender wrote again. |
+| `STAFF_REPLY` | Staff answered the sender. Emailed to them and shown on their ticket. |
+| `INTERNAL_NOTE` | Staff wrote something for other staff. Never shown to the sender. |
+| `STATUS_CHANGED` |  |
+| `PRIORITY_CHANGED` |  |
+| `ASSIGNED` |  |
+
+<a id="enum-supportattachmentkind"></a>
+
+#### enum SupportAttachmentKind
+
+What a file on a ticket is, decided from its bytes.
+
+| Value | Meaning |
+|---|---|
+| `IMAGE` |  |
+| `VIDEO` |  |
+| `DOCUMENT` |  |
+
+<a id="enum-supportattachmentscanstate"></a>
+
+#### enum SupportAttachmentScanState
+
+Whether a malware scanner looked at the file before it was stored.
+
+| Value | Meaning |
+|---|---|
+| `CLEAN` |  |
+| `SCANNER_UNCONFIGURED` | No scanner is configured and the operator accepted unscanned files - a development machine only. Production refuses that setting. |
+
 <a id="group-what-somebody-may-do-inside-a-buyer-organisation-three-levels-rather-than-a-permission-matrix-because-there-are-exactly-three-questions-a-buyer-s-it-department-actually-has-who-owns-this-who-may-change-the-credentials-and-who-may-look-a-fourth-role-would-have-to-be-explained-to-somebody-and-nobody-has-asked-for-one"></a>
 
 ##  / what somebody may do inside a buyer organisation. / / three levels rather than a permission matrix, because there are exactly / three questions a buyer's it department actually has: who owns this, who / may change the credentials, and who may look. a fourth role would have to / be explained to somebody, and nobody has asked for one.
@@ -6815,6 +7195,8 @@ A seller business, as a tenant.
 - `invoiceSettings` ← [SellerInvoiceSettings](#model-sellerinvoicesettings) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
+- `linkedBuyerCompanies` ← [BuyerCompany](#model-buyercompany) - has many
+- `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 
 **Indexes and keys**
 
@@ -7442,6 +7824,7 @@ One seller's terms for one catalogue product.
 | `minimumOrderQuantity` | Int |  |  | 1 |  |
 | `orderIncrement` | Int |  |  | 1 | Quantities must be a multiple of this. 1 means no restriction. |
 | `maximumOrderQuantity` | Int | yes |  |  |  |
+| `b2cMaxOrderQuantity` | Int | yes |  |  | The B2C maximum order quantity: the most units of this product, from THIS seller, that a buyer who is not an approved company may put in one order - every variant and every line added together. |
 | `handlingTimeDays` | Int | yes |  |  | Working days from order to dispatch, when it differs from the location's default. Null means "use the location". |
 | `guaranteedShelfLifeMonths` | Int · SmallInt | yes |  |  | Months of shelf life the seller guarantees will remain on dispatch. A hospital that receives a reagent expiring next week cannot use it, so this is a commercial term, not a product fact. |
 | `warrantyMonths` | Int · SmallInt | yes |  |  |  |
@@ -8429,7 +8812,7 @@ What a seller is being told about.
 | `FREIGHT_QUOTE_REQUESTED` | A buyer asked for a freight price on a load no carrier here can quote. News, and it is waiting for a person to answer. |
 | `FREIGHT_QUOTE_AVAILABLE` | Somebody answered a freight request. |
 | `PACKAGING_VALIDATION_FAILED` | A package the seller switched on is missing something a buyer would need. |
-| `ERP_BRIDGE_OFFLINE` | --- The seller's own accounting system ---------------------------------- The Glovia Tally Bridge has stopped checking in. |
+| `ERP_BRIDGE_OFFLINE` | --- The seller's own accounting system ---------------------------------- The Gloviaa Mart Tally Bridge has stopped checking in. |
 | `ERP_MAPPING_INCOMPLETE` | Something a sync needs has not been matched to Tally yet. |
 | `ERP_SYNC_RECOVERED` | The connection is working again after a failure. News, and worth saying: somebody who was told it broke is entitled to be told it is fixed. |
 | `ERP_INITIAL_SYNC_COMPLETE` | The one-off first run has finished. |
@@ -9592,6 +9975,7 @@ One logistics company.
 - `shipmentLegs` ← [ShipmentLeg](#model-shipmentleg) - has many
 - `profileChanges` ← [LogisticsPartnerProfileChange](#model-logisticspartnerprofilechange) - has many
 - `complianceDocuments` ← [LogisticsPartnerDocument](#model-logisticspartnerdocument) - has many
+- `supportTickets` ← [SupportTicket](#model-supportticket) - has many
 
 **Indexes and keys**
 
@@ -11256,7 +11640,7 @@ The offer of one consignment to one carrier, and what they said.
 | Value | Meaning |
 |---|---|
 | `BOOKING_REQUIRED` | The seller chose the carrier. Nothing has been booked with it yet. |
-| `BOOKED` | The seller booked it outside Glovia and entered the carrier's own tracking number. Only this state lets a consignment be tracked. |
+| `BOOKED` | The seller booked it outside Gloviaa Mart and entered the carrier's own tracking number. Only this state lets a consignment be tracked. |
 | `CANCELLED` | Given up before collection, with a reason. Kept, never deleted. |
 
 <a id="group-demo-catalogue"></a>
@@ -11977,7 +12361,7 @@ One seller's connection to their own accounting system.
 
 Table `seller_erp_bridge_devices`
 
-A machine running the Glovia Tally Bridge.
+A machine running the Gloviaa Mart Tally Bridge.
 
 | Column | Type | Null? | Key | Default | Notes |
 |---|---|---|---|---|---|
@@ -12350,7 +12734,7 @@ How this platform reaches the seller's Tally.
 
 | Value | Meaning |
 |---|---|
-| `BRIDGE` | Through the Glovia Tally Bridge, outbound-only. The production answer, and the default. |
+| `BRIDGE` | Through the Gloviaa Mart Tally Bridge, outbound-only. The production answer, and the default. |
 | `DIRECT_PRIVATE` | Straight to a host the operator has allowlisted, for a deployment that runs inside the same private network as the seller's Tally. Refused unless the operator has configured an allowlist, and refused for any address `assertSafeErpUrl` will not pass. |
 
 <a id="enum-sellererpconnectionstate"></a>
@@ -13138,6 +13522,7 @@ erDiagram
     PreorderPolicy ||--o{ PreorderCapacityBucket : "policy"
     SellerAccount |o--o{ PreorderRequest : "sellerAccount"
     CustomerProfile ||--o{ PreorderRequest : "customerProfile"
+    BuyerCompany |o--o{ PreorderRequest : "buyerCompany"
     SellerOffer |o--o{ PreorderRequest : "offer"
     Order |o--o| PreorderRequest : "convertedOrder"
     PreorderRequest ||--o{ PreorderOffer : "request"
@@ -13163,6 +13548,7 @@ erDiagram
         String id PK
         String sellerAccountId FK
         String customerProfileId FK
+        String buyerCompanyId FK
         String offerId FK
         PreorderStatus status
         BigInt indicativeUnitPriceMinor
@@ -13321,6 +13707,7 @@ One buyer's preorder request, and where the negotiation over it stands.
 | `sellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | The seller who answers, or NULL when the product is the operator's own and the operator's staff answer it in the admin console. Null together with `offerId` (chk_preorder_request_supplier). (on delete: Cascade) |
 | `customerProfileId` | String · Char(26) |  | FK → [CustomerProfile](#model-customerprofile) |  | (on delete: Cascade) |
 | `requestedByUserId` | String · Char(26) |  |  |  |  |
+| `buyerCompanyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | The company it was asked for, or NULL for an individual request. (on delete: Restrict) |
 | `productId` | String · Char(26) |  |  |  |  |
 | `variantId` | String · Char(26) | yes |  |  |  |
 | `variantKey` | String · VarChar(26) |  |  | "" |  |
@@ -13391,6 +13778,7 @@ One buyer's preorder request, and where the negotiation over it stands.
 
 - `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, optional, on delete **Cascade**, on update **Restrict**
 - `customerProfile` → [CustomerProfile](#model-customerprofile) via `customerProfileId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `buyerCompany` → [BuyerCompany](#model-buyercompany) via `buyerCompanyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `offer` → [SellerOffer](#model-selleroffer) via `offerId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 - `convertedOrder` → [Order](#model-order) via `convertedOrderId` - one-to-one, optional, on delete **SetNull**, on update **Restrict**
 - `offers` ← [PreorderOffer](#model-preorderoffer) - has many
@@ -13405,6 +13793,7 @@ One buyer's preorder request, and where the negotiation over it stands.
 - `@@index([customerProfileId, createdAt], map: "ix_preorder_request_customer")`
 - `@@index([status, expiresAt], map: "ix_preorder_request_expiry")`
 - `@@index([offerId], map: "ix_preorder_request_offer")`
+- `@@index([buyerCompanyId], map: "ix_preorder_request_buyer_company")`
 
 <a id="model-preorderoffer"></a>
 
@@ -14470,4 +14859,777 @@ A packing list for one consignment - one vehicle, one load.
 |---|---|
 | `TAX_INVOICE` |  |
 | `CREDIT_NOTE` |  |
+
+<a id="group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual"></a>
+
+##  / which buyer the session is acting as. null on a session row means individual.
+
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord) · [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge)
+
+```mermaid
+erDiagram
+    SellerAccount |o--o{ BuyerCompany : "linkedSellerAccount"
+    BuyerCompany ||--o{ BuyerCompanyAddress : "company"
+    BuyerCompany ||--o{ BuyerCompanyIdentifier : "company"
+    BuyerCompany ||--o{ BuyerCompanyLocation : "company"
+    BuyerCompany ||--o{ BuyerCompanyMember : "company"
+    User ||--o{ BuyerCompanyMember : "user"
+    BuyerCompany ||--o{ BuyerCompanyVerificationCase : "company"
+    User |o--o{ BuyerCompanyVerificationCase : "assignedReviewer"
+    BuyerCompany ||--o{ BuyerCompanyCheck : "company"
+    BuyerCompanyVerificationCase |o--o{ BuyerCompanyCheck : "case"
+    BuyerCompany ||--o{ BuyerCompanyDocument : "company"
+    BuyerCompany ||--o{ BuyerCompanyInfoRequest : "company"
+    BuyerCompanyVerificationCase |o--o{ BuyerCompanyInfoRequest : "case"
+    BuyerCompany ||--o{ BuyerCompanyReviewEvent : "company"
+    BuyerCompany ||--o{ BuyerCompanyStatusHistory : "company"
+    User ||--o{ ConsentRecord : "user"
+    BuyerCompany |o--o{ ConsentRecord : "company"
+    BuyerCompany ||--o{ BuyerCompanyEmailChallenge : "company"
+    User ||--o{ BuyerCompanyEmailChallenge : "user"
+    BuyerCompany {
+        String id PK
+        BuyerCompanyStatus status
+        BuyerCompanyDomainStatus businessDomainStatus
+        String linkedSellerAccountId FK
+    }
+    BuyerCompanyAddress {
+        String id PK
+        String companyId FK
+    }
+    BuyerCompanyIdentifier {
+        String id PK
+        String companyId FK
+    }
+    BuyerCompanyLocation {
+        String id PK
+        String companyId FK
+    }
+    BuyerCompanyMember {
+        String id PK
+        String companyId FK
+        String userId FK
+        BuyerCompanyMemberStatus status
+    }
+    BuyerCompanyVerificationCase {
+        String id PK
+        String companyId FK
+        String assignedReviewerId FK
+    }
+    BuyerCompanyCheck {
+        String id PK
+        String companyId FK
+        String caseId FK
+    }
+    BuyerCompanyDocument {
+        String id PK
+        String companyId FK
+        BuyerCompanyDocumentStatus status
+    }
+    BuyerCompanyInfoRequest {
+        String id PK
+        String companyId FK
+        String caseId FK
+        BuyerCompanyInfoRequestStatus status
+    }
+    BuyerCompanyReviewEvent {
+        String id PK
+        String companyId FK
+    }
+    BuyerCompanyStatusHistory {
+        String id PK
+        String companyId FK
+        BuyerCompanyStatus fromStatus
+        BuyerCompanyStatus toStatus
+    }
+    ConsentRecord {
+        String id PK
+        String userId FK
+        String companyId FK
+    }
+    BuyerCompanyEmailChallenge {
+        String id PK
+        String companyId FK
+        String userId FK
+    }
+```
+
+<a id="model-buyercompany"></a>
+
+### BuyerCompany
+
+Table `buyer_companies`
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `applicationReference` | String · VarChar(16) |  | UNIQUE |  | What the applicant and support quote: "BC-7K2M9Q4T". Random rather than sequential, so it says nothing about how many companies apply here. |
+| `status` | [enum BuyerCompanyStatus](#enum-buyercompanystatus) |  |  | DRAFT |  |
+| `version` | Int |  |  | 0 | Optimistic lock for reviewer actions. Two reviewers deciding at once is refused for the second rather than silently overwriting the first. |
+| `legalName` | String · VarChar(255) | yes |  |  |  |
+| `legalNameNormalized` | String · VarChar(255) | yes |  |  | Lower-cased, legal suffix stripped. For duplicate detection only. |
+| `tradingName` | String · VarChar(255) | yes |  |  |  |
+| `entityType` | [enum BuyerCompanyEntityType](#enum-buyercompanyentitytype) | yes |  |  |  |
+| `registrationCountry` | String · Char(2) | yes |  |  | ISO-3166-1 alpha-2. |
+| `registrationNumber` | String · VarChar(64) | yes |  |  |  |
+| `registrationNumberNormalized` | String · VarChar(64) | yes |  |  | Upper-cased, separators removed. |
+| `registrationClaimKey` | String · VarChar(80) | yes | UNIQUE |  | `COUNTRY:NUMBER`, written at approval and cleared if the company is rejected afterwards. UNIQUE: two approved companies cannot share one registration. NULL (and so never colliding) before approval. |
+| `incorporationDate` | DateTime · Date | yes |  |  |  |
+| `industry` | String · VarChar(64) | yes |  |  | A code from the storefront's industry list, not free text. |
+| `website` | String · VarChar(255) | yes |  |  |  |
+| `businessEmail` | String · VarChar(320) | yes |  |  |  |
+| `businessEmailNormalized` | String · VarChar(320) | yes |  |  |  |
+| `businessEmailVerifiedAt` | DateTime · DateTime(3) | yes |  |  | When the code sent to `businessEmail` was entered. Cleared whenever the address changes. |
+| `businessDomain` | String · VarChar(253) | yes |  |  | The part after the @, lower-cased. For duplicate detection. |
+| `businessDomainStatus` | [enum BuyerCompanyDomainStatus](#enum-buyercompanydomainstatus) |  |  | UNKNOWN |  |
+| `businessPhone` | String · VarChar(32) | yes |  |  |  |
+| `applicantJobTitle` | String · VarChar(128) | yes |  |  |  |
+| `applicantRelationship` | String · VarChar(32) | yes |  |  | How the applicant stands to the business - a code from `APPLICANT_RELATIONSHIPS` (DIRECTOR_OR_OFFICER, OWNER_OR_PARTNER, EMPLOYEE, AUTHORISED_AGENT, OTHER). An AUTHORISED_AGENT acts for the company from outside it and is asked for an authorisation letter up front; anybody else may be asked for one by a reviewer. |
+| `applicantAuthorityConfirmedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `linkedSellerAccountId` | String · Char(26) | yes | FK → [SellerAccount](#model-selleraccount) |  | The seller account for the SAME legal entity, when the applicant started this application from it. A pointer for the reviewer and the source the draft was pre-filled from - never a shared approval. The two are verified separately, hold separate statuses and grant separate things: an approved seller is not an approved… (on delete: SetNull) |
+| `procurementProfileJson` | Json | yes |  |  | Optional procurement answers - volume, categories, currencies. Never read by verification; see `procurementProfileSchema`. |
+| `riskLevel` | [enum BuyerCompanyRiskLevel](#enum-buyercompanyrisklevel) |  |  | NONE |  |
+| `statusReason` | String · VarChar(1000) | yes |  |  | What the applicant is told about the last decision, in words written for them. Internal reasoning goes in an INTERNAL review event, never here. |
+| `statusReasonCode` | String · VarChar(48) | yes |  |  | A machine code for that reason (`DOCUMENTS_ILLEGIBLE`, ...), so the storefront can show it in the reader's language. |
+| `resubmissionAllowed` | Boolean |  |  | true | Whether a rejected application may be corrected and sent in again. |
+| `createdByUserId` | String · Char(26) |  |  |  |  |
+| `submittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `firstSubmittedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `approvedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `rejectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `suspendedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reverificationRequestedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `lastStatusChangedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+| `archivedAt` | DateTime · DateTime(3) | yes |  |  | Soft delete. A company with orders is never removed. |
+
+**Relations**
+
+- `linkedSellerAccount` → [SellerAccount](#model-selleraccount) via `linkedSellerAccountId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `addresses` ← [BuyerCompanyAddress](#model-buyercompanyaddress) - has many
+- `identifiers` ← [BuyerCompanyIdentifier](#model-buyercompanyidentifier) - has many
+- `locations` ← [BuyerCompanyLocation](#model-buyercompanylocation) - has many
+- `members` ← [BuyerCompanyMember](#model-buyercompanymember) - has many
+- `cases` ← [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) - has many
+- `checks` ← [BuyerCompanyCheck](#model-buyercompanycheck) - has many
+- `documents` ← [BuyerCompanyDocument](#model-buyercompanydocument) - has many
+- `infoRequests` ← [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) - has many
+- `reviewEvents` ← [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) - has many
+- `statusHistory` ← [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) - has many
+- `consents` ← [ConsentRecord](#model-consentrecord) - has many
+- `emailChallenges` ← [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge) - has many
+- `sessions` ← [Session](#model-session) - has many
+- `carts` ← [Cart](#model-cart) - has many
+- `orders` ← [Order](#model-order) - has many
+- `addressBook` ← [Address](#model-address) - has many
+- `preorderRequests` ← [PreorderRequest](#model-preorderrequest) - has many
+- `supportTickets` ← [SupportTicket](#model-supportticket) - has many
+
+**Indexes and keys**
+
+- `@@index([status, submittedAt], map: "ix_buyer_company_status")`
+- `@@index([linkedSellerAccountId], map: "ix_buyer_company_linked_seller")`
+- `@@index([registrationCountry, registrationNumberNormalized], map: "ix_buyer_company_registration")`
+- `@@index([legalNameNormalized], map: "ix_buyer_company_name")`
+- `@@index([businessDomain], map: "ix_buyer_company_domain")`
+- `@@index([createdByUserId], map: "ix_buyer_company_creator")`
+
+<a id="model-buyercompanyaddress"></a>
+
+### BuyerCompanyAddress
+
+Table `buyer_company_addresses`
+
+One of the company's four addresses. At most one of each kind.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `kind` | [enum BuyerCompanyAddressKind](#enum-buyercompanyaddresskind) |  |  |  |  |
+| `line1` | String · VarChar(255) |  |  |  |  |
+| `line2` | String · VarChar(255) | yes |  |  |  |
+| `city` | String · VarChar(128) |  |  |  |  |
+| `region` | String · VarChar(128) | yes |  |  |  |
+| `postalCode` | String · VarChar(32) | yes |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `fingerprint` | String · Char(64) |  |  |  | Lower-cased, whitespace-collapsed line1 + postcode + country. Two applications at one address are a signal worth a reviewer's glance. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([companyId, kind], map: "uq_buyer_company_address_kind")`
+- `@@index([fingerprint], map: "ix_buyer_company_address_fingerprint")`
+
+<a id="model-buyercompanyidentifier"></a>
+
+### BuyerCompanyIdentifier
+
+Table `buyer_company_identifiers`
+
+A tax or trade identifier - GSTIN, NIP, an EU VAT number, a LEI.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `scheme` | String · VarChar(24) |  |  |  |  |
+| `value` | String · VarChar(64) | yes |  |  |  |
+| `valueNormalized` | String · VarChar(64) | yes |  |  |  |
+| `notApplicable` | Boolean |  |  | false |  |
+| `notApplicableReason` | String · VarChar(48) | yes |  |  |  |
+| `claimKey` | String · VarChar(120) | yes | UNIQUE |  | `COUNTRY:SCHEME:VALUE`, set at approval. UNIQUE for the same reason as `buyer_companies.registrationClaimKey`. |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([companyId, scheme], map: "uq_buyer_company_identifier_scheme")`
+- `@@index([scheme, valueNormalized], map: "ix_buyer_company_identifier_value")`
+
+<a id="model-buyercompanylocation"></a>
+
+### BuyerCompanyLocation
+
+Table `buyer_company_locations`
+
+A branch, plant or warehouse of the company, for later. Carries its own tax number because an Indian company has one GSTIN per state.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `name` | String · VarChar(255) |  |  |  |  |
+| `line1` | String · VarChar(255) |  |  |  |  |
+| `line2` | String · VarChar(255) | yes |  |  |  |
+| `city` | String · VarChar(128) |  |  |  |  |
+| `region` | String · VarChar(128) | yes |  |  |  |
+| `postalCode` | String · VarChar(32) | yes |  |  |  |
+| `countryCode` | String · Char(2) |  |  |  |  |
+| `taxIdentifier` | String · VarChar(64) | yes |  |  |  |
+| `isBilling` | Boolean |  |  | false |  |
+| `isShipping` | Boolean |  |  | true |  |
+| `isActive` | Boolean |  |  | true |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, isActive], map: "ix_buyer_company_location_company")`
+
+<a id="model-buyercompanymember"></a>
+
+### BuyerCompanyMember
+
+Table `buyer_company_members`
+
+One person's place in one company. A person may hold several - unlike `buyer_organization_members` - because the storefront now asks "as whom?" at sign-in and remembers the answer on the session.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `role` | [enum BuyerCompanyRole](#enum-buyercompanyrole) |  |  | BUYER |  |
+| `status` | [enum BuyerCompanyMemberStatus](#enum-buyercompanymemberstatus) |  |  | ACTIVE |  |
+| `invitedByUserId` | String · Char(26) | yes |  |  |  |
+| `removedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([companyId, userId], map: "uq_buyer_company_member")`
+- `@@index([userId, status], map: "ix_buyer_company_member_user")`
+
+<a id="model-buyercompanyverificationcase"></a>
+
+### BuyerCompanyVerificationCase
+
+Table `buyer_company_verification_cases`
+
+One round of review: the first submission, a resubmission after a rejection, or a re-verification. Holds who is looking at it.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `round` | Int |  |  |  |  |
+| `trigger` | [enum BuyerCompanyCaseTrigger](#enum-buyercompanycasetrigger) |  |  |  |  |
+| `state` | [enum BuyerCompanyCaseState](#enum-buyercompanycasestate) |  |  | OPEN |  |
+| `assignedReviewerId` | String · Char(26) | yes | FK → [User](#model-user) |  | (on delete: SetNull) |
+| `assignedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `requiresSecondReview` | Boolean |  |  | false | Set when BUYER_COMPANY_SECOND_REVIEW_RISK is reached. The approval then needs a second, different reviewer. |
+| `firstApprovalById` | String · Char(26) | yes |  |  |  |
+| `firstApprovalAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `openedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `closedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `outcome` | [enum BuyerCompanyStatus](#enum-buyercompanystatus) | yes |  |  | The status the case closed on - APPROVED or REJECTED. |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `assignedReviewer` → [User](#model-user) via `assignedReviewerId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `checks` ← [BuyerCompanyCheck](#model-buyercompanycheck) - has many
+- `infoRequests` ← [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) - has many
+
+**Indexes and keys**
+
+- `@@unique([companyId, round], map: "uq_buyer_company_case_round")`
+- `@@index([state, assignedReviewerId], map: "ix_buyer_company_case_reviewer")`
+
+<a id="model-buyercompanycheck"></a>
+
+### BuyerCompanyCheck
+
+Table `buyer_company_checks`
+
+What one registry or rule said about the company, and when. Written once, never changed: a re-run is a new row, so the reviewer sees the history.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `caseId` | String · Char(26) | yes | FK → [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) |  | (on delete: SetNull) |
+| `provider` | String · VarChar(32) |  |  |  | VIES, GLEIF, PL_VAT_WHITELIST, PL_KRS, IN_MCA, DUPLICATES, ... |
+| `subject` | String · VarChar(48) |  |  |  | The identifier scheme or rule it looked at. |
+| `outcome` | [enum BuyerCompanyCheckOutcome](#enum-buyercompanycheckoutcome) |  |  |  |  |
+| `summary` | String · VarChar(500) |  |  |  | One line for the reviewer, in English. Never shown to the applicant. |
+| `requestJson` | Json |  |  |  | What was asked: the normalised identifier, never the whole application. |
+| `resultJson` | Json | yes |  |  | The normalised answer. Bank-account numbers and other fields a registry returns but verification does not need are dropped before this is written - see each provider's `normalise`. |
+| `sourceReference` | String · VarChar(128) | yes |  |  | The source's own reference for the consultation (VIES's requestIdentifier, the VAT register's requestId), where it gives one. |
+| `sourceUrl` | String · VarChar(512) | yes |  |  | The official register a reviewer should open, for MANUAL_REQUIRED. |
+| `checkedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `triggeredByUserId` | String · Char(26) | yes |  |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `case` → [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) via `caseId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, checkedAt], map: "ix_buyer_company_check_company")`
+
+<a id="model-buyercompanydocument"></a>
+
+### BuyerCompanyDocument
+
+Table `buyer_company_documents`
+
+A file the applicant uploaded. Stored privately under a generated key, served only through a single-use, short-lived, audited link.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `kind` | [enum BuyerCompanyDocumentKind](#enum-buyercompanydocumentkind) |  |  |  |  |
+| `status` | [enum BuyerCompanyDocumentStatus](#enum-buyercompanydocumentstatus) |  |  | PENDING_REVIEW |  |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `mimeType` | String · VarChar(64) |  |  |  | Decided from the file's own bytes, never from what the browser said. |
+| `sizeBytes` | Int |  |  |  |  |
+| `pageCount` | Int | yes |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  | SHA-256 of the bytes. The same file under two companies is a signal. |
+| `scanState` | [enum BuyerCompanyScanState](#enum-buyercompanyscanstate) |  |  |  |  |
+| `uploadedByUserId` | String · Char(26) |  |  |  |  |
+| `infoRequestId` | String · Char(26) | yes |  |  | The request it answers, when it was asked for. |
+| `reviewedByUserId` | String · Char(26) | yes |  |  |  |
+| `reviewedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `reviewReason` | String · VarChar(1000) | yes |  |  | Shown to the applicant when a document is rejected. |
+| `supersededById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, kind, status], map: "ix_buyer_company_document_company")`
+- `@@index([contentHash], map: "ix_buyer_company_document_hash")`
+
+<a id="model-buyercompanyinforequest"></a>
+
+### BuyerCompanyInfoRequest
+
+Table `buyer_company_info_requests`
+
+"Please send us ..." - a reviewer's request the applicant can see and answer. The answer is kept beside the question.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `caseId` | String · Char(26) | yes | FK → [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) |  | (on delete: SetNull) |
+| `status` | [enum BuyerCompanyInfoRequestStatus](#enum-buyercompanyinforequeststatus) |  |  | OPEN |  |
+| `message` | String · Text |  |  |  | Written for the applicant. Plain text; rendered as text, never HTML. |
+| `requestedDocumentKindsJson` | Json | yes |  |  | Document kinds the reviewer asked for, as a JSON array. |
+| `createdByUserId` | String · Char(26) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `responseMessage` | String · Text | yes |  |  |  |
+| `respondedByUserId` | String · Char(26) | yes |  |  |  |
+| `respondedAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `case` → [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) via `caseId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, status], map: "ix_buyer_company_info_request_company")`
+
+<a id="model-buyercompanyreviewevent"></a>
+
+### BuyerCompanyReviewEvent
+
+Table `buyer_company_review_events`
+
+The timeline. Every reviewer action, every upload, every check, every note. Append-only: no code path updates or deletes a row, and the append-only test in `tests/unit/buyer-company-providers.test.ts` fails the build if one appears.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `caseId` | String · Char(26) | yes |  |  |  |
+| `kind` | String · VarChar(48) |  |  |  | STATUS_CHANGED, NOTE, ASSIGNED, DOCUMENT_UPLOADED, DOCUMENT_VIEWED, ... |
+| `visibility` | [enum BuyerCompanyEventVisibility](#enum-buyercompanyeventvisibility) |  |  |  |  |
+| `actorType` | [enum ActorType](#enum-actortype) |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `message` | String · Text | yes |  |  |  |
+| `dataJson` | Json | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, createdAt], map: "ix_buyer_company_event_company")`
+
+<a id="model-buyercompanystatushistory"></a>
+
+### BuyerCompanyStatusHistory
+
+Table `buyer_company_status_history`
+
+Every status change, from and to, by whom, and why. Append-only.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `fromStatus` | [enum BuyerCompanyStatus](#enum-buyercompanystatus) |  |  |  |  |
+| `toStatus` | [enum BuyerCompanyStatus](#enum-buyercompanystatus) |  |  |  |  |
+| `reason` | String · VarChar(1000) | yes |  |  |  |
+| `reasonCode` | String · VarChar(48) | yes |  |  |  |
+| `actorType` | [enum ActorType](#enum-actortype) |  |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, createdAt], map: "ix_buyer_company_status_history")`
+
+<a id="model-consentrecord"></a>
+
+### ConsentRecord
+
+Table `consent_records`
+
+One thing one person agreed to, with the exact wording's version and hash. Append-only; a withdrawal is a date on the row, not a deletion.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `companyId` | String · Char(26) | yes | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: SetNull) |
+| `purpose` | [enum ConsentPurpose](#enum-consentpurpose) |  |  |  |  |
+| `textVersion` | String · VarChar(32) |  |  |  | The version of the text shown, e.g. "2026-09". |
+| `textHash` | String · Char(64) |  |  |  | SHA-256 of the exact English text of that version. What proves which words were agreed to, if the wording is later changed. |
+| `acceptedAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `ipAddress` | String · VarChar(45) | yes |  |  |  |
+| `userAgent` | String · VarChar(512) | yes |  |  |  |
+| `withdrawnAt` | DateTime · DateTime(3) | yes |  |  |  |
+
+**Relations**
+
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([userId, purpose], map: "ix_consent_record_user")`
+- `@@index([companyId], map: "ix_consent_record_company")`
+
+<a id="model-buyercompanyemailchallenge"></a>
+
+### BuyerCompanyEmailChallenge
+
+Table `buyer_company_email_challenges`
+
+A six-digit code sent to the business email address. Stored hashed, expires, and stops working after five wrong guesses.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `emailNormalized` | String · VarChar(320) |  |  |  |  |
+| `codeHash` | String · Char(64) |  |  |  |  |
+| `attempts` | Int |  |  | 0 |  |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, consumedAt], map: "ix_buyer_company_email_company")`
+
+### Enums in  / which buyer the session is acting as. null on a session row means individual.
+
+<a id="enum-buyercontextkind"></a>
+
+#### enum BuyerContextKind
+
+| Value | Meaning |
+|---|---|
+| `INDIVIDUAL` |  |
+| `COMPANY` |  |
+
+<a id="enum-buyercompanystatus"></a>
+
+#### enum BuyerCompanyStatus
+
+The verification lifecycle. Transitions live in `domain/buyer-company-state.ts` and nowhere else.
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` | Being filled in. Nothing about it has been checked. |
+| `EMAIL_VERIFICATION_PENDING` | Everything is filled in except the business email, whose code has been sent and not yet entered. |
+| `SUBMITTED` | Sent for review. Registry checks have not started yet. |
+| `AUTOMATED_CHECK_IN_PROGRESS` | Registry checks are running. Moves on by itself - to UNDER_REVIEW, never to a decision: an automated check informs a reviewer, it does not replace one. |
+| `UNDER_REVIEW` |  |
+| `MORE_INFORMATION_REQUIRED` | Sent back to the applicant with a request they can answer. |
+| `RESUBMITTED` | The applicant answered and sent it back. |
+| `APPROVED` | May buy in the company's name. |
+| `REJECTED` |  |
+| `SUSPENDED` | Was approved, is not now. Purchasing stops immediately. |
+| `REVERIFICATION_REQUIRED` | Was approved; something must be checked again before purchasing resumes. |
+
+<a id="enum-buyercompanyentitytype"></a>
+
+#### enum BuyerCompanyEntityType
+
+The legal form, generically. Every jurisdiction has its own names for these ("Sp. z o.o.", "Pvt Ltd", "GmbH"); the storefront shows the local label and stores the generic kind, because the documents and identifiers asked for depend on the kind, not on the spelling.
+
+| Value | Meaning |
+|---|---|
+| `SOLE_PROPRIETORSHIP` |  |
+| `PARTNERSHIP` |  |
+| `LIMITED_LIABILITY_PARTNERSHIP` |  |
+| `PRIVATE_LIMITED_COMPANY` |  |
+| `PUBLIC_LIMITED_COMPANY` |  |
+| `COOPERATIVE` |  |
+| `NON_PROFIT` |  |
+| `PUBLIC_BODY` |  |
+| `OTHER` |  |
+
+<a id="enum-buyercompanydomainstatus"></a>
+
+#### enum BuyerCompanyDomainStatus
+
+What we can say about the domain of the business email address.
+
+| Value | Meaning |
+|---|---|
+| `UNKNOWN` | Not assessed yet, or no email given. |
+| `FREE_MAIL_PROVIDER` | gmail.com and the like. Not a reason to refuse - plenty of small businesses use one - but a reason for the reviewer to look harder. |
+| `MATCHES_WEBSITE` | The email domain is the domain of the website the company gave. |
+| `DIFFERS_FROM_WEBSITE` | A corporate-looking domain that is not the website's. |
+| `NO_WEBSITE` | A corporate-looking domain and no website to compare it with. |
+
+<a id="enum-buyercompanyrisklevel"></a>
+
+#### enum BuyerCompanyRiskLevel
+
+How much attention an application needs, as the automated checks see it. Advisory: nothing is refused or approved on the strength of it.
+
+| Value | Meaning |
+|---|---|
+| `NONE` |  |
+| `LOW` |  |
+| `ELEVATED` |  |
+| `HIGH` |  |
+
+<a id="enum-buyercompanyaddresskind"></a>
+
+#### enum BuyerCompanyAddressKind
+
+| Value | Meaning |
+|---|---|
+| `REGISTERED_OFFICE` |  |
+| `OPERATING` |  |
+| `BILLING` |  |
+| `SHIPPING` |  |
+
+<a id="enum-buyercompanyrole"></a>
+
+#### enum BuyerCompanyRole
+
+A person's authority INSIDE one company. Never a platform role: every one of these people is a platform Buyer (users.type = CUSTOMER).
+
+| Value | Meaning |
+|---|---|
+| `OWNER` | Everything, including handing ownership on. The applicant starts here. |
+| `COMPANY_ADMIN` | Manage the application, locations and members. |
+| `BUYER` | Place orders in the company's name. |
+| `ORDER_APPROVER` | Approve orders other members placed. |
+| `FINANCE` | Invoices, payment methods and payment terms. |
+| `VIEWER` | Read-only. |
+
+<a id="enum-buyercompanymemberstatus"></a>
+
+#### enum BuyerCompanyMemberStatus
+
+| Value | Meaning |
+|---|---|
+| `ACTIVE` |  |
+| `SUSPENDED` | Kept, but acts for nobody until restored. |
+| `REMOVED` | Left or was removed. The row stays for the trail. |
+
+<a id="enum-buyercompanycasetrigger"></a>
+
+#### enum BuyerCompanyCaseTrigger
+
+| Value | Meaning |
+|---|---|
+| `INITIAL` | The first time the company was submitted. |
+| `RESUBMISSION` | Sent back in after a rejection that allowed it. |
+| `REVERIFICATION` | An approved company asked to prove itself again. |
+
+<a id="enum-buyercompanycasestate"></a>
+
+#### enum BuyerCompanyCaseState
+
+| Value | Meaning |
+|---|---|
+| `OPEN` |  |
+| `CLOSED` |  |
+
+<a id="enum-buyercompanycheckoutcome"></a>
+
+#### enum BuyerCompanyCheckOutcome
+
+What one registry or rule said. Deliberately more than pass/fail: a registry that was down, or a check that needs a person, are different facts from "the number is wrong", and a reviewer needs to see which.
+
+| Value | Meaning |
+|---|---|
+| `PASS` |  |
+| `FAIL` |  |
+| `INCONCLUSIVE` | The source answered, but not conclusively (a name that half matches). |
+| `UNAVAILABLE` | The source could not be reached or refused to answer. NEVER a rejection. |
+| `MANUAL_REQUIRED` | There is no automated source we may lawfully call for this; a reviewer has to look it up. Carries a link to the official register. |
+| `SIGNAL` | Informational signal - a duplicate, a free-mail domain. |
+
+<a id="enum-buyercompanydocumentkind"></a>
+
+#### enum BuyerCompanyDocumentKind
+
+| Value | Meaning |
+|---|---|
+| `CERTIFICATE_OF_INCORPORATION` |  |
+| `REGISTRY_EXTRACT` |  |
+| `TAX_REGISTRATION_CERTIFICATE` |  |
+| `PROOF_OF_REGISTERED_ADDRESS` |  |
+| `AUTHORIZATION_LETTER` |  |
+| `BUSINESS_LICENCE` | A trade or operating licence - a drug licence, a food-business licence. Offered to everybody and required of nobody by default: which trades need one differs by country and category, and a reviewer asks where it matters. |
+| `REPRESENTATIVE_IDENTITY` | Only ever requested by a reviewer, never asked for by default. |
+| `OWNERSHIP_DECLARATION` | Only ever requested by a reviewer, never asked for by default. |
+| `OTHER` |  |
+
+<a id="enum-buyercompanydocumentstatus"></a>
+
+#### enum BuyerCompanyDocumentStatus
+
+| Value | Meaning |
+|---|---|
+| `PENDING_REVIEW` |  |
+| `ACCEPTED` |  |
+| `REJECTED` |  |
+| `SUPERSEDED` | A newer upload of the same kind replaced it. Kept for the trail. |
+| `WITHDRAWN` | Withdrawn by the applicant before a decision. |
+
+<a id="enum-buyercompanyscanstate"></a>
+
+#### enum BuyerCompanyScanState
+
+| Value | Meaning |
+|---|---|
+| `CLEAN` |  |
+| `UNSCANNED` | Only possible where the deployment runs without a scanner (development). |
+
+<a id="enum-buyercompanyinforequeststatus"></a>
+
+#### enum BuyerCompanyInfoRequestStatus
+
+| Value | Meaning |
+|---|---|
+| `OPEN` |  |
+| `ANSWERED` |  |
+| `CANCELLED` |  |
+
+<a id="enum-buyercompanyeventvisibility"></a>
+
+#### enum BuyerCompanyEventVisibility
+
+Who can see a timeline entry. INTERNAL never leaves the admin console.
+
+| Value | Meaning |
+|---|---|
+| `INTERNAL` |  |
+| `APPLICANT` |  |
+
+<a id="enum-consentpurpose"></a>
+
+#### enum ConsentPurpose
+
+What a person agreed to. One row per purpose, never one checkbox for all.
+
+| Value | Meaning |
+|---|---|
+| `ACCURACY_DECLARATION` | "The information I have given is accurate." |
+| `BUSINESS_TERMS` | The terms of sale for business accounts. |
+| `PRIVACY_NOTICE` | Having been shown the privacy notice. An acknowledgement, not a consent in the GDPR Art. 6(1)(a) sense - the processing rests on contract and legitimate interest, and the notice says so. |
+| `AUTHORITY_TO_ACT` | "I am authorised to act for this company." |
 

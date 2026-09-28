@@ -68,6 +68,7 @@ import {
 import { sweepTripsAndPings } from '../modules/logistics/trip.service.js';
 import { retryFailedWebhookEvents } from '../modules/logistics/carrier/webhook.service.js';
 import { refreshSlaStates } from '../modules/logistics/sla-sweep.service.js';
+import { runAutomatedChecksJob } from '../modules/buyer-companies/checks.service.js';
 
 /**
  * A failure that retrying cannot fix.
@@ -513,6 +514,21 @@ const generateExportJob: JobHandler = async (payload) => {
  * before rethrowing, so a retry that never succeeds still leaves a member of
  * staff something to look at rather than a request stuck at IN_PROGRESS.
  */
+/**
+ * Registry checks for a buyer company that was just submitted, then hand it
+ * to a reviewer. Registry trouble is recorded, never fatal: the job always
+ * ends with the application in front of a person.
+ */
+const buyerCompanyChecks: JobHandler = async (payload) => {
+  const companyId = requireString(payload, 'companyId');
+  const caseId =
+    typeof (payload as { caseId?: unknown } | null)?.caseId === 'string'
+      ? (payload as { caseId: string }).caseId
+      : null;
+  await runAutomatedChecksJob(companyId, caseId);
+  logger.info({ companyId }, 'buyer company checks finished');
+};
+
 const fulfilDataRequest: JobHandler = async (payload) => {
   const dataRequestId = requireString(payload, 'dataRequestId');
   await fulfilRequest(dataRequestId);
@@ -904,6 +920,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SELLER_ERP_MAINTENANCE]: sellerErpMaintenance,
   [JobType.SELLER_ERP_DISPATCH]: sellerErpDispatch,
   [JobType.SELLER_ERP_RECONCILE]: sellerErpReconcile,
+  [JobType.BUYER_COMPANY_CHECKS]: buyerCompanyChecks,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

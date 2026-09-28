@@ -97,6 +97,8 @@ export default {
         'warning-fill': 'rgb(var(--warning-fill) / <alpha-value>)',
         'warning-fill-hover': 'rgb(var(--warning-fill-hover) / <alpha-value>)',
         'warning-soft': 'rgb(var(--warning-soft) / <alpha-value>)',
+        // A filled rating star. See the token in index.css.
+        rating: 'rgb(var(--rating) / <alpha-value>)',
 
         // --- Focus ------------------------------------------------------
         ring: 'rgb(var(--ring) / <alpha-value>)',
@@ -139,7 +141,7 @@ export default {
 
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
-        // The Glovia wordmark and its tagline, and nothing else. Dancing Script is bundled
+        // The Gloviaa Mart wordmark and its tagline, and nothing else. Dancing Script is bundled
         // from `@fontsource/dancing-script` rather than fetched from a font
         // CDN, because the production CSP is `font-src 'self' data:`.
         // `Dancing Script Fallback` is Arial Bold resized to its metrics in

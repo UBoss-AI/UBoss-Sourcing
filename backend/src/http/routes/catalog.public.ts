@@ -35,6 +35,8 @@ import { serialiseMoney } from '../../domain/money.js';
 import type { VariantAxis } from '../../domain/variants/axis.js';
 import { VARIANT_TEMPLATES, findTemplate } from '../../domain/variants/registry.js';
 import { prisma } from '../../infra/prisma.js';
+import { env } from '../../config/env.js';
+import { ratingBadges, withRatingBadges } from '../../modules/catalog/product-review.service.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
 import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index.js';
 import { getAvailabilityMap } from '../../modules/inventory/inventory.service.js';
@@ -435,6 +437,7 @@ function serialiseProduct(
     minimumOrderQuantity: number;
     orderIncrement: number;
     maximumOrderQuantity: number | null;
+    b2cMaxOrderQuantity?: number | null;
   } | null,
   /**
    * Category id to its slug trail, nearest first, for resolving the variant
@@ -606,6 +609,19 @@ function serialiseProduct(
       maxOrderQty: product.maxOrderQty,
       qtyIncrement: product.qtyIncrement,
       isRecurringEligible: isScheduleEligible(product),
+      /**
+       * The B2C maximum order quantity: the most units of this product a
+       * buyer who is not an approved company may order at once, in pieces.
+       * The offer's on a seller's product - the offer the basket will bind -
+       * and the product row's on the operator's own. Null when none is set.
+       *
+       * A purchasing limit, never stock: the page words it as such. Shown to
+       * everybody, and applied by the server to everybody but an approved
+       * company, whatever the page does with it.
+       */
+      b2cMaxOrderQuantity: product.isMarketplaceProduct
+        ? (offerTerms?.b2cMaxOrderQuantity ?? null)
+        : product.b2cMaxOrderQuantity,
     },
 
     /**
@@ -1273,7 +1289,14 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         shelf,
       });
 
-      return reply.status(200).send(result);
+      return reply.status(200).send({
+        ...result,
+        // The same star line the operator grid carries. See below.
+        products: await withRatingBadges(
+          (result.products ?? []) as Record<string, unknown>[],
+          env.FEATURE_PRODUCT_REVIEWS,
+        ),
+      });
     }
 
     // Rooted at the price row for this currency, so the filter and the sort
@@ -1307,8 +1330,10 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       currency,
     );
 
-    return reply.status(200).send({
-      products: rows.map((row) =>
+    // Each card carries its average and review count: one grouped query for
+    // the page, null where there are none or reviews are switched off.
+    const products = await withRatingBadges(
+      rows.map((row) =>
         serialiseProduct(
           row.product,
           currency,
@@ -1320,6 +1345,11 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           shelf,
         ),
       ),
+      env.FEATURE_PRODUCT_REVIEWS,
+    );
+
+    return reply.status(200).send({
+      products,
       currency,
       /** The destination these prices were quoted for. Null when none was given. */
       country: shelf.country,
@@ -1476,6 +1506,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       minimumOrderQuantity: number;
       orderIncrement: number;
       maximumOrderQuantity: number | null;
+      b2cMaxOrderQuantity: number | null;
     } | null = null;
 
     if (request.storefront !== null) {
@@ -1496,6 +1527,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
           minimumOrderQuantity: true,
           orderIncrement: true,
           maximumOrderQuantity: true,
+          b2cMaxOrderQuantity: true,
         },
       });
 
@@ -1643,18 +1675,27 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       }
     }
 
+    // The star line under the product's name. The full breakdown and the
+    // reviews themselves come from `/products/:slug/reviews`.
+    const rating = env.FEATURE_PRODUCT_REVIEWS
+      ? ((await ratingBadges([product.id])).get(product.id) ?? null)
+      : null;
+
     return reply.status(200).send({
-      product: serialiseProduct(
-        product,
-        currency,
-        base,
-        prices,
-        shelf,
-        variantPackaging,
-        offerTerms,
-        categorySlugPaths,
-        variantStock,
-      ),
+      product: {
+        ...serialiseProduct(
+          product,
+          currency,
+          base,
+          prices,
+          shelf,
+          variantPackaging,
+          offerTerms,
+          categorySlugPaths,
+          variantStock,
+        ),
+        rating,
+      },
       currency,
       country: shelf.country,
       /**
@@ -1821,7 +1862,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     const matched = new Set(cards.map((card) => card.matchedRef));
 
     return reply.status(200).send({
-      products: cards,
+      products: await withRatingBadges(cards, env.FEATURE_PRODUCT_REVIEWS),
       /** Named, not dropped: the caller owes the reader an honest count. */
       unresolved: refs.filter((ref) => !matched.has(ref)),
       currency,

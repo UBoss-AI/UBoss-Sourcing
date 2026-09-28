@@ -15,7 +15,7 @@
  *
  * It never claims what the system has not done. There is no IRN and no GST
  * e-invoice QR: that requires registration on the Invoice Registration Portal,
- * which this software does not integrate with. The QR printed is Glovia's own
+ * which this software does not integrate with. The QR printed is Gloviaa Mart's own
  * document check and says so.
  */
 import { PdfBuilder, type Column } from './pdf.js';
@@ -264,7 +264,7 @@ export async function renderInvoice(
 
   pdf.closing({
     qrPng: qr,
-    qrCaption: qr === null ? null : 'Glovia document check.\nNot a GST e-invoice QR.',
+    qrCaption: qr === null ? null : 'Gloviaa Mart document check.\nNot a GST e-invoice QR.',
     signatures: [
       {
         heading: `For ${document.signatory.forName}`,

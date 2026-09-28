@@ -65,6 +65,15 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // What a shopper asked a seller for, on a product they did not buy. Their
   // own words, held until they take them back, so disclosed in full.
   ProductInstruction: 'productInstructions',
+
+  // Their reviews of products they received - four scores, and whether staff
+  // hid them and why. Published under their name, so disclosed in full.
+  ProductReview: 'productReviews',
+  // Support requests they sent, and the thread they were shown. The event
+  // table is caught by `actorUserId`; its requester-visible rows are disclosed
+  // inside each request, and staff's internal notes go under `internalNotes`.
+  SupportTicket: 'supportTickets',
+  SupportTicketEvent: 'supportTickets',
   AssistantConversation: 'chatEnquiries',
   Session: 'sessions',
   DataRequest: 'dataRequests',
@@ -93,6 +102,20 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // `sellerAccountId` rather than on a person, so the parser never finds them,
   // which is correct: they belong to the company.
   SellerMember: 'sellerMembership',
+
+  // Buyer companies. The membership, the declarations this person made, and
+  // the applicant-visible timeline and status history of companies they
+  // manage are disclosed together - see the section. The company's own rows
+  // (addresses, identifiers, documents, checks) are keyed on the company, so
+  // the parser never finds them.
+  BuyerCompanyMember: 'companyMemberships',
+  ConsentRecord: 'companyMemberships',
+  BuyerCompanyReviewEvent: 'companyMemberships',
+  BuyerCompanyStatusHistory: 'companyMemberships',
+  // A hashed six-digit code sent to a business address. Usable as a
+  // credential while it lives, so reported as existing and not disclosed -
+  // the same line as AuthToken.
+  BuyerCompanyEmailChallenge: 'credentials',
 
   // The third one. A person who drives for a carrier that delivers for this
   // marketplace: their membership and driver record are theirs, and the

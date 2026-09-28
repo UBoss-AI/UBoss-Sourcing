@@ -1,4 +1,4 @@
-# Glovia — Local Setup
+# Gloviaa Mart — Local Setup
 
 This guide gets the whole project running on this Windows computer: the
 database, the API, the background worker, the Admin Panel and the Customer

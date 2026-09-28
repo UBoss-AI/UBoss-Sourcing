@@ -58,6 +58,11 @@ export const FALLBACK_CONFIG: StorefrontConfig = {
     // operator's provider budget, and offering it on a deployment that has
     // configured no provider is a button that can only fail.
     imageSearch: false,
+    // Off until the config says otherwise, like everything above.
+    buyerCompanies: false,
+    // Off until the config says otherwise: stars drawn before we know reviews
+    // are on would vanish a moment later on a deployment that has them off.
+    productReviews: false,
   },
   // Nothing claimed until the real config arrives. `isAi` is still true,
   // because if this widget ever renders it is an AI widget - the flag says

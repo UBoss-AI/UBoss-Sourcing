@@ -183,6 +183,25 @@ export const router = createBrowserRouter([
         ]),
       },
       /*
+       * Buyer-company verification: the review queue, and one application.
+       * `:id` is what the "submitted" and "responded" notifications link to.
+       */
+      {
+        path: 'buyer-companies',
+        ...lazyRoute(
+          () => import('@/pages/buyer-companies/BuyerCompaniesPage').then((m) => m.BuyerCompaniesPage),
+          [Permission.BUYER_COMPANY_READ],
+        ),
+      },
+      {
+        path: 'buyer-companies/:id',
+        ...lazyRoute(
+          () =>
+            import('@/pages/buyer-companies/BuyerCompanyDetailPage').then((m) => m.BuyerCompanyDetailPage),
+          [Permission.BUYER_COMPANY_READ],
+        ),
+      },
+      /*
        * The marketplace's sellers.
        *
        * Guarded by CUSTOMER_READ and CUSTOMER_STATUS_WRITE rather than new
@@ -245,6 +264,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // Buyers' product reviews, and hiding one that breaks the rules.
+        path: 'product-reviews',
+        ...lazyRoute(
+          () => import('@/pages/ProductReviewsPage').then((m) => m.ProductReviewsPage),
+          [Permission.REVIEW_READ],
+        ),
+      },
+      {
         path: 'brand-requests',
         ...lazyRoute(
           () => import('@/pages/BrandRequestsPage').then((m) => m.BrandRequestsPage),
@@ -262,6 +289,19 @@ export const router = createBrowserRouter([
         path: 'preorder-chats/:id',
         ...lazyRoute(() => import('@/pages/preorder-chat/PreorderChatsPage').then((m) => m.PreorderChatsPage), [
           Permission.PREORDER_CHAT_VIEW,
+        ]),
+      },
+      {
+        // Support -> Tickets. The bell and the new-ticket email link to :id.
+        path: 'support',
+        ...lazyRoute(() => import('@/pages/support/SupportTicketsPage').then((m) => m.SupportTicketsPage), [
+          Permission.SUPPORT_TICKET_VIEW,
+        ]),
+      },
+      {
+        path: 'support/:id',
+        ...lazyRoute(() => import('@/pages/support/SupportTicketsPage').then((m) => m.SupportTicketDetailPage), [
+          Permission.SUPPORT_TICKET_VIEW,
         ]),
       },
       {

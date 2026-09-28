@@ -224,7 +224,8 @@ export async function executeErasure(input: {
   const gatewayCustomers: string[] = [];
 
   /**
-   * Private storage objects of erased preorder chat attachments, deleted once
+   * Private storage objects of erased preorder chat and support ticket
+   * attachments, deleted once
    * the rows that point at them have committed - the same reason as above.
    */
   const chatFiles: string[] = [];
@@ -243,6 +244,25 @@ export async function executeErasure(input: {
 
     deleted.sessions = (await tx.session.deleteMany({ where: { userId: input.userId } })).count;
     deleted.authTokens = (await tx.authToken.deleteMany({ where: { userId: input.userId } })).count;
+
+    /*
+     * Support requests they sent, with their threads and internal notes
+     * (cascade). Deleted, not anonymised: a request is a person describing
+     * their own problem in their own words, nothing requires keeping it once
+     * they ask for erasure, and an anonymised one would still be recognisably
+     * theirs. Keyed by user, so a logistics partner's staff are covered too.
+     * The audit trail keeps that each one existed, and never held the words.
+     */
+    // Their files go with them; the BYTES are deleted after commit, below.
+    const ticketFiles = await tx.supportTicketAttachment.findMany({
+      where: { ticket: { requesterUserId: input.userId } },
+      select: { storageKey: true },
+    });
+    chatFiles.push(...ticketFiles.map((file) => file.storageKey));
+    deleted.supportTicketAttachments = ticketFiles.length;
+    deleted.supportTickets = (
+      await tx.supportTicket.deleteMany({ where: { requesterUserId: input.userId } })
+    ).count;
     // Which versions of the bulk preorder note they read. Nothing requires
     // keeping it once the account is gone, and every row names them.
     deleted.acknowledgements = (
@@ -325,6 +345,17 @@ export async function executeErasure(input: {
        */
       deleted.productInstructions = (
         await tx.productInstruction.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
+      /*
+       * Product reviews. Deleted, not anonymised: a review is the subject's
+       * own words published under their name, nothing legally requires
+       * keeping it, and an anonymised review would still be their opinion
+       * standing in the average. Every product's average is computed on read,
+       * so each one they reviewed simply moves the next time it is shown.
+       */
+      deleted.productReviews = (
+        await tx.productReview.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
       /*
@@ -483,6 +514,32 @@ export async function executeErasure(input: {
         where: { decidedByProfileId: profile.id },
         data: { decidedByProfileId: null },
       });
+
+      /*
+       * Buyer companies they belonged to.
+       *
+       * The company is a legal entity and its application - registration and
+       * tax numbers, addresses, documents, the reviewer's findings - is the
+       * company's record, kept for as long as the company is a customer. What
+       * is this person's is their membership and the traces they left:
+       *
+       *   - memberships end (REMOVED) rather than disappearing, so the
+       *     company's record of who applied for it still reads;
+       *   - the declarations they made stay as evidence that they were made,
+       *     with the device details (IP address, browser) removed;
+       *   - an unused business-email code is deleted outright.
+       */
+      await tx.buyerCompanyMember.updateMany({
+        where: { userId: existing.id, status: { not: 'REMOVED' } },
+        data: { status: 'REMOVED', removedAt: now },
+      });
+      await tx.consentRecord.updateMany({
+        where: { userId: existing.id },
+        data: { ipAddress: null, userAgent: null },
+      });
+      deleted.companyEmailCodes = (
+        await tx.buyerCompanyEmailChallenge.deleteMany({ where: { userId: existing.id } })
+      ).count;
 
       await tx.customerErpSyncJob.updateMany({
         where: { startedByProfileId: profile.id },
@@ -805,7 +862,8 @@ export async function executeErasure(input: {
     await deleteErasedGatewayCustomers(gatewayCustomers, input.userId);
   }
 
-  // The erased chat attachments' bytes. Same rule: after, and not fatal - a
+  // The erased chat and support-ticket attachments' bytes. Same rule: after,
+  // and not fatal - a
   // file whose row is gone can no longer be reached through any route.
   for (const key of chatFiles) {
     await storage.delete(key).catch((error: unknown) => {

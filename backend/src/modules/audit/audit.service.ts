@@ -393,6 +393,19 @@ export const AuditAction = {
   /// conversation itself is the record of what was said, and copying it here
   /// would put a private negotiation in front of everybody who may read the
   /// trail.
+  /// Support requests. Same rule as preorder chat: who did what to which
+  /// request, never what anybody wrote in it - the request itself is the
+  /// record of what was said.
+  SUPPORT_TICKET_CREATED: 'support_ticket.created',
+  SUPPORT_TICKET_STATUS_CHANGED: 'support_ticket.status_changed',
+  SUPPORT_TICKET_PRIORITY_CHANGED: 'support_ticket.priority_changed',
+  SUPPORT_TICKET_ASSIGNED: 'support_ticket.assigned',
+  SUPPORT_TICKET_REPLIED: 'support_ticket.replied',
+  SUPPORT_TICKET_NOTE_ADDED: 'support_ticket.note_added',
+  /// A file put on a ticket, and one taken out - its id, type and size, never
+  /// its name or contents.
+  SUPPORT_TICKET_ATTACHMENT_UPLOADED: 'support_ticket.attachment_uploaded',
+  SUPPORT_TICKET_ATTACHMENT_DOWNLOADED: 'support_ticket.attachment_downloaded',
   PREORDER_CHAT_STARTED: 'preorder_chat.started',
   PREORDER_CHAT_VIEWED: 'preorder_chat.viewed',
   PREORDER_CHAT_ASSIGNED: 'preorder_chat.assigned',
@@ -416,6 +429,33 @@ export const AuditAction = {
   PREORDER_CHAT_EXPORTED: 'preorder_chat.exported',
   PREORDER_CHAT_ATTACHMENT_UPLOADED: 'preorder_chat.attachment_uploaded',
   PREORDER_CHAT_ATTACHMENT_DOWNLOADED: 'preorder_chat.attachment_downloaded',
+
+  // Buyer companies. The company's own timeline (`buyer_company_review_events`)
+  // carries the detail a reviewer reads; these rows are the platform-wide
+  // trail that the audit screen and an Art. 15 export draw on.
+  /// A storefront session moved between acting for the person and for a company.
+  BUYER_CONTEXT_SWITCHED: 'buyer_context.switched',
+  BUYER_COMPANY_CREATED: 'buyer_company.created',
+  BUYER_COMPANY_UPDATED: 'buyer_company.updated',
+  BUYER_COMPANY_STATUS_CHANGED: 'buyer_company.status_changed',
+  BUYER_COMPANY_ASSIGNED: 'buyer_company.assigned',
+  BUYER_COMPANY_NOTE_ADDED: 'buyer_company.note_added',
+  BUYER_COMPANY_INFO_REQUESTED: 'buyer_company.info_requested',
+  BUYER_COMPANY_INFO_ANSWERED: 'buyer_company.info_answered',
+  BUYER_COMPANY_EMAIL_VERIFIED: 'buyer_company.email_verified',
+  BUYER_COMPANY_CONSENT_RECORDED: 'buyer_company.consent_recorded',
+  BUYER_COMPANY_CHECKS_RUN: 'buyer_company.checks_run',
+  BUYER_COMPANY_DOCUMENT_UPLOADED: 'buyer_company.document_uploaded',
+  /// A member of staff opened a company document. Every download is one row.
+  BUYER_COMPANY_DOCUMENT_VIEWED: 'buyer_company.document_viewed',
+  BUYER_COMPANY_DOCUMENT_DECIDED: 'buyer_company.document_decided',
+  BUYER_COMPANY_DOCUMENT_WITHDRAWN: 'buyer_company.document_withdrawn',
+
+  // Product reviews. Writing one is not audited - it is the buyer's own
+  // record and carries its own timestamps. Staff hiding or restoring one is,
+  // because it changes what every other buyer is shown.
+  PRODUCT_REVIEW_HIDDEN: 'product_review.hidden',
+  PRODUCT_REVIEW_PUBLISHED: 'product_review.published',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

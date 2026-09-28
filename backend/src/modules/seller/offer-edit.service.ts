@@ -48,6 +48,11 @@
  * lose all of that while looking, from the outside, like it had worked.
  */
 import { createHash } from 'node:crypto';
+import {
+  B2C_MAX_ORDER_QUANTITY_CEILING,
+  b2cLimitProblemMessage,
+  validateB2cMaxOrderQuantity,
+} from '../../domain/b2c-order-limit.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { findTemplate } from '../../domain/variants/registry.js';
@@ -100,6 +105,12 @@ export interface ListingTermsPatch {
   minimumOrderQuantity?: number | null;
   orderIncrement?: number | null;
   maximumOrderQuantity?: number | null;
+  /**
+   * The B2C maximum order quantity, for the whole listing. Absent leaves it
+   * alone. Null is accepted only where none was ever set; a configured limit
+   * can be changed but not removed.
+   */
+  b2cMaxOrderQuantity?: number | null;
   handlingTimeDays?: number | null;
   guaranteedShelfLifeMonths?: number | null;
   warrantyMonths?: number | null;
@@ -185,6 +196,7 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
       minimumOrderQuantity: true,
       orderIncrement: true,
       maximumOrderQuantity: true,
+      b2cMaxOrderQuantity: true,
       handlingTimeDays: true,
       guaranteedShelfLifeMonths: true,
       warrantyMonths: true,
@@ -397,6 +409,9 @@ export async function readListingForEdit(membership: SellerMembership, offerId: 
       minimumOrderQuantity: offer.minimumOrderQuantity,
       orderIncrement: offer.orderIncrement,
       maximumOrderQuantity: offer.maximumOrderQuantity,
+      // Null means "not configured" - an offer from before the rule. The
+      // editor shows that plainly and asks for a figure.
+      b2cMaxOrderQuantity: offer.b2cMaxOrderQuantity,
       handlingTimeDays: offer.handlingTimeDays,
       guaranteedShelfLifeMonths: offer.guaranteedShelfLifeMonths,
       warrantyMonths: offer.warrantyMonths,
@@ -729,6 +744,8 @@ export async function saveListingEdit(
 
   let archived = 0;
 
+  // Filled inside the transaction, read after it for the audit trail.
+  const b2c: { change: B2cLimitChange | null } = { change: null };
   const result = await prisma.$transaction(async (tx) => {
     // --- Combinations that already exist ---------------------------------
     for (const { row, existing } of updates) {
@@ -760,7 +777,7 @@ export async function saveListingEdit(
      * write happened to run second.
      */
     if (input.terms !== null && input.terms !== undefined) {
-      await applyTerms(tx, current, input.terms);
+      b2c.change = await applyTerms(tx, current, input.terms);
     }
 
     // --- The product's own shape -----------------------------------------
@@ -825,6 +842,29 @@ export async function saveListingEdit(
     correlationId: input.correlationId ?? null,
   });
 
+  // Its own entry, so "who changed how much an individual may buy, from what
+  // to what, and when" is one query rather than a diff of every edit. The
+  // entry's own timestamp is the when.
+  const b2cChange = b2c.change;
+  if (b2cChange !== null) {
+    await recordSellerAudit({
+      sellerAccountId: membership.sellerAccountId,
+      action: 'seller.offer.b2c_limit_changed',
+      actor: { type: 'CUSTOMER', label: membership.displayName },
+      resourceType: 'product',
+      resourceId: current.product.id,
+      before: { b2cMaxOrderQuantity: b2cChange.before },
+      after: {
+        b2cMaxOrderQuantity: b2cChange.after,
+        offersUpdated: b2cChange.offersUpdated,
+        changedByMemberId: membership.memberId,
+        changedByCustomerProfileId: membership.customerProfileId,
+      },
+      summary: `The B2C maximum order quantity for ${current.sellerSku} changed from ${b2cChange.before === null ? 'not configured' : String(b2cChange.before)} to ${String(b2cChange.after)}.`,
+      correlationId: input.correlationId ?? null,
+    });
+  }
+
   return {
     created: creates.length,
     updated: updates.length,
@@ -839,11 +879,74 @@ export async function saveListingEdit(
 // The pieces
 // ---------------------------------------------------------------------------
 
+interface B2cLimitChange {
+  before: number | null;
+  after: number;
+  offersUpdated: number;
+}
+
+/**
+ * Validate and write the B2C maximum order quantity for the whole listing.
+ *
+ * Written to EVERY offer this seller has for this product, not just the one
+ * in the URL, because the limit counts the product - every variant together
+ * - and one figure per variant would be a limit nobody could read. Returns
+ * the change for the audit trail, or null when nothing changed.
+ *
+ * Existing baskets and placed orders are not touched. A basket now over the
+ * new limit is flagged the next time it is opened and cannot be checked out;
+ * an order keeps the limit it was placed under.
+ */
+async function applyB2cLimit(
+  tx: PrismaTransaction,
+  current: ListingEditView,
+  terms: ListingTermsPatch,
+): Promise<B2cLimitChange | null> {
+  if (terms.b2cMaxOrderQuantity === undefined) return null;
+
+  const previous = current.terms.b2cMaxOrderQuantity;
+
+  if (terms.b2cMaxOrderQuantity === null) {
+    // Nothing set and nothing sent: a legacy listing edited for some other
+    // reason. Clearing a configured limit is refused - it would silently lift
+    // the ceiling for every individual buyer.
+    if (previous === null) return null;
+    throw badRequest(ErrorCode.VALIDATION_FAILED, b2cLimitProblemMessage('REQUIRED'), [
+      { field: 'terms.b2cMaxOrderQuantity', code: 'REQUIRED' },
+    ]);
+  }
+
+  const checked = validateB2cMaxOrderQuantity(terms.b2cMaxOrderQuantity, {
+    minimumOrderQuantity: terms.minimumOrderQuantity ?? current.terms.minimumOrderQuantity,
+  });
+  if (!checked.ok) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, b2cLimitProblemMessage(checked.code), [
+      {
+        field: 'terms.b2cMaxOrderQuantity',
+        code: checked.code,
+        meta: { maximum: B2C_MAX_ORDER_QUANTITY_CEILING },
+      },
+    ]);
+  }
+  if (checked.value === previous) return null;
+
+  const offer = await tx.sellerOffer.findUniqueOrThrow({
+    where: { id: current.offerId },
+    select: { sellerAccountId: true, productId: true },
+  });
+  const updated = await tx.sellerOffer.updateMany({
+    where: { sellerAccountId: offer.sellerAccountId, productId: offer.productId },
+    data: { b2cMaxOrderQuantity: checked.value },
+  });
+
+  return { before: previous, after: checked.value, offersUpdated: updated.count };
+}
+
 async function applyTerms(
   tx: PrismaTransaction,
   current: ListingEditView,
   terms: ListingTermsPatch,
-): Promise<void> {
+): Promise<B2cLimitChange | null> {
   const priceMinor =
     terms.priceMinor === null || terms.priceMinor === undefined
       ? BigInt(current.terms.priceMinor)
@@ -910,6 +1013,8 @@ async function applyTerms(
       });
     }
   }
+
+  return applyB2cLimit(tx, current, terms);
 }
 
 /**
@@ -1098,6 +1203,7 @@ async function createRow(
       minimumOrderQuantity: row.minOrderQty ?? 1,
       orderIncrement: row.qtyIncrement ?? 1,
       maximumOrderQuantity: row.maxOrderQty ?? null,
+      b2cMaxOrderQuantity: current.terms.b2cMaxOrderQuantity,
     },
   });
 

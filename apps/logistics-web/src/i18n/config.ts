@@ -159,7 +159,7 @@ export function setMarketplaceName(name: string | null | undefined): void {
  * Usually the marketplace's own name, and it falls back to that. It is its
  * own setting (`OPERATOR_TEAM_NAME`, sent as `marketplace.teamName` by
  * `GET /config`) because an operator can trade under one name and work as a
- * team under another: a storefront called Glovia whose buyers talk to "the
+ * team under another: a storefront called Gloviaa Mart whose buyers talk to "the
  * UBoss team" and whose sellers choose "Self + UBoss" for a delivery level.
  * Renaming the store to get the team's name right would rename the header,
  * the emails and the payment sheets too.

@@ -129,7 +129,11 @@ export function AccountLayout(): React.JSX.Element {
   const location = useLocation();
 
   const identity = useAccountIdentity(isCustomer);
-  const groups = accountNavGroups({ recurringOrders: features.recurringOrders });
+  const groups = accountNavGroups({
+    recurringOrders: features.recurringOrders,
+    buyerCompanies: features.buyerCompanies === true,
+    productReviews: features.productReviews === true,
+  });
 
   // The drawer, below `md`, and nothing else: the rail widens on hover and
   // keeps that to itself. See `components/ui/sidebar.tsx`.

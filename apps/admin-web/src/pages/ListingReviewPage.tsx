@@ -23,6 +23,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useI18n } from '@/i18n/i18n-context';
 import { Modal } from '@/components/Modal';
 import { SellerContentPreview } from './listing-review/SellerContentPreview';
 import { useToast } from '@/components/toast-context';
@@ -378,6 +379,7 @@ function Commercials({
   onNote: (note: FieldNote) => void;
   disabled: boolean;
 }): React.JSX.Element {
+  const { t, intlLocale } = useI18n();
   const offer = listing.offer as {
     priceMinor?: string | null;
     currency?: string | null;
@@ -385,6 +387,7 @@ function Commercials({
     orderIncrement?: number | null;
     orderingUnit?: string | null;
     handlingTimeDays?: number | null;
+    b2cMaxOrderQuantity?: number | null;
     priceTiers?: { minQuantity: number; priceMinor: string }[] | null;
   };
 
@@ -425,6 +428,13 @@ function Commercials({
         <Fact label="Sold in">{offer.orderingUnit ?? '—'}</Fact>
         <Fact label="Minimum order">{offer.minimumOrderQuantity ?? '—'}</Fact>
         <Fact label="Order increment">{offer.orderIncrement ?? '—'}</Fact>
+        {/* What an Individual buyer may order at once, as the seller set it.
+            Reviewed here because it goes live with the listing. */}
+        <Fact label={t('listingReview.b2cLimit')}>
+          {typeof offer.b2cMaxOrderQuantity === 'number'
+            ? t('listingReview.b2cLimitUnits', { limit: offer.b2cMaxOrderQuantity.toLocaleString(intlLocale) })
+            : t('listingReview.b2cLimitNotSet')}
+        </Fact>
         <Fact label="Handling time">
           {offer.handlingTimeDays == null ? '—' : `${String(offer.handlingTimeDays)} days`}
         </Fact>

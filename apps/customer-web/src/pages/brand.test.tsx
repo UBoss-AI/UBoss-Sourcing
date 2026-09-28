@@ -4,7 +4,7 @@
  * The product used to be called UBOSS Sourcing, and the greeting page used to
  * make the name move: a shop's name with one word cycling after it — Sourcing,
  * Intelligence, Optimism, Innovation — so the headline read "UBOSS Sourcing",
- * then "UBOSS Intelligence", then "UBOSS Optimism". The product is Glovia now
+ * then "UBOSS Intelligence", then "UBOSS Optimism". The product is Gloviaa Mart now
  * and the headline does not rotate at all. What rotates is the line beneath
  * the static tagline under it, between "Source with Intelligence" and
  * "Deliver with Confidence", which are two complete thoughts rather than two
@@ -15,7 +15,7 @@
  *
  *   - **The header names the SHOP, not the product.** Every buyer runs their
  *     own deployment. A test that only ever saw the fallback configuration
- *     would pass just as happily against a header with `Glovia` hard-coded in
+ *     would pass just as happily against a header with `Gloviaa Mart` hard-coded in
  *     it, so one of these hands it somebody else's name and insists on seeing
  *     that instead.
  *   - **The old rotation cannot come back by accident.** Nothing in the
@@ -37,7 +37,7 @@ import { HomePage } from './HomePage';
 import { Header } from '@/layout/Header';
 import { Footer } from '@/layout/Footer';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
-import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_TAGLINE } from '@/lib/brand';
+import { PARENT_ATTRIBUTION, PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
 import type { StorefrontConfig } from '@/lib/types';
 
@@ -113,6 +113,17 @@ describe('the header lockup', () => {
     expect(screen.getByText(PRODUCT_BRAND)).toBeInTheDocument();
   });
 
+  it('says the one-word name on a phone and the full name from sm up', () => {
+    renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
+
+    // Both are in the markup and CSS shows one. jsdom has no stylesheet, so
+    // the classes are what can be asserted.
+    expect(PRODUCT_BRAND).toBe('Gloviaa Mart');
+    expect(PRODUCT_SHORT_NAME).toBe('Gloviaa');
+    expect(screen.getByText(PRODUCT_SHORT_NAME).className).toContain('sm:hidden');
+    expect(screen.getByText(PRODUCT_BRAND).className).toContain('max-sm:hidden');
+  });
+
   it('carries the tagline on the second', () => {
     renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
 
@@ -121,8 +132,8 @@ describe('the header lockup', () => {
     expect(tagline).toBeInTheDocument();
     // Written as a sentence, not in capitals.
     // A reader with a stylesheet that does not load, and anything reading the
-    // markup, gets `The Way to the World` and not `THE WAY TO THE WORLD`.
-    expect(tagline.textContent).toBe('The Way to the World');
+    // markup, gets `The Way to the Global Sourcing` and not `THE WAY TO THE GLOBAL SOURCING`.
+    expect(tagline.textContent).toBe('The Way to the Global Sourcing');
 
     // The attribution moved to the footer; the header does not repeat it.
     expect(screen.queryByText(PARENT_ATTRIBUTION)).toBeNull();
@@ -131,7 +142,8 @@ describe('the header lockup', () => {
   it('sets the product name and the tagline in the one wordmark face', () => {
     renderWithProviders(<Header />, { config: makeConfig(), session: GUEST });
 
-    expect(screen.getByText(PRODUCT_BRAND).className).toContain('font-brand');
+    expect(screen.getByText(PRODUCT_BRAND).closest('.font-brand')).not.toBeNull();
+    expect(screen.getByText(PRODUCT_SHORT_NAME).closest('.font-brand')).not.toBeNull();
     expect(screen.getByText(PRODUCT_TAGLINE).className).toContain('font-brand');
   });
 
@@ -148,7 +160,7 @@ describe('the header lockup', () => {
     expect(name).toBeInTheDocument();
     expect(screen.queryByText(PRODUCT_BRAND)).toBeNull();
 
-    // Glovia's face and Glovia's slogan belong to Glovia. Under somebody
+    // Gloviaa Mart's face and Gloviaa Mart's slogan belong to Gloviaa Mart. Under somebody
     // else's name they would be the software claiming that company's shop.
     expect(name.className).not.toContain('font-brand');
     expect(screen.queryByText(PRODUCT_TAGLINE)).toBeNull();
@@ -279,7 +291,7 @@ describe('the tagline under the headline', () => {
     expect(tagline?.closest('.greeting-strapline')).toBeNull();
   });
 
-  it('belongs to Glovia, so another company’s greeting does not carry it', () => {
+  it('belongs to Gloviaa Mart, so another company’s greeting does not carry it', () => {
     const { container } = renderWithProviders(<HomePage />, {
       config: makeConfig({ displayName: 'Northwind Industrial' }),
       session: GUEST,
@@ -369,7 +381,10 @@ describe('the core of the orchestration hub', () => {
     const core = container.querySelector('.orch-hub-label');
 
     expect(core).not.toBeNull();
-    expect(within(core as HTMLElement).getByText(PRODUCT_BRAND)).toBeInTheDocument();
+    // `Gloviaa` and nothing more: the globe stands for the rest of the name,
+    // and the endorsement and the tagline live elsewhere on the page.
+    expect(within(core as HTMLElement).getByText(PRODUCT_SHORT_NAME)).toBeInTheDocument();
+    expect(core?.textContent).toBe(PRODUCT_SHORT_NAME);
 
     // One element, whether or not WebGL is available. The 3D stage replaces
     // the sphere behind this label and never the label, so there is no second

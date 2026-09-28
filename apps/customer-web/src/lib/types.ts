@@ -11,6 +11,7 @@
  */
 import type { Money } from './format';
 import type { BuyablePackaging, LinePackaging } from './bulk-packaging';
+import type { RatingBadge } from './ratings';
 
 export type { Money };
 
@@ -112,6 +113,24 @@ export interface StorefrontConfig {
      * would otherwise be read as `false`, which is the safe answer either way.
      */
     imageSearch?: boolean;
+    /**
+     * Whether buyers may register and buy for a company. Optional for the same
+     * reason as the two above, and absent means off: a Company tab offered on
+     * a deployment that has switched companies off leads only to refusals.
+     */
+    buyerCompanies?: boolean;
+    /**
+     * Whether stars and the review form are shown. Optional and absent means
+     * off, for the same reason as the fields above.
+     */
+    productReviews?: boolean;
+    /**
+     * Whether the Support page takes requests. Only decides what a GUEST is
+     * shown - a sign-in prompt, or "write to us". A signed-in reader's form
+     * follows the server's own answer on `/support/context`, so a stale config
+     * can never put up a form the server would refuse.
+     */
+    supportTickets?: boolean;
   };
 
   /**
@@ -254,6 +273,13 @@ export interface PurchaseRules {
   maxOrderQty: number | null;
   qtyIncrement: number;
   isRecurringEligible: boolean;
+  /**
+   * The B2C maximum order quantity, in pieces: the most of this product a
+   * buyer who is not an approved company may order at once. Null or absent
+   * when none is configured. A purchasing limit, never stock - and the
+   * server applies it whatever the page does. See `lib/b2c-limit.ts`.
+   */
+  b2cMaxOrderQuantity?: number | null;
 }
 
 /**
@@ -515,6 +541,12 @@ export interface Product {
   name: string;
   slug: string;
   sku: string;
+  /**
+   * The average of its published reviews and how many there are. Null where
+   * there are none, or where reviews are switched off - both draw nothing.
+   * Optional because the AI answers and older cached responses predate it.
+   */
+  rating?: RatingBadge | null;
   shortDescription: string | null;
   description: string | null;
   /** Sanitised server-side against an allowlist. Never rendered raw here. */
@@ -858,6 +890,18 @@ export interface CartLine {
   packaging?: LinePackaging | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
+  /**
+   * The B2C maximum order quantity for this line's product, or null when none
+   * is configured. `productQuantity` is every line of the product from this
+   * seller added together - what the limit is judged on. `applies` is false
+   * in an approved company's basket. Absent from an older server.
+   */
+  b2cLimit?: {
+    maxQuantity: number;
+    productQuantity: number;
+    applies: boolean;
+    exceeded: boolean;
+  } | null;
   /**
    * The seller's quantity band that priced this line, or null at list price.
    * Absent on a response from a server that predates bands.

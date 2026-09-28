@@ -352,6 +352,8 @@ export const OFFER_SELL_TERMS = {
   minimumOrderQuantity: true,
   orderIncrement: true,
   maximumOrderQuantity: true,
+  /** The B2C maximum order quantity, so the page states the same limit the basket applies. */
+  b2cMaxOrderQuantity: true,
 } as const;
 
 export interface OfferSellTerms {
@@ -360,4 +362,5 @@ export interface OfferSellTerms {
   minimumOrderQuantity: number;
   orderIncrement: number;
   maximumOrderQuantity: number | null;
+  b2cMaxOrderQuantity: number | null;
 }

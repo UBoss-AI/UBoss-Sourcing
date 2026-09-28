@@ -313,13 +313,13 @@ describe('PreorderButton', () => {
     expect(preorder.contains(info)).toBe(false);
     expect(info.contains(preorder)).toBe(false);
     expect(preorder.nextElementSibling).toBe(info);
-    const chat = screen.getByRole('button', { name: 'Chat with Glovia' });
+    const chat = screen.getByRole('button', { name: 'Chat with Gloviaa Mart' });
     expect(info.compareDocumentPosition(chat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(chat.contains(info)).toBe(false);
     // One way into the chat from this row, and it is the icon: no visible
-    // "Chat with Glovia" text button beside it any more.
+    // "Chat with Gloviaa Mart" text button beside it any more.
     expect(screen.getAllByRole('button', { name: /chat with/i })).toHaveLength(1);
-    expect(screen.queryByText('Chat with Glovia')).toBeNull();
+    expect(screen.queryByText('Chat with Gloviaa Mart')).toBeNull();
     expect(info).toHaveAttribute('aria-haspopup', 'dialog');
     expect(info).toHaveAttribute('aria-expanded', 'false');
   });

@@ -22,7 +22,7 @@
  */
 
 /** The product's own name. See `apps/customer-web/src/lib/brand.ts`. */
-export const PRODUCT_NAME = 'Glovia';
+export const PRODUCT_NAME = 'Gloviaa Mart';
 
 /** The trading name to show, given whatever the profile holds. */
 export function marketplaceNameFrom(displayName: string | null | undefined): string {

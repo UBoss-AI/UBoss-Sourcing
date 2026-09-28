@@ -158,6 +158,15 @@ export const router = createBrowserRouter([
           [Permission.ORGANISATION_READ],
         ),
       },
+      // Support: open to every member, so no permission is listed.
+      {
+        path: 'support',
+        ...lazyRoute(() => import('@/pages/SupportPage').then((m) => m.SupportPage), []),
+      },
+      {
+        path: 'support/:reference',
+        ...lazyRoute(() => import('@/pages/SupportPage').then((m) => m.SupportTicketPage), []),
+      },
       {
         path: 'driver/tasks',
         ...lazyRoute(

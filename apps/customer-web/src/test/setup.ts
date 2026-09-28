@@ -74,6 +74,35 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 }
 
 /**
+ * `IntersectionObserver`, which jsdom does not implement either.
+ *
+ * The Support page's entrances use motion's `whileInView`, which constructs
+ * one on mount and throws without it. A no-op for the reason the one above is:
+ * jsdom has no viewport, so nothing ever intersects. Elements stay in the DOM
+ * at their starting state, which is all a test reads.
+ */
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  globalThis.IntersectionObserver = class IntersectionObserver {
+    readonly root = null;
+    readonly rootMargin = '0px';
+    readonly scrollMargin = '0px';
+    readonly thresholds: readonly number[] = [];
+    observe(): void {
+      /* jsdom has no viewport to intersect */
+    }
+    unobserve(): void {
+      /* no-op */
+    }
+    disconnect(): void {
+      /* no-op */
+    }
+    takeRecords(): IntersectionObserverEntry[] {
+      return [];
+    }
+  };
+}
+
+/**
  * A 2D canvas context, which jsdom also does not implement.
  *
  * `getContext` is present but refuses, and it refuses loudly: every call

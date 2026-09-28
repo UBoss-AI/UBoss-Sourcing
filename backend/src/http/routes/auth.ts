@@ -50,6 +50,14 @@ import {
   recordSessionLocation,
 } from '../../modules/identity/session-location.service.js';
 import { enqueueNotification } from '../../modules/notifications/notification.service.js';
+import {
+  contextAfterSignIn,
+  listCompanyContexts,
+  resetSessionToIndividual,
+  resolveBuyerContext,
+  switchBuyerContext,
+  toContextView,
+} from '../../modules/buyer-companies/context.service.js';
 import { markInvitationAccepted } from '../../modules/logistics/partner.service.js';
 import {
   cookieNamesFor,
@@ -74,7 +82,19 @@ const passwordSchema = z
 const loginSchema = z.object({
   email: z.string().trim().min(1).max(320).email('Enter a valid email address.'),
   password: z.string().min(1).max(128),
+  /**
+   * Which storefront tab the person signed in on. An INTENT, never an
+   * authority: it is read only after the password has been accepted, and a
+   * company context is only ever given to a user with an active membership.
+   * Ignored on every surface but the storefront.
+   */
+  buyerType: z.enum(['individual', 'company']).optional(),
 });
+
+const buyerContextSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('INDIVIDUAL') }),
+  z.object({ kind: z.literal('COMPANY'), companyId: z.string().length(26) }),
+]);
 
 const acceptInvitationSchema = z.object({
   token: z.string().min(16).max(512),
@@ -274,7 +294,21 @@ export function authRoutes(kind: UserKind) {
 
       const csrfToken = setSessionCookies(reply, result.session, kind);
 
+      // The storefront's buyer context, decided now that the password has been
+      // accepted. A fresh session, so there is no earlier context to fixate on.
+      const buyer =
+        kind === 'CUSTOMER'
+          ? await contextAfterSignIn(result.user.id, result.session.sessionId, body.buyerType ?? 'individual')
+          : null;
+
       return reply.status(200).send({
+        ...(buyer !== null
+          ? {
+              buyerContext: toContextView(buyer.context),
+              companies: buyer.companies,
+              next: buyer.next,
+            }
+          : {}),
         user: {
           id: result.user.id,
           email: result.user.email,
@@ -452,7 +486,29 @@ export function authRoutes(kind: UserKind) {
           currencyForCountry(auth.sessionCountry),
         ]);
 
+        // The storefront's buyer context, confirmed against the membership
+        // now rather than taken from the session row. A company the person no
+        // longer belongs to is dropped here, and the storefront is told so.
+        let buyer: Record<string, unknown> = {};
+        if (kind === 'CUSTOMER') {
+          let context = await resolveBuyerContext(auth.id, {
+            buyerContextKind: auth.sessionBuyerContextKind,
+            buyerCompanyId: auth.sessionBuyerCompanyId,
+          });
+          const reset = context === null;
+          if (context === null) {
+            await resetSessionToIndividual(auth.sessionId);
+            context = { kind: 'INDIVIDUAL' };
+          }
+          buyer = {
+            buyerContext: toContextView(context),
+            buyerContextReset: reset,
+            companies: await listCompanyContexts(auth.id),
+          };
+        }
+
         return reply.status(200).send({
+          ...buyer,
           id: auth.id,
           email: auth.email,
           type: auth.type,
@@ -747,6 +803,59 @@ export function authRoutes(kind: UserKind) {
             email: consumed.email,
             message:
               'Your account is active. Sign in, and set up two-step sign-in if you are asked to.',
+          });
+        },
+      );
+    }
+
+    // --- Buyer context (storefront only) ------------------------------------
+    //
+    // Which buyer this session acts as: the person, or one of their companies.
+    // Switching needs no second sign-in - it chooses between authorities the
+    // person already holds - and the company id sent here is checked against
+    // an active membership before anything is written.
+    if (kind === 'CUSTOMER') {
+      /** The buyer this session is acting as, and every company it may switch to. */
+      app.get('/buyer-context', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
+        const auth = currentUser(request);
+        let context = await resolveBuyerContext(auth.id, {
+          buyerContextKind: auth.sessionBuyerContextKind,
+          buyerCompanyId: auth.sessionBuyerCompanyId,
+        });
+        if (context === null) {
+          await resetSessionToIndividual(auth.sessionId);
+          context = { kind: 'INDIVIDUAL' };
+        }
+        return reply.status(200).send({
+          buyerContext: toContextView(context),
+          companies: await listCompanyContexts(auth.id),
+        });
+      });
+
+      /**
+       * Switch between buying for yourself and for one of your companies.
+       * Refused, with one answer for every reason, for a company you are not
+       * an active member of.
+       */
+      app.put(
+        '/buyer-context',
+        {
+          preHandler: requireAuthenticated(kind),
+          config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
+        },
+        async (request, reply) => {
+          const auth = currentUser(request);
+          const body = buyerContextSchema.parse(request.body);
+          const context = await switchBuyerContext({
+            userId: auth.id,
+            sessionId: auth.sessionId,
+            target: body,
+            ipAddress: request.ip,
+            correlationId: request.correlationId,
+          });
+          return reply.status(200).send({
+            buyerContext: toContextView(context),
+            companies: await listCompanyContexts(auth.id),
           });
         },
       );

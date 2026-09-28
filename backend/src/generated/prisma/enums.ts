@@ -723,6 +723,100 @@ export const AutoPayRetryPreference = {
 export type AutoPayRetryPreference = (typeof AutoPayRetryPreference)[keyof typeof AutoPayRetryPreference]
 
 
+export const ProductReviewStatus = {
+  PUBLISHED: 'PUBLISHED',
+  HIDDEN: 'HIDDEN'
+} as const
+
+export type ProductReviewStatus = (typeof ProductReviewStatus)[keyof typeof ProductReviewStatus]
+
+
+export const SupportTicketStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  WAITING_FOR_CUSTOMER: 'WAITING_FOR_CUSTOMER',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type SupportTicketStatus = (typeof SupportTicketStatus)[keyof typeof SupportTicketStatus]
+
+
+export const SupportTicketPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type SupportTicketPriority = (typeof SupportTicketPriority)[keyof typeof SupportTicketPriority]
+
+
+export const SupportTicketCategory = {
+  ORDERS: 'ORDERS',
+  PAYMENTS: 'PAYMENTS',
+  PREORDERS: 'PREORDERS',
+  PRODUCTS: 'PRODUCTS',
+  SELLER_HUB: 'SELLER_HUB',
+  LOGISTICS: 'LOGISTICS',
+  COMPANY_VERIFICATION: 'COMPANY_VERIFICATION',
+  ERP_INTEGRATION: 'ERP_INTEGRATION',
+  ACCOUNT_SECURITY: 'ACCOUNT_SECURITY',
+  OTHER: 'OTHER'
+} as const
+
+export type SupportTicketCategory = (typeof SupportTicketCategory)[keyof typeof SupportTicketCategory]
+
+
+export const SupportRequesterRole = {
+  BUYER: 'BUYER',
+  COMPANY_BUYER: 'COMPANY_BUYER',
+  SELLER: 'SELLER',
+  LOGISTICS_PARTNER: 'LOGISTICS_PARTNER'
+} as const
+
+export type SupportRequesterRole = (typeof SupportRequesterRole)[keyof typeof SupportRequesterRole]
+
+
+export const SupportTicketSource = {
+  STOREFRONT: 'STOREFRONT',
+  SELLER_HUB: 'SELLER_HUB',
+  LOGISTICS_PORTAL: 'LOGISTICS_PORTAL'
+} as const
+
+export type SupportTicketSource = (typeof SupportTicketSource)[keyof typeof SupportTicketSource]
+
+
+export const SupportTicketEventKind = {
+  CREATED: 'CREATED',
+  REQUESTER_MESSAGE: 'REQUESTER_MESSAGE',
+  STAFF_REPLY: 'STAFF_REPLY',
+  INTERNAL_NOTE: 'INTERNAL_NOTE',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  PRIORITY_CHANGED: 'PRIORITY_CHANGED',
+  ASSIGNED: 'ASSIGNED'
+} as const
+
+export type SupportTicketEventKind = (typeof SupportTicketEventKind)[keyof typeof SupportTicketEventKind]
+
+
+export const SupportAttachmentKind = {
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO',
+  DOCUMENT: 'DOCUMENT'
+} as const
+
+export type SupportAttachmentKind = (typeof SupportAttachmentKind)[keyof typeof SupportAttachmentKind]
+
+
+export const SupportAttachmentScanState = {
+  CLEAN: 'CLEAN',
+  SCANNER_UNCONFIGURED: 'SCANNER_UNCONFIGURED'
+} as const
+
+export type SupportAttachmentScanState = (typeof SupportAttachmentScanState)[keyof typeof SupportAttachmentScanState]
+
+
 export const BuyerOrgRole = {
   OWNER: 'OWNER',
   INTEGRATION_MANAGER: 'INTEGRATION_MANAGER',
@@ -2452,3 +2546,185 @@ export const SellerInvoiceKind = {
 } as const
 
 export type SellerInvoiceKind = (typeof SellerInvoiceKind)[keyof typeof SellerInvoiceKind]
+
+
+export const BuyerContextKind = {
+  INDIVIDUAL: 'INDIVIDUAL',
+  COMPANY: 'COMPANY'
+} as const
+
+export type BuyerContextKind = (typeof BuyerContextKind)[keyof typeof BuyerContextKind]
+
+
+export const BuyerCompanyStatus = {
+  DRAFT: 'DRAFT',
+  EMAIL_VERIFICATION_PENDING: 'EMAIL_VERIFICATION_PENDING',
+  SUBMITTED: 'SUBMITTED',
+  AUTOMATED_CHECK_IN_PROGRESS: 'AUTOMATED_CHECK_IN_PROGRESS',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  MORE_INFORMATION_REQUIRED: 'MORE_INFORMATION_REQUIRED',
+  RESUBMITTED: 'RESUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED',
+  REVERIFICATION_REQUIRED: 'REVERIFICATION_REQUIRED'
+} as const
+
+export type BuyerCompanyStatus = (typeof BuyerCompanyStatus)[keyof typeof BuyerCompanyStatus]
+
+
+export const BuyerCompanyEntityType = {
+  SOLE_PROPRIETORSHIP: 'SOLE_PROPRIETORSHIP',
+  PARTNERSHIP: 'PARTNERSHIP',
+  LIMITED_LIABILITY_PARTNERSHIP: 'LIMITED_LIABILITY_PARTNERSHIP',
+  PRIVATE_LIMITED_COMPANY: 'PRIVATE_LIMITED_COMPANY',
+  PUBLIC_LIMITED_COMPANY: 'PUBLIC_LIMITED_COMPANY',
+  COOPERATIVE: 'COOPERATIVE',
+  NON_PROFIT: 'NON_PROFIT',
+  PUBLIC_BODY: 'PUBLIC_BODY',
+  OTHER: 'OTHER'
+} as const
+
+export type BuyerCompanyEntityType = (typeof BuyerCompanyEntityType)[keyof typeof BuyerCompanyEntityType]
+
+
+export const BuyerCompanyDomainStatus = {
+  UNKNOWN: 'UNKNOWN',
+  FREE_MAIL_PROVIDER: 'FREE_MAIL_PROVIDER',
+  MATCHES_WEBSITE: 'MATCHES_WEBSITE',
+  DIFFERS_FROM_WEBSITE: 'DIFFERS_FROM_WEBSITE',
+  NO_WEBSITE: 'NO_WEBSITE'
+} as const
+
+export type BuyerCompanyDomainStatus = (typeof BuyerCompanyDomainStatus)[keyof typeof BuyerCompanyDomainStatus]
+
+
+export const BuyerCompanyRiskLevel = {
+  NONE: 'NONE',
+  LOW: 'LOW',
+  ELEVATED: 'ELEVATED',
+  HIGH: 'HIGH'
+} as const
+
+export type BuyerCompanyRiskLevel = (typeof BuyerCompanyRiskLevel)[keyof typeof BuyerCompanyRiskLevel]
+
+
+export const BuyerCompanyAddressKind = {
+  REGISTERED_OFFICE: 'REGISTERED_OFFICE',
+  OPERATING: 'OPERATING',
+  BILLING: 'BILLING',
+  SHIPPING: 'SHIPPING'
+} as const
+
+export type BuyerCompanyAddressKind = (typeof BuyerCompanyAddressKind)[keyof typeof BuyerCompanyAddressKind]
+
+
+export const BuyerCompanyRole = {
+  OWNER: 'OWNER',
+  COMPANY_ADMIN: 'COMPANY_ADMIN',
+  BUYER: 'BUYER',
+  ORDER_APPROVER: 'ORDER_APPROVER',
+  FINANCE: 'FINANCE',
+  VIEWER: 'VIEWER'
+} as const
+
+export type BuyerCompanyRole = (typeof BuyerCompanyRole)[keyof typeof BuyerCompanyRole]
+
+
+export const BuyerCompanyMemberStatus = {
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  REMOVED: 'REMOVED'
+} as const
+
+export type BuyerCompanyMemberStatus = (typeof BuyerCompanyMemberStatus)[keyof typeof BuyerCompanyMemberStatus]
+
+
+export const BuyerCompanyCaseTrigger = {
+  INITIAL: 'INITIAL',
+  RESUBMISSION: 'RESUBMISSION',
+  REVERIFICATION: 'REVERIFICATION'
+} as const
+
+export type BuyerCompanyCaseTrigger = (typeof BuyerCompanyCaseTrigger)[keyof typeof BuyerCompanyCaseTrigger]
+
+
+export const BuyerCompanyCaseState = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
+} as const
+
+export type BuyerCompanyCaseState = (typeof BuyerCompanyCaseState)[keyof typeof BuyerCompanyCaseState]
+
+
+export const BuyerCompanyCheckOutcome = {
+  PASS: 'PASS',
+  FAIL: 'FAIL',
+  INCONCLUSIVE: 'INCONCLUSIVE',
+  UNAVAILABLE: 'UNAVAILABLE',
+  MANUAL_REQUIRED: 'MANUAL_REQUIRED',
+  SIGNAL: 'SIGNAL'
+} as const
+
+export type BuyerCompanyCheckOutcome = (typeof BuyerCompanyCheckOutcome)[keyof typeof BuyerCompanyCheckOutcome]
+
+
+export const BuyerCompanyDocumentKind = {
+  CERTIFICATE_OF_INCORPORATION: 'CERTIFICATE_OF_INCORPORATION',
+  REGISTRY_EXTRACT: 'REGISTRY_EXTRACT',
+  TAX_REGISTRATION_CERTIFICATE: 'TAX_REGISTRATION_CERTIFICATE',
+  PROOF_OF_REGISTERED_ADDRESS: 'PROOF_OF_REGISTERED_ADDRESS',
+  AUTHORIZATION_LETTER: 'AUTHORIZATION_LETTER',
+  BUSINESS_LICENCE: 'BUSINESS_LICENCE',
+  REPRESENTATIVE_IDENTITY: 'REPRESENTATIVE_IDENTITY',
+  OWNERSHIP_DECLARATION: 'OWNERSHIP_DECLARATION',
+  OTHER: 'OTHER'
+} as const
+
+export type BuyerCompanyDocumentKind = (typeof BuyerCompanyDocumentKind)[keyof typeof BuyerCompanyDocumentKind]
+
+
+export const BuyerCompanyDocumentStatus = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  SUPERSEDED: 'SUPERSEDED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const
+
+export type BuyerCompanyDocumentStatus = (typeof BuyerCompanyDocumentStatus)[keyof typeof BuyerCompanyDocumentStatus]
+
+
+export const BuyerCompanyScanState = {
+  CLEAN: 'CLEAN',
+  UNSCANNED: 'UNSCANNED'
+} as const
+
+export type BuyerCompanyScanState = (typeof BuyerCompanyScanState)[keyof typeof BuyerCompanyScanState]
+
+
+export const BuyerCompanyInfoRequestStatus = {
+  OPEN: 'OPEN',
+  ANSWERED: 'ANSWERED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type BuyerCompanyInfoRequestStatus = (typeof BuyerCompanyInfoRequestStatus)[keyof typeof BuyerCompanyInfoRequestStatus]
+
+
+export const BuyerCompanyEventVisibility = {
+  INTERNAL: 'INTERNAL',
+  APPLICANT: 'APPLICANT'
+} as const
+
+export type BuyerCompanyEventVisibility = (typeof BuyerCompanyEventVisibility)[keyof typeof BuyerCompanyEventVisibility]
+
+
+export const ConsentPurpose = {
+  ACCURACY_DECLARATION: 'ACCURACY_DECLARATION',
+  BUSINESS_TERMS: 'BUSINESS_TERMS',
+  PRIVACY_NOTICE: 'PRIVACY_NOTICE',
+  AUTHORITY_TO_ACT: 'AUTHORITY_TO_ACT'
+} as const
+
+export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]

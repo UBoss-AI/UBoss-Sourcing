@@ -57,11 +57,11 @@ describe('the marketplace name in the carrier portal', () => {
   });
 
   it('is the product’s own name until the deployment’s arrives', () => {
-    expect(i18n.t('source.UBOSS_ADMIN', { ns: NAMESPACE })).toBe('Glovia operations');
+    expect(i18n.t('source.UBOSS_ADMIN', { ns: NAMESPACE })).toBe('Gloviaa Mart operations');
   });
 
   it('names the operator’s team by its own name where one is set', () => {
-    setMarketplaceName('Glovia');
+    setMarketplaceName('Gloviaa Mart');
     setTeamName('UBoss');
     expect(i18n.t('source.UBOSS_ADMIN', { ns: NAMESPACE })).toBe('UBoss operations');
     expect(i18n.t('auth.noSelfSignup', { ns: NAMESPACE })).not.toContain('UBoss');

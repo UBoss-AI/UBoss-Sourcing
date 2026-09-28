@@ -14,10 +14,12 @@
  *     know which happened.
  *   - A server-side field error is put on the field it names.
  */
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { RegisterPage } from './RegisterPage';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { CheckEmailPage, RegisterPage, RegistrationForm } from './RegisterPage';
+import { CHECK_EMAIL_PATH } from '@/lib/sign-up';
 import { errorResponse, jsonResponse, renderWithProviders } from '@/test/harness';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import type { StorefrontConfig } from '@/lib/types';
@@ -123,7 +125,7 @@ describe('RegisterPage - submitting', () => {
       jsonResponse({ registered: true, requiresApproval: true, message: 'Check your email.' }),
     );
 
-    renderWithProviders(<RegisterPage />, { config: openConfig() });
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: '/register' });
     await fillForm(user);
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -190,5 +192,145 @@ describe('RegisterPage - submitting', () => {
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(await screen.findByText('Accounts are created by invitation.')).toBeInTheDocument();
+  });
+});
+
+describe('RegisterPage - company and individual sign-up', () => {
+  it('shows a company sign-up where it sits in the six-step onboarding, on step 1', () => {
+    renderWithProviders(<RegistrationForm variant="company" />, { config: openConfig() });
+
+    const steps = screen.getByRole('navigation', { name: /steps/i });
+    expect(within(steps).getAllByRole('listitem')).toHaveLength(6);
+    expect(within(steps).getByText(/account and representative/i).closest('[aria-current]')).toHaveAttribute('aria-current', 'step');
+    expect(screen.getAllByText(/step 1 of 6/i).length).toBeGreaterThan(0);
+  });
+
+  it('leaves the individual sign-up exactly as it was - no company steps, the same fields', () => {
+    renderWithProviders(<RegisterPage />, { config: openConfig() });
+
+    expect(screen.queryByRole('navigation', { name: /steps/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/step 1 of 6/i)).not.toBeInTheDocument();
+    for (const label of [/your name/i, /email address/i, /country you order from/i, /mobile number/i, /choose a password/i, /confirm your password/i]) {
+      expect(screen.getByLabelText(label)).toBeInTheDocument();
+    }
+  });
+});
+
+/**
+ * The two pages of a sign-up as the router has them, plus a readout of where
+ * the router is - so a test can tell "navigated" from "swapped in place".
+ */
+function SignUpRoutes(): React.JSX.Element {
+  const location = useLocation();
+  return (
+    <>
+      <output data-testid="path">{location.pathname}</output>
+      <Routes>
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register/company" element={<RegistrationForm variant="company" />} />
+        <Route path={CHECK_EMAIL_PATH} element={<CheckEmailPage />} />
+      </Routes>
+    </>
+  );
+}
+
+describe('RegisterPage - from Create account to the verification page', () => {
+  it('moves to its own verification page only after the server confirms, with a focusable heading', async () => {
+    const user = userEvent.setup();
+    let answer: (response: Response) => void = () => undefined;
+    fetchMock.mockReturnValue(
+      new Promise<Response>((resolve) => {
+        answer = resolve;
+      }),
+    );
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: '/register/company' });
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+
+    // Waiting on the server: still the form, and the button says it is busy.
+    expect(screen.getByTestId('path')).toHaveTextContent('/register/company');
+    expect(screen.getByRole('button', { name: /create account/i })).toBeDisabled();
+
+    answer(jsonResponse({ registered: true, requiresApproval: false, message: 'Check your email.' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('path')).toHaveTextContent(CHECK_EMAIL_PATH);
+    });
+
+    const heading = screen.getByRole('heading', { level: 1, name: /check your email/i });
+    // Marked for the layout to focus, and focusable for it to be able to.
+    expect(heading).toHaveAttribute('data-route-focus');
+    expect(heading).toHaveAttribute('tabindex', '-1');
+    // The company wording and the Company sign-in tab carried across.
+    expect(screen.getByText(/sign in on the company tab/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /back to sign in/i })).toHaveAttribute('href', '/login?buyerType=company');
+  });
+
+  it('sends one request for a double-click on Create account', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(jsonResponse({ registered: true, requiresApproval: false, message: 'ok' }));
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: '/register' });
+    await fillForm(user);
+
+    await user.dblClick(screen.getByRole('button', { name: /create account/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('path')).toHaveTextContent(CHECK_EMAIL_PATH);
+    });
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes('/auth/register'))).toHaveLength(1);
+  });
+
+  it('stays on the form with everything typed when the request fails, and can be sent again', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValueOnce(errorResponse(503, 'SERVICE_UNAVAILABLE', 'Try again shortly.'));
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: '/register' });
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(screen.getByTestId('path')).toHaveTextContent('/register');
+    expect(screen.getByLabelText(/your name/i)).toHaveValue('Asha Menon');
+    expect(screen.getByLabelText(/email address/i)).toHaveValue('asha@example.test');
+    expect(screen.getByLabelText(/mobile number/i)).toHaveValue('+91 98765 43210');
+
+    // The guard is released on failure, so the second press is sent.
+    fetchMock.mockResolvedValueOnce(jsonResponse({ registered: true, requiresApproval: false, message: 'ok' }));
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId('path')).toHaveTextContent(CHECK_EMAIL_PATH);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('renders the verification page when opened directly or refreshed without the sign-up\'s state', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(jsonResponse({ ok: true }));
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: CHECK_EMAIL_PATH });
+
+    expect(screen.getByRole('heading', { level: 1, name: /check your email/i })).toBeInTheDocument();
+    // No address to name, so it says so without inventing one...
+    expect(screen.getByText(/if the address you signed up with/i)).toBeInTheDocument();
+    // ...and asks for it before resending, rather than posting an empty one.
+    await user.click(screen.getByRole('button', { name: /send it again/i }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText(/email address/i), 'asha@example.test');
+    await user.click(screen.getByRole('button', { name: /send it again/i }));
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+    const [url, init] = fetchMock.mock.calls[0] as [string, { body: string }];
+    expect(url).toContain('/auth/verify-email/resend');
+    expect(JSON.parse(init.body)).toEqual({ email: 'asha@example.test' });
+  });
+
+  it('never puts the address in the URL', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(jsonResponse({ registered: true, requiresApproval: false, message: 'ok' }));
+    renderWithProviders(<SignUpRoutes />, { config: openConfig(), route: '/register' });
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+    await waitFor(() => {
+      expect(screen.getByTestId('path')).toHaveTextContent(CHECK_EMAIL_PATH);
+    });
+    expect(screen.getByTestId('path').textContent).not.toContain('asha');
   });
 });

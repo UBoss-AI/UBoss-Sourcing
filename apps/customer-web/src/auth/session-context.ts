@@ -7,6 +7,39 @@
  */
 import { createContext, useContext } from 'react';
 
+/** A company status, as the backend's buyer-company state machine names it. */
+export type BuyerCompanyStatus =
+  | 'DRAFT'
+  | 'EMAIL_VERIFICATION_PENDING'
+  | 'SUBMITTED'
+  | 'AUTOMATED_CHECK_IN_PROGRESS'
+  | 'UNDER_REVIEW'
+  | 'MORE_INFORMATION_REQUIRED'
+  | 'RESUBMITTED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'SUSPENDED'
+  | 'REVERIFICATION_REQUIRED';
+
+/** A person's authority inside one company - never a platform role. */
+export type BuyerCompanyRole = 'OWNER' | 'COMPANY_ADMIN' | 'BUYER' | 'ORDER_APPROVER' | 'FINANCE' | 'VIEWER';
+
+export interface CompanyContextOption {
+  companyId: string;
+  companyName: string;
+  companyStatus: BuyerCompanyStatus;
+  role: BuyerCompanyRole;
+  applicationReference: string;
+}
+
+/**
+ * Which buyer this session is acting as. Decided and held by the server; the
+ * storefront only ever displays it and asks to change it.
+ */
+export type BuyerContext =
+  | { kind: 'INDIVIDUAL' }
+  | ({ kind: 'COMPANY' } & CompanyContextOption);
+
 export interface CustomerUser {
   id: string;
   email: string;
@@ -15,7 +48,18 @@ export interface CustomerUser {
   permissions: string[];
   customerProfileId: string | null;
   mfaEnabled: boolean;
+  /** Absent on an older backend; treated as INDIVIDUAL. */
+  buyerContext?: BuyerContext;
+  /** Every company this person may act for. */
+  companies?: CompanyContextOption[];
+  /** True when the session named a company the person no longer belongs to. */
+  buyerContextReset?: boolean;
 }
+
+export type BuyerType = 'individual' | 'company';
+
+/** What the sign-in page does next, as the backend decided it. */
+export type SignInNext = 'READY' | 'CHOOSE_COMPANY' | 'NO_COMPANY';
 
 export interface SessionState {
   user: CustomerUser | null;
@@ -23,9 +67,15 @@ export interface SessionState {
   isLoading: boolean;
   /** Signed in AND activated — the only state that may reach checkout. */
   isCustomer: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** The tab chosen is an intent; the backend decides the context. */
+  login: (email: string, password: string, buyerType?: BuyerType) => Promise<{ next: SignInNext }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  /** The confirmed buyer context, INDIVIDUAL when there is no session. */
+  buyerContext: BuyerContext;
+  companies: CompanyContextOption[];
+  /** Switch between buying for yourself and one of your companies. */
+  switchBuyerContext: (target: { kind: 'INDIVIDUAL' } | { kind: 'COMPANY'; companyId: string }) => Promise<void>;
 }
 
 export const SessionContext = createContext<SessionState | null>(null);

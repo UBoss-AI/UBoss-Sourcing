@@ -18,6 +18,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
 import { CountryPicker } from '@/components/CountryPicker';
 import { MarketSuggestionBanner } from '@/components/MarketSuggestionBanner';
+import { CompanyStatusBanner } from '@/components/CompanyStatusBanner';
 import { cx } from '@/lib/cx';
 import { AI_MODE_PATH } from '@/lib/ai-mode';
 import { useChatViewportHeight } from '@/lib/chat-kit/viewport';
@@ -25,6 +26,17 @@ import { isMessagesPath } from '@/lib/preorder-chat';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { useI18n } from '@/i18n/i18n-context';
+import { useSession } from '@/auth/session-context';
+import { isFullBleedPath } from './frame';
+import { useRouteScroll } from './useRouteScroll';
+
+/**
+ * Moving between conversations is not a new page: the conversation screen
+ * moves focus itself, and the document has nothing to scroll.
+ */
+function isBetweenConversations(from: string, to: string): boolean {
+  return isMessagesPath(from) && isMessagesPath(to);
+}
 
 /** True while the browser reports no connectivity. */
 function useOnlineStatus(): boolean {
@@ -115,7 +127,18 @@ export function StoreLayout(): React.JSX.Element {
    * Listed by path rather than asked of the page, because the decision belongs
    * to whatever draws the frame, and the frame is here.
    */
-  const isFullBleed = location.pathname === '/login' || location.pathname === '/register';
+  //
+  // `/register/company` is in the list only while signed out, because that is
+  // when it draws the same split; signed in, it is an ordinary page and a
+  // window-height, clipped frame would cut it off. Leaving it out altogether
+  // was the bug behind "the page underneath shows through the company
+  // sign-up": the split capped itself at one window height inside a frame
+  // that gave it none, so its form column never became the scroller, the form
+  // spilled out of its box, and the footer painted underneath it while the
+  // whole document scrolled. Same for the "check your email" page that
+  // follows the form.
+  const { isCustomer } = useSession();
+  const isFullBleed = isFullBleedPath(location.pathname, isCustomer);
 
   /*
    * The home page draws its own ground, edge to edge.
@@ -149,21 +172,11 @@ export function StoreLayout(): React.JSX.Element {
   const isAppPane = isMessagesPath(location.pathname);
   useChatViewportHeight(isAppPane);
 
-  // A single-page app does not reload, so focus stays where it was and a
-  // screen reader never learns the page changed. Moving focus to the main
-  // region is what a full page load would have done.
-  const previousPath = useRef(location.pathname);
-  useEffect(() => {
-    const from = previousPath.current;
-    previousPath.current = location.pathname;
-    // Moving between conversations is not a new page: the conversation
-    // screen moves focus itself, and the document has nothing to scroll.
-    if (from !== location.pathname && isMessagesPath(from) && isMessagesPath(location.pathname)) return;
-    mainRef.current?.focus();
-    // Scrolling to the top is what a page load does too. Without it, arriving
-    // at a product from halfway down a category list starts mid-description.
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [location.pathname]);
+  // A single-page app does not reload, so neither the scroll position nor
+  // focus moves on its own. `useRouteScroll` does what a page load would: a
+  // new page starts at its top with its heading focused, and Back returns to
+  // where the page was left. See that file for which element it scrolls.
+  useRouteScroll(mainRef, { skip: isBetweenConversations });
 
   return (
     /*
@@ -210,6 +223,10 @@ export function StoreLayout(): React.JSX.Element {
       {isOnline ? <ServiceBanner /> : <OfflineBanner />}
 
       <Header />
+
+      {/* Which company the basket belongs to, and whether it may order yet.
+          Renders nothing while buying for yourself. */}
+      <CompanyStatusBanner />
 
       {/* Asked once, on first sign-in. Renders nothing afterwards. */}
       <CountryPicker />

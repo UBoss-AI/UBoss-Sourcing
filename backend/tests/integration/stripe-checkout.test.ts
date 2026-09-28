@@ -503,8 +503,8 @@ beforeEach(async () => {
   await prisma.businessProfile.create({
     data: {
       id: newId(),
-      legalName: 'Glovia Test',
-      displayName: 'Glovia',
+      legalName: 'Gloviaa Mart Test',
+      displayName: 'Gloviaa Mart',
       supportEmail: 'support@test.local',
       currency: 'INR',
       timezone: 'Asia/Kolkata',

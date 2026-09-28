@@ -222,8 +222,8 @@ export async function setAutoCreateMasters(input: {
     action: 'seller_erp.auto_create_masters_changed',
     actor: { type: 'CUSTOMER', userId: input.actorUserId, label: input.membership.displayName },
     summary: input.enabled
-      ? 'Glovia may now create ledgers, stock items and godowns in Tally without asking each time.'
-      : 'Glovia will no longer create anything in Tally without being asked.',
+      ? 'Gloviaa Mart may now create ledgers, stock items and godowns in Tally without asking each time.'
+      : 'Gloviaa Mart will no longer create anything in Tally without being asked.',
     meta: { autoCreateMasters: input.enabled },
     correlationId: input.correlationId,
   });

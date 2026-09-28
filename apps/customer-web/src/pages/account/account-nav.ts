@@ -31,12 +31,14 @@ import {
   ChatBubblesIcon,
   ChartIcon,
   GlobeIcon,
+  HeadsetIcon,
   HeartIcon,
   LayersIcon,
   LinkIcon,
   LocationIcon,
   ReceiptIcon,
   RepeatIcon,
+  StarIcon,
   TicketIcon,
   UserIcon,
 } from '@/components/icons';
@@ -50,6 +52,7 @@ export type AccountNavId =
   | 'messages'
   | 'profile'
   | 'company'
+  | 'companies'
   | 'addresses'
   | 'region'
   | 'paymentMethods'
@@ -58,7 +61,10 @@ export type AccountNavId =
   | 'erp'
   | 'coupons'
   | 'wishlist'
-  | 'notifications';
+  | 'reviews'
+  | 'notifications'
+  | 'support'
+  | 'supportRequests';
 
 export interface AccountNavItem {
   id: AccountNavId;
@@ -71,10 +77,10 @@ export interface AccountNavItem {
   /**
    * The deployment flag this destination depends on, when it depends on one.
    *
-   * Only `recurringOrders` so far. Everything else here is either core to
-   * buying or an explanation, and an explanation is never switched off.
+   * `recurringOrders`, `buyerCompanies` and `productReviews`. Everything else here is either
+   * core to buying or an explanation, and an explanation is never switched off.
    */
-  feature?: 'recurringOrders';
+  feature?: 'recurringOrders' | 'buyerCompanies' | 'productReviews';
 }
 
 /** Every destination, by id. The two orderings below index into this. */
@@ -139,6 +145,19 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     labelKey: 'account.nav.companyInformation',
     menuLabelKey: 'account.nav.companyInformation',
     icon: BuildingIcon,
+  },
+  /*
+   * The companies this person registered or belongs to, and the verification
+   * of each. Beside "Company information", which is the free-text employer on
+   * the person's own profile - a different thing that predates it.
+   */
+  companies: {
+    id: 'companies',
+    to: '/account/companies',
+    labelKey: 'account.nav.companyAccounts',
+    menuLabelKey: 'account.nav.companyAccounts',
+    icon: BuildingIcon,
+    feature: 'buyerCompanies',
   },
   addresses: {
     id: 'addresses',
@@ -210,12 +229,40 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     menuLabelKey: 'account.nav.wishlist',
     icon: HeartIcon,
   },
+  // Products received but not rated yet, and the reviews written. Only where
+  // the deployment has reviews switched on.
+  reviews: {
+    id: 'reviews',
+    to: '/account/reviews',
+    labelKey: 'account.nav.reviews',
+    menuLabelKey: 'account.nav.reviews',
+    icon: StarIcon,
+    feature: 'productReviews',
+  },
   notifications: {
     id: 'notifications',
     to: '/account/notifications',
     labelKey: 'account.nav.notifications',
     menuLabelKey: 'account.nav.notifications',
     icon: BellIcon,
+  },
+  // The Support page itself. In the dropdown, because on a phone the header's
+  // Support link is not shown and this is the way there.
+  support: {
+    id: 'support',
+    to: '/support',
+    labelKey: 'account.nav.support',
+    menuLabelKey: 'account.nav.support',
+    icon: HeadsetIcon,
+  },
+  // The requests sent from it, with their replies, in the sidebar. Named
+  // "Support" like every other Support entry point.
+  supportRequests: {
+    id: 'supportRequests',
+    to: '/account/support',
+    labelKey: 'account.nav.support',
+    menuLabelKey: 'account.nav.support',
+    icon: HeadsetIcon,
   },
 };
 
@@ -227,12 +274,18 @@ export interface AccountNavGroup {
 /** What the deployment can offer. Only the flags this file actually reads. */
 export interface AccountNavFlags {
   recurringOrders: boolean;
+  /** Optional so an older caller still compiles; absent means off. */
+  buyerCompanies?: boolean;
+  /** Optional so an older caller still compiles; absent means off. */
+  productReviews?: boolean;
 }
 
 function include(ids: readonly AccountNavId[], flags: AccountNavFlags): AccountNavItem[] {
   return ids
     .map((id) => ACCOUNT_NAV[id])
-    .filter((item) => item.feature !== 'recurringOrders' || flags.recurringOrders);
+    .filter((item) => item.feature !== 'recurringOrders' || flags.recurringOrders)
+    .filter((item) => item.feature !== 'buyerCompanies' || flags.buyerCompanies === true)
+    .filter((item) => item.feature !== 'productReviews' || flags.productReviews === true);
 }
 
 /**
@@ -252,7 +305,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
     },
     {
       titleKey: 'account.group.accountSettings',
-      items: include(['profile', 'company', 'addresses', 'region'], flags),
+      items: include(['profile', 'company', 'companies', 'addresses', 'region'], flags),
     },
     {
       titleKey: 'account.group.payments',
@@ -261,7 +314,7 @@ export function accountNavGroups(flags: AccountNavFlags): AccountNavGroup[] {
     { titleKey: 'account.group.integrations', items: include(['erp'], flags) },
     {
       titleKey: 'account.group.myStuff',
-      items: include(['coupons', 'wishlist', 'notifications'], flags),
+      items: include(['coupons', 'wishlist', 'reviews', 'notifications', 'supportRequests'], flags),
     },
   ];
 
@@ -289,7 +342,7 @@ export function accountMenuGroups(flags: AccountNavFlags): AccountNavGroup[] {
     },
     {
       titleKey: 'account.group.details',
-      items: include(['addresses', 'wishlist', 'notifications', 'erp'], flags),
+      items: include(['companies', 'addresses', 'wishlist', 'reviews', 'notifications', 'erp', 'support'], flags),
     },
   ];
 

@@ -424,6 +424,49 @@ export async function requestStream(
  * it is not safe in general: a `FormData` built from a stream would already be
  * consumed. Anything that uploads a stream needs its own path.
  */
+/**
+ * A multipart POST that reports how much of the body has been sent, answered
+ * as a `Response` so the caller's error handling is the same as for fetch.
+ * A transport failure rejects with a TypeError, as fetch's does.
+ */
+function postWithProgress(
+  url: string,
+  form: FormData,
+  csrf: string | null,
+  onProgress: (fraction: number) => void,
+  signal: AbortSignal | undefined,
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.withCredentials = true;
+    if (csrf !== null) xhr.setRequestHeader(CSRF_HEADER, csrf);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && event.total > 0) onProgress(Math.min(1, event.loaded / event.total));
+    };
+    xhr.onload = () => {
+      const headers = new Headers();
+      for (const line of xhr.getAllResponseHeaders().trim().split(/[\r\n]+/)) {
+        const at = line.indexOf(':');
+        if (at > 0) headers.append(line.slice(0, at).trim(), line.slice(at + 1).trim());
+      }
+      onProgress(1);
+      // A 204 cannot carry a body, and Response refuses to be built with one.
+      resolve(new Response(xhr.status === 204 ? null : xhr.responseText, { status: xhr.status, headers }));
+    };
+    xhr.onerror = () => {
+      reject(new TypeError('Network request failed'));
+    };
+    xhr.onabort = () => {
+      reject(new DOMException('The upload was cancelled.', 'AbortError'));
+    };
+    signal?.addEventListener('abort', () => {
+      xhr.abort();
+    });
+    xhr.send(form);
+  });
+}
+
 export async function postFile<T>(
   path: string,
   form: FormData,
@@ -431,6 +474,12 @@ export async function postFile<T>(
     query?: Record<string, string | number | undefined>;
     signal?: AbortSignal;
     retryOnUnauthorised?: boolean;
+    /**
+     * Called with 0..1 as the body leaves the browser. `fetch` cannot report
+     * upload progress, so a caller that asks for it is sent through
+     * XMLHttpRequest instead - same cookie, same CSRF header, same errors.
+     */
+    onProgress?: (fraction: number) => void;
   } = {},
 ): Promise<T> {
   const csrf = readCsrfToken();
@@ -438,14 +487,17 @@ export async function postFile<T>(
   let response: Response;
 
   try {
-    response = await fetch(buildUrl(path, options.query), {
-      method: 'POST',
-      credentials: 'include',
-      // No Content-Type. The browser writes it, with the boundary.
-      headers: csrf === null ? {} : { [CSRF_HEADER]: csrf },
-      body: form,
-      ...(options.signal === undefined ? {} : { signal: options.signal }),
-    });
+    response =
+      options.onProgress === undefined
+        ? await fetch(buildUrl(path, options.query), {
+            method: 'POST',
+            credentials: 'include',
+            // No Content-Type. The browser writes it, with the boundary.
+            headers: csrf === null ? {} : { [CSRF_HEADER]: csrf },
+            body: form,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
+          })
+        : await postWithProgress(buildUrl(path, options.query), form, csrf, options.onProgress, options.signal);
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
 

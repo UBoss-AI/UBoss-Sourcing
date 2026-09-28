@@ -25,6 +25,9 @@ export const Permission = {
   PRODUCT_ARCHIVE: 'product.archive',
   PRODUCT_IMPORT: 'product.import',
   MEDIA_UPLOAD: 'media.upload',
+  // Product reviews. Mirrors backend/src/domain/permissions.ts.
+  REVIEW_READ: 'review.read',
+  REVIEW_MODERATE: 'review.moderate',
 
   COUPON_READ: 'coupon.read',
   COUPON_WRITE: 'coupon.write',
@@ -41,12 +44,20 @@ export const Permission = {
   CUSTOMER_LIMITS_WRITE: 'customer.limits.write',
   CUSTOMER_STATUS_WRITE: 'customer.status.write',
   ASSISTANT_CHAT_READ: 'assistant_chat.read',
+  // Buyer-company verification. Mirrors backend/src/domain/permissions.ts.
+  BUYER_COMPANY_READ: 'buyer_company.read',
+  BUYER_COMPANY_REVIEW: 'buyer_company.review',
+  BUYER_COMPANY_SUSPEND: 'buyer_company.suspend',
   // Preorder chats with customers. Mirrors backend/src/domain/permissions.ts.
   PREORDER_CHAT_VIEW: 'preorder_chat.view',
   PREORDER_CHAT_REPLY: 'preorder_chat.reply',
   PREORDER_CHAT_ASSIGN: 'preorder_chat.assign',
   PREORDER_CHAT_MODERATE: 'preorder_chat.moderate',
   PREORDER_CHAT_EXPORT: 'preorder_chat.export',
+  // Support tickets raised from the Support page. Mirrors backend/src/domain/permissions.ts.
+  SUPPORT_TICKET_VIEW: 'support_ticket.view',
+  SUPPORT_TICKET_REPLY: 'support_ticket.reply',
+  SUPPORT_TICKET_ASSIGN: 'support_ticket.assign',
 
   ORDER_READ: 'order.read',
   ORDER_APPROVE: 'order.approve',
