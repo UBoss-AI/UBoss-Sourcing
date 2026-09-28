@@ -39,10 +39,28 @@ describe('the route table', () => {
   const store = router.routes[0];
   const children = store?.children ?? [];
 
-  it('renders the home page at /, as a public page', () => {
-    const index = children.find((route) => route.index === true);
-    expect(index?.lazy).toBeTypeOf('function');
+  it('renders the home page at /, as a public page, before and after it loads', async () => {
+    // Run once as the table stands, then again once the router has settled -
+    // the second is the state CI reached first, forced here on every run.
+    expectPage();
+    await waitFor(() => {
+      expect(router.state.initialized).toBe(true);
+    });
+    expectPage();
   });
+
+  function expectPage(): void {
+    const index = children.find((route) => route.index === true);
+    // Importing the router starts it at the test's own location, `/`, so it
+    // may already have loaded this route: React Router then swaps `lazy` for
+    // the page it loaded. Either form is the page; what it must never be is
+    // the redirect, or wrapped in the sign-in guard.
+    expect(index).toBeDefined();
+    const isPage =
+      typeof index?.lazy === 'function' || index?.Component !== undefined || index?.element !== undefined;
+    expect(isPage).toBe(true);
+    expect((index?.element as React.ReactElement | undefined)?.type).not.toBe(HomeRedirect);
+  }
 
   it('holds no second copy of the home page at /home - only the redirect', () => {
     const home = children.find((route) => route.path === 'home');
