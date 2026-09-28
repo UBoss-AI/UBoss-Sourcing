@@ -22,6 +22,8 @@
  * this file fail with "found multiple elements", which is a test artefact and
  * not a duplicate control.
  */
+// This app registers no jest-dom matchers globally; this file opts in.
+import '@testing-library/jest-dom/vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { I18nextProvider } from 'react-i18next';

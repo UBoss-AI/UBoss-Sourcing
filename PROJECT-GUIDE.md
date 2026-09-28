@@ -363,8 +363,12 @@ The palette above is the light one. There is a dark one beside it in the same
 file, and the appearance control in the storefront header and the admin top bar
 switches between them.
 
-**Three preferences, two themes.** A segmented control, three icons wide,
-with the one in force drawn as a lifted tile:
+**Three preferences, two themes.** A round pill, three icons wide, with the
+one in force ringed by a border that springs across to the next choice (it
+jumps instead when the visitor has asked for reduced motion). It is a radio
+group: one tab stop on the chosen option, the arrow keys move between the
+three, and Enter or Space picks the focused one. The same control, from
+`components/ThemeToggle.tsx`, is in all three apps:
 
 | Preference | What it means | What is on `<html>` |
 |---|---|---|
@@ -1090,13 +1094,13 @@ shape with the width:
 
 | Width | What it is |
 |---|---|
-| From `sm` | Three segments — *match my device*, *light*, *dark* — 109px |
+| From `sm` | A pill of three round options — *match my device*, *light*, *dark* — 96px |
 | Below `sm` | One icon that advances through the same three — 40px |
 
 That is a measurement rather than a preference. At 345px the band has about
 44px left once the brand, the market chip, the account and the cart have
-taken theirs, and a segmented control forced in there takes the page
-sideways. Dropping a *segment* instead would be worse: the one that would go
+taken theirs, and the pill forced in there takes the page sideways. Dropping
+an *option* instead would be worse: the one that would go
 is "match my device", so a phone user who pressed "light" once could never
 hand the decision back. Adding the fifth control also cost the band four
 pixels of gap below `sm`, which is written down beside it in `Header.tsx`.

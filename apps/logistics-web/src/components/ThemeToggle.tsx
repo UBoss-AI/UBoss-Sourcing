@@ -1,55 +1,58 @@
 /**
- * The appearance control: light, dark, or follow the device.
+ * The appearance control: follow the device, light, or dark.
  *
- * **A segmented control from `sm` up, one cycling button below it.** Two
+ * **A pill of three options from `sm` up, one cycling button below it.** Two
  * presentations of the same three options, in the same order, and the width is
  * the whole reason:
  *
- *   - **From `sm`,** three segments side by side. This is the one that should
- *     exist everywhere: nothing on screen otherwise says a light theme is on
- *     offer, and finding out from a single icon costs a press and a repaint of
- *     the entire page. Three segments say what the choice is and reach any of
- *     them in one press.
+ *   - **From `sm`,** the pill: three round options side by side, the chosen one
+ *     ringed by a border that springs across to whichever is picked next. This
+ *     is the one that should exist everywhere: nothing on screen otherwise says
+ *     a light theme is on offer, and finding out from a single icon costs a
+ *     press and a repaint of the entire page.
  *   - **Below `sm`,** a single icon that advances through them. Not a
  *     preference — a measurement. This bar already carries a location chip,
  *     a market chip, the notification bell and the account menu, and on a
- *     phone it is also holding the drawer button; the segmented group is
- *     109px and there is not 109px. Forcing it in takes the page sideways,
- *     which is the one thing the panel's responsive rules say must never
- *     happen. Dropping a *segment* instead would be worse: the option that
- *     would go is "match my device", so somebody who pressed "light" once on
- *     a phone could never hand the decision back.
- *
- * The storefront header does exactly the same thing at the same breakpoint.
- * One product, one control.
+ *     phone it is also holding the drawer button; the pill is 96px and there
+ *     is not 96px. Forcing it in takes the page sideways, which is the one
+ *     thing the panel's responsive rules say must never happen. Dropping an *option* instead would be worse: the one
+ *     that would go is "match my device", so a phone user who pressed "light"
+ *     once could never hand the decision back.
  *
  * The cycling form's accessible name carries the state and says that pressing
  * changes it, because an icon alone cannot.
+ *
+ * The storefront header does exactly the same thing at the same breakpoint.
+ * One product, one control.
  *
  * ---
  *
  * **Three options, because `system` is a real answer and not a third look.**
  * "Match my device" is a standing instruction, so somebody whose laptop turns
- * dark at sunset gets a dark panel at sunset. Dropping it to make a
- * two-position switch would mean the first press on this control silently
- * signed the visitor out of that behaviour forever, which is not what pressing
- * "dark" once means. It is also why the segmented form shows *which* of the
- * three is selected rather than which theme is on screen: on a dark machine,
- * following the device and forcing dark look identical and are not.
+ * dark at sunset gets a dark panel at sunset. It is also why the pill
+ * rings *which* of the three is chosen rather than which theme is on screen:
+ * on a dark machine, following the device and forcing dark look identical and
+ * are not.
  *
  * ---
  *
- * **`aria-pressed` on each segment, inside a labelled group.** Not
- * `role="radiogroup"`: that promises arrow-key navigation between the options
- * and one tab stop for the set, which is the right pattern for a form field
- * somebody submits and the wrong one for three buttons that each take effect
- * the moment they are pressed. Each segment is a toggle button reporting
- * whether it is the one in force, and the group carries the question they
- * answer.
+ * **A radio group, one tab stop.** Tab lands on the chosen option; the arrow
+ * keys move between the three (wrapping, Home and End to the ends); Enter or
+ * Space picks the focused one. Moving does not pick, so arrowing across to see
+ * what is on offer does not repaint the whole page three times on the way.
+ *
+ * **The spring is the only movement, and it stops for reduced motion.** The
+ * ring jumps rather than travels when the visitor has asked for less movement.
+ * It never takes pointer events, so a press on it lands on the option beneath.
+ * Its `layoutId` is scoped with `useId`, so two of these on one page — a
+ * header and a drawer — do not pass one ring back and forth between them.
  */
+import { useId, useRef, type KeyboardEvent } from 'react';
+import { motion } from 'motion/react';
 import { useTheme, type ThemePreference } from '@/app/theme-context';
 import { DisplayIcon, MoonIcon, SunIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
+import { usePrefersReducedMotion } from '@/lib/reduced-motion';
 import { useI18n } from '@/i18n/i18n-context';
 
 type OptionKey = 'theme.optionSystem' | 'theme.optionLight' | 'theme.optionDark';
@@ -76,9 +79,9 @@ const OPTIONS: Readonly<Record<ThemePreference, Option>> = {
  * Device first, then light, then dark.
  *
  * The default leads, and the two explicit answers follow in the order a
- * brightness control runs in. The segmented form lays them out in this order
- * and the compact form advances through it, so the two presentations are one
- * list read two ways.
+ * brightness control runs in. The pill lays them out in this order, the arrow
+ * keys walk it, and the compact form advances through it, so the presentations
+ * are one list read three ways.
  */
 const ORDER: readonly ThemePreference[] = ['system', 'light', 'dark'];
 
@@ -89,12 +92,45 @@ const NEXT: Readonly<Record<ThemePreference, ThemePreference>> = {
   dark: 'system',
 };
 
+/** The reference design's spring: a little overshoot, settled in 0.6s. */
+const SPRING = { type: 'spring', bounce: 0.3, duration: 0.6 } as const;
+
 export function ThemeToggle(): React.JSX.Element {
   const { preference, setPreference } = useTheme();
   const { t } = useI18n();
+  const reduceMotion = usePrefersReducedMotion();
+  const ringId = useId();
+  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const current = OPTIONS[preference];
   const CurrentIcon = current.Icon;
+
+  function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number): void {
+    const last = ORDER.length - 1;
+    let target: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        target = index === last ? 0 : index + 1;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        target = index === 0 ? last : index - 1;
+        break;
+      case 'Home':
+        target = 0;
+        break;
+      case 'End':
+        target = last;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    optionRefs.current[target]?.focus();
+  }
 
   return (
     <>
@@ -109,7 +145,7 @@ export function ThemeToggle(): React.JSX.Element {
         onClick={() => {
           setPreference(NEXT[preference]);
         }}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:hidden"
+        className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:hidden"
         aria-label={`${t('theme.label')}: ${t(current.labelKey)}. ${t('theme.pressToChange')}`}
         title={`${t('theme.label')}: ${t(current.labelKey)}`}
       >
@@ -117,39 +153,52 @@ export function ThemeToggle(): React.JSX.Element {
       </button>
 
       <div
-        role="group"
+        role="radiogroup"
         aria-label={t('theme.label')}
-        // Sunken, so the selected segment reads as a tile lifted out of a
-        // recess. On a flat ground the selected state has to be carried by
-        // colour alone, and at 16px an icon in brand blue beside an icon in
-        // grey is not a difference somebody notices in passing.
-        className="hidden h-10 shrink-0 items-center gap-0.5 rounded-md border border-border bg-surface-sunken p-1 sm:flex"
+        className="hidden shrink-0 items-center overflow-hidden rounded-full bg-surface ring-1 ring-inset ring-border sm:inline-flex"
       >
-        {ORDER.map((option) => {
+        {ORDER.map((option, index) => {
           const { labelKey, Icon } = OPTIONS[option];
-          const isSelected = preference === option;
+          const isActive = preference === option;
 
           return (
             <button
               key={option}
+              ref={(node) => {
+                optionRefs.current[index] = node;
+              }}
               type="button"
-              aria-pressed={isSelected}
-              // The option's own name, not "switch to X": the group's label
-              // already asks the question, so a screen reader reads
-              // "Appearance, Dark theme, toggle button, pressed".
+              role="radio"
+              aria-checked={isActive}
+              // The option's own name: the group's label already asks the
+              // question, so a screen reader reads "Appearance, radio group,
+              // Dark theme, radio button, checked".
               aria-label={t(labelKey)}
               title={t(labelKey)}
+              // One tab stop for the set, on the option in force.
+              tabIndex={isActive ? 0 : -1}
               onClick={() => {
                 setPreference(option);
               }}
+              onKeyDown={(event) => {
+                onKeyDown(event, index);
+              }}
               className={cx(
-                'flex h-8 w-8 items-center justify-center rounded transition-colors',
-                isSelected
-                  ? 'bg-surface text-brand shadow-card'
-                  : 'text-ink-subtle hover:bg-surface-hover hover:text-ink',
+                'relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors',
+                isActive ? 'text-ink' : 'text-ink-subtle hover:text-ink',
               )}
             >
               <Icon className="h-4 w-4" />
+
+              {isActive && (
+                <motion.span
+                  aria-hidden="true"
+                  data-testid="theme-option-ring"
+                  layoutId={`theme-option-${ringId}`}
+                  transition={reduceMotion ? { duration: 0 } : SPRING}
+                  className="pointer-events-none absolute inset-0 rounded-full border border-border-strong"
+                />
+              )}
             </button>
           );
         })}

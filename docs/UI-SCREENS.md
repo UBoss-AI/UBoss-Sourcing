@@ -165,7 +165,11 @@ appear only when the app is built with `VITE_DEMO_LOGINS` set.
   logistics top bars) has three choices: **Match my device** (the default),
   **Light** and **Dark**. The choice is kept in the browser under
   `uboss.theme`, not on the account, because it belongs to the screen being
-  used. On phones the control is one button that cycles through the three.
+  used. From tablet width up it is a round pill of three icons. A border
+  rings the chosen one and springs across when the choice changes, or jumps
+  when reduced motion is on. It is a radio group: the arrow keys move between
+  the three, and Enter or Space picks one. On phones the control is one button
+  that cycles through the three.
 - **Contrast is checked by a script.** `npm run audit:contrast` (part of
   `npm run verify` in each app) checks every colour pair against WCAG 2.1 AA
   in both themes.
