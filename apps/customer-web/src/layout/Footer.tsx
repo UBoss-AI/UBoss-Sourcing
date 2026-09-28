@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useI18n } from '@/i18n/i18n-context';
 import { PARENT_ATTRIBUTION, PRODUCT_BRAND } from '@/lib/brand';
-import { DocumentIcon, HeadsetIcon, MailIcon, PhoneIcon } from '@/components/icons';
+import { DocumentIcon, HeadsetIcon, InfoIcon, MailIcon, PhoneIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 
 /** A footer column heading. One style, so the columns read as a set. */
@@ -141,6 +141,16 @@ export function Footer({
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-muted">
             {t('footer.tagline')}
           </p>
+
+          {/* Under the name it is about, and on every width: on a phone this
+              is the way to the About page, because the header's is `lg` up. */}
+          <Link
+            to="/about"
+            className="mt-3 inline-flex items-center gap-2 rounded text-sm font-medium text-brand hover:underline"
+          >
+            <InfoIcon className="h-4 w-4" />
+            {t('about.link')}
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:flex lg:shrink-0 lg:gap-16">

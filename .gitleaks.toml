@@ -111,6 +111,17 @@ working - it just happens to be wrong here. Changing the alphabet means \
 changing this line too."""
   regexes = ['''ABCDEFGHJKLMNPQRSTUVWXYZ23456789''']
 
+[[allowlists]]
+  description = """The listing wizard's FIELD PATH for the individual purchase \
+limit - `attributeKey: 'offer.b2cMaxOrderQuantity'` - in \
+backend/src/modules/seller/listing-draft.service.ts, the wizard page that \
+reads it back, and the integration test that asserts it. It names a form \
+field, not a credential. `generic-api-key` fires on it because the name ends \
+in "Key" and the value is long, mixed-case and dotted, which scores as \
+random. First committed in 063cfa3 and therefore in the history for good, so \
+renaming it now would change nothing; this is the only fix that clears it."""
+  regexes = ['''offer\.b2cMaxOrderQuantity''']
+
 # -----------------------------------------------------------------------------
 # Documentation examples
 #

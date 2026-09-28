@@ -55,7 +55,7 @@ import { MarketMenu } from '@/components/market/MarketMenu';
 import { EarthMark } from '@/components/EarthMark';
 import { PRODUCT_BRAND, PRODUCT_SHORT_NAME, PRODUCT_TAGLINE } from '@/lib/brand';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { CartIcon, HeadsetIcon } from '@/components/icons';
+import { CartIcon, HeadsetIcon, InfoIcon } from '@/components/icons';
 import type { Cart } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
@@ -274,6 +274,28 @@ function SupportLink(): React.JSX.Element {
   );
 }
 
+/**
+ * About, in the bar from `lg` up, beside Support and drawn the same way.
+ *
+ * Only from `lg`: between `sm` and `lg` the lockup already gives way to the
+ * controls, and a seventh icon there would cost the wordmark its last letters.
+ * Every width reaches the same page from the footer.
+ */
+function AboutLink(): React.JSX.Element {
+  const { t } = useI18n();
+  const label = t('about.link');
+  return (
+    <Link
+      to="/about"
+      aria-label={label}
+      title={label}
+      className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink lg:inline-flex"
+    >
+      <InfoIcon className="h-5 w-5 shrink-0" />
+    </Link>
+  );
+}
+
 export function Header(): React.JSX.Element {
   return (
     /*
@@ -325,6 +347,7 @@ export function Header(): React.JSX.Element {
               menu with their own name on it. */}
           <BecomeSellerButton />
 
+          <AboutLink />
           <SupportLink />
 
           <AccountMenu />

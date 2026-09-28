@@ -505,6 +505,10 @@ jobs:
     env:
       GITLEAKS_VERSION: 8.30.1
       GITLEAKS_LINUX_X64_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      # Not used by this job. `scripts/secret-scan.ps1` - the same scan, run
+      # before a push - reads the version and both checksums from these lines,
+      # so a bump here is a bump there and the two can never scan differently.
+      GITLEAKS_WINDOWS_X64_SHA256: d29144deff3a68aa93ced33dddf84b7fdc26070add4aa0f4513094c8332afc4e
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

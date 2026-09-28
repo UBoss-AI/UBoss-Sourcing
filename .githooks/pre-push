@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runs CI's secret scan before anything leaves this machine.
+#
+# The "Secret scan" job scans the WHOLE history, so a finding that reaches the
+# remote cannot be fixed by editing the file - it can only be allowlisted in
+# .gitleaks.toml after the pipeline has already gone red. Found here, it is
+# fixed in the commit that introduced it. See scripts/secret-scan.ps1.
+#
+# Switched on once per clone:  git config core.hooksPath .githooks
+exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/secret-scan.ps1

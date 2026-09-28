@@ -644,6 +644,17 @@ export function GlobeIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** About this marketplace. A circled "i". */
+export function InfoIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M12 11v5.2" />
+      <path d="M12 7.8h.01" />
+    </Icon>
+  );
+}
+
 /** The buying organisation. An office block, not a house. */
 export function BuildingIcon(props: IconProps): React.JSX.Element {
   return (

@@ -170,3 +170,18 @@ cd apps/admin-web && npm run verify
 cd apps/logistics-web && npm run verify   # only if the logistics portal changed
 cd scripts && npm run docs:check          # docs/reference matches the code
 ```
+
+```powershell
+.\scripts\secret-scan.ps1                 # CI's gitleaks scan, over the whole history
+```
+
+**Run the secret scan before every push**, and keep the pre-push hook on
+(`git config core.hooksPath .githooks`). CI scans the entire history, so a
+false positive that reaches `main` can no longer be edited away - it can only be
+allowlisted in `.gitleaks.toml` after the build is already red. That happened
+with `attributeKey: 'offer.b2cMaxOrderQuantity'`: a field path, flagged by
+`generic-api-key` because the name ends in "Key" and the value is long and
+mixed-case. Name such a value so it does not read as a key, or add the exact
+string to `.gitleaks.toml` in the same commit. Never run gitleaks by hand on
+Windows without the script: Git for Windows' `.docx` textconv cuts the history
+short and gitleaks then reports a false pass.

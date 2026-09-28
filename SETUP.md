@@ -354,6 +354,30 @@ cd C:\Users\HP\Desktop\UBoss-Software\apps\logistics-web
 npm install
 ```
 
+### 5a. Switch on the secret scan before every push
+
+CI's **Secret scan** job reads the whole git history, so something that looks
+like a key and reaches GitHub cannot be fixed by editing the file afterwards.
+This runs the same scan on your machine before each push. Run it once per
+clone:
+
+```powershell
+cd C:\Users\HP\Desktop\UBoss-Software
+git config core.hooksPath .githooks
+```
+
+From then on `git push` runs `scripts\secret-scan.ps1` first and stops if it
+finds anything. You can also run it yourself at any time:
+
+```powershell
+.\scripts\secret-scan.ps1
+```
+
+The first run downloads the gitleaks release CI uses and checks its SHA-256
+against `.github/workflows/ci.yml`. If it reports a finding, the message says
+what to do: rotate a real key, or add an exact-string exception with a reason
+to `.gitleaks.toml`.
+
 First-time setup is done. From now on, use **Start the project** at the top.
 
 ### 6. Optional: the database rehearsal environment

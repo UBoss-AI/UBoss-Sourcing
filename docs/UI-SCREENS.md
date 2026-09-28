@@ -528,6 +528,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    | Appearance | Match my device, Light, Dark. One cycling button on phones | Kept in this browser only |
    | Market control | Flag, language code, and on wide screens the country and currency; no chevron on a phone | Opens "Language, country and currency": languages, a searchable country list with "Your browser suggests … Use that", currencies. **Nothing changes until Apply.** Then every price is quoted again and a message says so. Hidden when the store has only one country and one currency |
    | Become a seller | A button whose words follow the person's seller state (see below). Hidden on a seller's own storefront | Opens `/sell`, the onboarding, or the Seller Hub |
+   | About | A circled "i" icon, with no words. Its accessible name is "About {marketplace}". Shown from 1024px up only; narrower, the footer's link leads to the same page | Opens `/about` |
    | Support | A headset icon, with no words at any width. Its accessible name is "Support". Shown from the `sm` width up; on a phone the account menu and the footer lead to the same page | Opens `/support` |
    | Account | **Sign in** for a guest. For a customer, their first name and a menu (on a phone the icon alone, no chevron) | The menu lists the account pages in four groups and **Sign out**, which asks first. For somebody who belongs to at least one company, the menu starts with **Buying for** (see below) |
    | Cart | Orange, with a count of items | Opens `/cart` (a guest is asked to sign in) |
@@ -579,7 +580,8 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    …** and **Switch to …**.
 6. **The page itself.** On every page change, focus moves to it and the window
    scrolls to the top. While a page's code downloads, a spinner shows.
-7. **The footer**: the store's name; **Shop** (All products, My orders, Repeat
+7. **The footer**: the store's name, its line, and **About {marketplace}**
+   (opens `/about`, at every width); **Shop** (All products, My orders, Repeat
    purchases); **Support** (email and phone from Settings, or "Contact details
    coming soon", and always a link to the Support page, `/support`); **Policies** (the links set in Settings, each in a new tab);
    and "All prices in …". There is no footer on `/ai`.
@@ -642,6 +644,7 @@ call fails, everything below counts as off.
 | `/ai` | AI Mode | Anybody can open it; whether it answers a guest is a setting |
 | `/sell` | Sell on Gloviaa Mart | Anybody |
 | `/support` | Support | Anybody can open it; raising a ticket needs a signed-in customer |
+| `/about` | About {marketplace} | Anybody |
 | any other address | We could not find that page | Anybody |
 
 #### `/` — Home
@@ -1339,6 +1342,47 @@ assistant".
 - `POST /api/v1/cart/items`
 - `POST /api/v1/catalog/image-search` (customers)
 - `GET /api/v1/account/profile`
+
+#### `/about` — About {marketplace}
+
+| | |
+|---|---|
+| **Who** | Anybody |
+| **File** | `pages/AboutPage.tsx`, with its sections in `components/about/` |
+
+**Purpose.** What this marketplace is, who takes part in it and what it does,
+for somebody deciding whether to buy or sell here. It describes this
+deployment only: a feature that is switched off here is not mentioned.
+
+**On the screen**
+
+- **About {marketplace}**, then the heading. On the product's own storefront
+  the heading is the tagline, **The Way to the Global Sourcing**, in the
+  wordmark's script. On a storefront trading under another name it is "One
+  marketplace for sourcing, selling and delivery" instead. A short
+  introduction and **Powered by UBOSS** follow.
+- **What we do.** On the left, a navy panel with a turning earth and the
+  groups who take part placed around it: Buyers, Company buyers (only when
+  company accounts are on), Sellers, Warehouses, Logistics partners and
+  Marketplace team. It is a real list; on a phone it becomes two columns under
+  the earth. On the right, short paragraphs on buying, company accounts (when
+  on), bulk orders and preorders, sellers, fulfilment, the AI assistant (when
+  on) and ERP connections. **Explore what you can do** scrolls down to the
+  cards and moves focus there; it does not add a history entry.
+- **What you can do here.** Up to six cards, each an icon, a title and one
+  sentence, chosen in this order from what is switched on: AI-assisted
+  sourcing (`assistant`), Individual and company buying (`buyerCompanies`),
+  Checked sellers, Bulk orders and preorders, Connected logistics, Secure
+  business workflows, Scheduled purchasing (`recurringOrders`), Your currency
+  and language.
+- **Ready to start?** with **Browse products** (`/products`), **Sell with us**
+  (`/sell`) and **Contact support** (`/support`).
+
+There are no questions and answers here: they are on the Support page. There
+is no video and no play button, and nothing on the page is a number.
+
+**API calls.** None of its own. It reads the public configuration the app
+has already loaded.
 
 #### `/sell` — Sell on Gloviaa Mart
 

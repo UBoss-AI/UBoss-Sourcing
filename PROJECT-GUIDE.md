@@ -960,6 +960,7 @@ comes back in the exact same shape:
 | `/schedules/new` | Build a repeating order | **Yes** |
 | `/ai` | AI Mode: the assistant. The page opens for anybody; whether it answers a guest is `ASSISTANT_ALLOW_GUESTS`, which ships off. A history needs an account either way | No |
 | `/support` | Support: frequently asked questions, the published contacts, and the **Raise a ticket** form (section 9.13). A guest sees the contacts and a sign-in button; a ticket needs an account | No |
+| `/about` | About the marketplace: what it is, who takes part and what it does here (section 9.14). No questions and answers - those are on `/support` | No |
 
 Everything under `/account` shares one frame — a profile card and a grouped
 sidebar on the left, the page on the right — and one session guard, which sits
@@ -15749,6 +15750,46 @@ a native reader.
 - Staff cannot attach files to a reply.
 - No live updates over a websocket, the way preorder chat has them.
 - No SLA timers on tickets.
+
+## 9.14 The About page
+
+`/about` explains the marketplace to somebody deciding whether to buy or sell
+here. It is public and sits in the normal storefront frame. The footer links
+to it at every width (**About {marketplace}**, under the store's name); the
+header has a circled "i" icon for it from 1024px up.
+
+What is on it, top to bottom:
+
+1. **About {marketplace}** and the heading. On the product's own storefront
+   the heading is the tagline (`PRODUCT_TAGLINE` in `lib/brand.ts`) in the
+   wordmark's script. On a storefront trading under another name it is a
+   translated heading, so Gloviaa Mart's slogan never sits over somebody
+   else's shop. **Powered by UBOSS** is printed under the introduction.
+2. **What we do.** A navy panel with the earth turning and the groups who take
+   part around it, beside short paragraphs on buying, bulk orders and
+   preorders, sellers, fulfilment and ERP. **Explore what you can do** scrolls
+   to the cards.
+3. **What you can do here.** Up to six cards.
+4. **Ready to start?** with links to the catalogue, `/sell` and `/support`.
+
+- **It only describes what this deployment does.** The rules live in
+  `apps/customer-web/src/components/about/about-content.ts`. The AI
+  assistant card and paragraph need `features.assistant`; company buying and
+  "Company buyers" need `features.buyerCompanies`; scheduled purchasing needs
+  `features.recurringOrders`. The first six cards that apply are shown, so a
+  switched-off feature is replaced by an always-built one rather than leaving
+  a hole.
+- **No figures.** No customer counts, countries served, delivery times,
+  ratings or partners. Every buyer of this software runs their own business,
+  and a number written into the product is a claim about theirs.
+- **No FAQ.** The questions and answers are the Support page's (9.13).
+- **No outside assets and no video.** The earth is the Blue Marble image the
+  header's mark already ships (`src/assets/globe/earth-blue-marble-sm.jpg`),
+  turned with CSS in `components/about/about-globe.css`. It holds still when
+  the visitor asks for reduced motion.
+- **The words** are `about.*` keys in all eight catalogues and name the
+  business as `{{marketplace}}`.
+- Tests: `apps/customer-web/src/pages/AboutPage.test.tsx`.
 
 ---
 

@@ -495,6 +495,12 @@ shows your published contacts and a **Raise a ticket** form; **Account →
 Support** lists the buyer's tickets and your team's replies. An order has
 **Contact support about this order**. See [Support tickets](#support-tickets).
 
+**Anybody can read what the marketplace is.** The **About** page (`/about`,
+from the footer at every width and an "i" icon in the header on wide screens)
+explains who takes part and what the marketplace does. It shows only the
+capabilities your deployment has switched on, names your business rather than
+ours, and prints no figures. The questions and answers stay on Support.
+
 Optionally the customer's own ERP can collect orders and post back receipts.
 
 </details>
@@ -3935,7 +3941,15 @@ cd apps/customer-web  ; npm run verify   # typecheck, lint, contrast audit, test
 cd apps/logistics-web ; npm run verify   # typecheck, lint, contrast audit, tests, build
 cd scripts            ; npm run check:i18n   # every language has every key
 cd scripts            ; npm run check:ai     # the AI provider actually answers
+.\scripts\secret-scan.ps1                    # CI's gitleaks scan, over the whole history
 ```
+
+**Scan for secrets before you push, not after.** CI's secret scan reads the
+entire history, so a false positive that reaches GitHub can only be allowlisted
+once the build is already red. `git config core.hooksPath .githooks` (once per
+clone) runs `scripts\secret-scan.ps1` before every push. It uses the gitleaks
+release and checksum pinned in `ci.yml`, and it refuses to report a pass on
+Windows unless it read the whole history.
 
 **Run the backend suite on its own.** It truncates tables in `uboss_test`, and
 two verify runs at once share that one database and produce a long list of

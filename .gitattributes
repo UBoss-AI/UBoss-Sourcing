@@ -47,3 +47,8 @@
 # COOKIE_SECURE becomes "true\r", which is not "true".
 .env.example          text eol=lf
 .env.database.example text eol=lf
+
+# Git hooks. `sh` reads `#!/bin/sh\r` as an interpreter named "sh\r" and the
+# hook fails to start, and a pre-push hook that fails to start is a scan that
+# silently did not happen. See .githooks/pre-push.
+.githooks/* text eol=lf

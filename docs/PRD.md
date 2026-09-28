@@ -33,6 +33,7 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.4 | 2026-09-26 | B2C Maximum Order Quantity: a per-listing ceiling on what an Individual buyer (or anybody buying for a company that is not approved) may buy of one seller's product in one order (FR-PRC-011), enforced in the basket, checkout, scheduled orders and preorders (FR-CART-007, FR-CHK-002, FR-SCH-006, FR-PRE-001, FR-PRE-003), set in Seller Hub and the admin product form (FR-SEL-006, FR-SEL-008), BR-PRC-012, four open policy decisions (Q11 to Q14) |
 | 1.5 | 2026-09-28 | Company-buyer onboarding: the six-step wizard with a shared step indicator that starts on the sign-up form (FR-BCO-002), the representative's relationship to the business, an authorisation letter required of an outside agent, proof of address and a business licence offered (FR-BCO-005), upload progress, starting from and linking to the person's seller account with independent approvals (new FR-BCO-019), and "Check your email" as its own page that opens at its top with its heading focused (new FR-BCO-020) |
 | 1.6 | 2026-09-28 | Support tickets: the new §5.19a (FR-SUP-001 to FR-SUP-012) — the **Support** page and **Raise a ticket** form for buyers, sellers and carriers, **Your tickets**, files on a ticket, the console **Support → Tickets** inbox, the ticket status model (§7.15), three `support_ticket.*` staff permissions, `FEATURE_SUPPORT_TICKETS` (§10.1) and the support settings (§10.12), BR-SUP-001 to BR-SUP-004, and what is not built |
+| 1.7 | 2026-09-28 | The About page: `/about` (new FR-SRCH-009), linked from the footer and the header, showing only the capabilities this deployment has switched on |
 
 ### Keeping this document true
 
@@ -1453,6 +1454,29 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   feature cards (assistant, autopay, schedule, ERP), each a real button that
   opens its screen or explains why it cannot.
 - **Rules.** Reduced-motion, low-power and no-WebGL fallbacks; decoration is hidden from assistive technology.
+- **Status.** Built.
+
+### FR-SRCH-009 — The About page
+
+- **Statement.** `/about` is a public page explaining what the marketplace
+  is, who takes part in it (buyers, company buyers, sellers, warehouses,
+  logistics partners, the marketplace team) and what it does. It is opened
+  from the footer at every width and from an icon in the header from 1024px.
+  It has an introduction, a **What we do** section beside a picture of the
+  earth with those groups around it, up to six capability cards and links to
+  the catalogue, `/sell` and `/support`.
+- **Rules.**
+  1. It describes this deployment only. The AI assistant, company accounts and
+     scheduled purchasing appear only when `features.assistant`,
+     `features.buyerCompanies` and `features.recurringOrders` are on; the card
+     grid refills from the always-built capabilities.
+  2. It names the operator through `{marketplace}`. The product's tagline is
+     the heading only when the storefront trades as Gloviaa Mart.
+  3. It shows no figures (no customer counts, countries, delivery times or
+     ratings), no video and no questions and answers — those are the Support
+     page's (FR-SUP-002a).
+  4. Its picture uses only an image the app already ships; nothing is fetched
+     from another site.
 - **Status.** Built.
 
 ---

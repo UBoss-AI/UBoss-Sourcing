@@ -512,6 +512,14 @@ export const router = createBrowserRouter([
       { path: 'support', ...publicRoute(() => import('@/pages/SupportPage').then((m) => m.SupportPage)) },
 
       /*
+       * About - what this marketplace is and who takes part in it. The one
+       * About page: the footer's link and the header's both open it. Public,
+       * like the catalogue, because it is written for somebody deciding
+       * whether to buy or sell here at all.
+       */
+      { path: 'about', ...publicRoute(() => import('@/pages/AboutPage').then((m) => m.AboutPage)) },
+
+      /*
        * The public front door to the marketplace programme.
        *
        * Inside `StoreLayout` and public, on the same reasoning as the
