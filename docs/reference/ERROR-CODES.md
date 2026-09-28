@@ -5,7 +5,7 @@
 > After changing that code, run `cd scripts; npm run docs` and commit the result.
 > `npm run docs:check` fails when this file has fallen behind the code.
 
-**383 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
+**396 codes.** Every failure from the API has the same shape, and `code` is one of the values below. The codes are a **published contract**: both storefront and admin panel turn each one into a message in eight languages. A new situation gets a new code; an existing code is never renamed or given a new meaning.
 
 ```json
 {
@@ -56,6 +56,8 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | [Preorder chat](#preorder-chat) | 10 |
 | [Support tickets](#support-tickets) | 7 |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | 7 |
+| [Seller commission invoices](#seller-commission-invoices) | 8 |
+| [Terms and Conditions](#terms-and-conditions) | 5 |
 | [Quantity price bands](#quantity-price-bands) | 2 |
 | [Buyer companies](#buyer-companies) | 14 |
 | [Product reviews](#product-reviews) | 1 |
@@ -585,6 +587,29 @@ How codes map to HTTP statuses is explained in [`../API.md`](../API.md).
 | `SHIPMENT_CONTENTS_MISMATCH` | What the packages hold does not add up to what the consignment carries. |
 | `SHIPMENT_SPLIT_INVALID` | A split asked for more than the consignment carries, or would leave it empty. |
 | `DOCUMENT_RENDER_FAILED` | The PDF could not be produced. Nothing was issued and nothing was marked packed; try again. |
+
+## Seller commission invoices
+
+| Code | Meaning |
+|---|---|
+| `COMMISSION_INVOICE_NOT_ELIGIBLE` | This seller order cannot have a commission invoice yet. `details` names each reason by code: the buyer's payment is not captured, the order or the seller's part of it is cancelled, the commission is zero, or the order has not reached the stage the settings require. |
+| `COMMISSION_INVOICE_VALIDATION_FAILED` | The invoice cannot be issued until the listed details are fixed. `details` lists each one as `{ field, code, message }` - a missing seller GSTIN, an unverified tax rule, an unset issuer address. |
+| `COMMISSION_INVOICE_IMMUTABLE` | An issued commission invoice never changes. Correct it with a credit note. |
+| `COMMISSION_INVOICE_INVALID_TRANSITION` | The invoice's status does not allow that action. meta.status, meta.move. |
+| `COMMISSION_INVOICE_VOID_NOT_PERMITTED` | Voiding an issued commission invoice is switched off in the invoice settings. The correction is a credit note. |
+| `COMMISSION_INVOICE_SETTINGS_INVALID` | The commission invoice settings were refused. `details` names each field. |
+| `COMMISSION_CREDIT_INVALID` | The credit note was refused: nothing left to credit, an amount above what remains, or a proportional credit on an order with no refund. |
+| `COMMISSION_INVOICE_SETTINGS_CONFLICT` | The settings were changed by someone else since they were loaded. meta.currentVersion. |
+
+## Terms and Conditions
+
+| Code | Meaning |
+|---|---|
+| `TERMS_ACCEPTANCE_REQUIRED` | The account cannot be created or activated until the Terms and Conditions in force have been read and agreed to. Sent when `acceptedTerms` is not true or no `termsDocumentId` came with it. |
+| `TERMS_VERSION_OUTDATED` | The Terms agreed to are not the version in force: a newer version was published, or the document named was never a published one. meta.currentVersion. Show the current Terms and ask again. |
+| `TERMS_DOCUMENT_UNAVAILABLE` | No Terms and Conditions are published for this kind of account, so no account can be created or activated. The operator must publish them in the admin console. 503. |
+| `LEGAL_DOCUMENT_IMMUTABLE` | A published legal document never changes. Publish a new version instead. |
+| `LEGAL_DOCUMENT_VERSION_EXISTS` | A document with this kind, version and language already exists. |
 
 ## Quantity price bands
 

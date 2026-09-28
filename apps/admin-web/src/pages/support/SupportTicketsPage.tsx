@@ -55,8 +55,6 @@ import {
   fetchAssignees,
   fetchTicket,
   fetchTickets,
-  formatFileSize,
-  openTicketAttachment,
   replyToTicket,
   updateTicket,
   type AdminTicket,
@@ -65,6 +63,7 @@ import {
   type SupportStatus,
 } from '@/lib/support-tickets';
 import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
+import { TicketDocuments } from './TicketDocuments';
 
 const PAGE_SIZE = 25;
 
@@ -397,45 +396,6 @@ function EventLine({ event }: { event: AdminTicketEvent }): React.JSX.Element {
       <span>{when}</span>
       {staffOnly && <Badge tone="neutral">{t('supportTickets.staffOnly')}</Badge>}
     </li>
-  );
-}
-
-function Files({ ticket }: { ticket: AdminTicket }): React.JSX.Element | null {
-  const { t } = useI18n();
-  const toast = useToast();
-  const open = useMutation({
-    mutationFn: (attachmentId: string) => openTicketAttachment(ticket.id, attachmentId),
-    onError: (error) => {
-      toast.error(errorMessage(t, error, t('supportTickets.couldNotSave')));
-    },
-  });
-  if (ticket.attachments.length === 0) return null;
-
-  return (
-    <Card title={t('supportTickets.detail.files')} bodyClassName="px-5 py-4">
-      <ul className="divide-y divide-border-subtle">
-        {ticket.attachments.map((file) => (
-          <li key={file.id} className="flex items-center gap-3 py-2 text-sm">
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-ink">{file.fileName}</span>
-              <span className="block text-xs text-ink-muted">
-                {t(key('supportTickets.fileKind', file.kind))} · {formatFileSize(file.byteSize)} ·{' '}
-                {formatDateTime(file.createdAt)}
-              </span>
-            </span>
-            <Button
-              size="sm"
-              disabled={open.isPending}
-              onClick={() => {
-                open.mutate(file.id);
-              }}
-            >
-              {t('supportTickets.detail.openFile')}
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </Card>
   );
 }
 
@@ -775,6 +735,7 @@ export function SupportTicketDetailPage(): React.JSX.Element {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-5">
+          <TicketDocuments ticket={ticket} />
           <Card title={t('supportTickets.detail.conversation')} bodyClassName="px-5 py-4">
             <ol className="space-y-3">
               <li className="rounded-lg border border-border bg-surface px-4 py-3">
@@ -849,7 +810,6 @@ export function SupportTicketDetailPage(): React.JSX.Element {
               ]}
             />
           </Card>
-          <Files ticket={ticket} />
           <Controls ticket={ticket} />
         </div>
       </div>

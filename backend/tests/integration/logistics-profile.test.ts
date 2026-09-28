@@ -28,6 +28,7 @@ import { prisma } from '../../src/infra/prisma.js';
 import { totpCodeAt } from '../../src/infra/totp.js';
 import { inviteAsOperator } from '../../src/modules/logistics/admin.service.js';
 import { signInAdmin, type AdminSession } from '../support/admin-session.js';
+import { currentTermsId } from '../support/legal.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 
@@ -181,7 +182,7 @@ async function member(
       token: invitation.token,
       password: CARRIER_PASSWORD,
       acceptedTerms: true,
-      consentVersion: 'test',
+      termsDocumentId: await currentTermsId('LOGISTICS_PARTNER_TERMS'),
     },
   });
   expect(activated.statusCode, activated.body).toBe(200);

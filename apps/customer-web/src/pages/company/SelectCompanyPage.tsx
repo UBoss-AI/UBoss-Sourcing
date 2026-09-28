@@ -12,7 +12,7 @@
  *
  * Every choice is sent to the server, which confirms the membership before it
  * changes the session. Then the person goes where they were headed, which is
- * `/home` unless a deep link said otherwise.
+ * `/` unless a deep link said otherwise.
  */
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';

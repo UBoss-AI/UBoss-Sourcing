@@ -20,6 +20,8 @@ import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { revokeAllUserSessions } from './session.service.js';
 import type { UserKind } from './auth.service.js';
+import { termsKindForUserType } from '../../domain/legal-document.js';
+import { assertAcceptableTerms, recordTermsAcceptance } from '../legal/legal-document.service.js';
 
 export type TokenPurpose =
   | 'INVITATION'
@@ -108,6 +110,60 @@ export interface ConsumedToken {
  * two concurrent redemptions race there and exactly one sees `count === 1`.
  * A plain read-then-write would let both through.
  */
+interface TokenRecord {
+  type: string;
+  consumedAt: Date | null;
+  expiresAt: Date;
+  user: { status: string; archivedAt: Date | null };
+}
+
+/**
+ * Every reason a link cannot be used, in one place, so `peekInvitation` and
+ * `consumeToken` refuse for exactly the same reasons with the same words.
+ */
+function assertTokenUsable<T extends TokenRecord>(record: T | null, purpose: TokenPurpose): asserts record is T {
+  // Wrong purpose counts as invalid: a password-reset token must not be
+  // redeemable as an invitation.
+  if (record === null || record.type !== purpose) {
+    throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
+  }
+
+  if (record.consumedAt !== null) {
+    throw badRequest(
+      ErrorCode.TOKEN_ALREADY_USED,
+      'This link has already been used. Request a new one if you still need it.',
+    );
+  }
+
+  if (record.expiresAt.getTime() <= Date.now()) {
+    throw badRequest(
+      ErrorCode.TOKEN_EXPIRED,
+      'This link has expired. Request a new one to continue.',
+    );
+  }
+
+  if (record.user.archivedAt !== null || record.user.status === 'DEACTIVATED') {
+    throw badRequest(ErrorCode.ACCOUNT_DEACTIVATED, 'This account is no longer active.');
+  }
+}
+
+/**
+ * Which kind of account an invitation link opens, without spending it.
+ *
+ * The Terms to be accepted depend on the answer - a carrier's staff agree to
+ * different terms from a buyer - and they have to be checked before the link
+ * is redeemed. Checking after would burn a single-use link on a refusal the
+ * person could have fixed by agreeing to the current version.
+ */
+export async function peekInvitation(rawToken: string): Promise<{ userType: UserKind }> {
+  const record = await prisma.authToken.findUnique({
+    where: { tokenHash: sha256Hex(rawToken) },
+    include: { user: { select: { type: true, status: true, archivedAt: true } } },
+  });
+  assertTokenUsable(record, 'INVITATION');
+  return { userType: record.user.type };
+}
+
 async function consumeToken(rawToken: string, purpose: TokenPurpose): Promise<ConsumedToken> {
   const tokenHash = sha256Hex(rawToken);
 
@@ -119,29 +175,7 @@ async function consumeToken(rawToken: string, purpose: TokenPurpose): Promise<Co
       },
     });
 
-    // Wrong purpose counts as invalid: a password-reset token must not be
-    // redeemable as an invitation.
-    if (record === null || record.type !== purpose) {
-      throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
-    }
-
-    if (record.consumedAt !== null) {
-      throw badRequest(
-        ErrorCode.TOKEN_ALREADY_USED,
-        'This link has already been used. Request a new one if you still need it.',
-      );
-    }
-
-    if (record.expiresAt.getTime() <= Date.now()) {
-      throw badRequest(
-        ErrorCode.TOKEN_EXPIRED,
-        'This link has expired. Request a new one to continue.',
-      );
-    }
-
-    if (record.user.archivedAt !== null || record.user.status === 'DEACTIVATED') {
-      throw badRequest(ErrorCode.ACCOUNT_DEACTIVATED, 'This account is no longer active.');
-    }
+    assertTokenUsable(record, purpose);
 
     const claimed = await tx.authToken.updateMany({
       where: { id: record.id, consumedAt: null },
@@ -165,24 +199,38 @@ export interface AcceptInvitationInput {
   token: string;
   password: string;
   acceptedTerms: boolean;
-  consentVersion: string;
+  /** The Terms document the person agreed to. See `RegisterCustomerInput`. */
+  termsDocumentId: string | null;
+  /**
+   * The account types this surface activates. A link for any other type is
+   * refused as invalid BEFORE it is spent - a customer's link posted to the
+   * carrier portal must neither activate the customer nor use up their link.
+   */
+  audience: readonly UserKind[];
   ipAddress?: string | null;
   correlationId?: string | null;
 }
 
 /**
- * Activate an invited account: set the password, record consent, mark active.
+ * Activate an invited account: set the password, record the Terms accepted,
+ * mark active.
  *
- * All of it in one transaction. A half-activated account - password set but
- * status still PENDING_INVITATION - would be unable to sign in and unable to
- * be re-invited, because the token is already spent.
+ * The Terms are checked first, before the link is spent, against the kind of
+ * agreement this account's type is asked for. Then all of the writes happen in
+ * one transaction. A half-activated account - password set but status still
+ * PENDING_INVITATION - would be unable to sign in and unable to be re-invited,
+ * because the token is already spent.
  */
 export async function acceptInvitation(input: AcceptInvitationInput): Promise<ConsumedToken> {
-  if (!input.acceptedTerms) {
-    throw badRequest(ErrorCode.SCHEDULE_CONSENT_REQUIRED, 'You must accept the terms to continue.', [
-      { field: 'acceptedTerms', code: 'CONSENT_REQUIRED' },
-    ]);
+  const { userType } = await peekInvitation(input.token);
+  if (!input.audience.includes(userType)) {
+    throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
   }
+  const terms = await assertAcceptableTerms({
+    kind: termsKindForUserType(userType),
+    acceptedTerms: input.acceptedTerms,
+    documentId: input.termsDocumentId,
+  });
 
   const consumed = await consumeToken(input.token, 'INVITATION');
   const passwordHash = await hashPassword(input.password);
@@ -206,8 +254,14 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
       data: {
         activatedAt: now,
         consentAcceptedAt: now,
-        consentVersion: input.consentVersion,
+        consentVersion: terms.version,
       },
+    });
+
+    await recordTermsAcceptance(tx, {
+      userId: consumed.userId,
+      terms,
+      source: consumed.userType === 'LOGISTICS' ? 'LOGISTICS_INVITATION' : 'CUSTOMER_INVITATION',
     });
 
     await recordAudit(
@@ -218,7 +272,7 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
         actorType: consumed.userType,
         actorUserId: consumed.userId,
         actorEmail: consumed.email,
-        after: { status: 'ACTIVE', consentVersion: input.consentVersion },
+        after: { status: 'ACTIVE', termsVersion: terms.version, termsLocale: terms.locale },
         ipAddress: input.ipAddress ?? null,
         correlationId: input.correlationId ?? null,
       },

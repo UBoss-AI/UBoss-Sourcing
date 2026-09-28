@@ -107,6 +107,17 @@
 # server answers with index.html and the router decides what it means. Without
 # this, a reload on /checkout is a 404 from Netlify - the page only ever worked
 # because you navigated to it.
+# The old home-page address. `/` is the only home page; `/home` answers a
+# permanent redirect to it, so an old bookmark or a search result still lands
+# and no search engine indexes the same page twice. Netlify carries the query
+# string across a redirect on its own. Before the catch-all, which would
+# otherwise answer it with the page itself.
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

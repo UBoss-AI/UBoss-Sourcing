@@ -375,6 +375,7 @@ export type SellerOrderGroupWhereInput = {
   settlement?: Prisma.XOR<Prisma.SellerOrderSettlementNullableScalarRelationFilter, Prisma.SellerOrderSettlementWhereInput> | null
   sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
   packingLists?: Prisma.SellerPackingListListRelationFilter
+  commissionInvoices?: Prisma.CommissionInvoiceListRelationFilter
 }
 
 export type SellerOrderGroupOrderByWithRelationInput = {
@@ -410,6 +411,7 @@ export type SellerOrderGroupOrderByWithRelationInput = {
   settlement?: Prisma.SellerOrderSettlementOrderByWithRelationInput
   sellerInvoices?: Prisma.SellerInvoiceOrderByRelationAggregateInput
   packingLists?: Prisma.SellerPackingListOrderByRelationAggregateInput
+  commissionInvoices?: Prisma.CommissionInvoiceOrderByRelationAggregateInput
   _relevance?: Prisma.SellerOrderGroupOrderByRelevanceInput
 }
 
@@ -451,6 +453,7 @@ export type SellerOrderGroupWhereUniqueInput = Prisma.AtLeast<{
   settlement?: Prisma.XOR<Prisma.SellerOrderSettlementNullableScalarRelationFilter, Prisma.SellerOrderSettlementWhereInput> | null
   sellerInvoices?: Prisma.SellerInvoiceListRelationFilter
   packingLists?: Prisma.SellerPackingListListRelationFilter
+  commissionInvoices?: Prisma.CommissionInvoiceListRelationFilter
 }, "id" | "sellerAccountId_sellerOrderNumber" | "orderId_sellerAccountId">
 
 export type SellerOrderGroupOrderByWithAggregationInput = {
@@ -540,6 +543,7 @@ export type SellerOrderGroupCreateInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateInput = {
@@ -573,6 +577,7 @@ export type SellerOrderGroupUncheckedCreateInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUpdateInput = {
@@ -606,6 +611,7 @@ export type SellerOrderGroupUpdateInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateInput = {
@@ -639,6 +645,7 @@ export type SellerOrderGroupUncheckedUpdateInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateManyInput = {
@@ -1055,6 +1062,20 @@ export type SellerOrderGroupUpdateOneRequiredWithoutPackingListsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOrderGroupUpdateToOneWithWhereWithoutPackingListsInput, Prisma.SellerOrderGroupUpdateWithoutPackingListsInput>, Prisma.SellerOrderGroupUncheckedUpdateWithoutPackingListsInput>
 }
 
+export type SellerOrderGroupCreateNestedOneWithoutCommissionInvoicesInput = {
+  create?: Prisma.XOR<Prisma.SellerOrderGroupCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedCreateWithoutCommissionInvoicesInput>
+  connectOrCreate?: Prisma.SellerOrderGroupCreateOrConnectWithoutCommissionInvoicesInput
+  connect?: Prisma.SellerOrderGroupWhereUniqueInput
+}
+
+export type SellerOrderGroupUpdateOneRequiredWithoutCommissionInvoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerOrderGroupCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedCreateWithoutCommissionInvoicesInput>
+  connectOrCreate?: Prisma.SellerOrderGroupCreateOrConnectWithoutCommissionInvoicesInput
+  upsert?: Prisma.SellerOrderGroupUpsertWithoutCommissionInvoicesInput
+  connect?: Prisma.SellerOrderGroupWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOrderGroupUpdateToOneWithWhereWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUpdateWithoutCommissionInvoicesInput>, Prisma.SellerOrderGroupUncheckedUpdateWithoutCommissionInvoicesInput>
+}
+
 export type SellerOrderGroupCreateWithoutOrderInput = {
   id: string
   sellerOrderNumber: string
@@ -1085,6 +1106,7 @@ export type SellerOrderGroupCreateWithoutOrderInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutOrderInput = {
@@ -1117,6 +1139,7 @@ export type SellerOrderGroupUncheckedCreateWithoutOrderInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutOrderInput = {
@@ -1202,6 +1225,7 @@ export type SellerOrderGroupCreateWithoutSellerAccountInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutSellerAccountInput = {
@@ -1234,6 +1258,7 @@ export type SellerOrderGroupUncheckedCreateWithoutSellerAccountInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutSellerAccountInput = {
@@ -1292,6 +1317,7 @@ export type SellerOrderGroupCreateWithoutLinesInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutLinesInput = {
@@ -1324,6 +1350,7 @@ export type SellerOrderGroupUncheckedCreateWithoutLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutLinesInput = {
@@ -1372,6 +1399,7 @@ export type SellerOrderGroupUpdateWithoutLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutLinesInput = {
@@ -1404,6 +1432,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutShipmentsInput = {
@@ -1436,6 +1465,7 @@ export type SellerOrderGroupCreateWithoutShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutShipmentsInput = {
@@ -1468,6 +1498,7 @@ export type SellerOrderGroupUncheckedCreateWithoutShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutShipmentsInput = {
@@ -1516,6 +1547,7 @@ export type SellerOrderGroupUpdateWithoutShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutShipmentsInput = {
@@ -1548,6 +1580,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutReturnsInput = {
@@ -1580,6 +1613,7 @@ export type SellerOrderGroupCreateWithoutReturnsInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutReturnsInput = {
@@ -1612,6 +1646,7 @@ export type SellerOrderGroupUncheckedCreateWithoutReturnsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutReturnsInput = {
@@ -1660,6 +1695,7 @@ export type SellerOrderGroupUpdateWithoutReturnsInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutReturnsInput = {
@@ -1692,6 +1728,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutReturnsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutSettlementLinesInput = {
@@ -1724,6 +1761,7 @@ export type SellerOrderGroupCreateWithoutSettlementLinesInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutSettlementLinesInput = {
@@ -1756,6 +1794,7 @@ export type SellerOrderGroupUncheckedCreateWithoutSettlementLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutSettlementLinesInput = {
@@ -1804,6 +1843,7 @@ export type SellerOrderGroupUpdateWithoutSettlementLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutSettlementLinesInput = {
@@ -1836,6 +1876,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutSettlementLinesInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutLogisticsShipmentsInput = {
@@ -1868,6 +1909,7 @@ export type SellerOrderGroupCreateWithoutLogisticsShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutLogisticsShipmentsInput = {
@@ -1900,6 +1942,7 @@ export type SellerOrderGroupUncheckedCreateWithoutLogisticsShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutLogisticsShipmentsInput = {
@@ -1948,6 +1991,7 @@ export type SellerOrderGroupUpdateWithoutLogisticsShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutLogisticsShipmentsInput = {
@@ -1980,6 +2024,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutLogisticsShipmentsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutShipmentLegsInput = {
@@ -2012,6 +2057,7 @@ export type SellerOrderGroupCreateWithoutShipmentLegsInput = {
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutShipmentLegsInput = {
@@ -2044,6 +2090,7 @@ export type SellerOrderGroupUncheckedCreateWithoutShipmentLegsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutShipmentLegsInput = {
@@ -2092,6 +2139,7 @@ export type SellerOrderGroupUpdateWithoutShipmentLegsInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutShipmentLegsInput = {
@@ -2124,6 +2172,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutShipmentLegsInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutSettlementInput = {
@@ -2156,6 +2205,7 @@ export type SellerOrderGroupCreateWithoutSettlementInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutSettlementInput = {
@@ -2188,6 +2238,7 @@ export type SellerOrderGroupUncheckedCreateWithoutSettlementInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutSettlementInput = {
@@ -2236,6 +2287,7 @@ export type SellerOrderGroupUpdateWithoutSettlementInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutSettlementInput = {
@@ -2268,6 +2320,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutSettlementInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutSellerInvoicesInput = {
@@ -2300,6 +2353,7 @@ export type SellerOrderGroupCreateWithoutSellerInvoicesInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerOrderGroupInput
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutSellerInvoicesInput = {
@@ -2332,6 +2386,7 @@ export type SellerOrderGroupUncheckedCreateWithoutSellerInvoicesInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutSellerInvoicesInput = {
@@ -2380,6 +2435,7 @@ export type SellerOrderGroupUpdateWithoutSellerInvoicesInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerOrderGroupNestedInput
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutSellerInvoicesInput = {
@@ -2412,6 +2468,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutSellerInvoicesInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateWithoutPackingListsInput = {
@@ -2444,6 +2501,7 @@ export type SellerOrderGroupCreateWithoutPackingListsInput = {
   shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerOrderGroupInput
   settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupUncheckedCreateWithoutPackingListsInput = {
@@ -2476,6 +2534,7 @@ export type SellerOrderGroupUncheckedCreateWithoutPackingListsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerOrderGroupInput
   settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
 }
 
 export type SellerOrderGroupCreateOrConnectWithoutPackingListsInput = {
@@ -2524,6 +2583,7 @@ export type SellerOrderGroupUpdateWithoutPackingListsInput = {
   shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerOrderGroupNestedInput
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutPackingListsInput = {
@@ -2556,6 +2616,155 @@ export type SellerOrderGroupUncheckedUpdateWithoutPackingListsInput = {
   shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+}
+
+export type SellerOrderGroupCreateWithoutCommissionInvoicesInput = {
+  id: string
+  sellerOrderNumber: string
+  status?: $Enums.SellerOrderGroupStatus
+  locationId?: string | null
+  goodsTotalMinor?: bigint | number
+  taxTotalMinor?: bigint | number
+  shippingTotalMinor?: bigint | number
+  commissionMinor?: bigint | number
+  sellerNetMinor?: bigint | number
+  currency: string
+  commissionBasisPointsApplied?: number
+  dispatchDueAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  dispatchedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancellationReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderGroupsInput
+  order: Prisma.OrderCreateNestedOneWithoutSellerOrderGroupsInput
+  lines?: Prisma.SellerOrderLineCreateNestedManyWithoutOrderGroupInput
+  shipments?: Prisma.SellerShipmentCreateNestedManyWithoutOrderGroupInput
+  returns?: Prisma.SellerReturnCreateNestedManyWithoutOrderGroupInput
+  settlementLines?: Prisma.SellerSettlementLineCreateNestedManyWithoutOrderGroupInput
+  logisticsShipments?: Prisma.LogisticsShipmentCreateNestedManyWithoutSellerOrderGroupInput
+  shipmentLegs?: Prisma.ShipmentLegCreateNestedManyWithoutSellerOrderGroupInput
+  settlement?: Prisma.SellerOrderSettlementCreateNestedOneWithoutSellerOrderGroupInput
+  sellerInvoices?: Prisma.SellerInvoiceCreateNestedManyWithoutSellerOrderGroupInput
+  packingLists?: Prisma.SellerPackingListCreateNestedManyWithoutSellerOrderGroupInput
+}
+
+export type SellerOrderGroupUncheckedCreateWithoutCommissionInvoicesInput = {
+  id: string
+  sellerAccountId: string
+  orderId: string
+  sellerOrderNumber: string
+  status?: $Enums.SellerOrderGroupStatus
+  locationId?: string | null
+  goodsTotalMinor?: bigint | number
+  taxTotalMinor?: bigint | number
+  shippingTotalMinor?: bigint | number
+  commissionMinor?: bigint | number
+  sellerNetMinor?: bigint | number
+  currency: string
+  commissionBasisPointsApplied?: number
+  dispatchDueAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  dispatchedAt?: Date | string | null
+  deliveredAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancellationReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lines?: Prisma.SellerOrderLineUncheckedCreateNestedManyWithoutOrderGroupInput
+  shipments?: Prisma.SellerShipmentUncheckedCreateNestedManyWithoutOrderGroupInput
+  returns?: Prisma.SellerReturnUncheckedCreateNestedManyWithoutOrderGroupInput
+  settlementLines?: Prisma.SellerSettlementLineUncheckedCreateNestedManyWithoutOrderGroupInput
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  settlement?: Prisma.SellerOrderSettlementUncheckedCreateNestedOneWithoutSellerOrderGroupInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+  packingLists?: Prisma.SellerPackingListUncheckedCreateNestedManyWithoutSellerOrderGroupInput
+}
+
+export type SellerOrderGroupCreateOrConnectWithoutCommissionInvoicesInput = {
+  where: Prisma.SellerOrderGroupWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerOrderGroupCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedCreateWithoutCommissionInvoicesInput>
+}
+
+export type SellerOrderGroupUpsertWithoutCommissionInvoicesInput = {
+  update: Prisma.XOR<Prisma.SellerOrderGroupUpdateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedUpdateWithoutCommissionInvoicesInput>
+  create: Prisma.XOR<Prisma.SellerOrderGroupCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedCreateWithoutCommissionInvoicesInput>
+  where?: Prisma.SellerOrderGroupWhereInput
+}
+
+export type SellerOrderGroupUpdateToOneWithWhereWithoutCommissionInvoicesInput = {
+  where?: Prisma.SellerOrderGroupWhereInput
+  data: Prisma.XOR<Prisma.SellerOrderGroupUpdateWithoutCommissionInvoicesInput, Prisma.SellerOrderGroupUncheckedUpdateWithoutCommissionInvoicesInput>
+}
+
+export type SellerOrderGroupUpdateWithoutCommissionInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSellerOrderGroupStatusFieldUpdateOperationsInput | $Enums.SellerOrderGroupStatus
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goodsTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  commissionMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  sellerNetMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  commissionBasisPointsApplied?: Prisma.IntFieldUpdateOperationsInput | number
+  dispatchDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dispatchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderGroupsNestedInput
+  order?: Prisma.OrderUpdateOneRequiredWithoutSellerOrderGroupsNestedInput
+  lines?: Prisma.SellerOrderLineUpdateManyWithoutOrderGroupNestedInput
+  shipments?: Prisma.SellerShipmentUpdateManyWithoutOrderGroupNestedInput
+  returns?: Prisma.SellerReturnUpdateManyWithoutOrderGroupNestedInput
+  settlementLines?: Prisma.SellerSettlementLineUpdateManyWithoutOrderGroupNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUpdateManyWithoutSellerOrderGroupNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUpdateManyWithoutSellerOrderGroupNestedInput
+  settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
+  packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+}
+
+export type SellerOrderGroupUncheckedUpdateWithoutCommissionInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSellerOrderGroupStatusFieldUpdateOperationsInput | $Enums.SellerOrderGroupStatus
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goodsTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  commissionMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  sellerNetMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  commissionBasisPointsApplied?: Prisma.IntFieldUpdateOperationsInput | number
+  dispatchDueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dispatchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.SellerOrderLineUncheckedUpdateManyWithoutOrderGroupNestedInput
+  shipments?: Prisma.SellerShipmentUncheckedUpdateManyWithoutOrderGroupNestedInput
+  returns?: Prisma.SellerReturnUncheckedUpdateManyWithoutOrderGroupNestedInput
+  settlementLines?: Prisma.SellerSettlementLineUncheckedUpdateManyWithoutOrderGroupNestedInput
+  logisticsShipments?: Prisma.LogisticsShipmentUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  shipmentLegs?: Prisma.ShipmentLegUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
+  sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupCreateManyOrderInput = {
@@ -2611,6 +2820,7 @@ export type SellerOrderGroupUpdateWithoutOrderInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutOrderInput = {
@@ -2643,6 +2853,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutOrderInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateManyWithoutOrderInput = {
@@ -2721,6 +2932,7 @@ export type SellerOrderGroupUpdateWithoutSellerAccountInput = {
   settlement?: Prisma.SellerOrderSettlementUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateWithoutSellerAccountInput = {
@@ -2753,6 +2965,7 @@ export type SellerOrderGroupUncheckedUpdateWithoutSellerAccountInput = {
   settlement?: Prisma.SellerOrderSettlementUncheckedUpdateOneWithoutSellerOrderGroupNestedInput
   sellerInvoices?: Prisma.SellerInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
   packingLists?: Prisma.SellerPackingListUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSellerOrderGroupNestedInput
 }
 
 export type SellerOrderGroupUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -2792,6 +3005,7 @@ export type SellerOrderGroupCountOutputType = {
   shipmentLegs: number
   sellerInvoices: number
   packingLists: number
+  commissionInvoices: number
 }
 
 export type SellerOrderGroupCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2803,6 +3017,7 @@ export type SellerOrderGroupCountOutputTypeSelect<ExtArgs extends runtime.Types.
   shipmentLegs?: boolean | SellerOrderGroupCountOutputTypeCountShipmentLegsArgs
   sellerInvoices?: boolean | SellerOrderGroupCountOutputTypeCountSellerInvoicesArgs
   packingLists?: boolean | SellerOrderGroupCountOutputTypeCountPackingListsArgs
+  commissionInvoices?: boolean | SellerOrderGroupCountOutputTypeCountCommissionInvoicesArgs
 }
 
 /**
@@ -2871,6 +3086,13 @@ export type SellerOrderGroupCountOutputTypeCountPackingListsArgs<ExtArgs extends
   where?: Prisma.SellerPackingListWhereInput
 }
 
+/**
+ * SellerOrderGroupCountOutputType without action
+ */
+export type SellerOrderGroupCountOutputTypeCountCommissionInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommissionInvoiceWhereInput
+}
+
 
 export type SellerOrderGroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2905,6 +3127,7 @@ export type SellerOrderGroupSelect<ExtArgs extends runtime.Types.Extensions.Inte
   settlement?: boolean | Prisma.SellerOrderGroup$settlementArgs<ExtArgs>
   sellerInvoices?: boolean | Prisma.SellerOrderGroup$sellerInvoicesArgs<ExtArgs>
   packingLists?: boolean | Prisma.SellerOrderGroup$packingListsArgs<ExtArgs>
+  commissionInvoices?: boolean | Prisma.SellerOrderGroup$commissionInvoicesArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOrderGroupCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOrderGroup"]>
 
@@ -2947,6 +3170,7 @@ export type SellerOrderGroupInclude<ExtArgs extends runtime.Types.Extensions.Int
   settlement?: boolean | Prisma.SellerOrderGroup$settlementArgs<ExtArgs>
   sellerInvoices?: boolean | Prisma.SellerOrderGroup$sellerInvoicesArgs<ExtArgs>
   packingLists?: boolean | Prisma.SellerOrderGroup$packingListsArgs<ExtArgs>
+  commissionInvoices?: boolean | Prisma.SellerOrderGroup$commissionInvoicesArgs<ExtArgs>
   _count?: boolean | Prisma.SellerOrderGroupCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2973,6 +3197,7 @@ export type $SellerOrderGroupPayload<ExtArgs extends runtime.Types.Extensions.In
     settlement: Prisma.$SellerOrderSettlementPayload<ExtArgs> | null
     sellerInvoices: Prisma.$SellerInvoicePayload<ExtArgs>[]
     packingLists: Prisma.$SellerPackingListPayload<ExtArgs>[]
+    commissionInvoices: Prisma.$CommissionInvoicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3379,6 +3604,7 @@ export interface Prisma__SellerOrderGroupClient<T, Null = never, ExtArgs extends
   settlement<T extends Prisma.SellerOrderGroup$settlementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroup$settlementArgs<ExtArgs>>): Prisma.Prisma__SellerOrderSettlementClient<runtime.Types.Result.GetResult<Prisma.$SellerOrderSettlementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sellerInvoices<T extends Prisma.SellerOrderGroup$sellerInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroup$sellerInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   packingLists<T extends Prisma.SellerOrderGroup$packingListsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroup$packingListsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SellerPackingListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  commissionInvoices<T extends Prisma.SellerOrderGroup$commissionInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroup$commissionInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommissionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3985,6 +4211,30 @@ export type SellerOrderGroup$packingListsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.SellerPackingListScalarFieldEnum | Prisma.SellerPackingListScalarFieldEnum[]
+}
+
+/**
+ * SellerOrderGroup.commissionInvoices
+ */
+export type SellerOrderGroup$commissionInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommissionInvoice
+   */
+  select?: Prisma.CommissionInvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommissionInvoice
+   */
+  omit?: Prisma.CommissionInvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommissionInvoiceInclude<ExtArgs> | null
+  where?: Prisma.CommissionInvoiceWhereInput
+  orderBy?: Prisma.CommissionInvoiceOrderByWithRelationInput | Prisma.CommissionInvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.CommissionInvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommissionInvoiceScalarFieldEnum | Prisma.CommissionInvoiceScalarFieldEnum[]
 }
 
 /**

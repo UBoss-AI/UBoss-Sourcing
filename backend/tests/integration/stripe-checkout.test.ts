@@ -42,6 +42,7 @@ import {
   CHECKOUT_SESSION_MINUTES,
   cancelOpenCheckout,
   getCheckoutConfirmation,
+  reconcileOpenCheckouts,
   refreshCheckoutConfirmation,
 } from '../../src/modules/payments/stripe-checkout.service.js';
 
@@ -100,6 +101,10 @@ class FakeStripe {
   timeoutNextCreate = false;
   /** Make the next session create refuse the customer, as for a deleted one. */
   missingCustomerOnce = false;
+  /** Every read of one session, so a throttle can be counted. */
+  sessionReads = 0;
+  /** Answer every session read with a 500, as during a Stripe outage. */
+  failSessionReads = false;
 
   private json(body: unknown, status = 200): Response {
     return new Response(JSON.stringify(body), { status });
@@ -219,6 +224,13 @@ class FakeStripe {
     if (sessionMatch !== null) {
       const session = this.sessions.get(sessionMatch[1] ?? '');
       if (session === undefined) return Promise.resolve(this.error(404, 'resource_missing', 'No such session'));
+
+      if (method === 'GET') {
+        this.sessionReads += 1;
+        if (this.failSessionReads) {
+          return Promise.resolve(this.json({ error: { type: 'api_error', message: 'Stripe is down' } }, 500));
+        }
+      }
 
       if (sessionMatch[2] === '/expire') {
         if (session.status !== 'open') {
@@ -872,6 +884,57 @@ describe('over HTTP', () => {
     expect(session?.form.get('line_items[0][price_data][currency]')).toBe('inr');
   });
 
+  it('sends the customer back to the storefront address they paid from, so they stay signed in', async () => {
+    const { orderId } = await placeOrder(buyer);
+    // The last configured origin: in a deployment reached two ways, the one
+    // that is NOT the public URL is the case that used to sign people out.
+    const origin = env.CUSTOMER_WEB_ORIGIN.at(-1) ?? '';
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/payments/orders/${orderId}/session`,
+      payload: { provider: 'STRIPE' },
+      headers: {
+        cookie: buyer.cookies,
+        'x-csrf-token': buyer.csrfToken,
+        'idempotency-key': newId(),
+        origin,
+      },
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+    const session = stripe.sessions.get(response.json<{ checkoutSessionId: string }>().checkoutSessionId);
+    expect(session?.form.get('success_url')).toBe(
+      `${origin}/checkout/payment/${orderId}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+    );
+    expect(session?.form.get('cancel_url')).toBe(`${origin}/checkout/payment/${orderId}?payment=cancelled`);
+  });
+
+  it('never returns a customer to an address the deployment does not trust', async () => {
+    const { orderId } = await placeOrder(buyer);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/payments/orders/${orderId}/session`,
+      payload: { provider: 'STRIPE' },
+      headers: {
+        cookie: buyer.cookies,
+        'x-csrf-token': buyer.csrfToken,
+        'idempotency-key': newId(),
+        origin: 'https://gloviaa-mart.example.evil',
+      },
+    });
+
+    // A browser on that site could not read this response (CORS) or forge the
+    // request (CSRF). A script that sets the header by hand still gets the
+    // configured public address and nothing else.
+    expect(response.statusCode, response.body).toBe(201);
+    const body = response.json<{ checkoutSessionId: string }>();
+    const successUrl = stripe.sessions.get(body.checkoutSessionId)?.form.get('success_url') ?? '';
+    expect(successUrl.startsWith(`${env.CUSTOMER_WEB_PUBLIC_URL.replace(/\/+$/, '')}/checkout/payment/`)).toBe(true);
+    expect(successUrl).not.toContain('evil');
+  });
+
   it('shows one customer’s confirmation to nobody else', async () => {
     const { orderId } = await placeOrder(buyer);
     const result = await openCheckout(buyer, orderId);
@@ -1019,21 +1082,111 @@ describe('a successful payment', () => {
     expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId: buyer.profileId } })).toBe(1);
   });
 
-  it('says "confirming" to a customer who beats the webhook back, and confirms from Stripe on "check again"', async () => {
-    const { orderId } = await placeOrder(buyer);
+  it('confirms from Stripe on the first read when the customer beats the webhook back', async () => {
+    const { orderId, totalMinor } = await placeOrder(buyer);
     const result = await openCheckout(buyer, orderId);
     const { session } = stripe.pay(sessionIdOf(result));
 
-    // Back on our page. No webhook yet: the return itself proves nothing.
-    const before = await getCheckoutConfirmation(orderId, buyer.profileId, session.id);
-    expect(before.state).toBe('CONFIRMING');
+    // Back on our page, no webhook yet. The return proves nothing; the server
+    // asks Stripe, which is the authority, and Stripe says paid.
+    const view = await getCheckoutConfirmation(orderId, buyer.profileId, session.id);
+
+    expect(view).toMatchObject({ state: 'SUCCEEDED', card: { brand: 'visa', last4: '4242' } });
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('CONFIRMED');
+    expect(order.paidMinor).toBe(totalMinor);
+  });
+
+  it('says "confirming", and marks nothing paid, while Stripe has not taken the money', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+
+    // Somebody opens the confirmation address with the page still unpaid.
+    const view = await getCheckoutConfirmation(orderId, buyer.profileId, sessionIdOf(result));
+
+    expect(view.state).toBe('CONFIRMING');
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('PENDING_PAYMENT');
+    expect(order.paidMinor).toBe(0n);
+  });
+
+  it('asks Stripe at most once every few seconds, however fast the page polls', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    const reads = stripe.sessionReads;
+
+    for (let poll = 0; poll < 5; poll += 1) {
+      await getCheckoutConfirmation(orderId, buyer.profileId, sessionIdOf(result));
+    }
+
+    expect(stripe.sessionReads - reads).toBe(1);
+  });
+
+  it('answers from its own records, without failing, while Stripe is down', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    stripe.pay(sessionIdOf(result));
+    stripe.failSessionReads = true;
+
+    const view = await getCheckoutConfirmation(orderId, buyer.profileId, sessionIdOf(result));
+
+    expect(view.state).toBe('CONFIRMING');
+    expect((await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe(
+      'PENDING_PAYMENT',
+    );
+  });
+
+  it('credits a payment once when the webhook arrives after the page already confirmed it', async () => {
+    const { orderId, totalMinor } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    const { session, intent } = stripe.pay(sessionIdOf(result));
+
+    expect((await getCheckoutConfirmation(orderId, buyer.profileId, session.id)).state).toBe('SUCCEEDED');
+
+    const late = await deliver('checkout.session.completed', sessionObject(session));
+    await deliver('payment_intent.succeeded', intentObject(intent));
+
+    expect(late).toMatchObject({ accepted: true });
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.paidMinor).toBe(totalMinor);
+    expect(await prisma.orderStatusHistory.count({ where: { orderId, toStatus: 'CONFIRMED' } })).toBe(1);
+    expect(await prisma.paymentTransaction.count({ where: { orderId, status: 'CAPTURED' } })).toBe(1);
+  });
+
+  it('still confirms from Stripe on "check again" once the page has stopped polling', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    // The page read before the customer finished paying...
+    expect((await getCheckoutConfirmation(orderId, buyer.profileId, sessionIdOf(result))).state).toBe(
+      'CONFIRMING',
+    );
+    const { session } = stripe.pay(sessionIdOf(result));
+
+    // ...and "check again" asks Stripe regardless of the poll throttle.
+    const after = await refreshCheckoutConfirmation(orderId, buyer.profileId, session.id);
+    expect(after.state).toBe('SUCCEEDED');
+  });
+
+  it('applies a session event the first delivery could not, when Stripe retries it', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    const { session, intent } = stripe.pay(sessionIdOf(result));
+    // Stripe's session says paid before its PaymentIntent agrees.
+    intent.status = 'processing';
+
+    await expect(
+      deliver('checkout.session.completed', sessionObject(session), 'evt_retry_me'),
+    ).rejects.toThrow();
     expect((await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe(
       'PENDING_PAYMENT',
     );
 
-    // The server asks Stripe, which is the authority.
-    const after = await refreshCheckoutConfirmation(orderId, buyer.profileId, session.id);
-    expect(after.state).toBe('SUCCEEDED');
+    // Stripe redelivers the same event once the intent has settled.
+    intent.status = 'succeeded';
+    const retried = await deliver('checkout.session.completed', sessionObject(session), 'evt_retry_me');
+
+    expect(retried).toMatchObject({ accepted: true, duplicate: false });
+    expect((await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe('CONFIRMED');
   });
 
   it('waits in PROCESSING for a delayed method, then confirms on async success', async () => {
@@ -1070,6 +1223,116 @@ describe('a successful payment', () => {
 
     expect(outcome).toMatchObject({ accepted: false, reason: 'amount mismatch' });
     expect((await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).paidMinor).toBe(0n);
+  });
+});
+
+describe('the worker’s sweep, when no webhook comes and nobody comes back', () => {
+  /** As though the attempt was opened `minutes` ago. */
+  async function age(paymentTransactionId: string, minutes: number): Promise<void> {
+    await prisma.paymentTransaction.update({
+      where: { id: paymentTransactionId },
+      data: { createdAt: new Date(Date.now() - minutes * 60_000) },
+    });
+  }
+
+  it('confirms an order Stripe was paid for, which used to stay "pending payment" for good', async () => {
+    const { orderId, totalMinor } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    stripe.pay(sessionIdOf(result));
+    await age(result.paymentTransactionId, 5);
+
+    const tally = await reconcileOpenCheckouts();
+
+    expect(tally).toMatchObject({ checked: 1, captured: 1, failed: 0 });
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('CONFIRMED');
+    expect(order.paidMinor).toBe(totalMinor);
+  });
+
+  it('closes a page Stripe expired, freeing the order, and charges nothing', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    const session = stripe.sessions.get(sessionIdOf(result)) as FakeSession;
+    session.status = 'expired';
+    await age(result.paymentTransactionId, 90);
+
+    const tally = await reconcileOpenCheckouts();
+
+    expect(tally).toMatchObject({ closed: 1, captured: 0 });
+    expect(
+      await prisma.paymentTransaction.findUniqueOrThrow({ where: { id: result.paymentTransactionId } }),
+    ).toMatchObject({ status: 'EXPIRED', openAttemptKey: null });
+    expect((await prisma.order.findUniqueOrThrow({ where: { id: orderId } })).paidMinor).toBe(0n);
+  });
+
+  it('leaves an unpaid page alone, and does not ask about one the customer only just opened', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    const reads = stripe.sessionReads;
+
+    // Opened seconds ago: the customer is still typing.
+    expect(await reconcileOpenCheckouts()).toMatchObject({ checked: 0 });
+    expect(stripe.sessionReads).toBe(reads);
+
+    // A few minutes later, still unpaid: asked, and nothing changes.
+    await age(result.paymentTransactionId, 5);
+    expect(await reconcileOpenCheckouts()).toMatchObject({ checked: 1, captured: 0, closed: 0 });
+    expect(
+      (await prisma.paymentTransaction.findUniqueOrThrow({ where: { id: result.paymentTransactionId } }))
+        .status,
+    ).toBe('CREATED');
+
+    // And not asked again straight away.
+    expect(await reconcileOpenCheckouts()).toMatchObject({ checked: 0 });
+  });
+
+  it('records an attempt Stripe will not answer for as failed, and changes nothing', async () => {
+    const first = await placeOrder(buyer, 5);
+    const firstAttempt = await openCheckout(buyer, first.orderId);
+    await age(firstAttempt.paymentTransactionId, 5);
+    stripe.failSessionReads = true;
+
+    const tally = await reconcileOpenCheckouts();
+
+    expect(tally).toMatchObject({ checked: 1, failed: 1 });
+    expect((await prisma.order.findUniqueOrThrow({ where: { id: first.orderId } })).status).toBe(
+      'PENDING_PAYMENT',
+    );
+
+    // And it does not come straight back to the front of the queue, where a
+    // batch full of such attempts would starve a genuinely paid one.
+    expect(await reconcileOpenCheckouts()).toMatchObject({ checked: 0 });
+  });
+
+  it('reaches a paid attempt behind ones Stripe will never answer for', async () => {
+    const stuck = await placeOrder(buyer, 5);
+    const stuckAttempt = await openCheckout(buyer, stuck.orderId);
+    await age(stuckAttempt.paymentTransactionId, 5);
+    // A session Stripe no longer knows - a different account or mode.
+    stripe.sessions.delete(sessionIdOf(stuckAttempt));
+
+    const other = await createBuyer('second@checkout.test');
+    const paid = await placeOrder(other, 5);
+    const paidAttempt = await openCheckout(other, paid.orderId);
+    stripe.pay(sessionIdOf(paidAttempt));
+    await age(paidAttempt.paymentTransactionId, 4);
+
+    // A batch of one, so only the ordering decides who is reached.
+    await reconcileOpenCheckouts({ limit: 1 });
+    await reconcileOpenCheckouts({ limit: 1 });
+
+    expect((await prisma.order.findUniqueOrThrow({ where: { id: paid.orderId } })).status).toBe(
+      'CONFIRMED',
+    );
+  });
+
+  it('stops asking about an attempt older than its horizon', async () => {
+    const { orderId } = await placeOrder(buyer);
+    const result = await openCheckout(buyer, orderId);
+    stripe.pay(sessionIdOf(result));
+    await age(result.paymentTransactionId, 15 * 24 * 60);
+
+    expect(await reconcileOpenCheckouts()).toMatchObject({ checked: 0 });
   });
 });
 

@@ -321,16 +321,19 @@ export type VerifyAnswer =
   | { valid: false }
   | {
       valid: true;
-      kind: 'TAX_INVOICE' | 'CREDIT_NOTE' | 'PACKING_LIST';
+      kind: 'TAX_INVOICE' | 'INVOICE' | 'BILL_OF_SUPPLY' | 'CREDIT_NOTE' | 'PACKING_LIST';
       number: string;
-      status: SellerDocumentStatus;
+      status: SellerDocumentStatus | 'PARTIALLY_CREDITED' | 'FULLY_CREDITED' | 'VOID';
       issuedAt: string | null;
       issuer: string;
       packageCount?: number;
     };
 
+/** What a QR can point at: a seller's own document, or the marketplace's commission invoice to a seller. */
+export type VerifiableKind = DocumentKind | 'commission-invoice' | 'commission-credit-note';
+
 export function verifyDocument(
-  kind: DocumentKind,
+  kind: VerifiableKind,
   number: string,
   code: string,
 ): Promise<VerifyAnswer> {

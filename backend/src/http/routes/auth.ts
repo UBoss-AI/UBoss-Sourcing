@@ -100,7 +100,12 @@ const acceptInvitationSchema = z.object({
   token: z.string().min(16).max(512),
   password: passwordSchema,
   acceptedTerms: z.boolean(),
-  consentVersion: z.string().min(1).max(32).default('v1'),
+  /**
+   * The id of the Terms document shown to the person, from `GET /legal/current`.
+   * The server checks it is the version in force; nothing else about the
+   * agreement is taken from the request.
+   */
+  termsDocumentId: z.string().length(26).nullable().optional(),
 });
 
 /**
@@ -129,7 +134,12 @@ const registerSchema = z.object({
   password: passwordSchema,
   organization: z.string().trim().max(255).nullable().optional(),
   acceptedTerms: z.boolean(),
-  consentVersion: z.string().min(1).max(32).default('v1'),
+  /**
+   * The id of the Terms document shown to the person, from `GET /legal/current`.
+   * The server checks it is the version in force; nothing else about the
+   * agreement is taken from the request.
+   */
+  termsDocumentId: z.string().length(26).nullable().optional(),
   /** What the storefront is being read in, so the first email matches it. */
   language: z.enum(SUPPORTED_LANGUAGES).nullable().optional(),
 });
@@ -780,7 +790,9 @@ export function authRoutes(kind: UserKind) {
             token: body.token,
             password: body.password,
             acceptedTerms: body.acceptedTerms,
-            consentVersion: body.consentVersion,
+            termsDocumentId: body.termsDocumentId ?? null,
+            // Checked before the link is spent - see `acceptInvitation`.
+            audience: ['LOGISTICS'],
             ipAddress: context.ipAddress,
             correlationId: context.correlationId,
           });
@@ -877,7 +889,8 @@ export function authRoutes(kind: UserKind) {
             token: body.token,
             password: body.password,
             acceptedTerms: body.acceptedTerms,
-            consentVersion: body.consentVersion,
+            termsDocumentId: body.termsDocumentId ?? null,
+            audience: ['CUSTOMER'],
             ipAddress: context.ipAddress,
             correlationId: context.correlationId,
           });
@@ -919,7 +932,7 @@ export function authRoutes(kind: UserKind) {
             password: body.password,
             organization: body.organization ?? null,
             acceptedTerms: body.acceptedTerms,
-            consentVersion: body.consentVersion,
+            termsDocumentId: body.termsDocumentId ?? null,
             language: body.language ?? null,
             ipAddress: context.ipAddress,
             correlationId: context.correlationId,

@@ -2681,8 +2681,67 @@ export type BuyerCompanyStatusHistory = Prisma.BuyerCompanyStatusHistoryModel
  */
 export type ConsentRecord = Prisma.ConsentRecordModel
 /**
+ * Model LegalDocument
+ * One version of one agreement in one language.
+ * 
+ * The operator writes the text; this software never supplies legal wording.
+ * A version is shared across languages: "2026-10-01" in English and in
+ * Polish are two rows with the same `version`. The version in force for a
+ * kind is the newest PUBLISHED version whose `effectiveAt` has passed.
+ * 
+ * `body` is plain text, not HTML. A line starting with "## " is a heading and
+ * a line starting with "- " is a bullet; everything else is a paragraph. Both
+ * frontends and the PDF render it from that, so there is nothing to sanitise
+ * and no way for stored text to become markup.
+ */
+export type LegalDocument = Prisma.LegalDocumentModel
+/**
  * Model BuyerCompanyEmailChallenge
  * A six-digit code sent to the business email address. Stored hashed,
  * expires, and stops working after five wrong guesses.
  */
 export type BuyerCompanyEmailChallenge = Prisma.BuyerCompanyEmailChallengeModel
+/**
+ * Model CommissionInvoiceSettings
+ * Who issues commission invoices, and how. One row.
+ * 
+ * Every legal detail is a setting, entered by the business that runs this
+ * deployment, and nothing is issued until the required ones are present.
+ * There are no defaults for a name, an address or a registration number: a
+ * placeholder on a tax document is a false statement.
+ */
+export type CommissionInvoiceSettings = Prisma.CommissionInvoiceSettingsModel
+/**
+ * Model CommissionInvoice
+ * The operator's invoice to one seller, for the commission on one seller order.
+ */
+export type CommissionInvoice = Prisma.CommissionInvoiceModel
+/**
+ * Model CommissionInvoiceLine
+ * One service line on a commission invoice: the platform commission on one
+ * fee policy, or another approved marketplace service fee.
+ */
+export type CommissionInvoiceLine = Prisma.CommissionInvoiceLineModel
+/**
+ * Model CommissionCreditNote
+ * A credit note reversing all or part of an issued commission invoice.
+ * 
+ * Issued the moment it is created, in its own number series, with its own
+ * PDF. Its figures can never take the invoice past zero.
+ */
+export type CommissionCreditNote = Prisma.CommissionCreditNoteModel
+/**
+ * Model CommissionDocument
+ * An issued PDF, in private object storage. Never overwritten: a document
+ * has exactly one, and its hash is of the exact bytes stored.
+ */
+export type CommissionDocument = Prisma.CommissionDocumentModel
+/**
+ * Model CommissionInvoiceEvent
+ * Everything that happened to a commission invoice, in order: generated,
+ * regenerated, previewed, issued, downloaded, credited, voided, paid.
+ * 
+ * Its own table as well as `audit_logs`, so the invoice screen can show its
+ * history without searching the whole trail. Never updated.
+ */
+export type CommissionInvoiceEvent = Prisma.CommissionInvoiceEventModel

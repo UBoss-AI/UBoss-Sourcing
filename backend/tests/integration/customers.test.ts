@@ -30,6 +30,7 @@ import {
 import { issueSession, isSessionActive } from '../../src/modules/identity/session.service.js';
 import { acceptInvitation } from '../../src/modules/identity/token.service.js';
 import { login } from '../../src/modules/identity/auth.service.js';
+import { currentTermsId } from '../support/legal.js';
 
 let actor: { userId: string; email: string };
 
@@ -256,7 +257,8 @@ describe('invitation lifecycle', () => {
       token: rawToken ?? '',
       password: 'ActivatedPass!2026',
       acceptedTerms: true,
-      consentVersion: 'v1',
+      termsDocumentId: await currentTermsId(),
+      audience: ['CUSTOMER'],
     });
 
     const result = await login({
@@ -282,7 +284,8 @@ describe('invitation lifecycle', () => {
         token: firstToken,
         password: 'ActivatedPass!2026',
         acceptedTerms: true,
-        consentVersion: 'v1',
+        termsDocumentId: await currentTermsId(),
+        audience: ['CUSTOMER'],
       }),
     ).rejects.toMatchObject({ code: 'TOKEN_ALREADY_USED' });
   });

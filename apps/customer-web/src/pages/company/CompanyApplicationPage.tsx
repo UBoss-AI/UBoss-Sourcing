@@ -181,7 +181,7 @@ function StatusPanel({ application }: { application: CompanyApplication }): Reac
           <span className="text-ink-muted">{t('companyApplication.noResubmission')}</span>
         )}
         {status === 'APPROVED' && (
-          <Link to="/home" className="font-medium text-brand hover:underline">
+          <Link to="/" className="font-medium text-brand hover:underline">
             {t('companyApplication.startBuying')}
           </Link>
         )}

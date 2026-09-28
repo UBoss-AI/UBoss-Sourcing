@@ -22,7 +22,6 @@ import { HANDLERS, handlerFor } from '../../src/worker/handlers.js';
  * entry. Adding an `enqueue` call? Write the handler first.
  */
 const RESERVED_TYPES: readonly string[] = [
-  JobType.PAYMENT_RECONCILE,
   JobType.REFUND_POLL,
   JobType.IMPORT_PROCESS,
 ];

@@ -65,7 +65,7 @@ import { allowedOrigins, env } from '../../config/env.js';
 import { ErrorCode, badRequest, notFound, unauthorized } from '../../domain/errors.js';
 import { generateToken, sha256Hex } from '../../infra/crypto.js';
 import {
-  AssistantBusyError,
+  AssistantProviderError,
   isAssistantConfigured,
   streamAssistantReply,
 } from '../../modules/assistant/assistant.service.js';
@@ -130,6 +130,65 @@ function ownerFor(request: FastifyRequest, conversationToken: string | undefined
   }
 
   return { kind: 'guest', sessionTokenHash: sha256Hex(conversationToken) };
+}
+
+/**
+ * What an `error` frame on the chat stream tells the page.
+ *
+ * `code` is what the storefront matches on, and it words each one in the
+ * visitor's language; `message` is English and kept for an older bundle that
+ * only knows how to print it. `retryable` says whether a Retry button can
+ * possibly work - a refused key fails identically every time, and a button
+ * that cannot work is worse than none.
+ *
+ * A refused key and a missing model are the operator's problem, so a visitor
+ * is told only that the assistant is unavailable. The real reason goes to the
+ * log, next to the correlation id.
+ */
+export type AssistantStreamErrorCode = 'BUSY' | 'QUOTA' | 'TIMEOUT' | 'UNAVAILABLE' | 'REFUSED';
+
+export interface AssistantStreamError {
+  code: AssistantStreamErrorCode;
+  retryable: boolean;
+  message: string;
+}
+
+export function streamErrorFor(error: unknown): AssistantStreamError {
+  const reason = error instanceof AssistantProviderError ? error.reason : null;
+
+  switch (reason) {
+    case 'busy':
+      return {
+        code: 'BUSY',
+        retryable: true,
+        message: 'The assistant is busy right now. Please try again in a moment.',
+      };
+    case 'quota':
+      return {
+        code: 'QUOTA',
+        retryable: true,
+        message: 'The assistant has reached its limit for now. Please try again later.',
+      };
+    case 'timeout':
+      return {
+        code: 'TIMEOUT',
+        retryable: true,
+        message: 'The assistant took too long to answer. Please try again.',
+      };
+    case 'network':
+      return {
+        code: 'UNAVAILABLE',
+        retryable: true,
+        message: 'The assistant is unavailable right now. Please try again, or contact support.',
+      };
+    default:
+      // credentials, model, and anything unclassified.
+      return {
+        code: 'UNAVAILABLE',
+        retryable: false,
+        message: 'The assistant is unavailable right now. Please contact support.',
+      };
+  }
 }
 
 /** Roughly 1,500 words. Long enough for a real question, short enough to bound cost. */
@@ -571,8 +630,10 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
         // and the panel should say so rather than showing a broken state.
         if (result.refused) {
           send('error', {
+            code: 'REFUSED',
+            retryable: false,
             message: 'I cannot help with that one. Please contact our support team instead.',
-          });
+          } satisfies AssistantStreamError);
         }
 
         /*
@@ -624,15 +685,23 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
           // quota metrics and internal detail — but it is logged in full,
           // because "out of quota" and "briefly overloaded" need different
           // actions from whoever runs this deployment.
-          log.error({ err: error }, 'assistant request failed');
+          //
+          // `reason` and `providerStatus` are logged as fields of their own
+          // so that a refused key can be alerted on without parsing text.
+          // Neither the question nor the answer is in this line.
+          const frame = streamErrorFor(error);
+          log.error(
+            {
+              err: error,
+              conversationId: conversation.id,
+              reason: error instanceof AssistantProviderError ? error.reason : 'unexpected',
+              providerStatus: error instanceof AssistantProviderError ? error.providerStatus : undefined,
+              code: frame.code,
+            },
+            'assistant request failed',
+          );
 
-          const busy = error instanceof AssistantBusyError;
-
-          send('error', {
-            message: busy
-              ? 'The assistant is busy right now. Please try again in a moment.'
-              : 'The assistant is unavailable right now. Please try again, or contact support.',
-          });
+          send('error', frame);
         }
       } finally {
         if (!reply.raw.writableEnded) reply.raw.end();

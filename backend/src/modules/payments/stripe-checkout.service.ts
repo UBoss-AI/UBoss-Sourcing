@@ -43,7 +43,7 @@ import { serialiseMoney } from '../../domain/money.js';
 import { paymentSourcesOf, type PaymentStatus } from '../../domain/payment-state.js';
 import type { PaymentInstrument } from '../../domain/payment-instrument.js';
 import { StripeAmountError, toStripeAmount } from '../../domain/stripe-amount.js';
-import { env } from '../../config/env.js';
+import { storefrontReturnBase } from './storefront-return.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
@@ -130,6 +130,8 @@ export interface OpenCheckoutContext {
   instrument: PaymentInstrument | null;
   actorUserId: string | null;
   correlationId: string | null;
+  /** Where the customer paid from. See `storefrontReturnBase`. */
+  storefrontOrigin?: string | null;
 }
 
 type OrderForCheckout = NonNullable<Awaited<ReturnType<typeof loadOrderForCheckout>>>;
@@ -265,6 +267,7 @@ export async function openStripeCheckout(
       expiresAt,
       providerCustomerId,
       idempotencyKey: `stripe-checkout:${attemptId}`,
+      storefrontOrigin: context.storefrontOrigin ?? null,
     });
   } catch (error) {
     if (
@@ -287,6 +290,7 @@ export async function openStripeCheckout(
           expiresAt,
           providerCustomerId,
           idempotencyKey: `stripe-checkout:${attemptId}:customer-renewed`,
+          storefrontOrigin: context.storefrontOrigin ?? null,
         });
       } catch (retryError) {
         throw await failedToOpen(attemptId, retryError);
@@ -538,9 +542,10 @@ async function createSession(
     expiresAt: Date;
     providerCustomerId: string | null;
     idempotencyKey: string;
+    storefrontOrigin: string | null;
   },
 ): Promise<CheckoutSessionResult> {
-  const base = env.CUSTOMER_WEB_PUBLIC_URL.replace(/\/$/, '');
+  const base = storefrontReturnBase(params.storefrontOrigin);
   const summary = itemSummary(order.items);
 
   return provider.createCheckoutSession({
@@ -558,11 +563,13 @@ async function createSession(
     shipping: shippingOf(order.shippingAddressJson),
     locale: order.customerProfile.user.preferredLanguage?.slice(0, 2).toLowerCase() ?? null,
     /*
-     * Both built from configuration, never from the request. A client-chosen
-     * return address would be an open redirect carrying a payment page's
-     * credibility: somebody who has just paid and lands on a lookalike has
-     * every reason to believe it. `{CHECKOUT_SESSION_ID}` is Stripe's own
-     * template, filled in by Stripe.
+     * Both built from configuration, never from a value the browser names. A
+     * client-chosen return address would be an open redirect carrying a
+     * payment page's credibility: somebody who has just paid and lands on a
+     * lookalike has every reason to believe it. The base is the storefront
+     * origin the customer paid from when that is one this deployment already
+     * trusts, so they come back signed in - see `storefrontReturnBase`.
+     * `{CHECKOUT_SESSION_ID}` is Stripe's own template, filled in by Stripe.
      */
     successUrl: `${base}/checkout/payment/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${base}/checkout/payment/${order.id}?payment=cancelled`,
@@ -1187,12 +1194,60 @@ function viewOf(attempt: TransactionWithOrder): CheckoutConfirmationView {
   };
 }
 
-/** What we know right now. Reads our own records only - costs Stripe nothing. */
+/**
+ * How often the confirmation page's own polling may ask Stripe about one
+ * attempt. The page asks every two seconds; this keeps it to one Stripe read
+ * per attempt every few seconds, whoever is asking and from how many tabs.
+ */
+const CONFIRMATION_RECONCILE_INTERVAL_MS = 4_000;
+
+/**
+ * Where the payment stands, for the confirmation page.
+ *
+ * While the attempt is still open it asks Stripe, over the server's own
+ * authenticated connection, and applies the answer through the same guarded
+ * path the webhook uses - so a card payment Stripe has already confirmed shows
+ * as paid on the first poll rather than waiting for a webhook that may be late
+ * or, on a machine Stripe cannot reach, never come.
+ *
+ * The browser arriving here is still not evidence of anything. It is only the
+ * moment worth asking; the answer is Stripe's, fetched by us. A Stripe outage
+ * falls back to our own records - the page keeps saying "confirming" and the
+ * webhook or the worker's sweep settles it later.
+ */
 export async function getCheckoutConfirmation(
   orderId: string,
   customerProfileId: string,
   sessionId: string,
 ): Promise<CheckoutConfirmationView> {
+  const attempt = await loadOwnedAttempt(orderId, customerProfileId, sessionId);
+
+  if (attempt.status !== 'CREATED' && attempt.status !== 'PENDING') return viewOf(attempt);
+
+  // The throttle is a claim, not a read: two tabs polling in the same instant
+  // both see a stale `reconciledAt`, and only the one whose update matches
+  // gets to ask Stripe.
+  const cutoff = new Date(Date.now() - CONFIRMATION_RECONCILE_INTERVAL_MS);
+  const claimed = await prisma.paymentTransaction.updateMany({
+    where: {
+      id: attempt.id,
+      status: { in: ['CREATED', 'PENDING'] },
+      OR: [{ reconciledAt: null }, { reconciledAt: { lt: cutoff } }],
+    },
+    data: { reconciledAt: new Date() },
+  });
+  if (claimed.count === 0) return viewOf(attempt);
+
+  try {
+    await reconcileCheckoutAttempt(attempt);
+  } catch (error) {
+    logger.warn(
+      { err: error, paymentTransactionId: attempt.id },
+      'could not ask Stripe about a checkout the customer is waiting on; answering from our records',
+    );
+    return viewOf(attempt);
+  }
+
   return viewOf(await loadOwnedAttempt(orderId, customerProfileId, sessionId));
 }
 
@@ -1247,6 +1302,93 @@ export async function reconcileCheckoutAttempt(
     status: outcome === 'CAPTURED' ? 'CAPTURED' : outcome === 'PENDING' ? 'PENDING' : attempt.status,
     changed: outcome === 'CAPTURED' || (outcome === 'PENDING' && attempt.status !== 'PENDING'),
   };
+}
+
+/**
+ * Ask Stripe about every Checkout attempt that is still open.
+ *
+ * The backstop for a webhook that never arrives AND a customer who never
+ * comes back to the confirmation page - the case in which a card that Stripe
+ * charged used to leave its order in PENDING_PAYMENT for good. Run by the
+ * worker on its ordinary beat.
+ *
+ *   - Only attempts at least a minute old: a customer typing their card number
+ *     has nothing for Stripe to report yet.
+ *   - Each attempt at most every few minutes, and PENDING ones (a bank
+ *     transfer or other delayed method, settling over days) less often.
+ *   - A bounded batch, oldest-checked first, so a backlog is worked through
+ *     over several beats instead of in one burst of Stripe calls.
+ *
+ * Applies only what Stripe says, through the same guarded path as the webhook,
+ * so running beside a webhook - or twice - changes nothing twice. An expired
+ * page is closed, which frees the order for a new attempt.
+ */
+/** How far back the sweep looks for open attempts. */
+const SWEEP_HORIZON_DAYS = 14;
+
+export async function reconcileOpenCheckouts(
+  options: { limit?: number; now?: Date } = {},
+): Promise<{ checked: number; captured: number; closed: number; failed: number }> {
+  const now = options.now ?? new Date();
+  const minute = 60_000;
+
+  const attempts = await prisma.paymentTransaction.findMany({
+    where: {
+      // Hosted checkout is Stripe's. An attempt at any other gateway has no
+      // session to ask about and would be picked up on every beat for ever.
+      provider: 'STRIPE',
+      providerSessionId: { not: null },
+      // Old enough for there to be something to report, and young enough to
+      // still be worth asking about. A Checkout page lives for half an hour
+      // and a delayed bank method settles within days; past the horizon an
+      // attempt still open here is for the webhook, "Check again" or staff to
+      // settle, not for a Stripe call every few minutes for ever.
+      createdAt: {
+        lt: new Date(now.getTime() - minute),
+        gt: new Date(now.getTime() - SWEEP_HORIZON_DAYS * 24 * 60 * minute),
+      },
+      OR: [
+        {
+          status: 'CREATED',
+          OR: [{ reconciledAt: null }, { reconciledAt: { lt: new Date(now.getTime() - 2 * minute) } }],
+        },
+        {
+          status: 'PENDING',
+          OR: [{ reconciledAt: null }, { reconciledAt: { lt: new Date(now.getTime() - 15 * minute) } }],
+        },
+      ],
+    },
+    include: { order: true },
+    orderBy: [{ reconciledAt: 'asc' }, { createdAt: 'asc' }],
+    take: options.limit ?? 25,
+  });
+
+  const tally = { checked: 0, captured: 0, closed: 0, failed: 0 };
+
+  for (const attempt of attempts) {
+    tally.checked += 1;
+    // Stamped BEFORE asking, not after. An attempt Stripe cannot answer for -
+    // a session from a Stripe account or mode this deployment no longer uses,
+    // a connection since removed - would otherwise keep its old stamp, stay at
+    // the front of every batch, and push a genuinely paid session behind it
+    // out of reach for good.
+    await prisma.paymentTransaction.update({
+      where: { id: attempt.id },
+      data: { reconciledAt: now },
+    });
+    try {
+      const result = await reconcileCheckoutAttempt(attempt);
+      if (result.changed && result.status === 'CAPTURED') tally.captured += 1;
+      if (result.changed && result.status === 'EXPIRED') tally.closed += 1;
+    } catch (error) {
+      // One attempt Stripe would not answer for must not stop the rest; it is
+      // picked up again on a later beat.
+      tally.failed += 1;
+      logger.warn({ err: error, paymentTransactionId: attempt.id }, 'could not reconcile a checkout attempt');
+    }
+  }
+
+  return tally;
 }
 
 /**

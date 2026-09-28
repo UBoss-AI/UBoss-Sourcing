@@ -11,7 +11,7 @@
  * cannot wander out of the dialog either.
  */
 import { useEffect, useId, useRef } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { Button } from './ui';
 import { cx } from '@/lib/cx';
 import { lockPageScroll } from '@/lib/scroll-lock';
@@ -34,6 +34,17 @@ interface ModalProps {
    * `max-w`, so all three still fit a phone.
    */
   size?: 'md' | 'lg' | 'xl';
+  /**
+   * The scrolling body, for a dialog that has to know how far it has been
+   * read - the Terms dialog enables "I agree" at the end of the text.
+   */
+  bodyRef?: RefObject<HTMLDivElement | null>;
+  /**
+   * Makes the body a labelled, focusable region, so a keyboard user can Tab to
+   * long text and scroll it with the arrow keys, Page Down and End. Only for a
+   * dialog whose body is text to be read rather than controls to be used.
+   */
+  bodyLabel?: string;
 }
 
 export function Modal({
@@ -44,6 +55,8 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  bodyRef,
+  bodyLabel,
 }: ModalProps): React.JSX.Element {
   const { t } = useI18n();
 
@@ -167,8 +180,12 @@ export function Modal({
           forwarded ref, so a caller ten components deep can find it without
           every layer in between having to pass one down. */}
       <div
+        ref={bodyRef}
         data-dialog-body
-        className="min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
+        {...(bodyLabel === undefined
+          ? {}
+          : { tabIndex: 0, role: 'region', 'aria-label': bodyLabel })}
+        className="relative min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:px-6"
       >
         {children}
       </div>

@@ -183,6 +183,10 @@ async function maintenance(): Promise<void> {
       { dedupeKey: `payment_link_expire:${slot}` },
     );
 
+    // Checkout payments Stripe may have settled without its webhook reaching
+    // us. A pass with nothing open is one indexed query and no Stripe call.
+    await queue.enqueue(JobType.PAYMENT_RECONCILE, {}, { dedupeKey: `payment_reconcile:${slot}` });
+
     // Preorder expiry on the ordinary beat: a buyer waiting on an answer, or
     // capacity held for an unpaid order, should not wait an hour to be freed.
     await queue.enqueue(JobType.PREORDER_EXPIRE, {}, { dedupeKey: `preorder_expire:${slot}` });

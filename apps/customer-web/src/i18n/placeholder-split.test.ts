@@ -20,6 +20,8 @@ import { LANGUAGES } from './languages';
 const SPLIT_SENTENCES = [
   { key: 'payment.orderIsPaid', slot: '{{order}}' },
   { key: 'profile.leftToSpendThisMonth', slot: '{{amount}}' },
+  // The Terms checkbox sentence, split around the button that opens the Terms.
+  { key: 'terms.field.label', slot: '{{terms}}' },
 ] as const;
 
 describe('sentences that are split on a placeholder', () => {

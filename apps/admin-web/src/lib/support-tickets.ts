@@ -6,7 +6,8 @@
  * for somebody who may read orders; its number arrives for everyone, because
  * the sender typed it.
  */
-import { BASE_URL, api } from './api';
+import { ApiError, BASE_URL, NetworkError, api } from './api';
+import type { ApiErrorBody } from './api';
 
 export const SUPPORT_STATUSES = [
   'OPEN',
@@ -177,15 +178,60 @@ export function assignTicket(
 }
 
 /**
- * Open a file on a ticket: a five-minute, single-use link for this session,
- * followed at once. The server serves it as a download, never inline.
+ * The bytes of one file on a ticket, fetched into the page.
+ *
+ * A five-minute, single-use link for this session, redeemed at once over the
+ * session's own credentials. Every redemption is recorded in the audit log, so
+ * this is only ever called because somebody asked to look.
+ *
+ * The server serves the file as a download under a sandboxing policy and never
+ * inline, and that stays true: the page does not navigate to the file. It
+ * holds the bytes as a Blob, which the viewer shows as an image (a raster type
+ * the server sniffed from the bytes - never SVG, never HTML) or hands to the
+ * browser as a download. Nothing a customer uploaded is ever run as a page.
  */
-export async function openTicketAttachment(ticketId: string, attachmentId: string): Promise<void> {
+export async function fetchTicketAttachment(ticketId: string, attachmentId: string): Promise<Blob> {
   const link = await api.post<{ url: string }>(
     `/admin/support-tickets/${encodeURIComponent(ticketId)}/attachments/${attachmentId}/link`,
   );
   const apiOrigin = new URL(BASE_URL, window.location.origin).origin;
-  window.location.assign(new URL(link.url, apiOrigin).toString());
+
+  let response: Response;
+  try {
+    response = await fetch(new URL(link.url, apiOrigin).toString(), { credentials: 'include' });
+  } catch {
+    throw new NetworkError('The file could not be fetched.');
+  }
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
+    throw new ApiError(response.status, body ?? { code: 'INTERNAL_ERROR', message: 'The file could not be opened.' });
+  }
+
+  return response.blob();
+}
+
+/** Hand a file the page already holds to the browser as a download. */
+export function saveBlob(blob: Blob, fileName: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Revoking at once can cancel the download in some browsers.
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 10_000);
+}
+
+/** Download one file on a ticket without leaving the page. */
+export async function downloadTicketAttachment(
+  ticketId: string,
+  attachment: { id: string; fileName: string },
+): Promise<void> {
+  saveBlob(await fetchTicketAttachment(ticketId, attachment.id), attachment.fileName);
 }
 
 /** A size a person reads: 850 KB, 12.4 MB. */

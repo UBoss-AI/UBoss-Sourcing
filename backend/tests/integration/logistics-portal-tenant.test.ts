@@ -40,6 +40,7 @@ import {
   type LogisticsMembership,
 } from '../../src/modules/logistics/partner.service.js';
 import { signInAdmin } from '../support/admin-session.js';
+import { currentTermsId } from '../support/legal.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 
@@ -331,7 +332,7 @@ async function inviteActivateAndSignIn(
       token: invitation.token,
       password: CARRIER_PASSWORD,
       acceptedTerms: true,
-      consentVersion: 'test',
+      termsDocumentId: await currentTermsId('LOGISTICS_PARTNER_TERMS'),
     },
   });
 

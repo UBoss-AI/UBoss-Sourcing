@@ -1622,3 +1622,23 @@ dialog[open] {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
+
+/*
+ * Printing the Terms and Conditions (`pages/LegalDocumentPage.tsx`): the
+ * document and nothing else. The store's header, footer and any floating
+ * chrome are for browsing, and on paper they would sit between a reader and
+ * the text they are keeping a copy of.
+ */
+@media print {
+  body:has([data-legal-print]) header,
+  body:has([data-legal-print]) footer,
+  body:has([data-legal-print]) [role='banner'],
+  body:has([data-legal-print]) [role='contentinfo'] {
+    display: none !important;
+  }
+
+  body:has([data-legal-print]) {
+    background: #fff;
+    color: #000;
+  }
+}

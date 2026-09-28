@@ -24,11 +24,41 @@ import { errorResponse, jsonResponse, renderWithProviders } from '@/test/harness
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import type { StorefrontConfig } from '@/lib/types';
 
+/** Every request the form sends, except the one for the current Terms. */
 const fetchMock = vi.fn();
 
+export const TERMS_ID = '01JTERMS0000000000000000AA';
+
+/** What `GET /legal/current` answers: short text, so I agree is enabled at once. */
+const CURRENT_TERMS = {
+  document: {
+    id: TERMS_ID,
+    kind: 'PLATFORM_TERMS',
+    version: '2026-10-01',
+    locale: 'en',
+    title: 'Terms and Conditions',
+    body: '## Using the marketplace\nShort test text.',
+    changeSummary: null,
+    effectiveAt: '2026-10-01T00:00:00.000Z',
+    publishedAt: '2026-09-30T00:00:00.000Z',
+    contentSha256: 'a'.repeat(64),
+  },
+  requestedLocale: 'en',
+  isFallback: false,
+};
+
 beforeEach(() => {
-  vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockReset();
+  // The Terms are asked for on every render of the form. Answered here so the
+  // assertions below count only what the person's actions send.
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: unknown, init?: unknown) =>
+      String(input).includes('/legal/current')
+        ? Promise.resolve(jsonResponse(CURRENT_TERMS))
+        : (fetchMock(input, init) as Promise<Response>),
+    ),
+  );
 });
 
 afterEach(() => {
@@ -55,7 +85,17 @@ async function fillForm(user: ReturnType<typeof userEvent.setup>): Promise<void>
   await user.type(screen.getByLabelText(/mobile number/i), '+91 98765 43210');
   await user.type(screen.getByLabelText(/choose a password/i), 'CorrectHorseBattery1');
   await user.type(screen.getByLabelText(/confirm your password/i), 'CorrectHorseBattery1');
-  await user.click(screen.getByRole('checkbox'));
+  // The box opens the Terms; only I agree ticks it.
+  await user.click(await screen.findByRole('checkbox', { name: /terms and conditions/i }));
+  const dialog = await screen.findByRole('dialog', { name: 'Terms and Conditions' });
+  const agree = within(dialog).getByRole('button', { name: 'I agree' });
+  await waitFor(() => {
+    expect(agree).toBeEnabled();
+  });
+  await user.click(agree);
+  await waitFor(() => {
+    expect(screen.getByRole('checkbox', { name: /terms and conditions/i })).toBeChecked();
+  });
 }
 
 describe('RegisterPage - the feature flag', () => {
@@ -141,7 +181,10 @@ describe('RegisterPage - submitting', () => {
       phone: '+91 98765 43210',
       country: 'IN',
       acceptedTerms: true,
+      // The document agreed to, as the server sent it. Never a version string.
+      termsDocumentId: TERMS_ID,
     });
+    expect(JSON.parse(init.body)).not.toHaveProperty('consentVersion');
 
     expect(await screen.findByText('Check your email')).toBeInTheDocument();
     // The wording is conditional on purpose - the server answers a duplicate
@@ -332,5 +375,34 @@ describe('RegisterPage - from Create account to the verification page', () => {
       expect(screen.getByTestId('path')).toHaveTextContent(CHECK_EMAIL_PATH);
     });
     expect(screen.getByTestId('path').textContent).not.toContain('asha');
+  });
+});
+
+describe('RegisterPage - the Terms and Conditions', () => {
+  it('will not send the form until the Terms are agreed to', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RegisterPage />, { config: openConfig() });
+
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+
+    expect(await screen.findByText('You need to accept the terms to create an account.')).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('clears the agreement and asks again when the server says the Terms changed', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockResolvedValue(
+      errorResponse(409, 'TERMS_VERSION_OUTDATED', 'The Terms and Conditions have changed.', [
+        { field: 'acceptedTerms', code: 'TERMS_VERSION_OUTDATED' },
+      ]),
+    );
+    renderWithProviders(<RegisterPage />, { config: openConfig() });
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+
+    expect(await screen.findByText(/the terms and conditions have changed. open them/i)).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /terms and conditions/i })).not.toBeChecked();
+    // Everything else the person typed is still there.
+    expect(screen.getByLabelText(/your name/i)).toHaveValue('Asha Menon');
   });
 });

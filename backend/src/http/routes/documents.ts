@@ -32,8 +32,8 @@ export function registerDocumentRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const query = z
         .object({
-          kind: z.enum(['invoice', 'packing-list']),
-          number: z.string().trim().min(3).max(24),
+          kind: z.enum(['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note']),
+          number: z.string().trim().min(3).max(40),
           code: z.string().trim().length(16),
         })
         .parse(request.query);

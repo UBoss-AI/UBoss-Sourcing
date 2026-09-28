@@ -18,7 +18,9 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { formatDateTime } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { verifyDocument, type DocumentKind } from '@/lib/seller-documents';
+import { verifyDocument, type VerifiableKind } from '@/lib/seller-documents';
+
+const KINDS: readonly VerifiableKind[] = ['invoice', 'packing-list', 'commission-invoice', 'commission-credit-note'];
 
 export function VerifyDocumentPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -27,8 +29,7 @@ export function VerifyDocumentPage(): React.JSX.Element {
   useDocumentMeta({ title: t('verifyDocument.pageTitle'), noIndex: true }, business.displayName);
 
   const kindParam = params.get('kind');
-  const kind: DocumentKind | null =
-    kindParam === 'invoice' || kindParam === 'packing-list' ? kindParam : null;
+  const kind = KINDS.find((candidate) => candidate === kindParam) ?? null;
   const number = params.get('number') ?? '';
   const code = params.get('code') ?? '';
   const complete = kind !== null && number.length >= 3 && code.length === 16;

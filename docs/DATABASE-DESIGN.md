@@ -82,8 +82,10 @@ the domain map in [section 4](#4-the-domain-map) and give it a chapter in
    - [5.23 Enterprise bulk preorders](#523-enterprise-bulk-preorders)
    - [5.23a Preorder chat](#523a-preorder-chat)
    - [5.24 Seller documents: invoices and packing lists](#524-seller-documents-invoices-and-packing-lists)
+   - [5.24a Seller commission invoices](#524a-seller-commission-invoices)
    - [5.25 Storefront assistant and translations](#525-storefront-assistant-and-translations)
    - [5.25a Support tickets](#525a-support-tickets)
+   - [5.25b Legal documents and Terms acceptance](#525b-legal-documents-and-terms-acceptance)
    - [5.26 Data protection requests](#526-data-protection-requests)
    - [5.27 Machinery: outbox, console bell, job queue, audit, sequences](#527-machinery-outbox-console-bell-job-queue-audit-sequences)
    - [5.28 Demo catalogue](#528-demo-catalogue)
@@ -106,8 +108,8 @@ the domain map in [section 4](#4-the-domain-map) and give it a chapter in
 | Development | MariaDB **10.4.32**, installed by XAMPP on Windows |
 | Production | MariaDB **11.4 LTS** (tested on 11.4.13), native on Ubuntu. CI runs the same 11.4.13 |
 | Storage engine | InnoDB on every table |
-| Schema file | `backend/prisma/schema.prisma` (about 19,200 lines, heavily commented) |
-| Size of the schema | **256 models** (one table each, plus Prisma's own `_prisma_migrations`), **236 enums**, **91 migrations** |
+| Schema file | `backend/prisma/schema.prisma` (about 20,000 lines, heavily commented) |
+| Size of the schema | **266 models** (one table each, plus Prisma's own `_prisma_migrations`), **252 enums**, **98 migrations** |
 | Constraints | Several hundred foreign keys and `UNIQUE` indexes, and roughly **200 `CHECK` constraints** written by hand in migration SQL |
 | Views, triggers, stored procedures, events | **None.** All logic is in the application, so a logical dump moves between servers unchanged |
 | Full-text indexes | None. Search is `LIKE` plus application code |
@@ -297,6 +299,7 @@ one**, and a `UNIQUE` index on it:
 | `logistics_pickup_requests.activeForShipmentId` | one open pickup per consignment |
 | `seller_manual_carrier_bookings.activeShipmentId` | one live manual booking per consignment |
 | `seller_invoices.liveKey`, `seller_packing_lists.liveKey` | one live invoice or packing list per consignment |
+| `commission_invoices.activeKey` | one live commission invoice per commission event (settlement) (see [5.24a](#524a-seller-commission-invoices)) |
 | `seller_fulfilment_methods.primaryForSellerAccountId` / `fallbackForSellerAccountId` | one primary and one fallback method per seller |
 | `seller_logistics_policies.activeVersionId` | a policy version is active for at most one policy |
 | `platform_fee_policies.activeScopeKey` | one published fee policy per scope |
@@ -557,6 +560,7 @@ collide.
 | The same tracking event recorded twice | `logistics_shipment_events.externalEventKey` `UNIQUE`, `(shipmentId, idempotencyKey)` `UNIQUE` |
 | A coupon counted twice for one order | `coupon_redemptions.orderId` `UNIQUE` |
 | A seller split made twice | `seller_order_groups (orderId, sellerAccountId)` `UNIQUE`, `seller_order_lines.orderItemId` `UNIQUE` |
+| A commission invoice or its credit note made twice | `commission_invoices.idempotencyKey` `UNIQUE`, `commission_credit_notes.idempotencyKey` `UNIQUE` (the `Idempotency-Key` header), plus `commission_invoices.activeKey` `UNIQUE` |
 
 Same key, same body: the first response is replayed. Same key, **different**
 body: refused with `IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY`, never answered
@@ -660,7 +664,7 @@ table maps every banner to its chapter here.
 | INTEGRATIONS, BULK IMPORT / EXPORT | [5.14](#514-operator-connector-bulk-import-and-export) | `integration_connections`, `import_jobs`, `export_jobs` |
 | ERP CONNECTIVITY | [5.15](#515-the-operators-erp-and-autopay) | `erp_connections`, `integration_events`, `customer_autopay_settings` |
 | BUYER ORGANISATIONS AND THEIR OWN ERP | [5.16](#516-buyer-organisations-and-their-own-erp) | `buyer_organizations`, `customer_erp_connections` |
-| BUYER COMPANIES (the last banner in the file) | [5.16a](#516a-buyer-companies) | `buyer_companies`, `buyer_company_members`, `buyer_company_checks`, `consent_records` |
+| BUYER COMPANIES | [5.16a](#516a-buyer-companies) | `buyer_companies`, `buyer_company_members`, `buyer_company_checks`, `consent_records` |
 | SELLER HUB | [5.17](#517-seller-hub) | `seller_accounts`, `seller_offers`, `seller_order_groups` |
 | WHICH CARRIERS A SELLER MAY USE, HOW A SELLER'S OWN GOODS GET DELIVERED | [5.18](#518-seller-carriers-and-fulfilment-modes) | `seller_fulfilment_methods`, `seller_carrier_connections` |
 | LOGISTICS PARTNER PORTAL | [5.19](#519-logistics-partner-portal) | `logistics_partners`, `logistics_shipments` |
@@ -669,8 +673,10 @@ table maps every banner to its chapter here.
 | SELLER LOGISTICS POLICY | [5.22](#522-seller-logistics-policy-and-platform-fees) | `seller_logistics_policies`, `order_logistics_legs`, `shipment_legs` |
 | ENTERPRISE BULK PREORDER | [5.23](#523-enterprise-bulk-preorders) | `preorder_requests`, `preorder_offers` |
 | SELLER DOCUMENTS | [5.24](#524-seller-documents-invoices-and-packing-lists) | `seller_invoices`, `seller_packing_lists` |
+| SELLER COMMISSION INVOICES (the last banner in the file) | [5.24a](#524a-seller-commission-invoices) | `commission_invoices`, `commission_credit_notes`, `commission_documents` |
 | STOREFRONT ASSISTANT | [5.25](#525-storefront-assistant-and-translations) | `assistant_conversations`, `product_translations` |
 | SUPPORT | [5.25a](#525a-support-tickets) | `support_tickets`, `support_ticket_events`, `support_ticket_attachments` |
+| LEGAL DOCUMENTS | [5.25b](#525b-legal-documents-and-terms-acceptance) | `legal_documents`, and the Terms rows in `consent_records` |
 | DATA PROTECTION (GDPR) | [5.26](#526-data-protection-requests) | `data_requests` |
 | NOTIFICATIONS, CONSOLE NOTIFICATIONS, JOB QUEUE, AUDIT, SEQUENCES | [5.27](#527-machinery-outbox-console-bell-job-queue-audit-sequences) | `notification_outbox`, `admin_notifications`, `job_queue`, `audit_logs`, `number_sequences` |
 | DEMO CATALOGUE | [5.28](#528-demo-catalogue) | `demo_catalog_entries` |
@@ -708,6 +714,7 @@ flowchart LR
     SPOL["Seller logistics policy"] --> ORD
     SPOL --> LOG
     SDOC["Seller invoices and packing lists"] --> LOG
+    SORD --> CINV["Seller commission invoices"]
     ORD --> ERP["Operator ERP"]
     ORD --> BERP["Buyer ERP"]
     SORD --> TALLY["Seller Tally"]
@@ -2933,7 +2940,7 @@ Two design decisions shape the tables:
 | [`BuyerCompanyInfoRequest`](reference/DATABASE-TABLES.md#model-buyercompanyinforequest) | `buyer_company_info_requests` | a reviewer's "please send us..." and the applicant's answer beside it |
 | [`BuyerCompanyReviewEvent`](reference/DATABASE-TABLES.md#model-buyercompanyreviewevent) | `buyer_company_review_events` | one timeline entry (status change, note, assignment, upload, view, check...), marked `APPLICANT` or `INTERNAL` |
 | [`BuyerCompanyStatusHistory`](reference/DATABASE-TABLES.md#model-buyercompanystatushistory) | `buyer_company_status_history` | one status change: from, to, reason, who |
-| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | one declaration one person made: purpose, text version, SHA-256 of the exact text, IP address, browser, time |
+| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | one declaration one person made: purpose, text version, SHA-256 of the exact text, IP address, browser, time. Also holds Terms and Conditions acceptances, which point at a `legal_documents` row - see [5.25b](#525b-legal-documents-and-terms-acceptance) |
 | [`BuyerCompanyEmailChallenge`](reference/DATABASE-TABLES.md#model-buyercompanyemailchallenge) | `buyer_company_email_challenges` | one six-digit code sent to a business email: its HMAC hash, attempts, expiry |
 
 ```mermaid
@@ -3084,7 +3091,7 @@ and `buyer_company_checks` are only ever inserted. No code path updates or
 deletes a row, and a test enforces it: "the audit tables are append-only" in
 `backend/tests/unit/buyer-company-providers.test.ts` scans the source and fails
 the build on any update or delete of those tables. `consent_records` is
-append-only too; a withdrawal is a date (`withdrawnAt`), not a deletion. The one
+append-only too (the same test forbids `update`, `delete` and `upsert` on it); a withdrawal is a date (`withdrawnAt`), not a deletion. The one
 change ever made to a consent row is erasure blanking its IP address and user
 agent, which the same test allows.
 
@@ -4727,6 +4734,202 @@ transaction the draft is validated, the next number is taken from
 `number_sequences`, the figures, PDF hash and storage key are written, and the
 status becomes `ISSUED`.
 
+### 5.24a Seller commission invoices
+
+**Purpose.** The other direction from 5.24. Here the **operator** is the
+supplier: it invoices a **seller** for the platform commission (the platform
+fee, see [5.22](#522-seller-logistics-policy-and-platform-fees)) it charged on
+one seller order, plus the tax on that fee. The figures are **copied** from the
+seller order's settlement (`seller_order_settlements`: `platformFeeMinor`,
+`platformFeeTaxMinor`, `feeTaxRatePercent`, `breakdownJson`, the policy
+version), never recalculated. These tables move no money and change nothing in
+payments, refunds or payouts. Added by migration
+`20261011090000_commission_invoices`, which only creates new tables.
+
+| Model | Table | One row means |
+|---|---|---|
+| [`CommissionInvoiceSettings`](reference/DATABASE-TABLES.md#model-commissioninvoicesettings) | `commission_invoice_settings` | who issues commission invoices and how: legal entity, tax regime and labels, SAC code, prefixes, padding, financial-year start, the stage at which to invoice, payment terms, rounding, LUT reference, rules (one row) |
+| [`CommissionInvoice`](reference/DATABASE-TABLES.md#model-commissioninvoice) | `commission_invoices` | the operator's invoice to one seller for the commission on one seller order |
+| [`CommissionInvoiceLine`](reference/DATABASE-TABLES.md#model-commissioninvoiceline) | `commission_invoice_lines` | one service line: the commission on one fee policy (or another approved service fee), with its tax split |
+| [`CommissionCreditNote`](reference/DATABASE-TABLES.md#model-commissioncreditnote) | `commission_credit_notes` | a credit note reversing all or part of an issued commission invoice |
+| [`CommissionDocument`](reference/DATABASE-TABLES.md#model-commissiondocument) | `commission_documents` | the one issued PDF of an invoice or of a credit note, in private storage |
+| [`CommissionInvoiceEvent`](reference/DATABASE-TABLES.md#model-commissioninvoiceevent) | `commission_invoice_events` | one thing that happened to an invoice (generated, rebuilt, previewed, issued, downloaded, credited, voided, payment recorded, number voided) |
+
+```mermaid
+erDiagram
+    seller_accounts ||--o{ commission_invoices : "billed by"
+    orders ||--o{ commission_invoices : "for"
+    seller_order_groups ||--o{ commission_invoices : "for"
+    seller_order_settlements ||--o{ commission_invoices : "figures from"
+    commission_invoices ||--|{ commission_invoice_lines : "has"
+    commission_invoices ||--o{ commission_credit_notes : "reversed by"
+    commission_invoices ||--o| commission_documents : "rendered as"
+    commission_credit_notes ||--o| commission_documents : "rendered as"
+    commission_invoices ||--o{ commission_invoice_events : "history"
+    commission_invoices {
+        string id PK
+        string sellerAccountId FK
+        string orderId FK
+        string sellerOrderGroupId FK
+        string settlementId FK
+        enum status
+        enum documentType
+        string activeKey UK
+        string idempotencyKey UK
+        string number UK
+        int sequenceNumber
+        string snapshotHash
+        bigint taxableMinor
+        bigint grandTotalMinor
+        bigint creditedMinor
+        enum collectionStatus
+    }
+    commission_invoice_lines {
+        string id PK
+        string invoiceId FK
+        int position
+        bigint taxableMinor
+        bigint taxMinor
+        bigint totalMinor
+    }
+    commission_credit_notes {
+        string id PK
+        string invoiceId FK
+        string idempotencyKey UK
+        string number UK
+        enum reason
+        enum basis
+        bigint grandTotalMinor
+    }
+    commission_documents {
+        string id PK
+        string invoiceId UK
+        string creditNoteId UK
+        string storageKey UK
+        string contentHash
+    }
+    commission_invoice_events {
+        string id PK
+        string invoiceId FK
+        string action
+        string actorUserId
+    }
+    seller_accounts {
+        string id PK
+    }
+    orders {
+        string id PK
+    }
+    seller_order_groups {
+        string id PK
+    }
+    seller_order_settlements {
+        string id PK
+    }
+```
+
+**Enums.** `CommissionInvoiceStatus`: `DRAFT` (built from its sources,
+previewable, no number), `ISSUED` (numbered, rendered, frozen),
+`PARTIALLY_CREDITED`, `FULLY_CREDITED`, `VOID` (a discarded draft, or an
+issued invoice voided where the settings allow it). `CommissionDocumentType`:
+`TAX_INVOICE`, `INVOICE`, `BILL_OF_SUPPLY`. `CommissionCollectionStatus`:
+`OUTSTANDING` (payable by the seller), `PAID` (finance recorded a payment),
+`ADJUSTED_AGAINST_SETTLEMENT` (taken from a paid seller settlement).
+`CommissionCreditReason`: `ORDER_CANCELLED`, `FULL_REFUND`, `PARTIAL_REFUND`,
+`COMMISSION_REVERSAL`, `CHARGEBACK`, `SELLER_DISPUTE`, `TAX_ADJUSTMENT`.
+`CommissionCreditBasis`: `FULL`, `PROPORTIONAL_TO_REFUND`, `CUSTOM_AMOUNT`.
+`CommissionTaxRegime`: `IN_GST`, `VAT`, `OTHER`, `NONE` (default).
+`CommissionEligibleStage`: `CONFIRMED`, `SHIPPED`, `DELIVERED` (default).
+
+**The state model.** The status changes only through `assertCommissionMove` in
+`backend/src/domain/commission-invoice-state.ts`; no service writes it.
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: generate
+    DRAFT --> DRAFT: rebuild
+    DRAFT --> ISSUED: issue
+    DRAFT --> VOID: discard
+    ISSUED --> PARTIALLY_CREDITED: credit note (part)
+    ISSUED --> FULLY_CREDITED: credit note (the rest)
+    PARTIALLY_CREDITED --> PARTIALLY_CREDITED: credit note (part)
+    PARTIALLY_CREDITED --> FULLY_CREDITED: credit note (the rest)
+    ISSUED --> VOID: void (setting on, no credit notes)
+    VOID --> [*]
+    FULLY_CREDITED --> [*]
+```
+
+Nothing leaves `VOID` or `FULLY_CREDITED`. An issued invoice never returns to
+`DRAFT`: a correction is a credit note.
+
+**Rules the database enforces.**
+
+- **One live invoice per commission event.** `activeKey` holds the settlement
+  id while the invoice is `DRAFT`, `ISSUED` or `PARTIALLY_CREDITED`, and is
+  `NULL` once it is `VOID` or `FULLY_CREDITED`. `uq_commission_invoice_active`
+  is UNIQUE on it (the active-slot pattern, [3.4](#34-the-active-slot-a-nullable-unique-used-on-purpose)),
+  so however many clicks, retries and tabs ask, one live invoice exists. When
+  one is fully credited, a replacement can be generated.
+- **One document per request.** `uq_commission_invoice_idempotency` and
+  `uq_commission_credit_idempotency` are UNIQUE on the `Idempotency-Key` the
+  creating request carried. A retry returns the existing row; the same key for
+  a different seller order or invoice is refused.
+- **Numbers are unique and never reused.** `uq_commission_invoice_number` and
+  `uq_commission_credit_number` are UNIQUE on the number;
+  `uq_commission_invoice_sequence` and `uq_commission_credit_sequence` are
+  UNIQUE on `(legalEntityCode, series, financialYear, sequenceNumber)`.
+- **One PDF per document, never overwritten.** `commission_documents` has
+  `uq_commission_document_invoice` (UNIQUE `invoiceId`),
+  `uq_commission_document_credit` (UNIQUE `creditNoteId`) and
+  `uq_commission_document_storage` (UNIQUE `storageKey`). `contentHash` is the
+  SHA-256 of the exact bytes stored; a download that no longer matches it is
+  refused.
+- **One settings row.** `uq_commission_settings_singleton` is UNIQUE on
+  `singleton` (always `"default"`). The row has **no defaults** for a name, an
+  address or a registration number, because a placeholder on a tax document
+  is a false statement. `version` is an optimistic-concurrency counter: a save
+  on a stale version is refused.
+- **What happens on delete.** `commission_invoices` points at
+  `seller_accounts`, `orders`, `seller_order_groups` and
+  `seller_order_settlements` with `Restrict`; `commission_credit_notes` and
+  `commission_documents` point at their invoice (and credit note) with
+  `Restrict`. Lines and events `Cascade` with their invoice.
+- **Snapshots.** `issuerJson`, `sellerJson`, `sourceJson`, `notesJson`,
+  `validationJson` and `placeOfSupplyJson` are rebuilt while a draft and
+  frozen at issue. `snapshotHash` is the SHA-256 of the calculation and the
+  snapshots; issuing refuses if it differs from the draft that was reviewed.
+- **Money.** Every amount is `BIGINT` minor units in the invoice's currency:
+  subtotal, discount (always 0), taxable, CGST, SGST, IGST, other tax, total
+  tax, signed rounding, grand total and the running `creditedMinor`.
+- **History is append-only.** `commission_invoice_events` rows are written and
+  never updated (action, from/to status, `actorUserId`, `detailJson` with
+  numbers, hashes and amounts only, `snapshotHash`). They sit beside
+  `audit_logs`, so the invoice screen can show its history without searching
+  the whole trail.
+
+**Numbering.** Numbers come from `number_sequences` ([3.14](#314-number-sequences))
+with keys `commission-invoice:<entity>:<prefix>:<financial year>` and
+`commission-credit-note:<entity>:<prefix>:<financial year>`, taken under the
+row lock inside the issuing transaction. The printed number is
+`<prefix>/<financial year>/<zero-padded sequence>`, for example
+`GM/COM/2026-27/000001`. A render or storage failure rolls the transaction
+back, so no number is used. A voided issued invoice keeps its number, recorded
+as `number_voided` in its events.
+
+**Personal data.** `commission_invoice_events.actorUserId` names a member of
+the operator's finance staff, on a document between two businesses. The GDPR
+export lists `CommissionInvoiceEvent` as out of scope with that reason
+(see [8](#8-data-retention-and-privacy)).
+
+**Worked example.** Finance issues a draft. In one transaction the row is
+locked (`SELECT … FOR UPDATE`), the draft is rebuilt from its sources and its
+`snapshotHash` compared with the reviewed one, the next number is taken from
+`number_sequences`, the A6 PDF is rendered and stored privately, a
+`commission_documents` row records its key and SHA-256, and the status becomes
+`ISSUED`. Later a refund is recorded on the seller order; finance issues a
+proportional credit note, which takes its own number, gets its own document
+row, adds to `creditedMinor`, and moves the invoice to `PARTIALLY_CREDITED`.
+
 ### 5.25 Storefront assistant and translations
 
 **Purpose.** AI Mode's conversations, kept in the database (not the browser)
@@ -4936,6 +5139,115 @@ order was checked to be theirs), one `CREATED` event, then one
 `IN_PROGRESS` (visible) and an `ASSIGNED` event (not visible), and
 `assignedAdminId` is the replier. Staff raise the priority: a
 `PRIORITY_CHANGED` event the buyer never sees.
+
+### 5.25b Legal documents and Terms acceptance
+
+**What it is for.** The Terms and Conditions a person must agree to before an
+account is opened, kept so that anybody can later produce the exact words a
+person agreed to. The operator writes them; the software supplies none.
+
+| Model | Table | One row is |
+|---|---|---|
+| [`LegalDocument`](reference/DATABASE-TABLES.md#model-legaldocument) | `legal_documents` | one version of one agreement in one language: kind, version, language, title, plain-text body, optional summary of changes, effective date, status, and once published the SHA-256, publication time and publisher, and the document it replaced |
+| [`ConsentRecord`](reference/DATABASE-TABLES.md#model-consentrecord) | `consent_records` | with `purpose` `PLATFORM_TERMS` or `LOGISTICS_PARTNER_TERMS`: one person's acceptance of one `legal_documents` row |
+
+```mermaid
+erDiagram
+    legal_documents ||--o{ consent_records : "accepted as"
+    legal_documents |o--o{ legal_documents : "supersedes"
+    users ||--o{ consent_records : "agrees"
+    legal_documents {
+        string id PK
+        enum kind
+        string version
+        string locale
+        enum status
+        datetime effectiveAt
+        string contentSha256
+        string supersedesId FK
+    }
+    consent_records {
+        string id PK
+        string userId FK
+        enum purpose
+        string legalDocumentId FK
+        string textVersion
+        string textHash
+        string locale
+        string acceptanceSource
+    }
+```
+
+**Kinds.** `PLATFORM_TERMS` is accepted by buyers: somebody signing up on the
+storefront (individually, or as the first step of registering a company) and an
+invited customer activating their account. `LOGISTICS_PARTNER_TERMS` is accepted
+by a carrier's staff activating a portal account. Seller Hub agreements live in
+`seller_agreement_acceptances` ([5.17](#517-seller-hub)), and a company
+application's declarations are the other `consent_records` purposes.
+
+**Two states, and the second is final.** `DRAFT` can be changed and deleted and
+is never read by any public route. `PUBLISHED` never changes again:
+
+- the service changes and deletes rows only with `updateMany` / `deleteMany`
+  conditioned on `status = 'DRAFT'`, so a published row can never match; a unit
+  test (`tests/unit/legal-document.test.ts`) fails the build on any other kind of
+  write, or on one outside the legal module;
+- `chk_legal_document_published_is_sealed` requires a published row to carry
+  its `contentSha256` and `publishedAt`;
+- `fk_consent_record_legal_document` is `ON DELETE RESTRICT`, so a document
+  anybody has accepted cannot be deleted, even by hand.
+
+There is no database trigger: some hosted MariaDB accounts cannot create one,
+and a migration that needs a privilege the buyer's database lacks would stop an
+upgrade.
+
+**Which version is in force.** The newest published version whose
+`effectiveAt` has passed, per kind; a same-moment tie goes to the later
+`publishedAt` (`pickCurrent` in `domain/legal-document.ts`, served by
+`ix_legal_document_current`). A version is shared across languages - "2026-10-01"
+in English and in Polish are two rows with one `version` -
+and `uq_legal_document_version_locale` keeps one row per kind, version and
+language. Publishing sets an effective date in the past to now, refuses one
+earlier than the latest published version in the same language, and fills
+`supersedesId` with that latest version.
+
+**The hash.** `contentSha256` is SHA-256 over one canonical form: the scheme
+name, kind, version, language, title and body, with line endings and trailing
+spaces normalised (`legalContentHash`). The body is stored already normalised,
+so the text an editor sees is the text that was hashed. The effective date is
+not part of it; it sits beside it on a row that cannot change.
+
+**An acceptance.** Written inside the transaction that creates or activates the
+account, after the server re-checks the document is the version in force. The
+server copies `textVersion`, `textHash` and `locale` from the document;
+`acceptedAt` is the column default. `acceptanceSource` is
+`STOREFRONT_SIGN_UP`, `CUSTOMER_INVITATION` or `LOGISTICS_INVITATION`.
+`ipAddress` and `userAgent` stay null for these rows: nothing about the device
+is kept "for evidence" without a purpose and retention period the privacy notice
+states. `chk_consent_record_terms_names_document` makes a Terms row always name
+its document, and `uq_consent_record_user_document` allows one acceptance per
+person per document. The company declarations have a null `legalDocumentId`,
+which a MariaDB unique index treats as distinct, so they are unaffected.
+
+**Privacy.** Terms acceptances are disclosed in the Art. 15 export under
+`termsAcceptances`, including for carrier staff, who have no customer profile.
+An erasure keeps them as evidence of the contract; they carry no device details
+to blank. `legal_documents` holds no personal data beyond the staff ids of who
+drafted and published.
+
+**Worked example.** The operator publishes `PLATFORM_TERMS` "2026-10-01" in
+English and Polish: two rows, both `PUBLISHED`, same version, different hashes.
+A reader on the Polish storefront gets the Polish row; a Greek reader gets the
+English one with `isFallback: true`. A Polish buyer signs up: one `users` row,
+one `customer_profiles` row with `consentVersion = '2026-10-01'`, and one
+`consent_records` row pointing at the Polish document with its hash and
+`STOREFRONT_SIGN_UP`. In November "2026-11-15" is published: new sign-ups need
+it, and a form still holding the October id is refused with
+`TERMS_VERSION_OUTDATED`. The October acceptance is untouched.
+
+Migration: `20261012090000_legal_documents`. It creates `legal_documents` and
+adds three nullable columns, two enum members, two indexes, a foreign key and a
+CHECK to `consent_records`. Nothing is seeded.
 
 ### 5.26 Data protection requests
 
@@ -5417,6 +5729,13 @@ review notes are never exported.
 section. The company's own rows (addresses, identifiers, documents, checks)
 are keyed on the company, not the person, so the completeness test does not
 see them.
+
+`commission_invoice_events` is listed as **out of scope**: its `actorUserId`
+is a member of the operator's finance staff acting on an invoice between two
+businesses, and no shopper ever has a row there. A staff member who asks gets
+the account section and `auditTrail`. The other commission tables
+([5.24a](#524a-seller-commission-invoices)) are keyed on the seller account,
+not on a person.
 
 ### Erasure (Art. 17)
 

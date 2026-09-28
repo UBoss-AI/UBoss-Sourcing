@@ -34,6 +34,7 @@ import {
   loadOwnedShipment,
   packagesLockReason,
 } from './consignment.service.js';
+import { verifyCommissionDocument } from '../commission-invoicing/commission-invoice.service.js';
 import { verificationCode, type VerifiableKind } from './document-format.js';
 import { issuePackingListInTx, serialisePackingList } from './packing-list.service.js';
 import { discardStored, issueInvoiceInTx, serialiseInvoice } from './seller-invoice.service.js';
@@ -613,6 +614,12 @@ export async function verifyDocument(
     };
   }
   if (given !== verificationCode(kind, number)) return { valid: false };
+  if (kind === 'commission-invoice' || kind === 'commission-credit-note') {
+    // The operator's own invoice to a seller: no seller, no amounts - only what
+    // is printed beside the QR already.
+    const found = await verifyCommissionDocument(kind, number);
+    return found === null ? { valid: false } : { valid: true, number, ...found };
+  }
   const row = await prisma.sellerPackingList.findUnique({
     where: { number },
     select: {

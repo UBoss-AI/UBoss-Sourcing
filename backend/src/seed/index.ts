@@ -22,6 +22,7 @@ import { seedSellerHub } from './seller-hub.js';
 import { LOGISTICS_SEED_ACCOUNTS, seedLogistics } from './logistics.js';
 import { SEED_ACCOUNTS, SEED_CUSTOMERS } from './accounts.js';
 import { prisma } from '../infra/prisma.js';
+import { seedDevelopmentTerms } from '../modules/legal/development-terms.js';
 
 async function seedRolesAndPermissions(): Promise<void> {
   // Permissions first - roles reference them.
@@ -1151,6 +1152,11 @@ async function main(): Promise<void> {
   }
   await seedStaff();
   await seedCustomers();
+
+  // Clearly-labelled placeholder Terms, so sign-up works on a development
+  // machine. Only where nothing is published; never real legal text.
+  const terms = await seedDevelopmentTerms();
+  if (terms > 0) console.log(`  placeholder terms published: ${String(terms)} (development only)`);
 
   // The Seller Hub last: it seeds configuration rather than data, and it needs
   // the categories above to already exist for an operator to attach

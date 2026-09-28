@@ -15,7 +15,7 @@
  */
 import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../../config/env.js';
-import { AssistantBusyError } from './provider.js';
+import { AssistantBusyError, AssistantProviderError, classifyTransportFailure } from './provider.js';
 import type {
   AssistantProvider,
   AssistantRequest,
@@ -29,8 +29,37 @@ type ClaudeImageType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
 
 let client: Anthropic | null = null;
 
+/**
+ * Map an SDK error onto the reasons the route words for a visitor.
+ *
+ * Keyed on the SDK's own error classes. The timeout and connection classes
+ * come before the generic transport check because the SDK raises its own
+ * rather than letting fetch's through.
+ */
+export function classifyAnthropic(error: unknown): AssistantProviderError | null {
+  if (error instanceof Anthropic.RateLimitError) return new AssistantBusyError(error.message, false, 429);
+  if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
+    return new AssistantProviderError(error.message, 'credentials', error.status);
+  }
+  if (error instanceof Anthropic.NotFoundError) {
+    return new AssistantProviderError(error.message, 'model', 404);
+  }
+  if (error instanceof Anthropic.APIConnectionTimeoutError) {
+    return new AssistantProviderError(error.message, 'timeout');
+  }
+  if (error instanceof Anthropic.APIConnectionError) {
+    return new AssistantProviderError(error.message, 'network');
+  }
+  if (error instanceof Anthropic.InternalServerError) {
+    return new AssistantBusyError(error.message, false, error.status);
+  }
+  return classifyTransportFailure(error);
+}
+
 function anthropic(): Anthropic {
-  client ??= new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1 });
+  // Thirty seconds, the same deadline as the Gemini path: a visitor is
+  // watching an empty panel, and the SDK default is ten minutes.
+  client ??= new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 30_000 });
   return client;
 }
 
@@ -74,10 +103,7 @@ export const anthropicProvider: AssistantProvider = {
     try {
       message = await stream.finalMessage();
     } catch (error) {
-      if (error instanceof Anthropic.RateLimitError) {
-        throw new AssistantBusyError(error.message, false);
-      }
-      throw error;
+      throw classifyAnthropic(error) ?? error;
     }
 
     return {
@@ -142,10 +168,7 @@ export const anthropicProvider: AssistantProvider = {
         request.signal === undefined ? undefined : { signal: request.signal },
       );
     } catch (error) {
-      if (error instanceof Anthropic.RateLimitError) {
-        throw new AssistantBusyError(error.message, false);
-      }
-      throw error;
+      throw classifyAnthropic(error) ?? error;
     }
 
     // Only the text blocks. A reply carrying anything else is not something

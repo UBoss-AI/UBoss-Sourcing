@@ -101,6 +101,20 @@ export const Permission = {
   /// record forever.
   INVOICE_ISSUE: 'invoice.issue',
 
+  // The operator's commission invoices to sellers. Mirrors backend/src/domain/permissions.ts.
+  COMMISSION_INVOICE_VIEW: 'commission_invoice.view',
+  COMMISSION_INVOICE_PREVIEW: 'commission_invoice.preview',
+  COMMISSION_INVOICE_GENERATE: 'commission_invoice.generate',
+  COMMISSION_INVOICE_ISSUE: 'commission_invoice.issue',
+  COMMISSION_INVOICE_DOWNLOAD: 'commission_invoice.download',
+  COMMISSION_CREDIT_NOTE_CREATE: 'commission_credit_note.create',
+  COMMISSION_INVOICE_SETTINGS_WRITE: 'commission_invoice.settings.write',
+
+  // The Terms and Conditions every new account agrees to. Mirrors backend/src/domain/permissions.ts.
+  LEGAL_DOCUMENT_READ: 'legal_document.read',
+  LEGAL_DOCUMENT_WRITE: 'legal_document.write',
+  LEGAL_DOCUMENT_PUBLISH: 'legal_document.publish',
+
   DATA_REQUEST_READ: 'data_request.read',
   DATA_REQUEST_ACTION: 'data_request.action',
 } as const;

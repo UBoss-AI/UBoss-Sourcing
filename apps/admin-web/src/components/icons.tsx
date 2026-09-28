@@ -191,6 +191,18 @@ export function PaymentsIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/** A document with a percentage on it: the commission invoices sellers are sent. */
+export function CommissionInvoiceIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M6 3.4h8.6l3.4 3.4v13.8H6z" />
+      <path d="M14.4 3.4v3.6h3.6M9.4 16.6l5.2-6.4" />
+      <circle cx="9.8" cy="11" r="1.1" />
+      <circle cx="14.2" cy="15.8" r="1.1" />
+    </Icon>
+  );
+}
+
 export function RecurringIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
@@ -357,6 +369,20 @@ export function AuditIcon(props: IconProps): React.JSX.Element {
       <path d="M3.6 12a8.4 8.4 0 1 0 2.6-6" />
       <path d="M3.4 3.6v3.2h3.2" />
       <path d="M12 7.8V12l3 1.8" />
+    </Icon>
+  );
+}
+
+/** A page with a seal: the Terms and Conditions and other legal documents. */
+export function LegalDocumentIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M14.4 3.4H6.6a1.6 1.6 0 0 0-1.6 1.6v14a1.6 1.6 0 0 0 1.6 1.6h5" />
+      <path d="M14.4 3.4 19 8v2.6" />
+      <path d="M14.4 3.4V8H19" />
+      <path d="M8.2 11.2h5.6M8.2 14.4h3.4" />
+      <circle cx="17.2" cy="16.6" r="2.6" />
+      <path d="m15.9 18.8-.7 2.4 2-1 2 1-.7-2.4" />
     </Icon>
   );
 }
@@ -566,6 +592,70 @@ export function DisplayIcon(props: IconProps): React.JSX.Element {
     <Icon {...props}>
       <rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.8" />
       <path d="M9 20.2h6M12 16.6v3.6" />
+    </Icon>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Files a customer sent in
+// ---------------------------------------------------------------------------
+
+/** A page with its corner folded and a few lines of text: a PDF or document. */
+export function DocumentFileIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h6M9 17h4" />
+    </Icon>
+  );
+}
+
+/** A framed landscape: a photograph or scan. */
+export function ImageFileIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      <circle cx="9" cy="9.5" r="1.6" />
+      <path d="m20.5 16-4.8-4.8L7 19.5" />
+    </Icon>
+  );
+}
+
+/** A frame with a play mark: a video clip. */
+export function VideoFileIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="5" width="17" height="14" rx="2" />
+      <path d="m10 9.3 4.6 2.7-4.6 2.7z" />
+    </Icon>
+  );
+}
+
+export function DownloadIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 4v11" />
+      <path d="m7.5 10.5 4.5 4.5 4.5-4.5" />
+      <path d="M5 19.5h14" />
+    </Icon>
+  );
+}
+
+/** Look at it here, without leaving the page. */
+export function EyeIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="2.8" />
+    </Icon>
+  );
+}
+
+export function ChevronLeftIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="m15 6-6 6 6 6" />
     </Icon>
   );
 }

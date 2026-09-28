@@ -33,6 +33,7 @@ import {
   issueToken,
   requestPasswordReset,
 } from '../../src/modules/identity/token.service.js';
+import { currentTerms, currentTermsId } from '../support/legal.js';
 
 const ADMIN_PASSWORD = 'AdminTestPass!2026';
 const CUSTOMER_PASSWORD = 'CustomerTestPass!2026';
@@ -498,7 +499,8 @@ describe('invitations', () => {
       token,
       password: 'BrandNewPass!2026',
       acceptedTerms: true,
-      consentVersion: 'v1',
+      termsDocumentId: await currentTermsId(),
+      audience: ['CUSTOMER'],
     });
 
     const user = await prisma.user.findUniqueOrThrow({ where: { id: invitedUserId } });
@@ -510,7 +512,7 @@ describe('invitations', () => {
       where: { userId: invitedUserId },
     });
     expect(profile.consentAcceptedAt).not.toBeNull();
-    expect(profile.consentVersion).toBe('v1');
+    expect(profile.consentVersion).toBe((await currentTerms()).version);
 
     // And the account genuinely works afterwards.
     const result = await login({
@@ -527,7 +529,8 @@ describe('invitations', () => {
       token,
       password: 'BrandNewPass!2026',
       acceptedTerms: true,
-      consentVersion: 'v1',
+      termsDocumentId: await currentTermsId(),
+      audience: ['CUSTOMER'],
     });
 
     await expect(
@@ -535,7 +538,8 @@ describe('invitations', () => {
         token,
         password: 'AnotherPass!2026',
         acceptedTerms: true,
-        consentVersion: 'v1',
+        termsDocumentId: await currentTermsId(),
+        audience: ['CUSTOMER'],
       }),
     ).rejects.toMatchObject({ code: 'TOKEN_ALREADY_USED' });
   });
@@ -544,8 +548,8 @@ describe('invitations', () => {
     const { token } = await issueToken(invitedUserId, 'INVITATION');
 
     const results = await Promise.allSettled([
-      acceptInvitation({ token, password: 'PassOne!2026xx', acceptedTerms: true, consentVersion: 'v1' }),
-      acceptInvitation({ token, password: 'PassTwo!2026xx', acceptedTerms: true, consentVersion: 'v1' }),
+      acceptInvitation({ token, password: 'PassOne!2026xx', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
+      acceptInvitation({ token, password: 'PassTwo!2026xx', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
     ]);
 
     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
@@ -562,7 +566,8 @@ describe('invitations', () => {
         token: first.token,
         password: 'BrandNewPass!2026',
         acceptedTerms: true,
-        consentVersion: 'v1',
+        termsDocumentId: await currentTermsId(),
+        audience: ['CUSTOMER'],
       }),
     ).rejects.toMatchObject({ code: 'TOKEN_ALREADY_USED' });
   });
@@ -575,21 +580,42 @@ describe('invitations', () => {
     });
 
     await expect(
-      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, consentVersion: 'v1' }),
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
     ).rejects.toMatchObject({ code: 'TOKEN_EXPIRED' });
   });
 
-  it('requires consent', async () => {
+  it('requires the Terms, and a refusal does not spend the link', async () => {
     const { token } = await issueToken(invitedUserId, 'INVITATION');
     await expect(
-      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: false, consentVersion: 'v1' }),
-    ).rejects.toMatchObject({ code: 'SCHEDULE_CONSENT_REQUIRED' });
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: false, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
+    ).rejects.toMatchObject({ code: 'TERMS_ACCEPTANCE_REQUIRED' });
+    await expect(
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: newId(), audience: ['CUSTOMER'] }),
+    ).rejects.toMatchObject({ code: 'TERMS_VERSION_OUTDATED' });
+
+    // Still usable: the person agrees to the current Terms and carries on.
+    await acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] });
+    const records = await prisma.consentRecord.findMany({ where: { userId: invitedUserId } });
+    expect(records).toHaveLength(1);
+    expect(records[0]?.acceptanceSource).toBe('CUSTOMER_INVITATION');
+  });
+
+  it('refuses a link for another surface before spending it', async () => {
+    const { token } = await issueToken(invitedUserId, 'INVITATION');
+    await expect(
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['LOGISTICS'] }),
+    ).rejects.toMatchObject({ code: 'TOKEN_INVALID' });
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: invitedUserId } });
+    expect(user.status).not.toBe('ACTIVE');
+    await expect(
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
+    ).resolves.toMatchObject({ userId: invitedUserId });
   });
 
   it('does not accept a reset token as an invitation', async () => {
     const { token } = await issueToken(customerUserId, 'PASSWORD_RESET');
     await expect(
-      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, consentVersion: 'v1' }),
+      acceptInvitation({ token, password: 'BrandNewPass!2026', acceptedTerms: true, termsDocumentId: await currentTermsId(), audience: ['CUSTOMER'] }),
     ).rejects.toMatchObject({ code: 'TOKEN_INVALID' });
   });
 });

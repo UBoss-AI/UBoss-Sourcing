@@ -34,6 +34,8 @@ Repository and internal name: **UBOSS / UBOSS Sourcing**.
 | 1.5 | 2026-09-28 | Company-buyer onboarding: the six-step wizard with a shared step indicator that starts on the sign-up form (FR-BCO-002), the representative's relationship to the business, an authorisation letter required of an outside agent, proof of address and a business licence offered (FR-BCO-005), upload progress, starting from and linking to the person's seller account with independent approvals (new FR-BCO-019), and "Check your email" as its own page that opens at its top with its heading focused (new FR-BCO-020) |
 | 1.6 | 2026-09-28 | Support tickets: the new §5.19a (FR-SUP-001 to FR-SUP-012) — the **Support** page and **Raise a ticket** form for buyers, sellers and carriers, **Your tickets**, files on a ticket, the console **Support → Tickets** inbox, the ticket status model (§7.15), three `support_ticket.*` staff permissions, `FEATURE_SUPPORT_TICKETS` (§10.1) and the support settings (§10.12), BR-SUP-001 to BR-SUP-004, and what is not built |
 | 1.7 | 2026-09-28 | The About page: `/about` (new FR-SRCH-009), linked from the footer and the header, showing only the capabilities this deployment has switched on |
+| 1.8 | 2026-09-28 | Seller commission invoices: the new §5.14a (FR-CINV-001 to FR-CINV-012) — the operator's own A6 invoice to a seller for the platform commission, with credit notes, numbering, tax presentation, single-use downloads and public verification; **Finance → Commission invoices** and the order-detail card; seven `commission_invoice.*` / `commission_credit_note.*` permissions (§3.3.1); the commission invoice status model (§7.16); BR-CINV-001 to BR-CINV-004; gap G13 and question Q15 |
+| 1.9 | 2026-09-28 | Terms and Conditions at sign-up: the Terms dialog that alone can tick the sign-up box, read-to-the-end, and server-checked acceptance of the exact version in force for storefront sign-up and both invitation activations (FR-IDN-017); versioned, immutable legal documents written and published in **Administration → Legal documents**, the public `/legal/terms` page and PDF (FR-IDN-018); `legal_document.read`, `.write`, `.publish`; error codes `TERMS_ACCEPTANCE_REQUIRED`, `TERMS_VERSION_OUTDATED`, `TERMS_DOCUMENT_UNAVAILABLE`, `LEGAL_DOCUMENT_IMMUTABLE`, `LEGAL_DOCUMENT_VERSION_EXISTS` |
 
 ### Keeping this document true
 
@@ -109,6 +111,7 @@ the status *Removed*.
    - 5.12 [Buying by the carton, pallet or container; freight](#512-buying-by-the-carton-pallet-or-container-freight-bulk)
    - 5.13 [Seller Hub: onboarding, listings, orders, money](#513-seller-hub-onboarding-listings-orders-money-sel)
    - 5.14 [Seller invoices, packing lists and document verification](#514-seller-invoices-packing-lists-and-document-verification-sinv)
+   - 5.14a [Seller commission invoices](#514a-seller-commission-invoices-cinv)
    - 5.15 [How a seller's goods are delivered](#515-how-a-sellers-goods-are-delivered-slog)
    - 5.16 [Logistics partner portal](#516-logistics-partner-portal-log)
    - 5.17 [ERP integrations (three separate features)](#517-erp-integrations-three-separate-features-erp)
@@ -395,7 +398,7 @@ they already hold **every** permission in it, and only if they hold
 
 ### 3.3.1 Staff permission matrix
 
-69 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
+76 permission keys. **Y** = granted by default. **BO** Business Owner, **CM**
 Catalog Manager, **IM** Inventory Manager, **OM** Order Manager, **FA** Finance /
 Approver.
 
@@ -468,6 +471,16 @@ Approver.
 | Audit | `audit.read` | Read the audit log | Y | | | | Y |
 | Invoicing | `invoice.read` | Read invoices and credit notes | Y | | | Y | Y |
 | Invoicing | `invoice.issue` | Issue invoices and credit notes | Y | | | | Y |
+| Commission invoices | `commission_invoice.view` | See the commission invoice list, an invoice, its history and the order card | Y | | | | Y |
+| Commission invoices | `commission_invoice.preview` | Render a draft commission invoice as a PDF | Y | | | | Y |
+| Commission invoices | `commission_invoice.generate` | Create, rebuild and discard a draft | Y | | | | Y |
+| Commission invoices | `commission_invoice.issue` | Issue (reserve the number, freeze it), void an issued one where the settings allow, record the seller's payment | Y | | | | Y |
+| Commission invoices | `commission_invoice.download` | Download an issued commission invoice or credit note PDF | Y | | | | Y |
+| Commission invoices | `commission_credit_note.create` | Issue a credit note against an issued commission invoice | Y | | | | Y |
+| Commission invoices | `commission_invoice.settings.write` | Change the issuing legal entity, its registration, numbering and rules | Y | | | | Y |
+| Legal documents | `legal_document.read` | See every version of the Terms, drafts included, and how many accepted each | Y | | | | |
+| Legal documents | `legal_document.write` | Write, change and delete drafts | Y | | | | |
+| Legal documents | `legal_document.publish` | Publish a draft; its words are then frozen | Y | | | | |
 | Privacy | `data_request.read` | Read the data-subject request queue | Y | | | | |
 | Privacy | `data_request.action` | Decide a data request (erasure is irreversible) | Y | | | | |
 
@@ -479,7 +492,10 @@ answer a buyer asking where theirs is) but not decide one; the Finance
 Approver may decide one (verifying a business is credit work) but not
 suspend a trading company. Support tickets (§5.19a) go to the Order Manager
 to answer; the Finance Approver may read them (a payment question) but not
-reply; the Catalog Manager and Inventory Manager do not see them.
+reply; the Catalog Manager and Inventory Manager do not see them. Commission
+invoices to sellers (§5.14a) are finance's documents end to end: only the
+Business Owner and the Finance / Approver hold any `commission_invoice.*` key;
+the Order Manager does not even see them.
 
 ## 3.4 Sellers and seller roles
 
@@ -647,7 +663,7 @@ Five processes run at once: three browser applications, one API, one worker.
 | # | Program | Path | Dev port | For whom | What it is for |
 |---|---|---|---|---|---|
 | 1 | **Customer storefront** | `apps/customer-web` | 5174 | Buyers; sellers (Seller Hub) | Browse, search, AI Mode, quote, cart, checkout, orders, repeat orders, preorders, account, the buyer's ERP, Individual/Company sign-in and company applications, the **Support** page and support tickets; the **Seller Hub** is a `/seller` route group inside this app; a **seller's own shop front** is resolved from the host name |
-| 2 | **Admin console** | `apps/admin-web` | 5173 | The operator's staff | Catalogue, inventory, warehouses, orders, payments, customers, buyer companies (review), companies, sellers, listings review, brand requests, preorders, support tickets, logistics, reports, data requests, audit, settings, integrations |
+| 2 | **Admin console** | `apps/admin-web` | 5173 | The operator's staff | Catalogue, inventory, warehouses, orders, payments, customers, buyer companies (review), companies, sellers, listings review, brand requests, preorders, support tickets, logistics, platform fees and commission invoices to sellers, reports, data requests, audit, settings, integrations |
 | 3 | **Logistics partner portal** | `apps/logistics-web` | 5175 | Carrier companies and drivers | Accept consignments, collections, manifests, exceptions, drivers, vehicles, proof of delivery. **Behind a flag:** `FEATURE_LOGISTICS_PORTAL` (default `false`) |
 | 4 | **Backend API** | `backend/` | 4000 | All three apps; gateways; carriers; bridges | Fastify 5 + Prisma 7 on MariaDB. The only authority on price, stock, status and permission |
 | 5 | **Worker** | `backend/src/worker` | none | — | Emails, schedules, Autopay charges, payment-link expiry, exports, exchange-rate refresh, webhook delivery and retries, preorder expiry, buyer-company registry checks, retention sweeps. Claims jobs under a lease; the scheduler lives inside it |
@@ -701,7 +717,7 @@ How each requirement is written:
   2. The activation link is single-use, time-limited, and only its SHA-256 hash is stored.
   3. After activation the status is `ACTIVE` and `activatedAt` is stamped.
   4. A customer creation that fails leaves no activation token and no queued email.
-  5. Activation records consent (`consent_accepted_at`, `consent_version`); the backend refuses activation without it (`CONSENT_REQUIRED`).
+  5. Activation needs the Terms and Conditions in force, agreed to in the Terms dialog (FR-IDN-017); the backend refuses without them (`TERMS_ACCEPTANCE_REQUIRED`, `TERMS_VERSION_OUTDATED`, `TERMS_DOCUMENT_UNAVAILABLE`) before the link is spent.
 - **Rules.** Requires `customer.invite` (Business Owner by default).
 - **Status.** Built.
 
@@ -715,6 +731,7 @@ How each requirement is written:
   2. The **country** decides the currency every price for that account is quoted in; the storefront's "where are you ordering from?" prompt does not interrupt their first visit.
   3. A duplicate email gets the **same status code and body** as a new sign-up (the password is hashed in both branches so timing matches); the real owner is emailed "you already have an account" with a reset link.
   4. The storefront says, on the form, whether a confirmed sign-up still waits for staff.
+  5. The account is created only with the Terms in force agreed to (FR-IDN-017), in the same transaction as the acceptance record.
 - **Status.** Behind a flag — `FEATURE_CUSTOMER_SELF_REGISTRATION` (code default `false`).
 
 ### FR-IDN-003 — Sign-up approval gate (parked, not removed)
@@ -757,6 +774,41 @@ How each requirement is written:
 - **Acceptance criteria.** Never pre-ticked, never remembered; a deployment with no links still requires the tick. Customers accept *terms of business*; staff accept *terms of use*.
 - **Rules.** It is a client-side gate and a reminder of the standing agreement recorded at registration or activation; it is **not** a new stored consent per sign-in.
 - **Status.** Built.
+
+### FR-IDN-017 — Terms and Conditions accepted when an account is opened
+
+- **Statement.** Wherever an account is opened - storefront sign-up (individual
+  and the first step of a company sign-up), an invited customer's activation and
+  a carrier's activation - the person must read the Terms and Conditions in force
+  and agree to them. The system records exactly which document they agreed to.
+- **Acceptance criteria.**
+  1. The *I have read and agree to the Terms and Conditions* box starts unticked. Ticking it, pressing Space or Enter on it, or clicking the words opens the Terms dialog and does not tick it.
+  2. **I agree** is disabled until the end of the text has been in view (within 8 pixels). Text that fits without scrolling enables it at once. Mouse, keyboard and screen-reader scrolling all count. Reaching the end ticks nothing.
+  3. Only **I agree** ticks the box, and closes the dialog. Cancel, Close and Escape close it and leave the box unticked. Clicking outside the dialog does nothing.
+  4. Unticking an agreed box clears the agreement; ticking again reopens the Terms and needs **I agree** again. If another document replaces the one agreed to (a new version, or another language), the agreement is cleared.
+  5. The server refuses the account unless `termsDocumentId` names a published document of the kind that account needs, whose version is in force now: 400 `TERMS_ACCEPTANCE_REQUIRED`, 409 `TERMS_VERSION_OUTDATED`, 503 `TERMS_DOCUMENT_UNAVAILABLE`. On a refusal the form keeps every other answer, clears the box, loads the current Terms and asks again.
+  6. The acceptance (document, version, language, SHA-256 of the text, where it was given, server time) is written in the same transaction as the account. The browser's version, hash and time are never used. No IP address or browser string is stored with it.
+  7. One acceptance per person per document, enforced by a unique index; a repeated form creates neither a second account nor a second acceptance.
+  8. The privacy notice and the operator's other policy links are shown on a separate line. Agreeing to the Terms is not consent to data processing or marketing, and there is no marketing box on these forms.
+- **Rules.** Buyers (individuals, company applicants, invited customers) accept `PLATFORM_TERMS`; carrier staff accept `LOGISTICS_PARTNER_TERMS`. Seller Hub agreements are a separate, later step (FR-SLR agreements). A company application's own declarations are separate too.
+- **Status.** Built. Needs Terms published by the operator (FR-IDN-018); until then every sign-up and activation is refused.
+
+### FR-IDN-018 — Versioned legal documents
+
+- **Statement.** Staff with `legal_document.write` write a version of a legal
+  document as a draft (kind, version, language, title, text, effective date,
+  optional summary of changes). Staff with `legal_document.publish` publish it.
+  Anyone can read any published version at `/legal/terms` and
+  `/legal/documents/:id` on the storefront, print it, and download it as a PDF.
+- **Acceptance criteria.**
+  1. A draft is never shown outside the console and can never be accepted.
+  2. Publishing freezes the words and stores their SHA-256. A published document can never be edited or deleted (`LEGAL_DOCUMENT_IMMUTABLE`); a document somebody accepted cannot be deleted even in the database.
+  3. The version in force is the newest published version whose effective date has passed. A past effective date becomes the moment of publishing, and a date earlier than the latest published version in the same language is refused.
+  4. A reader gets the version in force in their own language when published, otherwise English, otherwise any language of that version - and is told which language it is. An older version in their language is never offered instead.
+  5. The PDF is built from the stored text and is the same file every time for the same document.
+  6. The console shows how many people accepted each version, never who.
+- **Rules.** The software supplies no legal wording. The development seed installs a clearly marked placeholder on development machines only. Re-acceptance by existing accounts when a new version is published is **not built**: new accounts accept the new version, existing ones stay linked to the one they accepted.
+- **Status.** Built. Permissions `legal_document.read`, `legal_document.write`, `legal_document.publish` (Business Owner by default).
 
 ### FR-IDN-006 — Sessions, tokens and CSRF
 
@@ -889,7 +941,7 @@ How each requirement is written:
   1. `/login` shows two tabs, **Individual** and **Company**, built as accessible tabs (arrow keys, Home and End move between them). `/login?buyerType=individual` and `/login?buyerType=company` open one directly; any other value opens Individual. The tabs appear only when `features.buyerCompanies` is true in the public config.
   2. The tab is sent as an optional `buyerType` on sign-in. It is a **preference, not a claim**: the password check is identical, and a wrong password or unknown email gives the same `INVALID_CREDENTIALS` on both tabs, so the form never reveals whether somebody has a company.
   3. The sign-in answer says what happens next: `READY` (Individual tab, or Company tab with exactly one company — that company is chosen); `CHOOSE_COMPANY` (Company tab, several companies — the storefront shows `/select-company`); `NO_COMPANY` (Company tab, no company — signed in as an individual, and `/select-company` offers to apply).
-  4. Both tabs land on `/home`. The "Create account" link under each tab goes to `/register` (Individual) or `/register/company` (Company). A return address (`?next=` or router state) is followed only if it is a path on the same site; anything else goes to `/home`.
+  4. Both tabs land on `/`, the one home page. The "Create account" link under each tab goes to `/register` (Individual) or `/register/company` (Company). A return address (`?next=` or router state) is followed only if it is a path on the same site; anything else goes to `/`. `/home` is not a page: it is a permanent redirect (301) to `/` that keeps the query string, done by the web server (nginx, Netlify) and again by the storefront router.
   5. The Company sign-up path creates an ordinary account first, with the same email confirmation, and after the email is confirmed sends the person to `/login?buyerType=company`.
   6. The context lives on the session row (`sessions.buyerContextKind`, `sessions.buyerCompanyId`) and survives refresh-token rotation. `GET /auth/buyer-context` lists the current context and every company the person may switch to; `PUT /auth/buyer-context` switches. The switch needs CSRF, is rate limited (30 per 15 minutes) and is audited (`buyer_context.switched`).
   7. A refused switch always gets the **same** answer, `403 BUYER_CONTEXT_INVALID`, whether the person is not a member, was removed, or the company does not exist — so nobody can probe for company ids.
@@ -1414,6 +1466,9 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   5. It is told not to give clinical/medical advice.
   6. Conversations belong to the account (history, rename, soft delete) and are retained for `RETENTION_ASSISTANT_CONVERSATION_DAYS` (default 180).
   7. If the provider fails, the shop keeps working; with no key the AI tab is not offered.
+  8. A failed reply is never replaced by a made-up answer. The stream's `error` frame names the reason as `BUSY`, `QUOTA`, `TIMEOUT`, `UNAVAILABLE` or `REFUSED`, with `retryable`; the page words it in the visitor's language and offers *Try again* only when a second attempt can work. A refused key or a missing model reaches the visitor only as `UNAVAILABLE`; the real reason is logged. Both provider clients give up after 30 seconds.
+  9. `GET /api/v1/admin/assistant/status` (`settings.read`) reports `DISABLED`, `MISSING_CREDENTIALS` or `CONFIGURED` with the provider and model; `?probe=true` makes one real call (10 per hour). It never returns the key.
+  10. The provider key is read by the API process only. CI fails a frontend build whose bundle contains a server secret's name or a secret-shaped value.
 - **Rules.** Rate limit `ASSISTANT_RATE_LIMIT_PER_5MIN` (default 20); max tokens `ASSISTANT_MAX_TOKENS` (400); max turns `ASSISTANT_MAX_TURNS` (20).
 - **Status.** Built. **Needs an AI provider key** (`GEMINI_API_KEY` or `ANTHROPIC_API_KEY`); master switch `ASSISTANT_ENABLED` (default `true`).
 
@@ -1884,7 +1939,7 @@ all absent (`BUYER_COMPANIES_DISABLED`).
 - **Statement.** After paying, the browser returns to
   `/order-confirmation/:orderId` — or, for a Stripe payment, to
   `/checkout/payment/:orderId/confirmation` — which shows the order's real state.
-- **Rules.** Only a signature-verified webhook, or a server-side read of the payment from Stripe's API (*Check again*), moves the order to CONFIRMED (§5.7). The browser's return is never taken as proof of payment.
+- **Rules.** Only a signature-verified webhook, or a server-side read of the payment from Stripe's API (the confirmation page's poll, *Check again*, or the worker's `payment.reconcile` sweep), moves the order to CONFIRMED (§5.7). The browser's return is never taken as proof of payment.
 - **Status.** Built.
 
 ---
@@ -2004,11 +2059,12 @@ all absent (`BUYER_COMPANIES_DISABLED`).
   5. The Stripe idempotency key is `stripe-checkout:<attemptId>`, minted by the server — never the browser's `Idempotency-Key`. An attempt left without a session for 20 seconds is closed FAILED (`SESSION_NOT_RECORDED`) and a fresh one opens.
   6. The session is `mode=payment` on the person's own Stripe Customer, with Stripe's native save box enabled and **no** `setup_future_usage` or off-session use. `client_reference_id` and metadata carry only our attempt id and order id (and the order number on the PaymentIntent) — no name, email, address or product.
   7. A billing address is required on Stripe's page, and the payment carries a description of what is bought and the delivery name and address. India's export rules require these for every payment on a non-Indian card.
-  8. Stripe's page is shown in the customer's preferred language (the eight storefront languages), otherwise Stripe's `auto`. It expires after 32 minutes. The return and cancel URLs are built from `CUSTOMER_WEB_PUBLIC_URL`, never from the request, so there is no open redirect. The URL Stripe returns is accepted only if it is `https` and contains the session id; the storefront checks again before navigating.
+  8. Stripe's page is shown in the customer's preferred language (the eight storefront languages), otherwise Stripe's `auto`. It expires after 32 minutes. The return and cancel URLs are built by the server, never taken from the request body: the base is the storefront origin the customer paid from when it exactly matches one in `CUSTOMER_WEB_ORIGIN` (so they come back signed in), and `CUSTOMER_WEB_PUBLIC_URL` otherwise, so there is no open redirect. The URL Stripe returns is accepted only if it is `https` and contains the session id; the storefront checks again before navigating.
   9. Which payment methods Stripe offers is decided in the Stripe Dashboard; no method list is sent.
   10. Opening Checkout extends the order's stock reservations to the session's expiry plus 5 minutes. Reservations that had lapsed are taken again all-or-nothing; if the stock is gone, the payment page is refused with `INSUFFICIENT_STOCK` and the attempt closes FAILED (`STOCK_UNAVAILABLE`). On expiry or failure the reservations lapse by the usual sweep; the order stays PENDING_PAYMENT and can be paid again.
   11. Stripe's *Cancel* link returns to the payment page, which expires the open session at Stripe (so a tab left open cannot pay), marks the attempt CANCELLED and says nothing was charged. If Stripe says it was already paid, the payment is recorded instead.
-  12. The confirmation page polls our own records and never reads the browser's return as payment. *Check again* asks Stripe's API from the server and applies the answer through the same guarded path; it never starts a payment. Decline reasons are shown as a small fixed set (declined, insufficient funds, expired card, incorrect CVC, authentication failed, bank payment failed, other); Stripe's raw codes are never passed on.
+  12. The confirmation page never reads the browser's return as payment. While the attempt is open (`CREATED` or `PENDING`), each poll has the server ask Stripe's API — at most once per 4 seconds per attempt, by an atomic claim on `reconciledAt` — and apply the answer through the same guarded path; if Stripe does not answer, it answers from our records. So a card Stripe has confirmed shows "Payment successful" on the first answer even when the webhook is late. *Check again* asks Stripe regardless of that throttle; it never starts a payment.
+  12a. The worker's `payment.reconcile` job asks Stripe about every Stripe Checkout attempt still open after a minute (`CREATED` every 2 minutes, `PENDING` every 15, 25 per beat). A paid one is captured, an expired one is closed. This is the backstop for a webhook that never arrived and a customer who never came back; before it existed such an order stayed PENDING_PAYMENT although Stripe had the money. The webhook stays the main path and should still be registered. Decline reasons are shown as a small fixed set (declined, insufficient funds, expired card, incorrect CVC, authentication failed, bank payment failed, other); Stripe's raw codes are never passed on.
   13. Each signed-in customer gets **one Stripe Customer per mode** (test or live), created the first time they open Checkout so Stripe can offer the save box. It is never matched by email and never accepted from a browser; it adopts the Stripe customer of the person's existing saved cards; a Stripe customer Stripe reports missing is forgotten and a new one made. Guests cannot pay on the storefront at all.
   14. GDPR: the export lists the Stripe Customer under the withheld `credentials` section; erasure deletes the row and then, best-effort, the Customer at Stripe.
 - **Rules.** Needs a signed-in customer, scoped to their own order. The storefront localises `PAYMENT_PROVIDER_NOT_CONFIGURED` ("Card payment is not set up on this store yet…") and shows its own sentence for `PAYMENT_PROVIDER_ERROR`; Stripe's own error text is logged, never shown.
@@ -2893,7 +2949,7 @@ selling involves) is public.
   verified before a document may call it GST. A seller previews their
   settlement (`/seller/settlements/estimate`).
 - **Rules.** The platform fee is a **deduction from the seller's proceeds, never added to what a buyer pays**. Rates are exact decimals, amounts BigInt, rounding half-up once per step; no rate is a constant in code. Needs `finance.policy.*` / `finance.tax.verify`.
-- **Status.** Built as records. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009).
+- **Status.** Built as records. **Payouts** (moving money) — Unconfigured by design (FR-PAY-009). The operator's own invoice to the seller for this fee is §5.14a.
 
 ### FR-SEL-013 — Seller team and roles
 
@@ -2970,6 +3026,245 @@ selling involves) is public.
   whether it still stands — nothing about the buyer or the price.
 - **Rules.** It is an authenticity check, **not a GST e-invoice QR**. This software does not register invoices with the Invoice Registration Portal (IRP); a seller above the e-invoicing threshold must still generate an IRN.
 - **Status.** Built. IRP/IRN registration **Not built**.
+
+---
+
+## 5.14a Seller commission invoices (CINV)
+
+A **commission invoice** is the marketplace operator's own invoice **to a
+seller** for the platform commission (the platform fee, FR-SEL-012) it charged
+on one seller order, plus the tax on that fee. It is **not** the seller's
+invoice to the buyer (§5.14), not a shipping label, not a receipt and not proof
+of a transfer. It moves no money and changes nothing in payment, refund or
+payout flows. The work lives in the console at **Finance → Commission
+invoices** (`/finance/commission-invoices`). Every part is **Built**, with no
+feature flag. The domain rules are in `backend/src/domain/commission-invoice.ts`
+and `commission-invoice-state.ts`; the service is
+`backend/src/modules/commission-invoicing/`.
+
+### FR-CINV-001 — Figures come from the settlement, never recalculated
+
+- **Statement.** The system builds a commission invoice from the seller order's
+  **settlement** — the record calculated when the order was confirmed, on the
+  fee policy in force then. It copies the platform fee, the tax on the fee,
+  the tax rate, the per-policy breakdown and the policy version.
+- **Acceptance criteria.** One service line per fee policy in the breakdown
+  when the breakdown adds up exactly to the stored totals; otherwise one line
+  carrying the stored totals. A figure sent by a client is never used — a
+  request names a seller order, a draft or a basis, and every amount is the
+  server's.
+- **Rules.** Money is BigInt minor units throughout. Rates are never in code or
+  in the settings; they come from fee policies.
+- **Status.** Built.
+
+### FR-CINV-002 — When a seller order can be invoiced (eligibility)
+
+- **Statement.** Finance can start a commission invoice only when every check
+  holds. The system names each failing check with a code, and the screen
+  shows it in words.
+- **Rules.** All of these must hold:
+  - the buyer's payment is captured (a captured payment transaction, or the
+    amount paid is at least the grand total), and the order is not `DRAFT` or
+    `PENDING_*`;
+  - the order is not `CANCELLED` or `REFUNDED`;
+  - the seller order is not cancelled, returned, refunded or disputed;
+  - a settlement exists and its commission is more than zero;
+  - the seller order has reached the stage set in the settings (**When to
+    invoice the commission**: confirmed, shipped or delivered; default
+    **delivered**).
+- **Document issues** block **issuing** but still allow a draft: a missing
+  issuer legal name, address, city, country or email; for Indian GST also the
+  SAC code (service accounting code) and PAN; a missing or invalid seller
+  GSTIN when **Require the seller's tax number** is on (default on) and the
+  seller is in the issuer's country; an incomplete seller address; an unknown
+  state; an unverified tax rule; a missing Letter of Undertaking (LUT); a
+  currency mismatch between settlement and order.
+- **Status.** Built.
+
+### FR-CINV-003 — How tax is shown
+
+- **Statement.** The issuing entity's **tax regime** is a setting: Indian GST,
+  VAT, other sales tax, or not registered (default: not registered). The
+  system decides the tax lines from the regime and where the seller is.
+- **Rules.**
+  - **Indian GST.** For a seller in India the place of supply is the seller's
+    registered state (from the first two digits of their GSTIN, otherwise
+    their billing region). Same state as the issuer: CGST + SGST, or CGST +
+    UTGST in a union territory without a legislature (codes 04, 26, 31, 35,
+    38, 97). Another state: IGST. A seller outside India is an **export of
+    service**: IGST if tax was charged; with no tax, the LUT reference must
+    be set and the LUT declaration is printed. The place of supply then reads
+    "Other Country (96)".
+  - **VAT or other sales tax.** Same country: taxed as charged, under the
+    policy's label. Cross-border with no tax, to a seller with a VAT number:
+    **reverse charge**, with Art. 196 wording.
+  - **Not registered.** Any tax on the fee blocks issuing.
+  - Tax above zero from a fee policy whose tax rule finance has **not
+    verified** (`finance.tax.verify`) blocks issuing (`TAX_RULE_UNVERIFIED`).
+    The label "GST" is never claimed otherwise.
+  - **Title.** TAX INVOICE when tax is charged. With no tax: INVOICE or BILL
+    OF SUPPLY (setting **Title when no tax is charged**). An export under LUT
+    is a TAX INVOICE.
+  - **Rounding.** GST is split into its halves with the odd paisa going to the
+    state half. Rounding the grand total to a whole unit (half up) is optional
+    (setting, default off) and shown as its own signed line. The discount /
+    adjustment line is always shown and is always 0, because nothing supplies
+    a discount.
+  - There is no IRN and no GST e-invoice QR. The QR is the marketplace's own
+    "Verify this document" check, and the PDF says it is not a GST e-invoice.
+  - The final tax rules need review by a chartered accountant or tax
+    professional; the settings screen says so (§12.5).
+- **Status.** Built.
+
+### FR-CINV-004 — Generate, preview, rebuild, issue
+
+- **Statement.** Finance generates a **draft** for one seller order, opens a
+  watermarked **preview**, can **rebuild** the draft from its sources, and
+  then **issues** it, after a confirmation dialog.
+- **Acceptance criteria.**
+  - Generating needs an `Idempotency-Key` header. There is one live invoice
+    per commission event (the settlement): a repeat, a double click or a race
+    returns the existing invoice.
+  - The preview is a watermarked draft PDF with no number, barcode or QR.
+  - Issuing is one transaction: it locks the row, rebuilds the draft, and
+    refuses if any issue remains or if the result differs from the draft that
+    was reviewed (`SOURCES_CHANGED`: rebuild and review again). It then takes
+    the next number, renders the A6 PDF, stores it in **private** storage
+    with its SHA-256 hash, and freezes the snapshots. A render or storage
+    failure rolls back, so no number is used.
+  - Issuing an invoice that is already issued returns it.
+- **Rules.** After issue an invoice is **immutable**; the only correction is a
+  credit note (FR-CINV-006). Generating and rebuilding need
+  `commission_invoice.generate`, the preview `commission_invoice.preview`, and
+  issuing `commission_invoice.issue`.
+- **Status.** Built.
+
+### FR-CINV-005 — Numbering
+
+- **Rules.** The server gives the number at issue: `<prefix>/<financial
+  year>/<zero-padded sequence>`, for example `GM/COM/2026-27/000001`; credit
+  notes use their own series, for example `GM/CCN/2026-27/000001`. The
+  prefixes, the padding (3 to 9 digits, default 6), the month the financial
+  year starts (default 4, April) and a legal-entity code (default `MAIN`) are
+  settings. The counter lives in `number_sequences`, one per series prefix and
+  financial year — exactly what the printed number is made of, and not the
+  legal-entity code, so changing that code in Settings can never make the next
+  number repeat one already issued. Numbers are concurrency-safe and never reused: an issued
+  invoice that is voided keeps its number, recorded as voided in its history.
+- **Status.** Built.
+
+### FR-CINV-006 — Credit notes
+
+- **Statement.** Finance creates a credit note against an issued invoice,
+  choosing a **reason** (order cancelled, full refund, partial refund,
+  commission reversal, chargeback, seller dispute, tax adjustment) and a
+  **basis**: everything not yet credited; in proportion to the refund (the
+  invoice's taxable amount times the share of the seller's proceeds refunded,
+  from the settlement, less what is already credited); or an amount finance
+  enters (the commission before tax).
+- **Acceptance criteria.** The tax is reversed per line and per component in
+  proportion, rounded half up; a final credit takes exactly what is left, so
+  the invoice nets to zero. A credit note can never take more than is left.
+  It has its own number series, its own A6 PDF with its own hash, names the
+  invoice number and date, and needs an `Idempotency-Key`. The invoice moves
+  to **Partly credited** or **Fully credited**.
+- **Rules.** The list and the detail page show a **"Credit note may be due"**
+  hint when the order was cancelled or refunded, the seller order is disputed,
+  or a refund was recorded. It is advice only; nothing is credited
+  automatically, and refund and payment flows are unchanged. Once an invoice
+  is fully credited a replacement invoice may be generated. Needs
+  `commission_credit_note.create`.
+- **Status.** Built.
+
+### FR-CINV-007 — Discard, void and recording the seller's payment
+
+- **Statement.** Finance can discard a draft. An issued invoice can be
+  **voided** only when the setting **Allow voiding an issued invoice** is on
+  (default off) and it has no credit notes. Finance records the seller's
+  payment with its reference.
+- **Rules.** Each invoice carries a **collection status**: **Payable by
+  seller** (`OUTSTANDING`, printed as "Amount Payable by Seller to
+  <marketplace>"), **Paid** (a payment recorded by finance), or **Taken from
+  settlement** (`ADJUSTED_AGAINST_SETTLEMENT`, only when a paid seller
+  settlement carries a commission line for that seller order). The issued PDF
+  never changes. Discarding, voiding and recording a payment all need
+  `commission_invoice.issue`.
+- **Status.** Built.
+
+### FR-CINV-008 — The PDF
+
+- **Statement.** The issued document is an ISO **A6** portrait PDF (105 × 148
+  mm) with selectable Unicode text (embedded DejaVu Sans, minimum 6 pt).
+- **Rules.** It carries a strong outer border on every page; a header with the
+  marketplace's globe mark and the title; **From — Supplier** and **Bill To —
+  Seller** side by side; a grid with invoice number, date and time, financial
+  year, due date, currency, place of supply, reverse charge, order number,
+  payment reference and settlement reference; a Code 128 barcode of the number
+  beside a "Verify this document" QR; the service table (SAC, order reference,
+  taxable, rate, tax, total) with its header repeated on every page; the totals
+  with the grand total on a navy band, the amount in words and a collection
+  box; a legal footer; page numbers ("1/2") and the number on every page. A
+  draft is watermarked. The bytes are reproducible. The file is named
+  `Gloviaa-Mart-Commission-Invoice-<number with / as ->.pdf`.
+- **Status.** Built.
+
+### FR-CINV-009 — Downloads and public verification
+
+- **Statement.** Staff download an issued invoice or credit note through a
+  **five-minute, single-use link** bound to the person who asked for it. The
+  QR opens `/verify-document` on the storefront, which answers for commission
+  invoices and commission credit notes as it does for seller documents
+  (FR-SINV-006).
+- **Rules.** Only the link token's SHA-256 is stored. The stored bytes are
+  hashed again on download and refused if they no longer match; every
+  download is audited. The public check shows only whether the document is
+  valid, its number, kind, status, issue time and the issuer's legal name —
+  nothing about the seller or the amounts. Needs `commission_invoice.download`.
+- **Status.** Built.
+
+### FR-CINV-010 — The console screens
+
+- **Statement.** **Finance → Commission invoices** has three tabs:
+  **Invoices** (search by invoice number, seller name or ID, order number or
+  seller order number; filters for status, payment, seller registration
+  country, currency and a date range; 25 a page, paged on the server),
+  **Awaiting invoice** (seller orders with a commission and no live invoice,
+  each with its reasons or a **Generate draft** button) and **Settings** (the
+  issuing legal entity, tax registration, numbering and rules; it lists what is
+  still missing; saved with a version check). The detail page shows the
+  preview or the issued PDF's name, pages and SHA-256, the parties, the
+  calculation, the source records, credit notes and history, with actions by
+  status and permission. The **order detail** page has a **Commission
+  invoices** card for each seller order.
+- **Rules.** Every string is in the eight interface languages. Screens are
+  described in `docs/UI-SCREENS.md`.
+- **Status.** Built.
+
+### FR-CINV-011 — Who may do what
+
+| Permission | What it allows |
+|---|---|
+| `commission_invoice.view` | See the list, an invoice, its history, and the order card |
+| `commission_invoice.preview` | Render the draft PDF |
+| `commission_invoice.generate` | Create, rebuild and discard a draft |
+| `commission_invoice.issue` | Issue; void an issued one where allowed; record the seller's payment |
+| `commission_invoice.download` | Download an issued PDF |
+| `commission_credit_note.create` | Issue a credit note |
+| `commission_invoice.settings.write` | Change the issuing entity, numbering and rules |
+
+- **Rules.** Granted to the Business Owner (every permission) and the Finance /
+  Approver. No other role holds any of them.
+- **Status.** Built.
+
+### FR-CINV-012 — What commission invoices do not do
+
+- They do not move money, collect it from the seller, or change a refund, a
+  payment or a payout.
+- They do not register with India's Invoice Registration Portal (no IRN) and
+  carry no GST e-invoice QR.
+- They are not created or credited automatically; finance starts each one.
+- They are not sent to the seller. There is no Seller Hub screen for them and
+  no email; the PDF is downloaded from the console (**Not built**).
 
 ---
 
@@ -3576,7 +3871,7 @@ at the sender's company, seller or carrier sees them.
   and the account's current email if it has changed since — role, who they
   were acting for with a link to the buyer company, seller or carrier record,
   and where it was raised), the related order, one timeline of the
-  conversation and its history, and the sender's files with **Open**. Staff
+  conversation and its history, and the sender's documents in the main column: an image previews in a dialog on the same page (fit or actual size, previous/next, download); a PDF or video downloads without leaving the page. Nothing is fetched until asked, and each open is audited. Staff
   with `support_ticket.reply` move the status (allowed moves only), set the
   priority (Low, Normal, High, Urgent), take or release the ticket, write a
   reply (and optionally mark it Waiting for customer or Resolved at the same
@@ -4094,6 +4389,12 @@ flowchart TD
 
 A cancelled order whose money was captured goes `CANCELLED → REFUNDED` the
 same way. A seller can never refund; money leaving is the operator's action.
+
+If the operator had already issued a **commission invoice** to the seller for
+that seller order (§5.14a), the invoice list and detail page now show
+**Credit note may be due**. Finance decides and issues the credit note —
+usually *in proportion to the refund* — at **Finance → Commission invoices**.
+Nothing is credited automatically, and the refund itself is unchanged.
 
 ## 6.9 Staff onboarding
 
@@ -4630,6 +4931,39 @@ stateDiagram-v2
 - **The sender sees other words:** Sent (`OPEN`), Being handled
   (`IN_PROGRESS`), Waiting for your reply, Resolved, Closed.
 
+## 7.16 Commission invoice status (`backend/src/domain/commission-invoice-state.ts`)
+
+Five states. The status changes only through `assertCommissionMove` in this
+file; no service writes it directly.
+
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: generate
+    DRAFT --> DRAFT: rebuild
+    DRAFT --> ISSUED: issue (number taken)
+    DRAFT --> VOID: discard
+    ISSUED --> PARTIALLY_CREDITED: credit note (part)
+    ISSUED --> FULLY_CREDITED: credit note (the rest)
+    PARTIALLY_CREDITED --> PARTIALLY_CREDITED: credit note (part)
+    PARTIALLY_CREDITED --> FULLY_CREDITED: credit note (the rest)
+    ISSUED --> VOID: void (only if the setting allows and no credit notes)
+    VOID --> [*]
+    FULLY_CREDITED --> [*]
+```
+
+- **Nothing leaves `VOID` or `FULLY_CREDITED`.** An issued invoice never goes
+  back to `DRAFT`; asking to rebuild, discard or re-issue it is answered
+  `COMMISSION_INVOICE_IMMUTABLE`.
+- **Live** means `DRAFT`, `ISSUED` or `PARTIALLY_CREDITED`. A settlement has at
+  most one live invoice. Once an invoice is `VOID` or `FULLY_CREDITED`, a new
+  one may be generated for the same seller order.
+- A voided issued invoice keeps its number, recorded as `number_voided` in its
+  history.
+- The **collection status** (Payable by seller, Paid, Taken from settlement)
+  is kept apart from this status and never changes the issued PDF.
+- **The screens show other words:** Draft, Issued, Partly credited, Fully
+  credited, Void.
+
 ---
 
 # 8. Business rules
@@ -4753,6 +5087,10 @@ Enforced in code. Changing one is a deliberate decision, not an edit.
 | ID | Rule |
 |---|---|
 | BR-SINV-001 | **An issued seller invoice is never edited**; numbering inside the issuing transaction; one live invoice per consignment; corrections by credit note. |
+| BR-CINV-001 | **A commission invoice copies the settlement; it never recalculates the fee.** Rates come from fee policies, never from code or settings, and a client-sent figure is never used. |
+| BR-CINV-002 | **One live commission invoice per commission event** (UNIQUE on the settlement while live); the number is taken inside the issuing transaction and a failed render uses none. |
+| BR-CINV-003 | **An issued commission invoice is never edited**; corrections by credit note, which can never take it below zero. Voiding an issued one is off unless the setting allows it. |
+| BR-CINV-004 | **Tax on the fee is shown only if its fee-policy tax rule is verified**, and never when the issuing entity is not registered for tax. |
 | BR-ERP-001 | **A seller's TallyPrime is never dialled from this server.** |
 | BR-ERP-002 | **"Connected" is a conclusion, never a stored flag.** |
 | BR-ERP-003 | **An HTTP 200 from Tally is not a success.** |
@@ -4948,7 +5286,7 @@ VAT), `gpsrEnforced`, `mdrEnforced`, automatic exchange-rate updates and
 |---|---|
 | `API_PUBLIC_URL` | The API's public URL (required) |
 | `ADMIN_WEB_ORIGIN` / `CUSTOMER_WEB_ORIGIN` / `LOGISTICS_WEB_ORIGIN` | Exact origins (`http://localhost:5173` / `5174` / `5175`) |
-| `CUSTOMER_WEB_PUBLIC_URL` / `ADMIN_WEB_PUBLIC_URL` / `LOGISTICS_WEB_PUBLIC_URL` | Where emailed links point; the logistics one is required when the portal is on. `CUSTOMER_WEB_PUBLIC_URL` is also where Stripe returns paying customers, so in production it must be `https` or the backend refuses to start |
+| `CUSTOMER_WEB_PUBLIC_URL` / `ADMIN_WEB_PUBLIC_URL` / `LOGISTICS_WEB_PUBLIC_URL` | Where emailed links point; the logistics one is required when the portal is on. `CUSTOMER_WEB_PUBLIC_URL` is also where Stripe returns paying customers who did not pay from another configured storefront origin, so in production it must be `https` or the backend refuses to start |
 | `VITE_API_BASE_URL` (each app) | `http://localhost:4000/api/v1` |
 | `STORAGE_PUBLIC_BASE_URL` | `/media` in development (root-relative) |
 | `SELLER_STOREFRONT_DOMAIN` | Empty = no seller shop fronts |
@@ -5175,6 +5513,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | G10 | GPSR pictograms, batch/serial capture, Safety Gate reporting | Some product-safety duties | PRODUCT-SAFETY.md |
 | G11 | Documentation of seller logistics levels (L1–L4) in README and PROJECT-GUIDE | Readers of those guides | Appendix A |
 | G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, SLA timers | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; response-time targets | FR-SUP-012 |
+| G13 | Commission invoices: sending them to the seller (Seller Hub screen or email), GST IRP/IRN registration of them, and automatic credit notes on a refund | Sellers reading their own commission invoices; operators above the e-invoicing threshold | FR-CINV-012 |
 
 ## 12.3 Risks
 
@@ -5219,6 +5558,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | Q12 | B2C Maximum Order Quantity, listings that existed before it: as built, "not configured" means **no ceiling**, and Seller Hub flags them. Should an unconfigured listing instead be closed to individuals until a limit is set? | Old listings sell to individuals without any cap |
 | Q13 | B2C Maximum Order Quantity, the operator's own products: as built, an admin **may** set a limit but does not have to, while a seller listing cannot be submitted without one. Should the operator's products require one too? | The same rule applied unevenly |
 | Q14 | B2C Maximum Order Quantity, switching context: a company's basket is separate from the person's own basket, so switching to a company does not move the lines over. Should the refusal dialog offer to carry them across? | A buyer who switches finds an empty company basket |
+| Q15 | Commission invoices — for a chartered accountant or tax professional: which SAC code (998599 is only an example); whether commission to foreign sellers qualifies as an export of service (IGST Act s.2(6), including payment in foreign exchange); LUT use; place of supply for unregistered sellers; Bill of Supply or invoice when no tax is charged; rounding; whether e-invoicing (IRP/IRN) applies at the operator's turnover (not integrated); credit note time limits (CGST s.34); the verified GST rate on the fee; reverse-charge wording for VAT | The documents are legal tax records; the settings screen says the rules need this review (FR-CINV-003) |
 
 ---
 
@@ -5258,6 +5598,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **ClamAV** | An open-source malware scanner used on uploads. |
 | **Consignment / shipment** | One vehicle-load of goods from one despatching building; an order may have several. |
 | **Controller (GDPR)** | The organisation responsible for personal data — the operator. |
+| **Commission invoice** | The operator's own invoice to a seller for the platform commission on one seller order, plus the tax on it (§5.14a). Not the seller's invoice to the buyer. |
 | **Coupon** | A percentage discount code with rules. |
 | **Credit note** | A document that reverses an issued invoice; invoices are never edited. |
 | **CSRF** | Cross-site request forgery; blocked with a double-submit token. |
@@ -5313,6 +5654,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **Payment link** | A single-use, amount-bound link a customer pays through. |
 | **Permission** | A key like `order.cancel` that a role grants. |
 | **Plan** | A scheduled order's standing instruction (cart, frequency, address, card). |
+| **Place of supply** | Under GST, the state (or "Other Country") whose tax applies to a supply; it decides CGST + SGST or IGST. |
 | **Platform fee** | What the marketplace deducts from a seller's proceeds. |
 | **POD** | Proof of delivery (photo, signature per policy). |
 | **Preorder** | A request asking a seller to make a quantity by a date; becomes one order only when the buyer confirms. |
@@ -5323,6 +5665,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | **priceForQuantity** | The only function that applies quantity bands. |
 | **Reverse charge** | Intra-EU B2B supply at 0% where the buyer accounts for VAT. |
 | **Role** | A fixed bundle of permissions. |
+| **SAC** | Services Accounting Code — the Indian code for a type of service, printed on a GST invoice for a service. |
 | **Schedule Cart** | The cart tab and workspace for standing orders. |
 | **Seller** | A business selling through the operator's marketplace; a tenant. |
 | **Seller Hub** | The seller's console inside the storefront (`/seller`). |

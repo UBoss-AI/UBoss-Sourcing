@@ -63,6 +63,12 @@ export function activateAccount(input: {
   token: string;
   password: string;
   acceptedTerms: boolean;
+  /**
+   * The Logistics Partner Terms document agreed to, from `GET /legal/current`.
+   * The server checks it is the version in force and records it; nothing
+   * else about the agreement is sent.
+   */
+  termsDocumentId: string | null;
 }): Promise<{ activated: boolean; email: string }> {
   return api.post('/logistics/auth/invitations/accept', input);
 }

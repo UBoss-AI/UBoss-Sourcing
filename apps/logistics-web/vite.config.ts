@@ -129,14 +129,15 @@ export default defineConfig(({ mode }) => {
     /*
      * Unit tests, in jsdom.
      *
-     * The same shape the storefront uses, minus the dialog shim: nothing here
-     * tests a native <dialog> yet, and a setup file that exists only to
-     * patch something no test touches is a file that rots.
+     * The same shape the storefront uses. The setup file is the dialog shim
+     * and nothing else: the terms dialog on the activation page is the first
+     * native <dialog> a test here opens.
      */
     test: {
       environment: 'jsdom',
       globals: true,
       css: false,
+      setupFiles: ['./src/test/setup.ts'],
     },
   };
 });

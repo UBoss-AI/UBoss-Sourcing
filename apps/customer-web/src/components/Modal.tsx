@@ -43,6 +43,17 @@ interface ModalProps {
    */
   placement?: 'center' | 'anchored';
   anchorRef?: RefObject<HTMLElement | null>;
+  /**
+   * The scrolling body, for a dialog that has to know how far it has been
+   * read - the Terms dialog enables "I agree" at the end of the text.
+   */
+  bodyRef?: RefObject<HTMLDivElement | null>;
+  /**
+   * Makes the body a labelled, focusable region, so a keyboard user can Tab to
+   * long text and scroll it with the arrow keys, Page Down and End. Only for a
+   * dialog whose body is text to be read rather than controls to be used.
+   */
+  bodyLabel?: string;
 }
 
 /** Tailwind's `sm`: at and above it a popover, below it a sheet. */
@@ -90,6 +101,8 @@ export function Modal({
   size = 'md',
   placement = 'center',
   anchorRef,
+  bodyRef,
+  bodyLabel,
 }: ModalProps): React.JSX.Element {
   const { t } = useI18n();
   const [anchoredStyle, setAnchoredStyle] = useState<CSSProperties | undefined>(undefined);
@@ -244,7 +257,15 @@ export function Modal({
       {/* `min-h-0` is what makes the cap above work: a flex child's default
           minimum is its content, so without it the body refuses to shrink and
           the dialog grows past the viewport again. */}
-      <div className="min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">{children}</div>
+      <div
+        ref={bodyRef}
+        {...(bodyLabel === undefined
+          ? {}
+          : { tabIndex: 0, role: 'region', 'aria-label': bodyLabel })}
+        className="relative min-h-0 flex-1 scroll-pane overflow-y-auto overscroll-contain px-4 py-5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:px-6"
+      >
+        {children}
+      </div>
 
       {footer !== undefined && (
         <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">

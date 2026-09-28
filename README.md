@@ -45,6 +45,7 @@ console and a carrier portal — all on one Fastify + MariaDB backend.
 | [Product reviews](#product-reviews) | Buyers who received a product score quality, delivery, experience and support; stars on every card; hiding a review with a reason |
 | [Support tickets](#support-tickets) | Buyers, sellers and carriers raise a ticket from their account; the console's Tickets inbox; private threads and files |
 | [Seller invoices and packing lists](#seller-invoices-and-packing-lists) | GST tax invoices in the seller's name, packing lists per consignment |
+| [Seller commission invoices](#seller-commission-invoices) | The marketplace's own A6 invoice to a seller for the platform fee, its credit notes, and what it will not claim about tax |
 | [Quantity prices and the bulk-savings popover](#quantity-prices-and-the-bulk-savings-popover) | Price bands per piece, charged in the basket and shown on the product page |
 | [A seller's own accounting system: TallyPrime](#a-sellers-own-accounting-system-tallyprime) | The bridge, what "Connected" means, and what posts |
 | [Going live](#going-live) | The ordered checklist |
@@ -375,6 +376,18 @@ spacing and the same submit button. Only the answers differ, because they
 genuinely do: the storefront offers registration where self-registration is on,
 a staff account is created by an administrator, and a carrier is created by the
 marketplace. The earth does not move while a long form scrolls beside it.
+
+**Opening an account means reading the Terms.** On the storefront's sign-up
+form, an invited customer's activation page and a carrier's activation page,
+the *I have read and agree to the Terms and Conditions* box starts empty and
+cannot be ticked directly: ticking it opens the Terms, whose **I agree** button
+only becomes active at the end of the text, and only that button ticks the box.
+Cancel, Escape and Close leave it empty. The account is refused by the server
+unless the Terms named are the version in force, and the acceptance is stored
+with that exact version, language and hash. Anyone can read, print or download
+any published version at `/legal/terms` on the storefront. The operator writes
+and publishes the Terms in **Administration → Legal documents** — see
+[Going live](#going-live), step 19.
 
 On a window 1024px or wider, every signed-out screen in all three apps puts the
 form on the right and a slowly turning earth on the left, with a pin on each of
@@ -825,6 +838,15 @@ page with the thread, internal notes, files, status, priority and assignment.
 It needs `support_ticket.view`, and answering needs `support_ticket.reply`. See
 [Support tickets](#support-tickets).
 
+**Finance → Commission invoices** is where finance bills sellers for the
+platform fee: a searchable list of invoices, the seller orders still awaiting
+one, and the settings for the issuing company and its numbering. Each invoice
+page shows the calculation and its sources, and is where a draft is issued, a
+payment recorded and a credit note made. Every order page gains a
+**Commission invoices** card per seller order. It needs
+`commission_invoice.view`. See
+[Seller commission invoices](#seller-commission-invoices).
+
 **Warehouses has three views.** *Our warehouses* is the screen as it has always
 been — the buildings this deployment runs, on a map with a search, filters and
 a stock roll-up. *One seller company* and *Every seller* show where approved
@@ -1148,6 +1170,18 @@ and says which of the three things is wrong: no key, a key that is refused, or a
 model that is gone or out of quota. It never prints the key. It exits `0` when
 the provider answered, `1` when it is configured but broken, and `2` when no
 provider is configured — so a scheduled job can read it without parsing prose.
+
+The console can ask the same thing: `GET /api/v1/admin/assistant/status`
+(permission `settings.read`) says `DISABLED`, `MISSING_CREDENTIALS` or
+`CONFIGURED`, with the provider and model, and `?probe=true` makes one real
+call. It never returns the key.
+
+When a reply fails, the visitor is told why in their own language — busy, out
+of quota, took too long, or unavailable — and is offered **Try again** only when
+a second attempt can work. The assistant never makes up an answer to cover a
+failure. A refused key or a missing model is shown to visitors only as
+"unavailable"; the real reason is in the log. CI fails the build if a server
+key, or its name, ever appears in a frontend bundle.
 
 **The trap it exists for.** Google meters its free tier **per model**. A model
 that worked yesterday answers `429` today while every other model on the same
@@ -1538,7 +1572,10 @@ it appears, and activating a live connection asks for confirmation in those
 words.
 
 **In production, `CUSTOMER_WEB_PUBLIC_URL` must be `https`.** Stripe sends
-paying customers back to it, so the backend refuses to start without it.
+paying customers back to it, so the backend refuses to start without it. A
+customer who paid from another storefront address listed in
+`CUSTOMER_WEB_ORIGIN` is sent back to that address instead, so they stay signed
+in.
 
 ### Card payments on Stripe-hosted Checkout
 
@@ -1567,9 +1604,13 @@ The rules that hold it together:
   order's reservations until the Stripe page expires (32 minutes) plus five.
   If the stock has gone meanwhile, the payment page is refused rather than
   taking money for goods that are not there.
-- **Still only a verified webhook confirms the order** — or *Check again* on
-  the confirmation page, which asks Stripe's API directly. Both go through the
-  one capture path, so an order is confirmed exactly once.
+- **Only Stripe confirms the order** — its verified webhook, or its own API
+  read by our server. The customer's browser coming back proves nothing. While
+  the payment is open, the confirmation page has the server ask Stripe (at
+  most every four seconds), so a paid card shows "Payment successful" at once
+  even when the webhook is late. A worker job asks Stripe about payments still
+  open after a minute, for the customer who closed the tab. All of these go
+  through the one capture path, so an order is confirmed exactly once.
 - **Saving a card is Stripe's own tickbox**, never pre-ticked. A card is
   recorded here only if Stripe confirms it is attached to this person's Stripe
   customer and was saved for redisplay. Such a card is offered again on the
@@ -1641,8 +1682,10 @@ The alternative, when the real path is what you want to exercise, is to give
 the gateway somewhere to deliver to: `stripe listen --forward-to
 localhost:4000/api/v1/payments/webhooks/stripe`, or a tunnel to the same URL.
 Paste the `whsec_` it prints into `STRIPE_WEBHOOK_SECRET`. Without webhooks,
-*Check again* on the confirmation page still confirms a Stripe payment from
-Stripe's API.
+a Stripe payment is still confirmed from Stripe's API — by the confirmation
+page, by *Check again*, or by the worker's `payment.reconcile` sweep — but the
+webhook path itself is not exercised. In production, register the webhook
+endpoint in the Stripe dashboard; the sweep is a backstop, not a replacement.
 
 ---
 
@@ -2367,9 +2410,11 @@ fee is not given back on a refund.
 | *Logistics → Delivery levels* | `logistics.read`, `logistics.write` to price | Every seller's published policy, filtered to marketplace levels or to those missing a marketplace price; opening a seller prices their marketplace levels and shows the policy's version and change history. Also the per-level / one-line switch (`settings.write`) |
 | *Logistics → Delivery legs* | `logistics.read`, `logistics.assign` to act | Every leg across all orders; name the carrier on a marketplace leg, enter its references, move it on |
 | *Finance → Platform fees* | `finance.policy.read`, `finance.policy.write`, `finance.tax.verify` | Fee policies, the orders settled on each version, and a preview of what a seller would be paid |
+| *Finance → Commission invoices* | `commission_invoice.*`, `commission_credit_note.create` | The marketplace's own invoices to sellers for the fee, and their credit notes. See [Seller commission invoices](#seller-commission-invoices) |
 
 The Owner holds all of them. The Order Manager holds `logistics.read` and
-`logistics.assign`; the Finance Approver holds the three `finance.*` keys. A
+`logistics.assign`; the Finance Approver holds the three `finance.*` keys and
+the seven commission-invoice keys. A
 general administrator with `settings.write` cannot change what sellers are
 charged.
 
@@ -3322,6 +3367,139 @@ Flipkart Marketplace Seller APIs (Pack / Invoice / Label order-fulfilment
 flow); Amazon Business bulk and quantity-discount buying.
 
 ---
+## Seller commission invoices
+
+A **commission invoice** is the marketplace operator's own invoice **to a
+seller**, for the platform fee it kept on one seller order, plus the tax on
+that fee. It is not the seller's invoice to the buyer (that is the section
+above), not a shipping label, not a receipt and not proof of a transfer. It
+moves no money: payment, refund and payout flows are unchanged. It is built
+and needs no feature flag.
+
+### Where the figures come from
+
+Every figure is **copied from the seller order's settlement**, which was worked
+out when the order was confirmed, on the fee policy in force then (see
+[The platform fee, and what the seller is owed](#the-platform-fee-and-what-the-seller-is-owed)).
+Nothing is recalculated, so the invoice always agrees with what the seller was
+charged. There is one service line per fee policy when the breakdown adds up
+exactly; otherwise one line with the stored totals.
+
+### What finance does
+
+At *Finance → Commission invoices* in the admin console:
+
+1. **Awaiting invoice** lists seller orders that carry a commission and have no
+   invoice yet. Each shows what is blocking it, or offers **Generate draft**.
+   The same button is on *Orders → (an order) → Commission invoices*, one row
+   per seller order.
+2. The draft's page shows the calculation and every source record, and a
+   **watermarked preview** with no number, barcode or QR.
+3. **Issue invoice** takes the next number, renders the PDF, stores it
+   privately with its SHA-256 and freezes the invoice — all in one transaction.
+   If the sources changed since the preview, it refuses and asks for the draft
+   to be rebuilt and reviewed again. If the PDF cannot be rendered or stored,
+   no number is used.
+4. **Record payment** notes the seller's payment reference. The invoice starts
+   *Outstanding* ("Amount Payable by Seller to" the marketplace), becomes
+   *Paid*, or shows *Adjusted against settlement* when a paid seller settlement
+   carries a commission line for that seller order. The issued PDF never
+   changes.
+
+An invoice can be made only once the buyer's payment is captured, neither the
+order nor the seller's part of it is cancelled, returned, refunded or disputed,
+the commission is above zero, and the order has reached the stage set in the
+settings (confirmed, shipped or delivered; delivered by default). There is one
+live invoice per seller order: a repeat or a double click returns the one that
+exists.
+
+### Correcting one
+
+An issued invoice is **never edited**. It is corrected with a **credit note**:
+its own number series, its own PDF, a reason (order cancelled, full or partial
+refund, commission reversal, chargeback, seller dispute, tax adjustment) and a
+basis — everything left, a share matching the seller's refund, or an amount
+finance types. Credits can never exceed what is left, and a final credit brings
+the invoice exactly to zero; a fully credited invoice can then be replaced.
+When an order is cancelled, refunded, disputed or has a refund recorded, the
+screens show **"credit note may be due"**. That is advice only — **no credit
+note is ever made automatically**. Voiding an issued invoice is off unless the
+settings allow it, and never once it has a credit note.
+
+### Tax, and what it will not claim
+
+The issuer's tax regime is a setting — Indian GST, VAT, other, or none (the
+default). Under Indian GST the invoice shows CGST + SGST (UTGST in a union
+territory without a legislature) for a seller in the issuer's state, IGST for
+another state, and an export of service for a seller abroad — under a Letter of
+Undertaking (LUT) when no tax was charged, which then needs the LUT reference.
+Under VAT, a cross-border sale with no tax to a seller with a VAT number is
+shown as reverse charge.
+
+- **Rates are never in code or in settings.** They come from the fee policies.
+- **A tax nobody has verified blocks issuing.** A fee policy whose tax rule has
+  not been verified with `finance.tax.verify` cannot put tax on an issued
+  invoice, and the word "GST" is never claimed otherwise.
+- **It is not a GST e-invoice.** There is no IRN, and the QR is the
+  marketplace's own "Verify this document" check; the PDF says so. Anyone can
+  check a number at the storefront's `/verify-document`, which answers only
+  whether it is valid, its status, when it was issued and by whom.
+- **Have the rules reviewed by a CA or tax professional** before the first
+  invoice: the SAC code (`998599` is only an example), whether commission to a
+  foreign seller is an export of service, LUT use, place of supply for an
+  unregistered seller, Bill of Supply or Invoice when no tax is charged,
+  rounding, whether e-invoicing applies at your turnover (it is not
+  integrated), credit note time limits, the GST rate on the fee, and the
+  reverse-charge wording for VAT. The settings screen says the same.
+
+### The PDF
+
+An **A6 portrait** document (105 × 148 mm), designed for that size: supplier
+and seller side by side, invoice number, dates, place of supply and references,
+a Code 128 barcode of the number and a verification QR, the service table, the
+grand total, the amount in words and a legal footer, with page numbers on every
+page. The title is *TAX INVOICE* when tax is charged, otherwise *INVOICE* or
+*BILL OF SUPPLY* as set. Rendered with DejaVu Sans, so text is selectable in
+any script, and byte-for-byte reproducible. The header mark ("Gloviaa Mart /
+Powered by UBOSS") and the start of the file name (`Gloviaa-Mart-`) are fixed
+text in the template, not settings.
+
+A download is a **five-minute, single-use link** for the member of staff who
+asked for it; the file is checked against its stored SHA-256 before it is sent,
+and every download is audited.
+
+### Settings
+
+All on the **Settings** tab of *Finance → Commission invoices*, saved as
+versions so two people cannot overwrite each other. Nothing about the issuing
+company is pre-filled: nothing can be issued until its legal name, address,
+city, country and email are entered — and, under Indian GST, the SAC and PAN —
+and the screen says what is missing. Numbering: `<prefix>/<financial year>/<number>`, for example
+`GM/COM/2026-27/000001` (credit notes `GM/CCN/...`); prefixes, padding, the
+month the financial year starts (April by default) and a legal-entity code are
+settings. Numbers are made by the server, never reused, and a voided number
+stays used. Also set here: the eligible stage, payment terms, rounding of the
+grand total (off by default), whether a seller must have a tax number (on by
+default), the LUT reference, what a no-tax document is called, whether an
+issued invoice may be voided (off by default) and a footer note. No environment
+variable belongs to this feature.
+
+### Permissions
+
+| Permission | What it allows |
+|---|---|
+| `commission_invoice.view` | The list, an invoice and its history |
+| `commission_invoice.preview` | The draft preview |
+| `commission_invoice.generate` | Create, rebuild and discard a draft |
+| `commission_invoice.issue` | Issue, void, record the seller's payment |
+| `commission_invoice.download` | Download the issued PDF |
+| `commission_credit_note.create` | Issue a credit note |
+| `commission_invoice.settings.write` | Change the issuing company, numbering and rules |
+
+The Business Owner and the Finance Approver hold all seven; no other role holds
+any.
+
+---
 ## Quantity prices and the bulk-savings popover
 
 A seller can charge less per piece for more pieces: *from 100 pieces, 9.50;
@@ -3919,6 +4097,21 @@ seam that would have to change.
       Production refuses to start with `SUPPORT_ALLOW_UNSCANNED_ATTACHMENTS`
       on.
     - Give `support_ticket.reply` to the staff who should answer tickets.
+19. **Publish your Terms and Conditions before anybody signs up.** Open
+    **Administration → Legal documents** in the admin console, write a new version of
+    the *Buyer Terms and Conditions* (and the *Logistics partner terms* if you
+    invite carriers), and press **Publish**. Until one is published, storefront
+    sign-up, invited-customer activation and carrier activation are all
+    refused with `TERMS_DOCUMENT_UNAVAILABLE`, on purpose: an account opened
+    then would be bound by nothing anybody can later produce.
+    - The wording is yours. This software ships none, and the development seed's
+      placeholder is never installed in production. Use text your own legal
+      counsel has approved, naming your legal entity, governing law and the
+      rules for each market you sell in.
+    - Publish each language you sell in. A reader whose language is missing is
+      shown the English version, told so, and agrees to that text.
+    - A published version can never be edited or deleted. A correction is a new
+      version; people who agreed to the old one stay linked to it.
 
 </details>
 
@@ -4051,6 +4244,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   `preorder-chat-state.ts`; nothing is announced over the live connection
   before it is committed; internal notes live in a table no customer route
   reads.
+- **Nobody gets an account without agreeing to the Terms in force.**
+  Storefront sign-up and both invitation activations send the id of the Terms
+  document the person read to the end and agreed to in the dialog. The server
+  checks it is a published document of the right kind and the version in force
+  now, and copies its version, language and SHA-256 onto the acceptance in the
+  same transaction that creates the account. The browser never chooses a
+  version, a hash or a time. A published document never changes.
 - **Only a person approves a buyer company.** The automatic registry checks
   write results and a risk level, never a decision, and always end with the
   application waiting for a reviewer. A registry that is down or slow is
@@ -4127,6 +4327,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   transaction that stores the PDF, so a failure returns the number; a retry
   returns the invoice already issued (one live invoice per consignment is a
   UNIQUE key); and the only correction is a credit note with its own number.
+- **An issued commission invoice is never edited, and never claims a tax
+  nobody verified.** Its figures are copied from the seller order's settlement,
+  never recalculated; issuing takes the number, stores the PDF and freezes the
+  contents in one transaction under a row lock, and refuses if the sources
+  changed since the preview. A tax whose fee policy rule is unverified blocks
+  issuing. It is not a GST e-invoice and says so. A refund or cancellation only
+  suggests a credit note — none is ever made automatically.
 - **A scheduled cart is priced by `quoteSchedule` and nothing else.** The
   review screen the customer confirms and the worker that charges them weeks
   later both call it, so the number agreed and the number charged come from one

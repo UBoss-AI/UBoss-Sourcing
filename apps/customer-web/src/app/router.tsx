@@ -19,6 +19,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { RequireCustomer } from '@/auth/RequireCustomer';
 import { StoreLayout } from '@/layout/StoreLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { HomeRedirect } from './HomeRedirect';
 import { RouteFallback } from './RouteFallback';
 
 type PageComponent = () => React.JSX.Element;
@@ -95,12 +96,11 @@ export const router = createBrowserRouter([
       // --- Public: browse without an account --------------------------------
       { index: true, ...publicRoute(() => import('@/pages/HomePage').then((m) => m.HomePage)) },
       /*
-       * Where every sign-in lands, individual or company. The same page as
-       * `/` rather than a redirect to it: a sign-in has one destination, and
-       * both kinds of buyer arrive at the same URL. Router paths match without
-       * regard to case, so `/Home` resolves here too.
+       * The old home-page address. A redirect, never a second copy of the
+       * page: every sign-in lands on `/`. Router paths match without regard to
+       * case, so `/Home` is caught here too.
        */
-      { path: 'home', ...publicRoute(() => import('@/pages/HomePage').then((m) => m.HomePage)) },
+      { path: 'home', element: <HomeRedirect /> },
       {
         path: 'products',
         ...publicRoute(() => import('@/pages/CatalogPage').then((m) => m.CatalogPage)),
@@ -518,6 +518,21 @@ export const router = createBrowserRouter([
        * whether to buy or sell here at all.
        */
       { path: 'about', ...publicRoute(() => import('@/pages/AboutPage').then((m) => m.AboutPage)) },
+
+      /*
+       * The Terms and Conditions: the version in force, and any one exact
+       * version by id - the link the sign-up dialog opens, and the page
+       * somebody reads later to see what they agreed to. Public, because terms
+       * have to be readable before anybody is asked to accept them.
+       */
+      {
+        path: 'legal/terms',
+        ...publicRoute(() => import('@/pages/LegalDocumentPage').then((m) => m.LegalDocumentPage)),
+      },
+      {
+        path: 'legal/documents/:id',
+        ...publicRoute(() => import('@/pages/LegalDocumentPage').then((m) => m.LegalDocumentPage)),
+      },
 
       /*
        * The public front door to the marketplace programme.

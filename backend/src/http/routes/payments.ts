@@ -331,6 +331,9 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
           ? {}
           : { savedPaymentMethodId: choice.savedPaymentMethodId }),
         ...(choice.saveCard === undefined ? {} : { saveCard: choice.saveCard }),
+        // Where to send them back to, chosen only from configured storefront
+        // origins - see storefrontReturnBase. Never a value from the body.
+        storefrontOrigin: request.headers.origin ?? null,
       });
 
       return reply.status(201).send(result);

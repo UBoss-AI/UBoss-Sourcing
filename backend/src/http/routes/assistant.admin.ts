@@ -15,6 +15,7 @@ import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 import { notFound } from '../../domain/errors.js';
 import { Permission } from '../../domain/permissions.js';
+import { assistantStatus, probeAssistant } from '../../modules/assistant/assistant.service.js';
 import {
   getConversation,
   listConversations,
@@ -22,6 +23,29 @@ import {
 import { requireAdmin } from '../plugins/auth.js';
 
 export function registerAdminAssistantRoutes(app: FastifyInstance): Promise<void> {
+  /**
+   * Whether the AI provider is configured: DISABLED, MISSING_CREDENTIALS or
+   * CONFIGURED, with the provider and model. `?probe=true` also makes one
+   * real call and reports whether it answered. Never returns a key.
+   */
+  app.get(
+    '/assistant/status',
+    {
+      preHandler: requireAdmin(Permission.SETTINGS_READ),
+      // A probe spends provider quota. Ten an hour is plenty for a person
+      // checking a key, and nothing for a script left looping on it.
+      config: { rateLimit: { max: 10, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const { probe } = z
+        .object({ probe: z.enum(['true', 'false']).optional() })
+        .parse(request.query);
+
+      const status = probe === 'true' ? await probeAssistant() : assistantStatus();
+      return reply.header('cache-control', 'no-store').status(200).send(status);
+    },
+  );
+
   /**
    * List chat enquiries made through the shopping assistant, a page at a time.
    * Can be searched by name, email or phone, or narrowed to conversations

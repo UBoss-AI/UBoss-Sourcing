@@ -44,6 +44,8 @@ import {
 import { registerAdminPrivacyRoutes } from './routes/privacy.admin.js';
 import { registerAdminVatRoutes } from './routes/vat.admin.js';
 import { registerAdminGpsrRoutes } from './routes/gpsr.admin.js';
+import { registerAdminLegalRoutes } from './routes/legal.admin.js';
+import { registerPublicLegalRoutes } from './routes/legal.public.js';
 import { registerAdminCatalogRoutes } from './routes/catalog.admin.js';
 import { registerAdminTranslationRoutes } from './routes/translations.admin.js';
 import { registerCartRoutes } from './routes/cart.customer.js';
@@ -111,6 +113,7 @@ import { registerSellerQuantityTierRoutes } from './routes/seller.quantity-tiers
 import { registerBulkPricingRoutes } from './routes/bulk-pricing.js';
 import { registerDocumentRoutes } from './routes/documents.js';
 import { registerAdminDocumentRoutes } from './routes/documents.admin.js';
+import { registerCommissionInvoiceAdminRoutes } from './routes/commission-invoices.admin.js';
 import { registerCarrierWebhookRoutes } from './routes/carrier-webhooks.js';
 import {
   registerAdminSupportRoutes,
@@ -554,6 +557,8 @@ export async function buildApp() {
   // Unauthenticated: the storefront needs branding and capability flags
   // before anybody signs in.
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
+  // The Terms and Conditions every sign-up and activation must accept. Published only.
+  await app.register(registerPublicLegalRoutes, { prefix: `${API_PREFIX}/legal` });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
   // The bulk-savings popover's figures. See `bulk-pricing.service.ts`.
   await app.register(registerBulkPricingRoutes, { prefix: `${API_PREFIX}/catalog` });
@@ -691,6 +696,7 @@ export async function buildApp() {
   await app.register(registerAdminPrivacyRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminVatRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminGpsrRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminLegalRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
    * The Seller Hub.
@@ -733,6 +739,7 @@ export async function buildApp() {
   await app.register(registerSellerQuantityTierRoutes, { prefix: `${API_PREFIX}/seller` });
   await app.register(registerDocumentRoutes, { prefix: `${API_PREFIX}/documents` });
   await app.register(registerAdminDocumentRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerCommissionInvoiceAdminRoutes, { prefix: `${API_PREFIX}/admin` });
 
   /*
    * Where the Gloviaa Mart Tally Bridge talks to us.

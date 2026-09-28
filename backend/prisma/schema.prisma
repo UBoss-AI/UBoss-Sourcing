@@ -2846,6 +2846,7 @@ model Order {
   /// `invoices` above, which cover goods the operator sold.
   sellerInvoices SellerInvoice[]
   packingLists   SellerPackingList[]
+  commissionInvoices CommissionInvoice[]
 
   buyerCompany BuyerCompany? @relation(fields: [buyerCompanyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_order_buyer_company")
 
@@ -8995,6 +8996,7 @@ model SellerAccount {
   linkedBuyerCompanies    BuyerCompany[] @relation("BuyerCompanyLinkedSeller")
   /// Support requests sent from this seller's Seller Hub. See SUPPORT.
   supportTickets          SupportTicket[]
+  commissionInvoices      CommissionInvoice[]
 
   @@index([status, createdAt], map: "ix_seller_status")
   @@index([registrationCountry], map: "ix_seller_country")
@@ -10747,6 +10749,7 @@ model SellerOrderGroup {
   settlement         SellerOrderSettlement?
   sellerInvoices     SellerInvoice[]
   packingLists       SellerPackingList[]
+  commissionInvoices CommissionInvoice[]
 
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
   @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
@@ -17424,6 +17427,7 @@ model SellerOrderSettlement {
   sellerOrderGroup SellerOrderGroup   @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_settlement_group")
   sellerAccount    SellerAccount      @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_order_settlement_seller")
   feePolicy        PlatformFeePolicy? @relation(fields: [platformFeePolicyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_order_settlement_policy")
+  commissionInvoices CommissionInvoice[]
 
   @@unique([sellerOrderGroupId], map: "uq_order_settlement_group")
   @@index([sellerAccountId, computedAt], map: "ix_order_settlement_seller")
@@ -19142,6 +19146,12 @@ enum ConsentPurpose {
   PRIVACY_NOTICE
   /// "I am authorised to act for this company."
   AUTHORITY_TO_ACT
+  /// The marketplace's Terms and Conditions, accepted when a buyer account is
+  /// created. The row points at the exact `LegalDocument` that was shown.
+  PLATFORM_TERMS
+  /// The terms a carrier's staff accept when they activate a logistics portal
+  /// account. The row points at the exact `LegalDocument` that was shown.
+  LOGISTICS_PARTNER_TERMS
 }
 
 model BuyerCompany {
@@ -19588,12 +19598,104 @@ model ConsentRecord {
   userAgent   String?   @db.VarChar(512)
   withdrawnAt DateTime? @db.DateTime(3)
 
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_consent_record_user")
-  company BuyerCompany? @relation(fields: [companyId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_consent_record_company")
+  /// For PLATFORM_TERMS and LOGISTICS_PARTNER_TERMS: the published document
+  /// the person read and agreed to. `textVersion` and `textHash` are copied
+  /// from it by the server, never taken from the request. Null for the
+  /// company-application declarations, whose wording lives in code.
+  legalDocumentId  String? @db.Char(26)
+  /// The language of that document, e.g. "pl". Copied from the document.
+  locale           String? @db.VarChar(10)
+  /// Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or
+  /// LOGISTICS_INVITATION. Null for the company-application declarations.
+  acceptanceSource String? @db.VarChar(48)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_consent_record_user")
+  company       BuyerCompany?  @relation(fields: [companyId], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "fk_consent_record_company")
+  /// RESTRICT: a document somebody has agreed to can never be deleted.
+  legalDocument LegalDocument? @relation(fields: [legalDocumentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_consent_record_legal_document")
 
   @@index([userId, purpose], map: "ix_consent_record_user")
   @@index([companyId], map: "ix_consent_record_company")
+  /// One acceptance per person per document. A retried or doubled request
+  /// cannot write a second one. NULL (the company declarations) is distinct
+  /// in a MariaDB UNIQUE index, so those rows are not affected.
+  @@unique([userId, legalDocumentId], map: "uq_consent_record_user_document")
+  @@index([legalDocumentId], map: "ix_consent_record_legal_document")
   @@map("consent_records")
+}
+
+// ===========================================================================
+// LEGAL DOCUMENTS
+// ===========================================================================
+
+/// Which agreement a document is. Each account type is asked for its own.
+enum LegalDocumentKind {
+  /// Terms and Conditions for buyers - individuals, and the person who signs
+  /// up to register a company. Also accepted when an invited customer
+  /// activates their account.
+  PLATFORM_TERMS
+  /// Terms for a carrier's staff, accepted when they activate a logistics
+  /// portal account from an invitation.
+  LOGISTICS_PARTNER_TERMS
+}
+
+enum LegalDocumentStatus {
+  /// Being written. Never shown to the public and never accepted.
+  DRAFT
+  /// Frozen. The words, title, version, language and effective date can never
+  /// change again, and the SHA-256 in `contentSha256` proves it.
+  PUBLISHED
+}
+
+/// One version of one agreement in one language.
+///
+/// The operator writes the text; this software never supplies legal wording.
+/// A version is shared across languages: "2026-10-01" in English and in
+/// Polish are two rows with the same `version`. The version in force for a
+/// kind is the newest PUBLISHED version whose `effectiveAt` has passed.
+///
+/// `body` is plain text, not HTML. A line starting with "## " is a heading and
+/// a line starting with "- " is a bullet; everything else is a paragraph. Both
+/// frontends and the PDF render it from that, so there is nothing to sanitise
+/// and no way for stored text to become markup.
+model LegalDocument {
+  id      String              @id @db.Char(26)
+  kind    LegalDocumentKind
+  /// Chosen by the operator, e.g. "2026-10-01". Unique per kind and language.
+  version String              @db.VarChar(32)
+  /// BCP-47 primary subtag: "en", "pl", "de".
+  locale  String              @db.VarChar(10)
+  status  LegalDocumentStatus @default(DRAFT)
+
+  title         String   @db.VarChar(200)
+  body          String   @db.MediumText
+  /// What changed since the previous version, in a sentence or two. Shown to
+  /// the reader when present. Optional, and never a substitute for the text.
+  changeSummary String?  @db.Text
+  /// When this version starts to apply. A version published with a future
+  /// date is not in force, and cannot be accepted, until then.
+  effectiveAt   DateTime @db.DateTime(3)
+
+  /// SHA-256 of the canonical text (kind, version, locale, title and body),
+  /// set when the document is published. Copied onto every acceptance.
+  contentSha256 String?   @db.Char(64)
+  publishedAt   DateTime? @db.DateTime(3)
+  publishedById String?   @db.Char(26)
+  /// The published document in the same kind and language that was in force
+  /// when this one was published. Null for the first.
+  supersedesId  String?   @db.Char(26)
+
+  createdById String?  @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  supersedes   LegalDocument?  @relation("LegalDocumentSupersedes", fields: [supersedesId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_legal_document_supersedes")
+  supersededBy LegalDocument[] @relation("LegalDocumentSupersedes")
+  acceptances  ConsentRecord[]
+
+  @@unique([kind, version, locale], map: "uq_legal_document_version_locale")
+  @@index([kind, status, effectiveAt], map: "ix_legal_document_current")
+  @@map("legal_documents")
 }
 
 /// A six-digit code sent to the business email address. Stored hashed,
@@ -19614,4 +19716,431 @@ model BuyerCompanyEmailChallenge {
 
   @@index([companyId, consumedAt], map: "ix_buyer_company_email_company")
   @@map("buyer_company_email_challenges")
+}
+
+// ===========================================================================
+// SELLER COMMISSION INVOICES
+//
+// The marketplace operator's own invoice TO a seller, for the platform service
+// it supplied on one seller order: the commission (platform fee) and the tax
+// on it. It is not the seller's invoice to the buyer (`SellerInvoice`), not a
+// shipping document and not a receipt for any transfer.
+//
+// THE FIGURES ARE NEVER RECALCULATED. Every amount is copied from the
+// `SellerOrderSettlement` the order was confirmed with - the fee, the tax on
+// the fee, the policy version and the rate - so an invoice and the settlement
+// the seller was shown cannot disagree, and a later fee policy or tax rate
+// leaves an issued invoice exactly as it was.
+//
+// ISSUED MEANS FROZEN. A draft is rebuilt from its sources each time it is
+// regenerated. Issuing reserves the number from `number_sequences` under a row
+// lock, renders the A6 PDF, stores it privately with its SHA-256 and freezes
+// the snapshots - in one transaction. After that the only correction is a
+// credit note, and an invoice is never deleted.
+//
+// Every status write goes through `domain/commission-invoice-state.ts`.
+// ===========================================================================
+
+enum CommissionInvoiceStatus {
+  /// Built from its sources and previewable. Holds no number.
+  DRAFT
+  /// Numbered, rendered and frozen.
+  ISSUED
+  /// Issued, and one or more credit notes reverse part of it.
+  PARTIALLY_CREDITED
+  /// Credit notes reverse all of it. A replacement may now be issued.
+  FULLY_CREDITED
+  /// A discarded draft, or - only where the settings permit it - an issued
+  /// invoice cancelled with a reason. A voided number is never reused.
+  VOID
+}
+
+/// What the document is called at the top. Decided by the tax treatment and
+/// the settings, never by the person issuing it.
+enum CommissionDocumentType {
+  TAX_INVOICE
+  INVOICE
+  BILL_OF_SUPPLY
+}
+
+/// Whether the seller has paid the invoice. Kept apart from the document:
+/// the issued PDF says what was true when it was issued.
+enum CommissionCollectionStatus {
+  /// Payable by the seller to the operator.
+  OUTSTANDING
+  /// A member of finance recorded a payment, with its reference.
+  PAID
+  /// Deducted from a seller settlement that has been paid.
+  ADJUSTED_AGAINST_SETTLEMENT
+}
+
+enum CommissionCreditReason {
+  ORDER_CANCELLED
+  FULL_REFUND
+  PARTIAL_REFUND
+  COMMISSION_REVERSAL
+  CHARGEBACK
+  SELLER_DISPUTE
+  TAX_ADJUSTMENT
+}
+
+/// How a credit note's amount was decided.
+enum CommissionCreditBasis {
+  /// Everything not yet credited.
+  FULL
+  /// The share of the fee matching the share of the seller's proceeds the
+  /// buyer was refunded, from the settlement's own refund figure.
+  PROPORTIONAL_TO_REFUND
+  /// A taxable amount finance entered; the tax follows it proportionally.
+  CUSTOM_AMOUNT
+}
+
+/// The issuing entity's tax registration, which decides how tax is shown.
+enum CommissionTaxRegime {
+  /// Indian GST: GSTIN, SAC, place of supply, CGST + SGST/UTGST or IGST.
+  IN_GST
+  /// A VAT registration: one tax line per rate, reverse charge across borders.
+  VAT
+  /// Some other registered sales tax, shown under the configured label.
+  OTHER
+  /// Not registered for any tax. No tax may appear on the document.
+  NONE
+}
+
+/// The earliest point in a seller order at which its commission counts as
+/// final enough to invoice.
+enum CommissionEligibleStage {
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+}
+
+/// Who issues commission invoices, and how. One row.
+///
+/// Every legal detail is a setting, entered by the business that runs this
+/// deployment, and nothing is issued until the required ones are present.
+/// There are no defaults for a name, an address or a registration number: a
+/// placeholder on a tax document is a false statement.
+model CommissionInvoiceSettings {
+  id String @id @db.Char(26)
+  /// Always "default". UNIQUE, so there is never a second row.
+  singleton String @default("default") @db.VarChar(16)
+
+  /// A short code for the legal entity. Part of every sequence key, so a
+  /// different entity numbers from one again.
+  legalEntityCode String @default("MAIN") @db.VarChar(16)
+
+  legalName      String? @db.VarChar(255)
+  /// The name it trades under, e.g. "Gloviaa Mart — Powered by UBOSS".
+  tradeName      String? @db.VarChar(255)
+  addressLine1   String? @db.VarChar(255)
+  addressLine2   String? @db.VarChar(255)
+  city           String? @db.VarChar(120)
+  region         String? @db.VarChar(120)
+  postcode       String? @db.VarChar(24)
+  country        String? @db.Char(2)
+  /// GST state code (two digits) where the regime is IN_GST.
+  stateCode      String? @db.VarChar(4)
+
+  taxRegime             CommissionTaxRegime @default(NONE)
+  taxRegistrationLabel  String              @default("GSTIN") @db.VarChar(32)
+  taxRegistrationNumber String?             @db.VarChar(32)
+  /// PAN in India, a company number elsewhere.
+  businessIdentifierLabel String  @default("PAN") @db.VarChar(32)
+  businessIdentifier      String? @db.VarChar(32)
+
+  businessEmail    String? @db.VarChar(320)
+  supportContact   String? @db.VarChar(160)
+  /// Printed only when set, e.g. an agreed jurisdiction clause.
+  jurisdictionNote String? @db.VarChar(255)
+
+  /// The service accounting code for the platform service (SAC in India).
+  serviceCode        String? @db.VarChar(16)
+  serviceCodeLabel   String  @default("SAC") @db.VarChar(16)
+  /// `{orderNumber}` is replaced with the buyer order's number.
+  serviceDescription String  @default("Marketplace platform commission for Order {orderNumber}") @db.VarChar(255)
+
+  invoicePrefix           String @default("GM/COM") @db.VarChar(16)
+  creditNotePrefix        String @default("GM/CCN") @db.VarChar(16)
+  sequencePadding         Int    @default(6) @db.SmallInt
+  /// 4 for April to March, 1 for a calendar year.
+  financialYearStartMonth Int    @default(4) @db.SmallInt
+
+  eligibleStage       CommissionEligibleStage @default(DELIVERED)
+  /// Days from issue to the due date. Null prints no due date.
+  paymentTermsDays    Int?                    @db.SmallInt
+  /// Round the grand total to a whole unit, half up, and show the adjustment.
+  roundGrandTotal     Boolean                 @default(false)
+  /// Refuse to issue to a seller in the issuer's country with no tax number.
+  requireSellerTaxId  Boolean                 @default(true)
+  /// A Letter of Undertaking, for a zero-rated export of the service.
+  exportLutReference  String?                 @db.VarChar(64)
+  /// What a document with no tax on it is called.
+  zeroTaxDocumentType CommissionDocumentType  @default(INVOICE)
+  /// Whether an ISSUED invoice may be voided at all. Off: the correction is a
+  /// credit note, which is what GST and VAT law expect.
+  allowVoidAfterIssue Boolean                 @default(false)
+  footerNote          String?                 @db.VarChar(1000)
+
+  version         Int      @default(1)
+  updatedByUserId String?  @db.Char(26)
+  createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt       DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([singleton], map: "uq_commission_settings_singleton")
+  @@map("commission_invoice_settings")
+}
+
+/// The operator's invoice to one seller, for the commission on one seller order.
+model CommissionInvoice {
+  id                 String @id @db.Char(26)
+  legalEntityCode    String @db.VarChar(16)
+  sellerAccountId    String @db.Char(26)
+  orderId            String @db.Char(26)
+  sellerOrderGroupId String @db.Char(26)
+  /// The commission event: the settlement the fee was calculated on.
+  settlementId       String @db.Char(26)
+
+  status       CommissionInvoiceStatus @default(DRAFT)
+  documentType CommissionDocumentType
+
+  /// The settlement id while this is its live invoice - a draft, issued or
+  /// partly credited one - and NULL once it is voided or fully credited.
+  /// UNIQUE: one live commission invoice per commission event, however many
+  /// clicks, retries and tabs ask for one.
+  activeKey      String? @db.VarChar(40)
+  /// The key the request that created it carried. UNIQUE: a retry of the
+  /// same request returns this row instead of making another.
+  idempotencyKey String  @db.VarChar(128)
+
+  /// Allocated at issue. Null on a draft.
+  series         String?   @db.VarChar(16)
+  financialYear  String?   @db.VarChar(9)
+  sequenceNumber Int?
+  number         String?   @db.VarChar(40)
+  issueDate      DateTime? @db.Date
+  issuedAt       DateTime? @db.DateTime(3)
+  dueDate        DateTime? @db.Date
+
+  currency String @db.Char(3)
+
+  /// IN_INTRA_STATE, IN_INTER_STATE, IN_EXPORT_WITH_TAX, IN_EXPORT_UNDER_LUT,
+  /// DOMESTIC, CROSS_BORDER, REVERSE_CHARGE, NOT_TAXED.
+  taxTreatment      String  @db.VarChar(32)
+  reverseCharge     Boolean @default(false)
+  placeOfSupplyJson Json?
+
+  /// Frozen at issue; rebuilt while a draft. The issuer as configured, the
+  /// seller as their profile stood, and the records the figures came from.
+  issuerJson     Json
+  sellerJson     Json
+  sourceJson     Json
+  /// Declarations printed under the totals (LUT, reverse charge).
+  notesJson      Json?
+  /// Why it cannot be issued yet, as `[{ field, code, message }]`.
+  validationJson Json?
+  /// SHA-256 of the calculation and the snapshots, so the trail can show
+  /// which version of a draft was issued.
+  snapshotHash   String @db.Char(64)
+
+  // Minor units, in `currency`.
+  subtotalMinor   BigInt @default(0)
+  discountMinor   BigInt @default(0)
+  taxableMinor    BigInt @default(0)
+  cgstMinor       BigInt @default(0)
+  sgstMinor       BigInt @default(0)
+  igstMinor       BigInt @default(0)
+  otherTaxMinor   BigInt @default(0)
+  totalTaxMinor   BigInt @default(0)
+  /// Signed: what rounding the grand total added or took away.
+  roundingMinor   BigInt @default(0)
+  grandTotalMinor BigInt @default(0)
+  /// Sum of the grand totals of the credit notes against it.
+  creditedMinor   BigInt @default(0)
+
+  amountInWords String? @db.VarChar(512)
+
+  collectionStatus    CommissionCollectionStatus @default(OUTSTANDING)
+  collectionReference String?                    @db.VarChar(128)
+  collectedAt         DateTime?                  @db.DateTime(3)
+
+  templateVersion String @db.VarChar(16)
+
+  createdByUserId String?   @db.Char(26)
+  issuedByUserId  String?   @db.Char(26)
+  voidedByUserId  String?   @db.Char(26)
+  voidedAt        DateTime? @db.DateTime(3)
+  voidReason      String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount    SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_invoice_seller")
+  order            Order                  @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_invoice_order")
+  sellerOrderGroup SellerOrderGroup       @relation(fields: [sellerOrderGroupId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_invoice_group")
+  settlement       SellerOrderSettlement  @relation(fields: [settlementId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_invoice_settlement")
+  lines            CommissionInvoiceLine[]
+  creditNotes      CommissionCreditNote[]
+  documents        CommissionDocument[]
+  events           CommissionInvoiceEvent[]
+
+  @@unique([activeKey], map: "uq_commission_invoice_active")
+  @@unique([idempotencyKey], map: "uq_commission_invoice_idempotency")
+  @@unique([number], map: "uq_commission_invoice_number")
+  @@unique([legalEntityCode, series, financialYear, sequenceNumber], map: "uq_commission_invoice_sequence")
+  @@index([status, createdAt], map: "ix_commission_invoice_status")
+  @@index([sellerAccountId, createdAt], map: "ix_commission_invoice_seller")
+  @@index([orderId], map: "ix_commission_invoice_order")
+  @@index([sellerOrderGroupId], map: "ix_commission_invoice_group")
+  @@index([settlementId], map: "ix_commission_invoice_settlement")
+  @@index([issueDate], map: "ix_commission_invoice_issue_date")
+  @@index([collectionStatus, status], map: "ix_commission_invoice_collection")
+  @@index([currency, status], map: "ix_commission_invoice_currency")
+  @@map("commission_invoices")
+}
+
+/// One service line on a commission invoice: the platform commission on one
+/// fee policy, or another approved marketplace service fee.
+model CommissionInvoiceLine {
+  id        String @id @db.Char(26)
+  invoiceId String @db.Char(26)
+  position  Int    @db.SmallInt
+
+  /// PLATFORM_COMMISSION, or SERVICE_FEE for an additional approved charge.
+  kind           String  @db.VarChar(32)
+  description    String  @db.VarChar(512)
+  /// How the commission was worked out, e.g. "10% of 1,000.00".
+  detail         String? @db.VarChar(255)
+  serviceCode    String? @db.VarChar(16)
+  orderReference String  @db.VarChar(64)
+
+  /// PERCENT, FLAT or PERCENT_PLUS_FLAT, as the fee policy said.
+  feeType       String?  @db.VarChar(24)
+  basisMinor    BigInt   @default(0)
+  /// The commission rate, percent. Null for a flat fee.
+  feeRatePercent Decimal? @db.Decimal(9, 6)
+  policyId      String?  @db.Char(26)
+  policyVersion Int?
+
+  taxableMinor   BigInt  @default(0)
+  taxRatePercent Decimal @default(0) @db.Decimal(9, 6)
+  cgstMinor      BigInt  @default(0)
+  sgstMinor      BigInt  @default(0)
+  igstMinor      BigInt  @default(0)
+  otherTaxMinor  BigInt  @default(0)
+  taxMinor       BigInt  @default(0)
+  totalMinor     BigInt  @default(0)
+
+  invoice CommissionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_commission_line_invoice")
+
+  @@unique([invoiceId, position], map: "uq_commission_line_position")
+  @@map("commission_invoice_lines")
+}
+
+/// A credit note reversing all or part of an issued commission invoice.
+///
+/// Issued the moment it is created, in its own number series, with its own
+/// PDF. Its figures can never take the invoice past zero.
+model CommissionCreditNote {
+  id              String @id @db.Char(26)
+  invoiceId       String @db.Char(26)
+  legalEntityCode String @db.VarChar(16)
+  sellerAccountId String @db.Char(26)
+
+  idempotencyKey String @db.VarChar(128)
+
+  series         String   @db.VarChar(16)
+  financialYear  String   @db.VarChar(9)
+  sequenceNumber Int
+  number         String   @db.VarChar(40)
+  issueDate      DateTime @db.Date
+  issuedAt       DateTime @db.DateTime(3)
+
+  reason CommissionCreditReason
+  basis  CommissionCreditBasis
+  note   String? @db.VarChar(1000)
+
+  currency String @db.Char(3)
+
+  taxableMinor    BigInt @default(0)
+  cgstMinor       BigInt @default(0)
+  sgstMinor       BigInt @default(0)
+  igstMinor       BigInt @default(0)
+  otherTaxMinor   BigInt @default(0)
+  totalTaxMinor   BigInt @default(0)
+  roundingMinor   BigInt @default(0)
+  grandTotalMinor BigInt @default(0)
+  amountInWords   String @db.VarChar(512)
+
+  /// What it reverses on each invoice line, by position.
+  linesJson Json
+
+  issuedByUserId String?  @db.Char(26)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+
+  invoice   CommissionInvoice   @relation(fields: [invoiceId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_credit_invoice")
+  documents CommissionDocument[]
+
+  @@unique([idempotencyKey], map: "uq_commission_credit_idempotency")
+  @@unique([number], map: "uq_commission_credit_number")
+  @@unique([legalEntityCode, series, financialYear, sequenceNumber], map: "uq_commission_credit_sequence")
+  @@index([invoiceId, createdAt], map: "ix_commission_credit_invoice")
+  @@index([sellerAccountId, createdAt], map: "ix_commission_credit_seller")
+  @@map("commission_credit_notes")
+}
+
+/// An issued PDF, in private object storage. Never overwritten: a document
+/// has exactly one, and its hash is of the exact bytes stored.
+model CommissionDocument {
+  id           String  @id @db.Char(26)
+  invoiceId    String? @db.Char(26)
+  creditNoteId String? @db.Char(26)
+
+  /// INVOICE or CREDIT_NOTE.
+  kind            String @db.VarChar(16)
+  storageKey      String @db.VarChar(512)
+  fileName        String @db.VarChar(160)
+  contentHash     String @db.Char(64)
+  sizeBytes       Int
+  pageCount       Int    @db.SmallInt
+  templateVersion String @db.VarChar(16)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  invoice    CommissionInvoice?    @relation(fields: [invoiceId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_document_invoice")
+  creditNote CommissionCreditNote? @relation(fields: [creditNoteId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_commission_document_credit")
+
+  @@unique([invoiceId], map: "uq_commission_document_invoice")
+  @@unique([creditNoteId], map: "uq_commission_document_credit")
+  @@unique([storageKey], map: "uq_commission_document_storage")
+  @@map("commission_documents")
+}
+
+/// Everything that happened to a commission invoice, in order: generated,
+/// regenerated, previewed, issued, downloaded, credited, voided, paid.
+///
+/// Its own table as well as `audit_logs`, so the invoice screen can show its
+/// history without searching the whole trail. Never updated.
+model CommissionInvoiceEvent {
+  id           String  @id @db.Char(26)
+  invoiceId    String  @db.Char(26)
+  creditNoteId String? @db.Char(26)
+
+  /// generated, regenerated, previewed, issued, downloaded, credited,
+  /// voided, collection_recorded, number_voided.
+  action       String  @db.VarChar(48)
+  fromStatus   String? @db.VarChar(24)
+  toStatus     String? @db.VarChar(24)
+  actorUserId  String? @db.Char(26)
+  /// Numbers, hashes and amounts - never a free-text body or personal data.
+  detailJson   Json?
+  snapshotHash String? @db.Char(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  invoice CommissionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_commission_event_invoice")
+
+  @@index([invoiceId, createdAt], map: "ix_commission_event_invoice")
+  @@index([actorUserId], map: "ix_commission_event_actor")
+  @@map("commission_invoice_events")
 }

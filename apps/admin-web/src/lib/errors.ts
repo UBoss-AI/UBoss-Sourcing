@@ -63,6 +63,27 @@ const SUPPORT_CODES = new Set([
   'SUPPORT_ATTACHMENTS_UNAVAILABLE',
 ]);
 
+/** Commission invoice refusals. Finance meets these mid-task, in eight languages. */
+const COMMISSION_CODES = new Set([
+  'COMMISSION_INVOICE_NOT_ELIGIBLE',
+  'COMMISSION_INVOICE_VALIDATION_FAILED',
+  'COMMISSION_INVOICE_IMMUTABLE',
+  'COMMISSION_INVOICE_INVALID_TRANSITION',
+  'COMMISSION_INVOICE_VOID_NOT_PERMITTED',
+  'COMMISSION_INVOICE_SETTINGS_INVALID',
+  'COMMISSION_INVOICE_SETTINGS_CONFLICT',
+  'COMMISSION_CREDIT_INVALID',
+]);
+
+/** Legal documents and the Terms they govern. Said in the reader's language. */
+const LEGAL_CODES = new Set([
+  'LEGAL_DOCUMENT_IMMUTABLE',
+  'LEGAL_DOCUMENT_VERSION_EXISTS',
+  'TERMS_ACCEPTANCE_REQUIRED',
+  'TERMS_VERSION_OUTDATED',
+  'TERMS_DOCUMENT_UNAVAILABLE',
+]);
+
 const PREORDER_CHAT_CODES = new Set([
   'PREORDER_CHAT_CLOSED',
   'PREORDER_CHAT_BLOCKED',
@@ -100,6 +121,12 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
     }
     if (PREORDER_CHAT_CODES.has(error.code)) {
       return t(`errors.preorderChat.${error.code}` as TranslationKey);
+    }
+    if (COMMISSION_CODES.has(error.code)) {
+      return t(`errors.commission.${error.code}` as TranslationKey);
+    }
+    if (LEGAL_CODES.has(error.code)) {
+      return t(`errors.legal.${error.code}` as TranslationKey);
     }
     if (SUPPORT_CODES.has(error.code)) {
       return t(`errors.support.${error.code}` as TranslationKey);

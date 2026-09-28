@@ -1431,6 +1431,63 @@ export const ErrorCode = {
   /// packed; try again.
   DOCUMENT_RENDER_FAILED: 'DOCUMENT_RENDER_FAILED',
 
+  // --- Seller commission invoices -----------------------------------------------
+
+  /// This seller order cannot have a commission invoice yet. `details` names
+  /// each reason by code: the buyer's payment is not captured, the order or
+  /// the seller's part of it is cancelled, the commission is zero, or the
+  /// order has not reached the stage the settings require.
+  COMMISSION_INVOICE_NOT_ELIGIBLE: 'COMMISSION_INVOICE_NOT_ELIGIBLE',
+
+  /// The invoice cannot be issued until the listed details are fixed.
+  /// `details` lists each one as `{ field, code, message }` - a missing
+  /// seller GSTIN, an unverified tax rule, an unset issuer address.
+  COMMISSION_INVOICE_VALIDATION_FAILED: 'COMMISSION_INVOICE_VALIDATION_FAILED',
+
+  /// An issued commission invoice never changes. Correct it with a credit note.
+  COMMISSION_INVOICE_IMMUTABLE: 'COMMISSION_INVOICE_IMMUTABLE',
+
+  /// The invoice's status does not allow that action. meta.status, meta.move.
+  COMMISSION_INVOICE_INVALID_TRANSITION: 'COMMISSION_INVOICE_INVALID_TRANSITION',
+
+  /// Voiding an issued commission invoice is switched off in the invoice
+  /// settings. The correction is a credit note.
+  COMMISSION_INVOICE_VOID_NOT_PERMITTED: 'COMMISSION_INVOICE_VOID_NOT_PERMITTED',
+
+  /// The commission invoice settings were refused. `details` names each field.
+  COMMISSION_INVOICE_SETTINGS_INVALID: 'COMMISSION_INVOICE_SETTINGS_INVALID',
+
+  /// The credit note was refused: nothing left to credit, an amount above
+  /// what remains, or a proportional credit on an order with no refund.
+  COMMISSION_CREDIT_INVALID: 'COMMISSION_CREDIT_INVALID',
+
+  /// The settings were changed by someone else since they were loaded.
+  /// meta.currentVersion.
+  COMMISSION_INVOICE_SETTINGS_CONFLICT: 'COMMISSION_INVOICE_SETTINGS_CONFLICT',
+
+  // --- Terms and Conditions ------------------------------------------------------
+
+  /// The account cannot be created or activated until the Terms and Conditions
+  /// in force have been read and agreed to. Sent when `acceptedTerms` is not
+  /// true or no `termsDocumentId` came with it.
+  TERMS_ACCEPTANCE_REQUIRED: 'TERMS_ACCEPTANCE_REQUIRED',
+
+  /// The Terms agreed to are not the version in force: a newer version was
+  /// published, or the document named was never a published one.
+  /// meta.currentVersion. Show the current Terms and ask again.
+  TERMS_VERSION_OUTDATED: 'TERMS_VERSION_OUTDATED',
+
+  /// No Terms and Conditions are published for this kind of account, so no
+  /// account can be created or activated. The operator must publish them in
+  /// the admin console. 503.
+  TERMS_DOCUMENT_UNAVAILABLE: 'TERMS_DOCUMENT_UNAVAILABLE',
+
+  /// A published legal document never changes. Publish a new version instead.
+  LEGAL_DOCUMENT_IMMUTABLE: 'LEGAL_DOCUMENT_IMMUTABLE',
+
+  /// A document with this kind, version and language already exists.
+  LEGAL_DOCUMENT_VERSION_EXISTS: 'LEGAL_DOCUMENT_VERSION_EXISTS',
+
   // --- Quantity price bands -------------------------------------------------
 
   /// The seller's quantity bands contradict themselves or the list price. The

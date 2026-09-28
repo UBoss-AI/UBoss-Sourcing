@@ -360,7 +360,7 @@ one company:
 
 | `next` | When | What the storefront does |
 |---|---|---|
-| `READY` | The Individual tab; or the Company tab and exactly one company, which the session is now set to | Goes on, normally to `/home` |
+| `READY` | The Individual tab; or the Company tab and exactly one company, which the session is now set to | Goes on, normally to `/` |
 | `CHOOSE_COMPANY` | The Company tab and more than one company. The session stays Individual until the person chooses; the server never guesses | Shows `/select-company` |
 | `NO_COMPANY` | The Company tab and no company. The person is signed in as an individual | Shows `/select-company`, which offers to register a company |
 
@@ -459,10 +459,10 @@ These exist only on the customer prefix `/api/v1/auth`:
 
 | Endpoint | Body | Answer |
 |---|---|---|
-| `POST /api/v1/auth/register` | `fullName`, `email`, `phone`, `country` (two letters), `password`, `acceptedTerms`, optional `organization`, `consentVersion`, `language` | `202 { registered, requiresApproval, message }`. The same answer whether or not the address is already taken, so it cannot be used to discover accounts. 5 per hour per address |
+| `POST /api/v1/auth/register` | `fullName`, `email`, `phone`, `country` (two letters), `password`, `acceptedTerms`, `termsDocumentId`, optional `organization`, `language` | `202 { registered, requiresApproval, message }`. The same answer whether or not the address is already taken, so it cannot be used to discover accounts. 5 per hour per address |
 | `POST /api/v1/auth/verify-email` | `{ token }` from the email | `200 { verified, email, status }` |
 | `POST /api/v1/auth/verify-email/resend` | `{ email }` | `202` with a neutral message |
-| `POST /api/v1/auth/invitations/accept` | `{ token, password, acceptedTerms, consentVersion? }` | `200 { activated, email, message }` |
+| `POST /api/v1/auth/invitations/accept` | `{ token, password, acceptedTerms, termsDocumentId }` | `200 { activated, email, message }` |
 | `GET /api/v1/account/config` | none, public | `{ selfRegistrationEnabled }` so the storefront knows whether to show "Create account" |
 
 Self-registration is off unless `FEATURE_CUSTOMER_SELF_REGISTRATION=true`; when
@@ -471,6 +471,60 @@ must also wait for staff approval is `CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROV
 
 The logistics prefix has its own `POST /api/v1/logistics/auth/invitations/accept`
 for a carrier's staff.
+
+### Terms and Conditions: which ones, and proving they were agreed to
+
+All three of those endpoints need the Terms and Conditions in force. The client
+asks which they are, shows them, and sends back the document's id:
+
+1. `GET /api/v1/legal/current?kind=PLATFORM_TERMS&locale=pl` (`kind` is
+   `LOGISTICS_PARTNER_TERMS` on the carrier portal). The answer is
+   `{ document, requestedLocale, isFallback }`. `document` holds `id`,
+   `version`, `locale`, `title`, `body`, `changeSummary`, `effectiveAt`,
+   `publishedAt` and `contentSha256`. `isFallback` is true when the Terms are
+   not published in the language asked for; `document.locale` then says which
+   language they are in (English where it exists).
+2. The person reads them and agrees. The client sends `acceptedTerms: true` and
+   `termsDocumentId: document.id`.
+3. The server checks the id names a published document of the kind this account
+   needs, and that its version is the one in force now. It then writes the
+   acceptance (version, language, hash, where it was given, the server's own
+   time) in the same transaction that creates or activates the account.
+
+Nothing else about the agreement is read from the request. The old
+`consentVersion` field is ignored.
+
+`body` is plain text: a line starting `## ` is a heading, `- ` is a bullet,
+and a blank line ends a paragraph. Render it as text, never as HTML.
+
+| Refusal | Status | Meaning |
+|---|---|---|
+| `TERMS_ACCEPTANCE_REQUIRED` | 400 | `acceptedTerms` was not true, or no `termsDocumentId` was sent |
+| `TERMS_VERSION_OUTDATED` | 409 | The document is not the version in force: a newer one was published, it is not in force yet, or it was never published. `details[0].meta.currentVersion` names the current one. Fetch it again and ask again |
+| `TERMS_DOCUMENT_UNAVAILABLE` | 503 | No Terms of that kind are published, so no account can be opened. The operator must publish them |
+
+An invitation link is not spent by a Terms refusal: the checks run before the
+link is redeemed, so the person agrees to the current version and sends again.
+A link for another surface (a customer's link posted to the carrier portal) is
+refused as `TOKEN_INVALID` before it is spent, too.
+
+Public, and needing no session:
+
+| Endpoint | Answer |
+|---|---|
+| `GET /api/v1/legal/current?kind=&locale=` | The Terms in force, as above. `no-store` |
+| `GET /api/v1/legal/versions?kind=` | `{ versions: [{ id, version, locale, title, effectiveAt, isCurrent }] }`, newest first, including versions not yet in force |
+| `GET /api/v1/legal/documents/:id` | One published document of any version. A draft is 404 |
+| `GET /api/v1/legal/documents/:id/pdf` | The same document as a PDF, built from the stored text. Always the same bytes for the same document. 30 per 15 minutes per address |
+
+The admin console manages them under `/api/v1/admin/legal-documents`: list,
+read, create a draft, change or delete a draft, and `POST …/:id/publish`.
+Permissions `legal_document.read`, `legal_document.write` and
+`legal_document.publish`. A published document is refused with
+`409 LEGAL_DOCUMENT_IMMUTABLE` on any change; a repeated kind, version and
+language with `409 LEGAL_DOCUMENT_VERSION_EXISTS`. Publishing moves an effective
+date in the past to now, and refuses one earlier than the latest published
+version in the same language.
 
 A person who wants to buy for a company signs up exactly as above: one account,
 the same confirmation email, the same password rules. The company is applied
@@ -844,6 +898,13 @@ Finance / Approver. The Business Owner holds every permission.
 | `audit.read` | Read the audit log | ✓ | | | | ✓ |
 | `invoice.read` | Read invoices and credit notes | ✓ | | | ✓ | ✓ |
 | `invoice.issue` | Issue an invoice or a credit note | ✓ | | | | ✓ |
+| `commission_invoice.view` | See the commission invoices to sellers, one invoice with its history, the awaiting list, the settings and an order's commission card | ✓ | | | | ✓ |
+| `commission_invoice.preview` | Render a draft commission invoice as a watermarked PDF | ✓ | | | | ✓ |
+| `commission_invoice.generate` | Create, rebuild and discard a draft commission invoice | ✓ | | | | ✓ |
+| `commission_invoice.issue` | Issue a commission invoice, void an issued one where the settings allow it, record the seller's payment | ✓ | | | | ✓ |
+| `commission_invoice.download` | Download an issued commission invoice or credit note PDF | ✓ | | | | ✓ |
+| `commission_credit_note.create` | Issue a credit note against an issued commission invoice | ✓ | | | | ✓ |
+| `commission_invoice.settings.write` | Change who commission invoices are issued by, their numbering and rules | ✓ | | | | ✓ |
 | `data_request.read` | See the data-protection request queue | ✓ | | | | |
 | `data_request.action` | Approve or reject a data-protection request | ✓ | | | | |
 
@@ -1139,6 +1200,8 @@ These endpoints **require** the header; without it they answer
 | `POST /api/v1/preorders/:id/confirm` | Confirming terms creates an order, once |
 | `POST /api/v1/support/tickets`, `POST /api/v1/seller/support/tickets`, `POST /api/v1/logistics/support/tickets` | A double-click or a network retry must raise one support ticket |
 | `POST /api/v1/support/tickets/:reference/messages`, `POST /api/v1/seller/support/tickets/:reference/messages`, `POST /api/v1/logistics/support/tickets/:reference/messages` | A retry must add the message once |
+| `POST /api/v1/admin/seller-orders/:id/commission-invoice` | A double click must make one draft commission invoice |
+| `POST /api/v1/admin/commission-invoices/:id/credit-notes` | A retry must issue one credit note, with one number |
 
 What happens next:
 
@@ -1153,6 +1216,14 @@ What happens next:
 Stored keys expire after **24 hours**. A claim left "in progress" by a crashed
 process is treated as abandoned after **5 minutes**. Keys are scoped to the
 caller, so two customers cannot collide.
+
+The two commission-invoice endpoints keep the key on the document itself (a
+`UNIQUE` column) rather than in the 24-hour store, so a retry returns the same
+document however late it comes: `201` when it was made, `200` when it already
+existed. The same key sent for a different seller order or invoice is
+`409 IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY`. Generating a draft for a
+seller order that already has a live one also returns that one, whatever the
+key.
 
 Some other endpoints **accept** the header and use it to ignore duplicates
 without requiring it: `POST /api/v1/logistics/shipments/:id/status-events`
@@ -1171,7 +1242,9 @@ carries the **version** the client last read, and the server refuses the
 change if the record has moved on since. This is called **optimistic
 concurrency**: nothing is locked while somebody reads, and a clash is caught
 when they write. A seller's listing draft works this way (walkthrough 7.11), and
-so does a company application in the admin console.
+so does a company application in the admin console, and so do the commission
+invoice settings: `PUT /api/v1/admin/commission-invoices/settings` carries
+`expectedVersion`, and a stale one is `409 COMMISSION_INVOICE_SETTINGS_CONFLICT`.
 
 Every staff decision on a company application sends `expectedVersion`, the
 `version` from the last `GET /api/v1/admin/buyer-companies/:id`:
@@ -1219,6 +1292,10 @@ than let through, so brute-force protection never silently switches off.
 | Raising a support ticket (storefront, Seller Hub, portal) | 5 per 10 minutes. Each account may also raise only `SUPPORT_TICKETS_PER_DAY` (default 10) a day: `429 SUPPORT_TICKET_LIMIT_REACHED` |
 | Writing again on a support ticket; uploading a file to one | 20 per 10 minutes each |
 | Asking for a support file's download link | 60 per minute |
+| Commission invoices (staff): generate, rebuild, issue; download link and download | 30 per minute each |
+| Commission invoices (staff): save settings, void, record payment, credit note | 20 per minute each |
+| Commission invoice draft preview (staff) | 60 per minute |
+| Checking a document's QR (`GET /api/v1/documents/verify`) | 60 per minute |
 | Payment webhooks | 300 per minute |
 | ERP webhooks (operator and buyer) | 600 per minute |
 | Carrier webhooks | 2000 per minute |
@@ -1461,6 +1538,16 @@ Both frontends turn each `code` into a message in eight languages. So:
 | `SUPPORT_TICKET_CLOSED` | 409 | The ticket is closed. It can be read, not written on; a new problem is a new ticket |
 | `SUPPORT_ATTACHMENTS_UNAVAILABLE` | 409 | Files cannot be attached here (switched off, or no malware scanner). The ticket itself still goes |
 | `SUPPORT_ATTACHMENT_LIMIT_REACHED` | 409 | The ticket already has as many files as allowed (10). `meta.limit` says how many |
+| `COMMISSION_INVOICE_NOT_ELIGIBLE` | 422 | Staff only. This seller order cannot have a commission invoice yet. `details[]` names each reason (for example `PAYMENT_NOT_CAPTURED`, `STAGE_NOT_REACHED_DELIVERED`, `NO_COMMISSION`) |
+| `COMMISSION_INVOICE_VALIDATION_FAILED` | 422 | Staff only. The draft cannot be issued: `details[]` lists what is missing (issuer details, seller tax number, unverified tax rule, LUT). `SOURCES_CHANGED` means the sources changed since the draft was reviewed: rebuild it and review again |
+| `COMMISSION_INVOICE_IMMUTABLE` | 409 | Staff only. The invoice is issued and can no longer change. Correct it with a credit note |
+| `COMMISSION_INVOICE_INVALID_TRANSITION` | 409 | Staff only. The invoice's status does not allow that action |
+| `COMMISSION_INVOICE_VOID_NOT_PERMITTED` | 409 | Staff only. An issued invoice cannot be voided under the current settings, or it has credit notes. Issue a credit note instead |
+| `COMMISSION_INVOICE_SETTINGS_INVALID` | 400 | Staff only. A setting is not valid (a series, the country, the email). `details[]` names the field |
+| `COMMISSION_INVOICE_SETTINGS_CONFLICT` | 409 | Staff only. Somebody else saved the settings since you loaded them. Reload and try again |
+| `COMMISSION_CREDIT_INVALID` | 409 (400 for a missing amount) | Staff only. Nothing is left to credit, or the amount is more than what is left |
+| `TOKEN_INVALID` | 403 for a download link (400 for an emailed link) | The link has expired, been used, or belongs to somebody else. Ask for a new one |
+| `DOCUMENT_RENDER_FAILED` | 500 | A document PDF could not be made or stored. Nothing was issued and no number was used; try again |
 | `INTERNAL_ERROR` | 500 | Our fault. Quote `correlationId` |
 
 The complete list, over three hundred codes, is in
@@ -1502,8 +1589,8 @@ made with a secret only the two sides hold.
 
 **This is what confirms an order.** An order moves from `PENDING_PAYMENT` to
 `CONFIRMED` only when a signature-verified payment event arrives — or when our
-server asks Stripe's API itself (the *Check again* call in §7.7, and staff
-reconcile). The browser coming back from the gateway's payment page proves
+server asks Stripe's API itself (the confirmation view and *Check again* in
+§7.7, the worker's `payment.reconcile` sweep, and staff reconcile). The browser coming back from the gateway's payment page proves
 nothing: the page can be closed, the redirect can be forged, and a payment can
 still fail after it. A client must never show "paid" because of a redirect; it
 asks `GET /api/v1/payments/orders/:orderId/status`, or for Stripe Checkout
@@ -1566,8 +1653,9 @@ the event the gateway would have sent and runs it through the same code as a
 real webhook. To test the real path, forward events instead:
 `stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe`,
 and paste the `whsec_` it prints into `STRIPE_WEBHOOK_SECRET`. Without any
-webhooks, *Check again* on the confirmation page still confirms a Stripe
-Checkout payment from Stripe's API.
+webhooks, a Stripe Checkout payment is still confirmed from Stripe's API — by
+the confirmation view, *Check again* or the worker's sweep — but the webhook
+path itself is not exercised.
 
 ## The operator's ERP: stock pushed to us
 
@@ -1674,13 +1762,16 @@ In Windows PowerShell 5.1, `curl` is an alias for `Invoke-WebRequest`. Use
 
 ## 7.1 Customer: sign up, sign in, and who am I
 
-Sign-up (only where self-registration is on):
+Sign-up (only where self-registration is on). First fetch the Terms in force -
+a real client shows them and waits for the person to agree:
 
 ```powershell
 $api = 'http://localhost:4000/api/v1'
+$terms = Invoke-RestMethod -Uri "$api/legal/current?kind=PLATFORM_TERMS&locale=de"
 $body = @{
   fullName = 'Asha Rao'; email = 'asha@example.com'; phone = '+49 30 1234567'
-  country = 'DE'; password = 'correct-horse-battery'; acceptedTerms = $true
+  country = 'DE'; password = 'correct-horse-battery'
+  acceptedTerms = $true; termsDocumentId = $terms.document.id
   organization = 'Rao Klinik GmbH'
 } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "$api/auth/register" -ContentType 'application/json' -Body $body
@@ -2129,7 +2220,12 @@ Checkout, saved cards and the save box are Stripe's, on Stripe's page.
 
 After paying, Stripe returns the customer to
 `/checkout/payment/:orderId/confirmation?session_id=cs_...` on the storefront.
-That return proves nothing. Read our record of it:
+That return proves nothing. Ask the API what happened to it. While the attempt
+is still open (`CREATED` or `PENDING`), this read has our server ask Stripe's
+API and apply the answer through the guarded capture — at most once per 4
+seconds per attempt, however often it is called. If Stripe does not answer, it
+answers from our records. A card Stripe has confirmed therefore reads
+`SUCCEEDED` on the first call, even before the webhook:
 
 ```powershell
 Invoke-RestMethod -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/checkout/cs_test_a1B2c3D4e5F6..." -Headers $headers
@@ -2158,8 +2254,9 @@ make a second order.
 
 The customer pays on Stripe's page (or in Razorpay's sheet). The gateway then
 calls `POST /api/v1/payments/webhooks/stripe` (or `/razorpay`) with a signed
-event. That event — or our server's own read of Stripe's API through
-*Check again* or reconcile — is what moves the order to `CONFIRMED`.
+event. That event — or our server's own read of Stripe's API through the
+confirmation view, *Check again*, the worker's `payment.reconcile` sweep or
+reconcile — is what moves the order to `CONFIRMED`.
 
 ```mermaid
 sequenceDiagram
@@ -2185,7 +2282,9 @@ sequenceDiagram
 
 While waiting, a Stripe Checkout client polls the confirmation view shown in
 §7.7 (the storefront polls every 2 seconds and, after 60 seconds, offers
-*Check again*). Any client can also poll the order's payment status:
+*Check again*). Each poll on an open attempt also asks Stripe, so the loop
+usually ends on its first answer. A customer who closes the tab is covered by
+the worker, which asks Stripe about attempts still open after a minute. Any client can also poll the order's payment status:
 
 ```powershell
 Invoke-RestMethod -Uri "$api/payments/orders/01J9Z5Q0R1S2T3V4W5X6Y7Z8A9/status" -Headers $headers
@@ -2557,6 +2656,8 @@ in [section 2](#2-authentication-and-sessions).
 | `POST /api/v1/admin/auth/mfa/setup`, `/mfa/verify` | Staff | Two-step sign-in |
 | `POST /api/v1/admin/auth/session/location` | Staff | Report sign-in location (when switched on) |
 | `POST /api/v1/auth/register`, `/verify-email`, `/verify-email/resend` | Anyone | Customer self-registration |
+| `GET /api/v1/legal/current`, `/versions`, `/documents/:id`, `/documents/:id/pdf` | Anyone | The published Terms and Conditions a new account must agree to. See [Terms and Conditions](#terms-and-conditions-which-ones-and-proving-they-were-agreed-to) |
+| `GET`/`POST /api/v1/admin/legal-documents`, `GET`/`PUT`/`DELETE …/:id`, `POST …/:id/publish` | Staff with `legal_document.*` | Write and publish the Terms |
 | `GET`/`PUT /api/v1/auth/buyer-context` | Customer | Who this session buys for: yourself, or one of your companies. See [the buyer context](#the-buyer-context-buying-for-yourself-or-for-a-company) |
 | `POST {prefix}/password/forgot`, `/password/reset`, `/password/change` | Anyone / signed in | Passwords |
 
@@ -2824,6 +2925,72 @@ and packing lists: issued once, never edited, corrected only by a credit note.
 | `POST /api/v1/seller/invoices/:id/credit` | Seller | Credit note |
 | `GET /api/v1/admin/orders/:id/seller-documents` | Staff, `invoice.read` | Read only |
 
+`GET /api/v1/documents/verify?kind=&number=&code=` takes four kinds:
+`invoice` and `packing-list` (a seller's documents), and
+`commission-invoice` and `commission-credit-note` (the operator's invoices to
+sellers, next section). `code` is the 16-character HMAC printed in the QR;
+`number` is up to 40 characters. It is public, answers `no-store`, and is
+limited to 60 a minute. For a commission document it answers only
+`{ valid, number, kind, status, issuedAt, issuer }` — the issuer being the
+legal name — and nothing about the seller or the amounts. A wrong code or an
+unknown number is `{ valid: false }`.
+
+## Commission invoices to sellers (`commission-invoices.admin.ts`)
+
+The operator's own invoice **to a seller** for the platform commission on one
+seller order, plus the tax on it. It is not the seller's invoice to the buyer
+(above). All under `/api/v1/admin`, each route behind its own permission, with
+the CSRF double-submit on writes as everywhere else. **Nothing a client sends is
+trusted as a figure**: a generate names a seller order, an issue names a draft,
+a credit note names a basis, and every amount is the server's. Money crosses as
+a string of minor units, as elsewhere.
+
+| Endpoint | Permission | What |
+|---|---|---|
+| `GET /commission-invoices` | `commission_invoice.view` | The list. Query: `q` (invoice number, seller name or ID, order or seller order number), `status`, `collectionStatus`, `country` (seller registration country), `currency`, `from`, `to` (`YYYY-MM-DD`; issue date, or created date for drafts), `page`, `pageSize` (default 25, at most 100) |
+| `GET /commission-invoices/candidates` | `commission_invoice.view` | Seller orders with a commission and no live invoice, each with its blockers. Query: `q`, `page`, `pageSize` |
+| `GET /commission-invoices/settings` | `commission_invoice.view` | Who issues them and how they are numbered, with what is still missing |
+| `PUT /commission-invoices/settings` | `commission_invoice.settings.write` | Save them. Carries `expectedVersion`; a stale one is `409 COMMISSION_INVOICE_SETTINGS_CONFLICT` |
+| `GET /orders/:id/commission-invoices` | `commission_invoice.view` | The commission and the commission invoice of every seller order on one buyer order |
+| `POST /seller-orders/:id/commission-invoice` | `commission_invoice.generate` | Create the draft, or return the live one. **Needs `Idempotency-Key`.** `201` when made, `200` when it already existed |
+| `GET /commission-invoices/:id` | `commission_invoice.view` | One invoice: lines, totals, sources, credit notes, history, the actions allowed |
+| `POST /commission-invoices/:id/regenerate` | `commission_invoice.generate` | Rebuild a draft from its sources |
+| `GET /commission-invoices/:id/preview.pdf` | `commission_invoice.preview` | The draft as a watermarked A6 PDF, with no number, barcode or QR. `no-store` |
+| `POST /commission-invoices/:id/issue` | `commission_invoice.issue` | `{ snapshotHash }` — the hash of the draft that was reviewed. Takes the number, renders and stores the PDF, freezes it. Issuing an issued invoice returns it |
+| `POST /commission-invoices/:id/discard` | `commission_invoice.generate` | `{ reason }`. Discards a draft, which has no number, so a new one can be started. Refused on an issued invoice (`409 COMMISSION_INVOICE_IMMUTABLE`) |
+| `POST /commission-invoices/:id/void` | `commission_invoice.issue` | `{ reason }`. Voids an issued invoice, only where the settings allow it and it has no credit notes. The number stays used |
+| `POST /commission-invoices/:id/collection` | `commission_invoice.issue` | `{ reference, collectedAt? }`. Records the seller's payment; the issued PDF is not changed |
+| `POST /commission-invoices/:id/credit-notes` | `commission_credit_note.create` | `{ reason, basis, taxableMinor?, note? }`. **Needs `Idempotency-Key`.** `basis` is `FULL`, `PROPORTIONAL_TO_REFUND` or `CUSTOM_AMOUNT` (then `taxableMinor`, a string, is required) |
+| `POST /commission-invoices/documents/:id/link` | `commission_invoice.download` | A download link for an issued invoice or credit note PDF: `{ url, expiresAt }` |
+| `GET /commission-invoices/documents/:id/download?token=` | `commission_invoice.download` | The PDF itself, with the header `x-content-sha256` |
+
+**Issuing checks the draft you reviewed.** The server rebuilds the draft inside
+the issuing transaction. If the result differs from the stored draft, or from
+the `snapshotHash` sent, the answer is
+`422 COMMISSION_INVOICE_VALIDATION_FAILED` with `details[0].code`
+`SOURCES_CHANGED`: regenerate the draft, look at it again, then issue. If the
+PDF cannot be rendered or stored, the answer is `DOCUMENT_RENDER_FAILED` and
+no number was used.
+
+**Downloads are two steps.** `POST .../documents/:id/link` returns a URL with a
+token that works **once**, for **five minutes**
+(`LOGISTICS_DOCUMENT_URL_TTL_SECONDS`, default 300), and only for the staff
+member who asked for it; only the token's SHA-256 is stored. `GET` that URL
+while signed in. The server hashes the stored bytes again and refuses the
+download (`500`) if they no longer match the hash recorded at issue; otherwise
+it sends the file as an attachment, `no-store`, with `x-content-sha256` set to
+that hash so the client can check what it received. A used, expired or
+somebody else's token is `403 TOKEN_INVALID`. Every download is audited and
+shown in the invoice's history.
+
+Errors: `COMMISSION_INVOICE_NOT_ELIGIBLE`, `COMMISSION_INVOICE_VALIDATION_FAILED`,
+`COMMISSION_INVOICE_IMMUTABLE`, `COMMISSION_INVOICE_INVALID_TRANSITION`,
+`COMMISSION_INVOICE_VOID_NOT_PERMITTED`, `COMMISSION_INVOICE_SETTINGS_INVALID`,
+`COMMISSION_INVOICE_SETTINGS_CONFLICT`, `COMMISSION_CREDIT_INVALID`, and the
+existing `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY`,
+`DOCUMENT_RENDER_FAILED` and `TOKEN_INVALID` (see
+[The codes you will meet most](#the-codes-you-will-meet-most)).
+
 ## Seller Hub (`seller.*.ts`)
 
 Everything a seller does, under `/api/v1/seller`. Before a seller exists, the
@@ -2877,6 +3044,7 @@ Everything under `/api/v1/admin`, each behind its named permission.
 | VAT and invoices | `/admin/vat-rates`, `/admin/customers/:id/vat-number/check`, `/admin/invoices/:id`, `/ubl`, `/en16931-check` | `settings.*`, `invoice.*` |
 | Logistics | `/admin/logistics/partners`, `/logistics/shipments`, `/shipments/:id/assign`, `/logistics/integrations`, `/logistics/managed-levels`, `/logistics/legs` | `logistics.*` |
 | Platform fees | `/admin/platform-fees`, `/:id/publish`, `/:id/verify-tax` | `finance.*` |
+| Commission invoices to sellers | `/admin/commission-invoices`, `/candidates`, `/settings`, `/:id/issue`, `/:id/credit-notes`, `/admin/seller-orders/:id/commission-invoice` (see [Commission invoices to sellers](#commission-invoices-to-sellers-commission-invoicesadmints)) | `commission_invoice.*`, `commission_credit_note.create` |
 | Reports and exports | `/admin/dashboard`, `/admin/reports/*`, `POST /admin/exports`, `/admin/audit-logs` | `report.read`, `export.create`, `audit.read` |
 | Notifications | `/admin/notifications`, `/admin/attention` | Any staff |
 | Privacy | `/admin/data-requests`, `/:requestId/approve`, `/reject` | `data_request.*` |
@@ -3126,12 +3294,21 @@ Under `/api/v1/admin/support-tickets`.
 | Endpoint | Who | What |
 |---|---|---|
 | `POST /api/v1/assistant/start` | Customer, or guest if allowed | `{ conversationId }`, plus a `conversationToken` for a guest |
-| `POST /api/v1/assistant/chat` | Same | `{ conversationId, message, conversationToken? }`. Answers as an SSE stream |
+| `POST /api/v1/assistant/chat` | Same | `{ conversationId, message, conversationToken? }`. Answers as an SSE stream: `delta` frames, then `done`, or an `error` frame `{ code, retryable, message }` |
+| `GET /api/v1/admin/assistant/status` | Staff with `settings.read` | `{ status, provider, model }`, where `status` is `DISABLED`, `MISSING_CREDENTIALS` or `CONFIGURED`. `?probe=true` also makes one real call and adds `probe: { ok, reason, latencyMs }`. Never returns the key. 10 per hour |
 | `GET /api/v1/assistant/conversations`, `/:id`; `PATCH`/`DELETE .../:id` | Customer | History; delete is a soft delete |
 | `POST /api/v1/account/dashboard/insights` (and `/admin/`, `/logistics/`), plus `/stream` | Each audience | Explains that dashboard's figures. The figures come from the server, never from the request |
 
 The request cannot name a model, a system prompt or a token budget; a body that
-tries is a `400`. When no AI provider is configured, insights fall back to a
+tries is a `400`.
+
+A chat `error` frame's `code` is one of `BUSY` (the provider is overloaded),
+`QUOTA` (the key's allowance is spent), `TIMEOUT` (no answer in 30 seconds),
+`UNAVAILABLE` (the provider could not be reached, refused the key, or does not
+have the model) and `REFUSED` (the model declined). `retryable` says whether a
+second attempt can work: it is `false` for `REFUSED` and for a refused key or
+missing model. `message` is English, for an older client; a client should
+word the `code` itself. No answer is ever invented to cover a failure. When no AI provider is configured, insights fall back to a
 plain summary marked `source: "deterministic"`.
 
 ## Privacy

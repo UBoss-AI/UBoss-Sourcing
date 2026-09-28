@@ -115,6 +115,37 @@ export async function setup(): Promise<void> {
     }
 
     /*
+     * Published Terms for each kind of account, because sign-up and invitation
+     * activation now refuse without them (TERMS_DOCUMENT_UNAVAILABLE). Dated
+     * 2000-01-01 so any version a test publishes itself is newer. Never
+     * deleted: accepted documents cannot be, which is the point of them.
+     * `tests/support/legal.ts` hands a test the id of whichever is in force.
+     */
+    const { legalContentHash } = await import('../src/domain/legal-document.js');
+    for (const kind of ['PLATFORM_TERMS', 'LOGISTICS_PARTNER_TERMS'] as const) {
+      const content = {
+        kind,
+        version: 'test-2000-01-01',
+        locale: 'en',
+        title: 'Test Terms and Conditions',
+        body: '## Test document\nInstalled by the test suite. Not legal text.',
+      };
+      const effectiveAt = new Date('2000-01-01T00:00:00Z');
+      await prisma.legalDocument.upsert({
+        where: { kind_version_locale: { kind, version: content.version, locale: content.locale } },
+        update: {},
+        create: {
+          id: newId(),
+          ...content,
+          status: 'PUBLISHED',
+          effectiveAt,
+          publishedAt: effectiveAt,
+          contentSha256: legalContentHash(content),
+        },
+      });
+    }
+
+    /*
      * And then take the starter departments back out.
      *
      * `seedReferenceData` plants a starting category tree along with the

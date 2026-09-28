@@ -61,6 +61,8 @@ export const JobType = {
   /// Reads `integration_events` rather than a specific business table, so a
   /// new kind of operation is retried without a new job type.
   INTEGRATION_EVENT_RETRY: 'integration_event.retry',
+  /// Ask Stripe about Checkout payments that are still open, for the webhook
+  /// that never arrived and the customer who never came back.
   PAYMENT_RECONCILE: 'payment.reconcile',
   PAYMENT_LINK_EXPIRE: 'payment_link.expire',
   /// Bulk preorders whose waiting party ran out of time, and paid preorders

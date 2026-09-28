@@ -310,7 +310,14 @@ export const ModelName = {
   BuyerCompanyReviewEvent: 'BuyerCompanyReviewEvent',
   BuyerCompanyStatusHistory: 'BuyerCompanyStatusHistory',
   ConsentRecord: 'ConsentRecord',
-  BuyerCompanyEmailChallenge: 'BuyerCompanyEmailChallenge'
+  LegalDocument: 'LegalDocument',
+  BuyerCompanyEmailChallenge: 'BuyerCompanyEmailChallenge',
+  CommissionInvoiceSettings: 'CommissionInvoiceSettings',
+  CommissionInvoice: 'CommissionInvoice',
+  CommissionInvoiceLine: 'CommissionInvoiceLine',
+  CommissionCreditNote: 'CommissionCreditNote',
+  CommissionDocument: 'CommissionDocument',
+  CommissionInvoiceEvent: 'CommissionInvoiceEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -6248,10 +6255,35 @@ export const ConsentRecordScalarFieldEnum = {
   acceptedAt: 'acceptedAt',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
-  withdrawnAt: 'withdrawnAt'
+  withdrawnAt: 'withdrawnAt',
+  legalDocumentId: 'legalDocumentId',
+  locale: 'locale',
+  acceptanceSource: 'acceptanceSource'
 } as const
 
 export type ConsentRecordScalarFieldEnum = (typeof ConsentRecordScalarFieldEnum)[keyof typeof ConsentRecordScalarFieldEnum]
+
+
+export const LegalDocumentScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  version: 'version',
+  locale: 'locale',
+  status: 'status',
+  title: 'title',
+  body: 'body',
+  changeSummary: 'changeSummary',
+  effectiveAt: 'effectiveAt',
+  contentSha256: 'contentSha256',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  supersedesId: 'supersedesId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LegalDocumentScalarFieldEnum = (typeof LegalDocumentScalarFieldEnum)[keyof typeof LegalDocumentScalarFieldEnum]
 
 
 export const BuyerCompanyEmailChallengeScalarFieldEnum = {
@@ -6267,6 +6299,200 @@ export const BuyerCompanyEmailChallengeScalarFieldEnum = {
 } as const
 
 export type BuyerCompanyEmailChallengeScalarFieldEnum = (typeof BuyerCompanyEmailChallengeScalarFieldEnum)[keyof typeof BuyerCompanyEmailChallengeScalarFieldEnum]
+
+
+export const CommissionInvoiceSettingsScalarFieldEnum = {
+  id: 'id',
+  singleton: 'singleton',
+  legalEntityCode: 'legalEntityCode',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  country: 'country',
+  stateCode: 'stateCode',
+  taxRegime: 'taxRegime',
+  taxRegistrationLabel: 'taxRegistrationLabel',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  businessIdentifierLabel: 'businessIdentifierLabel',
+  businessIdentifier: 'businessIdentifier',
+  businessEmail: 'businessEmail',
+  supportContact: 'supportContact',
+  jurisdictionNote: 'jurisdictionNote',
+  serviceCode: 'serviceCode',
+  serviceCodeLabel: 'serviceCodeLabel',
+  serviceDescription: 'serviceDescription',
+  invoicePrefix: 'invoicePrefix',
+  creditNotePrefix: 'creditNotePrefix',
+  sequencePadding: 'sequencePadding',
+  financialYearStartMonth: 'financialYearStartMonth',
+  eligibleStage: 'eligibleStage',
+  paymentTermsDays: 'paymentTermsDays',
+  roundGrandTotal: 'roundGrandTotal',
+  requireSellerTaxId: 'requireSellerTaxId',
+  exportLutReference: 'exportLutReference',
+  zeroTaxDocumentType: 'zeroTaxDocumentType',
+  allowVoidAfterIssue: 'allowVoidAfterIssue',
+  footerNote: 'footerNote',
+  version: 'version',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommissionInvoiceSettingsScalarFieldEnum = (typeof CommissionInvoiceSettingsScalarFieldEnum)[keyof typeof CommissionInvoiceSettingsScalarFieldEnum]
+
+
+export const CommissionInvoiceScalarFieldEnum = {
+  id: 'id',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  settlementId: 'settlementId',
+  status: 'status',
+  documentType: 'documentType',
+  activeKey: 'activeKey',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  sequenceNumber: 'sequenceNumber',
+  number: 'number',
+  issueDate: 'issueDate',
+  issuedAt: 'issuedAt',
+  dueDate: 'dueDate',
+  currency: 'currency',
+  taxTreatment: 'taxTreatment',
+  reverseCharge: 'reverseCharge',
+  placeOfSupplyJson: 'placeOfSupplyJson',
+  issuerJson: 'issuerJson',
+  sellerJson: 'sellerJson',
+  sourceJson: 'sourceJson',
+  notesJson: 'notesJson',
+  validationJson: 'validationJson',
+  snapshotHash: 'snapshotHash',
+  subtotalMinor: 'subtotalMinor',
+  discountMinor: 'discountMinor',
+  taxableMinor: 'taxableMinor',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  totalTaxMinor: 'totalTaxMinor',
+  roundingMinor: 'roundingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  creditedMinor: 'creditedMinor',
+  amountInWords: 'amountInWords',
+  collectionStatus: 'collectionStatus',
+  collectionReference: 'collectionReference',
+  collectedAt: 'collectedAt',
+  templateVersion: 'templateVersion',
+  createdByUserId: 'createdByUserId',
+  issuedByUserId: 'issuedByUserId',
+  voidedByUserId: 'voidedByUserId',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommissionInvoiceScalarFieldEnum = (typeof CommissionInvoiceScalarFieldEnum)[keyof typeof CommissionInvoiceScalarFieldEnum]
+
+
+export const CommissionInvoiceLineScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  position: 'position',
+  kind: 'kind',
+  description: 'description',
+  detail: 'detail',
+  serviceCode: 'serviceCode',
+  orderReference: 'orderReference',
+  feeType: 'feeType',
+  basisMinor: 'basisMinor',
+  feeRatePercent: 'feeRatePercent',
+  policyId: 'policyId',
+  policyVersion: 'policyVersion',
+  taxableMinor: 'taxableMinor',
+  taxRatePercent: 'taxRatePercent',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  taxMinor: 'taxMinor',
+  totalMinor: 'totalMinor'
+} as const
+
+export type CommissionInvoiceLineScalarFieldEnum = (typeof CommissionInvoiceLineScalarFieldEnum)[keyof typeof CommissionInvoiceLineScalarFieldEnum]
+
+
+export const CommissionCreditNoteScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  sequenceNumber: 'sequenceNumber',
+  number: 'number',
+  issueDate: 'issueDate',
+  issuedAt: 'issuedAt',
+  reason: 'reason',
+  basis: 'basis',
+  note: 'note',
+  currency: 'currency',
+  taxableMinor: 'taxableMinor',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  totalTaxMinor: 'totalTaxMinor',
+  roundingMinor: 'roundingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  amountInWords: 'amountInWords',
+  linesJson: 'linesJson',
+  issuedByUserId: 'issuedByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionCreditNoteScalarFieldEnum = (typeof CommissionCreditNoteScalarFieldEnum)[keyof typeof CommissionCreditNoteScalarFieldEnum]
+
+
+export const CommissionDocumentScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentHash: 'contentHash',
+  sizeBytes: 'sizeBytes',
+  pageCount: 'pageCount',
+  templateVersion: 'templateVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionDocumentScalarFieldEnum = (typeof CommissionDocumentScalarFieldEnum)[keyof typeof CommissionDocumentScalarFieldEnum]
+
+
+export const CommissionInvoiceEventScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorUserId: 'actorUserId',
+  detailJson: 'detailJson',
+  snapshotHash: 'snapshotHash',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionInvoiceEventScalarFieldEnum = (typeof CommissionInvoiceEventScalarFieldEnum)[keyof typeof CommissionInvoiceEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -10021,10 +10247,29 @@ export const ConsentRecordOrderByRelevanceFieldEnum = {
   textVersion: 'textVersion',
   textHash: 'textHash',
   ipAddress: 'ipAddress',
-  userAgent: 'userAgent'
+  userAgent: 'userAgent',
+  legalDocumentId: 'legalDocumentId',
+  locale: 'locale',
+  acceptanceSource: 'acceptanceSource'
 } as const
 
 export type ConsentRecordOrderByRelevanceFieldEnum = (typeof ConsentRecordOrderByRelevanceFieldEnum)[keyof typeof ConsentRecordOrderByRelevanceFieldEnum]
+
+
+export const LegalDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  version: 'version',
+  locale: 'locale',
+  title: 'title',
+  body: 'body',
+  changeSummary: 'changeSummary',
+  contentSha256: 'contentSha256',
+  publishedById: 'publishedById',
+  supersedesId: 'supersedesId',
+  createdById: 'createdById'
+} as const
+
+export type LegalDocumentOrderByRelevanceFieldEnum = (typeof LegalDocumentOrderByRelevanceFieldEnum)[keyof typeof LegalDocumentOrderByRelevanceFieldEnum]
 
 
 export const BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = {
@@ -10036,4 +10281,125 @@ export const BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = {
 } as const
 
 export type BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = (typeof BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceSettingsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  singleton: 'singleton',
+  legalEntityCode: 'legalEntityCode',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  country: 'country',
+  stateCode: 'stateCode',
+  taxRegistrationLabel: 'taxRegistrationLabel',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  businessIdentifierLabel: 'businessIdentifierLabel',
+  businessIdentifier: 'businessIdentifier',
+  businessEmail: 'businessEmail',
+  supportContact: 'supportContact',
+  jurisdictionNote: 'jurisdictionNote',
+  serviceCode: 'serviceCode',
+  serviceCodeLabel: 'serviceCodeLabel',
+  serviceDescription: 'serviceDescription',
+  invoicePrefix: 'invoicePrefix',
+  creditNotePrefix: 'creditNotePrefix',
+  exportLutReference: 'exportLutReference',
+  footerNote: 'footerNote',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type CommissionInvoiceSettingsOrderByRelevanceFieldEnum = (typeof CommissionInvoiceSettingsOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceSettingsOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  settlementId: 'settlementId',
+  activeKey: 'activeKey',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  number: 'number',
+  currency: 'currency',
+  taxTreatment: 'taxTreatment',
+  snapshotHash: 'snapshotHash',
+  amountInWords: 'amountInWords',
+  collectionReference: 'collectionReference',
+  templateVersion: 'templateVersion',
+  createdByUserId: 'createdByUserId',
+  issuedByUserId: 'issuedByUserId',
+  voidedByUserId: 'voidedByUserId',
+  voidReason: 'voidReason'
+} as const
+
+export type CommissionInvoiceOrderByRelevanceFieldEnum = (typeof CommissionInvoiceOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  kind: 'kind',
+  description: 'description',
+  detail: 'detail',
+  serviceCode: 'serviceCode',
+  orderReference: 'orderReference',
+  feeType: 'feeType',
+  policyId: 'policyId'
+} as const
+
+export type CommissionInvoiceLineOrderByRelevanceFieldEnum = (typeof CommissionInvoiceLineOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceLineOrderByRelevanceFieldEnum]
+
+
+export const CommissionCreditNoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  number: 'number',
+  note: 'note',
+  currency: 'currency',
+  amountInWords: 'amountInWords',
+  issuedByUserId: 'issuedByUserId'
+} as const
+
+export type CommissionCreditNoteOrderByRelevanceFieldEnum = (typeof CommissionCreditNoteOrderByRelevanceFieldEnum)[keyof typeof CommissionCreditNoteOrderByRelevanceFieldEnum]
+
+
+export const CommissionDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentHash: 'contentHash',
+  templateVersion: 'templateVersion'
+} as const
+
+export type CommissionDocumentOrderByRelevanceFieldEnum = (typeof CommissionDocumentOrderByRelevanceFieldEnum)[keyof typeof CommissionDocumentOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorUserId: 'actorUserId',
+  snapshotHash: 'snapshotHash'
+} as const
+
+export type CommissionInvoiceEventOrderByRelevanceFieldEnum = (typeof CommissionInvoiceEventOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceEventOrderByRelevanceFieldEnum]
 

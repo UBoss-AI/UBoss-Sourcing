@@ -452,6 +452,21 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // The operator's commission invoices to sellers, their credit notes and settings.
+        path: 'finance/commission-invoices',
+        ...lazyRoute(
+          () => import('@/pages/finance/CommissionInvoicesPage').then((m) => m.CommissionInvoicesPage),
+          [Permission.COMMISSION_INVOICE_VIEW],
+        ),
+      },
+      {
+        path: 'finance/commission-invoices/:id',
+        ...lazyRoute(
+          () => import('@/pages/finance/CommissionInvoiceDetailPage').then((m) => m.CommissionInvoiceDetailPage),
+          [Permission.COMMISSION_INVOICE_VIEW],
+        ),
+      },
+      {
         path: 'staff',
         ...lazyRoute(() => import('@/pages/StaffPage').then((m) => m.StaffPage), [Permission.STAFF_READ]),
       },
@@ -460,6 +475,28 @@ export const router = createBrowserRouter([
         ...lazyRoute(() => import('@/pages/SettingsPage').then((m) => m.SettingsPage), [
           Permission.SETTINGS_READ,
         ]),
+      },
+      {
+        // The Terms and Conditions every new account agrees to: drafts, publishing, history.
+        path: 'settings/legal-documents',
+        ...lazyRoute(
+          () => import('@/pages/settings/LegalDocumentsPage').then((m) => m.LegalDocumentsPage),
+          [Permission.LEGAL_DOCUMENT_READ],
+        ),
+      },
+      {
+        path: 'settings/legal-documents/new',
+        ...lazyRoute(
+          () => import('@/pages/settings/LegalDocumentsPage').then((m) => m.LegalDocumentEditorPage),
+          [Permission.LEGAL_DOCUMENT_WRITE],
+        ),
+      },
+      {
+        path: 'settings/legal-documents/:id',
+        ...lazyRoute(
+          () => import('@/pages/settings/LegalDocumentsPage').then((m) => m.LegalDocumentEditorPage),
+          [Permission.LEGAL_DOCUMENT_READ],
+        ),
       },
       {
         path: 'settings/erp',

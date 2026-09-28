@@ -353,6 +353,85 @@ describe('asking a question', () => {
     expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 
+  it('words a provider failure in the page language and offers a retry', async () => {
+    const user = userEvent.setup();
+    const errorStream = (code: string, retryable: boolean): Response =>
+      new Response(
+        `event: error
+data: ${JSON.stringify({ code, retryable, message: 'English from the server' })}
+
+`,
+        { status: 200, headers: { 'content-type': 'text/event-stream' } },
+      );
+    stubFetch({ chat: () => errorStream('BUSY', true) });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Any gloves in stock?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('The assistant is busy right now.');
+    });
+    expect(screen.getByRole('alert')).not.toHaveTextContent('English from the server');
+    // No answer was invented, and the question is not shown twice.
+    expect(screen.queryAllByText('Any gloves in stock?')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+
+  it('replaces a half-answer on retry, rather than asking the question twice', async () => {
+    const user = userEvent.setup();
+    let calls = 0;
+    stubFetch({
+      chat: () => {
+        calls += 1;
+        return calls === 1
+          ? new Response(
+              `event: delta\ndata: ${JSON.stringify({ text: 'We stock sizes ' })}\n\n` +
+                `event: error\ndata: ${JSON.stringify({ code: 'TIMEOUT', retryable: true })}\n\n`,
+              { status: 200, headers: { 'content-type': 'text/event-stream' } },
+            )
+          : sseResponse(['We stock 18G, 20G and 22G.']);
+      },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Which cannula sizes?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    await user.click(await screen.findByRole('button', { name: /try again/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/18G, 20G and 22G/)).toBeInTheDocument();
+    });
+    expect(screen.queryAllByText('Which cannula sizes?')).toHaveLength(1);
+    expect(screen.queryByText(/^We stock sizes $/)).not.toBeInTheDocument();
+  });
+
+  it('offers no retry when a second attempt cannot work', async () => {
+    const user = userEvent.setup();
+    stubFetch({
+      chat: () =>
+        new Response(
+          `event: error
+data: ${JSON.stringify({ code: 'UNAVAILABLE', retryable: false })}
+
+`,
+          { status: 200, headers: { 'content-type': 'text/event-stream' } },
+        ),
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Hello?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/contact support/i);
+    });
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument();
+  });
+
   it('asks the question the landing page parked, exactly once', async () => {
     const asked: string[] = [];
     stubFetch({

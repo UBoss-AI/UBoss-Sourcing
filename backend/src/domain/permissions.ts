@@ -194,6 +194,45 @@ export const Permission = {
   /// record forever.
   INVOICE_ISSUE: 'invoice.issue',
 
+  // --- Seller commission invoices ---
+  //
+  // The operator's own invoices TO sellers for the platform commission. Split
+  // finely because each step is a different act: seeing that an invoice
+  // exists, rendering a draft of it, creating the draft, putting a number into
+  // the tax record, handing out the PDF, and reversing it.
+  /// See the commission invoice list, a commission invoice and its history.
+  COMMISSION_INVOICE_VIEW: 'commission_invoice.view',
+  /// Render the draft PDF and the calculation preview.
+  COMMISSION_INVOICE_PREVIEW: 'commission_invoice.preview',
+  /// Create, regenerate and discard a draft.
+  COMMISSION_INVOICE_GENERATE: 'commission_invoice.generate',
+  /// Issue - reserve the number, freeze the contents - and record the
+  /// seller's payment. Voiding an issued invoice, where the settings allow
+  /// it at all, is held here too.
+  COMMISSION_INVOICE_ISSUE: 'commission_invoice.issue',
+  /// Download the issued PDF.
+  COMMISSION_INVOICE_DOWNLOAD: 'commission_invoice.download',
+  /// Issue a credit note against an issued commission invoice.
+  COMMISSION_CREDIT_NOTE_CREATE: 'commission_credit_note.create',
+  /// Change who the invoices are issued by and how they are numbered - the
+  /// legal entity's name, registration and address. A legal statement on
+  /// every document that follows, so its own key.
+  COMMISSION_INVOICE_SETTINGS_WRITE: 'commission_invoice.settings.write',
+
+  // --- Legal documents ---
+  //
+  // The Terms and Conditions every new account agrees to. Business Owner only
+  // by default: publishing one binds every person who signs up afterwards, and
+  // it can never be edited or taken back once somebody has agreed to it.
+  /// See every version of every legal document, drafts included, and how many
+  /// people accepted each. Never who they were.
+  LEGAL_DOCUMENT_READ: 'legal_document.read',
+  /// Write, change and delete drafts.
+  LEGAL_DOCUMENT_WRITE: 'legal_document.write',
+  /// Publish a draft. From that moment its words are frozen and new accounts
+  /// must accept it once it takes effect.
+  LEGAL_DOCUMENT_PUBLISH: 'legal_document.publish',
+
   // --- Data protection ---
   /// Reading the data-subject request queue: who has asked for a copy of what
   /// is held about them or for it to be erased, and when each one falls due.
@@ -390,6 +429,15 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.FINANCE_POLICY_READ,
       Permission.FINANCE_POLICY_WRITE,
       Permission.FINANCE_TAX_VERIFY,
+      // The operator's invoices to sellers for the commission: finance's
+      // documents, end to end.
+      Permission.COMMISSION_INVOICE_VIEW,
+      Permission.COMMISSION_INVOICE_PREVIEW,
+      Permission.COMMISSION_INVOICE_GENERATE,
+      Permission.COMMISSION_INVOICE_ISSUE,
+      Permission.COMMISSION_INVOICE_DOWNLOAD,
+      Permission.COMMISSION_CREDIT_NOTE_CREATE,
+      Permission.COMMISSION_INVOICE_SETTINGS_WRITE,
       Permission.SCHEDULE_READ,
       Permission.SCHEDULE_WRITE,
       Permission.REPORT_READ,

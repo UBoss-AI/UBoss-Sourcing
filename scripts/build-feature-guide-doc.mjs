@@ -143,6 +143,7 @@ bullets([
   'Visitors can open the home page, catalogue, categories, search results and product pages without signing in. AI Mode opens for anybody too, but answers only account holders unless the business has chosen to let visitors ask as well.',
   'An activated customer session is required before cart, checkout, payment, order history, schedules and account pages can be used.',
   'A customer who opens a protected link directly is checked again by the application; hiding a button is not the only protection.',
+  'Every sign-in, for a person or for a company, lands on the home page. The shop has one home page and one address for it; an old link to the address ending in “/home” still works and simply takes the visitor to the home page, keeping anything else the link carried.',
 ]);
 h2('2.2 Account access');
 table(['Feature', 'What the customer can do', 'Important detail'], [
@@ -151,8 +152,26 @@ table(['Feature', 'What the customer can do', 'Important detail'], [
   ['Self-registration', 'Create an account where the organisation enables this feature.', 'It can require email confirmation and staff approval before ordering.'],
   ['Email verification', 'Confirm the mailbox used for a new account.', 'Stops a mistyped or unauthorised email becoming an active account.'],
   ['Forgot / reset password', 'Request a secure reset link and choose a new password.', 'The application avoids revealing whether an email address is registered.'],
-  ['Terms acceptance', 'Read and accept business terms where required.', 'The same controlled consent is used across sign-in, registration and activation.'],
+  ['Terms and Conditions', 'Read the Terms and Conditions in full and agree to them before an account is opened.', 'Needed when signing up and when activating an invited account. See 2.2b.'],
 ], [2500, 4200, 3600]);
+h2('2.2b Agreeing to the Terms and Conditions');
+p('Nobody gets an account without agreeing to the Terms and Conditions that apply today. This is true when a person signs up on the shop, when a company’s representative creates their account, and when an invited customer activates theirs.');
+table(['The person does', 'The system does back'], [
+  ['Sees “I have read and agree to the Terms and Conditions” with an empty box.', 'Never ticks the box for them.'],
+  ['Clicks the box, or the words Terms and Conditions.', 'Opens the full Terms in a window instead of ticking the box. It shows the version, the date it applies from and the language.'],
+  ['Reads down the text.', 'Keeps the I agree button switched off until the end of the text has been reached. If the whole text fits on the screen, the button works straight away.'],
+  ['Presses I agree.', 'Ticks the box and closes the window. Nothing else ticks it — not opening the Terms, not scrolling to the end.'],
+  ['Presses Cancel, Close or the Escape key instead.', 'Closes the window and leaves the box empty.'],
+  ['Unticks the box later, then wants to tick it again.', 'Opens the Terms again and waits for I agree again.'],
+  ['Presses Create account.', 'Checks on its own side that these are the Terms that apply today. If they are, it opens the account and keeps a record of exactly which Terms were agreed to, in which language and when, at the same moment.'],
+], [4200, 6100]);
+note('If the Terms change while somebody is signing up', 'The account is not opened. The person is told the Terms have changed, the box is emptied, the new Terms are shown, and everything else they typed stays where it was. They read and agree again, then press the button again.', C.blue);
+bullets([
+  'Anyone can read the Terms on their own page, print them and download them as a PDF. Every earlier version stays readable too, so a customer can always see what they agreed to.',
+  'If the Terms have not been published in the customer’s language, they are shown in English, and the customer is told so.',
+  'The privacy notice and the business’s other policies are linked separately. Agreeing to the Terms is not agreeing to marketing, and there is no marketing box on these forms.',
+  'Until the business has published its Terms, nobody can sign up or activate an account. The screen says so plainly.',
+]);
 h2('2.2a Signing in as yourself or for your company');
 p('A buyer can shop as themselves, or for a company they belong to. The sign-in page has two tabs, Individual and Company, so the person says which they mean before they start. Both tabs use the same email and password. There is one account per person, not one per company.');
 table(['The buyer does', 'The system does back'], [
@@ -418,6 +437,8 @@ p('Two things it will not do. It will not quote a figure the shop has not publis
 p('The opening screen greets the buyer by the time of day and by their first name — “Good morning, Priya” — and asks how it can help, rather than simply saying hello. The time is read from the buyer’s own clock, so somebody ordering from another country is greeted for the day they are actually having; between ten at night and five in the morning it says a plain “Hello” instead, because a cheerful “Good evening” at three in the morning is the kind of mistake a night shift notices. A visitor without an account is greeted too, just without a name, and a name is never guessed from an email address.');
 p('The assistant itself is courteous in the same way. It greets somebody who greets it, thanks somebody who thanks it, and where it cannot help it says so kindly and says who can. It still answers in a sentence or two rather than a speech — the shop’s buyers are at work — but short is not the same as curt.');
 p('Under the greeting the screen shows the size of the shop and its three largest departments, with a question ready for each one. Those come from the catalogue itself, so they are true on the day they are read and change as the shop changes.');
+p('When the assistant cannot answer, it says so honestly and never makes up a reply. The buyer is told why in their own language: the assistant is busy, has reached its limit for now, took too long, is unavailable, or cannot help with that question. A “Try again” button appears only when trying again can work. If the business’s AI key or model is wrong, the buyer is simply told the assistant is unavailable and to contact support, and the real reason is kept for the business in its records.');
+p('Staff can check from the admin side whether the assistant is set up — switched off, missing its key, or set up — and ask it to make one real test call. The answer never shows the key itself. The key is only ever kept on the server: it is never sent to a buyer’s browser, and every new version of the software is checked for this before it is built.');
 p('When a question is sent in AI Mode, the words the buyer typed break apart and blow away out of the box, so it is obvious the question has gone. The message itself is not affected by this: if the AI supplier cannot be reached, or the sign-in has expired while the buyer was typing, the question is still in the box afterwards, ready to send again. Anyone whose computer or phone is set to reduce animation sees the box simply clear.');
 
 note('Image search access', 'Image search is more expensive than text search because it uses an AI vision request. The storefront keeps this action behind the customer session.', C.purple);
@@ -497,13 +518,15 @@ table(['Step', 'What the customer does', 'What the system does back'], [
   ['1', 'Opens the payment page for their order.', 'Shows the order number, how many items, the subtotal, any discount, delivery, tax, the amount due and the currency it will be charged in, and the billing address. The amount comes from the order that was placed. Nothing on this page can change it.'],
   ['2', 'Presses “Pay securely now”.', 'The button greys out at once and says “Opening secure payment…”, so pressing twice cannot start two payments. The same goods stay set aside for the customer while they pay.'],
   ['3', 'Pays on Stripe’s page.', 'Stripe’s page shows the business’s name and the one amount due. The customer types a card, or picks a card they saved before. If their bank wants an extra security check, it happens there.'],
-  ['4', 'Comes back to the shop.', 'A page says “Confirming payment…” and waits until the shop has heard from Stripe. Coming back is not taken as proof of payment.'],
+  ['4', 'Comes back to the shop.', 'A page says “Confirming your payment…” while the shop checks with Stripe itself. Coming back is not taken as proof of payment: the shop asks Stripe, and only Stripe’s answer counts. For an ordinary card payment this takes a moment, so the next thing the customer sees is the answer.'],
   ['5', 'Sees the answer.', '“Payment successful”, with the order number, the amount, when it was paid and the card used, such as “Visa ending in 4242”, and buttons to view the order or keep shopping. Or a clear reason if it did not go through, with a button to try again on the same order.'],
 ], [800, 3000, 6500]);
 bullets([
   'The order is placed once. Trying again, from the same tab, a second tab or after a failed card, always pays for that same order and never makes a second one.',
   'If the customer presses Cancel on Stripe’s page, they come back to “Payment cancelled — nothing was charged”, and the order waits to be paid. Stripe’s page is closed behind them, so a tab left open cannot take money later.',
   'If the answer is slow, the page says so after a minute and offers “Check again”, which asks Stripe directly. It never starts a new payment.',
+  'A customer who pays and then closes the tab is not left with an unpaid order. The system keeps asking Stripe about payments that are still open, and records a paid one as paid. Before this, a payment Stripe had taken could stay “pending” for good if Stripe’s own message to the shop never arrived.',
+  'Once the payment is confirmed, the customer’s order pages show it as paid straight away, not as still waiting for payment.',
   'Some bank payments take time to settle. The page then says “Payment processing”, and the order is confirmed when the money arrives.',
   'If the goods were no longer available when the customer pressed Pay, the payment page refuses rather than taking money for goods that are not there.',
 ]);
@@ -667,6 +690,7 @@ bullets([
 h3('Checking that a document is genuine');
 p('Every invoice and packing list has a QR code. Anyone holding the paper — a receiving clerk, a customs officer, a driver — can scan it and see who issued it, when, and whether it still stands. The check shows nothing about the customer or the price.');
 p('This is a check for this marketplace’s own documents. It is not the government’s e-invoice system, and the document says so.');
+p('The same check works for the invoices the marketplace itself sends to sellers for its fee (see 10.8), and for the credit notes against them. For those it shows only the number, what kind of document it is, whether it still stands, when it was issued and the marketplace’s legal name — never the seller or any amount.');
 
 note('Nothing is charged until the customer says yes', 'A seller accepting a preorder is an offer, not a sale. The customer is charged only after they have confirmed the seller’s terms and paid for the order — and the order is confirmed only when the payment provider says the payment went through, never because a page was reached.', C.orange);
 page();
@@ -1457,7 +1481,7 @@ table(['Staff role', 'Main abilities'], [
   ['Catalog Manager', 'Categories, products, media, variants, prices, imports and publication, and reading and hiding product reviews.'],
   ['Inventory Manager', 'Inventory receipts, adjustments, reservations, warehouses and stock alerts.'],
   ['Order Manager', 'Orders, fulfilment, shipment status, cancellation, return handling, reading product reviews, and reading and answering support tickets.'],
-  ['Finance / Approver', 'Payment review, payment links, refunds and approval work, and reading support tickets.'],
+  ['Finance / Approver', 'Payment review, payment links, refunds and approval work, the marketplace’s own invoices to sellers for its fee, and reading support tickets.'],
 ], [3100, 6600]);
 p('The page may hide controls a role cannot use, but the server also checks the permission on every protected request.');
 h2('7.3 Dashboard and notification bell');
@@ -1808,6 +1832,32 @@ bullets([
   'A preview shows what a chosen seller would be paid on a given sale under today’s fees, without saving anything.',
   'Nothing is set out of the box. Until the finance team publishes a fee, sellers are charged the marketplace commission exactly as before.',
 ]);
+
+h2('10.8 Invoicing sellers for the marketplace fee');
+p('The marketplace keeps a fee from each seller order (see 10.7). The finance team can send the seller a proper invoice for that fee, and for any tax on it, under Finance → Commission invoices. This is the marketplace’s own invoice to the seller. It is not the seller’s invoice to the buyer, not a receipt and not a record of money being moved. Making one does not take any money from anybody and does not change a payment, a refund or what a seller is paid.');
+table(['What finance does', 'What the system does back'], [
+  ['Opens the Awaiting invoice list, or an order’s page, which has a Commission invoices box for each seller on the order.', 'Lists every seller order that has a fee and no invoice yet. For each one it either offers to make a draft or says in plain words why it cannot yet — for example the buyer has not paid, the order was cancelled, the seller’s part is in dispute, or the goods have not been delivered yet.'],
+  ['Makes a draft.', 'Copies the fee and the tax on it exactly as they were worked out when the order was confirmed. Nothing is recalculated and nobody types an amount. Pressing the button twice still makes one draft, because one seller order can only ever have one invoice in play at a time.'],
+  ['Looks at the draft and its preview.', 'Shows a small A6 page, marked as a draft, with no number yet. It lists anything that would stop it being issued, such as a missing business address, a missing or wrong seller tax number, or a tax rule that nobody has confirmed yet.'],
+  ['Rebuilds the draft if something has changed, then presses Issue invoice and confirms.', 'Checks everything again at that moment. If anything behind the figures changed since the draft was looked at, it refuses and asks for the draft to be rebuilt and checked. Otherwise it gives the invoice the next number, makes the final PDF, stores it safely and locks it. From then on the invoice can never be edited.'],
+  ['Downloads the PDF.', 'Gives a download link that works once, for five minutes, and only for the person who asked. Before handing the file over it checks that it is exactly the file that was issued, and it records every download.'],
+  ['Records that the seller has paid, with the payment reference.', 'Marks the invoice as paid. It can also show that the amount was taken from a seller payout. The issued PDF itself never changes.'],
+], [3600, 6100]);
+h3('Numbers, tax and what the page looks like');
+bullets([
+  'Numbers are given by the system, one after another, never twice and never reused — for example GM/COM/2026-27/000001. Credit notes have their own series. The letters, how many digits, the month the financial year starts and the business entity are all settings.',
+  'The page is A6 (postcard size) and names both businesses side by side, the order, the payment and the fee in detail. It carries a barcode of the number and a QR code anyone can scan to check the document is genuine.',
+  'How tax is shown depends on the marketplace’s own tax registration, which is a setting. For India the system works out whether the seller is in the same state (two tax halves) or another state or country (one combined tax). For VAT it can show a sale across a border as reverse charge. If the marketplace is not registered for tax, an invoice with tax on it cannot be issued at all.',
+  'A tax on the fee is only printed as, say, GST once somebody in finance has confirmed that rule on the platform fee. Until then the invoice cannot be issued.',
+  'The title follows the tax: Tax Invoice when tax is charged; Invoice or Bill of Supply when it is not, as the settings say.',
+  'The tax rates come from the platform fees, never from these settings. The settings screen says clearly that the details should be checked by an accountant or tax adviser before real invoices are sent.',
+  'It is not a government e-invoice. The QR code is the marketplace’s own “Verify this document” check, and the page says so.',
+]);
+h3('Putting an invoice right: credit notes');
+p('An issued invoice is never changed. When something needs correcting — the order was cancelled, the buyer was refunded, a chargeback, a dispute, a tax correction — finance creates a credit note. They choose the reason and how much: everything still left, a share matching what the buyer was refunded, or an amount they type in. The system works out the tax on it, never lets it go past what is left, gives it its own number and its own PDF, and marks the invoice as partly or fully credited. Once an invoice is fully credited, a new one can be made for the same seller order.');
+note('A reminder, never an automatic step', 'When an order behind an issued invoice is cancelled, refunded or disputed, the list and the invoice page show “Credit note may be due”. It is advice for finance. The system never creates a credit note by itself, and a refund to a buyer works exactly as before.', C.orange);
+note('Who can do it', 'Only the Business Owner and the finance team can see or use these screens, and seeing, previewing, making drafts, issuing, downloading, crediting and changing the settings are each a separate permission. An unwanted draft can be discarded. An issued invoice can only be cancelled outright if the business has switched that on in the settings and it has no credit notes; its number then stays used.', C.blue);
+p('The seller is not sent the invoice by the system. There is no Seller Hub screen or email for it yet; finance downloads the PDF from the admin console.');
 page();
 
 // 11
@@ -1845,7 +1895,8 @@ h2('11.1b Support tickets — answering problems people raise');
 p('Tickets raised by customers, sellers and delivery companies all arrive in one place: Support → Tickets in the admin menu. The notification bell tells staff who can read tickets when a new one arrives and when somebody writes again on one.');
 table(['Staff member does', 'The system does back'], [
   ['Opens Tickets.', 'Starts on the tickets that need work: sent, being handled and waiting for the customer, with a count for each state. The list can be filtered by state, priority, topic, where the ticket came from (the shop, the Seller Hub or the delivery company portal) and who it is assigned to (me, or nobody), and searched by ticket number, subject, name, email, company or order number.'],
-  ['Opens a ticket.', 'Shows who raised it: their name and email (and the account’s current email if it has changed since), whether they are a buyer, a company buyer, a seller or a delivery company, and which company, seller or delivery company they raised it for, with a link to that record. It shows the order it is about, and one timeline of the conversation and everything that happened to it. Internal notes, priority and assignment changes are marked Staff only. The customer’s files open from here too.'],
+  ['Opens a ticket.', 'Shows who raised it: their name and email (and the account’s current email if it has changed since), whether they are a buyer, a company buyer, a seller or a delivery company, and which company, seller or delivery company they raised it for, with a link to that record. It shows the order it is about, and one timeline of the conversation and everything that happened to it. Internal notes, priority and assignment changes are marked Staff only.'],
+  ['Looks at the documents the customer sent.', 'Shows them above the conversation, each with its type, size and when it was sent. A photograph opens on the same screen, fitted to the screen or at full size, with arrows to move between the pictures and a button to save it. A PDF or a video is saved to the staff member’s computer, again without leaving the ticket. Nothing is opened until the staff member asks, because every file opened is recorded, and a file already opened is not opened — or recorded — a second time.'],
   ['Writes a reply, and can mark the ticket waiting for the customer or resolved at the same time.', 'Sends the reply and emails the customer a link to read it (never the words). The first reply on a new ticket moves it to being handled and, if nobody had it, puts it in that staff member’s name.'],
   ['Writes an internal note.', 'Keeps it for staff only. The customer never sees it, and it is not included in the customer’s copy of their data.'],
   ['Changes the state.', 'Allows only sensible moves: for example a resolved ticket can be reopened or closed, and a closed ticket cannot be changed at all.'],
@@ -1935,6 +1986,7 @@ table(['Settings group', 'Examples of what it controls'], [
   ['Shipping and delivery policy', 'Delivery-related configuration and customer-facing policy information.'],
   ['Notifications', 'Email/notification settings and delivery behaviour.'],
   ['Appearance and policy links', 'Brand-facing configuration and links such as terms or privacy documents.'],
+  ['Legal documents', 'Write the Terms and Conditions buyers agree to, and the separate terms for delivery companies. Each version is written as a draft, checked in a preview, then published. Once published it can never be changed or deleted; a correction is a new version. The list shows which version applies today and how many people agreed to each, never who.'],
   ['Feature configuration', 'Which optional customer/admin capabilities appear in a specific deployment.'],
 ], [3000, 7000]);
 h2('12.3 Integrations and ERP');
@@ -2013,7 +2065,7 @@ table(['Step', 'What the person does', 'What the system does'], [
   ['1', 'Opens Logistics, then Carriers, and adds a haulage company.', 'Records the registered name, trading name, country, company number, contract reference and contact details, and gives the company its own short code.'],
   ['2', 'Types the name and email of the person who will run that company.', 'Emails them a link that works once and expires. No password is created, and none is sent.'],
   ['3', 'Marks the haulage company as active, once the business’s own checks are done.', 'Until this is done nobody at that company can use the portal. They can still set their password from the link; the portal then tells them the account has not been activated yet instead of letting them in.'],
-  ['4', 'That person opens the link.', 'Lets them choose their own password, then walks them through setting up a second factor before they can reach any screen.'],
+  ['4', 'That person opens the link.', 'Lets them choose their own password and asks them to read and agree to the delivery company terms — the same way buyers agree to theirs (see 2.2b). Then it walks them through setting up a second factor before they can reach any screen.'],
   ['5', 'They invite the rest of their own team.', 'Each person gets their own one-time link and their own role.'],
 ], [700, 4400, 5000]);
 note('Nobody is ever emailed a password', 'Not a temporary one, not a first one. The only thing that goes out is a link that stops working once it has been used and again when it expires.', C.blue);
@@ -2258,6 +2310,7 @@ bullets([
   'Passwords use secure password hashing; reset/activation/contact tokens are time-limited and single-use.',
   'Every staff session is challenged for a code from an authenticator app, and recovery codes are issued once for a lost phone.',
   'Permissions are enforced on the server for protected actions.',
+  'An account is only opened when the server itself has checked that the person agreed to the Terms that apply today. The record of which Terms, in which language and when is written together with the account, and nothing about it is taken from the person’s browser.',
   'Preorder chats: a customer can only ever open their own conversations, sellers cannot see them at all, staff need the right role, and a signed-out or disabled account loses the live connection within seconds. Messages are shown as plain text, so nothing a person types can run as code.',
   'Rate limits help protect login, API and expensive assistant actions.',
   'The address a request appears to come from is taken from the shop’s own front door, not from anything the caller can set — so neither the rate limits nor the lock-out after repeated failed sign-ins can be side-stepped by a caller claiming to be somebody else each time.',
@@ -2402,6 +2455,21 @@ table(['Step', 'Who', 'What happens'], [
   ['9', 'System', 'Links the request to the conversation and sends it to the supplier, who answers with final terms that the customer confirms and pays for as with any preorder.'],
 ], [800, 1600, 7600]);
 
+h2('Example A3 — A new buyer signs up and agrees to the Terms');
+table(['Step', 'Who', 'What happens'], [
+  ['1', 'Buyer', 'Opens Create account and fills in their name, email, country, mobile number and password.'],
+  ['2', 'Buyer', 'Clicks the Terms and Conditions box. The full Terms open in a window. The box stays empty.'],
+  ['3', 'Buyer', 'Reads to the end. The I agree button switches on. They press it; the window closes and the box is ticked.'],
+  ['4', 'Buyer', 'Presses Create account.'],
+  ['5', 'System', 'Checks that the Terms agreed to are the ones that apply today, opens the account, records which Terms were agreed to, and emails a confirmation link.'],
+], [800, 1600, 7700]);
+h2('Example A4 — The business publishes new Terms');
+table(['Step', 'Who', 'What happens'], [
+  ['1', 'Business owner', 'Opens Legal documents, under Administration, and starts a new version of the Terms and Conditions with the text their lawyer approved, the date it should apply from and a short note on what changed.'],
+  ['2', 'Business owner', 'Checks the preview, then publishes it and confirms that it can never be changed afterwards.'],
+  ['3', 'System', 'Freezes the text. From the date it applies, every new sign-up must agree to this version. People who agreed to an earlier version stay linked to the one they agreed to.'],
+  ['4', 'Buyer', 'Somebody half-way through signing up with the old version presses Create account. They are told the Terms have changed and asked to read and agree to the new ones. Nothing they typed is lost.'],
+], [800, 1600, 7700]);
 h2('Example B — Inventory manager handles stock');
 table(['Step', 'Staff action', 'System response'], [
   ['1', 'Signs in to Admin Console and completes required location check.', 'Creates staff session and records sign-in place for visibility.'],
@@ -2580,6 +2648,19 @@ table(['Step', 'Who acts', 'What happens'], [
   ['7', 'The buyer', 'Gets an email with a link, reads the reply (signed “Support team”) under Account → Support, and writes back that the replacement arrived.'],
   ['8', 'The system', 'Moves the ticket back to Being handled, because the buyer has written.'],
   ['9', 'The order desk', 'Marks it Resolved, and later Closed. Nobody can write on it after that; a new problem would be a new ticket.'],
+], [700, 2300, 7000]);
+
+h2('Example P — The marketplace invoices a seller for its fee, then a refund follows');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'A buyer', 'Pays for an order from a glove seller in another Indian state. The payment company confirms the payment, and the system works out the marketplace’s fee on the seller’s part and the tax on it.'],
+  ['2', 'The system', 'Once the goods are delivered — the point the business chose in the settings — the seller order appears under Finance → Commission invoices → Awaiting invoice, marked Ready.'],
+  ['3', 'A member of finance', 'Presses Generate draft. The draft copies the fee and its tax as they were worked out, and shows one combined tax because the seller is in another state.'],
+  ['4', 'A member of finance', 'Looks at the A6 preview, then presses Issue invoice and confirms. The invoice gets the next number, for example GM/COM/2026-27/000014, and can no longer change.'],
+  ['5', 'A member of finance', 'Downloads the PDF with a one-time link and sends it to the seller. When the seller pays, finance records the payment reference and the invoice shows as Paid.'],
+  ['6', 'The finance team', 'Later refunds the buyer for part of the order, as usual. The refund itself works exactly as before.'],
+  ['7', 'The system', 'Shows “Credit note may be due” on the invoice. It does not create one by itself.'],
+  ['8', 'A member of finance', 'Creates a credit note “in proportion to the refund”. It gets its own number and PDF, takes back the matching share of the fee and its tax, and the invoice shows as Partly credited.'],
+  ['9', 'The seller’s accountant', 'Scans the QR code on the invoice and sees that it is genuine, who issued it and when, and that it has been partly credited.'],
 ], [700, 2300, 7000]);
 
 note('Document status', 'This guide is based on the current Gloviaa Mart codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);

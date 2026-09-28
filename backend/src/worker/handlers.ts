@@ -26,6 +26,7 @@ import { archiveOrphanedShipmentAlerts } from '../modules/notifications/admin-no
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
 import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
+import { reconcileOpenCheckouts } from '../modules/payments/stripe-checkout.service.js';
 import { expireStalePreorders, flagPreorderDeliveryRisks } from '../modules/preorders/request.service.js';
 import { runPreorderChatMaintenance } from '../modules/preorder-chat/maintenance.service.js';
 import { createChatBus, type ChatBus } from '../modules/preorder-chat/realtime/bus.js';
@@ -478,6 +479,21 @@ const preorderChatSweep: JobHandler = async () => {
   }
 };
 
+/**
+ * Ask Stripe about Checkout payments that are still open.
+ *
+ * The backstop for a webhook that never arrived and a customer who never came
+ * back to the confirmation page: without it, a card Stripe charged left its
+ * order unpaid here for good. Idempotent - it applies only what Stripe says,
+ * through the same guarded path as the webhook.
+ */
+const reconcileCheckouts: JobHandler = async () => {
+  const result = await reconcileOpenCheckouts();
+  if (result.captured > 0 || result.closed > 0 || result.failed > 0) {
+    logger.info(result, 'reconciled open checkout payments with Stripe');
+  }
+};
+
 const expireLinks: JobHandler = async () => {
   const expired = await expirePaymentLinks();
   if (expired > 0) logger.info({ expired }, 'expired payment links');
@@ -904,6 +920,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.ERP_PUSH_RETRY]: erpPushRetry,
   [JobType.INTEGRATION_EVENT_RETRY]: integrationEventRetry,
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
+  [JobType.PAYMENT_RECONCILE]: reconcileCheckouts,
   [JobType.PREORDER_EXPIRE]: expirePreorders,
   [JobType.PREORDER_RISK_SWEEP]: preorderRiskSweep,
   [JobType.PREORDER_CHAT_SWEEP]: preorderChatSweep,

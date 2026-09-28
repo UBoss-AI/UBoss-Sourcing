@@ -44,12 +44,13 @@
  * the column beside it.
  */
 import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
-import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
+import { TermsAgreementField } from '@/components/legal/TermsAgreementField';
+import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
 import { Button, Field, Select } from '@/components/ui';
 import {
   AuthCard,
@@ -63,7 +64,8 @@ import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { errorMessage } from '@/lib/errors';
+import { errorMessage, isTermsError } from '@/lib/errors';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { OnboardingSteps } from '@/pages/company/OnboardingSteps';
 import {
   CHECK_EMAIL_PATH,
@@ -108,7 +110,12 @@ function buildSchema(t: ReturnType<typeof useI18n>['t']) {
         .min(12, t('validation.passwordTooShort'))
         .max(128, t('validation.passwordTooLong')),
       confirmPassword: z.string(),
-      acceptedTerms: z.literal(true, { message: t('validation.acceptTerms') }),
+      // The id of the Terms document agreed to in the dialog, or null. Only
+      // the dialog's I agree sets it; see `TermsAgreementField`.
+      termsDocumentId: z
+        .string()
+        .nullable()
+        .refine((value) => value?.length === 26, { message: t('validation.acceptTerms') }),
     })
     .refine((values) => values.password === values.confirmPassword, {
       path: ['confirmPassword'],
@@ -166,10 +173,16 @@ export function RegistrationForm({ variant = 'individual' }: { variant?: Registr
 
   useDocumentMeta({ title: t('auth.register.pageTitle'), noIndex: true }, business.displayName);
 
+  // Asked of the server, in the language the page is read in. The form never
+  // decides which Terms are current.
+  const terms = useCurrentTerms('PLATFORM_TERMS', language);
+
   const {
     register,
+    control,
     handleSubmit,
     setError,
+    setValue,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
@@ -182,7 +195,7 @@ export function RegistrationForm({ variant = 'individual' }: { variant?: Registr
       organization: '',
       password: '',
       confirmPassword: '',
-      acceptedTerms: false as never,
+      termsDocumentId: null,
     },
   });
 
@@ -205,7 +218,8 @@ export function RegistrationForm({ variant = 'individual' }: { variant?: Registr
         country: values.country,
         password: values.password,
         organization: values.organization === '' ? null : values.organization,
-        acceptedTerms: values.acceptedTerms,
+        acceptedTerms: values.termsDocumentId !== null,
+        termsDocumentId: values.termsDocumentId,
         // So the confirmation email arrives in the language they were reading
         // the shop in, and the account opens in it on first sign-in.
         language,
@@ -236,6 +250,16 @@ export function RegistrationForm({ variant = 'individual' }: { variant?: Registr
       inFlight.current = false;
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));
+        return;
+      }
+
+      if (error instanceof ApiError && isTermsError(error.code)) {
+        // The Terms changed, or were never agreed to, between the dialog and
+        // the server. Every other answer on the form is kept; the agreement is
+        // cleared and the current Terms fetched, and the person agrees again.
+        setValue('termsDocumentId', null);
+        terms.reload();
+        setError('termsDocumentId', { message: t(`errors.terms.${error.code}` as TranslationKey) });
         return;
       }
 
@@ -424,11 +448,18 @@ export function RegistrationForm({ variant = 'individual' }: { variant?: Registr
             )}
           </Field>
 
-          <AcceptTermsCheckbox
-            label={t('auth.register.acceptTerms')}
-            error={errors.acceptedTerms?.message}
-            errorId="terms-error"
-            {...register('acceptedTerms')}
+          <Controller
+            name="termsDocumentId"
+            control={control}
+            render={({ field }) => (
+              <TermsAgreementField
+                terms={terms}
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.termsDocumentId?.message}
+                errorId="terms-error"
+              />
+            )}
           />
 
           {/* Said before the form is sent, not after. Somebody who needs to

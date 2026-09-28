@@ -7,11 +7,13 @@
  * session, and the backend answers from its own records, which only Stripe's
  * signed webhook (or Stripe's API, asked by the server) ever advances.
  *
- * The webhook usually lands before the customer does, and sometimes a few
- * seconds after. So the first state is honest - "Confirming payment…" - and
- * the page asks again every couple of seconds for a limited time. After that
- * it says the confirmation is delayed, that the payment has not been lost,
- * and offers "Check again", which has the server ask Stripe directly.
+ * While the attempt is still open, each of those questions has the server ask
+ * Stripe itself (throttled per attempt), so a card Stripe has confirmed shows
+ * "Payment successful" on the first answer even when the webhook is late or
+ * never reaches this deployment. The first state is still honest -
+ * "Confirming your payment…" - and the page asks again every couple of seconds
+ * for a limited time. After that it says the confirmation is delayed, that the
+ * payment has not been lost, and offers "Check again".
  *
  * Nothing on this page can start, repeat or change a payment. "Retry payment"
  * appears only once the backend says the attempt closed without money moving,
@@ -136,6 +138,16 @@ export function PaymentConfirmationPage(): React.JSX.Element {
       setElapsed(0);
     },
   });
+
+  // Once it is paid, every cached view of this order is out of date: the
+  // payment page and the order page were read while it was still unpaid, and
+  // "View order" must not open a copy that still says "Pending payment".
+  useEffect(() => {
+    if (state !== 'SUCCEEDED' || orderId === undefined) return;
+    void queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+    void queryClient.invalidateQueries({ queryKey: ['orders'] });
+    void queryClient.invalidateQueries({ queryKey: ['payment-status', orderId] });
+  }, [state, orderId, queryClient]);
 
   // The heading moves focus when the outcome changes, so a screen reader user
   // hears the new state rather than the old spinner.

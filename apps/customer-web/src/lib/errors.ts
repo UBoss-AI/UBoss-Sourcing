@@ -120,6 +120,21 @@ const BUYER_COMPANY_CODES = new Set([
   'BUYER_COMPANY_LIMIT_REACHED',
 ]);
 
+/**
+ * Terms and Conditions refusals, met on the sign-up and activation forms.
+ * Each tells the reader what to do next: agree, agree again to the new
+ * version, or come back when the Terms are published.
+ */
+const TERMS_CODES = new Set([
+  'TERMS_ACCEPTANCE_REQUIRED',
+  'TERMS_VERSION_OUTDATED',
+  'TERMS_DOCUMENT_UNAVAILABLE',
+]);
+
+export function isTermsError(code: string): boolean {
+  return TERMS_CODES.has(code);
+}
+
 /** The reader's locale for a date inside an error sentence. */
 function navigatorLocale(): string {
   return typeof document !== 'undefined' && document.documentElement.lang !== ''
@@ -197,6 +212,7 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
      * Each code has its own sentence because each sends the reader somewhere
      * different - the Self tab, the carriers list, the confirmation box.
      */
+    if (TERMS_CODES.has(error.code)) return t(`errors.terms.${error.code}` as TranslationKey);
     if (LOGISTICS_CODES.has(error.code)) return t(`errors.logistics.${error.code}` as TranslationKey);
 
     /*

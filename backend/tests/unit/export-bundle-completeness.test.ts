@@ -109,7 +109,10 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // (addresses, identifiers, documents, checks) are keyed on the company, so
   // the parser never finds them.
   BuyerCompanyMember: 'companyMemberships',
-  ConsentRecord: 'companyMemberships',
+  // A Terms acceptance is disclosed under `termsAcceptances`; a company-
+  // application declaration also appears with its company, under
+  // `companyMemberships`. Both come from this table.
+  ConsentRecord: 'termsAcceptances',
   BuyerCompanyReviewEvent: 'companyMemberships',
   BuyerCompanyStatusHistory: 'companyMemberships',
   // A hashed six-digit code sent to a business address. Usable as a
@@ -171,6 +174,12 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
     '`preorderRequests` (from, to, when and why); `actorUserId` names whoever acted - the ' +
     'buyer themselves, a member of the seller’s staff or the marketplace’s - and a ' +
     'staff member’s identity is their data rather than the buyer’s.',
+  CommissionInvoiceEvent:
+    'What happened to one of the OPERATOR’s commission invoices to a SELLER business - generated, ' +
+    'previewed, issued, credited, downloaded. `actorUserId` names the member of the marketplace’s ' +
+    'finance staff who did it, and the invoice is between two businesses: no shopper ever has a row ' +
+    'here, and nothing a buyer does reaches this table. A staff member exercising this right gets ' +
+    'the account section and `auditTrail`.',
   SellerLogisticsRelationshipEvent:
     'How a seller-to-carrier arrangement reached its current status. `actorUserId` names a ' +
     'member of the MARKETPLACE\u2019s staff who approved, refused or suspended a commercial ' +

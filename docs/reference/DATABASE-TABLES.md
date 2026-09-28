@@ -7,7 +7,7 @@
 
 This is the complete list. For **why** the database is shaped this way - the principles, the domains, the life of an order in rows - read [`../DATABASE-DESIGN.md`](../DATABASE-DESIGN.md) first.
 
-**260 tables · 245 enums · 624 extra indexes and unique keys**, in 46 groups. The groups follow the section banners in the schema file.
+**267 tables · 254 enums · 652 extra indexes and unique keys**, in 48 groups. The groups follow the section banners in the schema file.
 
 ## How to read this file
 
@@ -70,7 +70,9 @@ This is the complete list. For **why** the database is shaped this way - the pri
 | [/ which level of the fallback chain a policy sits at. / / offer -&gt; product -&gt; seller_default -&gt; the platform's own defaults (config) / / the first one that exists wins, whole. a variant whose own policy says / "disabled" is disabled, and does not fall through to an enabled product / policy - a seller who switched one variant off meant it.](#group-which-level-of-the-fallback-chain-a-policy-sits-at-offer-product-seller-default-the-platform-s-own-defaults-config-the-first-one-that-exists-wins-whole-a-variant-whose-own-policy-says-disabled-is-disabled-and-does-not-fall-through-to-an-enabled-product-policy-a-seller-who-switched-one-variant-off-meant-it) | 9 | 14 |
 | [/ where a conversation stands. moved only by `domain/preorder-chat-state.ts`.](#group-where-a-conversation-stands-moved-only-by-domain-preorder-chat-state-ts) | 8 | 7 |
 | [Seller documents: invoices and packing lists](#group-seller-documents-invoices-and-packing-lists) | 5 | 3 |
-| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 13 | 17 |
+| [/ which buyer the session is acting as. null on a session row means individual.](#group-which-buyer-the-session-is-acting-as-null-on-a-session-row-means-individual) | 12 | 17 |
+| [/ which agreement a document is. each account type is asked for its own.](#group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own) | 2 | 2 |
+| [Seller commission invoices](#group-seller-commission-invoices) | 6 | 7 |
 
 <a id="group-identity-access"></a>
 
@@ -2034,6 +2036,7 @@ Table `orders`
 - `preorderRequest` ← [PreorderRequest](#model-preorderrequest) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
+- `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
 
 **Indexes and keys**
 
@@ -7197,6 +7200,7 @@ A seller business, as a tenant.
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
 - `linkedBuyerCompanies` ← [BuyerCompany](#model-buyercompany) - has many
 - `supportTickets` ← [SupportTicket](#model-supportticket) - has many
+- `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
 
 **Indexes and keys**
 
@@ -8109,6 +8113,7 @@ One seller's part of one buyer order.
 - `settlement` ← [SellerOrderSettlement](#model-sellerordersettlement) - has zero or one
 - `sellerInvoices` ← [SellerInvoice](#model-sellerinvoice) - has many
 - `packingLists` ← [SellerPackingList](#model-sellerpackinglist) - has many
+- `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
 
 **Indexes and keys**
 
@@ -13365,6 +13370,7 @@ What one seller is owed for one order, and how that was worked out.
 - `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `feePolicy` → [PlatformFeePolicy](#model-platformfeepolicy) via `platformFeePolicyId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `commissionInvoices` ← [CommissionInvoice](#model-commissioninvoice) - has many
 
 **Indexes and keys**
 
@@ -14864,7 +14870,7 @@ A packing list for one consignment - one vehicle, one load.
 
 ##  / which buyer the session is acting as. null on a session row means individual.
 
-[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord) · [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge)
+[BuyerCompany](#model-buyercompany) · [BuyerCompanyAddress](#model-buyercompanyaddress) · [BuyerCompanyIdentifier](#model-buyercompanyidentifier) · [BuyerCompanyLocation](#model-buyercompanylocation) · [BuyerCompanyMember](#model-buyercompanymember) · [BuyerCompanyVerificationCase](#model-buyercompanyverificationcase) · [BuyerCompanyCheck](#model-buyercompanycheck) · [BuyerCompanyDocument](#model-buyercompanydocument) · [BuyerCompanyInfoRequest](#model-buyercompanyinforequest) · [BuyerCompanyReviewEvent](#model-buyercompanyreviewevent) · [BuyerCompanyStatusHistory](#model-buyercompanystatushistory) · [ConsentRecord](#model-consentrecord)
 
 ```mermaid
 erDiagram
@@ -14885,8 +14891,7 @@ erDiagram
     BuyerCompany ||--o{ BuyerCompanyStatusHistory : "company"
     User ||--o{ ConsentRecord : "user"
     BuyerCompany |o--o{ ConsentRecord : "company"
-    BuyerCompany ||--o{ BuyerCompanyEmailChallenge : "company"
-    User ||--o{ BuyerCompanyEmailChallenge : "user"
+    LegalDocument |o--o{ ConsentRecord : "legalDocument"
     BuyerCompany {
         String id PK
         BuyerCompanyStatus status
@@ -14946,11 +14951,7 @@ erDiagram
         String id PK
         String userId FK
         String companyId FK
-    }
-    BuyerCompanyEmailChallenge {
-        String id PK
-        String companyId FK
-        String userId FK
+        String legalDocumentId FK
     }
 ```
 
@@ -15376,45 +15377,22 @@ One thing one person agreed to, with the exact wording's version and hash. Appen
 | `ipAddress` | String · VarChar(45) | yes |  |  |  |
 | `userAgent` | String · VarChar(512) | yes |  |  |  |
 | `withdrawnAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `legalDocumentId` | String · Char(26) | yes | FK → [LegalDocument](#model-legaldocument) |  | For PLATFORM_TERMS and LOGISTICS_PARTNER_TERMS: the published document the person read and agreed to. `textVersion` and `textHash` are copied from it by the server, never taken from the request. Null for the company-application declarations, whose wording lives in code. (on delete: Restrict) |
+| `locale` | String · VarChar(10) | yes |  |  | The language of that document, e.g. "pl". Copied from the document. |
+| `acceptanceSource` | String · VarChar(48) | yes |  |  | Where it was accepted: STOREFRONT_SIGN_UP, CUSTOMER_INVITATION or LOGISTICS_INVITATION. Null for the company-application declarations. |
 
 **Relations**
 
 - `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
 - `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, optional, on delete **SetNull**, on update **Restrict**
+- `legalDocument` → [LegalDocument](#model-legaldocument) via `legalDocumentId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
 
 **Indexes and keys**
 
 - `@@index([userId, purpose], map: "ix_consent_record_user")`
 - `@@index([companyId], map: "ix_consent_record_company")`
-
-<a id="model-buyercompanyemailchallenge"></a>
-
-### BuyerCompanyEmailChallenge
-
-Table `buyer_company_email_challenges`
-
-A six-digit code sent to the business email address. Stored hashed, expires, and stops working after five wrong guesses.
-
-| Column | Type | Null? | Key | Default | Notes |
-|---|---|---|---|---|---|
-| `id` | String · Char(26) |  | PK |  |  |
-| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
-| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
-| `emailNormalized` | String · VarChar(320) |  |  |  |  |
-| `codeHash` | String · Char(64) |  |  |  |  |
-| `attempts` | Int |  |  | 0 |  |
-| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
-| `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
-| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
-
-**Relations**
-
-- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
-- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
-
-**Indexes and keys**
-
-- `@@index([companyId, consumedAt], map: "ix_buyer_company_email_company")`
+- `@@unique([userId, legalDocumentId], map: "uq_consent_record_user_document")`
+- `@@index([legalDocumentId], map: "ix_consent_record_legal_document")`
 
 ### Enums in  / which buyer the session is acting as. null on a session row means individual.
 
@@ -15632,4 +15610,573 @@ What a person agreed to. One row per purpose, never one checkbox for all.
 | `BUSINESS_TERMS` | The terms of sale for business accounts. |
 | `PRIVACY_NOTICE` | Having been shown the privacy notice. An acknowledgement, not a consent in the GDPR Art. 6(1)(a) sense - the processing rests on contract and legitimate interest, and the notice says so. |
 | `AUTHORITY_TO_ACT` | "I am authorised to act for this company." |
+| `PLATFORM_TERMS` | The marketplace's Terms and Conditions, accepted when a buyer account is created. The row points at the exact `LegalDocument` that was shown. |
+| `LOGISTICS_PARTNER_TERMS` | The terms a carrier's staff accept when they activate a logistics portal account. The row points at the exact `LegalDocument` that was shown. |
+
+<a id="group-which-agreement-a-document-is-each-account-type-is-asked-for-its-own"></a>
+
+##  / which agreement a document is. each account type is asked for its own.
+
+[LegalDocument](#model-legaldocument) · [BuyerCompanyEmailChallenge](#model-buyercompanyemailchallenge)
+
+```mermaid
+erDiagram
+    LegalDocument |o--o{ LegalDocument : "supersedes"
+    BuyerCompany ||--o{ BuyerCompanyEmailChallenge : "company"
+    User ||--o{ BuyerCompanyEmailChallenge : "user"
+    LegalDocument {
+        String id PK
+        LegalDocumentStatus status
+        String supersedesId FK
+    }
+    BuyerCompanyEmailChallenge {
+        String id PK
+        String companyId FK
+        String userId FK
+    }
+```
+
+<a id="model-legaldocument"></a>
+
+### LegalDocument
+
+Table `legal_documents`
+
+One version of one agreement in one language.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `kind` | [enum LegalDocumentKind](#enum-legaldocumentkind) |  |  |  |  |
+| `version` | String · VarChar(32) |  |  |  | Chosen by the operator, e.g. "2026-10-01". Unique per kind and language. |
+| `locale` | String · VarChar(10) |  |  |  | BCP-47 primary subtag: "en", "pl", "de". |
+| `status` | [enum LegalDocumentStatus](#enum-legaldocumentstatus) |  |  | DRAFT |  |
+| `title` | String · VarChar(200) |  |  |  |  |
+| `body` | String · MediumText |  |  |  |  |
+| `changeSummary` | String · Text | yes |  |  | What changed since the previous version, in a sentence or two. Shown to the reader when present. Optional, and never a substitute for the text. |
+| `effectiveAt` | DateTime · DateTime(3) |  |  |  | When this version starts to apply. A version published with a future date is not in force, and cannot be accepted, until then. |
+| `contentSha256` | String · Char(64) | yes |  |  | SHA-256 of the canonical text (kind, version, locale, title and body), set when the document is published. Copied onto every acceptance. |
+| `publishedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `publishedById` | String · Char(26) | yes |  |  |  |
+| `supersedesId` | String · Char(26) | yes | FK → [LegalDocument](#model-legaldocument) |  | The published document in the same kind and language that was in force when this one was published. Null for the first. (on delete: Restrict) |
+| `createdById` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `supersedes` → [LegalDocument](#model-legaldocument) via `supersedesId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `supersededBy` ← [LegalDocument](#model-legaldocument) - has many
+- `acceptances` ← [ConsentRecord](#model-consentrecord) - has many
+
+**Indexes and keys**
+
+- `@@unique([kind, version, locale], map: "uq_legal_document_version_locale")`
+- `@@index([kind, status, effectiveAt], map: "ix_legal_document_current")`
+
+<a id="model-buyercompanyemailchallenge"></a>
+
+### BuyerCompanyEmailChallenge
+
+Table `buyer_company_email_challenges`
+
+A six-digit code sent to the business email address. Stored hashed, expires, and stops working after five wrong guesses.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `companyId` | String · Char(26) |  | FK → [BuyerCompany](#model-buyercompany) |  | (on delete: Cascade) |
+| `userId` | String · Char(26) |  | FK → [User](#model-user) |  | (on delete: Cascade) |
+| `emailNormalized` | String · VarChar(320) |  |  |  |  |
+| `codeHash` | String · Char(64) |  |  |  |  |
+| `attempts` | Int |  |  | 0 |  |
+| `expiresAt` | DateTime · DateTime(3) |  |  |  |  |
+| `consumedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `company` → [BuyerCompany](#model-buyercompany) via `companyId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+- `user` → [User](#model-user) via `userId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([companyId, consumedAt], map: "ix_buyer_company_email_company")`
+
+### Enums in  / which agreement a document is. each account type is asked for its own.
+
+<a id="enum-legaldocumentkind"></a>
+
+#### enum LegalDocumentKind
+
+| Value | Meaning |
+|---|---|
+| `PLATFORM_TERMS` | Terms and Conditions for buyers - individuals, and the person who signs up to register a company. Also accepted when an invited customer activates their account. |
+| `LOGISTICS_PARTNER_TERMS` | Terms for a carrier's staff, accepted when they activate a logistics portal account from an invitation. |
+
+<a id="enum-legaldocumentstatus"></a>
+
+#### enum LegalDocumentStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` | Being written. Never shown to the public and never accepted. |
+| `PUBLISHED` | Frozen. The words, title, version, language and effective date can never change again, and the SHA-256 in `contentSha256` proves it. |
+
+<a id="group-seller-commission-invoices"></a>
+
+## Seller commission invoices
+
+[CommissionInvoiceSettings](#model-commissioninvoicesettings) · [CommissionInvoice](#model-commissioninvoice) · [CommissionInvoiceLine](#model-commissioninvoiceline) · [CommissionCreditNote](#model-commissioncreditnote) · [CommissionDocument](#model-commissiondocument) · [CommissionInvoiceEvent](#model-commissioninvoiceevent)
+
+```mermaid
+erDiagram
+    SellerAccount ||--o{ CommissionInvoice : "sellerAccount"
+    Order ||--o{ CommissionInvoice : "order"
+    SellerOrderGroup ||--o{ CommissionInvoice : "sellerOrderGroup"
+    SellerOrderSettlement ||--o{ CommissionInvoice : "settlement"
+    CommissionInvoice ||--o{ CommissionInvoiceLine : "invoice"
+    CommissionInvoice ||--o{ CommissionCreditNote : "invoice"
+    CommissionInvoice |o--o{ CommissionDocument : "invoice"
+    CommissionCreditNote |o--o{ CommissionDocument : "creditNote"
+    CommissionInvoice ||--o{ CommissionInvoiceEvent : "invoice"
+    CommissionInvoiceSettings {
+        String id PK
+    }
+    CommissionInvoice {
+        String id PK
+        String sellerAccountId FK
+        String orderId FK
+        String sellerOrderGroupId FK
+        String settlementId FK
+        CommissionInvoiceStatus status
+        BigInt subtotalMinor
+        BigInt discountMinor
+        BigInt taxableMinor
+        BigInt cgstMinor
+        BigInt sgstMinor
+        BigInt igstMinor
+        BigInt otherTaxMinor
+        BigInt totalTaxMinor
+    }
+    CommissionInvoiceLine {
+        String id PK
+        String invoiceId FK
+        BigInt basisMinor
+        BigInt taxableMinor
+        BigInt cgstMinor
+        BigInt sgstMinor
+        BigInt igstMinor
+        BigInt otherTaxMinor
+        BigInt taxMinor
+        BigInt totalMinor
+    }
+    CommissionCreditNote {
+        String id PK
+        String invoiceId FK
+        BigInt taxableMinor
+        BigInt cgstMinor
+        BigInt sgstMinor
+        BigInt igstMinor
+        BigInt otherTaxMinor
+        BigInt totalTaxMinor
+        BigInt roundingMinor
+        BigInt grandTotalMinor
+    }
+    CommissionDocument {
+        String id PK
+        String invoiceId FK
+        String creditNoteId FK
+    }
+    CommissionInvoiceEvent {
+        String id PK
+        String invoiceId FK
+        String fromStatus
+        String toStatus
+    }
+```
+
+<a id="model-commissioninvoicesettings"></a>
+
+### CommissionInvoiceSettings
+
+Table `commission_invoice_settings`
+
+Who issues commission invoices, and how. One row.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `singleton` | String · VarChar(16) |  |  | "default" | Always "default". UNIQUE, so there is never a second row. |
+| `legalEntityCode` | String · VarChar(16) |  |  | "MAIN" | A short code for the legal entity. Part of every sequence key, so a different entity numbers from one again. |
+| `legalName` | String · VarChar(255) | yes |  |  |  |
+| `tradeName` | String · VarChar(255) | yes |  |  | The name it trades under, e.g. "Gloviaa Mart — Powered by UBOSS". |
+| `addressLine1` | String · VarChar(255) | yes |  |  |  |
+| `addressLine2` | String · VarChar(255) | yes |  |  |  |
+| `city` | String · VarChar(120) | yes |  |  |  |
+| `region` | String · VarChar(120) | yes |  |  |  |
+| `postcode` | String · VarChar(24) | yes |  |  |  |
+| `country` | String · Char(2) | yes |  |  |  |
+| `stateCode` | String · VarChar(4) | yes |  |  | GST state code (two digits) where the regime is IN_GST. |
+| `taxRegime` | [enum CommissionTaxRegime](#enum-commissiontaxregime) |  |  | NONE |  |
+| `taxRegistrationLabel` | String · VarChar(32) |  |  | "GSTIN" |  |
+| `taxRegistrationNumber` | String · VarChar(32) | yes |  |  |  |
+| `businessIdentifierLabel` | String · VarChar(32) |  |  | "PAN" | PAN in India, a company number elsewhere. |
+| `businessIdentifier` | String · VarChar(32) | yes |  |  |  |
+| `businessEmail` | String · VarChar(320) | yes |  |  |  |
+| `supportContact` | String · VarChar(160) | yes |  |  |  |
+| `jurisdictionNote` | String · VarChar(255) | yes |  |  | Printed only when set, e.g. an agreed jurisdiction clause. |
+| `serviceCode` | String · VarChar(16) | yes |  |  | The service accounting code for the platform service (SAC in India). |
+| `serviceCodeLabel` | String · VarChar(16) |  |  | "SAC" |  |
+| `serviceDescription` | String · VarChar(255) |  |  | "Marketplace platform commission for Order {orderNumber}" | `{orderNumber}` is replaced with the buyer order's number. |
+| `invoicePrefix` | String · VarChar(16) |  |  | "GM/COM" |  |
+| `creditNotePrefix` | String · VarChar(16) |  |  | "GM/CCN" |  |
+| `sequencePadding` | Int · SmallInt |  |  | 6 |  |
+| `financialYearStartMonth` | Int · SmallInt |  |  | 4 | 4 for April to March, 1 for a calendar year. |
+| `eligibleStage` | [enum CommissionEligibleStage](#enum-commissioneligiblestage) |  |  | DELIVERED |  |
+| `paymentTermsDays` | Int · SmallInt | yes |  |  | Days from issue to the due date. Null prints no due date. |
+| `roundGrandTotal` | Boolean |  |  | false | Round the grand total to a whole unit, half up, and show the adjustment. |
+| `requireSellerTaxId` | Boolean |  |  | true | Refuse to issue to a seller in the issuer's country with no tax number. |
+| `exportLutReference` | String · VarChar(64) | yes |  |  | A Letter of Undertaking, for a zero-rated export of the service. |
+| `zeroTaxDocumentType` | [enum CommissionDocumentType](#enum-commissiondocumenttype) |  |  | INVOICE | What a document with no tax on it is called. |
+| `allowVoidAfterIssue` | Boolean |  |  | false | Whether an ISSUED invoice may be voided at all. Off: the correction is a credit note, which is what GST and VAT law expect. |
+| `footerNote` | String · VarChar(1000) | yes |  |  |  |
+| `version` | Int |  |  | 1 |  |
+| `updatedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Indexes and keys**
+
+- `@@unique([singleton], map: "uq_commission_settings_singleton")`
+
+<a id="model-commissioninvoice"></a>
+
+### CommissionInvoice
+
+Table `commission_invoices`
+
+The operator's invoice to one seller, for the commission on one seller order.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `legalEntityCode` | String · VarChar(16) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  | FK → [SellerAccount](#model-selleraccount) |  | (on delete: Restrict) |
+| `orderId` | String · Char(26) |  | FK → [Order](#model-order) |  | (on delete: Restrict) |
+| `sellerOrderGroupId` | String · Char(26) |  | FK → [SellerOrderGroup](#model-sellerordergroup) |  | (on delete: Restrict) |
+| `settlementId` | String · Char(26) |  | FK → [SellerOrderSettlement](#model-sellerordersettlement) |  | The commission event: the settlement the fee was calculated on. (on delete: Restrict) |
+| `status` | [enum CommissionInvoiceStatus](#enum-commissioninvoicestatus) |  |  | DRAFT |  |
+| `documentType` | [enum CommissionDocumentType](#enum-commissiondocumenttype) |  |  |  |  |
+| `activeKey` | String · VarChar(40) | yes |  |  | The settlement id while this is its live invoice - a draft, issued or partly credited one - and NULL once it is voided or fully credited. UNIQUE: one live commission invoice per commission event, however many clicks, retries and tabs ask for one. |
+| `idempotencyKey` | String · VarChar(128) |  |  |  | The key the request that created it carried. UNIQUE: a retry of the same request returns this row instead of making another. |
+| `series` | String · VarChar(16) | yes |  |  | Allocated at issue. Null on a draft. |
+| `financialYear` | String · VarChar(9) | yes |  |  |  |
+| `sequenceNumber` | Int | yes |  |  |  |
+| `number` | String · VarChar(40) | yes |  |  |  |
+| `issueDate` | DateTime · Date | yes |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `dueDate` | DateTime · Date | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `taxTreatment` | String · VarChar(32) |  |  |  | IN_INTRA_STATE, IN_INTER_STATE, IN_EXPORT_WITH_TAX, IN_EXPORT_UNDER_LUT, DOMESTIC, CROSS_BORDER, REVERSE_CHARGE, NOT_TAXED. |
+| `reverseCharge` | Boolean |  |  | false |  |
+| `placeOfSupplyJson` | Json | yes |  |  |  |
+| `issuerJson` | Json |  |  |  | Frozen at issue; rebuilt while a draft. The issuer as configured, the seller as their profile stood, and the records the figures came from. |
+| `sellerJson` | Json |  |  |  |  |
+| `sourceJson` | Json |  |  |  |  |
+| `notesJson` | Json | yes |  |  | Declarations printed under the totals (LUT, reverse charge). |
+| `validationJson` | Json | yes |  |  | Why it cannot be issued yet, as `[{ field, code, message }]`. |
+| `snapshotHash` | String · Char(64) |  |  |  | SHA-256 of the calculation and the snapshots, so the trail can show which version of a draft was issued. |
+| `subtotalMinor` | BigInt |  |  | 0 |  |
+| `discountMinor` | BigInt |  |  | 0 |  |
+| `taxableMinor` | BigInt |  |  | 0 |  |
+| `cgstMinor` | BigInt |  |  | 0 |  |
+| `sgstMinor` | BigInt |  |  | 0 |  |
+| `igstMinor` | BigInt |  |  | 0 |  |
+| `otherTaxMinor` | BigInt |  |  | 0 |  |
+| `totalTaxMinor` | BigInt |  |  | 0 |  |
+| `roundingMinor` | BigInt |  |  | 0 | Signed: what rounding the grand total added or took away. |
+| `grandTotalMinor` | BigInt |  |  | 0 |  |
+| `creditedMinor` | BigInt |  |  | 0 | Sum of the grand totals of the credit notes against it. |
+| `amountInWords` | String · VarChar(512) | yes |  |  |  |
+| `collectionStatus` | [enum CommissionCollectionStatus](#enum-commissioncollectionstatus) |  |  | OUTSTANDING |  |
+| `collectionReference` | String · VarChar(128) | yes |  |  |  |
+| `collectedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `templateVersion` | String · VarChar(16) |  |  |  |  |
+| `createdByUserId` | String · Char(26) | yes |  |  |  |
+| `issuedByUserId` | String · Char(26) | yes |  |  |  |
+| `voidedByUserId` | String · Char(26) | yes |  |  |  |
+| `voidedAt` | DateTime · DateTime(3) | yes |  |  |  |
+| `voidReason` | String · VarChar(1000) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+| `updatedAt` | DateTime · DateTime(3) |  | auto-updated |  |  |
+
+**Relations**
+
+- `sellerAccount` → [SellerAccount](#model-selleraccount) via `sellerAccountId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `order` → [Order](#model-order) via `orderId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `sellerOrderGroup` → [SellerOrderGroup](#model-sellerordergroup) via `sellerOrderGroupId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `settlement` → [SellerOrderSettlement](#model-sellerordersettlement) via `settlementId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `lines` ← [CommissionInvoiceLine](#model-commissioninvoiceline) - has many
+- `creditNotes` ← [CommissionCreditNote](#model-commissioncreditnote) - has many
+- `documents` ← [CommissionDocument](#model-commissiondocument) - has many
+- `events` ← [CommissionInvoiceEvent](#model-commissioninvoiceevent) - has many
+
+**Indexes and keys**
+
+- `@@unique([activeKey], map: "uq_commission_invoice_active")`
+- `@@unique([idempotencyKey], map: "uq_commission_invoice_idempotency")`
+- `@@unique([number], map: "uq_commission_invoice_number")`
+- `@@unique([legalEntityCode, series, financialYear, sequenceNumber], map: "uq_commission_invoice_sequence")`
+- `@@index([status, createdAt], map: "ix_commission_invoice_status")`
+- `@@index([sellerAccountId, createdAt], map: "ix_commission_invoice_seller")`
+- `@@index([orderId], map: "ix_commission_invoice_order")`
+- `@@index([sellerOrderGroupId], map: "ix_commission_invoice_group")`
+- `@@index([settlementId], map: "ix_commission_invoice_settlement")`
+- `@@index([issueDate], map: "ix_commission_invoice_issue_date")`
+- `@@index([collectionStatus, status], map: "ix_commission_invoice_collection")`
+- `@@index([currency, status], map: "ix_commission_invoice_currency")`
+
+<a id="model-commissioninvoiceline"></a>
+
+### CommissionInvoiceLine
+
+Table `commission_invoice_lines`
+
+One service line on a commission invoice: the platform commission on one fee policy, or another approved marketplace service fee.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `invoiceId` | String · Char(26) |  | FK → [CommissionInvoice](#model-commissioninvoice) |  | (on delete: Cascade) |
+| `position` | Int · SmallInt |  |  |  |  |
+| `kind` | String · VarChar(32) |  |  |  | PLATFORM_COMMISSION, or SERVICE_FEE for an additional approved charge. |
+| `description` | String · VarChar(512) |  |  |  |  |
+| `detail` | String · VarChar(255) | yes |  |  | How the commission was worked out, e.g. "10% of 1,000.00". |
+| `serviceCode` | String · VarChar(16) | yes |  |  |  |
+| `orderReference` | String · VarChar(64) |  |  |  |  |
+| `feeType` | String · VarChar(24) | yes |  |  | PERCENT, FLAT or PERCENT_PLUS_FLAT, as the fee policy said. |
+| `basisMinor` | BigInt |  |  | 0 |  |
+| `feeRatePercent` | Decimal · Decimal(9, 6) | yes |  |  | The commission rate, percent. Null for a flat fee. |
+| `policyId` | String · Char(26) | yes |  |  |  |
+| `policyVersion` | Int | yes |  |  |  |
+| `taxableMinor` | BigInt |  |  | 0 |  |
+| `taxRatePercent` | Decimal · Decimal(9, 6) |  |  | 0 |  |
+| `cgstMinor` | BigInt |  |  | 0 |  |
+| `sgstMinor` | BigInt |  |  | 0 |  |
+| `igstMinor` | BigInt |  |  | 0 |  |
+| `otherTaxMinor` | BigInt |  |  | 0 |  |
+| `taxMinor` | BigInt |  |  | 0 |  |
+| `totalMinor` | BigInt |  |  | 0 |  |
+
+**Relations**
+
+- `invoice` → [CommissionInvoice](#model-commissioninvoice) via `invoiceId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([invoiceId, position], map: "uq_commission_line_position")`
+
+<a id="model-commissioncreditnote"></a>
+
+### CommissionCreditNote
+
+Table `commission_credit_notes`
+
+A credit note reversing all or part of an issued commission invoice.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `invoiceId` | String · Char(26) |  | FK → [CommissionInvoice](#model-commissioninvoice) |  | (on delete: Restrict) |
+| `legalEntityCode` | String · VarChar(16) |  |  |  |  |
+| `sellerAccountId` | String · Char(26) |  |  |  |  |
+| `idempotencyKey` | String · VarChar(128) |  |  |  |  |
+| `series` | String · VarChar(16) |  |  |  |  |
+| `financialYear` | String · VarChar(9) |  |  |  |  |
+| `sequenceNumber` | Int |  |  |  |  |
+| `number` | String · VarChar(40) |  |  |  |  |
+| `issueDate` | DateTime · Date |  |  |  |  |
+| `issuedAt` | DateTime · DateTime(3) |  |  |  |  |
+| `reason` | [enum CommissionCreditReason](#enum-commissioncreditreason) |  |  |  |  |
+| `basis` | [enum CommissionCreditBasis](#enum-commissioncreditbasis) |  |  |  |  |
+| `note` | String · VarChar(1000) | yes |  |  |  |
+| `currency` | String · Char(3) |  |  |  |  |
+| `taxableMinor` | BigInt |  |  | 0 |  |
+| `cgstMinor` | BigInt |  |  | 0 |  |
+| `sgstMinor` | BigInt |  |  | 0 |  |
+| `igstMinor` | BigInt |  |  | 0 |  |
+| `otherTaxMinor` | BigInt |  |  | 0 |  |
+| `totalTaxMinor` | BigInt |  |  | 0 |  |
+| `roundingMinor` | BigInt |  |  | 0 |  |
+| `grandTotalMinor` | BigInt |  |  | 0 |  |
+| `amountInWords` | String · VarChar(512) |  |  |  |  |
+| `linesJson` | Json |  |  |  | What it reverses on each invoice line, by position. |
+| `issuedByUserId` | String · Char(26) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `invoice` → [CommissionInvoice](#model-commissioninvoice) via `invoiceId` - many-to-one, required, on delete **Restrict**, on update **Restrict**
+- `documents` ← [CommissionDocument](#model-commissiondocument) - has many
+
+**Indexes and keys**
+
+- `@@unique([idempotencyKey], map: "uq_commission_credit_idempotency")`
+- `@@unique([number], map: "uq_commission_credit_number")`
+- `@@unique([legalEntityCode, series, financialYear, sequenceNumber], map: "uq_commission_credit_sequence")`
+- `@@index([invoiceId, createdAt], map: "ix_commission_credit_invoice")`
+- `@@index([sellerAccountId, createdAt], map: "ix_commission_credit_seller")`
+
+<a id="model-commissiondocument"></a>
+
+### CommissionDocument
+
+Table `commission_documents`
+
+An issued PDF, in private object storage. Never overwritten: a document has exactly one, and its hash is of the exact bytes stored.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `invoiceId` | String · Char(26) | yes | FK → [CommissionInvoice](#model-commissioninvoice) |  | (on delete: Restrict) |
+| `creditNoteId` | String · Char(26) | yes | FK → [CommissionCreditNote](#model-commissioncreditnote) |  | (on delete: Restrict) |
+| `kind` | String · VarChar(16) |  |  |  | INVOICE or CREDIT_NOTE. |
+| `storageKey` | String · VarChar(512) |  |  |  |  |
+| `fileName` | String · VarChar(160) |  |  |  |  |
+| `contentHash` | String · Char(64) |  |  |  |  |
+| `sizeBytes` | Int |  |  |  |  |
+| `pageCount` | Int · SmallInt |  |  |  |  |
+| `templateVersion` | String · VarChar(16) |  |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `invoice` → [CommissionInvoice](#model-commissioninvoice) via `invoiceId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+- `creditNote` → [CommissionCreditNote](#model-commissioncreditnote) via `creditNoteId` - many-to-one, optional, on delete **Restrict**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@unique([invoiceId], map: "uq_commission_document_invoice")`
+- `@@unique([creditNoteId], map: "uq_commission_document_credit")`
+- `@@unique([storageKey], map: "uq_commission_document_storage")`
+
+<a id="model-commissioninvoiceevent"></a>
+
+### CommissionInvoiceEvent
+
+Table `commission_invoice_events`
+
+Everything that happened to a commission invoice, in order: generated, regenerated, previewed, issued, downloaded, credited, voided, paid.
+
+| Column | Type | Null? | Key | Default | Notes |
+|---|---|---|---|---|---|
+| `id` | String · Char(26) |  | PK |  |  |
+| `invoiceId` | String · Char(26) |  | FK → [CommissionInvoice](#model-commissioninvoice) |  | (on delete: Cascade) |
+| `creditNoteId` | String · Char(26) | yes |  |  |  |
+| `action` | String · VarChar(48) |  |  |  | generated, regenerated, previewed, issued, downloaded, credited, voided, collection_recorded, number_voided. |
+| `fromStatus` | String · VarChar(24) | yes |  |  |  |
+| `toStatus` | String · VarChar(24) | yes |  |  |  |
+| `actorUserId` | String · Char(26) | yes |  |  |  |
+| `detailJson` | Json | yes |  |  | Numbers, hashes and amounts - never a free-text body or personal data. |
+| `snapshotHash` | String · Char(64) | yes |  |  |  |
+| `createdAt` | DateTime · DateTime(3) |  |  | now() |  |
+
+**Relations**
+
+- `invoice` → [CommissionInvoice](#model-commissioninvoice) via `invoiceId` - many-to-one, required, on delete **Cascade**, on update **Restrict**
+
+**Indexes and keys**
+
+- `@@index([invoiceId, createdAt], map: "ix_commission_event_invoice")`
+- `@@index([actorUserId], map: "ix_commission_event_actor")`
+
+### Enums in Seller commission invoices
+
+<a id="enum-commissioninvoicestatus"></a>
+
+#### enum CommissionInvoiceStatus
+
+| Value | Meaning |
+|---|---|
+| `DRAFT` | Built from its sources and previewable. Holds no number. |
+| `ISSUED` | Numbered, rendered and frozen. |
+| `PARTIALLY_CREDITED` | Issued, and one or more credit notes reverse part of it. |
+| `FULLY_CREDITED` | Credit notes reverse all of it. A replacement may now be issued. |
+| `VOID` | A discarded draft, or - only where the settings permit it - an issued invoice cancelled with a reason. A voided number is never reused. |
+
+<a id="enum-commissiondocumenttype"></a>
+
+#### enum CommissionDocumentType
+
+What the document is called at the top. Decided by the tax treatment and the settings, never by the person issuing it.
+
+| Value | Meaning |
+|---|---|
+| `TAX_INVOICE` |  |
+| `INVOICE` |  |
+| `BILL_OF_SUPPLY` |  |
+
+<a id="enum-commissioncollectionstatus"></a>
+
+#### enum CommissionCollectionStatus
+
+Whether the seller has paid the invoice. Kept apart from the document: the issued PDF says what was true when it was issued.
+
+| Value | Meaning |
+|---|---|
+| `OUTSTANDING` | Payable by the seller to the operator. |
+| `PAID` | A member of finance recorded a payment, with its reference. |
+| `ADJUSTED_AGAINST_SETTLEMENT` | Deducted from a seller settlement that has been paid. |
+
+<a id="enum-commissioncreditreason"></a>
+
+#### enum CommissionCreditReason
+
+| Value | Meaning |
+|---|---|
+| `ORDER_CANCELLED` |  |
+| `FULL_REFUND` |  |
+| `PARTIAL_REFUND` |  |
+| `COMMISSION_REVERSAL` |  |
+| `CHARGEBACK` |  |
+| `SELLER_DISPUTE` |  |
+| `TAX_ADJUSTMENT` |  |
+
+<a id="enum-commissioncreditbasis"></a>
+
+#### enum CommissionCreditBasis
+
+How a credit note's amount was decided.
+
+| Value | Meaning |
+|---|---|
+| `FULL` | Everything not yet credited. |
+| `PROPORTIONAL_TO_REFUND` | The share of the fee matching the share of the seller's proceeds the buyer was refunded, from the settlement's own refund figure. |
+| `CUSTOM_AMOUNT` | A taxable amount finance entered; the tax follows it proportionally. |
+
+<a id="enum-commissiontaxregime"></a>
+
+#### enum CommissionTaxRegime
+
+The issuing entity's tax registration, which decides how tax is shown.
+
+| Value | Meaning |
+|---|---|
+| `IN_GST` | Indian GST: GSTIN, SAC, place of supply, CGST + SGST/UTGST or IGST. |
+| `VAT` | A VAT registration: one tax line per rate, reverse charge across borders. |
+| `OTHER` | Some other registered sales tax, shown under the configured label. |
+| `NONE` | Not registered for any tax. No tax may appear on the document. |
+
+<a id="enum-commissioneligiblestage"></a>
+
+#### enum CommissionEligibleStage
+
+The earliest point in a seller order at which its commission counts as final enough to invoice.
+
+| Value | Meaning |
+|---|---|
+| `CONFIRMED` |  |
+| `SHIPPED` |  |
+| `DELIVERED` |  |
 

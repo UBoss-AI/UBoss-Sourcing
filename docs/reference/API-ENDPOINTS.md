@@ -7,7 +7,7 @@
 
 This is the complete list. For **how** to call the API - signing in, cookies, money, errors, webhooks, worked examples - read [`../API.md`](../API.md) first.
 
-**928 endpoints** in 77 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
+**955 endpoints** in 80 route groups. Every path starts from the backend's own address, for example `http://localhost:4000`.
 
 ## How to read this file
 
@@ -27,12 +27,12 @@ This is the complete list. For **how** to call the API - signing in, cookies, mo
 
 | Zone | Endpoints |
 |---|---|
-| [Admin panel (staff)](#admin-panel-staff) | 365 |
+| [Admin panel (staff)](#admin-panel-staff) | 388 |
 | [Logistics partner portal](#logistics-partner-portal) | 88 |
 | [Seller Hub](#seller-hub) | 235 |
 | [Webhooks, integrations and health](#webhooks-integrations-and-health) | 11 |
 | [Customer account](#customer-account) | 193 |
-| [Public and storefront](#public-and-storefront) | 36 |
+| [Public and storefront](#public-and-storefront) | 40 |
 
 ## Admin panel (staff)
 
@@ -42,6 +42,7 @@ Defined in `backend/src/http/routes/assistant.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
+| GET | `/api/v1/admin/assistant/status` | Staff | Admin(SETTINGS_READ) | Whether the AI provider is configured: DISABLED, MISSING_CREDENTIALS or CONFIGURED, with the provider and model. `?probe=true` also makes one real call and reports whether it answered. Never returns a key. |
 | GET | `/api/v1/admin/assistant/conversations` | Staff | Admin(ASSISTANT_CHAT_READ) | List chat enquiries made through the shopping assistant, a page at a time. Can be searched by name, email or phone, or narrowed to conversations linked to a customer account. |
 | GET | `/api/v1/admin/assistant/conversations/:id` | Staff | Admin(ASSISTANT_CHAT_READ) | One chat conversation with the shopping assistant: the visitor's self-declared contact details and the full transcript. Read-only. |
 
@@ -132,6 +133,27 @@ Defined in `backend/src/http/routes/catalog.admin.ts`, `backend/src/http/routes/
 | GET | `/api/v1/admin/categories/:id/translations` | Staff | Admin(CATEGORY_READ) | A category's English text together with every translation saved for it, so a translator can work with the source in front of them. |
 | PUT | `/api/v1/admin/categories/:id/translations/:language` | Staff | Admin(CATEGORY_WRITE) | Save a category's name, description and search-engine text in one language other than English. A save from the panel is marked as reviewed by a person unless the caller says otherwise. |
 | DELETE | `/api/v1/admin/categories/:id/translations/:language` | Staff | Admin(CATEGORY_WRITE) | Remove a category's copy in one language, so shoppers in that language see the English text again. |
+
+### `admin/commission-invoices`
+
+Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/commission-invoices` | Staff | Admin(COMMISSION_INVOICE_VIEW) | List commission invoices, filtered and paginated on the server. |
+| GET | `/api/v1/admin/commission-invoices/candidates` | Staff | Admin(COMMISSION_INVOICE_VIEW) | List seller orders with a commission and no live commission invoice, each with why it cannot be invoiced yet. |
+| GET | `/api/v1/admin/commission-invoices/settings` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Read who commission invoices are issued by and how they are numbered. |
+| PUT | `/api/v1/admin/commission-invoices/settings` | Staff | Admin(COMMISSION_INVOICE_SETTINGS_WRITE) | Save the issuing legal entity's details and the numbering; refused on a stale version. |
+| GET | `/api/v1/admin/commission-invoices/:id` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Read one commission invoice with its lines, sources, credit notes and history. |
+| POST | `/api/v1/admin/commission-invoices/:id/regenerate` | Staff | Admin(COMMISSION_INVOICE_GENERATE) | Rebuild a draft from its sources. |
+| GET | `/api/v1/admin/commission-invoices/:id/preview.pdf` | Staff | Admin(COMMISSION_INVOICE_PREVIEW) | Render the draft as a watermarked A6 PDF, with no number, barcode or QR. |
+| POST | `/api/v1/admin/commission-invoices/:id/issue` | Staff | Admin(COMMISSION_INVOICE_ISSUE) | Issue a draft: reserve its number, render and store the PDF, freeze it. Issuing an issued invoice returns it. |
+| POST | `/api/v1/admin/commission-invoices/:id/discard` | Staff | Admin(COMMISSION_INVOICE_GENERATE) | Discard a draft, which holds no number, so a new one can be started. |
+| POST | `/api/v1/admin/commission-invoices/:id/void` | Staff | Admin(COMMISSION_INVOICE_ISSUE) | Void an issued invoice, only where the settings permit it; its number stays used. |
+| POST | `/api/v1/admin/commission-invoices/:id/collection` | Staff | Admin(COMMISSION_INVOICE_ISSUE) | Record that the seller paid an issued invoice, with the payment's reference. |
+| POST | `/api/v1/admin/commission-invoices/:id/credit-notes` | Staff | Admin(COMMISSION_CREDIT_NOTE_CREATE) | Issue a credit note against an issued commission invoice. Needs an Idempotency-Key. |
+| POST | `/api/v1/admin/commission-invoices/documents/:id/link` | Staff | Admin(COMMISSION_INVOICE_DOWNLOAD) | Get a five-minute, single-use download link for an issued invoice or credit note PDF. |
+| GET | `/api/v1/admin/commission-invoices/documents/:id/download` | Staff | Admin(COMMISSION_INVOICE_DOWNLOAD) | Download an issued invoice or credit note PDF with a link from the request above; checked against its stored hash. |
 
 ### `admin/coupons`
 
@@ -329,6 +351,19 @@ Defined in `backend/src/http/routes/vat.admin.ts`.
 | GET | `/api/v1/admin/invoices/:id/en16931-check` | Staff | Admin(INVOICE_READ) | What a receiver’s validator would object to |
 | POST | `/api/v1/admin/invoices/:id/credit` | Staff | Admin(INVOICE_ISSUE) | Reverse an invoice with a credit note |
 
+### `admin/legal-documents`
+
+Defined in `backend/src/http/routes/legal.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/admin/legal-documents` | Staff | Admin(LEGAL_DOCUMENT_READ) | Every legal document, drafts included, with how many people accepted each. |
+| GET | `/api/v1/admin/legal-documents/:id` | Staff | Admin(LEGAL_DOCUMENT_READ) | One legal document, draft or published. |
+| POST | `/api/v1/admin/legal-documents` | Staff | Admin(LEGAL_DOCUMENT_WRITE) | Start a new version as a draft. Nobody outside the console sees it. |
+| PUT | `/api/v1/admin/legal-documents/:id` | Staff | Admin(LEGAL_DOCUMENT_WRITE) | Change a draft. 409 LEGAL_DOCUMENT_IMMUTABLE for a published document. |
+| DELETE | `/api/v1/admin/legal-documents/:id` | Staff | Admin(LEGAL_DOCUMENT_WRITE) | Delete a draft. 409 LEGAL_DOCUMENT_IMMUTABLE for a published document. |
+| POST | `/api/v1/admin/legal-documents/:id/publish` | Staff | Admin(LEGAL_DOCUMENT_PUBLISH) | Publish a draft: its words are frozen and new accounts must accept it once it takes effect. |
+
 ### `admin/logistics`
 
 Defined in `backend/src/http/routes/logistics.admin.ts`, `backend/src/http/routes/logistics-levels.admin.ts`.
@@ -412,7 +447,7 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 
 ### `admin/orders`
 
-Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/documents.admin.ts`.
+Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes/orders.ts`, `backend/src/http/routes/payments.ts`, `backend/src/http/routes/vat.admin.ts`, `backend/src/http/routes/documents.admin.ts`, `backend/src/http/routes/commission-invoices.admin.ts`.
 
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
@@ -430,6 +465,7 @@ Defined in `backend/src/http/routes/settings.admin.ts`, `backend/src/http/routes
 | GET | `/api/v1/admin/orders/:id/invoice` | Staff | Admin(INVOICE_READ) | The invoice for an order |
 | POST | `/api/v1/admin/orders/:id/invoice` | Staff | Admin(INVOICE_ISSUE) | Raise the invoice for an order |
 | GET | `/api/v1/admin/orders/:id/seller-documents` | Staff | Admin(INVOICE_READ) | List the invoices, credit notes and packing lists sellers have issued for one order. Drafts are left out. |
+| GET | `/api/v1/admin/orders/:id/commission-invoices` | Staff | Admin(COMMISSION_INVOICE_VIEW) | Show the commission and the commission invoice of every seller order on one buyer order. |
 
 ### `admin/payment-links`
 
@@ -640,6 +676,14 @@ Defined in `backend/src/http/routes/sellers.admin.ts`.
 | GET | `/api/v1/admin/seller-listings/review-queue` | Staff | Admin(PRODUCT_READ) | Seller listings submitted for review and waiting for a decision, a page at a time. |
 | GET | `/api/v1/admin/seller-listings/:id` | Staff | Admin(PRODUCT_READ) | One submitted listing, in full. |
 | POST | `/api/v1/admin/seller-listings/:id/decision` | Staff | Admin(PRODUCT_PUBLISH) | Approve, refuse or send back a listing. |
+
+### `admin/seller-orders`
+
+Defined in `backend/src/http/routes/commission-invoices.admin.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| POST | `/api/v1/admin/seller-orders/:id/commission-invoice` | Staff | Admin(COMMISSION_INVOICE_GENERATE) | Create the draft commission invoice for one seller order, or return the live one. Needs an Idempotency-Key. |
 
 ### `admin/sellers`
 
@@ -2040,6 +2084,17 @@ Defined in `backend/src/http/routes/reports.admin.ts`.
 | Method | Path | Who | Guard | What it does |
 |---|---|---|---|---|
 | GET | `/api/v1/exports/download/:token` | Public |  | Download an export |
+
+### `legal`
+
+Defined in `backend/src/http/routes/legal.public.ts`.
+
+| Method | Path | Who | Guard | What it does |
+|---|---|---|---|---|
+| GET | `/api/v1/legal/current` | Public |  | The Terms in force now for a kind of account, in the reader's language where it is published. 503 TERMS_DOCUMENT_UNAVAILABLE when none are. |
+| GET | `/api/v1/legal/versions` | Public |  | Every published version of a kind, newest first, so anybody can read the terms they agreed to at the time. |
+| GET | `/api/v1/legal/documents/:id` | Public |  | One published document, of any version. Drafts are never returned. |
+| GET | `/api/v1/legal/documents/:id/pdf` | Public |  | One published document as a PDF, built from exactly the stored text. |
 
 ### `my-data`
 

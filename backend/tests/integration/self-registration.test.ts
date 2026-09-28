@@ -21,6 +21,7 @@ import { sha256Hex } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { approveRegistration } from '../../src/modules/customers/registration.service.js';
+import { currentTermsId } from '../support/legal.js';
 
 const PASSWORD = 'RegisterTestPass!2026';
 const EMAIL = 'newbuyer@example.test';
@@ -95,6 +96,9 @@ async function seedRolesAndMarket(): Promise<void> {
   });
 }
 
+/** The Terms in force, read before each test. See `tests/support/legal.ts`. */
+let termsDocumentId = '';
+
 /** A well-formed sign-up, with whatever the case under test wants changed. */
 function registration(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -104,6 +108,7 @@ function registration(overrides: Record<string, unknown> = {}): Record<string, u
     country: 'IN',
     password: PASSWORD,
     acceptedTerms: true,
+    termsDocumentId,
     ...overrides,
   };
 }
@@ -172,6 +177,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await resetAccounts();
+  termsDocumentId = await currentTermsId();
   setFlags(true, true);
   currentIp = nextIp();
 });
@@ -513,5 +519,89 @@ describe('POST /auth/verify-email/resend', () => {
 
     expect(unknown.statusCode).toBe(202);
     expect(await prisma.notificationOutbox.count()).toBe(0);
+  });
+});
+
+describe('POST /auth/register - the Terms and Conditions', () => {
+  it('records which Terms were agreed to, copied from the document and not from the request', async () => {
+    const response = await post('auth/register', registration());
+    expect(response.statusCode).toBe(202);
+
+    const user = await prisma.user.findUniqueOrThrow({ where: { emailNormalized: EMAIL } });
+    const document = await prisma.legalDocument.findUniqueOrThrow({ where: { id: termsDocumentId } });
+    const records = await prisma.consentRecord.findMany({ where: { userId: user.id } });
+
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      purpose: 'PLATFORM_TERMS',
+      legalDocumentId: document.id,
+      textVersion: document.version,
+      textHash: document.contentSha256,
+      locale: document.locale,
+      acceptanceSource: 'STOREFRONT_SIGN_UP',
+      // Nothing about the device is kept "for evidence".
+      ipAddress: null,
+      userAgent: null,
+    });
+  });
+
+  it('refuses a sign-up that names no Terms document, and creates nothing', async () => {
+    const response = await post('auth/register', registration({ termsDocumentId: undefined }));
+    expect(response.statusCode).toBe(400);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe('TERMS_ACCEPTANCE_REQUIRED');
+    expect(await prisma.user.count()).toBe(0);
+    expect(await prisma.consentRecord.count({ where: { purpose: 'PLATFORM_TERMS' } })).toBe(0);
+  });
+
+  it('refuses a forged document id as outdated, and creates nothing', async () => {
+    const response = await post('auth/register', registration({ termsDocumentId: newId() }));
+    expect(response.statusCode).toBe(409);
+    expect(response.json<{ error: { code: string } }>().error.code).toBe('TERMS_VERSION_OUTDATED');
+    expect(await prisma.user.count()).toBe(0);
+  });
+
+  it('refuses Terms that are published but no longer in force', async () => {
+    const id = newId();
+    const effectiveAt = new Date('1999-01-01T00:00:00Z');
+    await prisma.legalDocument.create({
+      data: {
+        id,
+        kind: 'PLATFORM_TERMS',
+        version: `old-${id}`.slice(0, 32),
+        locale: 'en',
+        title: 'Old terms',
+        body: 'Old.',
+        status: 'PUBLISHED',
+        effectiveAt,
+        publishedAt: effectiveAt,
+        contentSha256: 'a'.repeat(64),
+      },
+    });
+    try {
+      const response = await post('auth/register', registration({ termsDocumentId: id }));
+      expect(response.statusCode).toBe(409);
+      const body = response.json<{ error: { code: string; details: { meta?: { currentVersion?: string } }[] } }>();
+      expect(body.error.code).toBe('TERMS_VERSION_OUTDATED');
+      expect(body.error.details[0]?.meta?.currentVersion).toBeTruthy();
+      expect(await prisma.user.count()).toBe(0);
+    } finally {
+      await prisma.legalDocument.deleteMany({ where: { id } });
+    }
+  });
+
+  it('refuses the same way for an address that already has an account', async () => {
+    await post('auth/register', registration());
+    currentIp = nextIp();
+    const duplicate = await post('auth/register', registration({ termsDocumentId: undefined }));
+    expect(duplicate.statusCode).toBe(400);
+    expect(duplicate.json<{ error: { code: string } }>().error.code).toBe('TERMS_ACCEPTANCE_REQUIRED');
+  });
+
+  it('writes one acceptance however many times the form is sent', async () => {
+    await post('auth/register', registration());
+    currentIp = nextIp();
+    await post('auth/register', registration());
+    expect(await prisma.user.count()).toBe(1);
+    expect(await prisma.consentRecord.count({ where: { purpose: 'PLATFORM_TERMS' } })).toBe(1);
   });
 });

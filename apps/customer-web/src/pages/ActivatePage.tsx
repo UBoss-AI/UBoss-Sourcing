@@ -20,19 +20,20 @@
  * *before* the customer types, not as a rejection afterwards.
  */
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
-import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
+import { TermsAgreementField } from '@/components/legal/TermsAgreementField';
+import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
 import { Button, ButtonLink, Field, Input } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
-import type { Translate } from '@/i18n/i18n-context';
-import { errorMessage } from '@/lib/errors';
+import type { Translate, TranslationKey } from '@/i18n/i18n-context';
+import { errorMessage, isTermsError } from '@/lib/errors';
 
 /**
  * Mirrors the backend's password policy.
@@ -52,9 +53,11 @@ function buildSchema(t: Translate) {
   .object({
     password: passwordSchema,
     confirmPassword: z.string(),
-    acceptedTerms: z.literal(true, {
-      message: t('activatePage.acceptTermsToActivate'),
-    }),
+    // Set only by I agree in the Terms dialog. See `TermsAgreementField`.
+    termsDocumentId: z
+      .string()
+      .nullable()
+      .refine((value) => value?.length === 26, { message: t('activatePage.acceptTermsToActivate') }),
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ['confirmPassword'],
@@ -168,7 +171,9 @@ function Failure({
 }
 
 export function ActivatePage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  // An invited customer is a buyer, and agrees to the buyer Terms in force.
+  const terms = useCurrentTerms('PLATFORM_TERMS', language);
 
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
@@ -192,15 +197,18 @@ export function ActivatePage(): React.JSX.Element {
 
   const {
     register,
+    control,
     handleSubmit,
     setFocus,
+    setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(buildSchema(t)),
     defaultValues: {
       password: '',
       confirmPassword: '',
-      acceptedTerms: false as never,
+      termsDocumentId: null,
     },
   });
 
@@ -264,7 +272,8 @@ export function ActivatePage(): React.JSX.Element {
         {
           token,
           password: values.password,
-          acceptedTerms: values.acceptedTerms,
+          acceptedTerms: values.termsDocumentId !== null,
+          termsDocumentId: values.termsDocumentId,
         },
       );
 
@@ -282,6 +291,15 @@ export function ActivatePage(): React.JSX.Element {
     } catch (error) {
       if (error instanceof NetworkError) {
         setFailure({ code: 'NETWORK', message: errorMessage(t, error) });
+        return;
+      }
+
+      if (error instanceof ApiError && isTermsError(error.code)) {
+        // Not a problem with the link, which the server has not spent: agree
+        // to the current Terms and press the button again.
+        setValue('termsDocumentId', null);
+        terms.reload();
+        setError('termsDocumentId', { message: t(`errors.terms.${error.code}` as TranslationKey) });
         return;
       }
 
@@ -375,11 +393,18 @@ export function ActivatePage(): React.JSX.Element {
           )}
         </Field>
 
-        <AcceptTermsCheckbox
-          label={t('activatePage.iAcceptTheTerms')}
-          error={errors.acceptedTerms?.message}
-          errorId="terms-error"
-          {...register('acceptedTerms')}
+        <Controller
+          name="termsDocumentId"
+          control={control}
+          render={({ field }) => (
+            <TermsAgreementField
+              terms={terms}
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.termsDocumentId?.message}
+              errorId="terms-error"
+            />
+          )}
         />
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>

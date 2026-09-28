@@ -111,6 +111,9 @@ export const SECTIONS = Object.freeze({
     // reply and status change they were shown, staff named as "the team".
     // Staff's internal notes on them are withheld under `internalNotes`.
     'supportTickets',
+    // Every Terms and Conditions document they agreed to: which one, which
+    // version and language, its hash and when. Buyers and carrier staff alike.
+    'termsAcceptances',
     // Their standing authority to be charged, and the evidence of when they
     // gave it. Disclosed in full: it is the record a subject would want if they
     // ever disputed a charge.
@@ -393,11 +396,43 @@ export async function buildCustomerBundle(
     })),
   }));
 
+  /*
+   * The Terms they agreed to, with a link to the exact document. Loaded before
+   * the profile branch below because a carrier's staff have no customer
+   * profile and agreed to terms too. The company-application declarations
+   * are disclosed with the company, under `companyMemberships`.
+   */
+  const termsAcceptances = (
+    await prisma.consentRecord.findMany({
+      where: { userId: subject.userId, legalDocumentId: { not: null } },
+      orderBy: { acceptedAt: 'asc' },
+      select: {
+        purpose: true,
+        textVersion: true,
+        textHash: true,
+        locale: true,
+        acceptanceSource: true,
+        acceptedAt: true,
+        legalDocument: { select: { id: true, title: true, effectiveAt: true } },
+      },
+    })
+  ).map((row) => ({
+    document: row.purpose,
+    title: row.legalDocument?.title ?? null,
+    documentId: row.legalDocument?.id ?? null,
+    version: row.textVersion,
+    language: row.locale,
+    contentSha256: row.textHash,
+    effectiveAt: iso(row.legalDocument?.effectiveAt ?? null),
+    acceptedWhere: row.acceptanceSource,
+    acceptedAt: iso(row.acceptedAt),
+  }));
+
   // A staff account, or a customer whose profile was never created, still gets
   // a bundle - it is just a short one. Returning early here rather than
   // guarding every query below keeps the shape of the file predictable.
   if (profile === null) {
-    return envelope(subject, { account, profile: null, dataRequests, supportTickets });
+    return envelope(subject, { account, profile: null, dataRequests, supportTickets, termsAcceptances });
   }
 
   const [
@@ -910,6 +945,7 @@ export async function buildCustomerBundle(
 
     dataRequests,
     supportTickets,
+    termsAcceptances,
 
     // The one thing in this feature that IS the subject's: their standing
     // authority to be charged, and the evidence of when they gave it. The ERP

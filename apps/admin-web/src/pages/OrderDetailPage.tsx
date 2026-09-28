@@ -44,6 +44,7 @@ import type { AvailableTransition, OrderDetail, OrderTotals } from '@/lib/orders
 import type { Money } from '@/lib/types';
 import { InvoicePanel } from '@/pages/order/InvoicePanel';
 import { SellerDocumentsPanel } from '@/pages/order/SellerDocumentsPanel';
+import { CommissionInvoicePanel } from '@/pages/order/CommissionInvoicePanel';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 
@@ -717,6 +718,8 @@ export function OrderDetailPage(): React.JSX.Element {
           <InvoicePanel orderId={order.id} />
           {/* Each seller's own invoice and packing list: read and download only. */}
           <SellerDocumentsPanel orderId={order.id} />
+          {/* The marketplace's own invoice to each seller, for its commission. */}
+          <CommissionInvoicePanel orderId={order.id} />
 
           <Card title={t('orderDetail.customer')}>
             <div className="px-5 py-4 text-sm">

@@ -6,9 +6,9 @@ import { describe, expect, it } from 'vitest';
 import { HOME, returnTarget } from './return-target';
 
 describe('returnTarget', () => {
-  it('lands on /home when nothing asked for anywhere else', () => {
-    expect(HOME).toBe('/home');
-    expect(returnTarget(null, '')).toBe('/home');
+  it('lands on / when nothing asked for anywhere else', () => {
+    expect(HOME).toBe('/');
+    expect(returnTarget(null, '')).toBe('/');
   });
 
   it('honours router state and ?next= on this site', () => {
@@ -23,7 +23,7 @@ describe('returnTarget', () => {
     'javascript:alert(1)',
     'evil.example',
   ])('refuses %s', (target) => {
-    expect(returnTarget({ from: target }, '')).toBe('/home');
-    expect(returnTarget(null, `?next=${encodeURIComponent(target)}`)).toBe('/home');
+    expect(returnTarget({ from: target }, '')).toBe('/');
+    expect(returnTarget(null, `?next=${encodeURIComponent(target)}`)).toBe('/');
   });
 });

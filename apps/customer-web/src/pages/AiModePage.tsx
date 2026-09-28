@@ -527,6 +527,8 @@ export function AiModePage(): React.JSX.Element {
         // can lose what was typed.
         setDraft('');
 
+        let offeredRetry = false;
+
         await readAssistantStream(t, response.body, {
           onDelta: (delta) => {
             setMessages((current) => {
@@ -538,8 +540,16 @@ export function AiModePage(): React.JSX.Element {
               return next;
             });
           },
-          onError: (message) => {
+          onError: (message, { retryable: canRetry }) => {
             setError(message);
+            // The question is offered back with a Retry button whenever the
+            // failure is one a second attempt can fix. It is never offered
+            // for a refusal or a misconfigured provider, which fail the same
+            // way every time.
+            if (canRetry) {
+              offeredRetry = true;
+              setRetryable(question);
+            }
             /*
              * An error frame after some text has already streamed leaves a
              * reply that stops mid-sentence but reads as finished. On a
@@ -575,9 +585,13 @@ export function AiModePage(): React.JSX.Element {
         });
 
         // A stream that carried an error and no text leaves an empty bubble.
+        // When Retry is on offer the question goes too, or pressing it would
+        // show the same question twice.
         setMessages((current) => {
           const last = current[current.length - 1];
-          if (last?.role === 'assistant' && last.content.length === 0) return current.slice(0, -1);
+          if (last?.role === 'assistant' && last.content.length === 0) {
+            return current.slice(0, offeredRetry ? -2 : -1);
+          }
           return current;
         });
 
@@ -1000,6 +1014,18 @@ export function AiModePage(): React.JSX.Element {
                     onClick={() => {
                       const question = retryable;
                       setRetryable(null);
+                      // A failure part-way through an answer leaves the
+                      // question and the half-answer on screen. Asking again
+                      // replaces that pair rather than showing the question
+                      // twice.
+                      setMessages((current) => {
+                        const asked = current[current.length - 2];
+                        const answer = current[current.length - 1];
+                        return asked?.role === 'user' && asked.content === question && answer?.role === 'assistant'
+                          ? current.slice(0, -2)
+                          : current;
+                      });
+                      setTruncatedAt(null);
                       void send(question);
                     }}
                   >

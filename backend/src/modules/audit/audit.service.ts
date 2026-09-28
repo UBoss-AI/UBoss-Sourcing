@@ -388,6 +388,24 @@ export const AuditAction = {
   PACKING_LIST_SUPERSEDED: 'packing_list.superseded',
   CONSIGNMENT_PACKED: 'consignment.packed',
   SELLER_DOCUMENT_DOWNLOADED: 'seller_document.downloaded',
+  /// The operator's commission invoices to sellers, and their credit notes.
+  /// Numbers, amounts, hashes and statuses - never a free-text body.
+  COMMISSION_INVOICE_GENERATED: 'commission_invoice.generated',
+  COMMISSION_INVOICE_REGENERATED: 'commission_invoice.regenerated',
+  COMMISSION_INVOICE_PREVIEWED: 'commission_invoice.previewed',
+  COMMISSION_INVOICE_ISSUED: 'commission_invoice.issued',
+  COMMISSION_INVOICE_DOWNLOADED: 'commission_invoice.downloaded',
+  COMMISSION_INVOICE_VOIDED: 'commission_invoice.voided',
+  COMMISSION_INVOICE_COLLECTION_RECORDED: 'commission_invoice.collection_recorded',
+  COMMISSION_CREDIT_NOTE_ISSUED: 'commission_credit_note.issued',
+  COMMISSION_INVOICE_SETTINGS_SAVED: 'commission_invoice_settings.saved',
+  /// Terms and Conditions and the other legal documents. Kind, version,
+  /// language, dates and the content hash - never the body, which is kept on
+  /// the document itself and never changes once published.
+  LEGAL_DOCUMENT_DRAFTED: 'legal_document.drafted',
+  LEGAL_DOCUMENT_DRAFT_UPDATED: 'legal_document.draft_updated',
+  LEGAL_DOCUMENT_DRAFT_DELETED: 'legal_document.draft_deleted',
+  LEGAL_DOCUMENT_PUBLISHED: 'legal_document.published',
   /// Preorder chat. What was decided about a conversation and who decided it -
   /// never what anybody wrote in it. A message body is not an audit value: the
   /// conversation itself is the record of what was said, and copying it here

@@ -7,15 +7,23 @@
  *
  * The token is deliberately NOT echoed back into the page, logged, or put in a
  * title. It is read from the query string, sent once, and forgotten.
+ *
+ * The Logistics Partner Terms are agreed to here, in their own dialog: the box
+ * is ticked only by I agree at the end of the text, and the server checks the
+ * document agreed to is the version in force before it spends the link. A
+ * refusal about the terms therefore leaves the link usable - agree to the
+ * current version and press the button again.
  */
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ApiError, NetworkError } from '@/lib/api';
-import { Button, Callout, CheckboxField, Field, Input } from '@/components/ui';
-import { useI18n } from '@/i18n/i18n-context';
+import { TermsAgreementField } from '@/components/legal/TermsAgreementField';
+import { useCurrentTerms } from '@/components/legal/useCurrentTerms';
+import { Button, Callout, Field, Input } from '@/components/ui';
+import { useI18n, type TranslationKey } from '@/i18n/i18n-context';
 import { activateAccount } from '@/lib/logistics';
 import { useFocusOnMount } from '@/lib/use-focus-on-mount';
 import { AuthLayout } from './AuthLayout';
@@ -32,7 +40,11 @@ const schema = z
   .object({
     password: z.string().min(12),
     confirm: z.string().min(1),
-    acceptedTerms: z.literal(true),
+    // Set only by I agree in the terms dialog. See `TermsAgreementField`.
+    termsDocumentId: z
+      .string()
+      .nullable()
+      .refine((value) => value?.length === 26, { message: 'TERMS_REQUIRED' }),
   })
   .refine((values) => values.password === values.confirm, {
     path: ['confirm'],
@@ -41,9 +53,19 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>;
 
+/** Refusals about the terms. The link was not spent; the person agrees again. */
+const TERMS_CODES = new Set([
+  'TERMS_ACCEPTANCE_REQUIRED',
+  'TERMS_VERSION_OUTDATED',
+  'TERMS_DOCUMENT_UNAVAILABLE',
+]);
+
 export function ActivatePage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const navigate = useNavigate();
+  // A carrier's staff agree to the carrier terms, never the buyer terms.
+  const terms = useCurrentTerms('LOGISTICS_PARTNER_TERMS', language);
+  const [termsError, setTermsError] = useState<string | null>(null);
   const [params] = useSearchParams();
 
   const token = params.get('token') ?? '';
@@ -52,7 +74,7 @@ export function ActivatePage(): React.JSX.Element {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { password: '', confirm: '', acceptedTerms: false as unknown as true },
+    defaultValues: { password: '', confirm: '', termsDocumentId: null },
   });
 
   const { ref: passwordRef, ...passwordField } = form.register('password');
@@ -83,12 +105,14 @@ export function ActivatePage(): React.JSX.Element {
 
   const onSubmit = form.handleSubmit(async (values) => {
     setFailure(null);
+    setTermsError(null);
 
     try {
       await activateAccount({
         token,
         password: values.password,
-        acceptedTerms: values.acceptedTerms,
+        acceptedTerms: values.termsDocumentId !== null,
+        termsDocumentId: values.termsDocumentId,
       });
 
       setDone(true);
@@ -101,6 +125,13 @@ export function ActivatePage(): React.JSX.Element {
     } catch (error) {
       if (error instanceof NetworkError) {
         setFailure(t('common.couldNotReachServer'));
+        return;
+      }
+
+      if (error instanceof ApiError && TERMS_CODES.has(error.code)) {
+        form.setValue('termsDocumentId', null);
+        terms.reload();
+        setTermsError(t(`errors.terms.${error.code}` as TranslationKey));
         return;
       }
 
@@ -150,7 +181,26 @@ export function ActivatePage(): React.JSX.Element {
           )}
         </Field>
 
-        <CheckboxField label={t('activate.submit')} {...form.register('acceptedTerms')} />
+        <Controller
+          name="termsDocumentId"
+          control={form.control}
+          render={({ field }) => (
+            <TermsAgreementField
+              terms={terms}
+              value={field.value}
+              onChange={(next) => {
+                setTermsError(null);
+                field.onChange(next);
+              }}
+              error={
+                termsError ??
+                (form.formState.errors.termsDocumentId === undefined
+                  ? undefined
+                  : t('errors.terms.TERMS_ACCEPTANCE_REQUIRED'))
+              }
+            />
+          )}
+        />
 
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
           {t('activate.submit')}

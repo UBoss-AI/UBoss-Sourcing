@@ -75,7 +75,7 @@ export function CompanyRegisterPage(): React.JSX.Element {
     return (
       <div className="mx-auto max-w-xl">
         <PageHeader title={t('companyRegister.unavailableTitle')} description={t('companyRegister.unavailableBody')} />
-        <Link to="/home" className="font-medium text-brand hover:underline">
+        <Link to="/" className="font-medium text-brand hover:underline">
           {t('companyRegister.backHome')}
         </Link>
       </div>

@@ -2724,7 +2724,95 @@ export const ConsentPurpose = {
   ACCURACY_DECLARATION: 'ACCURACY_DECLARATION',
   BUSINESS_TERMS: 'BUSINESS_TERMS',
   PRIVACY_NOTICE: 'PRIVACY_NOTICE',
-  AUTHORITY_TO_ACT: 'AUTHORITY_TO_ACT'
+  AUTHORITY_TO_ACT: 'AUTHORITY_TO_ACT',
+  PLATFORM_TERMS: 'PLATFORM_TERMS',
+  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS'
 } as const
 
 export type ConsentPurpose = (typeof ConsentPurpose)[keyof typeof ConsentPurpose]
+
+
+export const LegalDocumentKind = {
+  PLATFORM_TERMS: 'PLATFORM_TERMS',
+  LOGISTICS_PARTNER_TERMS: 'LOGISTICS_PARTNER_TERMS'
+} as const
+
+export type LegalDocumentKind = (typeof LegalDocumentKind)[keyof typeof LegalDocumentKind]
+
+
+export const LegalDocumentStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED'
+} as const
+
+export type LegalDocumentStatus = (typeof LegalDocumentStatus)[keyof typeof LegalDocumentStatus]
+
+
+export const CommissionInvoiceStatus = {
+  DRAFT: 'DRAFT',
+  ISSUED: 'ISSUED',
+  PARTIALLY_CREDITED: 'PARTIALLY_CREDITED',
+  FULLY_CREDITED: 'FULLY_CREDITED',
+  VOID: 'VOID'
+} as const
+
+export type CommissionInvoiceStatus = (typeof CommissionInvoiceStatus)[keyof typeof CommissionInvoiceStatus]
+
+
+export const CommissionDocumentType = {
+  TAX_INVOICE: 'TAX_INVOICE',
+  INVOICE: 'INVOICE',
+  BILL_OF_SUPPLY: 'BILL_OF_SUPPLY'
+} as const
+
+export type CommissionDocumentType = (typeof CommissionDocumentType)[keyof typeof CommissionDocumentType]
+
+
+export const CommissionCollectionStatus = {
+  OUTSTANDING: 'OUTSTANDING',
+  PAID: 'PAID',
+  ADJUSTED_AGAINST_SETTLEMENT: 'ADJUSTED_AGAINST_SETTLEMENT'
+} as const
+
+export type CommissionCollectionStatus = (typeof CommissionCollectionStatus)[keyof typeof CommissionCollectionStatus]
+
+
+export const CommissionCreditReason = {
+  ORDER_CANCELLED: 'ORDER_CANCELLED',
+  FULL_REFUND: 'FULL_REFUND',
+  PARTIAL_REFUND: 'PARTIAL_REFUND',
+  COMMISSION_REVERSAL: 'COMMISSION_REVERSAL',
+  CHARGEBACK: 'CHARGEBACK',
+  SELLER_DISPUTE: 'SELLER_DISPUTE',
+  TAX_ADJUSTMENT: 'TAX_ADJUSTMENT'
+} as const
+
+export type CommissionCreditReason = (typeof CommissionCreditReason)[keyof typeof CommissionCreditReason]
+
+
+export const CommissionCreditBasis = {
+  FULL: 'FULL',
+  PROPORTIONAL_TO_REFUND: 'PROPORTIONAL_TO_REFUND',
+  CUSTOM_AMOUNT: 'CUSTOM_AMOUNT'
+} as const
+
+export type CommissionCreditBasis = (typeof CommissionCreditBasis)[keyof typeof CommissionCreditBasis]
+
+
+export const CommissionTaxRegime = {
+  IN_GST: 'IN_GST',
+  VAT: 'VAT',
+  OTHER: 'OTHER',
+  NONE: 'NONE'
+} as const
+
+export type CommissionTaxRegime = (typeof CommissionTaxRegime)[keyof typeof CommissionTaxRegime]
+
+
+export const CommissionEligibleStage = {
+  CONFIRMED: 'CONFIRMED',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED'
+} as const
+
+export type CommissionEligibleStage = (typeof CommissionEligibleStage)[keyof typeof CommissionEligibleStage]

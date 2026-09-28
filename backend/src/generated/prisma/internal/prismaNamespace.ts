@@ -656,7 +656,14 @@ export const ModelName = {
   BuyerCompanyReviewEvent: 'BuyerCompanyReviewEvent',
   BuyerCompanyStatusHistory: 'BuyerCompanyStatusHistory',
   ConsentRecord: 'ConsentRecord',
-  BuyerCompanyEmailChallenge: 'BuyerCompanyEmailChallenge'
+  LegalDocument: 'LegalDocument',
+  BuyerCompanyEmailChallenge: 'BuyerCompanyEmailChallenge',
+  CommissionInvoiceSettings: 'CommissionInvoiceSettings',
+  CommissionInvoice: 'CommissionInvoice',
+  CommissionInvoiceLine: 'CommissionInvoiceLine',
+  CommissionCreditNote: 'CommissionCreditNote',
+  CommissionDocument: 'CommissionDocument',
+  CommissionInvoiceEvent: 'CommissionInvoiceEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -672,7 +679,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "buyerCompanyEmailChallenge"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productVariantMedia" | "productMedia" | "productAttribute" | "productVariantAttribute" | "productDescriptionSection" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "paymentProviderCustomer" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "exchangeRateSnapshot" | "exchangeRate" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "productInstruction" | "productReview" | "supportTicket" | "supportTicketEvent" | "supportTicketAttachment" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "storeQuantityDiscount" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "sellerLogisticsPartner" | "sellerFulfilmentMethod" | "sellerCarrierConnection" | "sellerCarrierCredential" | "sellerFulfilmentRule" | "sellerLogisticsPickupProfile" | "sellerLogisticsRateCard" | "sellerLogisticsRateBand" | "carrierRateQuote" | "shipmentPurchase" | "sellerLogisticsRelationshipEvent" | "sellerLogisticsPartnerInvitation" | "logisticsPartner" | "logisticsPartnerProfileChange" | "logisticsPartnerDocument" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "sellerManualCarrierBooking" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog" | "demoCatalogEntry" | "sellerPackagingProfile" | "sellerPackagingOption" | "sellerPackagingTier" | "sellerContainerLoading" | "cartItemPackaging" | "orderItemPackaging" | "sellerFreightQuoteRequest" | "sellerErpConnection" | "sellerErpBridgeDevice" | "sellerErpPairingCode" | "sellerErpCompany" | "sellerErpMasterCache" | "sellerErpMapping" | "sellerErpSyncPolicy" | "sellerErpSyncJob" | "sellerErpSyncAttempt" | "sellerErpExternalReference" | "sellerErpAuditEvent" | "sellerLogisticsPolicy" | "sellerLogisticsPolicyVersion" | "sellerLogisticsProvider" | "logisticsLevelRate" | "orderLogisticsLeg" | "shipmentLeg" | "shipmentLegEvent" | "platformFeePolicy" | "sellerOrderSettlement" | "preorderPolicy" | "preorderPriceTier" | "preorderCapacityBucket" | "preorderRequest" | "preorderOffer" | "preorderStatusHistory" | "preorderFulfilmentInstallment" | "preorderStockHold" | "customerAcknowledgement" | "preorderChatConversation" | "preorderChatParticipant" | "preorderChatMessage" | "preorderChatNote" | "preorderChatProposal" | "preorderChatAttachment" | "preorderChatCustomerBlock" | "realtimeEvent" | "sellerInvoiceSettings" | "logisticsShipmentLine" | "logisticsShipmentPackageLine" | "sellerInvoice" | "sellerPackingList" | "buyerCompany" | "buyerCompanyAddress" | "buyerCompanyIdentifier" | "buyerCompanyLocation" | "buyerCompanyMember" | "buyerCompanyVerificationCase" | "buyerCompanyCheck" | "buyerCompanyDocument" | "buyerCompanyInfoRequest" | "buyerCompanyReviewEvent" | "buyerCompanyStatusHistory" | "consentRecord" | "legalDocument" | "buyerCompanyEmailChallenge" | "commissionInvoiceSettings" | "commissionInvoice" | "commissionInvoiceLine" | "commissionCreditNote" | "commissionDocument" | "commissionInvoiceEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -17770,6 +17777,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LegalDocument: {
+      payload: Prisma.$LegalDocumentPayload<ExtArgs>
+      fields: Prisma.LegalDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LegalDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LegalDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.LegalDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LegalDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.LegalDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.LegalDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.LegalDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LegalDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        update: {
+          args: Prisma.LegalDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LegalDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LegalDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LegalDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LegalDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.LegalDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLegalDocument>
+        }
+        groupBy: {
+          args: Prisma.LegalDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LegalDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LegalDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LegalDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
     BuyerCompanyEmailChallenge: {
       payload: Prisma.$BuyerCompanyEmailChallengePayload<ExtArgs>
       fields: Prisma.BuyerCompanyEmailChallengeFieldRefs
@@ -17833,6 +17906,402 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BuyerCompanyEmailChallengeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BuyerCompanyEmailChallengeCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionInvoiceSettings: {
+      payload: Prisma.$CommissionInvoiceSettingsPayload<ExtArgs>
+      fields: Prisma.CommissionInvoiceSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionInvoiceSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionInvoiceSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionInvoiceSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionInvoiceSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.CommissionInvoiceSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.CommissionInvoiceSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.CommissionInvoiceSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionInvoiceSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        update: {
+          args: Prisma.CommissionInvoiceSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionInvoiceSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionInvoiceSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionInvoiceSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionInvoiceSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionInvoiceSettings>
+        }
+        groupBy: {
+          args: Prisma.CommissionInvoiceSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionInvoiceSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionInvoice: {
+      payload: Prisma.$CommissionInvoicePayload<ExtArgs>
+      fields: Prisma.CommissionInvoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionInvoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionInvoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionInvoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionInvoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        findMany: {
+          args: Prisma.CommissionInvoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>[]
+        }
+        create: {
+          args: Prisma.CommissionInvoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        createMany: {
+          args: Prisma.CommissionInvoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionInvoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        update: {
+          args: Prisma.CommissionInvoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionInvoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionInvoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionInvoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoicePayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionInvoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionInvoice>
+        }
+        groupBy: {
+          args: Prisma.CommissionInvoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionInvoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionInvoiceLine: {
+      payload: Prisma.$CommissionInvoiceLinePayload<ExtArgs>
+      fields: Prisma.CommissionInvoiceLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionInvoiceLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionInvoiceLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionInvoiceLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionInvoiceLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        findMany: {
+          args: Prisma.CommissionInvoiceLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>[]
+        }
+        create: {
+          args: Prisma.CommissionInvoiceLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        createMany: {
+          args: Prisma.CommissionInvoiceLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionInvoiceLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        update: {
+          args: Prisma.CommissionInvoiceLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionInvoiceLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionInvoiceLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionInvoiceLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceLinePayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionInvoiceLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionInvoiceLine>
+        }
+        groupBy: {
+          args: Prisma.CommissionInvoiceLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionInvoiceLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionCreditNote: {
+      payload: Prisma.$CommissionCreditNotePayload<ExtArgs>
+      fields: Prisma.CommissionCreditNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionCreditNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionCreditNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionCreditNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionCreditNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        findMany: {
+          args: Prisma.CommissionCreditNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>[]
+        }
+        create: {
+          args: Prisma.CommissionCreditNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        createMany: {
+          args: Prisma.CommissionCreditNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionCreditNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        update: {
+          args: Prisma.CommissionCreditNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionCreditNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionCreditNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionCreditNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionCreditNotePayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionCreditNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionCreditNote>
+        }
+        groupBy: {
+          args: Prisma.CommissionCreditNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionCreditNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionCreditNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionCreditNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionDocument: {
+      payload: Prisma.$CommissionDocumentPayload<ExtArgs>
+      fields: Prisma.CommissionDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.CommissionDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.CommissionDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.CommissionDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        update: {
+          args: Prisma.CommissionDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionDocument>
+        }
+        groupBy: {
+          args: Prisma.CommissionDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionInvoiceEvent: {
+      payload: Prisma.$CommissionInvoiceEventPayload<ExtArgs>
+      fields: Prisma.CommissionInvoiceEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionInvoiceEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionInvoiceEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionInvoiceEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionInvoiceEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        findMany: {
+          args: Prisma.CommissionInvoiceEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>[]
+        }
+        create: {
+          args: Prisma.CommissionInvoiceEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        createMany: {
+          args: Prisma.CommissionInvoiceEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CommissionInvoiceEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        update: {
+          args: Prisma.CommissionInvoiceEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionInvoiceEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionInvoiceEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CommissionInvoiceEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionInvoiceEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionInvoiceEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionInvoiceEvent>
+        }
+        groupBy: {
+          args: Prisma.CommissionInvoiceEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionInvoiceEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionInvoiceEventCountAggregateOutputType> | number
         }
       }
     }
@@ -23794,10 +24263,35 @@ export const ConsentRecordScalarFieldEnum = {
   acceptedAt: 'acceptedAt',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
-  withdrawnAt: 'withdrawnAt'
+  withdrawnAt: 'withdrawnAt',
+  legalDocumentId: 'legalDocumentId',
+  locale: 'locale',
+  acceptanceSource: 'acceptanceSource'
 } as const
 
 export type ConsentRecordScalarFieldEnum = (typeof ConsentRecordScalarFieldEnum)[keyof typeof ConsentRecordScalarFieldEnum]
+
+
+export const LegalDocumentScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  version: 'version',
+  locale: 'locale',
+  status: 'status',
+  title: 'title',
+  body: 'body',
+  changeSummary: 'changeSummary',
+  effectiveAt: 'effectiveAt',
+  contentSha256: 'contentSha256',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  supersedesId: 'supersedesId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LegalDocumentScalarFieldEnum = (typeof LegalDocumentScalarFieldEnum)[keyof typeof LegalDocumentScalarFieldEnum]
 
 
 export const BuyerCompanyEmailChallengeScalarFieldEnum = {
@@ -23813,6 +24307,200 @@ export const BuyerCompanyEmailChallengeScalarFieldEnum = {
 } as const
 
 export type BuyerCompanyEmailChallengeScalarFieldEnum = (typeof BuyerCompanyEmailChallengeScalarFieldEnum)[keyof typeof BuyerCompanyEmailChallengeScalarFieldEnum]
+
+
+export const CommissionInvoiceSettingsScalarFieldEnum = {
+  id: 'id',
+  singleton: 'singleton',
+  legalEntityCode: 'legalEntityCode',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  country: 'country',
+  stateCode: 'stateCode',
+  taxRegime: 'taxRegime',
+  taxRegistrationLabel: 'taxRegistrationLabel',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  businessIdentifierLabel: 'businessIdentifierLabel',
+  businessIdentifier: 'businessIdentifier',
+  businessEmail: 'businessEmail',
+  supportContact: 'supportContact',
+  jurisdictionNote: 'jurisdictionNote',
+  serviceCode: 'serviceCode',
+  serviceCodeLabel: 'serviceCodeLabel',
+  serviceDescription: 'serviceDescription',
+  invoicePrefix: 'invoicePrefix',
+  creditNotePrefix: 'creditNotePrefix',
+  sequencePadding: 'sequencePadding',
+  financialYearStartMonth: 'financialYearStartMonth',
+  eligibleStage: 'eligibleStage',
+  paymentTermsDays: 'paymentTermsDays',
+  roundGrandTotal: 'roundGrandTotal',
+  requireSellerTaxId: 'requireSellerTaxId',
+  exportLutReference: 'exportLutReference',
+  zeroTaxDocumentType: 'zeroTaxDocumentType',
+  allowVoidAfterIssue: 'allowVoidAfterIssue',
+  footerNote: 'footerNote',
+  version: 'version',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommissionInvoiceSettingsScalarFieldEnum = (typeof CommissionInvoiceSettingsScalarFieldEnum)[keyof typeof CommissionInvoiceSettingsScalarFieldEnum]
+
+
+export const CommissionInvoiceScalarFieldEnum = {
+  id: 'id',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  settlementId: 'settlementId',
+  status: 'status',
+  documentType: 'documentType',
+  activeKey: 'activeKey',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  sequenceNumber: 'sequenceNumber',
+  number: 'number',
+  issueDate: 'issueDate',
+  issuedAt: 'issuedAt',
+  dueDate: 'dueDate',
+  currency: 'currency',
+  taxTreatment: 'taxTreatment',
+  reverseCharge: 'reverseCharge',
+  placeOfSupplyJson: 'placeOfSupplyJson',
+  issuerJson: 'issuerJson',
+  sellerJson: 'sellerJson',
+  sourceJson: 'sourceJson',
+  notesJson: 'notesJson',
+  validationJson: 'validationJson',
+  snapshotHash: 'snapshotHash',
+  subtotalMinor: 'subtotalMinor',
+  discountMinor: 'discountMinor',
+  taxableMinor: 'taxableMinor',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  totalTaxMinor: 'totalTaxMinor',
+  roundingMinor: 'roundingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  creditedMinor: 'creditedMinor',
+  amountInWords: 'amountInWords',
+  collectionStatus: 'collectionStatus',
+  collectionReference: 'collectionReference',
+  collectedAt: 'collectedAt',
+  templateVersion: 'templateVersion',
+  createdByUserId: 'createdByUserId',
+  issuedByUserId: 'issuedByUserId',
+  voidedByUserId: 'voidedByUserId',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CommissionInvoiceScalarFieldEnum = (typeof CommissionInvoiceScalarFieldEnum)[keyof typeof CommissionInvoiceScalarFieldEnum]
+
+
+export const CommissionInvoiceLineScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  position: 'position',
+  kind: 'kind',
+  description: 'description',
+  detail: 'detail',
+  serviceCode: 'serviceCode',
+  orderReference: 'orderReference',
+  feeType: 'feeType',
+  basisMinor: 'basisMinor',
+  feeRatePercent: 'feeRatePercent',
+  policyId: 'policyId',
+  policyVersion: 'policyVersion',
+  taxableMinor: 'taxableMinor',
+  taxRatePercent: 'taxRatePercent',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  taxMinor: 'taxMinor',
+  totalMinor: 'totalMinor'
+} as const
+
+export type CommissionInvoiceLineScalarFieldEnum = (typeof CommissionInvoiceLineScalarFieldEnum)[keyof typeof CommissionInvoiceLineScalarFieldEnum]
+
+
+export const CommissionCreditNoteScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  sequenceNumber: 'sequenceNumber',
+  number: 'number',
+  issueDate: 'issueDate',
+  issuedAt: 'issuedAt',
+  reason: 'reason',
+  basis: 'basis',
+  note: 'note',
+  currency: 'currency',
+  taxableMinor: 'taxableMinor',
+  cgstMinor: 'cgstMinor',
+  sgstMinor: 'sgstMinor',
+  igstMinor: 'igstMinor',
+  otherTaxMinor: 'otherTaxMinor',
+  totalTaxMinor: 'totalTaxMinor',
+  roundingMinor: 'roundingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  amountInWords: 'amountInWords',
+  linesJson: 'linesJson',
+  issuedByUserId: 'issuedByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionCreditNoteScalarFieldEnum = (typeof CommissionCreditNoteScalarFieldEnum)[keyof typeof CommissionCreditNoteScalarFieldEnum]
+
+
+export const CommissionDocumentScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentHash: 'contentHash',
+  sizeBytes: 'sizeBytes',
+  pageCount: 'pageCount',
+  templateVersion: 'templateVersion',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionDocumentScalarFieldEnum = (typeof CommissionDocumentScalarFieldEnum)[keyof typeof CommissionDocumentScalarFieldEnum]
+
+
+export const CommissionInvoiceEventScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorUserId: 'actorUserId',
+  detailJson: 'detailJson',
+  snapshotHash: 'snapshotHash',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionInvoiceEventScalarFieldEnum = (typeof CommissionInvoiceEventScalarFieldEnum)[keyof typeof CommissionInvoiceEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -27567,10 +28255,29 @@ export const ConsentRecordOrderByRelevanceFieldEnum = {
   textVersion: 'textVersion',
   textHash: 'textHash',
   ipAddress: 'ipAddress',
-  userAgent: 'userAgent'
+  userAgent: 'userAgent',
+  legalDocumentId: 'legalDocumentId',
+  locale: 'locale',
+  acceptanceSource: 'acceptanceSource'
 } as const
 
 export type ConsentRecordOrderByRelevanceFieldEnum = (typeof ConsentRecordOrderByRelevanceFieldEnum)[keyof typeof ConsentRecordOrderByRelevanceFieldEnum]
+
+
+export const LegalDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  version: 'version',
+  locale: 'locale',
+  title: 'title',
+  body: 'body',
+  changeSummary: 'changeSummary',
+  contentSha256: 'contentSha256',
+  publishedById: 'publishedById',
+  supersedesId: 'supersedesId',
+  createdById: 'createdById'
+} as const
+
+export type LegalDocumentOrderByRelevanceFieldEnum = (typeof LegalDocumentOrderByRelevanceFieldEnum)[keyof typeof LegalDocumentOrderByRelevanceFieldEnum]
 
 
 export const BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = {
@@ -27582,6 +28289,127 @@ export const BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = {
 } as const
 
 export type BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum = (typeof BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum)[keyof typeof BuyerCompanyEmailChallengeOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceSettingsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  singleton: 'singleton',
+  legalEntityCode: 'legalEntityCode',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  country: 'country',
+  stateCode: 'stateCode',
+  taxRegistrationLabel: 'taxRegistrationLabel',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  businessIdentifierLabel: 'businessIdentifierLabel',
+  businessIdentifier: 'businessIdentifier',
+  businessEmail: 'businessEmail',
+  supportContact: 'supportContact',
+  jurisdictionNote: 'jurisdictionNote',
+  serviceCode: 'serviceCode',
+  serviceCodeLabel: 'serviceCodeLabel',
+  serviceDescription: 'serviceDescription',
+  invoicePrefix: 'invoicePrefix',
+  creditNotePrefix: 'creditNotePrefix',
+  exportLutReference: 'exportLutReference',
+  footerNote: 'footerNote',
+  updatedByUserId: 'updatedByUserId'
+} as const
+
+export type CommissionInvoiceSettingsOrderByRelevanceFieldEnum = (typeof CommissionInvoiceSettingsOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceSettingsOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  settlementId: 'settlementId',
+  activeKey: 'activeKey',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  number: 'number',
+  currency: 'currency',
+  taxTreatment: 'taxTreatment',
+  snapshotHash: 'snapshotHash',
+  amountInWords: 'amountInWords',
+  collectionReference: 'collectionReference',
+  templateVersion: 'templateVersion',
+  createdByUserId: 'createdByUserId',
+  issuedByUserId: 'issuedByUserId',
+  voidedByUserId: 'voidedByUserId',
+  voidReason: 'voidReason'
+} as const
+
+export type CommissionInvoiceOrderByRelevanceFieldEnum = (typeof CommissionInvoiceOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  kind: 'kind',
+  description: 'description',
+  detail: 'detail',
+  serviceCode: 'serviceCode',
+  orderReference: 'orderReference',
+  feeType: 'feeType',
+  policyId: 'policyId'
+} as const
+
+export type CommissionInvoiceLineOrderByRelevanceFieldEnum = (typeof CommissionInvoiceLineOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceLineOrderByRelevanceFieldEnum]
+
+
+export const CommissionCreditNoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  legalEntityCode: 'legalEntityCode',
+  sellerAccountId: 'sellerAccountId',
+  idempotencyKey: 'idempotencyKey',
+  series: 'series',
+  financialYear: 'financialYear',
+  number: 'number',
+  note: 'note',
+  currency: 'currency',
+  amountInWords: 'amountInWords',
+  issuedByUserId: 'issuedByUserId'
+} as const
+
+export type CommissionCreditNoteOrderByRelevanceFieldEnum = (typeof CommissionCreditNoteOrderByRelevanceFieldEnum)[keyof typeof CommissionCreditNoteOrderByRelevanceFieldEnum]
+
+
+export const CommissionDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  kind: 'kind',
+  storageKey: 'storageKey',
+  fileName: 'fileName',
+  contentHash: 'contentHash',
+  templateVersion: 'templateVersion'
+} as const
+
+export type CommissionDocumentOrderByRelevanceFieldEnum = (typeof CommissionDocumentOrderByRelevanceFieldEnum)[keyof typeof CommissionDocumentOrderByRelevanceFieldEnum]
+
+
+export const CommissionInvoiceEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  creditNoteId: 'creditNoteId',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  actorUserId: 'actorUserId',
+  snapshotHash: 'snapshotHash'
+} as const
+
+export type CommissionInvoiceEventOrderByRelevanceFieldEnum = (typeof CommissionInvoiceEventOrderByRelevanceFieldEnum)[keyof typeof CommissionInvoiceEventOrderByRelevanceFieldEnum]
 
 
 
@@ -29362,6 +30190,69 @@ export type EnumConsentPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'LegalDocumentKind'
+ */
+export type EnumLegalDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LegalDocumentKind'>
+    
+
+
+/**
+ * Reference to a field of type 'LegalDocumentStatus'
+ */
+export type EnumLegalDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LegalDocumentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionTaxRegime'
+ */
+export type EnumCommissionTaxRegimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionTaxRegime'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionEligibleStage'
+ */
+export type EnumCommissionEligibleStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionEligibleStage'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionDocumentType'
+ */
+export type EnumCommissionDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionDocumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionInvoiceStatus'
+ */
+export type EnumCommissionInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionInvoiceStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionCollectionStatus'
+ */
+export type EnumCommissionCollectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCollectionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionCreditReason'
+ */
+export type EnumCommissionCreditReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCreditReason'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionCreditBasis'
+ */
+export type EnumCommissionCreditBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCreditBasis'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -29777,7 +30668,14 @@ export type GlobalOmitConfig = {
   buyerCompanyReviewEvent?: Prisma.BuyerCompanyReviewEventOmit
   buyerCompanyStatusHistory?: Prisma.BuyerCompanyStatusHistoryOmit
   consentRecord?: Prisma.ConsentRecordOmit
+  legalDocument?: Prisma.LegalDocumentOmit
   buyerCompanyEmailChallenge?: Prisma.BuyerCompanyEmailChallengeOmit
+  commissionInvoiceSettings?: Prisma.CommissionInvoiceSettingsOmit
+  commissionInvoice?: Prisma.CommissionInvoiceOmit
+  commissionInvoiceLine?: Prisma.CommissionInvoiceLineOmit
+  commissionCreditNote?: Prisma.CommissionCreditNoteOmit
+  commissionDocument?: Prisma.CommissionDocumentOmit
+  commissionInvoiceEvent?: Prisma.CommissionInvoiceEventOmit
 }
 
 /* Types for Logging */

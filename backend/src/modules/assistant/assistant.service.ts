@@ -50,10 +50,17 @@ import { publicCategoryWhere, publicProductWhere } from '../catalog/catalog.visi
 import type { AssistantCustomerContext } from './conversation.service.js';
 import { anthropicProvider } from './provider.anthropic.js';
 import { geminiProvider } from './provider.gemini.js';
-import type { AssistantProvider, AssistantResult, AssistantTurn } from './provider.js';
+import { AssistantProviderError } from './provider.js';
+import type {
+  AssistantFailure,
+  AssistantProvider,
+  AssistantResult,
+  AssistantTurn,
+} from './provider.js';
 
 export type { AssistantTurn, AssistantResult } from './provider.js';
-export { AssistantBusyError } from './provider.js';
+export { AssistantBusyError, AssistantProviderError } from './provider.js';
+export type { AssistantFailure } from './provider.js';
 
 /**
  * Which provider this deployment uses.
@@ -79,6 +86,74 @@ export function activeProvider(): AssistantProvider | null {
 /** Whether this deployment has the assistant configured at all. */
 export function isAssistantConfigured(): boolean {
   return activeProvider() !== null;
+}
+
+/**
+ * Whether the AI provider is set up, in words that are safe to show anybody
+ * with settings access. Never the key, never its length, never a prefix.
+ *
+ *   - `DISABLED`             ASSISTANT_ENABLED is off.
+ *   - `MISSING_CREDENTIALS`  on, but no key for the chosen provider.
+ *   - `CONFIGURED`           a key is present. Says nothing about whether
+ *                            the provider accepts it - that is what `probe`
+ *                            is for.
+ */
+export type AssistantConfigStatus = 'DISABLED' | 'MISSING_CREDENTIALS' | 'CONFIGURED';
+
+export interface AssistantStatus {
+  status: AssistantConfigStatus;
+  provider: 'gemini' | 'anthropic' | null;
+  model: string | null;
+  /** Present only when a live call was asked for. */
+  probe?: {
+    ok: boolean;
+    /** Why it failed, as a reason an operator can act on. Never provider text. */
+    reason: AssistantFailure | 'unexpected' | null;
+    latencyMs: number;
+  };
+}
+
+export function assistantStatus(): AssistantStatus {
+  if (!env.ASSISTANT_ENABLED) return { status: 'DISABLED', provider: null, model: null };
+  const provider = activeProvider();
+  if (provider === null) return { status: 'MISSING_CREDENTIALS', provider: null, model: null };
+  return { status: 'CONFIGURED', provider: provider.name, model: provider.model };
+}
+
+/**
+ * The status, plus one real call to the provider.
+ *
+ * Costs one request of the key's quota, which is why it is only made when an
+ * administrator asks for it and never on a timer. Eight output tokens, no
+ * catalogue: the question is "does the key work with this model", not "is
+ * the answer good".
+ */
+export async function probeAssistant(): Promise<AssistantStatus> {
+  const status = assistantStatus();
+  const provider = activeProvider();
+  if (provider === null) return status;
+
+  const started = Date.now();
+  try {
+    await provider.stream({
+      systemPrompt: 'Reply with the single word OK.',
+      catalogue: '',
+      turns: [{ role: 'user', content: 'Status check.' }],
+      maxTokens: 8,
+      signal: AbortSignal.timeout(30_000),
+      onText: () => undefined,
+    });
+    return { ...status, probe: { ok: true, reason: null, latencyMs: Date.now() - started } };
+  } catch (error) {
+    return {
+      ...status,
+      probe: {
+        ok: false,
+        reason: error instanceof AssistantProviderError ? error.reason : 'unexpected',
+        latencyMs: Date.now() - started,
+      },
+    };
+  }
 }
 
 /** The company the customer's question is actually sent to, and where they are. */

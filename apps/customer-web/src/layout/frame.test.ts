@@ -22,7 +22,7 @@ describe('isFullBleedPath', () => {
   });
 
   it('leaves every other page - the application itself included - in the ordinary frame', () => {
-    for (const path of ['/', '/home', '/products', '/account/companies', '/account/companies/01X', '/register/company/extra']) {
+    for (const path of ['/', '/products', '/account/companies', '/account/companies/01X', '/register/company/extra']) {
       expect(isFullBleedPath(path, true)).toBe(false);
       expect(isFullBleedPath(path, false)).toBe(false);
     }

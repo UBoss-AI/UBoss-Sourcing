@@ -37,6 +37,7 @@ import { hashPassword } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { assertAcceptableTerms, recordTermsAcceptance } from '../legal/legal-document.service.js';
 import { normaliseEmail } from '../identity/auth.service.js';
 import { SUPPORTED_LANGUAGES } from '../identity/language.service.js';
 import {
@@ -71,7 +72,13 @@ export interface RegisterCustomerInput {
   password: string;
   organization?: string | null;
   acceptedTerms: boolean;
-  consentVersion: string;
+  /**
+   * The id of the Terms document the person read and agreed to, as the
+   * storefront received it from `GET /legal/current`. Checked against the
+   * version in force; the version, language and hash are read off the stored
+   * document, never taken from the request.
+   */
+  termsDocumentId: string | null;
   /** BCP-47 primary subtag the storefront is currently being read in. */
   language?: string | null;
   ipAddress?: string | null;
@@ -144,13 +151,13 @@ export async function registerCustomer(input: RegisterCustomerInput): Promise<Re
     );
   }
 
-  if (!input.acceptedTerms) {
-    throw badRequest(
-      ErrorCode.SCHEDULE_CONSENT_REQUIRED,
-      'You must accept the terms to continue.',
-      [{ field: 'acceptedTerms', code: 'CONSENT_REQUIRED' }],
-    );
-  }
+  // Before anything else, and for a duplicate address as much as a new one:
+  // a refusal here must not depend on whether the address is registered.
+  const terms = await assertAcceptableTerms({
+    kind: 'PLATFORM_TERMS',
+    acceptedTerms: input.acceptedTerms,
+    documentId: input.termsDocumentId,
+  });
 
   const emailNormalized = normaliseEmail(input.email);
   const phone = normalisePhone(input.phone);
@@ -247,12 +254,16 @@ export async function registerCustomer(input: RegisterCustomerInput): Promise<Re
         preferredCurrency: country.currencyCode,
         localeChosenAt: now,
         consentAcceptedAt: now,
-        consentVersion: input.consentVersion,
+        consentVersion: terms.version,
         // `invitedById`/`invitedAt` stay null on purpose: nobody invited them,
         // and that null is how the trail tells the two paths apart later.
         // `activatedAt` waits for the confirmation link.
       },
     });
+
+    // In this transaction, so the account and the record of what it agreed
+    // to exist together or not at all.
+    await recordTermsAcceptance(tx, { userId, terms, source: 'STOREFRONT_SIGN_UP' });
 
     const verification = await issueToken(userId, 'EMAIL_VERIFICATION', null, tx);
 
@@ -285,6 +296,8 @@ export async function registerCustomer(input: RegisterCustomerInput): Promise<Re
           fullName: input.fullName.trim(),
           country: country.code,
           requiresApproval,
+          termsVersion: terms.version,
+          termsLocale: terms.locale,
         },
         ipAddress: input.ipAddress ?? null,
         correlationId: input.correlationId ?? null,

@@ -303,7 +303,7 @@ flowchart TD
     Reset["/reset-password"]
     SelectCo["/select-company"]
   end
-  HomeLanding["/home (the same page as /)"]
+  HomeLanding["/ (the one home page; /home redirects here)"]
   Home --> Login
   Login -->|"Individual tab"| Register
   Login -->|"Company tab"| RegCompany
@@ -449,7 +449,9 @@ flowchart LR
   Logistics --> Levels["/logistics/managed-levels"] --> LevelSeller["/logistics/managed-levels/:sellerAccountId"]
   Logistics --> Legs["/logistics/legs"] --> Leg["/logistics/legs/:legId"]
 
-  Dash --> Finance["/finance/platform-fees"]
+  Dash --> Finance["Finance"]
+  Finance --> Fees["/finance/platform-fees"]
+  Finance --> CommInv["/finance/commission-invoices"] --> CommInvOne["/finance/commission-invoices/:id"]
   Dash --> Insight["Insight"]
   Insight --> Reports["/reports"]
   Insight --> Audit["/audit"]
@@ -555,7 +557,7 @@ Files: `src/layout/StoreLayout.tsx`, `src/layout/Header.tsx`,
    review" or "Verified"). The one in use is marked as pressed. Choosing
    another asks the server to switch; no password is asked. Then everything
    the page had loaded is thrown away, so nothing from one account shows in the
-   other, the person is taken to `/home`, and a message says "You are now
+   other, the person is taken to `/`, and a message says "You are now
    buying for …" or "You are now buying for yourself." If the server refuses:
    "We could not switch accounts. Please try again."
 
@@ -625,7 +627,7 @@ call fails, everything below counts as off.
 | Path | Screen | Who |
 |---|---|---|
 | `/` | Home | Anybody |
-| `/home` | Home: the same page as `/`. Every sign-in, individual or company, lands here | Anybody |
+| `/home` | Not a page. A permanent redirect (301) to `/`, keeping the query string, for old links. Every sign-in, individual or company, lands on `/` | Anybody |
 | `/products` | All products | Anybody |
 | `/category/:slug` | One category | Anybody |
 | `/search` | Search results (old links) | Anybody |
@@ -1056,8 +1058,8 @@ company.
 | Company | "Register your company — we check every business before it can order." | `/register/company` |
 
 **Where you go afterwards.** The page you were trying to open, or the `next`
-address, or `/home`. Only addresses inside this store are accepted; anything
-else (another site, `//…`) goes to `/home`. On the Company tab:
+address, or `/`. Only addresses inside this store are accepted; anything
+else (another site, `//…`) goes to `/`. On the Company tab:
 
 | The account belongs to | What happens |
 |---|---|
@@ -1086,9 +1088,33 @@ shown)
 **On the screen (when sign-up is on).** **Your name**, **Email address**,
 **Country you order from** (sets the currency), **Mobile number** (with the
 country's dialling code), **Company (optional)**, **Choose a password** (at
-least 12 characters), **Confirm your password**, the terms box, and **Create
+least 12 characters), **Confirm your password**, the Terms box, and **Create
 account →**. When new accounts are reviewed: "New accounts are reviewed by our
 team before the first order…".
+
+**The Terms box.** "I have read and agree to the **Terms and Conditions**." It
+starts empty and cannot be ticked directly. Ticking it, pressing Space or Enter
+on it, or clicking the words opens the **Terms dialog**: the title, one line
+saying to read to the end and then choose **I agree**, the version, the date it
+applies from and its language, then the full text in one scrolling area (Tab
+reaches it, and the arrow keys, Page Down and End scroll it). The footer stays
+in view with "Read all terms before accepting.", **Cancel** and **I agree**.
+**I agree** is disabled until the end of the text has been reached (at once if
+it all fits); the footer line then says "You have reached the end. You can now
+agree." Below the text: **Open the full terms in a new tab** and **Download
+PDF**. Only **I agree** ticks the box and closes the dialog; **Cancel**,
+**Close** and Escape leave it empty, and focus goes back to the box. Under a
+ticked box: "You agreed to version … It is recorded when you send this form."
+Unticking clears it; ticking again reopens the Terms. When the Terms are not in
+the reader's language, the dialog says which language they are in. The
+operator's other policy links (the privacy notice among them) follow on their
+own line, "Also read: …" - they are not part of the agreement. While the Terms
+load the box is disabled; if they fail, **Try again**; if none are published,
+"Accounts cannot be opened right now…" and nothing can be sent.
+
+If the server says the Terms changed ("The Terms and Conditions have changed.
+Open them, read the new version and agree again."), the box is cleared, the new
+version is loaded and everything else typed stays.
 
 **What happens.** **Create account** shows a spinner and cannot be pressed
 again while the request runs - a double-click sends one request. If the
@@ -1124,7 +1150,7 @@ for a company, so the sign-in button on `/verify-email` opens the Company tab
 too. That note is only a convenience: it gives no rights, and if the browser
 cannot store it the person simply picks the tab.
 
-**API calls:** `POST /api/v1/auth/register`, `POST /api/v1/auth/verify-email/resend`
+**API calls:** `GET /api/v1/legal/current?kind=PLATFORM_TERMS&locale=…` (again when the language changes), `POST /api/v1/auth/register` (with `termsDocumentId`), `POST /api/v1/auth/verify-email/resend`
 
 #### `/register/company` — Register a company
 
@@ -1183,7 +1209,7 @@ decide alone.
 **What happens.** Until a choice is made, the session buys for the person, so
 an order can never land on a company by guesswork. A choice is sent to the
 server, which checks the membership before it changes anything. Then you go to
-where you were headed, normally `/home`. If the server refuses: "We could not
+where you were headed, normally `/`. If the server refuses: "We could not
 switch accounts. Please try again."
 
 **API call:** `PUT /api/v1/auth/buyer-context`
@@ -1217,13 +1243,16 @@ your email address"). Then:
 
 **On the screen.** "Choose a password. Only you will know it — nobody at …
 can see or set it." **Choose a password** (12 to 128 characters), **Confirm
-your password**, the terms box, **Activate my account**.
+your password**, the Terms box, **Activate my account**. The Terms box
+behaves exactly as on `/register`: only **I agree** in the Terms dialog ticks it.
 
 **What happens.** The account is activated and you are signed in: "Your
 account is ready", **Browse products**. An expired, used or invalid link shows
-a clear card with **Go to sign in** and **Contact support**.
+a clear card with **Go to sign in** and **Contact support**. A Terms refusal is
+not a link problem - the link is not used up - so it is shown on the Terms box,
+which is cleared, and the current Terms are loaded.
 
-**API calls:** `POST /api/v1/auth/invitations/accept`, then `POST /api/v1/auth/login`
+**API calls:** `GET /api/v1/legal/current?kind=PLATFORM_TERMS&locale=…`, `POST /api/v1/auth/invitations/accept` (with `termsDocumentId`), then `POST /api/v1/auth/login`
 
 #### `/forgot-password` — Reset your password
 
@@ -1284,14 +1313,20 @@ the token.
 | **File** | `pages/VerifyDocumentPage.tsx` |
 
 **Purpose.** Where the QR code printed on a seller's invoice or packing list
-lands (`?kind=invoice|packing-list&number=…&code=…`). It says whether the
+lands (`?kind=invoice|packing-list&number=…&code=…`), and also the QR on the
+marketplace's own commission invoices and commission credit notes to sellers
+(`?kind=commission-invoice|commission-credit-note&…`). It says whether the
 document is real, who issued it and whether it still stands. It never shows
 the buyer or any price. **This address is printed into every document and
 must never move.**
 
 **What it shows.** "Valid" (green), or Cancelled, Being corrected, Replaced
-by a newer version, or Not issued; the kind (Tax invoice, Credit note, Packing
-list), the number, who issued it and when, how many packages. If nothing
+by a newer version, or Not issued; for a commission invoice also "Valid, partly
+credited" and "Credited in full". The kind (Tax invoice, Invoice, Bill of
+supply, Credit note, Packing list), the number, who issued it and when, how
+many packages. For a commission document only the issuer's legal name, the
+number, kind, status and issue time are shown — nothing about the seller or
+the amounts. An address with any other `kind` is not checked at all. If nothing
 matches: "This document could not be confirmed… Treat the document with
 caution."
 
@@ -1326,6 +1361,14 @@ and has no footer.
   **Send** or **Stop generating**. "Generated by AI. Check product codes and
   prices before ordering."
 
+**When an answer fails.** The assistant never makes up an answer. The page
+says why, in the visitor's language: the assistant is busy, has reached its
+limit for now, took too long, is unavailable, or cannot help with that
+question. **Try again** appears only when a second attempt can work — not for
+a question the model declined, and not when the store's AI key or model is
+wrong (then it says to contact support). The question is kept, so Try again
+does not show it twice.
+
 **Limits.** 20 questions per conversation. A guest has a small number of free
 questions; at zero a dialog offers **Create an account** or **Sign in**. When
 the store does not answer guests, the box is replaced by "Sign in to ask the
@@ -1342,6 +1385,28 @@ assistant".
 - `POST /api/v1/cart/items`
 - `POST /api/v1/catalog/image-search` (customers)
 - `GET /api/v1/account/profile`
+
+#### `/legal/terms` and `/legal/documents/:id` — Terms and Conditions
+
+| | |
+|---|---|
+| **Who** | Anybody, signed in or not |
+| **File** | `pages/LegalDocumentPage.tsx` |
+
+**Purpose.** The Terms, on a page of their own. `/legal/terms` is the version
+in force in the reader's language (or English, with a note saying so);
+`/legal/documents/:id` is one exact version - where the Terms dialog's **Open
+the full terms in a new tab** goes, and where somebody reads later what they
+agreed to.
+
+**On the screen.** The title, the version, the date it applies from and its
+language; **Print** and **Download PDF**; the summary of changes when there is
+one; the full text with its headings; the SHA-256 of the text at the foot; and
+"All published versions", each linked, with the one in force marked. An earlier
+version says "This is an earlier version…" and links to the one in force.
+Printing leaves out the store's header and footer.
+
+**API calls:** `GET /api/v1/legal/current` or `GET /api/v1/legal/documents/:id`, `GET /api/v1/legal/versions`, and the PDF at `GET /api/v1/legal/documents/:id/pdf`
 
 #### `/about` — About {marketplace}
 
@@ -1809,7 +1874,7 @@ readers and takes focus when it changes:
 
 | State | What it shows |
 |---|---|
-| Confirming payment… | A spinner while the server waits for Stripe |
+| Confirming your payment… | A spinner while the server checks with Stripe |
 | Payment successful | The order number, the amount, when it was paid, the card ("Visa ending in 4242"), the order status, **View order** and **Continue shopping** |
 | Payment processing | The bank has not finished yet (a delayed payment method). **Check again** |
 | Payment failed | Why, in plain words (declined, not enough funds, expired card, wrong CVC, failed bank check, bank payment failed). **Retry payment** |
@@ -1821,15 +1886,21 @@ A session that does not exist or is not yours: "We could not find this
 payment".
 
 **What happens.** The page asks the server every two seconds for up to 60
-seconds. **Check again** makes the server ask Stripe directly and apply the
-answer; it never starts a new payment. **Retry payment** is offered only
+seconds. While the payment is still open, the server asks Stripe on those
+reads (at most every four seconds), so a card Stripe has already confirmed
+normally shows **Payment successful** on the first answer, even when Stripe's
+webhook is late. Once it has, the page forgets its cached copies of the order,
+so **View order** shows the paid order, not "Pending payment". **Check again**
+makes the server ask Stripe directly and apply the answer; it never starts a
+new payment. A customer who closes the tab is covered too: the server asks
+Stripe about payments still open after a minute and records the result. **Retry payment** is offered only
 when the attempt closed without being paid, and goes back to the payment page
 for the same order.
 
 **API calls**
 
 - `GET /api/v1/payments/orders/:orderId/checkout/:sessionId` (every two
-  seconds while waiting)
+  seconds while waiting; the server asks Stripe while the payment is open)
 - `POST /api/v1/payments/orders/:orderId/checkout/:sessionId/refresh`
   (**Check again**)
 
@@ -2444,7 +2515,7 @@ reviewer. Every company email links here.
    turnaround time. When rejected, the reason in the reviewer's own words, and
    **Correct and apply again** where the reviewer allowed it (otherwise "This
    application cannot be sent again. Contact us if you think that is wrong.").
-   When approved: **Start buying for the company** (goes to `/home`). **Contact
+   When approved: **Start buying for the company** (goes to `/`). **Contact
    support** when the store has a support email.
 3. **The reviewer's requests** (only when sent back and a request is open):
    "Our reviewer has asked for more information". Each request shows its date
@@ -3902,6 +3973,7 @@ The permission keys, grouped the way the code groups them:
 | Finance | `finance.policy.read`, `finance.policy.write`, `finance.tax.verify` |
 | Reporting | `report.read`, `export.create`, `audit.read` |
 | Invoices | `invoice.read`, `invoice.issue` |
+| Commission invoices | `commission_invoice.view`, `commission_invoice.preview`, `commission_invoice.generate`, `commission_invoice.issue`, `commission_invoice.download`, `commission_credit_note.create`, `commission_invoice.settings.write` (Business Owner and Finance Approver only) |
 | Data requests | `data_request.read`, `data_request.action` |
 | Support tickets | `support_ticket.view` (Business Owner, Order Manager, Finance Approver), `support_ticket.reply` (Business Owner, Order Manager), `support_ticket.assign` (Business Owner only) |
 
@@ -4514,8 +4586,8 @@ Placed.
 
 | | |
 |---|---|
-| **Who** | `order.read`. Approve or reject: `order.approve`. Internal note: `order.note.write`. Raise an invoice or a credit note: `invoice.issue`. Seller documents: `invoice.read`. Each status step: the permission the server names for it |
-| **File** | `src/pages/OrderDetailPage.tsx`, `src/pages/order/InvoicePanel.tsx`, `src/pages/order/SellerDocumentsPanel.tsx` |
+| **Who** | `order.read`. Approve or reject: `order.approve`. Internal note: `order.note.write`. Raise an invoice or a credit note: `invoice.issue`. Seller documents: `invoice.read`. Commission invoices card: `commission_invoice.view` (generate: `commission_invoice.generate`; download: `commission_invoice.download`). Each status step: the permission the server names for it |
+| **File** | `src/pages/OrderDetailPage.tsx`, `src/pages/order/InvoicePanel.tsx`, `src/pages/order/SellerDocumentsPanel.tsx`, `src/pages/order/CommissionInvoicePanel.tsx` |
 
 **Purpose.** One order, and the next steps it can take.
 
@@ -4544,6 +4616,15 @@ Placed.
   VAT breakdown, an EN 16931 check, **Download the electronic invoice (UBL)**
   and **Issue a credit note**. Nothing can be edited or deleted.
 - **Seller invoices and packing lists**: download only.
+- **Commission invoices**: "The marketplace's own invoice to each seller for
+  the commission on their part of this order." One row per seller order: the
+  seller, the seller order number and "commission *x* + tax *y*". With no
+  invoice yet, **Generate Commission Invoice**; it is disabled while the seller
+  order cannot be invoiced, and the reasons are listed under it (for example
+  "Commission is invoiced once the order is delivered."). Pressing it makes
+  the draft and opens it. Once one exists: its status badge, **View Commission
+  Invoice** and, when issued, **Download PDF**. The card is hidden without
+  `commission_invoice.view`, and when the order has no seller orders.
 - **Customer**: a link to the account.
 - **Payment**: attempts, payment links and refunds, as reported by the
   provider. **Open in Payments**. There is no "mark paid" and no refund button
@@ -4562,6 +4643,10 @@ Placed.
 - `GET /api/v1/admin/orders/:id/seller-documents`,
   `POST /api/v1/admin/documents/invoice/:docId/link`,
   `POST /api/v1/admin/documents/packing-list/:docId/link`
+- `GET /api/v1/admin/orders/:id/commission-invoices`,
+  `POST /api/v1/admin/seller-orders/:id/commission-invoice` (with an
+  `Idempotency-Key`), `POST /api/v1/admin/commission-invoices/documents/:id/link`
+  then the `GET` download it returns
 
 #### `/payments` — Payments
 
@@ -5025,7 +5110,7 @@ Messages, Last message, **Read chat**. The transcript opens in a dialog.
 | | |
 |---|---|
 | **Who** | `support_ticket.view` to open. Replying, notes, status, priority and taking a ticket need `support_ticket.reply`; giving one to a colleague needs `support_ticket.assign` |
-| **File** | `src/pages/support/SupportTicketsPage.tsx` |
+| **File** | `src/pages/support/SupportTicketsPage.tsx`, `src/pages/support/TicketDocuments.tsx` |
 
 **Purpose.** Answer the tickets that buyers, sellers and carriers raise from
 their Support pages.
@@ -5055,7 +5140,15 @@ their Support pages.
   customer's messages, replies, internal notes and every change of status,
   priority and assignment. Notes and priority and assignment changes are
   marked **Staff only**.
-- **Files from the customer**, each with **Open**.
+- **Documents from the customer**, in the main column above the
+  conversation, with a count and the line "Opening a file is recorded in the
+  audit log." Each file is a tile: its type (image, video, PDF) and extension,
+  name, size and "Uploaded …". An image has **Preview** and **Download**; a
+  PDF or a video has **Download** and "Opens in its own app once downloaded."
+  **Preview** opens the image in a dialog on the same page: **Fit to screen**
+  or **Actual size**, previous and next ("2 of 3", arrow keys too),
+  **Download** and **Close**. If a file cannot be fetched: "The file could not
+  be opened. Please try again." with **Try again**.
 - **Manage**: **Move to** (only the moves the ticket's status allows),
   **Priority** (Low, Normal, High, Urgent — staff set it; the sender never
   sees it), **Assigned to** with **Take this ticket**, **Put back in the
@@ -5074,6 +5167,12 @@ their Support pages.
   Notifications**: "Reply saved. … the customer was not emailed."
 - A **Closed** ticket: "This ticket is closed. Nobody can write on it any
   more."
+- Nothing is fetched until somebody presses **Preview** or **Download**,
+  because each open is recorded in the audit log. A file fetched once is kept
+  while the ticket is on screen, so downloading it after a preview does not
+  open it again. The page never leaves the ticket to show a file, and a PDF or
+  video is never shown inside the page: the console's security policy allows
+  only images to be shown from the browser's memory.
 - Staff cannot attach files to a reply, and the page does not update live;
   **Refresh this screen** re-reads it.
 
@@ -5086,6 +5185,7 @@ their Support pages.
 - `PATCH /api/v1/admin/support-tickets/:id`
 - `POST /api/v1/admin/support-tickets/:id/assignment`
 - `POST …/:id/attachments/:attachmentId/link`, then `GET …/download?token=…`
+  (fetched into the page, on **Preview** or **Download** only)
 
 ### 6.7 Logistics
 
@@ -5384,6 +5484,144 @@ see the fee and the estimated settlement.
 - `GET /api/v1/admin/platform-fees/:policyId/orders`
 - `POST /api/v1/admin/platform-fees/preview`
 
+#### `/finance/commission-invoices` — Commission invoices
+
+| | |
+|---|---|
+| **Who** | `commission_invoice.view`. Generate a draft: `commission_invoice.generate`. Save the settings: `commission_invoice.settings.write` |
+| **File** | `src/pages/finance/CommissionInvoicesPage.tsx`, `src/pages/finance/CommissionSettingsForm.tsx`, `src/lib/commission-invoices.ts` |
+
+**Purpose.** "Invoices from the marketplace to sellers for the platform
+commission on their orders. These are not the sellers' invoices to buyers."
+Reached from **Finance → Commission invoices** in the navigation.
+
+**On the screen.** Three tabs.
+
+- **Invoices.** Search ("Invoice number, seller name or ID, order number";
+  the seller order number works too), and filters for Status (Draft, Issued,
+  Partly credited, Fully credited, Void), Payment (Payable by seller, Paid,
+  Taken from settlement), Country (the seller's registration country),
+  Currency, and From / To (the issue date, or the created date for a draft).
+  Columns: Invoice no. (a draft shows "Draft"), Seller, Order, Status,
+  Payment, Total (with "Credited: …" where credit notes exist) and Date. A
+  row can carry **Needs attention** (a draft that cannot be issued yet) or
+  **Credit note may be due** (the order was cancelled or refunded, the
+  seller order is disputed, or a refund was recorded) — advice only. Search,
+  filters and paging (25 a page) run on the server. A row opens the detail
+  page; the order links to `/orders/:id`.
+- **Awaiting invoice.** "Seller orders that carry a commission but have no
+  commission invoice yet." Columns: Seller, Order, Platform commission (with
+  "plus tax: …") and "Can it be invoiced?" — either **Ready** with a
+  **Generate draft** button, or the reasons it cannot be yet (payment not
+  captured, order cancelled, seller order in dispute, no commission, stage
+  not reached). **Generate draft** makes the draft and opens it.
+- **Settings.** Four groups: **Issuing legal entity** (legal and trading
+  name, registered address, city, state or region, postcode, country,
+  business email, support contact, entity code, jurisdiction note), **Tax
+  registration** (tax regime: Indian GST, VAT, other sales tax, or not
+  registered; state code; tax number label and number; business identifier
+  label and value; service code label and code; Letter of Undertaking
+  reference; title when no tax is charged; whether the seller's tax number is
+  required), **Numbering** (invoice and credit note series, digits, the month
+  the financial year starts, with "The first invoice this year would be
+  numbered …") and **Rules** (when to invoice the commission: confirmed,
+  shipped or delivered; days to pay; line description; round the grand
+  total; allow voiding an issued invoice; footer note). At the top it says
+  either "The required details are set." or "Invoices cannot be issued yet —
+  Still missing: …", and warns that the details appear on legal tax
+  documents and should be reviewed by a qualified accountant or tax adviser.
+  Rates are never entered here; they come from the fee policies.
+
+**What happens.** Nothing is sent to the seller. Generating from either tab
+uses a fresh `Idempotency-Key`, so a double click makes one draft. Saving the
+settings sends the version that was loaded; if somebody else saved first,
+the page says "Someone else changed these settings. Reload the page and try
+again."
+
+**States.** No invoices: "There are no commission invoices yet — Start one
+from an order, or from the Awaiting invoice tab." Nothing waiting: "Nothing
+is waiting — Every seller order with a commission already has a commission
+invoice."
+
+**API calls**
+
+- `GET /api/v1/admin/commission-invoices?q=…&status=…&collectionStatus=…&country=…&currency=…&from=…&to=…&page=…`
+- `GET /api/v1/admin/commission-invoices/candidates?q=…&page=…`
+- `POST /api/v1/admin/seller-orders/:id/commission-invoice` (with an `Idempotency-Key`)
+- `GET` and `PUT /api/v1/admin/commission-invoices/settings`
+
+#### `/finance/commission-invoices/:id` — One commission invoice
+
+| | |
+|---|---|
+| **Who** | `commission_invoice.view`. Rebuild and discard a draft: `commission_invoice.generate`. Preview: `commission_invoice.preview`. Issue, void, record payment: `commission_invoice.issue`. Download: `commission_invoice.download`. Credit note: `commission_credit_note.create` |
+| **File** | `src/pages/finance/CommissionInvoiceDetailPage.tsx`, `src/pages/finance/commission-shared.ts` |
+
+**Purpose.** One commission invoice: what it says, where its figures came
+from, and what can still be done with it.
+
+**On the screen.** The title is the invoice number ("Draft commission
+invoice" before issue), with the document type (Tax invoice, Invoice or Bill
+of supply), a status badge and, once issued, a payment badge.
+
+- **Warnings** at the top: "This invoice cannot be issued yet" with each
+  reason in words (for example "The seller's GSTIN is not a valid GSTIN.",
+  "Verify it under Finance → Platform fees."); "A credit note may be due"
+  with why; and a voided invoice's reason.
+- **Preview** (drafts only): the draft as an A6 PDF. "It gets its number,
+  barcode and QR code when it is issued."
+- **Issued PDF** (once issued): file name, pages and SHA-256.
+- **Supplier and seller**: "From — supplier" (the issuing entity as set in
+  Settings; a gap reads "Not set in the settings") and "Bill to — seller"
+  (seller ID, tax number, address).
+- **Calculation**: "Copied from the seller order's settlement. Nothing here
+  is recalculated." The lines (description, fee policy version, taxable,
+  rate, tax, total), then commission subtotal, discount / adjustment (always
+  0), taxable value, each tax, rounding where used, grand total, credited and
+  remaining, the amount in words, "Payable by the seller to the marketplace."
+  or "Taken from the seller's settlement.", and any declarations (LUT,
+  reverse charge).
+- **Source records**: order, seller order and its status, paid by buyer,
+  payment reference, seller's goods, amount the commission was charged on,
+  platform commission, tax on it, refunds on this seller order, settlement
+  reference, when it was calculated, tax treatment, place of supply, reverse
+  charge, issue and due dates, and the seller's payment reference.
+- **Credit notes**: each one's number, reason, amount and a download.
+- **History**: draft created, rebuilt, preview opened, issued, PDF
+  downloaded, credit note issued, payment recorded, discarded or voided —
+  who and when.
+
+**Actions**, shown by status and permission:
+
+- **Rebuild draft** (draft) — rebuilds it from its sources.
+- **Issue invoice** (draft, only when nothing blocks it) — a dialog: "A
+  commission invoice of … will be issued to …. The number is reserved and the
+  invoice can no longer change. Any correction afterwards is a credit note."
+  If the sources changed since the draft was built, the server refuses and
+  the draft must be rebuilt and checked again.
+- **Download PDF** (issued) — a five-minute, single-use link, then the file.
+- **Create credit note** (issued or partly credited) — reason, how much to
+  credit (everything not yet credited; in proportion to the refund; or an
+  amount entered before tax, "Never more than is left on the invoice."), and
+  an optional note printed on it. It is issued at once, with its own number
+  and PDF.
+- **Record payment** (issued and still payable) — the seller's payment
+  reference. "The issued PDF is not changed."
+- **Discard draft** (draft) or **Void invoice** (issued, only when Settings
+  allow it and there are no credit notes) — with a reason. A voided number
+  stays used.
+
+**API calls**
+
+- `GET /api/v1/admin/commission-invoices/:id`
+- `GET /api/v1/admin/commission-invoices/:id/preview.pdf`
+- `POST /api/v1/admin/commission-invoices/:id/regenerate`, `/issue`, `/discard`, `/void`,
+  `/collection`
+- `POST /api/v1/admin/commission-invoices/:id/credit-notes` (with an
+  `Idempotency-Key`)
+- `POST /api/v1/admin/commission-invoices/documents/:id/link`, then
+  `GET /api/v1/admin/commission-invoices/documents/:id/download?token=…`
+
 ### 6.9 Insight
 
 #### `/reports` — Reports
@@ -5522,6 +5760,44 @@ deactivate themselves.
 - `GET /api/v1/admin/staff/assignable-roles`
 - `PATCH /api/v1/admin/staff/:id/roles`, `PATCH /api/v1/admin/staff/:id/status`
 - `POST /api/v1/admin/staff/:id/temporary-password`
+
+#### `/settings/legal-documents` — Legal documents
+
+| | |
+|---|---|
+| **Who** | `legal_document.read`. Drafts: `legal_document.write`. Publishing: `legal_document.publish`. Business Owner by default |
+| **File** | `src/pages/settings/LegalDocumentsPage.tsx` (the list, `/settings/legal-documents/new` and `/settings/legal-documents/:id`) |
+| **Menu** | Administration → **Legal documents**, just before Settings |
+
+**Purpose.** Where the operator writes and publishes the Terms and Conditions
+every new account agrees to. The software supplies no wording, and the page
+says so: use text your own legal counsel approved.
+
+**On the screen (the list).** One table for the **Buyer Terms and Conditions**
+and one for the **Logistics partner terms**: version, language, **Draft** or
+**Published**, an **In force** badge on the version that applies now, the date
+it applies from, the date it was published, and how many people accepted it
+(never who). A red alert when no buyer Terms are in force - storefront sign-up
+and invited-customer activation are refused until there are - and an amber one
+when no carrier terms are. **New version**.
+
+**On the screen (a draft).** **Document**, **Language** (the eight the system
+speaks), **Version** (for example 2026-10-01; the same name for each language
+of the same text), **In force from** (a date in the past becomes the moment you
+publish), **Title**, **What has changed** (optional), and the text, with a
+line explaining that `## ` starts a heading and `- ` a bullet. Beside it a
+live **Preview** - how readers see it on the storefront and in the PDF - which
+shows everything as plain text, so typed HTML appears as characters. **Save
+draft**, **Delete draft** (asks first) and **Publish permanently**, which is
+disabled while there are unsaved changes and asks first: once published the
+words can never be changed or deleted, and everyone who signs up must accept it
+once it is in force.
+
+**On the screen (a published document).** Read only: the text, the SHA-256,
+when and by whom it was published, the version it replaced, how many accepted
+it, and **Download PDF**. A correction is a new version.
+
+**API calls:** `GET /api/v1/admin/legal-documents`, `GET /api/v1/admin/legal-documents/:id`, `POST /api/v1/admin/legal-documents`, `PUT` and `DELETE /api/v1/admin/legal-documents/:id`, `POST /api/v1/admin/legal-documents/:id/publish`, and the public PDF `GET /api/v1/legal/documents/:id/pdf`
 
 #### `/settings` — Settings
 
@@ -5733,13 +6009,16 @@ roles, **My tasks** for a driver, the company page for anyone else.
 expires. No password is ever emailed.
 
 **On the screen.** **New password** (at least 12 characters), **Confirm
-password**, the terms box, and **Activate my account**. Without a token:
+password**, the Terms box, and **Activate my account**. Without a token:
 "This link is not valid any more. Ask your operations contact for another."
+The Terms box works as on the storefront's `/register` - only **I agree** in the
+Terms dialog ticks it - but shows the *Logistics partner terms*, and the dialog
+offers **Download PDF** rather than a link to a page.
 
 **What the system does.** Activates the account, says "Your account is active.
 Sign in to continue." and moves to `/login` after a moment.
 
-**API call:** `POST /api/v1/logistics/auth/invitations/accept`
+**API calls:** `GET /api/v1/legal/current?kind=LOGISTICS_PARTNER_TERMS&locale=…`, `POST /api/v1/logistics/auth/invitations/accept` (with `termsDocumentId`)
 
 #### Two-step sign-in — setup and challenge
 
@@ -6182,10 +6461,11 @@ flowchart TD
   HasAcct -->|"No"| SelfReg{"Store allows sign-up? (selfRegistration)"}
   SelfReg -->|"No"| ByInvite["/register explains: accounts are by invitation"]
   ByInvite --> StaffCreate["Staff create the account in admin /customers and send an invitation"]
-  StaffCreate --> InviteMail["Invitation email"] --> Activate["/activate: choose a password"]
+  StaffCreate --> InviteMail["Invitation email"] --> Activate["/activate: choose a password, agree to the Terms"]
   Activate --> SignedIn(["Signed in and ready to order"])
   SelfReg -->|"Yes"| Register["/register: name, email, country, mobile, company, password"]
-  Register --> CheckMail["'Check your email' (send again possible)"]
+  Register --> Terms["Terms dialog: read to the end, I agree"]
+  Terms --> CheckMail["'Check your email' (send again possible)"]
   CheckMail --> VerifyLink["/verify-email from the emailed link"]
   VerifyLink --> Review{"Store reviews new accounts?"}
   Review -->|"No"| Login
@@ -6199,7 +6479,7 @@ flowchart TD
 ```
 
 After sign-in, the person returns to the page they were trying to open, or
-goes to `/home`.
+goes to `/`.
 
 **The Company path** (when the store offers company accounts). It uses the
 same account and the same confirmation email; the company is added afterwards.
@@ -6215,12 +6495,12 @@ flowchart TD
   SignIn --> Wrong{"Password right?"}
   Wrong -->|"No"| Same["The same message as on the Individual tab"]
   Wrong -->|"Yes"| How{"How many companies?"}
-  How -->|"One"| Ready(["/home, buying for that company"])
+  How -->|"One"| Ready(["/, buying for that company"])
   How -->|"Several"| Pick["/select-company: choose one, or Continue as myself"]
-  Pick --> Ready2(["/home, buying for the one chosen"])
+  Pick --> Ready2(["/, buying for the one chosen"])
   How -->|"None"| NoCo["/select-company: 'No company on this account yet'"]
   NoCo -->|"Register a company"| Start["/register/company: Start the application"]
-  NoCo -->|"Continue as myself"| Self(["/home, buying for yourself"])
+  NoCo -->|"Continue as myself"| Self(["/, buying for yourself"])
   Start --> App["/account/companies/:id, the six steps"]
 ```
 

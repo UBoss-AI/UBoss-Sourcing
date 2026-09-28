@@ -29,8 +29,8 @@ export function returnTarget(state: unknown, search: string): string {
   const candidate =
     (state as LocationState | null)?.from ?? new URLSearchParams(search).get('next') ?? null;
 
-  // Both kinds of buyer land on the same home page. `/home` renders exactly
-  // what `/` does; it is named so a sign-in has one destination to test for.
+  // Both kinds of buyer land on the one home page, `/`. `/home` is only a
+  // redirect to it now, and is never a destination.
   if (candidate === null) return HOME;
 
   // One leading slash, and the next character must not be another slash or a
@@ -41,4 +41,4 @@ export function returnTarget(state: unknown, search: string): string {
   return candidate;
 }
 
-export const HOME = '/home';
+export const HOME = '/';

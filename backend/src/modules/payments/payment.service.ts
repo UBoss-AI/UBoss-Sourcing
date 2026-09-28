@@ -32,6 +32,7 @@ import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { env } from '../../config/env.js';
+import { storefrontReturnBase } from './storefront-return.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import {
   NotificationEvent,
@@ -679,6 +680,12 @@ export interface CreateOrderPaymentInput {
    */
   savedPaymentMethodId?: string | null;
   /**
+   * The `Origin` of the request that asked to pay, so the gateway sends the
+   * customer back to the address their session belongs to. Used only when it
+   * is one of the configured storefront origins - see `storefrontReturnBase`.
+   */
+  storefrontOrigin?: string | null;
+  /**
    * Whether to keep the card used for this payment.
    *
    * Only ever true because the customer ticked a box. Ignored for UPI, which
@@ -706,8 +713,8 @@ export interface CreateOrderPaymentInput {
  * through the customer's browser, which is not a trusted reporter of whether
  * money moved.
  */
-function paymentReturnUrl(orderId: string): string {
-  const base = env.CUSTOMER_WEB_PUBLIC_URL.replace(/\/$/, '');
+function paymentReturnUrl(orderId: string, storefrontOrigin: string | null | undefined): string {
+  const base = storefrontReturnBase(storefrontOrigin);
   return `${base}/checkout/payment/${orderId}?stripe_return=1`;
 }
 
@@ -987,6 +994,7 @@ export async function createOrderPayment(
       instrument,
       actorUserId: input.actorUserId,
       correlationId: input.correlationId ?? null,
+      storefrontOrigin: input.storefrontOrigin ?? null,
     });
   }
 
@@ -1155,7 +1163,7 @@ export async function createOrderPayment(
       savedCard,
       instrument,
       idempotencyKey: input.idempotencyKey,
-      returnUrl: paymentReturnUrl(order.id),
+      returnUrl: paymentReturnUrl(order.id, input.storefrontOrigin),
       actorUserId: input.actorUserId,
       correlationId: input.correlationId ?? null,
     });
@@ -1286,7 +1294,7 @@ async function chargeSavedCardForOrder(params: {
       currency: order.currency,
       providerCustomerId: savedCard.providerCustomerId,
       providerPaymentMethodId: savedCard.providerPaymentMethodId,
-      returnUrl: paymentReturnUrl(order.id),
+      returnUrl: params.returnUrl,
       idempotencyKey: params.idempotencyKey,
     });
   } catch (error) {

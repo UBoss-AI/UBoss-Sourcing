@@ -364,6 +364,21 @@ jobs:
         working-directory: apps/${{ matrix.app }}
         run: du -sh dist && find dist -name '*.map' | wc -l
 
+      # Every AI and payment secret is read by the API process and nowhere else.
+      # A browser bundle that mentions one by name has been handed a server
+      # variable (a VITE_ prefix on the wrong line is all it takes), and one
+      # that contains a secret-shaped value has been handed the value itself.
+      # The publishable Stripe key (pk_) is public by design and is not matched.
+      - name: No server secret in the bundle
+        working-directory: apps/${{ matrix.app }}
+        run: |
+          found="$(grep -rEl 'GEMINI_API_KEY|ANTHROPIC_API_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|sk_(test|live)_[A-Za-z0-9]{8,}|whsec_[A-Za-z0-9]{8,}|AIza[0-9A-Za-z_-]{30,}|AQ\.Ab[0-9A-Za-z_-]{30,}|sk-ant-[A-Za-z0-9_-]{8,}' dist || true)"
+          if [ -n "$found" ]; then
+            echo "::error::A server secret or its name is in the production bundle:"
+            echo "$found"
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # Translations
   #

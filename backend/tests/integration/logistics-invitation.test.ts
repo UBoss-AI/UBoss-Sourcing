@@ -22,6 +22,7 @@ import {
   inviteLogisticsUser,
   markInvitationAccepted,
 } from '../../src/modules/logistics/partner.service.js';
+import { currentTermsId } from '../support/legal.js';
 
 const PARTNER_CODE = 'LP-TEST-INVITE';
 const OWNER_EMAIL = 'owner@invite-test-carrier.test';
@@ -94,7 +95,8 @@ describe('a carrier invitation', () => {
       token: invited.token,
       password: 'CarrierActivate!2026',
       acceptedTerms: true,
-      consentVersion: 'test',
+      termsDocumentId: await currentTermsId('LOGISTICS_PARTNER_TERMS'),
+      audience: ['LOGISTICS'],
     });
 
     expect(consumed.userType).toBe('LOGISTICS');
@@ -172,7 +174,8 @@ describe('a carrier invitation', () => {
       token: invited.token,
       password: 'CarrierActivate!2026',
       acceptedTerms: true,
-      consentVersion: 'test',
+      termsDocumentId: await currentTermsId('LOGISTICS_PARTNER_TERMS'),
+      audience: ['LOGISTICS'],
     });
 
     await expect(
@@ -180,7 +183,8 @@ describe('a carrier invitation', () => {
         token: invited.token,
         password: 'CarrierActivate!2026',
         acceptedTerms: true,
-        consentVersion: 'test',
+        termsDocumentId: await currentTermsId('LOGISTICS_PARTNER_TERMS'),
+        audience: ['LOGISTICS'],
       }),
     ).rejects.toMatchObject({ code: 'TOKEN_ALREADY_USED' });
 

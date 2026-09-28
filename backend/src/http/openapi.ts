@@ -1951,18 +1951,22 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
 
   AcceptInvitationRequest: {
     type: 'object',
-    required: ['token', 'password', 'acceptedTerms'],
+    required: ['token', 'password', 'acceptedTerms', 'termsDocumentId'],
     properties: {
       token: { type: 'string' },
       password: { type: 'string', minLength: 12 },
       acceptedTerms: { type: 'boolean' },
-      consentVersion: { type: 'string', default: 'v1' },
+      termsDocumentId: {
+        type: 'string',
+        description:
+          'Id of the Terms document shown, from GET /legal/current. Must be the version in force.',
+      },
     },
   },
 
   RegisterRequest: {
     type: 'object',
-    required: ['fullName', 'email', 'phone', 'country', 'password', 'acceptedTerms'],
+    required: ['fullName', 'email', 'phone', 'country', 'password', 'acceptedTerms', 'termsDocumentId'],
     properties: {
       fullName: { type: 'string', maxLength: 255 },
       email: { type: 'string', format: 'email', maxLength: 320 },
@@ -1984,7 +1988,11 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
       password: { type: 'string', minLength: 12, maxLength: 128 },
       organization: { type: 'string', maxLength: 255, nullable: true },
       acceptedTerms: { type: 'boolean' },
-      consentVersion: { type: 'string', default: 'v1' },
+      termsDocumentId: {
+        type: 'string',
+        description:
+          'Id of the Terms document shown, from GET /legal/current. Must be the version in force.',
+      },
       language: { type: 'string', nullable: true, description: 'BCP-47 primary subtag.' },
     },
   },

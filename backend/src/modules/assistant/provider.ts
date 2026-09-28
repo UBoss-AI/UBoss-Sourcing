@@ -106,14 +106,65 @@ export interface AssistantProvider {
   describeImage: (request: AssistantVisionRequest) => Promise<AssistantVisionResult>;
 }
 
+/**
+ * Why a provider call failed, in the terms somebody can act on.
+ *
+ *   - `busy`        transient load on the provider's side. Worth a retry.
+ *   - `quota`       the key's allowance is spent. A retry now fails the same
+ *                   way; it clears on the provider's clock, not ours.
+ *   - `timeout`     the provider did not answer inside our deadline.
+ *   - `network`     we could not reach the provider at all (DNS, connect).
+ *   - `credentials` the key was refused: revoked, wrong project, billing off.
+ *   - `model`       the configured model does not exist for this key.
+ *
+ * The last two are the operator's problem and never the visitor's, so the
+ * route words them to a visitor as "unavailable" and logs the real reason.
+ */
+export type AssistantFailure = 'busy' | 'quota' | 'timeout' | 'network' | 'credentials' | 'model';
+
+/** A provider failure that has been classified. Anything else is unexpected. */
+export class AssistantProviderError extends Error {
+  constructor(
+    message: string,
+    readonly reason: AssistantFailure,
+    /** The provider's HTTP status, where it gave one. Logged, never shown. */
+    readonly providerStatus?: number,
+  ) {
+    super(message);
+    this.name = 'AssistantProviderError';
+  }
+}
+
 /** Thrown when the provider refuses for capacity or quota reasons. */
-export class AssistantBusyError extends Error {
+export class AssistantBusyError extends AssistantProviderError {
   constructor(
     message: string,
     /** True for a quota/billing exhaustion, as opposed to transient load. */
     readonly isQuota: boolean,
+    providerStatus?: number,
   ) {
-    super(message);
+    super(message, isQuota ? 'quota' : 'busy', providerStatus);
     this.name = 'AssistantBusyError';
   }
+}
+
+/**
+ * Classify the failures every fetch-based SDK produces the same way.
+ *
+ * A deadline arrives as an `AbortError`/`TimeoutError` even though nobody
+ * pressed Stop — the caller tells the two apart by checking its own signal
+ * first. A DNS or connect failure is Node's `TypeError: fetch failed`.
+ */
+export function classifyTransportFailure(error: unknown): AssistantProviderError | null {
+  if (!(error instanceof Error)) return null;
+  const name = error.name;
+  const message = error.message;
+
+  if (name === 'AbortError' || name === 'TimeoutError' || /timed? ?out/i.test(message)) {
+    return new AssistantProviderError(message, 'timeout');
+  }
+  if (error instanceof TypeError && /fetch failed|ECONNREFUSED|ENOTFOUND|EAI_AGAIN/i.test(message)) {
+    return new AssistantProviderError(message, 'network');
+  }
+  return null;
 }

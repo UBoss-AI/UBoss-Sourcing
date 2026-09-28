@@ -64,6 +64,16 @@ const REDACTED_PATHS = [
   'req.headers["x-razorpay-signature"]',
   'req.headers["stripe-signature"]',
 
+  // AI provider keys. The SDKs send them as request headers and none of them
+  // puts one in an error today; these are here for the day an SDK attaches
+  // its request config to an error, which is the leak nobody sees coming.
+  'apiKey',
+  '*.apiKey',
+  'err.config.headers["x-goog-api-key"]',
+  'err.config.headers["x-api-key"]',
+  'err.headers["x-goog-api-key"]',
+  'err.headers["x-api-key"]',
+
   // Payment provider material
   'keySecret',
   'apiSecret',

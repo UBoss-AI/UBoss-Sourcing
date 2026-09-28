@@ -12,7 +12,26 @@
  * `AbortController` that stops the reader also cancels the generation
  * server-side — pressing Stop stops the spend, not just the scrolling.
  */
-import type { Translate } from '@/i18n/i18n-context';
+import type { Translate, TranslationKey } from '@/i18n/i18n-context';
+
+/**
+ * The reasons the API names on an `error` frame, each worded here in the
+ * visitor's language. The server's own `message` is English and is used only
+ * for a code this bundle does not know yet.
+ */
+const STREAM_ERROR_KEYS: Readonly<Record<string, TranslationKey>> = {
+  BUSY: 'chat.assistantBusy',
+  QUOTA: 'chat.assistantQuotaReached',
+  TIMEOUT: 'chat.assistantTimedOut',
+  UNAVAILABLE: 'chat.assistantUnavailableContactSupport',
+  REFUSED: 'chat.assistantDeclined',
+};
+
+/** What went wrong mid-stream, and whether pressing Retry can help. */
+export interface AssistantStreamFailure {
+  code: string | null;
+  retryable: boolean;
+}
 
 export interface AssistantStreamHandlers {
   /** One chunk of the reply. Called many times, in order. */
@@ -24,7 +43,7 @@ export interface AssistantStreamHandlers {
    * after several paragraphs have already been written, and the caller has to
    * decide what to do with the half-answer it already showed.
    */
-  onError: (message: string) => void;
+  onError: (message: string, failure: AssistantStreamFailure) => void;
   /**
    * The stream finished, with whatever the server wants the page to know now
    * that this turn is over.
@@ -93,8 +112,27 @@ export async function readAssistantStream(
       if (event === 'delta' && typeof (parsed as { text?: unknown }).text === 'string') {
         handlers.onDelta((parsed as { text: string }).text);
       } else if (event === 'error') {
-        const message = (parsed as { message?: unknown }).message;
-        handlers.onError(typeof message === 'string' ? message : t('chat.assistantCouldNotAnswer'));
+        const frame = parsed as { message?: unknown; code?: unknown; retryable?: unknown };
+        const code = typeof frame.code === 'string' ? frame.code : null;
+        // An older server sends no `retryable`. Offer Retry unless the model
+        // declined, which would decline again.
+        const retryable = typeof frame.retryable === 'boolean' ? frame.retryable : code !== 'REFUSED';
+        // "Unavailable" that a retry may fix (the provider could not be
+        // reached) says "try again shortly"; the kind a retry cannot fix says
+        // "contact support". Same code, two sentences.
+        const key =
+          code === 'UNAVAILABLE' && retryable
+            ? 'chat.assistantUnavailable'
+            : code === null
+              ? undefined
+              : STREAM_ERROR_KEYS[code];
+        const text =
+          key !== undefined
+            ? t(key)
+            : typeof frame.message === 'string'
+              ? frame.message
+              : t('chat.assistantCouldNotAnswer');
+        handlers.onError(text, { code, retryable });
       } else if (event === 'done') {
         const remaining = (parsed as { guestMessagesRemaining?: unknown }).guestMessagesRemaining;
 

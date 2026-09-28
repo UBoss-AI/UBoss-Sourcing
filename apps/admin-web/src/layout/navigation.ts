@@ -31,6 +31,8 @@ import {
   LogisticsIcon,
   OrdersIcon,
   PaymentsIcon,
+  CommissionInvoiceIcon,
+  LegalDocumentIcon,
   ProductsIcon,
   PreordersIcon,
   RecurringIcon,
@@ -404,6 +406,14 @@ export const NAVIGATION: NavGroup[] = [
         permissions: [Permission.FINANCE_POLICY_READ],
         matchPrefix: true,
       },
+      {
+        // The operator's own invoices to sellers for the platform commission.
+        labelKey: 'nav.commissionInvoices',
+        to: '/finance/commission-invoices',
+        icon: CommissionInvoiceIcon,
+        permissions: [Permission.COMMISSION_INVOICE_VIEW],
+        matchPrefix: true,
+      },
     ],
   },
   {
@@ -460,6 +470,15 @@ export const NAVIGATION: NavGroup[] = [
         to: '/staff',
         icon: StaffIcon,
         permissions: [Permission.STAFF_READ],
+        matchPrefix: true,
+      },
+      {
+        // The Terms and Conditions new accounts agree to. Before Settings so
+        // the longer path is its own entry rather than a child of /settings.
+        labelKey: 'nav.legalDocuments',
+        to: '/settings/legal-documents',
+        icon: LegalDocumentIcon,
+        permissions: [Permission.LEGAL_DOCUMENT_READ],
         matchPrefix: true,
       },
       {

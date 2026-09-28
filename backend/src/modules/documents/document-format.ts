@@ -62,7 +62,7 @@ export function formatGrams(grams: bigint | number): string {
 // Verification
 // ---------------------------------------------------------------------------
 
-export type VerifiableKind = 'invoice' | 'packing-list';
+export type VerifiableKind = 'invoice' | 'packing-list' | 'commission-invoice' | 'commission-credit-note';
 
 /**
  * A 16-character code that proves a document number was issued here.

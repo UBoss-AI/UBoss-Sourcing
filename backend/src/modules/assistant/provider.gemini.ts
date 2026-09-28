@@ -27,7 +27,7 @@
  */
 import { ApiError, GoogleGenAI } from '@google/genai';
 import { env } from '../../config/env.js';
-import { AssistantBusyError } from './provider.js';
+import { AssistantBusyError, AssistantProviderError, classifyTransportFailure } from './provider.js';
 import type {
   AssistantProvider,
   AssistantRequest,
@@ -76,13 +76,12 @@ function genai(): GoogleGenAI {
  * quota that will not clear inside a retry window, so `isQuota` separates it
  * from transient overload for the operator's log.
  *
- * Note what this does NOT catch: a DNS or connect failure arrives as a plain
- * `TypeError: fetch failed` with no status, so it falls through to the generic
- * error path. That is deliberate — it is an infrastructure problem on the
- * caller's side, and telling a visitor the assistant is "busy" would point
- * whoever reads the log in the wrong direction.
+ * A DNS or connect failure arrives as a plain `TypeError: fetch failed` with
+ * no status. It is classified as `network`, never as "busy": it is an
+ * infrastructure problem on our side, and calling it load would point whoever
+ * reads the log in the wrong direction.
  */
-function classify(error: unknown): AssistantBusyError | null {
+export function classify(error: unknown): AssistantProviderError | null {
   const status = error instanceof ApiError ? error.status : undefined;
   const message = error instanceof Error ? error.message : String(error);
 
@@ -90,14 +89,39 @@ function classify(error: unknown): AssistantBusyError | null {
     return new AssistantBusyError(
       message,
       message.includes('free_tier') || message.includes('quota'),
+      status,
     );
   }
 
-  if (status === 503 || status === 500 || message.includes('UNAVAILABLE')) {
-    return new AssistantBusyError(message, false);
+  if (
+    status === 503 ||
+    status === 500 ||
+    status === 502 ||
+    status === 504 ||
+    message.includes('UNAVAILABLE')
+  ) {
+    return new AssistantBusyError(message, false, status);
   }
 
-  return null;
+  // A refused key. Google answers an invalid key with 400 API_KEY_INVALID,
+  // not 401, so the reason text is checked as well as the status.
+  if (
+    status === 401 ||
+    status === 403 ||
+    message.includes('API_KEY_INVALID') ||
+    message.includes('PERMISSION_DENIED') ||
+    message.includes('UNAUTHENTICATED')
+  ) {
+    return new AssistantProviderError(message, 'credentials', status);
+  }
+
+  // The model named in GEMINI_MODEL is not one this key can use — withdrawn,
+  // misspelt, or never offered to this project.
+  if (status === 404 || message.includes('NOT_FOUND')) {
+    return new AssistantProviderError(message, 'model', status);
+  }
+
+  return classifyTransportFailure(error);
 }
 
 export const geminiProvider: AssistantProvider = {

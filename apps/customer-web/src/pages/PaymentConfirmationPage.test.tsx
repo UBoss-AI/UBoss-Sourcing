@@ -4,7 +4,7 @@
  * The property above all others: **arriving here proves nothing.** The page
  * says "Payment successful" only after the backend has, and the backend says
  * it only from Stripe's signed webhook or Stripe's own API. A return with no
- * webhook yet is "Confirming payment…", and a long wait is "delayed", never
+ * webhook yet is "Confirming your payment…", and a long wait is "delayed", never
  * "failed" - the money may well have moved.
  */
 import { act, screen, waitFor } from '@testing-library/react';
@@ -94,7 +94,7 @@ describe('PaymentConfirmationPage', () => {
     serve({ views: [view()] });
     renderConfirmation();
 
-    expect(await screen.findByText('Confirming payment…')).toBeInTheDocument();
+    expect(await screen.findByText('Confirming your payment…')).toBeInTheDocument();
     expect(screen.queryByText('Payment successful')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /retry payment/i })).not.toBeInTheDocument();
   });
@@ -103,7 +103,7 @@ describe('PaymentConfirmationPage', () => {
     serve({ views: [view(), succeeded] });
     renderConfirmation();
 
-    await screen.findByText('Confirming payment…');
+    await screen.findByText('Confirming your payment…');
 
     expect(await screen.findByText('Payment successful', {}, { timeout: 6000 })).toBeInTheDocument();
     expect(screen.getByText(/UB-2026-000042 is paid/)).toBeInTheDocument();
@@ -115,6 +115,21 @@ describe('PaymentConfirmationPage', () => {
       '/account/orders/order-1',
     );
     expect(screen.getByRole('link', { name: /continue shopping/i })).toBeInTheDocument();
+  });
+
+  it('shows success on the first answer when the server already confirmed it with Stripe', async () => {
+    const { statusCalls } = serve({ views: [succeeded] });
+    renderConfirmation();
+
+    expect(await screen.findByText('Payment successful')).toBeInTheDocument();
+    expect(screen.queryByText('Confirming your payment…')).not.toBeInTheDocument();
+
+    // Settled: it stops asking.
+    const asked = statusCalls();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+    });
+    expect(statusCalls()).toBe(asked);
   });
 
   it('never shows more of the card than its brand and last four', async () => {
@@ -169,7 +184,7 @@ describe('PaymentConfirmationPage', () => {
 
     const realNow = Date.now.bind(Date);
     renderConfirmation();
-    await screen.findByText('Confirming payment…');
+    await screen.findByText('Confirming your payment…');
 
     // A minute and more later, as far as the page can tell.
     vi.spyOn(Date, 'now').mockImplementation(() => realNow() + 61_000);

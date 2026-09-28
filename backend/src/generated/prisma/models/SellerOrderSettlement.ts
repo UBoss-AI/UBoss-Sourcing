@@ -374,6 +374,7 @@ export type SellerOrderSettlementWhereInput = {
   sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   feePolicy?: Prisma.XOR<Prisma.PlatformFeePolicyNullableScalarRelationFilter, Prisma.PlatformFeePolicyWhereInput> | null
+  commissionInvoices?: Prisma.CommissionInvoiceListRelationFilter
 }
 
 export type SellerOrderSettlementOrderByWithRelationInput = {
@@ -399,6 +400,7 @@ export type SellerOrderSettlementOrderByWithRelationInput = {
   sellerOrderGroup?: Prisma.SellerOrderGroupOrderByWithRelationInput
   sellerAccount?: Prisma.SellerAccountOrderByWithRelationInput
   feePolicy?: Prisma.PlatformFeePolicyOrderByWithRelationInput
+  commissionInvoices?: Prisma.CommissionInvoiceOrderByRelationAggregateInput
   _relevance?: Prisma.SellerOrderSettlementOrderByRelevanceInput
 }
 
@@ -428,6 +430,7 @@ export type SellerOrderSettlementWhereUniqueInput = Prisma.AtLeast<{
   sellerOrderGroup?: Prisma.XOR<Prisma.SellerOrderGroupScalarRelationFilter, Prisma.SellerOrderGroupWhereInput>
   sellerAccount?: Prisma.XOR<Prisma.SellerAccountScalarRelationFilter, Prisma.SellerAccountWhereInput>
   feePolicy?: Prisma.XOR<Prisma.PlatformFeePolicyNullableScalarRelationFilter, Prisma.PlatformFeePolicyWhereInput> | null
+  commissionInvoices?: Prisma.CommissionInvoiceListRelationFilter
 }, "id" | "sellerOrderGroupId">
 
 export type SellerOrderSettlementOrderByWithAggregationInput = {
@@ -502,6 +505,7 @@ export type SellerOrderSettlementCreateInput = {
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderSettlementsInput
   feePolicy?: Prisma.PlatformFeePolicyCreateNestedOneWithoutSettlementsInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementUncheckedCreateInput = {
@@ -524,6 +528,7 @@ export type SellerOrderSettlementUncheckedCreateInput = {
   feeTaxVerified?: boolean
   breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementUpdateInput = {
@@ -546,6 +551,7 @@ export type SellerOrderSettlementUpdateInput = {
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutSettlementNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderSettlementsNestedInput
   feePolicy?: Prisma.PlatformFeePolicyUpdateOneWithoutSettlementsNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateInput = {
@@ -568,6 +574,7 @@ export type SellerOrderSettlementUncheckedUpdateInput = {
   feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementCreateManyInput = {
@@ -744,6 +751,11 @@ export type SellerOrderSettlementSumOrderByAggregateInput = {
   feeTaxRatePercent?: Prisma.SortOrder
 }
 
+export type SellerOrderSettlementScalarRelationFilter = {
+  is?: Prisma.SellerOrderSettlementWhereInput
+  isNot?: Prisma.SellerOrderSettlementWhereInput
+}
+
 export type SellerOrderSettlementCreateNestedManyWithoutSellerAccountInput = {
   create?: Prisma.XOR<Prisma.SellerOrderSettlementCreateWithoutSellerAccountInput, Prisma.SellerOrderSettlementUncheckedCreateWithoutSellerAccountInput> | Prisma.SellerOrderSettlementCreateWithoutSellerAccountInput[] | Prisma.SellerOrderSettlementUncheckedCreateWithoutSellerAccountInput[]
   connectOrCreate?: Prisma.SellerOrderSettlementCreateOrConnectWithoutSellerAccountInput | Prisma.SellerOrderSettlementCreateOrConnectWithoutSellerAccountInput[]
@@ -860,6 +872,20 @@ export type SellerOrderSettlementUncheckedUpdateManyWithoutFeePolicyNestedInput 
   deleteMany?: Prisma.SellerOrderSettlementScalarWhereInput | Prisma.SellerOrderSettlementScalarWhereInput[]
 }
 
+export type SellerOrderSettlementCreateNestedOneWithoutCommissionInvoicesInput = {
+  create?: Prisma.XOR<Prisma.SellerOrderSettlementCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedCreateWithoutCommissionInvoicesInput>
+  connectOrCreate?: Prisma.SellerOrderSettlementCreateOrConnectWithoutCommissionInvoicesInput
+  connect?: Prisma.SellerOrderSettlementWhereUniqueInput
+}
+
+export type SellerOrderSettlementUpdateOneRequiredWithoutCommissionInvoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.SellerOrderSettlementCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedCreateWithoutCommissionInvoicesInput>
+  connectOrCreate?: Prisma.SellerOrderSettlementCreateOrConnectWithoutCommissionInvoicesInput
+  upsert?: Prisma.SellerOrderSettlementUpsertWithoutCommissionInvoicesInput
+  connect?: Prisma.SellerOrderSettlementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SellerOrderSettlementUpdateToOneWithWhereWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUpdateWithoutCommissionInvoicesInput>, Prisma.SellerOrderSettlementUncheckedUpdateWithoutCommissionInvoicesInput>
+}
+
 export type SellerOrderSettlementCreateWithoutSellerAccountInput = {
   id: string
   currency: string
@@ -879,6 +905,7 @@ export type SellerOrderSettlementCreateWithoutSellerAccountInput = {
   computedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementInput
   feePolicy?: Prisma.PlatformFeePolicyCreateNestedOneWithoutSettlementsInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementUncheckedCreateWithoutSellerAccountInput = {
@@ -900,6 +927,7 @@ export type SellerOrderSettlementUncheckedCreateWithoutSellerAccountInput = {
   feeTaxVerified?: boolean
   breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementCreateOrConnectWithoutSellerAccountInput = {
@@ -972,6 +1000,7 @@ export type SellerOrderSettlementCreateWithoutSellerOrderGroupInput = {
   computedAt?: Date | string
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderSettlementsInput
   feePolicy?: Prisma.PlatformFeePolicyCreateNestedOneWithoutSettlementsInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementUncheckedCreateWithoutSellerOrderGroupInput = {
@@ -993,6 +1022,7 @@ export type SellerOrderSettlementUncheckedCreateWithoutSellerOrderGroupInput = {
   feeTaxVerified?: boolean
   breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementCreateOrConnectWithoutSellerOrderGroupInput = {
@@ -1030,6 +1060,7 @@ export type SellerOrderSettlementUpdateWithoutSellerOrderGroupInput = {
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderSettlementsNestedInput
   feePolicy?: Prisma.PlatformFeePolicyUpdateOneWithoutSettlementsNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateWithoutSellerOrderGroupInput = {
@@ -1051,6 +1082,7 @@ export type SellerOrderSettlementUncheckedUpdateWithoutSellerOrderGroupInput = {
   feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementCreateWithoutFeePolicyInput = {
@@ -1072,6 +1104,7 @@ export type SellerOrderSettlementCreateWithoutFeePolicyInput = {
   computedAt?: Date | string
   sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementInput
   sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderSettlementsInput
+  commissionInvoices?: Prisma.CommissionInvoiceCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementUncheckedCreateWithoutFeePolicyInput = {
@@ -1093,6 +1126,7 @@ export type SellerOrderSettlementUncheckedCreateWithoutFeePolicyInput = {
   feeTaxVerified?: boolean
   breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedCreateNestedManyWithoutSettlementInput
 }
 
 export type SellerOrderSettlementCreateOrConnectWithoutFeePolicyInput = {
@@ -1119,6 +1153,110 @@ export type SellerOrderSettlementUpdateWithWhereUniqueWithoutFeePolicyInput = {
 export type SellerOrderSettlementUpdateManyWithWhereWithoutFeePolicyInput = {
   where: Prisma.SellerOrderSettlementScalarWhereInput
   data: Prisma.XOR<Prisma.SellerOrderSettlementUpdateManyMutationInput, Prisma.SellerOrderSettlementUncheckedUpdateManyWithoutFeePolicyInput>
+}
+
+export type SellerOrderSettlementCreateWithoutCommissionInvoicesInput = {
+  id: string
+  currency: string
+  grossProceedsMinor: bigint | number
+  sellerDeliveryProceedsMinor?: bigint | number
+  ubossDeliveryMinor?: bigint | number
+  feeBasisMinor: bigint | number
+  platformFeeMinor: bigint | number
+  platformFeeTaxMinor: bigint | number
+  refundsAdjustmentsMinor?: bigint | number
+  estimatedSettlementMinor: bigint | number
+  platformFeePolicyVersion?: number | null
+  feeTaxRatePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  feeTaxLabel: string
+  feeTaxVerified?: boolean
+  breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  computedAt?: Date | string
+  sellerOrderGroup: Prisma.SellerOrderGroupCreateNestedOneWithoutSettlementInput
+  sellerAccount: Prisma.SellerAccountCreateNestedOneWithoutOrderSettlementsInput
+  feePolicy?: Prisma.PlatformFeePolicyCreateNestedOneWithoutSettlementsInput
+}
+
+export type SellerOrderSettlementUncheckedCreateWithoutCommissionInvoicesInput = {
+  id: string
+  sellerOrderGroupId: string
+  sellerAccountId: string
+  currency: string
+  grossProceedsMinor: bigint | number
+  sellerDeliveryProceedsMinor?: bigint | number
+  ubossDeliveryMinor?: bigint | number
+  feeBasisMinor: bigint | number
+  platformFeeMinor: bigint | number
+  platformFeeTaxMinor: bigint | number
+  refundsAdjustmentsMinor?: bigint | number
+  estimatedSettlementMinor: bigint | number
+  platformFeePolicyId?: string | null
+  platformFeePolicyVersion?: number | null
+  feeTaxRatePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  feeTaxLabel: string
+  feeTaxVerified?: boolean
+  breakdownJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  computedAt?: Date | string
+}
+
+export type SellerOrderSettlementCreateOrConnectWithoutCommissionInvoicesInput = {
+  where: Prisma.SellerOrderSettlementWhereUniqueInput
+  create: Prisma.XOR<Prisma.SellerOrderSettlementCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedCreateWithoutCommissionInvoicesInput>
+}
+
+export type SellerOrderSettlementUpsertWithoutCommissionInvoicesInput = {
+  update: Prisma.XOR<Prisma.SellerOrderSettlementUpdateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedUpdateWithoutCommissionInvoicesInput>
+  create: Prisma.XOR<Prisma.SellerOrderSettlementCreateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedCreateWithoutCommissionInvoicesInput>
+  where?: Prisma.SellerOrderSettlementWhereInput
+}
+
+export type SellerOrderSettlementUpdateToOneWithWhereWithoutCommissionInvoicesInput = {
+  where?: Prisma.SellerOrderSettlementWhereInput
+  data: Prisma.XOR<Prisma.SellerOrderSettlementUpdateWithoutCommissionInvoicesInput, Prisma.SellerOrderSettlementUncheckedUpdateWithoutCommissionInvoicesInput>
+}
+
+export type SellerOrderSettlementUpdateWithoutCommissionInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  grossProceedsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  sellerDeliveryProceedsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  ubossDeliveryMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  feeBasisMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeeMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeeTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundsAdjustmentsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  estimatedSettlementMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeePolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTaxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  feeTaxLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutSettlementNestedInput
+  sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderSettlementsNestedInput
+  feePolicy?: Prisma.PlatformFeePolicyUpdateOneWithoutSettlementsNestedInput
+}
+
+export type SellerOrderSettlementUncheckedUpdateWithoutCommissionInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerOrderGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  grossProceedsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  sellerDeliveryProceedsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  ubossDeliveryMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  feeBasisMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeeMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeeTaxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundsAdjustmentsMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  estimatedSettlementMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  platformFeePolicyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  platformFeePolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  feeTaxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  feeTaxLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SellerOrderSettlementCreateManySellerAccountInput = {
@@ -1161,6 +1299,7 @@ export type SellerOrderSettlementUpdateWithoutSellerAccountInput = {
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutSettlementNestedInput
   feePolicy?: Prisma.PlatformFeePolicyUpdateOneWithoutSettlementsNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateWithoutSellerAccountInput = {
@@ -1182,6 +1321,7 @@ export type SellerOrderSettlementUncheckedUpdateWithoutSellerAccountInput = {
   feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateManyWithoutSellerAccountInput = {
@@ -1245,6 +1385,7 @@ export type SellerOrderSettlementUpdateWithoutFeePolicyInput = {
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sellerOrderGroup?: Prisma.SellerOrderGroupUpdateOneRequiredWithoutSettlementNestedInput
   sellerAccount?: Prisma.SellerAccountUpdateOneRequiredWithoutOrderSettlementsNestedInput
+  commissionInvoices?: Prisma.CommissionInvoiceUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateWithoutFeePolicyInput = {
@@ -1266,6 +1407,7 @@ export type SellerOrderSettlementUncheckedUpdateWithoutFeePolicyInput = {
   feeTaxVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   breakdownJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commissionInvoices?: Prisma.CommissionInvoiceUncheckedUpdateManyWithoutSettlementNestedInput
 }
 
 export type SellerOrderSettlementUncheckedUpdateManyWithoutFeePolicyInput = {
@@ -1289,6 +1431,35 @@ export type SellerOrderSettlementUncheckedUpdateManyWithoutFeePolicyInput = {
   computedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type SellerOrderSettlementCountOutputType
+ */
+
+export type SellerOrderSettlementCountOutputType = {
+  commissionInvoices: number
+}
+
+export type SellerOrderSettlementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  commissionInvoices?: boolean | SellerOrderSettlementCountOutputTypeCountCommissionInvoicesArgs
+}
+
+/**
+ * SellerOrderSettlementCountOutputType without action
+ */
+export type SellerOrderSettlementCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SellerOrderSettlementCountOutputType
+   */
+  select?: Prisma.SellerOrderSettlementCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * SellerOrderSettlementCountOutputType without action
+ */
+export type SellerOrderSettlementCountOutputTypeCountCommissionInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommissionInvoiceWhereInput
+}
 
 
 export type SellerOrderSettlementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1314,6 +1485,8 @@ export type SellerOrderSettlementSelect<ExtArgs extends runtime.Types.Extensions
   sellerOrderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   feePolicy?: boolean | Prisma.SellerOrderSettlement$feePolicyArgs<ExtArgs>
+  commissionInvoices?: boolean | Prisma.SellerOrderSettlement$commissionInvoicesArgs<ExtArgs>
+  _count?: boolean | Prisma.SellerOrderSettlementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sellerOrderSettlement"]>
 
 
@@ -1345,6 +1518,8 @@ export type SellerOrderSettlementInclude<ExtArgs extends runtime.Types.Extension
   sellerOrderGroup?: boolean | Prisma.SellerOrderGroupDefaultArgs<ExtArgs>
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   feePolicy?: boolean | Prisma.SellerOrderSettlement$feePolicyArgs<ExtArgs>
+  commissionInvoices?: boolean | Prisma.SellerOrderSettlement$commissionInvoicesArgs<ExtArgs>
+  _count?: boolean | Prisma.SellerOrderSettlementCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $SellerOrderSettlementPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1353,6 +1528,7 @@ export type $SellerOrderSettlementPayload<ExtArgs extends runtime.Types.Extensio
     sellerOrderGroup: Prisma.$SellerOrderGroupPayload<ExtArgs>
     sellerAccount: Prisma.$SellerAccountPayload<ExtArgs>
     feePolicy: Prisma.$PlatformFeePolicyPayload<ExtArgs> | null
+    commissionInvoices: Prisma.$CommissionInvoicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1724,6 +1900,7 @@ export interface Prisma__SellerOrderSettlementClient<T, Null = never, ExtArgs ex
   sellerOrderGroup<T extends Prisma.SellerOrderGroupDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderGroupDefaultArgs<ExtArgs>>): Prisma.Prisma__SellerOrderGroupClient<runtime.Types.Result.GetResult<Prisma.$SellerOrderGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sellerAccount<T extends Prisma.SellerAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__SellerAccountClient<runtime.Types.Result.GetResult<Prisma.$SellerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   feePolicy<T extends Prisma.SellerOrderSettlement$feePolicyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderSettlement$feePolicyArgs<ExtArgs>>): Prisma.Prisma__PlatformFeePolicyClient<runtime.Types.Result.GetResult<Prisma.$PlatformFeePolicyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  commissionInvoices<T extends Prisma.SellerOrderSettlement$commissionInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SellerOrderSettlement$commissionInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommissionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2136,6 +2313,30 @@ export type SellerOrderSettlement$feePolicyArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.PlatformFeePolicyInclude<ExtArgs> | null
   where?: Prisma.PlatformFeePolicyWhereInput
+}
+
+/**
+ * SellerOrderSettlement.commissionInvoices
+ */
+export type SellerOrderSettlement$commissionInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommissionInvoice
+   */
+  select?: Prisma.CommissionInvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommissionInvoice
+   */
+  omit?: Prisma.CommissionInvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommissionInvoiceInclude<ExtArgs> | null
+  where?: Prisma.CommissionInvoiceWhereInput
+  orderBy?: Prisma.CommissionInvoiceOrderByWithRelationInput | Prisma.CommissionInvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.CommissionInvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommissionInvoiceScalarFieldEnum | Prisma.CommissionInvoiceScalarFieldEnum[]
 }
 
 /**

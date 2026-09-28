@@ -8,7 +8,7 @@
  *   - a closed ticket offers no way to write on it;
  *   - a reply posts the text and the chosen next status.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
@@ -21,13 +21,36 @@ import { SupportTicketDetailPage } from './SupportTicketsPage';
 
 vi.mock('@/lib/support-tickets', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/support-tickets')>();
-  return { ...actual, fetchTicket: vi.fn(), fetchAssignees: vi.fn(), replyToTicket: vi.fn() };
+  return {
+    ...actual,
+    fetchTicket: vi.fn(),
+    fetchAssignees: vi.fn(),
+    replyToTicket: vi.fn(),
+    fetchTicketAttachment: vi.fn(),
+    saveBlob: vi.fn(),
+  };
 });
 
 const api = await import('@/lib/support-tickets');
 const fetchTicket = vi.mocked(api.fetchTicket);
 const fetchAssignees = vi.mocked(api.fetchAssignees);
 const replyToTicket = vi.mocked(api.replyToTicket);
+const fetchTicketAttachment = vi.mocked(api.fetchTicketAttachment);
+const saveBlob = vi.mocked(api.saveBlob);
+
+// jsdom has no <dialog> methods. The smallest stand-in: toggle `open`, which
+// is all the Modal observes - the same shim the other dialog tests here use.
+const dialogProto = HTMLDialogElement.prototype as HTMLDialogElement & { showModal?: () => void; close?: () => void };
+if (typeof dialogProto.showModal !== 'function') {
+  dialogProto.showModal = function showModal(this: HTMLDialogElement): void {
+    this.open = true;
+  };
+}
+if (typeof dialogProto.close !== 'function') {
+  dialogProto.close = function close(this: HTMLDialogElement): void {
+    this.open = false;
+  };
+}
 
 const ID = '01TICKET000000000000000000';
 
@@ -141,9 +164,11 @@ describe('one support ticket in the console', () => {
 
     expect(await screen.findByText('Customer is on the VIP list')).toBeTruthy();
     expect(screen.getAllByText('Staff only').length).toBeGreaterThan(0);
-    // The customer's file, openable through a single-use link.
+    // The customer's file, with a preview and a download - nothing fetched yet.
     expect(screen.getByText('damage.jpg')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Open' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Preview damage.jpg' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Download damage.jpg' })).toBeTruthy();
+    expect(fetchTicketAttachment).not.toHaveBeenCalled();
     expect(screen.getByRole('link', { name: 'UB-2026-000123' }).getAttribute('href')).toBe(
       '/orders/01ORDER0000000000000000000',
     );
@@ -194,5 +219,71 @@ describe('one support ticket in the console', () => {
         nextStatus: 'WAITING_FOR_CUSTOMER',
       });
     });
+  });
+});
+
+describe('the documents a customer sent', () => {
+  const PDF = {
+    id: '01FILE0000000000000000000B',
+    fileName: 'invoice.pdf',
+    contentType: 'application/pdf',
+    kind: 'DOCUMENT' as const,
+    byteSize: 512000,
+    createdAt: '2026-09-28T10:02:00.000Z',
+  };
+
+  beforeEach(() => {
+    // jsdom has no object URLs; the page only needs a string back.
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:preview'), revokeObjectURL: vi.fn() }));
+  });
+
+  it('previews an image in the page, without leaving it', async () => {
+    fetchTicket.mockResolvedValue({ ticket: ticket() });
+    fetchAssignees.mockResolvedValue({ assignees: [] });
+    fetchTicketAttachment.mockResolvedValue(new Blob(['x'], { type: 'image/jpeg' }));
+    renderPage(ALL);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Preview damage.jpg' }));
+
+    const image = await screen.findByRole('img', { name: 'Image sent by the customer: damage.jpg' });
+    expect(image.getAttribute('src')).toBe('blob:preview');
+    expect(fetchTicketAttachment).toHaveBeenCalledWith(ID, '01FILE0000000000000000000A');
+  });
+
+  it('downloads a PDF instead of framing it, and fetches it once however often it is saved', async () => {
+    fetchTicket.mockResolvedValue({ ticket: ticket({ attachments: [PDF] }) });
+    fetchAssignees.mockResolvedValue({ assignees: [] });
+    const blob = new Blob(['%PDF'], { type: 'application/pdf' });
+    fetchTicketAttachment.mockResolvedValue(blob);
+    renderPage(ALL);
+
+    const download = await screen.findByRole('button', { name: 'Download invoice.pdf' });
+    expect(screen.queryByRole('button', { name: 'Preview invoice.pdf' })).toBeNull();
+
+    fireEvent.click(download);
+    await waitFor(() => {
+      expect(saveBlob).toHaveBeenCalledWith(blob, 'invoice.pdf');
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Download invoice.pdf' }));
+    await waitFor(() => {
+      expect(saveBlob).toHaveBeenCalledTimes(2);
+    });
+    // Opening a file is audited on the server; a second save is not a second look.
+    expect(fetchTicketAttachment).toHaveBeenCalledTimes(1);
+  });
+
+  it('says so, and offers another try, when a file cannot be fetched', async () => {
+    fetchTicket.mockResolvedValue({ ticket: ticket() });
+    fetchAssignees.mockResolvedValue({ assignees: [] });
+    fetchTicketAttachment.mockRejectedValueOnce(new Error('boom'));
+    fetchTicketAttachment.mockResolvedValueOnce(new Blob(['x'], { type: 'image/jpeg' }));
+    renderPage(ALL);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Preview damage.jpg' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Try again');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByRole('img', { name: /damage.jpg/ })).toBeTruthy();
   });
 });

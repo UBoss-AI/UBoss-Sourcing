@@ -23,6 +23,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { statusTone } from '@/lib/buyer-companies';
 import { cx } from '@/lib/cx';
+import { HOME } from '@/lib/return-target';
 import { errorMessage } from '@/lib/errors';
 
 export function BuyerContextSwitcher({ onSwitched }: { onSwitched?: () => void }): React.JSX.Element | null {
@@ -48,7 +49,7 @@ export function BuyerContextSwitcher({ onSwitched }: { onSwitched?: () => void }
           : t('buyerContext.switchedToIndividual'),
       );
       onSwitched?.();
-      void navigate('/home');
+      void navigate(HOME);
     } catch (error) {
       toast.error(errorMessage(t, error, t('buyerContext.switchFailed')));
     } finally {
