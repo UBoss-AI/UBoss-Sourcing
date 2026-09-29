@@ -16882,7 +16882,19 @@ a native reader.
 - No tickets from guests without an account.
 - Staff cannot attach files to a reply.
 - No live updates over a websocket, the way preorder chat has them.
-- No SLA timers on tickets.
+- No console editor for the SLA targets (the API is there).
+
+### Service levels and resolution codes
+
+A ticket copies two deadlines when it is sent (`firstResponseDueAt`,
+`resolutionDueAt`), taken from the per-category targets in
+`support_sla_policies` or from the defaults in `support-sla.service.ts`. A
+target changed later moves no promise already made. Whether a ticket is late is
+worked out on every read by `slaView` (never stored); `breachedWhere` is the
+inbox's **Late only** filter (`?breached=true`). The admin inbox shows a **Due**
+column with a red **Late**, the ticket page has a **Service level** card, and
+resolving or closing needs a resolution code (`SUPPORT_RESOLUTION_CODE_REQUIRED`)
+chosen in the **Manage** card or the reply box.
 
 ## 9.14 The About page
 

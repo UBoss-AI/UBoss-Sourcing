@@ -4202,7 +4202,9 @@ at the sender's company, seller or carrier sees them.
      support permission — cannot be given one
      (`SUPPORT_ASSIGNEE_NOT_ELIGIBLE`, 400). A move the status model does not
      allow is refused with `SUPPORT_TICKET_TRANSITION_NOT_ALLOWED` (409).
-- **Status.** Built. **Not built:** SLA timers on tickets.
+  5. **Service levels.** Each ticket copies two deadlines when it is sent: a first reply and a resolution, from the targets set per category (defaults apply until the operator sets its own; `GET`/`PUT /admin/support-tickets/sla-policies`, the write needs `settings.write`). A target changed later moves no promise already made. The clock does not stop while the team waits for the sender. "Late" is worked out by the server, not stored: the deadline has passed and the promise is not kept, or it was kept after the deadline. The inbox has a **Late only** filter (`breached=true`), shows what is due on every row, and the ticket page shows both deadlines, whether each is late, and the first-reply time.
+  6. **Resolution code.** Resolving or closing needs a code saying how it ended (Answered, Fixed, Refunded, Replaced, Referred, Duplicate, No response, No action) unless the ticket already has one (`SUPPORT_RESOLUTION_CODE_REQUIRED`, 400). The Manage card and the reply box ask for it; the ticket page shows it.
+- **Status.** Built, including service-level deadlines, the late filter and resolution codes. **Not built:** an editor for the per-category targets in the console (the API exists; the defaults apply until it is called).
 
 ### FR-SUP-008 — Notifications
 
@@ -4265,7 +4267,8 @@ at the sender's company, seller or carrier sees them.
   of the product, every language (Greek in particular) still wants a native
   reader.
 - **Status.** **Not built:** guest tickets without an account; staff
-  attaching files to replies; live (websocket) updates; SLA timers.
+  attaching files to replies; live (websocket) updates. (Service-level
+  deadlines are built: see FR-SUP-007.)
 
 ---
 
@@ -5872,7 +5875,7 @@ Leftover names read by nothing: `DHL_API_KEY`, `FEDEX_CLIENT_ID` and similar in
 | G9 | Customer self-service return request screen | Buyer-initiated returns (staff record them today) | Code search |
 | G10 | GPSR pictograms, batch/serial capture, Safety Gate reporting | Some product-safety duties | PRODUCT-SAFETY.md |
 | G11 | Documentation of seller logistics levels (L1–L4) in README and PROJECT-GUIDE | Readers of those guides | Appendix A |
-| G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, SLA timers | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; response-time targets | FR-SUP-012 |
+| G12 | Support tickets: guest tickets without an account, staff attaching files to a reply, live (websocket) updates on a ticket, a console editor for the SLA targets (the deadlines themselves are built) | Visitors who cannot sign in (they use the published email); staff sending a document back; seeing a reply without reloading; setting response-time targets without calling the API | FR-SUP-012 |
 | G13 | Commission invoices: sending them to the seller (Seller Hub screen or email), GST IRP/IRN registration of them, and automatic credit notes on a refund | Sellers reading their own commission invoices; operators above the e-invoicing threshold | FR-CINV-012 |
 | G14 | **Closed 29 Sep 2026.** Delivery codes (OTP) are now emailed to the buyer when a shipment goes out for delivery, and can be re-sent from the portal within limits | — | FR-LOG-006 |
 | G15 | **Closed 29 Sep 2026.** A driver can open the shipment page for a stop on their own round and complete it; still not the company's other shipments | — | FR-LOG-006 |

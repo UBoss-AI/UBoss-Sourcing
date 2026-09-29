@@ -1929,6 +1929,8 @@ table(['Staff member does', 'The system does back'], [
   ['Writes an internal note.', 'Keeps it for staff only. The customer never sees it, and it is not included in the customer’s copy of their data.'],
   ['Changes the state.', 'Allows only sensible moves: for example a resolved ticket can be reopened or closed, and a closed ticket cannot be changed at all.'],
   ['Sets the priority: low, normal, high or urgent.', 'Records it. Only staff set a priority; the customer cannot choose one.'],
+  ['Looks at when a ticket is due.', 'Every ticket carries two promises made when it was sent: a first reply and an answer, each with a deadline that depends on the topic. The list shows what is due, in red when the deadline has passed. A filter shows only late tickets. The ticket page shows both deadlines and whether each was kept.'],
+  ['Resolves or closes a ticket.', 'Asks how it ended — answered, fixed, refunded, replaced, passed to someone else, a duplicate, no reply from the sender, or nothing to do — and will not go on without an answer. The choice is kept on the ticket and shown on its page.'],
   ['Takes a ticket, releases it, or gives it to a colleague.', 'Moves it, and emails the colleague who was given it. Giving a ticket to somebody else, or taking it from them, needs a separate permission.'],
 ], [4200, 5800]);
 bullets([

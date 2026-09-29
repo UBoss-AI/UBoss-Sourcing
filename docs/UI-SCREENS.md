@@ -5458,10 +5458,13 @@ their Support pages.
 - Filters: **Status** (opens on **Needs work** — Open, In progress and
   Waiting for customer together — or one status, or **All statuses**),
   **Priority**, **Topic**, **Raised from** (Storefront, Seller Hub, Logistics
-  portal) and **Assigned to** (Anyone, Me, Nobody). **Search**: "Reference,
+  portal), **Service level** (Any, **Late only**) and **Assigned to** (Anyone,
+  Me, Nobody). **Search**: "Reference,
   subject, name, email, company or order".
 - A row per ticket: **Ticket** (number and subject), **Raised by**,
-  **Status**, **Assigned to** and **Last activity**. Most recently active
+  **Status**, **Due** ("First reply due …" until it is answered, "Answer due …"
+  until it is resolved, with a red **Late** when the server says the deadline
+  has passed), **Assigned to** and **Last activity**. Most recently active
   first. Empty: **No tickets here**.
 
 **On the screen: one ticket** (`/support/:id`)
@@ -5485,13 +5488,19 @@ their Support pages.
   or **Actual size**, previous and next ("2 of 3", arrow keys too),
   **Download** and **Close**. If a file cannot be fetched: "The file could not
   be opened. Please try again." with **Try again**.
-- **Manage**: **Move to** (only the moves the ticket's status allows),
+- **Service level**: **First reply** and **Resolution**, each with its
+  deadline, when it was done, and **On time** or **Late**; and **How it
+  ended** (the resolution code, or a dash).
+- **Manage**: **How it ended** (choose before **Resolved** or **Closed** — a
+  code is required unless the ticket has one; without it nothing is sent),
+  **Move to** (only the moves the ticket's status allows),
   **Priority** (Low, Normal, High, Urgent — staff set it; the sender never
   sees it), **Assigned to** with **Take this ticket**, **Put back in the
   queue** and **Give to a colleague**.
 - **Write**: **Reply to the customer** ("The customer sees this on their
   ticket and is emailed a link to it.") with **After sending, mark the ticket
-  as** (Leave the status as it is, Waiting for customer, Resolved), or
+  as** (Leave the status as it is, Waiting for customer, Resolved; choosing
+  Resolved shows **How it ended**, required), or
   **Internal note** ("Only staff see internal notes…"). **Send reply** or
   **Save note**.
 
@@ -5514,7 +5523,7 @@ their Support pages.
 
 **API calls**
 
-- `GET /api/v1/admin/support-tickets?status=…&priority=…&category=…&source=…&assignee=…&search=…&page=…&limit=…`
+- `GET /api/v1/admin/support-tickets?status=…&priority=…&category=…&source=…&assignee=…&search=…&breached=true&page=…&limit=…`
 - `GET /api/v1/admin/support-tickets/assignees`
 - `GET /api/v1/admin/support-tickets/:id`
 - `POST /api/v1/admin/support-tickets/:id/replies`, `POST …/:id/notes`
