@@ -5650,6 +5650,17 @@ the goods **plus the delivery levels the seller controls** — see
 [9.5.6](#956-seller-delivery-levels-l1l4-and-the-platform-fee). A seller with a
 negotiated rate keeps it unless a policy is set for that seller specifically.
 
+**Fee rules** sit on top of a policy: value bands, volume tiers, seller tiers and
+promotions, drafted and published from *Finance → Fee rules*
+(`/finance/fee-rules`, `FeeRulesPage.tsx`, API `/admin/platform-fee-rules`). It is
+a maker-checker: `submit` records who submitted, and `approve` is refused with
+`PLATFORM_FEE_SELF_APPROVAL_FORBIDDEN` for whoever created, edited or submitted
+the rule, so a *second* finance person publishes it. The screen disables Approve
+for the maker and says why. A rejection needs ten characters and returns the rule
+to draft with the reason. A published rule is never edited: **Replace** drafts a
+rule with `supersedesRuleId`, and approving it retires the old one in the same
+transaction. Money is typed in normal units and sent as whole minor units.
+
 ##### Where an operator sets it
 
 Two screens, because there are two rates and they answer different questions.

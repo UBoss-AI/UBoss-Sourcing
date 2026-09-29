@@ -1857,6 +1857,7 @@ bullets([
   'A tax can be set on the fee. It is shown as a configured rate until somebody with the authority to do so records that it is the correct legal rule. Only then is it called by its tax name, such as GST.',
   'Fees are drafted, then published. A published fee is never changed; publishing a new one replaces it, and every order already settled keeps the version it was settled on. Staff can see which orders were settled on each version.',
   'A preview shows what a chosen seller would be paid on a given sale under today’s fees, without saving anything.',
+  'On top of a fee, the finance team can add rules under Finance → Fee rules: a different fee for orders in a value range, for sellers who sell above a certain amount, for sellers in a named tier, or a time-limited discount on the fee. A rule is written by one person and published by a different one. The person who wrote or submitted it cannot approve it; the Approve button is greyed out and says so. A rule that is sent back must say why. A rule that is live is never edited: a new one replaces it, and the old one stops when the new one is approved. A rule only applies to orders confirmed while it is live, and the screen shows which orders it changed and by how much.',
   'Nothing is set out of the box. Until the finance team publishes a fee, sellers are charged the marketplace commission exactly as before.',
 ]);
 

@@ -407,6 +407,14 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Bands, tiers and promotions on top of the platform fee.
+        labelKey: 'nav.feeRules',
+        to: '/finance/fee-rules',
+        icon: PaymentsIcon,
+        permissions: [Permission.FINANCE_POLICY_READ],
+        matchPrefix: true,
+      },
+      {
         // The operator's own invoices to sellers for the platform commission.
         labelKey: 'nav.commissionInvoices',
         to: '/finance/commission-invoices',

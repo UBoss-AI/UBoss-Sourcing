@@ -455,6 +455,7 @@ flowchart LR
 
   Dash --> Finance["Finance"]
   Finance --> Fees["/finance/platform-fees"]
+  Finance --> FeeRules["/finance/fee-rules"]
   Finance --> CommInv["/finance/commission-invoices"] --> CommInvOne["/finance/commission-invoices/:id"]
   Dash --> Insight["Insight"]
   Insight --> Reports["/reports"]
@@ -4395,6 +4396,7 @@ explains and offers **Email me a new link** and **Go to sign in**.
 | Logistics | Delivery levels | `/logistics/managed-levels` | `logistics.read` | |
 | Logistics | Delivery legs | `/logistics/legs` | `logistics.read` | |
 | Finance | Platform fees | `/finance/platform-fees` | `finance.policy.read` | |
+| Finance | Fee rules | `/finance/fee-rules` | `finance.policy.read` | |
 | Insight | Reports | `/reports` | `report.read` | |
 | Insight | Audit log | `/audit` | `audit.read` | |
 | Insight | Data requests | `/data-requests` | `data_request.read` | Requests waiting |
@@ -5828,6 +5830,49 @@ see the fee and the estimated settlement.
   `/verify-tax`
 - `GET /api/v1/admin/platform-fees/:policyId/orders`
 - `POST /api/v1/admin/platform-fees/preview`
+
+#### `/finance/fee-rules` — Fee rules
+
+| | |
+|---|---|
+| **Who** | `finance.policy.read` to open. Every change (new, edit, submit, approve, send back, replace, retire): `finance.policy.write` |
+| **File** | `src/pages/finance/FeeRulesPage.tsx`, `src/lib/fee-rules.ts` |
+
+**Purpose.** Value bands, volume tiers, seller tiers and promotions that adjust
+the platform fee on top of a fee policy. Reached from **Finance → Fee rules**.
+
+**On the screen.** A note that two people are always involved. A **Show**
+filter (All rules, Draft, Waiting for approval, Live, Retired). A table: **Rule**
+(name, type and what it applies to), **What it does** (for example "Orders from
+₹100,000.00 to no upper limit: fee 4%"), **Live from** (and to), **Status**, and
+the actions for that status. **New fee rule** (staff with write) opens the
+editor: name, type (value band, volume tier, seller tier, promotion), applies to
+(whole marketplace, one market, one category, one seller, with its ID or country
+code), the fields that type needs (currency and order-value range; sales
+threshold and days; tier name; fee percentage or, for a promotion, the discount),
+**Live from** and **Live until** (a promotion must have an end), and notes. Money
+is typed in normal units and sent as whole minor units; an amount with too many
+decimals for the currency is refused before anything is sent.
+
+**The maker-checker, on the screen**
+
+| Status | Buttons |
+|---|---|
+| Draft | **Edit**, **Submit for approval** (a draft that was sent back shows the reason) |
+| Waiting for approval | **Approve and publish**, **Send back**. Approve is **disabled, with the reason beside it**, for whoever created, edited or submitted the rule |
+| Live | **Replace** (drafts a new rule that supersedes it; approving that one retires this one), **Retire**, **Orders (n)** |
+| Retired | **Orders (n)** |
+
+**Send back** needs a reason of at least ten characters. A live rule is never
+edited. **Orders (n)** lists the seller orders whose fee the rule changed and
+by how much.
+
+**API calls**
+
+- `GET /api/v1/admin/platform-fee-rules?status=…`, `POST /api/v1/admin/platform-fee-rules`
+- `PUT /api/v1/admin/platform-fee-rules/:id` (drafts only)
+- `POST /api/v1/admin/platform-fee-rules/:id/submit`, `/approve`, `/reject`, `/retire`
+- `GET /api/v1/admin/platform-fee-rules/:id/orders`
 
 #### `/finance/commission-invoices` — Commission invoices
 

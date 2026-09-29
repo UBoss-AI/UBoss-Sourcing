@@ -460,6 +460,15 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        // Value bands, volume tiers, seller tiers and promotions on top of the fee policy.
+        // Drafted by one person, approved by another. Finance only.
+        path: 'finance/fee-rules',
+        ...lazyRoute(
+          () => import('@/pages/finance/FeeRulesPage').then((m) => m.FeeRulesPage),
+          [Permission.FINANCE_POLICY_READ],
+        ),
+      },
+      {
         // The operator's commission invoices to sellers, their credit notes and settings.
         path: 'finance/commission-invoices',
         ...lazyRoute(
